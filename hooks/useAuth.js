@@ -14,57 +14,47 @@ export const useAuth = create(
 
       login: async (email, password) => {
         set({ isLoading: true, error: null });
-        
-        // Mock API call delay
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        // Hardcoded credentials requested by user
-        if ((email === 'admin@gmail.com' || email === 'admin@gmail') && password === 'school@123') {
-          const mockUser = {
-            id: 'admin_123',
-            name: 'Admin',
-            email: 'admin@gmail.com',
-            role: 'admin'
-          };
-          const mockToken = 'mock_jwt_token_admin_123';
-          
+        try {
+          const res = await api.post('/auth/login', { email, password });
+          if (res.success) {
+            set({
+              user: res.data,
+              token: res.token,
+              isAuthenticated: true,
+              isLoading: false,
+            });
+            Cookies.set('token', res.token, { expires: 1 });
+            return { success: true };
+          }
+        } catch (error) {
           set({
-            user: mockUser,
-            token: mockToken,
-            isAuthenticated: true,
+            error: error.message || 'Invalid email or password',
             isLoading: false,
           });
-          
-          Cookies.set('token', mockToken, { expires: 1 });
-          return { success: true };
-        } else {
-          set({
-            error: 'Invalid email or password',
-            isLoading: false,
-          });
-          return { success: false, error: 'Invalid email or password' };
+          return { success: false, error: error.message };
         }
       },
 
       logout: async () => {
         set({ user: null, token: null, isAuthenticated: false });
         Cookies.remove('token');
+        try { await api.get('/auth/logout'); } catch(e){}
       },
 
       checkAuth: async () => {
         const { token } = get();
-        // If there's a token in state/storage, just assume they are valid since this is a mock frontend
-        if (token === 'mock_jwt_token_admin_123') {
-           set({ 
-             isAuthenticated: true,
-             user: {
-                id: 'admin_123',
-                name: 'Admin',
-                email: 'admin@gmail.com',
-                role: 'admin'
-             }
-           });
-        } else {
+        if (!token) {
+           set({ user: null, isAuthenticated: false });
+           return;
+        }
+        try {
+           const res = await api.get('/auth/me');
+           if (res.success) {
+             set({ isAuthenticated: true, user: res.data });
+           } else {
+             throw new Error('Not authorized');
+           }
+        } catch (error) {
            set({ user: null, token: null, isAuthenticated: false });
            Cookies.remove('token');
         }

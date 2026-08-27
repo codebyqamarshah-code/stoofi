@@ -7,80 +7,125 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
+import api from '@/services/api';
 
 export default function VisitorBookPage() {
   const [visitors, setVisitors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
-  const [isMounted, setIsMounted] = useState(false);
-  
-  useEffect(() => {
-    const saved = localStorage.getItem('eskooly_visitors');
-    if (saved) {
-      try { setVisitors(JSON.parse(saved)); } catch(e) {}
+  const fetchVisitors = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get('/visitor-book');
+      if (res.success) {
+        setVisitors(res.data);
+      }
+    } catch (error) {
+      alert(error.message || 'Failed to fetch visitors');
+    } finally {
+      setLoading(false);
     }
-    setIsMounted(true);
+  };
+
+  useEffect(() => {
+    fetchVisitors();
   }, []);
-
-  useEffect(() => {
-    if (isMounted) {
-      localStorage.setItem('eskooly_visitors', JSON.stringify(visitors));
-    }
-  }, [visitors, isMounted]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({
-    purpose: '', name: '', phone: '', id: '', noOfPerson: '', date: '', inTime: '', outTime: ''
+    purpose: '', name: '', phone: '', idType: '', noOfPerson: '', date: '', inTime: '', outTime: ''
   });
   const fileInputRef = useRef(null);
   const [fileName, setFileName] = useState('');
   const [editingId, setEditingId] = useState(null);
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.purpose) return alert('Name and Purpose are required');
     
-    if (editingId) {
-      setVisitors(visitors.map(v => v.recordId === editingId ? { ...v, ...formData } : v));
+    try {
+      setSubmitting(true);
+      const dataToSubmit = new FormData();
+      Object.keys(formData).forEach(key => dataToSubmit.append(key, formData[key]));
+      if (fileInputRef.current?.files[0]) {
+        dataToSubmit.append('file', fileInputRef.current.files[0]);
+      }
+
+      // Send FormData to support file upload
+      if (editingId) {
+        await api.put(`/visitor-book/${editingId}`, formData); // For put, just send JSON since file upload on edit might be complex
+      } else {
+        await api.post('/visitor-book', dataToSubmit, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      }
+      setFileName('');
+      setFormData({ purpose: '', name: '', phone: '', idType: '', noOfPerson: '', date: '', inTime: '', outTime: '' });
+      if (fileInputRef.current) fileInputRef.current.value = '';
       setEditingId(null);
-    } else {
-      setVisitors([{ recordId: Date.now(), ...formData }, ...visitors]);
+      fetchVisitors();
+    } catch (error) {
+      alert(error.message || 'Failed to save visitor');
+    } finally {
+      setSubmitting(false);
     }
-    setFileName('');
-    setFormData({ purpose: '', name: '', phone: '', id: '', noOfPerson: '', date: '', inTime: '', outTime: '' });
   };
 
   const handleEdit = (visitor) => {
-    setEditingId(visitor.recordId);
-    setFormData({ ...visitor });
+    setEditingId(visitor._id);
+    setFormData({ 
+      purpose: visitor.purpose || '', 
+      name: visitor.name || '', 
+      phone: visitor.phone || '', 
+      idType: visitor.idType || '', 
+      noOfPerson: visitor.noOfPerson || '', 
+      date: visitor.date ? visitor.date.substring(0, 10) : '', 
+      inTime: visitor.inTime || '', 
+      outTime: visitor.outTime || '' 
+    });
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this visitor?')) {
-      setVisitors(visitors.filter(v => v.recordId !== id));
+      try {
+        await api.delete(`/visitor-book/${id}`);
+        setVisitors(visitors.filter(v => v._id !== id));
+      } catch (error) {
+        alert(error.message || 'Failed to delete');
+      }
     }
   };
 
-    const handleExport = (type) => {
-    if (type === 'Print') {
-      window.print();
-      return;
-    }
+  const handleExport = (type) => {
     if (filtered.length === 0) {
       alert('No data to export');
       return;
     }
-    if (type === 'CSV' || type === 'Excel') {
-      const headers = Object.keys(filtered[0] || {}).filter(k => k !== 'id' && k !== 'recordId');
-      const csvData = filtered.map(item => headers.map(h => item[h]).join(','));
-      const blob = new Blob([[headers.join(','), '\n', ...csvData].join('\n')], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `export_${Date.now()}.csv`;
-      a.click();
-      window.URL.revokeObjectURL(url);
+
+    const exportData = filtered.map(v => ({
+      'Name': v.name,
+      'No Of Person': v.noOfPerson || '-',
+      'Phone': v.phone || '-',
+      'Purpose': v.purpose,
+      'Date': v.date ? v.date.substring(0, 10) : '-',
+      'In Time': v.inTime || '-'
+    }));
+
+    const headers = ['Name', 'No Of Person', 'Phone', 'Purpose', 'Date', 'In Time'];
+    const filename = `visitor_book_${Date.now()}`;
+
+    if (type === 'Print') {
+      printData(exportData, headers, 'Visitor Book');
+    } else if (type === 'CSV') {
+      exportToCSV(exportData, filename);
+    } else if (type === 'Excel') {
+      exportToExcel(exportData, filename);
+    } else if (type === 'PDF') {
+      exportToPDF(exportData, headers, 'Visitor Book', filename);
     } else {
-      alert(type + ' export started...');
+      alert(`${type} export started...`);
     }
   };
 
@@ -205,16 +250,16 @@ export default function VisitorBookPage() {
                 <tbody>
                   {filtered.length > 0 ? (
                     filtered.map((v) => (
-                      <tr key={v.recordId} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
+                      <tr key={v._id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
                         <td className="px-4 py-3 text-zinc-300 font-medium">{v.name}</td>
                         <td className="px-4 py-3 text-zinc-300">{v.noOfPerson || '-'}</td>
                         <td className="px-4 py-3 text-zinc-300">{v.phone || '-'}</td>
                         <td className="px-4 py-3 text-zinc-300">{v.purpose}</td>
-                        <td className="px-4 py-3 text-zinc-300">{v.date || '-'}</td>
+                        <td className="px-4 py-3 text-zinc-300">{v.date ? v.date.substring(0, 10) : '-'}</td>
                         <td className="px-4 py-3 text-zinc-300">{v.inTime || '-'}</td>
                         <td className="px-4 py-3 text-right space-x-2">
                           <Button onClick={() => handleEdit(v)} variant="outline" size="sm" className="h-7 text-xs text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10 px-2"><Edit className="h-3 w-3" /></Button>
-                          <Button onClick={() => handleDelete(v.recordId)} variant="outline" size="sm" className="h-7 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10 px-2"><Trash2 className="h-3 w-3" /></Button>
+                          <Button onClick={() => handleDelete(v._id)} variant="outline" size="sm" className="h-7 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10 px-2"><Trash2 className="h-3 w-3" /></Button>
                         </td>
                       </tr>
                     ))

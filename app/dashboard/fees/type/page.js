@@ -1,8 +1,176 @@
 'use client';
 
-import EmptyPage from '@/components/EmptyPage';
-import { Layers } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronRight, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { SearchableSelect } from '@/components/ui/searchable-select';
+import api from '@/services/api';
 
-export default function Page() {
-  return <EmptyPage title="Type" description="Manage Type settings and data here." icon={Layers} />;
+export default function FeesTypePage() {
+  const [types, setTypes] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [name, setName] = useState('');
+  const [feesGroup, setFeesGroup] = useState('');
+  const [description, setDescription] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [search, setSearch] = useState('');
+
+  const fetchData = async () => {
+    try {
+      const [typeRes, groupRes] = await Promise.all([
+        api.get('/fees/type'),
+        api.get('/fees/group')
+      ]);
+      if (typeRes.success) setTypes(typeRes.data);
+      if (groupRes.success) setGroups(groupRes.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!name || !feesGroup) return alert('Name and Fees Group are required');
+    try {
+      setSubmitting(true);
+      const res = await api.post('/fees/type', { name, feesGroup, description });
+      if (res.success) {
+        setName('');
+        setDescription('');
+        fetchData();
+      }
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (confirm('Are you sure you want to delete this type?')) {
+      try {
+        const res = await api.delete(`/fees/type/${id}`);
+        if (res.success) fetchData();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+  };
+
+  const filteredTypes = types.filter(t => 
+    t.name.toLowerCase().includes(search.toLowerCase()) || 
+    t.feesGroup?.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 className="text-2xl font-bold text-white">Fees Type</h1>
+        <div className="flex items-center text-sm text-zinc-400">
+          <span>Dashboard</span>
+          <ChevronRight className="h-4 w-4 mx-1" />
+          <span>Fees</span>
+          <ChevronRight className="h-4 w-4 mx-1" />
+          <span className="text-emerald-500">Fees Type</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="xl:col-span-1">
+          <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
+            <div className="p-4 border-b border-zinc-800">
+              <h2 className="text-lg font-semibold text-white">Add Fees Type</h2>
+            </div>
+            <form className="p-4 space-y-4" onSubmit={handleSubmit}>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-zinc-400 uppercase">Name <span className="text-rose-500">*</span></Label>
+                <Input 
+                  value={name} onChange={(e) => setName(e.target.value)}
+                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-zinc-400 uppercase">Fees Group <span className="text-rose-500">*</span></Label>
+                <SearchableSelect 
+                  name="feesGroup"
+                  value={feesGroup}
+                  onChange={(val) => setFeesGroup(val)}
+                  placeholder="Select Fees Group"
+                  options={groups.map(g => ({ label: g.name, value: g._id }))}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-zinc-400 uppercase">Description</Label>
+                <textarea 
+                  value={description} onChange={(e) => setDescription(e.target.value)}
+                  className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" 
+                />
+              </div>
+              <Button disabled={submitting} type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+                {submitting ? 'SAVING...' : 'SAVE'}
+              </Button>
+            </form>
+          </div>
+        </div>
+
+        <div className="xl:col-span-2">
+          <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden h-full flex flex-col">
+            <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-white">Fees Type List</h2>
+              <div className="relative w-48">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                <Input 
+                  placeholder="SEARCH" 
+                  value={search} onChange={(e) => setSearch(e.target.value)}
+                  className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500"
+                />
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
+                  <tr>
+                    <th className="px-4 py-3 font-semibold">Name</th>
+                    <th className="px-4 py-3 font-semibold">Fees Group</th>
+                    <th className="px-4 py-3 font-semibold">Description</th>
+                    <th className="px-4 py-3 font-semibold text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-800">
+                  {loading ? (
+                    <tr><td colSpan="4" className="px-4 py-8 text-center text-zinc-500">Loading...</td></tr>
+                  ) : filteredTypes.length === 0 ? (
+                    <tr><td colSpan="4" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
+                  ) : (
+                    filteredTypes.map((item) => (
+                      <tr key={item._id} className="hover:bg-zinc-900/50 transition-colors">
+                        <td className="px-4 py-3 text-zinc-300">{item.name}</td>
+                        <td className="px-4 py-3 text-zinc-400">{item.feesGroup?.name || '-'}</td>
+                        <td className="px-4 py-3 text-zinc-400">{item.description || '-'}</td>
+                        <td className="px-4 py-3 text-right">
+                          <Button onClick={() => handleDelete(item._id)} variant="ghost" size="sm" className="h-8 text-rose-500 hover:text-rose-400 hover:bg-rose-500/10">
+                            DELETE
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

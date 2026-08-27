@@ -6,6 +6,53 @@
 
 @custom-variant dark (&:is(.dark *));
 
+
+@theme {
+  --color-zinc-950: var(--custom-zinc-950);
+  --color-zinc-900: var(--custom-zinc-900);
+  --color-zinc-800: var(--custom-zinc-800);
+  --color-zinc-700: var(--custom-zinc-700);
+  --color-zinc-600: var(--custom-zinc-600);
+  --color-zinc-500: var(--custom-zinc-500);
+  --color-zinc-400: var(--custom-zinc-400);
+  --color-zinc-300: var(--custom-zinc-300);
+  --color-zinc-200: var(--custom-zinc-200);
+  --color-zinc-100: var(--custom-zinc-100);
+  --color-zinc-50: var(--custom-zinc-50);
+  --color-white: var(--custom-white);
+  --color-zinc-500-20: color-mix(in srgb, var(--custom-zinc-500) 20%, transparent);
+}
+
+:root {
+  --custom-zinc-950: #ffffff; 
+  --custom-zinc-900: #f8fafc;
+  --custom-zinc-800: #e2e8f0; 
+  --custom-zinc-700: #cbd5e1;
+  --custom-zinc-600: #94a3b8;
+  --custom-zinc-500: #64748b;
+  --custom-zinc-400: #475569; 
+  --custom-zinc-300: #334155;
+  --custom-zinc-200: #1e293b;
+  --custom-zinc-100: #0f172a;
+  --custom-zinc-50: #020617;
+  --custom-white: #0f172a;
+}
+
+.dark {
+  --custom-zinc-950: #09090b;
+  --custom-zinc-900: #18181b;
+  --custom-zinc-800: #27272a;
+  --custom-zinc-700: #3f3f46;
+  --custom-zinc-600: #52525b;
+  --custom-zinc-500: #71717a;
+  --custom-zinc-400: #a1a1aa;
+  --custom-zinc-300: #d4d4d8;
+  --custom-zinc-200: #e4e4e7;
+  --custom-zinc-100: #f4f4f5;
+  --custom-zinc-50: #fafafa;
+  --custom-white: #ffffff;
+}
+
 @theme {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -129,6 +176,12 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    transition: color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+                background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+                fill 300ms cubic-bezier(0.4, 0, 0.2, 1),
+                stroke 300ms cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
   }
   body {
     @apply bg-background text-foreground;

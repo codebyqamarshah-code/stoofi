@@ -2,30 +2,36 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
-  ChevronRight, Search, Download, Printer, FileText, MoreVertical, Plus, Edit, Trash2
+  ChevronRight, Search, Download, Printer, FileText, MoreVertical, Plus, Edit, Trash2, Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
+import api from '@/services/api';
 
 export default function AdmissionQueryPage() {
   const [queries, setQueries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
-  const [isMounted, setIsMounted] = useState(false);
-  
-  useEffect(() => {
-    const saved = localStorage.getItem('eskooly_admission_queries');
-    if (saved) {
-      try { setQueries(JSON.parse(saved)); } catch(e) {}
+  const fetchQueries = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get('/admission-query');
+      if (res.success) {
+        setQueries(res.data);
+      }
+    } catch (error) {
+      alert(error.message || 'Failed to fetch queries');
+    } finally {
+      setLoading(false);
     }
-    setIsMounted(true);
+  };
+
+  useEffect(() => {
+    fetchQueries();
   }, []);
-
-  useEffect(() => {
-    if (isMounted) {
-      localStorage.setItem('eskooly_admission_queries', JSON.stringify(queries));
-    }
-  }, [queries, isMounted]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -37,60 +43,83 @@ export default function AdmissionQueryPage() {
   });
   const [editingId, setEditingId] = useState(null);
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     if (!formData.name) return alert('Name is required');
     
-    if (editingId) {
-      setQueries(queries.map(q => q.id === editingId ? { ...q, ...formData } : q));
+    try {
+      setSubmitting(true);
+      if (editingId) {
+        await api.put(`/admission-query/${editingId}`, formData);
+      } else {
+        await api.post('/admission-query', formData);
+      }
+      setFormData({ name: '', phone: '', source: '', queryDate: '', lastFollowUpDate: '', nextFollowUpDate: '', status: 'Active' });
+      setShowForm(false);
       setEditingId(null);
-    } else {
-      setQueries([{ id: Date.now(), ...formData }, ...queries]);
+      fetchQueries();
+    } catch (error) {
+      alert(error.message || 'Failed to save query');
+    } finally {
+      setSubmitting(false);
     }
-    setFormData({ name: '', phone: '', source: '', queryDate: '', lastFollowUpDate: '', nextFollowUpDate: '', status: 'Active' });
-    setShowForm(false);
   };
 
   const handleEdit = (query) => {
-    setEditingId(query.id);
-    setFormData({ ...query });
+    setEditingId(query._id);
+    setFormData({
+      name: query.name || '',
+      phone: query.phone || '',
+      source: query.source || '',
+      queryDate: query.queryDate ? query.queryDate.substring(0, 10) : '',
+      lastFollowUpDate: query.lastFollowUpDate ? query.lastFollowUpDate.substring(0, 10) : '',
+      nextFollowUpDate: query.nextFollowUpDate ? query.nextFollowUpDate.substring(0, 10) : '',
+      status: query.status || 'Active'
+    });
     setShowForm(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this query?')) {
-      setQueries(queries.filter(q => q.id !== id));
+      try {
+        await api.delete(`/admission-query/${id}`);
+        setQueries(queries.filter(q => q._id !== id));
+      } catch (error) {
+        alert(error.message || 'Failed to delete query');
+      }
     }
   };
 
   const handleCriteriaSearch = () => {
     setActiveFilters({ ...filters });
   };
-
   const handleExport = (type) => {
-    if (type === 'Print') {
-      window.print();
-      return;
-    }
-    
     if (filtered.length === 0) {
       alert('No data to export');
       return;
     }
 
-    if (type === 'CSV' || type === 'Excel') {
-      const headers = ['Name', 'Phone', 'Source', 'Query Date', 'Last Follow Up', 'Next Follow Up', 'Status'];
-      const csvData = filtered.map(q => [
-        q.name, q.phone, q.source, q.queryDate, q.lastFollowUpDate, q.nextFollowUpDate, q.status
-      ].join(','));
-      
-      const blob = new Blob([[headers.join(','), '\n', ...csvData].join('\n')], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `admission_queries_${Date.now()}.csv`;
-      a.click();
-      window.URL.revokeObjectURL(url);
+    const exportData = filtered.map(q => ({
+      'Name': q.name,
+      'Phone': q.phone || '-',
+      'Source': q.source || '-',
+      'Query Date': q.queryDate ? q.queryDate.substring(0, 10) : '-',
+      'Last Follow Up': q.lastFollowUpDate ? q.lastFollowUpDate.substring(0, 10) : '-',
+      'Next Follow Up': q.nextFollowUpDate ? q.nextFollowUpDate.substring(0, 10) : '-',
+      'Status': q.status || 'Active'
+    }));
+
+    const headers = ['Name', 'Phone', 'Source', 'Query Date', 'Last Follow Up', 'Next Follow Up', 'Status'];
+    const filename = `admission_queries_${Date.now()}`;
+
+    if (type === 'Print') {
+      printData(exportData, headers, 'Admission Queries');
+    } else if (type === 'CSV') {
+      exportToCSV(exportData, filename);
+    } else if (type === 'Excel') {
+      exportToExcel(exportData, filename);
+    } else if (type === 'PDF') {
+      exportToPDF(exportData, headers, 'Admission Queries', filename);
     } else {
       alert(`${type} export started...`);
     }
@@ -270,7 +299,7 @@ export default function AdmissionQueryPage() {
             <tbody>
               {filtered.length > 0 ? (
                 filtered.map((q) => (
-                  <tr key={q.id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
+                  <tr key={q._id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
                     <td className="px-4 py-3 text-zinc-300 font-medium">{q.name}</td>
                     <td className="px-4 py-3 text-zinc-300">{q.phone || '-'}</td>
                     <td className="px-4 py-3 text-zinc-300">{q.source || '-'}</td>
@@ -279,12 +308,12 @@ export default function AdmissionQueryPage() {
                         {q.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-zinc-300">{q.queryDate || '-'}</td>
-                    <td className="px-4 py-3 text-zinc-300">{q.lastFollowUpDate || '-'}</td>
-                    <td className="px-4 py-3 text-zinc-300">{q.nextFollowUpDate || '-'}</td>
+                    <td className="px-4 py-3 text-zinc-300">{q.queryDate ? q.queryDate.substring(0, 10) : '-'}</td>
+                    <td className="px-4 py-3 text-zinc-300">{q.lastFollowUpDate ? q.lastFollowUpDate.substring(0, 10) : '-'}</td>
+                    <td className="px-4 py-3 text-zinc-300">{q.nextFollowUpDate ? q.nextFollowUpDate.substring(0, 10) : '-'}</td>
                     <td className="px-4 py-3 text-right space-x-2">
                       <Button onClick={() => handleEdit(q)} variant="outline" size="sm" className="h-7 text-xs text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10 px-2"><Edit className="h-3 w-3" /></Button>
-                      <Button onClick={() => handleDelete(q.id)} variant="outline" size="sm" className="h-7 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10 px-2"><Trash2 className="h-3 w-3" /></Button>
+                      <Button onClick={() => handleDelete(q._id)} variant="outline" size="sm" className="h-7 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10 px-2"><Trash2 className="h-3 w-3" /></Button>
                     </td>
                   </tr>
                 ))

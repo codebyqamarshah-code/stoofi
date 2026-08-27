@@ -1,24 +1,104 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ChevronRight, 
   Search,
   Download,
   Printer,
   FileText,
-  MoreVertical
+  MoreVertical,
+  Trash2,
+  Edit
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import api from '@/services/api';
+import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 
 export default function SectionPage() {
-  const [sections, setSections] = useState([]);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   
+  const [formData, setFormData] = useState({ name: '' });
+  const [isEditing, setIsEditing] = useState(false);
+  const [editId, setEditId] = useState(null);
+
+  const fetchData = async () => {
+    try {
+      const res = await api.get('/section');
+      if (res.success) {
+        setData(res.data);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.name) {
+      alert("Name is required");
+      return;
+    }
+
+    try {
+      if (isEditing) {
+        const res = await api.put(`/section/${editId}`, formData);
+        if (res.success) {
+          alert('Section updated successfully');
+        }
+      } else {
+        const res = await api.post('/section', formData);
+        if (res.success) {
+          alert('Section added successfully');
+        }
+      }
+      setFormData({ name: '' });
+      setIsEditing(false);
+      setEditId(null);
+      fetchData();
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const handleEdit = (item) => {
+    setFormData({ name: item.name });
+    setIsEditing(true);
+    setEditId(item._id);
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('Are you sure you want to delete this?')) return;
+    try {
+      const res = await api.delete(`/section/${id}`);
+      if (res.success) {
+        fetchData();
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const filteredData = data.filter(item => 
+    item.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const exportData = filteredData.map(item => ({
+    Section: item.name
+  }));
+
   return (
     <div className="space-y-6">
-      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Section</h1>
         <div className="flex items-center text-sm text-zinc-400">
@@ -31,29 +111,37 @@ export default function SectionPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Left Panel - Add Form */}
         <div className="xl:col-span-1">
           <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
             <div className="p-4 border-b border-zinc-800">
-              <h2 className="text-lg font-semibold text-white">Add Section</h2>
+              <h2 className="text-lg font-semibold text-white">{isEditing ? 'Edit Section' : 'Add Section'}</h2>
             </div>
             
-            <form className="p-4 space-y-4" onSubmit={(e) => e.preventDefault()}>
+            <form className="p-4 space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Name <span className="text-rose-500">*</span></Label>
-                <Input placeholder="Name" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                <Input 
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  placeholder="e.g. A" 
+                  className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" 
+                />
               </div>
 
-              <div className="pt-4">
-                <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
-                  SAVE SECTION
+              <div className="pt-4 flex gap-2">
+                <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+                  {isEditing ? 'UPDATE SECTION' : 'SAVE SECTION'}
                 </Button>
+                {isEditing && (
+                  <Button type="button" onClick={() => { setIsEditing(false); setFormData({name: ''}); }} className="bg-zinc-700 hover:bg-zinc-600 text-white font-semibold">
+                    CANCEL
+                  </Button>
+                )}
               </div>
             </form>
           </div>
         </div>
 
-        {/* Right Panel - Data List */}
         <div className="xl:col-span-2">
           <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden h-full flex flex-col">
             <div className="p-4 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -63,30 +151,23 @@ export default function SectionPage() {
                 <div className="relative">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
                   <Input 
-                    placeholder="SEARCH" 
-                    className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-xs font-semibold"
+                    placeholder="Search..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-9 bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 h-9 w-full sm:w-64" 
                   />
                 </div>
                 
-                <div className="flex items-center border border-zinc-800 rounded-md bg-zinc-900">
-                  <button className="p-2 hover:bg-zinc-800 text-zinc-400 transition-colors border-r border-zinc-800" title="Copy">
-                    <FileText className="h-4 w-4" />
-                  </button>
-                  <button className="p-2 hover:bg-zinc-800 text-zinc-400 transition-colors border-r border-zinc-800" title="Excel">
+                <div className="flex items-center gap-2">
+                  <Button onClick={() => exportToCSV(exportData, 'Section_List')} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:text-white" title="Download CSV">
                     <Download className="h-4 w-4" />
-                  </button>
-                  <button className="p-2 hover:bg-zinc-800 text-zinc-400 transition-colors border-r border-zinc-800" title="CSV">
+                  </Button>
+                  <Button onClick={() => exportToExcel(exportData, 'Section_List')} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:text-white text-emerald-500" title="Export Excel">
                     <FileText className="h-4 w-4" />
-                  </button>
-                  <button className="p-2 hover:bg-zinc-800 text-zinc-400 transition-colors border-r border-zinc-800" title="PDF">
-                    <Download className="h-4 w-4" />
-                  </button>
-                  <button className="p-2 hover:bg-zinc-800 text-zinc-400 transition-colors border-r border-zinc-800" title="Print">
+                  </Button>
+                  <Button onClick={() => printData('Section List', exportData)} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:text-white text-rose-500" title="Print">
                     <Printer className="h-4 w-4" />
-                  </button>
-                  <button className="p-2 hover:bg-zinc-800 text-zinc-400 transition-colors" title="Columns">
-                    <MoreVertical className="h-4 w-4" />
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -99,39 +180,30 @@ export default function SectionPage() {
                     <th className="px-4 py-3 font-semibold text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {sections.length > 0 ? (
-                    sections.map((s, i) => (
-                      <tr key={i} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
-                        <td className="px-4 py-4 text-zinc-300">{s.name}</td>
-                        <td className="px-4 py-4 text-right">
-                          <Button variant="outline" size="sm" className="h-8 text-xs font-semibold text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10 hover:text-emerald-400">
-                            SELECT <ChevronRight className="h-3 w-3 ml-1 rotate-90" />
-                          </Button>
+                <tbody className="divide-y divide-zinc-800">
+                  {loading ? (
+                    <tr><td colSpan="2" className="px-4 py-4 text-center text-zinc-500">Loading...</td></tr>
+                  ) : filteredData.length === 0 ? (
+                    <tr><td colSpan="2" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
+                  ) : (
+                    filteredData.map((item) => (
+                      <tr key={item._id} className="hover:bg-zinc-900/50 transition-colors">
+                        <td className="px-4 py-3 text-zinc-300">{item.name}</td>
+                        <td className="px-4 py-3 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button onClick={() => handleEdit(item)} variant="ghost" size="icon" className="h-8 w-8 text-blue-500 hover:text-blue-400 hover:bg-blue-500/10">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button onClick={() => handleDelete(item._id)} variant="ghost" size="icon" className="h-8 w-8 text-rose-500 hover:text-rose-400 hover:bg-rose-500/10">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))
-                  ) : (
-                    <tr>
-                      <td colSpan="2" className="px-4 py-8 text-center text-zinc-500">
-                        No Data Available In Table
-                      </td>
-                    </tr>
                   )}
                 </tbody>
               </table>
-            </div>
-            
-            <div className="p-4 border-t border-zinc-800 flex items-center justify-between text-xs text-zinc-500">
-              <div>Showing 0 to 0 of 0 entries</div>
-              <div className="flex items-center gap-1">
-                <Button variant="outline" size="sm" className="h-7 px-2 text-zinc-400 border-zinc-800 bg-transparent hover:bg-zinc-800" disabled>
-                  <ChevronRight className="h-4 w-4 rotate-180" />
-                </Button>
-                <Button variant="outline" size="sm" className="h-7 px-2 text-zinc-400 border-zinc-800 bg-transparent hover:bg-zinc-800" disabled>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
             </div>
           </div>
         </div>

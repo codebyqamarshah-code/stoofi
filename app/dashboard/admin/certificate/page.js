@@ -2,82 +2,105 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { 
-  ChevronRight, Search, Plus, Edit, Trash2
+  ChevronRight, Search, Plus, Edit, Trash2, Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import api from '@/services/api';
+import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 
 export default function CertificatePage() {
   const [cards, setCards] = useState([]);
-
-  const [isMounted, setIsMounted] = useState(false);
-  
-  useEffect(() => {
-    const saved = localStorage.getItem('eskooly_certificates');
-    if (saved) {
-      try { setCards(JSON.parse(saved)); } catch(e) {}
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get('/certificate');
+      if (res.success) setCards(res.data);
+    } catch (error) {
+      alert(error.message || 'Failed to fetch data');
+    } finally {
+      setLoading(false);
     }
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (isMounted) {
-      localStorage.setItem('eskooly_certificates', JSON.stringify(cards));
-    }
-  }, [cards, isMounted]);
+  };
+  useEffect(() => { fetchData(); }, []);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ title: '', type: '' });
   const [editingId, setEditingId] = useState(null);
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.type) return alert('Title and Type are required');
-    if (editingId) {
-      setCards(cards.map(c => c.id === editingId ? { ...c, ...formData } : c));
+    try {
+      setSubmitting(true);
+      const payload = { ...formData };
+      if (editingId) {
+        await api.put('/certificate/' + editingId, payload);
+      } else {
+        await api.post('/certificate', payload);
+      }
       setEditingId(null);
-    } else {
-      setCards([{ id: Date.now(), ...formData }, ...cards]);
+      fetchData();
+      if(typeof setShowForm === 'function') setShowForm(false);
+      const resetForm = {};
+      Object.keys(formData).forEach(k => resetForm[k] = '');
+      setFormData(resetForm);
+      if (typeof setFileName === 'function') setFileName('');
+    } catch (error) {
+      alert(error.message || 'Failed to save');
+    } finally {
+      setSubmitting(false);
     }
-    setFormData({ title: '', type: '' });
-    setShowForm(false);
   };
 
   const handleEdit = (card) => {
-    setEditingId(card.id);
+    setEditingId(card._id);
     setFormData({ title: card.title, type: card.type });
     setShowForm(true);
   };
 
-  const handleDelete = (id) => {
-    if (confirm('Are you sure you want to delete this certificate?')) {
-      setCards(cards.filter(c => c.id !== id));
+  const handleDelete = async (id) => {
+    if (confirm('Are you sure you want to delete this record?')) {
+      try {
+        await api.delete('/certificate/' + id);
+        setCards(cards.filter(item => item._id !== id));
+      } catch (error) {
+        alert(error.message || 'Failed to delete');
+      }
     }
   };
 
     const handleExport = (type) => {
-    if (type === 'Print') {
-      window.print();
-      return;
-    }
     if (filtered.length === 0) {
       alert('No data to export');
       return;
     }
-    if (type === 'CSV' || type === 'Excel') {
-      const headers = Object.keys(filtered[0] || {}).filter(k => k !== 'id' && k !== 'recordId');
-      const csvData = filtered.map(item => headers.map(h => item[h]).join(','));
-      const blob = new Blob([[headers.join(','), '\n', ...csvData].join('\n')], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `export_${Date.now()}.csv`;
-      a.click();
-      window.URL.revokeObjectURL(url);
+    
+    const exportData = filtered.map(item => {
+      const clean = { ...item };
+      delete clean._id;
+      delete clean.__v;
+      delete clean.createdAt;
+      delete clean.updatedAt;
+      return clean;
+    });
+
+    const headers = Object.keys(exportData[0] || {});
+    const filename = `export_${Date.now()}`;
+
+    if (type === 'Print') {
+      printData(exportData, headers, 'Export');
+    } else if (type === 'CSV') {
+      exportToCSV(exportData, filename);
+    } else if (type === 'Excel') {
+      exportToExcel(exportData, filename);
+    } else if (type === 'PDF') {
+      exportToPDF(exportData, headers, 'Export', filename);
     } else {
-      alert(type + ' export started...');
+      alert(`${type} export started...`);
     }
   };
 
@@ -159,13 +182,13 @@ export default function CertificatePage() {
             <tbody>
               {filtered.length > 0 ? (
                 filtered.map((c, i) => (
-                  <tr key={c.id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
+                  <tr key={c._id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
                     <td className="px-4 py-4 text-zinc-300">{i + 1}</td>
                     <td className="px-4 py-4 text-zinc-300 font-medium">{c.title}</td>
                     <td className="px-4 py-4 text-zinc-300">{c.type}</td>
                     <td className="px-4 py-4 text-right space-x-2">
                       <Button onClick={() => handleEdit(c)} variant="outline" size="sm" className="h-7 text-xs text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10 px-2"><Edit className="h-3 w-3" /></Button>
-                      <Button onClick={() => handleDelete(c.id)} variant="outline" size="sm" className="h-7 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10 px-2"><Trash2 className="h-3 w-3" /></Button>
+                      <Button onClick={() => handleDelete(c._id)} variant="outline" size="sm" className="h-7 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10 px-2"><Trash2 className="h-3 w-3" /></Button>
                     </td>
                   </tr>
                 ))

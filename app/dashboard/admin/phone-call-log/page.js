@@ -14,6 +14,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import api from '@/services/api';
+import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 
 export default function PhoneCallLogPage() {
   const [logs, setLogs] = useState([]);
@@ -41,22 +43,32 @@ export default function PhoneCallLogPage() {
   });
   const [editingId, setEditingId] = useState(null);
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.phone) return alert('Name and Phone are required!');
-    
-    if (editingId) {
-      setLogs(logs.map(l => l.id === editingId ? { ...l, ...formData, type: callType } : l));
+    try {
+      setSubmitting(true);
+      const payload = { ...formData };
+      if (editingId) {
+        await api.put('/phone-call-log/' + editingId, payload);
+      } else {
+        await api.post('/phone-call-log', payload);
+      }
       setEditingId(null);
-    } else {
-      setLogs([{ id: Date.now(), ...formData, type: callType }, ...logs]);
+      fetchData();
+      if(typeof setShowForm === 'function') setShowForm(false);
+      const resetForm = {};
+      Object.keys(formData).forEach(k => resetForm[k] = '');
+      setFormData(resetForm);
+      if (typeof setFileName === 'function') setFileName('');
+    } catch (error) {
+      alert(error.message || 'Failed to save');
+    } finally {
+      setSubmitting(false);
     }
-    setFormData({ name: '', phone: '', date: '', followUpDate: '', duration: '', description: '' });
-    setCallType('Incoming');
   };
 
   const handleEdit = (log) => {
-    setEditingId(log.id);
+    setEditingId(log._id);
     setFormData({
       name: log.name, phone: log.phone, date: log.date, 
       followUpDate: log.followUpDate, duration: log.duration, description: log.description
@@ -64,9 +76,14 @@ export default function PhoneCallLogPage() {
     setCallType(log.type);
   };
 
-  const handleDelete = (id) => {
-    if (confirm('Are you sure you want to delete this log?')) {
-      setLogs(logs.filter(l => l.id !== id));
+  const handleDelete = async (id) => {
+    if (confirm('Are you sure you want to delete this record?')) {
+      try {
+        await api.delete('/phone-call-log/' + id);
+        setCallLogs(callLogs.filter(item => item._id !== id));
+      } catch (error) {
+        alert(error.message || 'Failed to delete');
+      }
     }
   };
 
@@ -219,7 +236,7 @@ export default function PhoneCallLogPage() {
                 <tbody>
                   {filteredLogs.length > 0 ? (
                     filteredLogs.map((l) => (
-                      <tr key={l.id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
+                      <tr key={l._id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
                         <td className="px-4 py-3 text-zinc-300">{l.name}</td>
                         <td className="px-4 py-3 text-zinc-300">{l.phone}</td>
                         <td className="px-4 py-3 text-zinc-300">{l.date || '-'}</td>
@@ -232,7 +249,7 @@ export default function PhoneCallLogPage() {
                         </td>
                         <td className="px-4 py-3 text-right space-x-2">
                            <Button onClick={() => handleEdit(l)} variant="outline" size="sm" className="h-7 text-xs text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10 px-2"><Edit className="h-3 w-3" /></Button>
-                           <Button onClick={() => handleDelete(l.id)} variant="outline" size="sm" className="h-7 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10 px-2"><Trash2 className="h-3 w-3" /></Button>
+                           <Button onClick={() => handleDelete(l._id)} variant="outline" size="sm" className="h-7 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10 px-2"><Trash2 className="h-3 w-3" /></Button>
                         </td>
                       </tr>
                     ))

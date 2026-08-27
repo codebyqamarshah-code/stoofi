@@ -7,25 +7,25 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import api from '@/services/api';
+import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 
 export default function PostalDispatchPage() {
   const [postalDispatches, setPostalDispatches] = useState([]);
-
-  const [isMounted, setIsMounted] = useState(false);
-  
-  useEffect(() => {
-    const saved = localStorage.getItem('eskooly_postal_dispatch');
-    if (saved) {
-      try { setPostalDispatches(JSON.parse(saved)); } catch(e) {}
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get('/postal-dispatch');
+      if (res.success) setPostalDispatches(res.data);
+    } catch (error) {
+      alert(error.message || 'Failed to fetch data');
+    } finally {
+      setLoading(false);
     }
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (isMounted) {
-      localStorage.setItem('eskooly_postal_dispatch', JSON.stringify(postalDispatches));
-    }
-  }, [postalDispatches, isMounted]);
+  };
+  useEffect(() => { fetchData(); }, []);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({
@@ -35,22 +35,32 @@ export default function PostalDispatchPage() {
   const [fileName, setFileName] = useState('');
   const [editingId, setEditingId] = useState(null);
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    if (!formData.toTitle || !formData.referenceNo || !formData.fromTitle) return alert('Please fill all required fields');
-    
-    if (editingId) {
-      setPostalDispatches(postalDispatches.map(p => p.id === editingId ? { ...p, ...formData } : p));
+    try {
+      setSubmitting(true);
+      const payload = { ...formData };
+      if (editingId) {
+        await api.put('/postal-dispatch/' + editingId, payload);
+      } else {
+        await api.post('/postal-dispatch', payload);
+      }
       setEditingId(null);
-    } else {
-      setPostalDispatches([{ id: Date.now(), ...formData }, ...postalDispatches]);
+      fetchData();
+      if(typeof setShowForm === 'function') setShowForm(false);
+      const resetForm = {};
+      Object.keys(formData).forEach(k => resetForm[k] = '');
+      setFormData(resetForm);
+      if (typeof setFileName === 'function') setFileName('');
+    } catch (error) {
+      alert(error.message || 'Failed to save');
+    } finally {
+      setSubmitting(false);
     }
-    setFileName('');
-    setFormData({ toTitle: '', referenceNo: '', address: '', note: '', fromTitle: '', date: '' });
   };
 
   const handleEdit = (dispatch) => {
-    setEditingId(dispatch.id);
+    setEditingId(dispatch._id);
     setFormData({
       toTitle: dispatch.toTitle, referenceNo: dispatch.referenceNo, 
       address: dispatch.address, note: dispatch.note, 
@@ -58,33 +68,46 @@ export default function PostalDispatchPage() {
     });
   };
 
-  const handleDelete = (id) => {
-    if (confirm('Are you sure you want to delete this dispatch?')) {
-      setPostalDispatches(postalDispatches.filter(p => p.id !== id));
+  const handleDelete = async (id) => {
+    if (confirm('Are you sure you want to delete this record?')) {
+      try {
+        await api.delete('/postal-dispatch/' + id);
+        setPostalDispatches(postalDispatches.filter(item => item._id !== id));
+      } catch (error) {
+        alert(error.message || 'Failed to delete');
+      }
     }
   };
 
     const handleExport = (type) => {
-    if (type === 'Print') {
-      window.print();
-      return;
-    }
     if (filtered.length === 0) {
       alert('No data to export');
       return;
     }
-    if (type === 'CSV' || type === 'Excel') {
-      const headers = Object.keys(filtered[0] || {}).filter(k => k !== 'id' && k !== 'recordId');
-      const csvData = filtered.map(item => headers.map(h => item[h]).join(','));
-      const blob = new Blob([[headers.join(','), '\n', ...csvData].join('\n')], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `export_${Date.now()}.csv`;
-      a.click();
-      window.URL.revokeObjectURL(url);
+    
+    // Create clean data without _id or v
+    const exportData = filtered.map(item => {
+      const clean = { ...item };
+      delete clean._id;
+      delete clean.__v;
+      delete clean.createdAt;
+      delete clean.updatedAt;
+      return clean;
+    });
+
+    const headers = Object.keys(exportData[0] || {});
+    const filename = `export_${Date.now()}`;
+
+    if (type === 'Print') {
+      printData(exportData, headers, 'Export');
+    } else if (type === 'CSV') {
+      exportToCSV(exportData, filename);
+    } else if (type === 'Excel') {
+      exportToExcel(exportData, filename);
+    } else if (type === 'PDF') {
+      exportToPDF(exportData, headers, 'Export', filename);
     } else {
-      alert(type + ' export started...');
+      alert(`${type} export started...`);
     }
   };
 
@@ -202,7 +225,7 @@ export default function PostalDispatchPage() {
                 <tbody>
                   {filtered.length > 0 ? (
                     filtered.map((p) => (
-                      <tr key={p.id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
+                      <tr key={p._id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
                         <td className="px-4 py-3 text-zinc-300 font-medium">{p.toTitle}</td>
                         <td className="px-4 py-3 text-zinc-300">{p.referenceNo}</td>
                         <td className="px-4 py-3 text-zinc-300">{p.address || '-'}</td>
@@ -211,7 +234,7 @@ export default function PostalDispatchPage() {
                         <td className="px-4 py-3 text-zinc-300">{p.date || '-'}</td>
                         <td className="px-4 py-3 text-right space-x-2">
                           <Button onClick={() => handleEdit(p)} variant="outline" size="sm" className="h-7 text-xs text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10 px-2"><Edit className="h-3 w-3" /></Button>
-                          <Button onClick={() => handleDelete(p.id)} variant="outline" size="sm" className="h-7 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10 px-2"><Trash2 className="h-3 w-3" /></Button>
+                          <Button onClick={() => handleDelete(p._id)} variant="outline" size="sm" className="h-7 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10 px-2"><Trash2 className="h-3 w-3" /></Button>
                         </td>
                       </tr>
                     ))

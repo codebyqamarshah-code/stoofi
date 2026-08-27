@@ -1,14 +1,28 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronRight, Search, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import api from '@/services/api';
 
 export default function GenerateIdCardPage() {
   const [formData, setFormData] = useState({ role: '', idCard: '', gridGap: '' });
   const [hasSearched, setHasSearched] = useState(false);
+  const [availableCards, setAvailableCards] = useState([]);
+
+  useEffect(() => {
+    const fetchCards = async () => {
+      try {
+        const res = await api.get('/id-card');
+        if (res.success) setAvailableCards(res.data);
+      } catch (error) {
+        console.error('Error fetching ID cards:', error);
+      }
+    };
+    fetchCards();
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -53,8 +67,9 @@ export default function GenerateIdCardPage() {
               <Label className="text-xs font-semibold text-zinc-400 uppercase">ID Card <span className="text-rose-500">*</span></Label>
               <select value={formData.idCard} onChange={e => setFormData({...formData, idCard: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white" required>
                 <option value="">Select Id Card *</option>
-                <option value="Student ID Card">Student ID Card</option>
-                <option value="Staff ID Card">Staff ID Card</option>
+                {availableCards.map(c => (
+                  <option key={c._id} value={c._id}>{c.title}</option>
+                ))}
               </select>
             </div>
             

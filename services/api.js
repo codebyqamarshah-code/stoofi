@@ -22,7 +22,9 @@ api.interceptors.response.use(
   (response) => response.data,
   (error) => {
     const message = error.response?.data?.message || error.message || 'An unexpected error occurred';
-    return Promise.reject({ ...error.response?.data, message });
+    const err = new Error(message);
+    err.response = error.response;
+    return Promise.reject(err);
   }
 );
 

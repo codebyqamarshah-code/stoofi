@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { 
   LayoutDashboard, 
   Users, 
@@ -264,26 +265,129 @@ export default function DashboardLayout({ children }) {
             { name: 'Homework Report', href: '/dashboard/homework/report' },
           ]
         },
-        { name: 'Library', href: '/dashboard/library', icon: BookOpen },
-        { name: 'Transport', href: '/dashboard/transport', icon: BookOpen },
-        { name: 'Dormitory', href: '/dashboard/dormitory', icon: BookOpen },
-      ]
+        {
+          name: 'Library',
+          icon: BookOpen,
+          hasSubmenu: true,
+          subItems: [
+            { name: 'Add Book', href: '/dashboard/library/add-book' },
+            { name: 'Book List', href: '/dashboard/library/book-list' },
+            { name: 'Book Categories', href: '/dashboard/library/book-categories' },
+            { name: 'Add Member', href: '/dashboard/library/add-member' },
+            { name: 'Issue/Return Book', href: '/dashboard/library/issue-return-book' },
+            { name: 'All Issued Book', href: '/dashboard/library/all-issued-books' },
+            { name: 'Subject', href: '/dashboard/library/subject' },
+          ]
+        },
+        {
+          name: 'Transport',
+          icon: BookOpen,
+          hasSubmenu: true,
+          subItems: [
+            { name: 'Routes', href: '/dashboard/transport/routes' },
+            { name: 'Vehicle', href: '/dashboard/transport/vehicle' },
+            { name: 'Assign Vehicle', href: '/dashboard/transport/assign-vehicle' },
+          ]
+        },
+        {
+          name: 'Dormitory',
+          icon: BookOpen,
+          hasSubmenu: true,
+          subItems: [
+            { name: 'Dormitory Rooms', href: '/dashboard/dormitory/dormitory-rooms' },
+            { name: 'Dormitory', href: '/dashboard/dormitory' },
+            { name: 'Room Type', href: '/dashboard/dormitory/room-type' },
+          ]
+        },      ]
     },
     {
       groupTitle: 'EXAM',
       items: [
-        { name: 'Examination', href: '/dashboard/exam', icon: Award },
-        { name: 'Exam Plan', href: '/dashboard/exam/plan', icon: CalendarDays },
-        { name: 'Online Exam', href: '/dashboard/exam/online', icon: BookOpen },
+        {
+          name: 'Examination',
+          icon: Award,
+          hasSubmenu: true,
+          subItems: [
+            { name: 'Exam Type', href: '/dashboard/examination/exam-type' },
+            { name: 'Exam Setup', href: '/dashboard/examination/exam-setup' },
+            { name: 'Exam Schedule', href: '/dashboard/examination/exam-schedule' },
+            { name: 'Exam Attendance', href: '/dashboard/examination/exam-attendance' },
+            { name: 'Marks Register', href: '/dashboard/examination/marks-register' },
+            { name: 'Marks Grade', href: '/dashboard/examination/marks-grade' },
+            { name: 'Send Marks By Sms', href: '/dashboard/examination/send-marks-by-sms' },
+            { name: 'Marksheet Report', href: '/dashboard/examination/marksheet-report' },
+          ]
+        },
+        {
+          name: 'Exam Plan',
+          icon: CalendarDays,
+          hasSubmenu: true,
+          subItems: [
+            { name: 'Admit Card', href: '/dashboard/exam-plan/admit-card' },
+            { name: 'Seat Plan', href: '/dashboard/exam-plan/seat-plan' },
+          ]
+        },
+        {
+          name: 'Online Exam',
+          icon: Monitor,
+          hasSubmenu: true,
+          subItems: [
+            { name: 'Question Group', href: '/dashboard/online-exam/question-group' },
+            { name: 'Question Bank', href: '/dashboard/online-exam/question-bank' },
+            { name: 'Online Exam', href: '/dashboard/online-exam' },
+          ]
+        },
       ]
     },
     {
       groupTitle: 'HR',
       items: [
-        { name: 'Human Resource', href: '/dashboard/hr', icon: Users },
-        { name: 'Teacher Evaluation', href: '/dashboard/teachers/evaluation', icon: Users },
-        { name: 'Leave', href: '/dashboard/leave', icon: CalendarDays },
-        { name: 'Role & Permission', href: '/dashboard/roles', icon: Settings },
+        {
+          name: 'Human Resource',
+          icon: Users,
+          hasSubmenu: true,
+          subItems: [
+            { name: 'Designation', href: '/dashboard/hr/designation' },
+            { name: 'Department', href: '/dashboard/hr/department' },
+            { name: 'Add Staff', href: '/dashboard/hr/add-staff' },
+            { name: 'Staff Directory', href: '/dashboard/hr/staff-directory' },
+            { name: 'Staff Attendance', href: '/dashboard/hr/staff-attendance' },
+            { name: 'Payroll', href: '/dashboard/hr/payroll' },
+          ]
+        },
+        {
+          name: 'Teacher Evaluation',
+          icon: Award,
+          hasSubmenu: true,
+          subItems: [
+            { name: 'Approved Report', href: '/dashboard/teacher-evaluation/approved-report' },
+            { name: 'Pending Report', href: '/dashboard/teacher-evaluation/pending-report' },
+            { name: 'Teacher Wise Report', href: '/dashboard/teacher-evaluation/teacher-wise-report' },
+            { name: 'Settings', href: '/dashboard/teacher-evaluation/settings' },
+          ]
+        },
+        {
+          name: 'Leave',
+          icon: CalendarDays,
+          hasSubmenu: true,
+          subItems: [
+            { name: 'Apply Leave', href: '/dashboard/leave/apply' },
+            { name: 'Approve Leave Request', href: '/dashboard/leave/approve' },
+            { name: 'Pending Leave Request', href: '/dashboard/leave/pending' },
+            { name: 'Leave Define', href: '/dashboard/leave/define' },
+            { name: 'Leave Type', href: '/dashboard/leave/type' },
+          ]
+        },
+        {
+          name: 'Role & Permission',
+          icon: Shield,
+          hasSubmenu: true,
+          subItems: [
+            { name: 'Login Permission', href: '/dashboard/roles/login-permission' },
+            { name: 'Role', href: '/dashboard/roles/role' },
+            { name: 'Due Fees Login Permission', href: '/dashboard/roles/due-fees-permission' },
+          ]
+        },
       ]
     },
     {
@@ -491,6 +595,8 @@ export default function DashboardLayout({ children }) {
             <div className="hidden sm:flex items-center bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1 text-xs text-zinc-300 font-semibold cursor-pointer hover:border-zinc-700">
               EN
             </div>
+            
+            <ThemeToggle />
 
             <button className="relative p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-emerald-400 hover:border-emerald-500/30 transition-colors cursor-pointer">
               <Bell className="h-4 w-4" />

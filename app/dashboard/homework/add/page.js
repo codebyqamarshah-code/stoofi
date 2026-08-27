@@ -1,8 +1,193 @@
 'use client';
 
-import EmptyPage from '@/components/EmptyPage';
-import { Layers } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ChevronRight, Upload } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { SearchableSelect } from '@/components/ui/searchable-select';
+import api from '@/services/api';
 
-export default function Page() {
-  return <EmptyPage title="Add" description="Manage Add settings and data here." icon={Layers} />;
+export default function AddHomeworkPage() {
+  const [classes, setClasses] = useState([]);
+  const [sections, setSections] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  
+  const [formData, setFormData] = useState({
+    className: '',
+    section: '',
+    subject: '',
+    homeworkDate: new Date().toISOString().split('T')[0],
+    submissionDate: new Date().toISOString().split('T')[0],
+    marks: '',
+    description: ''
+  });
+  const fileInputRef = useRef(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const fetchDropdowns = async () => {
+      try {
+        const [cRes, sRes, subRes] = await Promise.all([
+          api.get('/class'),
+          api.get('/section'),
+          api.get('/subject')
+        ]);
+        if (cRes.success) setClasses(cRes.data);
+        if (sRes.success) setSections(sRes.data);
+        if (subRes.success) setSubjects(subRes.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchDropdowns();
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (name, value) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.className || !formData.section || !formData.subject || !formData.description) {
+      return alert('Please fill all required fields');
+    }
+
+    try {
+      setSubmitting(true);
+      const data = new FormData();
+      Object.keys(formData).forEach(key => data.append(key, formData[key]));
+      if (fileInputRef.current?.files[0]) {
+        data.append('file', fileInputRef.current.files[0]);
+      }
+
+      const res = await api.post('/homework', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      if (res.success) {
+        alert('Homework saved successfully!');
+        setFormData({
+          className: '', section: '', subject: '', marks: '', description: '',
+          homeworkDate: new Date().toISOString().split('T')[0],
+          submissionDate: new Date().toISOString().split('T')[0]
+        });
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      }
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 className="text-2xl font-bold text-white">Add Homework</h1>
+        <div className="flex items-center text-sm text-zinc-400">
+          <span>Dashboard</span>
+          <ChevronRight className="h-4 w-4 mx-1" />
+          <span>Homework</span>
+          <ChevronRight className="h-4 w-4 mx-1" />
+          <span className="text-emerald-500">Add Homework</span>
+        </div>
+      </div>
+
+      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
+        <div className="p-4 border-b border-zinc-800">
+          <h2 className="text-lg font-semibold text-white">Add Homework</h2>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="p-4 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-zinc-400 uppercase">Class <span className="text-rose-500">*</span></Label>
+              <SearchableSelect 
+                name="className" value={formData.className} onChange={(v) => handleSelectChange('className', v)}
+                placeholder="Select Class *"
+                options={classes.map(c => ({ label: c.name, value: c.name }))}
+              />
+            </div>
+            
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-zinc-400 uppercase">Subject <span className="text-rose-500">*</span></Label>
+              <SearchableSelect 
+                name="subject" value={formData.subject} onChange={(v) => handleSelectChange('subject', v)}
+                placeholder="Select Subject *"
+                options={subjects.map(s => ({ label: s.name, value: s.name }))}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-zinc-400 uppercase">Section <span className="text-rose-500">*</span></Label>
+              <SearchableSelect 
+                name="section" value={formData.section} onChange={(v) => handleSelectChange('section', v)}
+                placeholder="Select Section *"
+                options={sections.map(s => ({ label: s.name, value: s.name }))}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-zinc-400 uppercase">Homework Date <span className="text-rose-500">*</span></Label>
+              <Input 
+                type="date" name="homeworkDate" 
+                value={formData.homeworkDate} onChange={handleChange}
+                className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white" 
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-zinc-400 uppercase">Submission Date <span className="text-rose-500">*</span></Label>
+              <Input 
+                type="date" name="submissionDate" 
+                value={formData.submissionDate} onChange={handleChange}
+                className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white" 
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-zinc-400 uppercase">Marks <span className="text-rose-500">*</span></Label>
+              <Input 
+                type="number" name="marks" 
+                value={formData.marks} onChange={handleChange}
+                className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white" 
+              />
+            </div>
+
+            <div className="space-y-1.5 lg:col-span-3">
+              <Label className="text-xs font-semibold text-zinc-400 uppercase">Attach File</Label>
+              <div className="relative">
+                <input type="file" ref={fileInputRef} className="hidden" id="hw-file" />
+                <Label htmlFor="hw-file" className="flex items-center justify-between h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 cursor-pointer">
+                  <span className="truncate">{fileInputRef.current?.files[0]?.name || 'Attach File'}</span>
+                  <div className="bg-emerald-600 text-white px-3 py-1 -mr-2 rounded text-xs font-semibold">BROWSE</div>
+                </Label>
+              </div>
+            </div>
+
+            <div className="space-y-1.5 lg:col-span-3">
+              <Label className="text-xs font-semibold text-zinc-400 uppercase">Description <span className="text-rose-500">*</span></Label>
+              <textarea 
+                name="description" 
+                value={formData.description} onChange={handleChange}
+                className="flex min-h-[120px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" 
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-center pt-4">
+            <Button disabled={submitting} type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold min-w-[200px]">
+              {submitting ? 'SAVING...' : 'SAVE HOMEWORK'}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 }

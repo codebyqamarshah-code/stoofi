@@ -1,13 +1,27 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronRight, Search, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import api from '@/services/api';
 
 export default function GenerateCertificatePage() {
   const [formData, setFormData] = useState({ class: '', section: '', certificate: '' });
   const [hasSearched, setHasSearched] = useState(false);
+  const [availableCerts, setAvailableCerts] = useState([]);
+
+  useEffect(() => {
+    const fetchCerts = async () => {
+      try {
+        const res = await api.get('/certificate');
+        if (res.success) setAvailableCerts(res.data);
+      } catch (error) {
+        console.error('Error fetching certificates:', error);
+      }
+    };
+    fetchCerts();
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -62,9 +76,9 @@ export default function GenerateCertificatePage() {
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Certificate <span className="text-rose-500">*</span></Label>
               <select value={formData.certificate} onChange={e => setFormData({...formData, certificate: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white" required>
                 <option value="">Select Certificate *</option>
-                <option value="Transfer Certificate">Transfer Certificate</option>
-                <option value="Character Certificate">Character Certificate</option>
-                <option value="Leaving Certificate">Leaving Certificate</option>
+                {availableCerts.map(c => (
+                  <option key={c._id} value={c._id}>{c.title}</option>
+                ))}
               </select>
             </div>
           </div>
