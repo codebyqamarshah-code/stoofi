@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { 
   ChevronRight, Search, Download, Printer, FileText, MoreVertical, Edit, Trash2, Loader2
@@ -116,9 +118,9 @@ export default function AdminSetupPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Admin Setup</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <span>Dashboard</span>
+          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span>Admin Section</span>
+          <Link href="/dashboard/admin/admission-query" className="hover:text-emerald-400 transition-colors">Admin Section</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span className="text-emerald-500">Admin Setup</span>
         </div>

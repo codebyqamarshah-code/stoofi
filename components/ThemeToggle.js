@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { Moon, Sun } from 'lucide-react';
+import { flushSync } from 'react-dom';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 
@@ -22,13 +23,28 @@ export function ThemeToggle() {
 
   const isDark = theme === 'dark';
 
+  const handleToggle = () => {
+    const newTheme = isDark ? 'light' : 'dark';
+    
+    if (!document.startViewTransition) {
+      setTheme(newTheme);
+      return;
+    }
+
+    document.startViewTransition(() => {
+      flushSync(() => {
+        setTheme(newTheme);
+      });
+    });
+  };
+
   return (
     <Button
       variant="outline"
       size="icon"
       title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
       className="h-8 w-8 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-emerald-400 hover:border-emerald-500/40 transition-all duration-300 cursor-pointer flex items-center justify-center overflow-hidden relative"
-      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      onClick={handleToggle}
     >
       <span
         className="absolute inset-0 flex items-center justify-center transition-all duration-500"

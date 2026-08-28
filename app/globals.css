@@ -20,22 +20,31 @@
   --color-zinc-100: var(--custom-zinc-100);
   --color-zinc-50: var(--custom-zinc-50);
   --color-white: var(--custom-white);
+  --color-emerald-950: var(--custom-emerald-950);
+  --color-emerald-900: var(--custom-emerald-900);
+  --color-emerald-800: var(--custom-emerald-800);
   --color-zinc-500-20: color-mix(in srgb, var(--custom-zinc-500) 20%, transparent);
 }
 
 :root {
-  --custom-zinc-950: #ffffff; 
-  --custom-zinc-900: #f8fafc;
-  --custom-zinc-800: #e2e8f0; 
-  --custom-zinc-700: #cbd5e1;
-  --custom-zinc-600: #94a3b8;
-  --custom-zinc-500: #64748b;
-  --custom-zinc-400: #475569; 
-  --custom-zinc-300: #334155;
-  --custom-zinc-200: #1e293b;
-  --custom-zinc-100: #0f172a;
-  --custom-zinc-50: #020617;
-  --custom-white: #0f172a;
+  /* Strictly White & Green Light Mode - No Grays */
+  --custom-zinc-950: #ffffff; /* Pure White Background */
+  --custom-zinc-900: #ffffff; /* Pure White Cards/Inputs */
+  --custom-zinc-800: #d1fae5; /* Emerald 100 - Borders */
+  --custom-zinc-700: #a7f3d0; /* Emerald 200 */
+  --custom-zinc-600: #34d399; /* Emerald 400 */
+  --custom-zinc-500: #10b981; /* Emerald 500 */
+  --custom-zinc-400: #047857; /* Emerald 700 - Subtext */
+  --custom-zinc-300: #064e3b; /* Emerald 900 - Text */
+  --custom-zinc-200: #022c22; /* Emerald 950 - Bold Text */
+  --custom-zinc-100: #000000; /* Black for contrast if needed */
+  --custom-zinc-50: #000000;  /* Black */
+  --custom-white: #064e3b;    /* Dark Green instead of white text */
+  
+  /* Make dark emeralds turn into very light greens in light mode to prevent murky gray shadows */
+  --custom-emerald-950: #ecfdf5; /* Emerald 50 */
+  --custom-emerald-900: #d1fae5; /* Emerald 100 */
+  --custom-emerald-800: #a7f3d0; /* Emerald 200 */
 }
 
 .dark {
@@ -51,6 +60,11 @@
   --custom-zinc-100: #f4f4f5;
   --custom-zinc-50: #fafafa;
   --custom-white: #ffffff;
+  
+  /* Retain standard dark emeralds in dark mode */
+  --custom-emerald-950: #022c22;
+  --custom-emerald-900: #064e3b;
+  --custom-emerald-800: #065f46;
 }
 
 @theme {
@@ -176,40 +190,35 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    transition: color 300ms cubic-bezier(0.4, 0, 0.2, 1),
-                background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
-                border-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
-                fill 300ms cubic-bezier(0.4, 0, 0.2, 1),
-                stroke 300ms cubic-bezier(0.4, 0, 0.2, 1),
-                box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
   }
   body {
     @apply bg-background text-foreground;
   }
   html {
     @apply font-sans;
+    font-size: 18.5px; /* Noticeably larger base — scales all rem-based text in both modes */
   }
 
-  /* Custom Professional Dark Scrollbars */
+  /* Custom Professional Theme-Aware Scrollbars */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #09090b;
+    background: var(--custom-zinc-950);
   }
   ::-webkit-scrollbar-thumb {
-    background: #27272a;
+    background: var(--custom-zinc-700);
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #10b981;
+    background: var(--custom-zinc-500);
   }
 
   /* Firefox */
   * {
     scrollbar-width: thin;
-    scrollbar-color: #27272a #09090b;
+    scrollbar-color: var(--custom-zinc-700) var(--custom-zinc-950);
   }
 }
 
@@ -220,9 +229,9 @@
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: var(--custom-zinc-700);
   border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #10b981;
+  background: var(--custom-zinc-500);
 }

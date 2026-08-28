@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import React, { useState } from 'react';
 import { ChevronRight, Search, Download, Printer, FileText, MoreVertical, Edit, Trash2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -53,9 +55,9 @@ export default function SmsSendingTimePage() {
         <h1 className="text-2xl font-bold text-white">SMS Sending Time</h1>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="flex items-center text-sm text-zinc-400">
-            <span>Dashboard</span>
+            <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
             <ChevronRight className="h-4 w-4 mx-1" />
-            <span>Student Info</span>
+            <Link href="/dashboard/students" className="hover:text-emerald-400 transition-colors">Student Info</Link>
             <ChevronRight className="h-4 w-4 mx-1" />
             <span className="text-emerald-500">SMS Sending Time</span>
           </div>

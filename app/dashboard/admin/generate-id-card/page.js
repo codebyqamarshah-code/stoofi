@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, Search, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -38,9 +40,9 @@ export default function GenerateIdCardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Generate ID Card</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <span>Dashboard</span>
+          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span>Admin Section</span>
+          <Link href="/dashboard/admin/admission-query" className="hover:text-emerald-400 transition-colors">Admin Section</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span className="text-emerald-500">Generate ID Card</span>
         </div>

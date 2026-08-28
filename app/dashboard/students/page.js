@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { ChevronRight, Search, Download, Printer, FileText, MoreVertical, Plus, Edit, Trash2 } from 'lucide-react';
+import { ChevronRight, Search, Download, Printer, FileText, Plus, Edit, Trash2, X, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,6 +28,11 @@ export default function StudentListPage() {
   const [appliedFilters, setAppliedFilters] = useState({
     academicYear: '2026[Jan-Dec]', classFilter: '', sectionFilter: '', nameFilter: '', rollFilter: ''
   });
+
+  // Edit modal state
+  const [editModal, setEditModal] = useState(false);
+  const [editStudent, setEditStudent] = useState(null);
+  const [editLoading, setEditLoading] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -68,21 +73,55 @@ export default function StudentListPage() {
     }
   };
 
+  const openEdit = (student) => {
+    setEditStudent({ ...student });
+    setEditModal(true);
+  };
+
+  const closeEdit = () => {
+    setEditModal(false);
+    setEditStudent(null);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditStudent(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditSave = async (e) => {
+    e.preventDefault();
+    if (!editStudent.firstName) {
+      alert('First Name is required');
+      return;
+    }
+    setEditLoading(true);
+    try {
+      const res = await api.put(`/student/${editStudent._id}`, editStudent);
+      if (res.success) {
+        setStudents(prev => prev.map(s => s._id === editStudent._id ? { ...s, ...editStudent } : s));
+        closeEdit();
+      } else {
+        alert(res.message || 'Failed to update student');
+      }
+    } catch (error) {
+      alert(error.message || 'Failed to update student');
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
   const filteredStudents = useMemo(() => {
     return students.filter(s => {
-      // Apply Quick Search
       if (quickSearch && 
           !(s.firstName + ' ' + s.lastName).toLowerCase().includes(quickSearch.toLowerCase()) && 
           !s.admissionNo?.includes(quickSearch)) {
         return false;
       }
-      // Apply Advanced Filters
       const fullName = `${s.firstName || ''} ${s.lastName || ''}`.toLowerCase();
       if (appliedFilters.nameFilter && !fullName.includes(appliedFilters.nameFilter.toLowerCase())) return false;
       if (appliedFilters.rollFilter && s.rollNo !== appliedFilters.rollFilter && s.admissionNo !== appliedFilters.rollFilter) return false;
       if (appliedFilters.classFilter && s.className !== appliedFilters.classFilter) return false;
       if (appliedFilters.sectionFilter && s.section !== appliedFilters.sectionFilter) return false;
-      
       return true;
     });
   }, [students, quickSearch, appliedFilters]);
@@ -99,12 +138,186 @@ export default function StudentListPage() {
 
   return (
     <div className="space-y-6">
+      {/* Edit Modal */}
+      {editModal && editStudent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-5 border-b border-zinc-800">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <Edit className="h-5 w-5 text-emerald-500" />
+                Edit Student
+              </h2>
+              <button onClick={closeEdit} className="text-zinc-400 hover:text-white transition-colors">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <form onSubmit={handleEditSave} className="p-5 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-400 uppercase">First Name <span className="text-rose-500">*</span></Label>
+                  <Input
+                    name="firstName"
+                    value={editStudent.firstName || ''}
+                    onChange={handleEditChange}
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    placeholder="First Name"
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Last Name</Label>
+                  <Input
+                    name="lastName"
+                    value={editStudent.lastName || ''}
+                    onChange={handleEditChange}
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    placeholder="Last Name"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Father Name</Label>
+                  <Input
+                    name="fatherName"
+                    value={editStudent.fatherName || ''}
+                    onChange={handleEditChange}
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    placeholder="Father Name"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Mother Name</Label>
+                  <Input
+                    name="motherName"
+                    value={editStudent.motherName || ''}
+                    onChange={handleEditChange}
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    placeholder="Mother Name"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Date of Birth</Label>
+                  <Input
+                    name="dob"
+                    type="date"
+                    value={editStudent.dob || ''}
+                    onChange={handleEditChange}
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Gender</Label>
+                  <select
+                    name="gender"
+                    value={editStudent.gender || ''}
+                    onChange={handleEditChange}
+                    className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Phone</Label>
+                  <Input
+                    name="phone"
+                    value={editStudent.phone || ''}
+                    onChange={handleEditChange}
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    placeholder="Phone Number"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Email</Label>
+                  <Input
+                    name="email"
+                    type="email"
+                    value={editStudent.email || ''}
+                    onChange={handleEditChange}
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    placeholder="Email Address"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Class</Label>
+                  <select
+                    name="className"
+                    value={editStudent.className || ''}
+                    onChange={handleEditChange}
+                    className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <option value="">Select Class</option>
+                    {classes.map(c => (
+                      <option key={c._id} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Section</Label>
+                  <select
+                    name="section"
+                    value={editStudent.section || ''}
+                    onChange={handleEditChange}
+                    className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <option value="">Select Section</option>
+                    {sections.map(s => (
+                      <option key={s._id} value={s.name}>{s.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Roll No</Label>
+                  <Input
+                    name="rollNo"
+                    value={editStudent.rollNo || ''}
+                    onChange={handleEditChange}
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    placeholder="Roll Number"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Admission No</Label>
+                  <Input
+                    name="admissionNo"
+                    value={editStudent.admissionNo || ''}
+                    onChange={handleEditChange}
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    placeholder="Admission Number"
+                  />
+                </div>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Address</Label>
+                  <Input
+                    name="address"
+                    value={editStudent.address || ''}
+                    onChange={handleEditChange}
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    placeholder="Address"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-end gap-3 pt-2 border-t border-zinc-800">
+                <Button type="button" variant="outline" onClick={closeEdit} className="border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800">
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={editLoading} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2">
+                  <Save className="h-4 w-4" />
+                  {editLoading ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Manage Student</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <span>Dashboard</span>
+          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span>Student Info</span>
+          <Link href="/dashboard/students" className="hover:text-emerald-400 transition-colors">Student Info</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span className="text-emerald-500">Student List</span>
         </div>
@@ -256,10 +469,10 @@ export default function StudentListPage() {
                     <td className="px-4 py-3 text-zinc-300">{student.phone || '-'}</td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500 hover:text-blue-400 hover:bg-blue-500/10">
+                        <Button onClick={() => openEdit(student)} variant="ghost" size="icon" className="h-8 w-8 text-blue-500 hover:text-blue-400 hover:bg-blue-500/10" title="Edit Student">
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button onClick={() => handleDelete(student._id)} variant="ghost" size="icon" className="h-8 w-8 text-rose-500 hover:text-rose-400 hover:bg-rose-500/10">
+                        <Button onClick={() => handleDelete(student._id)} variant="ghost" size="icon" className="h-8 w-8 text-rose-500 hover:text-rose-400 hover:bg-rose-500/10" title="Delete Student">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

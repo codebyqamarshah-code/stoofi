@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -66,9 +68,9 @@ export default function ExamTypePage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Exam Type</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <span>Dashboard</span>
+          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span>Examination</span>
+          <Link href="/dashboard/examination/exam-setup" className="hover:text-emerald-400 transition-colors">Examination</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span className="text-emerald-500">Exam Type</span>
         </div>

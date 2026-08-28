@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, Search, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -69,9 +71,9 @@ export default function FeesGroupPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Fees Group</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <span>Dashboard</span>
+          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span>Fees</span>
+          <Link href="/dashboard/fees/invoice" className="hover:text-emerald-400 transition-colors">Fees</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span className="text-emerald-500">Fees Group</span>
         </div>

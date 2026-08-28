@@ -24,19 +24,24 @@ export default function Home() {
   }, [mounted, isAuthenticated, router]);
 
   return (
-    <div className="flex h-screen items-center justify-center bg-zinc-950">
-      <div className="relative flex flex-col items-center justify-center">
-        <div className="h-16 w-16 relative flex items-center justify-center mb-6">
-          <div className="absolute inset-0 border-4 border-zinc-800 rounded-full"></div>
-          <div className="absolute inset-0 border-4 border-emerald-500 rounded-full border-t-transparent animate-spin"></div>
-          <div className="absolute inset-2 bg-zinc-900 rounded-full flex items-center justify-center">
-            <div className="h-2 w-2 bg-emerald-500 rounded-full animate-pulse"></div>
-          </div>
+    <div className="flex h-screen items-center justify-center bg-zinc-950 overflow-hidden">
+      <div className="relative flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-700">
+        {/* Glowing ambient background */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-emerald-500/20 blur-[60px] rounded-full animate-pulse pointer-events-none"></div>
+        
+        <div className="mb-10 relative z-10 transform hover:scale-105 transition-transform duration-500">
+          <img src="/eskooly light.png" alt="eSkooly PRO" className="h-20 sm:h-24 w-auto object-contain drop-shadow-2xl dark:hidden" />
+          <img src="/logo dark.png" alt="eSkooly PRO" className="h-20 sm:h-24 w-auto object-contain drop-shadow-2xl hidden dark:block" />
         </div>
-        <h2 className="text-xl font-bold tracking-tight text-white mb-2">
-          eSkooly<span className="text-[10px] font-bold text-zinc-900 bg-emerald-500 rounded px-1.5 py-0.5 ml-1 align-top inline-block">PRO</span>
-        </h2>
-        <p className="text-zinc-500 text-sm animate-pulse">Initializing application...</p>
+        
+        <div className="flex flex-col items-center gap-4 relative z-10">
+          <div className="flex gap-2">
+            <div className="h-2 w-2 rounded-full bg-emerald-500/80 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+            <div className="h-2 w-2 rounded-full bg-emerald-500/80 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+            <div className="h-2 w-2 rounded-full bg-emerald-500/80 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+          </div>
+          <p className="text-zinc-500 text-xs font-bold tracking-[0.2em] uppercase">Initializing Application</p>
+        </div>
       </div>
     </div>
   );

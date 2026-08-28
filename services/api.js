@@ -8,12 +8,28 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to add auth token if stored in memory/localstorage
-// (Token is also sent via HTTP-only cookie automatically because of withCredentials: true)
+// Request interceptor — attach token from Zustand persisted store or js-cookie
 api.interceptors.request.use((config) => {
-  // If you use local storage for token fallback:
-  // const token = localStorage.getItem('token');
-  // if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (typeof window !== 'undefined') {
+    // 1. Try Zustand persisted auth store (primary source)
+    try {
+      const raw = localStorage.getItem('auth-storage');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const token = parsed?.state?.token;
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+          return config;
+        }
+      }
+    } catch (_) {}
+
+    // 2. Fallback: plain token key
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
   return config;
 });
 

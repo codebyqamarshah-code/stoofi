@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import React, { useState, useMemo } from 'react';
 import { ChevronRight, Search, Plus, Download, Printer, FileText, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -49,8 +51,8 @@ export default function IncidentsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Incidents</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <span>Dashboard</span><ChevronRight className="h-4 w-4 mx-1" />
-          <span>Behaviour Records</span><ChevronRight className="h-4 w-4 mx-1" />
+          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link><ChevronRight className="h-4 w-4 mx-1" />
+          <Link href="/dashboard/behaviour/incidents" className="hover:text-emerald-400 transition-colors">Behaviour Records</Link><ChevronRight className="h-4 w-4 mx-1" />
           <span className="text-emerald-500">Incidents</span>
         </div>
       </div>

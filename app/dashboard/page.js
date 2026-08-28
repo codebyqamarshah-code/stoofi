@@ -31,6 +31,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { useRouter } from 'next/navigation';
 import api from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -49,6 +50,7 @@ import {
 } from 'recharts';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const [todoTab, setTodoTab] = useState('all');
   const [calendarView, setCalendarView] = useState('month');
@@ -635,39 +637,49 @@ export default function DashboardPage() {
         </div>
 
         {/* 5 REAL WORKING QUICK ACTION BUTTONS (RESTORED AS REQUESTED) */}
-        <div className="flex flex-wrap items-center gap-2 pt-6 mt-4 border-t border-zinc-800/60">
-          <Button 
-            size="sm" 
-            onClick={() => setIsAdmissionModalOpen(true)}
-            className="bg-zinc-950 hover:bg-emerald-950/60 hover:text-emerald-400 border border-zinc-800 text-xs font-medium text-zinc-300 h-8 rounded-full transition-all flex items-center gap-1.5"
+        {/* 5 REAL WORKING QUICK ACTION BUTTONS */}
+        <div className="flex flex-wrap gap-3 mt-4 pt-6 border-t border-zinc-800/60">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 rounded-full border-zinc-700 bg-zinc-950/50 text-xs font-semibold text-zinc-300 hover:bg-emerald-950/50 hover:text-emerald-400 hover:border-emerald-500/30 cursor-pointer"
+            onClick={() => router.push('/dashboard/students/add')}
           >
             <UserPlus className="h-3.5 w-3.5 text-emerald-500" /> Student Admission
           </Button>
-          <Button 
-            size="sm" 
-            onClick={() => setIsFeeModalOpen(true)}
-            className="bg-zinc-950 hover:bg-emerald-950/60 hover:text-emerald-400 border border-zinc-800 text-xs font-medium text-zinc-300 h-8 rounded-full transition-all flex items-center gap-1.5"
+          
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 rounded-full border-zinc-700 bg-zinc-950/50 text-xs font-semibold text-zinc-300 hover:bg-emerald-950/50 hover:text-emerald-400 hover:border-emerald-500/30 cursor-pointer"
+            onClick={() => router.push('/dashboard/fees/invoice')}
           >
             <CreditCard className="h-3.5 w-3.5 text-emerald-500" /> Collect Fees
           </Button>
-          <Button 
-            size="sm" 
-            onClick={() => setIsAttendanceModalOpen(true)}
-            className="bg-zinc-950 hover:bg-emerald-950/60 hover:text-emerald-400 border border-zinc-800 text-xs font-medium text-zinc-300 h-8 rounded-full transition-all flex items-center gap-1.5"
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 rounded-full border-zinc-700 bg-zinc-950/50 text-xs font-semibold text-zinc-300 hover:bg-emerald-950/50 hover:text-emerald-400 hover:border-emerald-500/30 cursor-pointer"
+            onClick={() => router.push('/dashboard/students/attendance')}
           >
             <CheckSquare className="h-3.5 w-3.5 text-emerald-500" /> Attendance
           </Button>
-          <Button 
-            size="sm" 
-            onClick={handleOpenCreateNotice}
-            className="bg-zinc-950 hover:bg-emerald-950/60 hover:text-emerald-400 border border-zinc-800 text-xs font-medium text-zinc-300 h-8 rounded-full transition-all flex items-center gap-1.5"
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 rounded-full border-zinc-700 bg-zinc-950/50 text-xs font-semibold text-zinc-300 hover:bg-emerald-950/50 hover:text-emerald-400 hover:border-emerald-500/30 cursor-pointer"
+            onClick={() => router.push('/dashboard/utilities/communicate')}
           >
             <Bell className="h-3.5 w-3.5 text-emerald-500" /> Add Notice
           </Button>
-          <Button 
-            size="sm" 
-            onClick={() => setIsExpenseModalOpen(true)}
-            className="bg-zinc-950 hover:bg-emerald-950/60 hover:text-emerald-400 border border-zinc-800 text-xs font-medium text-zinc-300 h-8 rounded-full transition-all flex items-center gap-1.5"
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 rounded-full border-zinc-700 bg-zinc-950/50 text-xs font-semibold text-zinc-300 hover:bg-emerald-950/50 hover:text-emerald-400 hover:border-emerald-500/30 cursor-pointer"
+            onClick={() => router.push('/dashboard/accounts/accounts')}
           >
             <Receipt className="h-3.5 w-3.5 text-emerald-500" /> Add Expense
           </Button>
@@ -676,7 +688,10 @@ export default function DashboardPage() {
 
       {/* 2. 4 TOTAL STAT CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-zinc-900 border-zinc-800 p-5 hover:border-emerald-500/40 transition-all">
+        <Card 
+          className="bg-zinc-900 border-zinc-800 p-5 hover:border-emerald-500/40 transition-all cursor-pointer"
+          onClick={() => router.push('/dashboard/students')}
+        >
           <div className="flex items-center gap-4">
             <div className="h-12 w-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
               <GraduationCap className="h-6 w-6" />
@@ -688,7 +703,10 @@ export default function DashboardPage() {
           </div>
         </Card>
 
-        <Card className="bg-zinc-900 border-zinc-800 p-5 hover:border-emerald-500/40 transition-all">
+        <Card 
+          className="bg-zinc-900 border-zinc-800 p-5 hover:border-emerald-500/40 transition-all cursor-pointer"
+          onClick={() => router.push('/dashboard/hr/staff-directory')}
+        >
           <div className="flex items-center gap-4">
             <div className="h-12 w-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
               <Briefcase className="h-6 w-6" />
@@ -700,6 +718,7 @@ export default function DashboardPage() {
           </div>
         </Card>
 
+        {/* Parents Card - Intentionally left without a link as requested */}
         <Card className="bg-zinc-900 border-zinc-800 p-5 hover:border-emerald-500/40 transition-all">
           <div className="flex items-center gap-4">
             <div className="h-12 w-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
@@ -712,7 +731,10 @@ export default function DashboardPage() {
           </div>
         </Card>
 
-        <Card className="bg-zinc-900 border-zinc-800 p-5 hover:border-emerald-500/40 transition-all">
+        <Card 
+          className="bg-zinc-900 border-zinc-800 p-5 hover:border-emerald-500/40 transition-all cursor-pointer"
+          onClick={() => router.push('/dashboard/hr/staff-directory')}
+        >
           <div className="flex items-center gap-4">
             <div className="h-12 w-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
               <UserCheck className="h-6 w-6" />
