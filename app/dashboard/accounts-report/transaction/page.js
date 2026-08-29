@@ -1,0 +1,71 @@
+'use client';
+import React, { useState } from 'react';
+import { Search } from 'lucide-react';
+import api from '@/services/api';
+
+export default function TransactionReport() {
+  const [formData, setFormData] = useState({ dateRange: '', type: '', paymentMethod: '' });
+
+  const handleSearch = () => {
+    console.log('Search', formData);
+  };
+
+  return (
+    <div className="min-h-screen bg-zinc-950 text-white p-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">Transaction</h1>
+        <p className="text-sm text-zinc-400">Dashboard &gt; Accounts &gt; Reports &gt; Transaction</p>
+      </div>
+
+      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6">
+        <h2 className="text-lg font-semibold mb-4 text-zinc-100">Select Criteria</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div>
+            <label className="block text-sm text-zinc-400 mb-1">DATE RANGE *</label>
+            <input 
+              type="text" 
+              placeholder="Select Date Range"
+              className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              value={formData.dateRange}
+              onChange={(e) => setFormData({...formData, dateRange: e.target.value})}
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-zinc-400 mb-1">TYPE *</label>
+            <select 
+              className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              value={formData.type}
+              onChange={(e) => setFormData({...formData, type: e.target.value})}
+            >
+              <option value="">Search Type</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm text-zinc-400 mb-1">PAYMENT METHOD *</label>
+            <select 
+              className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              value={formData.paymentMethod}
+              onChange={(e) => setFormData({...formData, paymentMethod: e.target.value})}
+            >
+              <option value="">All</option>
+              <option value="cash">Cash</option>
+              <option value="card">Card</option>
+              <option value="bank">Bank Transfer</option>
+            </select>
+          </div>
+        </div>
+        <div className="flex justify-end">
+          <button 
+            onClick={handleSearch}
+            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded transition-colors text-sm font-medium"
+          >
+            <Search className="w-4 h-4" />
+            SEARCH
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

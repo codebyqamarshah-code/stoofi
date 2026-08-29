@@ -1,76 +1,146 @@
 'use client';
-
-import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { 
+    Search, ChevronRight, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, Trash2 
+} from 'lucide-react';
 import api from '@/services/api';
 
 export default function ApprovedReportPage() {
-  const [records, setRecords] = useState([]);
-  const [staff, setStaff] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+    const [data, setData] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    
+    useEffect(() => {
+        // Fetch data
+        const fetchData = async () => {
+            try {
+                // const res = await api.get('/teacher-evaluation/approved');
+                // setData(res.data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchData();
+    }, []);
 
-  const fetchAll = async () => {
-    try {
-      const [rRes, sRes] = await Promise.all([
-        api.get('/teacher-evaluation'), api.get('/staff')
-      ]);
-      if (rRes.success) setRecords(rRes.data.filter(r => r.status === 'approved'));
-      if (sRes.success) setStaff(sRes.data);
-    } catch (e) { console.error(e); } finally { setLoading(false); }
-  };
+    return (
+        <div className="min-h-screen bg-zinc-950 p-6">
+            {/* Breadcrumb */}
+            <div className="flex items-center text-sm text-zinc-400 mb-6">
+                <span>Dashboard</span>
+                <ChevronRight className="w-4 h-4 mx-2" />
+                <span>Teacher Evaluation</span>
+                <ChevronRight className="w-4 h-4 mx-2" />
+                <span className="text-zinc-100">Teacher Approved Evaluation Report</span>
+            </div>
 
-  useEffect(() => { fetchAll(); }, []);
+            <h1 className="text-2xl font-semibold text-white mb-6">Teacher Approved Evaluation Report</h1>
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this record?')) return;
-    try { const res = await api.delete(`/teacher-evaluation/${id}`); if (res.success) fetchAll(); } catch (e) { alert(e.message); }
-  };
+            {/* Filter Card */}
+            <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div>
+                        <label className="block text-xs font-medium text-zinc-400 mb-1">CLASS *</label>
+                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <option value="">Select Class *</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-zinc-400 mb-1">SUBJECT</label>
+                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <option value="">Select Subject</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-zinc-400 mb-1">SECTION</label>
+                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-zinc-400 mb-1">TEACHER</label>
+                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <option value="">Select Teacher</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-zinc-400 mb-1">SUBMITTED BY</label>
+                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                </div>
+                <div className="flex justify-end mt-4">
+                    <button className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded transition-colors">
+                        <Search className="w-4 h-4 mr-2" />
+                        SEARCH
+                    </button>
+                </div>
+            </div>
 
-  const getName = (arr, id, field = 'name') => arr.find(x => x._id === id)?.[field] || '-';
-  const filtered = records.filter(r => getName(staff, r.teacherId, 'firstName').toLowerCase().includes(search.toLowerCase()));
+            {/* Table Card */}
+            <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6">
+                <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+                    <div className="relative w-full sm:w-auto">
+                        <Search className="w-4 h-4 absolute left-3 top-2.5 text-zinc-500" />
+                        <input 
+                            type="text" 
+                            placeholder="Search..." 
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-9 pr-4 py-2 w-full sm:w-64 bg-zinc-900 border border-zinc-800 rounded text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <button className="p-2 border border-zinc-800 rounded text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors" title="Copy"><Copy className="w-4 h-4" /></button>
+                        <button className="p-2 border border-zinc-800 rounded text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors" title="Excel"><FileSpreadsheet className="w-4 h-4" /></button>
+                        <button className="p-2 border border-zinc-800 rounded text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors" title="CSV"><FileText className="w-4 h-4" /></button>
+                        <button className="p-2 border border-zinc-800 rounded text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors" title="Print"><Printer className="w-4 h-4" /></button>
+                        <button className="p-2 border border-zinc-800 rounded text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors" title="Download"><Download className="w-4 h-4" /></button>
+                        <button className="p-2 border border-zinc-800 rounded text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors" title="Columns"><Columns className="w-4 h-4" /></button>
+                    </div>
+                </div>
 
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Approved Report</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard/teacher-evaluation/approved-report" className="hover:text-emerald-400 transition-colors">Teacher Evaluation</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Approved Report</span>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm text-zinc-400">
+                        <thead className="text-xs text-zinc-400 uppercase bg-zinc-950 border-y border-zinc-800">
+                            <tr>
+                                <th className="px-4 py-3 font-medium">Staff Id</th>
+                                <th className="px-4 py-3 font-medium">Teacher Name</th>
+                                <th className="px-4 py-3 font-medium">Submitted By</th>
+                                <th className="px-4 py-3 font-medium">Class(Section)</th>
+                                <th className="px-4 py-3 font-medium">Rating</th>
+                                <th className="px-4 py-3 font-medium">Comment</th>
+                                <th className="px-4 py-3 font-medium">Status</th>
+                                <th className="px-4 py-3 font-medium text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {data.length === 0 ? (
+                                <tr>
+                                    <td colSpan="8" className="px-4 py-8 text-center text-zinc-500">No data available in table</td>
+                                </tr>
+                            ) : (
+                                data.map((item, idx) => (
+                                    <tr key={idx} className="border-b border-zinc-800 hover:bg-zinc-800/50">
+                                        <td className="px-4 py-3 text-zinc-300">{item.staffId}</td>
+                                        <td className="px-4 py-3 text-zinc-300">{item.teacherName}</td>
+                                        <td className="px-4 py-3 text-zinc-300">{item.submittedBy}</td>
+                                        <td className="px-4 py-3 text-zinc-300">{item.classSection}</td>
+                                        <td className="px-4 py-3 text-zinc-300">{item.rating}</td>
+                                        <td className="px-4 py-3 text-zinc-300">{item.comment}</td>
+                                        <td className="px-4 py-3 text-zinc-300">{item.status}</td>
+                                        <td className="px-4 py-3 text-right text-zinc-300">
+                                            <button className="text-rose-500 hover:text-rose-400 transition-colors" title="Delete">
+                                                <Trash2 className="w-4 h-4 ml-auto" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-      </div>
-      
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl">
-        <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-white">Approved Evaluations List</h2>
-          <div className="relative w-64"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" /><Input placeholder="Search Teacher..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500" /></div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
-              <tr><th className="px-4 py-3">SL</th><th className="px-4 py-3">Teacher</th><th className="px-4 py-3">Criteria</th><th className="px-4 py-3">Rating</th><th className="px-4 py-3">Comments</th><th className="px-4 py-3 text-right">Action</th></tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800">
-              {loading ? <tr><td colSpan="6" className="px-4 py-8 text-center text-zinc-500">Loading...</td></tr>
-              : filtered.length === 0 ? <tr><td colSpan="6" className="px-4 py-8 text-center text-zinc-500">No Approved Reports Found</td></tr>
-              : filtered.map((item, idx) => (
-                <tr key={item._id} className="hover:bg-zinc-900/50">
-                  <td className="px-4 py-3 text-emerald-500">+{idx+1}</td>
-                  <td className="px-4 py-3 font-medium text-zinc-300">{getName(staff, item.teacherId, 'firstName')} {getName(staff, item.teacherId, 'lastName')}</td>
-                  <td className="px-4 py-3 text-zinc-400">{item.criteria}</td>
-                  <td className="px-4 py-3 text-emerald-400 font-bold">{item.rating} / 5</td>
-                  <td className="px-4 py-3 text-zinc-400">{item.comments}</td>
-                  <td className="px-4 py-3 text-right">
-                    <Button onClick={() => handleDelete(item._id)} variant="ghost" size="sm" className="h-8 text-rose-500 hover:bg-rose-500/10">DELETE</Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
+    );
 }

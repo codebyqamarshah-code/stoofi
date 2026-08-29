@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronRight, Search, Download, Printer, FileText, Plus, Edit, Trash2, X, Save } from 'lucide-react';
@@ -469,7 +469,7 @@ export default function StudentListPage() {
                     <td className="px-4 py-3 text-zinc-300">{student.phone || '-'}</td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button onClick={() => openEdit(student)} variant="ghost" size="icon" className="h-8 w-8 text-blue-500 hover:text-blue-400 hover:bg-blue-500/10" title="Edit Student">
+                        <Button onClick={() => openEdit(student)} variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10" title="Edit Student">
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button onClick={() => handleDelete(student._id)} variant="ghost" size="icon" className="h-8 w-8 text-rose-500 hover:text-rose-400 hover:bg-rose-500/10" title="Delete Student">
@@ -498,3 +498,4 @@ export default function StudentListPage() {
     </div>
   );
 }
+

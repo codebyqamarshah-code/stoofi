@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 
@@ -306,7 +306,7 @@ export default function AdmissionQueryPage() {
                     <td className="px-4 py-3 text-zinc-300">{q.phone || '-'}</td>
                     <td className="px-4 py-3 text-zinc-300">{q.source || '-'}</td>
                     <td className="px-4 py-3 text-zinc-300">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${q.status === 'Active' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : q.status === 'Won' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' : 'bg-rose-500/10 text-rose-500 border border-rose-500/20'}`}>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${q.status === 'Active' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : q.status === 'Won' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border border-rose-500/20'}`}>
                         {q.status}
                       </span>
                     </td>
@@ -341,3 +341,4 @@ export default function AdmissionQueryPage() {
     </div>
   );
 }
+

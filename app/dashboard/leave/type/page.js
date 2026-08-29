@@ -1,135 +1,80 @@
 'use client';
 
-import Link from 'next/link';
-import React, { useState, useEffect } from 'react';
-import { ChevronRight, Search, Edit, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import React from 'react';
 import api from '@/services/api';
+import { Copy, FileSpreadsheet, FileText, Printer, Download, Columns } from 'lucide-react';
 
-const EMPTY = { name: '', maxDays: '', description: '' };
-
-export default function LeaveTypePage() {
-  const [records, setRecords] = useState([]);
-  const [formData, setFormData] = useState(EMPTY);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [search, setSearch] = useState('');
-  const [editId, setEditId] = useState(null);
-
-  const fetchAll = async () => {
-    try {
-      const res = await api.get('/leave-type');
-      if (res.success) setRecords(res.data);
-    } catch (e) { console.error(e); } finally { setLoading(false); }
-  };
-
-  useEffect(() => { fetchAll(); }, []);
-
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      setSubmitting(true);
-      if (editId) {
-        const res = await api.put(`/leave-type/${editId}`, formData);
-        if (res.success) { setFormData(EMPTY); setEditId(null); fetchAll(); }
-      } else {
-        const res = await api.post('/leave-type', formData);
-        if (res.success) { setFormData(EMPTY); fetchAll(); }
-      }
-    } catch (e) { alert(e.message); } finally { setSubmitting(false); }
-  };
-
-  const handleEdit = (item) => {
-    setFormData({ name: item.name || '', maxDays: item.maxDays || '', description: item.description || '' });
-    setEditId(item._id);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const cancelEdit = () => { setFormData(EMPTY); setEditId(null); };
-
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this record?')) return;
-    try { const res = await api.delete(`/leave-type/${id}`); if (res.success) fetchAll(); } catch (e) { alert(e.message); }
-  };
-
-  const filtered = records.filter(r => r.name.toLowerCase().includes(search.toLowerCase()));
-
+export default function LeaveType() {
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Leave Type</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard/leave/apply" className="hover:text-emerald-400 transition-colors">Leave</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Leave Type</span>
-        </div>
+    <div className="min-h-screen bg-zinc-950 text-white p-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold mb-2">Leave Type</h1>
       </div>
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-1">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl">
-            <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">{editId ? 'Edit' : 'Add'} Leave Type</h2>
-              {editId && (
-                <button onClick={cancelEdit} className="text-zinc-400 hover:text-white transition-colors">
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-            <form className="p-4 space-y-4" onSubmit={handleSubmit}>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-zinc-400 uppercase">Name *</Label>
-                <Input name="name" value={formData.name} onChange={handleChange} className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" required />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Card */}
+        <div className="lg:col-span-1">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6">
+            <h2 className="text-lg font-medium mb-4 border-b border-zinc-800 pb-2">Add Leave Type</h2>
+            <form>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-zinc-400 mb-1">TYPE NAME *</label>
+                <input
+                  type="text"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
+                  required
+                />
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-zinc-400 uppercase">Max Days</Label>
-                <Input type="number" name="maxDays" value={formData.maxDays} onChange={handleChange} className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-zinc-400 uppercase">Description</Label>
-                <textarea name="description" value={formData.description} onChange={handleChange} className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" />
-              </div>
-              <div className="flex gap-2">
-                <Button disabled={submitting} type="submit" className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
-                  {submitting ? 'SAVING...' : editId ? 'UPDATE' : 'SAVE'}
-                </Button>
-                {editId && (
-                  <Button type="button" onClick={cancelEdit} variant="outline" className="border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800">Cancel</Button>
-                )}
-              </div>
+              <button
+                type="submit"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+              >
+                SAVE TYPE
+              </button>
             </form>
           </div>
         </div>
-        <div className="xl:col-span-2">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl">
-            <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-white">Leave Type List</h2>
-              <div className="relative w-48"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" /><Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500" /></div>
+
+        {/* Right Card */}
+        <div className="lg:col-span-2">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6">
+            <h2 className="text-lg font-medium mb-4 border-b border-zinc-800 pb-2">Leave Type List</h2>
+            
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+              <input
+                type="text"
+                placeholder="Search..."
+                className="w-full sm:w-64 bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
+              />
+              <div className="flex gap-2 text-zinc-400">
+                <button className="p-2 hover:text-white transition-colors"><Copy size={18} /></button>
+                <button className="p-2 hover:text-white transition-colors"><FileSpreadsheet size={18} /></button>
+                <button className="p-2 hover:text-white transition-colors"><FileText size={18} /></button>
+                <button className="p-2 hover:text-white transition-colors"><Printer size={18} /></button>
+                <button className="p-2 hover:text-white transition-colors"><Download size={18} /></button>
+                <button className="p-2 hover:text-white transition-colors"><Columns size={18} /></button>
+              </div>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
-                  <tr><th className="px-4 py-3">SL</th><th className="px-4 py-3">Leave Type Name</th><th className="px-4 py-3">Max Days</th><th className="px-4 py-3">Action</th></tr>
+
+            <div className="overflow-x-auto border border-zinc-800 rounded-lg">
+              <table className="w-full text-left text-sm text-zinc-400 border-collapse">
+                <thead className="bg-zinc-950 text-white border-b border-zinc-800">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">Type</th>
+                    <th className="px-4 py-3 font-medium text-right">Action</th>
+                  </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-800">
-                  {loading ? <tr><td colSpan="4" className="px-4 py-8 text-center text-zinc-500">Loading...</td></tr>
-                  : filtered.length === 0 ? <tr><td colSpan="4" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-                  : filtered.map((item, idx) => (
-                    <tr key={item._id} className={`hover:bg-zinc-900/50 transition-colors ${editId === item._id ? 'bg-emerald-950/20 border-l-2 border-l-emerald-500' : ''}`}>
-                      <td className="px-4 py-3 text-emerald-500">+{idx+1}</td>
-                      <td className="px-4 py-3 text-zinc-300">{item.name}</td>
-                      <td className="px-4 py-3 text-zinc-400">{item.maxDays}</td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <Button onClick={() => handleEdit(item)} variant="ghost" size="sm" className="h-8 text-blue-500 hover:bg-blue-500/10">
-                            <Edit className="h-3.5 w-3.5 mr-1" /> EDIT
-                          </Button>
-                          <Button onClick={() => handleDelete(item._id)} variant="ghost" size="sm" className="h-8 text-rose-500 hover:bg-rose-500/10">DELETE</Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                <tbody>
+                  <tr className="border-b border-zinc-800 hover:bg-zinc-950/50">
+                    <td className="px-4 py-3 text-white">Casual Leave</td>
+                    <td className="px-4 py-3 text-right">
+                      <select className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1 rounded appearance-none cursor-pointer outline-none text-center">
+                        <option>SELECT</option>
+                        <option>Edit</option>
+                        <option>Delete</option>
+                      </select>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>

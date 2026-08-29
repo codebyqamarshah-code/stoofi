@@ -1,126 +1,218 @@
-'use client';
-
+﻿'use client';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ChevronRight, ChevronDown, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, Eye, Zap } from 'lucide-react';
 import api from '@/services/api';
 
+const ROLES = ['admin', 'teacher', 'staff', 'accountant'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const ITEMS_PER_PAGE = 10;
+const CY = new Date().getFullYear();
+const YEARS = [CY - 2, CY - 1, CY, CY + 1, CY + 2];
+
+const STATUS_COLORS = {
+  paid: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
+  generated: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
+  pending: 'bg-amber-500/15 text-amber-400 border border-amber-500/30',
+};
+
 export default function PayrollPage() {
-  const [records, setRecords] = useState([]);
   const [staff, setStaff] = useState([]);
-  const [formData, setFormData] = useState({ staffId: '', month: '', year: '', basicSalary: '', allowances: '', deductions: '' });
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [search, setSearch] = useState('');
+  const [records, setRecords] = useState([]);
+  const [searched, setSearched] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [role, setRole] = useState('');
+  const [month, setMonth] = useState(MONTHS[new Date().getMonth()]);
+  const [year, setYear] = useState(String(CY));
+  const [page, setPage] = useState(1);
 
-  const fetchAll = async () => {
+  useEffect(() => {
+    api.get('/staff').then(r => { if (r.success) setStaff(r.data); }).catch(() => {});
+  }, []);
+
+  const handleSearch = async () => {
+    setLoading(true);
+    setSearched(true);
     try {
-      const [rRes, sRes] = await Promise.all([api.get('/payroll'), api.get('/staff')]);
-      if (rRes.success) setRecords(rRes.data);
-      if (sRes.success) setStaff(sRes.data);
-    } catch (e) { console.error(e); } finally { setLoading(false); }
+      const res = await api.get('/payroll');
+      if (res.success) {
+        let data = res.data;
+        if (month) data = data.filter(r => r.month === month);
+        if (year) data = data.filter(r => String(r.year) === String(year));
+        setRecords(data);
+      } else {
+        setRecords([]);
+      }
+    } catch (e) { console.error(e); setRecords([]); } finally { setLoading(false); setPage(1); }
   };
 
-  useEffect(() => { fetchAll(); }, []);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleGenerate = async (item) => {
     try {
-      setSubmitting(true);
-      const b = Number(formData.basicSalary) || 0;
-      const a = Number(formData.allowances) || 0;
-      const d = Number(formData.deductions) || 0;
-      const netSalary = b + a - d;
-      
-      const res = await api.post('/payroll', { ...formData, netSalary });
-      if (res.success) { setFormData({ staffId: '', month: '', year: '', basicSalary: '', allowances: '', deductions: '' }); fetchAll(); }
-    } catch (e) { alert(e.message); } finally { setSubmitting(false); }
+      await api.put(`/payroll/${item._id}`, { status: 'generated' });
+      handleSearch();
+    } catch (e) { alert(e.message); }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this record?')) return;
-    try { const res = await api.delete(`/payroll/${id}`); if (res.success) fetchAll(); } catch (e) { alert(e.message); }
+  const getStaff = (id) => staff.find(s => s._id === id);
+
+  const handleCopy = () => navigator.clipboard.writeText(records.map(r => { const s = getStaff(r.staffId); return `${s?.firstName || ''} | ${r.month} ${r.year} | Net: ${r.netSalary}`; }).join('\n')).then(() => alert('Copied!'));
+
+  const handleCSV = () => {
+    const csv = 'Name,Month,Year,Basic Salary,Allowances,Deductions,Net Salary,Status\n' + records.map(r => {
+      const s = getStaff(r.staffId);
+      return `"${s?.firstName || ''} ${s?.lastName || ''}","${r.month}","${r.year}","${r.basicSalary || 0}","${r.allowances || 0}","${r.deductions || 0}","${r.netSalary || 0}","${r.status || 'pending'}"`;
+    }).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'payroll.csv'; a.click();
   };
 
-  const getName = (arr, id, field = 'name') => arr.find(x => x._id === id)?.[field] || '-';
-  const filtered = records.filter(r => getName(staff, r.staffId, 'firstName').toLowerCase().includes(search.toLowerCase()));
+  const handlePDF = () => {
+    const win = window.open('', '_blank');
+    win.document.write(`<html><head><title>Payroll</title><style>body{font-family:sans-serif}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:8px}th{background:#f0f0f0}</style></head><body><h2>Payroll - ${month} ${year}</h2><table><tr><th>#</th><th>Name</th><th>Basic</th><th>Allowances</th><th>Deductions</th><th>Net</th><th>Status</th></tr>${records.map((r, i) => { const s = getStaff(r.staffId); return `<tr><td>${i+1}</td><td>${s?.firstName || ''} ${s?.lastName || ''}</td><td>${r.basicSalary || 0}</td><td>${r.allowances || 0}</td><td>${r.deductions || 0}</td><td>${r.netSalary || 0}</td><td>${r.status || 'pending'}</td></tr>`; }).join('')}</table></body></html>`);
+    win.document.close(); win.print();
+  };
 
-  const b = Number(formData.basicSalary) || 0;
-  const a = Number(formData.allowances) || 0;
-  const d = Number(formData.deductions) || 0;
-  const currNet = b + a - d;
+  const handlePrint = () => {
+    const win = window.open('', '_blank');
+    win.document.write(`<html><body><h2>Payroll ${month} ${year}</h2><ul>${records.map(r => { const s = getStaff(r.staffId); return `<li>${s?.firstName || ''} - Net: ${r.netSalary || 0}</li>`; }).join('')}</ul></body></html>`);
+    win.document.close(); win.print();
+  };
+
+  const totalPages = Math.max(1, Math.ceil(records.length / ITEMS_PER_PAGE));
+  const paginated = records.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Payroll</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard/hr/staff-directory" className="hover:text-emerald-400 transition-colors">Human Resource</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Payroll</span>
-        </div>
-      </div>
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-1">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl">
-            <div className="p-4 border-b border-zinc-800"><h2 className="text-lg font-semibold text-white">Generate Payroll</h2></div>
-            <form className="p-4 space-y-4" onSubmit={handleSubmit}>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-zinc-400 uppercase">Staff *</Label>
-                <select value={formData.staffId} onChange={e => {
-                  const s = staff.find(x => x._id === e.target.value);
-                  setFormData({...formData, staffId: e.target.value, basicSalary: s?.salary || ''});
-                }} className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" required>
-                  <option value="">Select Staff</option>
-                  {staff.map(s => <option key={s._id} value={s._id}>{s.firstName} {s.lastName}</option>)}
-                </select>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5"><Label className="text-xs font-semibold text-zinc-400 uppercase">Month</Label><select value={formData.month} onChange={e => setFormData({...formData, month: e.target.value})} className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"><option value="">Month</option>{['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(m => <option key={m} value={m}>{m}</option>)}</select></div>
-                <div className="space-y-1.5"><Label className="text-xs font-semibold text-zinc-400 uppercase">Year</Label><Input value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})} className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" placeholder="YYYY" /></div>
-              </div>
-              <div className="space-y-1.5"><Label className="text-xs font-semibold text-zinc-400 uppercase">Basic Salary</Label><Input type="number" value={formData.basicSalary} onChange={e => setFormData({...formData, basicSalary: e.target.value})} className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" required /></div>
-              <div className="space-y-1.5"><Label className="text-xs font-semibold text-zinc-400 uppercase">Allowances</Label><Input type="number" value={formData.allowances} onChange={e => setFormData({...formData, allowances: e.target.value})} className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" /></div>
-              <div className="space-y-1.5"><Label className="text-xs font-semibold text-zinc-400 uppercase">Deductions</Label><Input type="number" value={formData.deductions} onChange={e => setFormData({...formData, deductions: e.target.value})} className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" /></div>
-              <div className="space-y-1.5"><Label className="text-xs font-semibold text-zinc-400 uppercase">Net Salary (Auto)</Label><Input type="number" value={currNet} readOnly className="bg-zinc-900 border-zinc-800 text-zinc-500 bg-opacity-50" /></div>
-              <Button disabled={submitting} type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
-                {submitting ? 'GENERATING...' : 'GENERATE PAYROLL'}
-              </Button>
-            </form>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Generate Payroll</h1>
+          <div className="flex items-center text-sm text-zinc-400 mt-1">
+            <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+            <ChevronRight className="h-4 w-4 mx-1 text-zinc-600" />
+            <Link href="/dashboard/hr/staff-directory" className="hover:text-emerald-400 transition-colors">Human Resource</Link>
+            <ChevronRight className="h-4 w-4 mx-1 text-zinc-600" />
+            <span className="text-emerald-400 font-medium">Generate Payroll</span>
           </div>
         </div>
-        <div className="xl:col-span-2">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl">
-            <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-white">Payroll List</h2>
-              <div className="relative w-48"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" /><Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500" /></div>
+      </div>
+
+      {/* Criteria Card */}
+      <div className="bg-zinc-950 border border-zinc-800 rounded-xl shadow-md">
+        <div className="p-4 border-b border-zinc-800">
+          <h2 className="text-base font-bold text-white">Select Criteria</h2>
+        </div>
+        <div className="p-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Role <span className="text-rose-500">*</span></label>
+              <select value={role} onChange={e => setRole(e.target.value)} className="w-full h-10 rounded-md border border-zinc-700 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <option value="">Role *</option>
+                {ROLES.map(r => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
+              </select>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
-                  <tr><th className="px-4 py-3">SL</th><th className="px-4 py-3">Staff</th><th className="px-4 py-3">Month/Year</th><th className="px-4 py-3">Basic</th><th className="px-4 py-3">Net Salary</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Action</th></tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-800">
-                  {loading ? <tr><td colSpan="7" className="px-4 py-8 text-center text-zinc-500">Loading...</td></tr>
-                  : filtered.length === 0 ? <tr><td colSpan="7" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-                  : filtered.map((item, idx) => (
-                    <tr key={item._id} className="hover:bg-zinc-900/50">
-                      <td className="px-4 py-3 text-emerald-500">+{idx+1}</td>
-                      <td className="px-4 py-3 font-medium text-zinc-300">{getName(staff, item.staffId, 'firstName')} {getName(staff, item.staffId, 'lastName')}</td>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Month</label>
+              <select value={month} onChange={e => setMonth(e.target.value)} className="w-full h-10 rounded-md border border-zinc-700 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Year</label>
+              <select value={year} onChange={e => setYear(e.target.value)} className="w-full h-10 rounded-md border border-zinc-700 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <button onClick={handleSearch} className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-md transition-colors">
+              <Search className="h-4 w-4" /> SEARCH
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Results */}
+      {searched && (
+        <div className="bg-zinc-950 border border-zinc-800 rounded-xl shadow-md">
+          <div className="p-4 border-b border-zinc-800 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-base font-bold text-white">Payroll List — {month} {year}</h2>
+            <div className="flex items-center gap-1">
+              <button onClick={handleCopy} title="Copy" className="p-1.5 rounded border border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"><Copy className="h-3.5 w-3.5" /></button>
+              <button onClick={handleCSV} title="Excel" className="p-1.5 rounded border border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"><FileSpreadsheet className="h-3.5 w-3.5" /></button>
+              <button onClick={handlePDF} title="PDF" className="p-1.5 rounded border border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"><FileText className="h-3.5 w-3.5" /></button>
+              <button onClick={handleCSV} title="Download" className="p-1.5 rounded border border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"><Download className="h-3.5 w-3.5" /></button>
+              <button onClick={handlePrint} title="Print" className="p-1.5 rounded border border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"><Printer className="h-3.5 w-3.5" /></button>
+              <button title="Columns" className="p-1.5 rounded border border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"><Columns className="h-3.5 w-3.5" /></button>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/60 border-b border-zinc-800">
+                <tr>
+                  <th className="px-4 py-3">SL</th>
+                  <th className="px-4 py-3">Staff Name</th>
+                  <th className="px-4 py-3">Month/Year</th>
+                  <th className="px-4 py-3">Basic Salary</th>
+                  <th className="px-4 py-3">Allowances</th>
+                  <th className="px-4 py-3">Deductions</th>
+                  <th className="px-4 py-3">Net Salary</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-800/70">
+                {loading ? (
+                  <tr><td colSpan={9} className="px-4 py-10 text-center text-zinc-500">Searching...</td></tr>
+                ) : paginated.length === 0 ? (
+                  <tr><td colSpan={9} className="px-4 py-10 text-center text-zinc-500">No Data Available In Table</td></tr>
+                ) : paginated.map((item, idx) => {
+                  const s = getStaff(item.staffId);
+                  const net = (Number(item.basicSalary) || 0) + (Number(item.allowances) || 0) - (Number(item.deductions) || 0);
+                  return (
+                    <tr key={item._id} className="hover:bg-zinc-900/50 transition-colors">
+                      <td className="px-4 py-3 text-emerald-500 font-medium">{(page - 1) * ITEMS_PER_PAGE + idx + 1}</td>
+                      <td className="px-4 py-3 text-zinc-300 font-medium">{s ? `${s.firstName || ''} ${s.lastName || ''}` : '-'}</td>
                       <td className="px-4 py-3 text-zinc-400">{item.month} {item.year}</td>
-                      <td className="px-4 py-3 text-zinc-400">${item.basicSalary}</td>
-                      <td className="px-4 py-3 font-bold text-emerald-500">${item.netSalary}</td>
-                      <td className="px-4 py-3"><span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium uppercase ${item.status === 'paid' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>{item.status || 'pending'}</span></td>
-                      <td className="px-4 py-3"><Button onClick={() => handleDelete(item._id)} variant="ghost" size="sm" className="h-8 text-rose-500 hover:bg-rose-500/10">DELETE</Button></td>
+                      <td className="px-4 py-3 text-zinc-300">{Number(item.basicSalary || 0).toLocaleString()}</td>
+                      <td className="px-4 py-3 text-emerald-400">{Number(item.allowances || 0).toLocaleString()}</td>
+                      <td className="px-4 py-3 text-rose-400">{Number(item.deductions || 0).toLocaleString()}</td>
+                      <td className="px-4 py-3 text-white font-bold">{net.toLocaleString()}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${STATUS_COLORS[item.status] || STATUS_COLORS.pending}`}>
+                          {item.status || 'pending'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1.5">
+                          {(!item.status || item.status === 'pending') && (
+                            <button onClick={() => handleGenerate(item)} className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 rounded-md border border-emerald-500/30 transition-colors">
+                              <Zap className="h-3 w-3" /> Generate
+                            </button>
+                          )}
+                          <button className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 rounded-md border border-emerald-500/30 transition-colors">
+                            <Eye className="h-3 w-3" /> View
+                          </button>
+                        </div>
+                      </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div className="px-4 py-3 border-t border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs text-zinc-500">
+            <span>Showing {records.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1} to {Math.min(page * ITEMS_PER_PAGE, records.length)} of {records.length} entries</span>
+            <div className="flex items-center gap-1">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-2 py-1 rounded border border-zinc-700 disabled:opacity-40 hover:bg-zinc-800 text-zinc-400 transition-colors">←</button>
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map(p => (
+                <button key={p} onClick={() => setPage(p)} className={`w-7 h-7 rounded text-xs font-bold transition-colors ${p === page ? 'bg-emerald-600 text-white' : 'border border-zinc-700 text-zinc-400 hover:bg-zinc-800'}`}>{p}</button>
+              ))}
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-2 py-1 rounded border border-zinc-700 disabled:opacity-40 hover:bg-zinc-800 text-zinc-400 transition-colors">→</button>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
+

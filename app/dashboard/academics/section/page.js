@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 
@@ -193,7 +193,7 @@ export default function SectionPage() {
                         <td className="px-4 py-3 text-zinc-300">{item.name}</td>
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Button onClick={() => handleEdit(item)} variant="ghost" size="icon" className="h-8 w-8 text-blue-500 hover:text-blue-400 hover:bg-blue-500/10">
+                            <Button onClick={() => handleEdit(item)} variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10">
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button onClick={() => handleDelete(item._id)} variant="ghost" size="icon" className="h-8 w-8 text-rose-500 hover:text-rose-400 hover:bg-rose-500/10">
@@ -213,3 +213,4 @@ export default function SectionPage() {
     </div>
   );
 }
+

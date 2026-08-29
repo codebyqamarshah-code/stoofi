@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { 
@@ -69,10 +69,10 @@ export default function DashboardPage() {
     temp: 36,
     condition: 'Clear Sky',
     hourly: [
-      { time: 'NOW', temp: '36°' },
-      { time: '14:00', temp: '36°' },
-      { time: '15:00', temp: '36°' },
-      { time: '16:00', temp: '36°' },
+      { time: 'NOW', temp: '36Â°' },
+      { time: '14:00', temp: '36Â°' },
+      { time: '15:00', temp: '36Â°' },
+      { time: '16:00', temp: '36Â°' },
     ],
     loading: false
   });
@@ -199,10 +199,10 @@ export default function DashboardPage() {
           const currentHour = new Date().getHours();
           const hourlyTemps = data.hourly?.temperature_2m || [];
           const nextHours = [
-            { time: 'NOW', temp: `${currentTemp}°` },
-            { time: `${(currentHour + 1) % 24}:00`, temp: `${Math.round(hourlyTemps[(currentHour + 1) % 24] || currentTemp)}°` },
-            { time: `${(currentHour + 2) % 24}:00`, temp: `${Math.round(hourlyTemps[(currentHour + 2) % 24] || currentTemp)}°` },
-            { time: `${(currentHour + 3) % 24}:00`, temp: `${Math.round(hourlyTemps[(currentHour + 3) % 24] || currentTemp)}°` },
+            { time: 'NOW', temp: `${currentTemp}Â°` },
+            { time: `${(currentHour + 1) % 24}:00`, temp: `${Math.round(hourlyTemps[(currentHour + 1) % 24] || currentTemp)}Â°` },
+            { time: `${(currentHour + 2) % 24}:00`, temp: `${Math.round(hourlyTemps[(currentHour + 2) % 24] || currentTemp)}Â°` },
+            { time: `${(currentHour + 3) % 24}:00`, temp: `${Math.round(hourlyTemps[(currentHour + 3) % 24] || currentTemp)}Â°` },
           ];
 
           setWeather({
@@ -492,7 +492,7 @@ export default function DashboardPage() {
               <span className="flex items-center gap-1.5 font-medium text-emerald-400">
                 <GraduationCap className="h-4 w-4" /> eSkooly Pro
               </span>
-              <span>•</span>
+              <span>â€¢</span>
               <span className="flex items-center gap-1.5">
                 <CalendarDays className="h-4 w-4 text-zinc-500" /> {formattedToday}
               </span>
@@ -516,7 +516,7 @@ export default function DashboardPage() {
                   <span>{weather.city}</span>
                 </div>
                 <div className="text-xl font-bold text-white flex items-baseline gap-1.5">
-                  {weather.temp}°C 
+                  {weather.temp}Â°C 
                   <span className="text-[11px] font-medium text-zinc-400">
                     {weather.condition}
                   </span>
@@ -941,7 +941,7 @@ export default function DashboardPage() {
                         </h4>
                         <div className="flex items-center gap-2 text-xs text-zinc-500 mt-0.5">
                           <span>{dateFull}</span>
-                          <span>•</span>
+                          <span>â€¢</span>
                           <span className="text-emerald-500/80 font-medium text-[10px] uppercase">{notice.audience || 'All'}</span>
                         </div>
                       </div>
@@ -961,7 +961,7 @@ export default function DashboardPage() {
                         size="icon" 
                         variant="ghost" 
                         onClick={() => handleOpenEditNotice(notice)}
-                        className="h-7 w-7 text-zinc-400 hover:text-blue-400 hover:bg-zinc-900"
+                        className="h-7 w-7 text-zinc-400 hover:text-emerald-400 hover:bg-zinc-900"
                         title="Edit Notice"
                       >
                         <Edit className="h-3.5 w-3.5" />
@@ -1072,9 +1072,9 @@ export default function DashboardPage() {
                   onClick={() => item.isCurrentMonth && setSelectedDate(item.date)}
                   className={`min-h-[58px] p-2 rounded-lg border flex flex-col justify-between cursor-pointer transition-all ${
                     item.isSelected
-                      ? 'bg-emerald-600/30 border-emerald-500 text-emerald-300 font-bold shadow-[0_0_10px_rgba(16,185,129,0.2)]'
+                      ? 'bg-emerald-600/30 border-emerald-500 text-zinc-200 font-bold shadow-[0_0_10px_rgba(16,185,129,0.2)]'
                       : item.isToday
-                      ? 'bg-emerald-950/40 border-emerald-500/60 text-emerald-400 font-bold'
+                      ? 'bg-emerald-950/40 border-emerald-500/60 text-zinc-200 font-bold'
                       : item.isCurrentMonth
                       ? 'bg-zinc-950/60 border-zinc-800/60 text-zinc-300 hover:border-zinc-700 hover:bg-zinc-900'
                       : 'bg-zinc-950/20 border-transparent text-zinc-700 pointer-events-none'
@@ -1550,7 +1550,7 @@ export default function DashboardPage() {
                   <span className="bg-emerald-950/60 border border-emerald-800/60 text-emerald-400 px-2 py-0.5 rounded text-[10px] font-semibold uppercase">
                     {selectedNotice.audience || 'All'}
                   </span>
-                  <span>•</span>
+                  <span>â€¢</span>
                   <span>{new Date(selectedNotice.date || selectedNotice.createdAt || Date.now()).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                 </div>
               </div>
@@ -1569,8 +1569,9 @@ export default function DashboardPage() {
 
       {/* Footer Branding */}
       <div className="text-center text-xs text-zinc-600 pt-8 pb-4 border-t border-zinc-900">
-        Copyright © {year} All rights reserved | This application is made with eSkooly ERP
+        Copyright Â© {year} All rights reserved | This application is made with eSkooly ERP
       </div>
     </div>
   );
 }
+

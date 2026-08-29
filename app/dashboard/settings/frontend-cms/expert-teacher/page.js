@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -120,7 +120,7 @@ export default function ExpertTeacherPage() {
                       <td className="px-4 py-3 text-zinc-300">{r.name || '-'}</td><td className="px-4 py-3 text-zinc-300">{r.designation || '-'}</td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-2">
-                          <Button onClick={() => handleEdit(r)} variant="ghost" size="sm" className="h-8 text-blue-500 hover:bg-blue-500/10"><Edit className="h-4 w-4" /></Button>
+                          <Button onClick={() => handleEdit(r)} variant="ghost" size="sm" className="h-8 text-emerald-500 hover:bg-emerald-500/10"><Edit className="h-4 w-4" /></Button>
                           <Button onClick={() => handleDelete(r.id)} variant="ghost" size="sm" className="h-8 text-rose-500 hover:bg-rose-500/10"><Trash2 className="h-4 w-4" /></Button>
                         </div>
                       </td>
@@ -135,3 +135,4 @@ export default function ExpertTeacherPage() {
     </div>
   );
 }
+

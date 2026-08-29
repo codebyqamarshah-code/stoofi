@@ -1,64 +1,181 @@
 'use client';
-
-import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { 
+    Search, ChevronRight, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, Trash2 
+} from 'lucide-react';
 import api from '@/services/api';
 
 export default function LeaveDefinePage() {
-  const [records, setRecords] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+    const [data, setData] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    
+    // Form state
+    const [role, setRole] = useState('');
+    const [leaveType, setLeaveType] = useState('');
+    const [days, setDays] = useState('');
+    
+    useEffect(() => {
+        // Fetch leave define data
+        const fetchData = async () => {
+            try {
+                // const res = await api.get('/leave-define');
+                // setData(res.data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchData();
+    }, []);
 
-  const fetchAll = async () => {
-    try {
-      const res = await api.get('/leave-type');
-      if (res.success) setRecords(res.data);
-    } catch (e) { console.error(e); } finally { setLoading(false); }
-  };
+    const handleSave = async (e) => {
+        e.preventDefault();
+        try {
+            await api.post('/leave-define', { role, leaveType, days });
+            alert('Leave Define Saved Successfully');
+            // reset form or refetch
+            setRole('');
+            setLeaveType('');
+            setDays('');
+        } catch (error) {
+            console.error('Error saving leave define', error);
+            alert('Error saving leave define');
+        }
+    };
 
-  useEffect(() => { fetchAll(); }, []);
+    return (
+        <div className="min-h-screen bg-zinc-950 p-6">
+            {/* Breadcrumb */}
+            <div className="flex items-center text-sm text-zinc-400 mb-6">
+                <span>Dashboard</span>
+                <ChevronRight className="w-4 h-4 mx-2" />
+                <span>Leave</span>
+                <ChevronRight className="w-4 h-4 mx-2" />
+                <span className="text-zinc-100">Leave Define</span>
+            </div>
 
-  const filtered = records.filter(r => r.name.toLowerCase().includes(search.toLowerCase()));
+            <h1 className="text-2xl font-semibold text-white mb-6">Leave Define</h1>
 
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Leave Define</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard/leave/apply" className="hover:text-emerald-400 transition-colors">Leave</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Leave Define</span>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Left Form: Add Leave Define */}
+                <div className="lg:col-span-1 bg-zinc-900 border border-zinc-800 rounded-lg p-6 self-start">
+                    <h2 className="text-lg font-medium text-zinc-100 mb-6 border-b border-zinc-800 pb-2">Add Leave Define</h2>
+                    
+                    <form onSubmit={handleSave} className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-zinc-400 mb-1">ROLE *</label>
+                            <select 
+                                required
+                                value={role}
+                                onChange={(e) => setRole(e.target.value)}
+                                className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            >
+                                <option value="">Select Role *</option>
+                                <option value="Admin">Admin</option>
+                                <option value="Teacher">Teacher</option>
+                                <option value="Student">Student</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-zinc-400 mb-1">LEAVE TYPE *</label>
+                            <select 
+                                required
+                                value={leaveType}
+                                onChange={(e) => setLeaveType(e.target.value)}
+                                className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            >
+                                <option value="">Select Leave Type *</option>
+                                <option value="Sick Leave">Sick Leave</option>
+                                <option value="Casual Leave">Casual Leave</option>
+                                <option value="Maternity Leave">Maternity Leave</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-zinc-400 mb-1">DAYS *</label>
+                            <input 
+                                required
+                                type="number" 
+                                min="0"
+                                value={days}
+                                onChange={(e) => setDays(e.target.value)}
+                                className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                placeholder="0"
+                            />
+                        </div>
+
+                        <div className="pt-4">
+                            <button 
+                                type="submit"
+                                className="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded transition-colors"
+                            >
+                                SAVE
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                {/* Right Table: Leave Define List */}
+                <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-lg p-6">
+                    <h2 className="text-lg font-medium text-zinc-100 mb-6 border-b border-zinc-800 pb-2">Leave Define List</h2>
+                    
+                    <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+                        <div className="relative w-full sm:w-auto">
+                            <Search className="w-4 h-4 absolute left-3 top-2.5 text-zinc-500" />
+                            <input 
+                                type="text" 
+                                placeholder="Search..." 
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-9 pr-4 py-2 w-full sm:w-64 bg-zinc-900 border border-zinc-800 rounded text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <button className="p-2 border border-zinc-800 rounded text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors" title="Copy"><Copy className="w-4 h-4" /></button>
+                            <button className="p-2 border border-zinc-800 rounded text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors" title="Excel"><FileSpreadsheet className="w-4 h-4" /></button>
+                            <button className="p-2 border border-zinc-800 rounded text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors" title="CSV"><FileText className="w-4 h-4" /></button>
+                            <button className="p-2 border border-zinc-800 rounded text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors" title="Print"><Printer className="w-4 h-4" /></button>
+                            <button className="p-2 border border-zinc-800 rounded text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors" title="Download"><Download className="w-4 h-4" /></button>
+                            <button className="p-2 border border-zinc-800 rounded text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors" title="Columns"><Columns className="w-4 h-4" /></button>
+                        </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-sm text-zinc-400">
+                            <thead className="text-xs text-zinc-400 uppercase bg-zinc-950 border-y border-zinc-800">
+                                <tr>
+                                    <th className="px-4 py-3 font-medium">User</th>
+                                    <th className="px-4 py-3 font-medium">Role</th>
+                                    <th className="px-4 py-3 font-medium">Leave Type</th>
+                                    <th className="px-4 py-3 font-medium">Days</th>
+                                    <th className="px-4 py-3 font-medium text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {data.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="5" className="px-4 py-8 text-center text-zinc-500">No data available in table</td>
+                                    </tr>
+                                ) : (
+                                    data.map((item, idx) => (
+                                        <tr key={idx} className="border-b border-zinc-800 hover:bg-zinc-800/50">
+                                            <td className="px-4 py-3 text-zinc-300">{item.user}</td>
+                                            <td className="px-4 py-3 text-zinc-300">{item.role}</td>
+                                            <td className="px-4 py-3 text-zinc-300">{item.leaveType}</td>
+                                            <td className="px-4 py-3 text-zinc-300">{item.days}</td>
+                                            <td className="px-4 py-3 text-right text-zinc-300">
+                                                <button className="text-rose-500 hover:text-rose-400 transition-colors" title="Delete">
+                                                    <Trash2 className="w-4 h-4 ml-auto" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-      
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl">
-        <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-white">Defined Leaves</h2>
-          <div className="relative w-64"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" /><Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500" /></div>
-        </div>
-        <div className="p-4 text-sm text-zinc-400 bg-zinc-900/50 border-b border-zinc-800">
-          Note: Configure your leave types in the Leave Type section. This page shows the defined leaves and their limits.
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
-              <tr><th className="px-4 py-3">SL</th><th className="px-4 py-3">Leave Type</th><th className="px-4 py-3">Max Days Allowed</th></tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800">
-              {loading ? <tr><td colSpan="3" className="px-4 py-8 text-center text-zinc-500">Loading...</td></tr>
-              : filtered.length === 0 ? <tr><td colSpan="3" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-              : filtered.map((item, idx) => (
-                <tr key={item._id} className="hover:bg-zinc-900/50">
-                  <td className="px-4 py-3 text-emerald-500">+{idx+1}</td>
-                  <td className="px-4 py-3 font-medium text-zinc-300">{item.name}</td>
-                  <td className="px-4 py-3 text-zinc-400">{item.maxDays}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
+    );
 }

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 
@@ -49,7 +49,7 @@ const SECTION_TEMPLATES = {
     type: 'footer',
     icon: PanelBottom,
     label: 'Footer',
-    defaultProps: { copyright: '© 2026 eSkooly. All rights reserved.' }
+    defaultProps: { copyright: 'Â© 2026 eSkooly. All rights reserved.' }
   }
 };
 
@@ -264,7 +264,7 @@ export default function FrontendCmsPage() {
                     `}
                   >
                     {/* Hover Controls Overlay */}
-                    <div className={`absolute top-0 right-0 left-0 bottom-0 pointer-events-none transition-colors duration-200 ${selectedId === section.id ? 'bg-emerald-500/5' : 'group-hover:bg-blue-500/5'}`}></div>
+                    <div className={`absolute top-0 right-0 left-0 bottom-0 pointer-events-none transition-colors duration-200 ${selectedId === section.id ? 'bg-emerald-500/5' : 'group-hover:bg-emerald-500/5'}`}></div>
                     
                     <div className={`absolute top-2 right-2 flex gap-1 z-20 transition-opacity duration-200 ${selectedId === section.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                       <div 
@@ -362,3 +362,4 @@ export default function FrontendCmsPage() {
     </div>
   );
 }
+
