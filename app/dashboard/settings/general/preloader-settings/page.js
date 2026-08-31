@@ -1,44 +1,103 @@
 'use client';
-
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { ChevronRight, Search, Download, Printer, FileText } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useState, useRef } from 'react';
+import { ChevronRight, ImageIcon } from 'lucide-react';
 
 export default function PreloaderSettingsPage() {
-  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState('show');
+  const [type, setType] = useState('image');
+  const [preview, setPreview] = useState(null);
+  const fileRef = useRef();
+
+  const handleFile = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setPreview(url);
+    }
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Preloader Settings</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-emerald-400 transition-colors">General Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Preloader Settings</span>
-        </div>
+    <div className="min-h-screen bg-zinc-950 p-6">
+      <div className="flex items-center gap-1 text-xs text-zinc-400 mb-4">
+        <span>Dashboard</span>
+        <ChevronRight className="w-3 h-3" />
+        <span>Settings</span>
+        <ChevronRight className="w-3 h-3" />
+        <span className="text-emerald-400">Preloader Settings</span>
       </div>
 
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-white">Preloader Settings Overview</h2>
-          <div className="relative w-48">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-            <Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs text-white" />
+      <h1 className="text-xl font-bold text-white mb-6">Preloader Settings</h1>
+
+      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6">
+        <h2 className="text-sm font-semibold text-zinc-300 mb-6">Preloader Settings</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+          {/* Status */}
+          <div>
+            <p className="text-xs font-semibold text-zinc-400 uppercase mb-3">PRELOADER STATUS</p>
+            <div className="flex gap-6">
+              {['show', 'hide'].map(opt => (
+                <label key={opt} className="flex items-center gap-2 cursor-pointer">
+                  <div
+                    onClick={() => setStatus(opt)}
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center cursor-pointer ${status === opt ? 'border-emerald-500' : 'border-zinc-600'}`}
+                  >
+                    {status === opt && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
+                  </div>
+                  <span className="text-sm text-zinc-300 capitalize">{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Type */}
+          <div>
+            <p className="text-xs font-semibold text-zinc-400 uppercase mb-3">PRELOADER TYPE</p>
+            <div className="flex gap-6">
+              {['animation', 'image'].map(opt => (
+                <label key={opt} className="flex items-center gap-2 cursor-pointer">
+                  <div
+                    onClick={() => setType(opt)}
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center cursor-pointer ${type === opt ? 'border-emerald-500' : 'border-zinc-600'}`}
+                  >
+                    {type === opt && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
+                  </div>
+                  <span className="text-sm text-zinc-300 capitalize">{opt}</span>
+                </label>
+              ))}
+            </div>
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
-              <tr>
-                <th className="px-4 py-3 font-semibold">SL</th>
-                <th className="px-4 py-3 font-semibold">Name</th><th className="px-4 py-3 font-semibold">Details</th><th className="px-4 py-3 font-semibold">Status</th><th className="px-4 py-3 font-semibold">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800">
-              <tr><td colSpan="5" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-            </tbody>
-          </table>
+
+        {/* File Upload */}
+        <div className="flex items-center gap-3 mb-6">
+          <span className="text-sm text-zinc-400 flex-1 border border-zinc-700 rounded px-3 py-2 bg-zinc-800">
+            Preloader Image
+          </span>
+          <button
+            onClick={() => fileRef.current.click()}
+            className="bg-zinc-700 hover:bg-zinc-600 text-white text-sm font-semibold px-4 py-2 rounded"
+          >
+            BROWSE
+          </button>
+          <input type="file" ref={fileRef} className="hidden" accept="image/*" onChange={handleFile} />
         </div>
+
+        {/* Preview */}
+        <div className="flex justify-center items-center bg-zinc-800 border border-zinc-700 rounded-lg p-8 mb-6 min-h-48">
+          {preview ? (
+            <img src={preview} alt="Preloader Preview" className="max-h-40 object-contain" />
+          ) : (
+            <div className="flex flex-col items-center gap-2 text-zinc-600">
+              <ImageIcon className="w-12 h-12" />
+              <p className="text-xs">Image Preview</p>
+            </div>
+          )}
+        </div>
+
+        <button className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-6 py-2 rounded flex items-center gap-2">
+          ✓ UPDATE
+        </button>
       </div>
     </div>
   );

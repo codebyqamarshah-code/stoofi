@@ -1,128 +1,115 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
-import { ChevronRight, Search, Edit, Trash2, X, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { 
+  ChevronRight, Search, Copy, FileSpreadsheet, 
+  FileText, Printer, Download, Columns
+} from 'lucide-react';
 
 export default function AcademicYearPage() {
-  const [formData, setFormData] = useState({});
-  const [editId, setEditId] = useState(null);
-  const [records, setRecords] = useState([]);
-  const [search, setSearch] = useState('');
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (editId) {
-      setRecords(records.map(r => r.id === editId ? { ...r, ...formData } : r));
-      setEditId(null);
-    } else {
-      setRecords([{ id: Date.now(), ...formData }, ...records]);
-    }
-    setFormData({});
-  };
-
-  const handleEdit = (item) => {
-    setFormData(item);
-    setEditId(item.id);
-  };
-
-  const handleDelete = (id) => {
-    if (confirm('Delete this record?')) {
-      setRecords(records.filter(r => r.id !== id));
-    }
-  };
-
-  const cancelEdit = () => {
-    setFormData({});
-    setEditId(null);
-  };
+  const [years, setYears] = useState([
+    { id: 1, year: '2024-2025', title: 'Session 2024-25', start: '2024-04-01', end: '2025-03-31', active: true },
+    { id: 2, year: '2023-2024', title: 'Session 2023-24', start: '2023-04-01', end: '2024-03-31', active: false },
+  ]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Academic Year</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-emerald-400 transition-colors">General Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Academic Year</span>
-        </div>
+    <div className="min-h-screen bg-zinc-950 p-6">
+      <div className="mb-6 flex items-center text-sm text-zinc-400">
+        <span>Dashboard</span>
+        <ChevronRight className="mx-2 h-4 w-4" />
+        <span>System Settings</span>
+        <ChevronRight className="mx-2 h-4 w-4" />
+        <span className="text-zinc-100">Academic Year</span>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-1">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl">
-            <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">{editId ? 'Edit' : 'Add'} Academic Year</h2>
-              {editId && <button onClick={cancelEdit} className="text-zinc-400 hover:text-white"><X className="h-4 w-4" /></button>}
+      <h1 className="text-2xl font-semibold text-white mb-6">Academic Year</h1>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1 bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden h-fit">
+          <div className="px-6 py-4 border-b border-zinc-800">
+            <h2 className="text-lg font-medium text-white">Add Academic Year</h2>
+          </div>
+          <div className="p-6 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-zinc-300 mb-1">YEAR *</label>
+              <input type="text" className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500" placeholder="e.g., 2024-2025" />
             </div>
-            <form className="p-4 space-y-4" onSubmit={handleSubmit}>
-              
-        <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-zinc-400 uppercase">Academic Year</Label>
-          <Input 
-            type="text"
-            name="year"
-            value={formData.year || ''} 
-            onChange={handleChange}
-            className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-zinc-400 uppercase">Title</Label>
-          <Input 
-            type="text"
-            name="title"
-            value={formData.title || ''} 
-            onChange={handleChange}
-            className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
-          />
-        </div>
-              <div className="flex gap-2 pt-2">
-                <Button type="submit" className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
-                  {editId ? 'UPDATE' : 'SAVE'}
-                </Button>
-                {editId && (
-                  <Button type="button" onClick={cancelEdit} variant="outline" className="border-zinc-700 text-zinc-400 hover:text-white">Cancel</Button>
-                )}
-              </div>
-            </form>
+            <div>
+              <label className="block text-sm font-medium text-zinc-300 mb-1">Year Title *</label>
+              <input type="text" className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-zinc-300 mb-1">STARTING DATE *</label>
+              <input type="date" className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-zinc-300 mb-1">ENDING DATE *</label>
+              <input type="date" className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-zinc-300 mb-1">COPY WITH ACADEMIC YEAR</label>
+              <select className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                <option value="">Select Academic Year</option>
+                <option value="2023-2024">2023-2024</option>
+              </select>
+            </div>
+            <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded transition-colors mt-2">
+              SAVE
+            </button>
           </div>
         </div>
 
-        <div className="xl:col-span-2">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl">
-            <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-white">Academic Year List</h2>
-              <div className="relative w-48">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                <Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500 text-white" />
+        <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden h-fit">
+          <div className="px-6 py-4 border-b border-zinc-800">
+            <h2 className="text-lg font-medium text-white">Academic Year List</h2>
+          </div>
+          <div className="p-6 flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row justify-between gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                <input 
+                  type="text" 
+                  placeholder="Search..." 
+                  className="pl-9 pr-4 py-2 bg-zinc-950 border border-zinc-800 rounded text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-full sm:w-64"
+                />
+              </div>
+              <div className="flex gap-2">
+                {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, idx) => (
+                  <button key={idx} className="p-2 bg-zinc-950 border border-zinc-800 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
+                    <Icon className="h-4 w-4" />
+                  </button>
+                ))}
               </div>
             </div>
+
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
+              <table className="w-full text-left text-sm text-zinc-300">
+                <thead className="bg-zinc-950/50 text-zinc-400">
                   <tr>
-                    <th className="px-4 py-3 font-semibold">SL</th>
-                    <th className="px-4 py-3 font-semibold">Academic Year</th><th className="px-4 py-3 font-semibold">Title</th><th className="px-4 py-3 font-semibold">Action</th>
+                    <th className="px-4 py-3 font-medium border-b border-zinc-800">Year</th>
+                    <th className="px-4 py-3 font-medium border-b border-zinc-800">Title</th>
+                    <th className="px-4 py-3 font-medium border-b border-zinc-800">Starting Date</th>
+                    <th className="px-4 py-3 font-medium border-b border-zinc-800">Ending Date</th>
+                    <th className="px-4 py-3 font-medium border-b border-zinc-800 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-800">
-                  {records.length === 0 ? (
-                    <tr><td colSpan="4" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-                  ) : records.map((r, i) => (
-                    <tr key={r.id} className="hover:bg-zinc-900/50">
-                      <td className="px-4 py-3 text-emerald-500">+{i+1}</td>
-                      <td className="px-4 py-3 text-zinc-300">{r.year || '-'}</td><td className="px-4 py-3 text-zinc-300">{r.title || '-'}</td>
+                <tbody>
+                  {years.map(y => (
+                    <tr key={y.id} className="border-b border-zinc-800 hover:bg-zinc-800/50 transition-colors">
+                      <td className="px-4 py-3">{y.year}</td>
+                      <td className="px-4 py-3">{y.title}</td>
+                      <td className="px-4 py-3">{y.start}</td>
+                      <td className="px-4 py-3">{y.end}</td>
                       <td className="px-4 py-3 text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button onClick={() => handleEdit(r)} variant="ghost" size="sm" className="h-8 text-emerald-500 hover:bg-emerald-500/10"><Edit className="h-4 w-4" /></Button>
-                          <Button onClick={() => handleDelete(r.id)} variant="ghost" size="sm" className="h-8 text-rose-500 hover:bg-rose-500/10"><Trash2 className="h-4 w-4" /></Button>
-                        </div>
+                        {y.active ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                            Active
+                          </span>
+                        ) : (
+                          <button className="text-xs font-medium px-3 py-1 border border-zinc-700 rounded hover:bg-zinc-800 text-zinc-300 transition-colors">
+                            SELECT
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -135,4 +122,3 @@ export default function AcademicYearPage() {
     </div>
   );
 }
-

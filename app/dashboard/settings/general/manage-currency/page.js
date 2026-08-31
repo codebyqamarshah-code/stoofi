@@ -1,148 +1,78 @@
-﻿'use client';
+'use client';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { ChevronRight, Search, Edit, Trash2, X, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import React from 'react';
+import { Plus, Copy, FileSpreadsheet, FileText, Printer, Download, Columns } from 'lucide-react';
 
-export default function ManageCurrencyPage() {
-  const [formData, setFormData] = useState({});
-  const [editId, setEditId] = useState(null);
-  const [records, setRecords] = useState([]);
-  const [search, setSearch] = useState('');
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (editId) {
-      setRecords(records.map(r => r.id === editId ? { ...r, ...formData } : r));
-      setEditId(null);
-    } else {
-      setRecords([{ id: Date.now(), ...formData }, ...records]);
-    }
-    setFormData({});
-  };
-
-  const handleEdit = (item) => {
-    setFormData(item);
-    setEditId(item.id);
-  };
-
-  const handleDelete = (id) => {
-    if (confirm('Delete this record?')) {
-      setRecords(records.filter(r => r.id !== id));
-    }
-  };
-
-  const cancelEdit = () => {
-    setFormData({});
-    setEditId(null);
-  };
+export default function ManageCurrency() {
+  const currencies = [
+    { id: 1, name: 'Dollars', code: 'USD', symbol: '$', type: 'fiat', position: 'Left', space: 'Yes', decimal: 2, active: true },
+    { id: 2, name: 'Euro', code: 'EUR', symbol: '€', type: 'fiat', position: 'Right', space: 'No', decimal: 2, active: false },
+    { id: 3, name: 'Pounds', code: 'GBP', symbol: '£', type: 'fiat', position: 'Left', space: 'Yes', decimal: 2, active: false },
+  ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Manage Currency</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-emerald-400 transition-colors">General Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Manage Currency</span>
+    <div className="p-6 bg-zinc-950 min-h-screen text-zinc-100">
+      <h1 className="text-2xl font-semibold mb-6">Currency</h1>
+      
+      <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden shadow-sm">
+        <div className="px-6 py-4 border-b border-zinc-800 flex justify-between items-center">
+          <h2 className="text-lg font-medium">Currency List</h2>
+          <button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded text-sm transition-colors">
+            <Plus className="w-4 h-4" />
+            ADD
+          </button>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-1">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl">
-            <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">{editId ? 'Edit' : 'Add'} Manage Currency</h2>
-              {editId && <button onClick={cancelEdit} className="text-zinc-400 hover:text-white"><X className="h-4 w-4" /></button>}
-            </div>
-            <form className="p-4 space-y-4" onSubmit={handleSubmit}>
-              
-        <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-zinc-400 uppercase">Currency Name</Label>
-          <Input 
-            type="text"
-            name="name"
-            value={formData.name || ''} 
-            onChange={handleChange}
-            className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-zinc-400 uppercase">Code</Label>
-          <Input 
-            type="text"
-            name="code"
-            value={formData.code || ''} 
-            onChange={handleChange}
-            className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-zinc-400 uppercase">Symbol</Label>
-          <Input 
-            type="text"
-            name="symbol"
-            value={formData.symbol || ''} 
-            onChange={handleChange}
-            className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
-          />
-        </div>
-              <div className="flex gap-2 pt-2">
-                <Button type="submit" className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
-                  {editId ? 'UPDATE' : 'SAVE'}
-                </Button>
-                {editId && (
-                  <Button type="button" onClick={cancelEdit} variant="outline" className="border-zinc-700 text-zinc-400 hover:text-white">Cancel</Button>
-                )}
-              </div>
-            </form>
+        
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-4">
+             <div className="flex gap-2">
+                <button className="p-2 border border-zinc-800 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="Copy"><Copy className="w-4 h-4" /></button>
+                <button className="p-2 border border-zinc-800 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="Excel"><FileSpreadsheet className="w-4 h-4" /></button>
+                <button className="p-2 border border-zinc-800 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="CSV"><FileText className="w-4 h-4" /></button>
+                <button className="p-2 border border-zinc-800 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="PDF"><Download className="w-4 h-4" /></button>
+                <button className="p-2 border border-zinc-800 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="Print"><Printer className="w-4 h-4" /></button>
+                <button className="p-2 border border-zinc-800 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="Columns"><Columns className="w-4 h-4" /></button>
+             </div>
+             <div>
+                <input type="text" placeholder="Search..." className="bg-zinc-900 border border-zinc-800 rounded-md px-3 py-1.5 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
+             </div>
           </div>
-        </div>
-
-        <div className="xl:col-span-2">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl">
-            <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-white">Manage Currency List</h2>
-              <div className="relative w-48">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                <Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500 text-white" />
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
-                  <tr>
-                    <th className="px-4 py-3 font-semibold">SL</th>
-                    <th className="px-4 py-3 font-semibold">Name</th><th className="px-4 py-3 font-semibold">Code</th><th className="px-4 py-3 font-semibold">Symbol</th><th className="px-4 py-3 font-semibold">Action</th>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm whitespace-nowrap">
+              <thead className="bg-zinc-800/50 text-zinc-400">
+                <tr>
+                  <th className="px-4 py-3 font-medium border-b border-zinc-800">SL</th>
+                  <th className="px-4 py-3 font-medium border-b border-zinc-800">Name</th>
+                  <th className="px-4 py-3 font-medium border-b border-zinc-800">Code</th>
+                  <th className="px-4 py-3 font-medium border-b border-zinc-800">Symbol</th>
+                  <th className="px-4 py-3 font-medium border-b border-zinc-800">Type</th>
+                  <th className="px-4 py-3 font-medium border-b border-zinc-800">Currency Position</th>
+                  <th className="px-4 py-3 font-medium border-b border-zinc-800">Space</th>
+                  <th className="px-4 py-3 font-medium border-b border-zinc-800">Decimal Digit</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-800">
+                {currencies.map((currency, index) => (
+                  <tr key={currency.id} className="hover:bg-zinc-800/20 transition-colors">
+                    <td className="px-4 py-3 text-zinc-300">{index + 1}</td>
+                    <td className="px-4 py-3 text-zinc-100 flex items-center gap-2">
+                      {currency.name}
+                      {currency.active && <span className="bg-emerald-500/10 text-emerald-500 text-[10px] px-2 py-0.5 rounded border border-emerald-500/20">ACTIVE</span>}
+                    </td>
+                    <td className="px-4 py-3 text-zinc-300">{currency.code}</td>
+                    <td className="px-4 py-3 text-zinc-300">{currency.symbol}</td>
+                    <td className="px-4 py-3 text-zinc-300">{currency.type}</td>
+                    <td className="px-4 py-3 text-zinc-300">{currency.position}</td>
+                    <td className="px-4 py-3 text-zinc-300">{currency.space}</td>
+                    <td className="px-4 py-3 text-zinc-300">{currency.decimal}</td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-800">
-                  {records.length === 0 ? (
-                    <tr><td colSpan="5" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-                  ) : records.map((r, i) => (
-                    <tr key={r.id} className="hover:bg-zinc-900/50">
-                      <td className="px-4 py-3 text-emerald-500">+{i+1}</td>
-                      <td className="px-4 py-3 text-zinc-300">{r.name || '-'}</td><td className="px-4 py-3 text-zinc-300">{r.code || '-'}</td><td className="px-4 py-3 text-zinc-300">{r.symbol || '-'}</td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button onClick={() => handleEdit(r)} variant="ghost" size="sm" className="h-8 text-emerald-500 hover:bg-emerald-500/10"><Edit className="h-4 w-4" /></Button>
-                          <Button onClick={() => handleDelete(r.id)} variant="ghost" size="sm" className="h-8 text-rose-500 hover:bg-rose-500/10"><Trash2 className="h-4 w-4" /></Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
     </div>
   );
 }
-

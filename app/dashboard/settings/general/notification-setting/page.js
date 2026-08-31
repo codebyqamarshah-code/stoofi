@@ -1,43 +1,62 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
-import { ChevronRight, Search, Download, Printer, FileText } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+
+const eventsList = [
+  'Student Admission', 'Student Checkout', 'Fee Submission', 'Exam Result',
+  'Notice Published', 'Homework Added', 'Event Created', 'Holiday Added',
+  'Library Book Issued', 'Library Book Returned'
+];
 
 export default function NotificationSettingPage() {
-  const [search, setSearch] = useState('');
+  const [events, setEvents] = useState(
+    eventsList.map(e => ({ name: e, email: false, sms: false, push: false }))
+  );
+
+  const toggleSetting = (index, type) => {
+    const newEvents = [...events];
+    newEvents[index][type] = !newEvents[index][type];
+    setEvents(newEvents);
+  };
+
+  const renderToggle = (checked, onChange, label) => (
+    <label className="flex items-center gap-3 cursor-pointer">
+      <div className="relative">
+        <input type="checkbox" className="sr-only" checked={checked} onChange={onChange} />
+        <div className={`block w-10 h-6 rounded-full transition-colors ${checked ? 'bg-emerald-600' : 'bg-zinc-700'}`}></div>
+        <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${checked ? 'transform translate-x-4' : ''}`}></div>
+      </div>
+      <span className="text-sm text-zinc-300 font-medium w-10">{label}</span>
+    </label>
+  );
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Notification Setting</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-emerald-400 transition-colors">General Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Notification Setting</span>
-        </div>
-      </div>
+    <div className="min-h-screen bg-zinc-950 p-6">
+      <h1 className="text-2xl font-semibold text-white mb-6">Notification Setting</h1>
 
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-white">Notification Setting Overview</h2>
-          <div className="relative w-48">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-            <Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs text-white" />
-          </div>
+      <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden max-w-5xl">
+        <div className="px-6 py-4 border-b border-zinc-800">
+          <h2 className="text-lg font-medium text-white">Notification Setting</h2>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
-              <tr>
-                <th className="px-4 py-3 font-semibold">SL</th>
-                <th className="px-4 py-3 font-semibold">Name</th><th className="px-4 py-3 font-semibold">Details</th><th className="px-4 py-3 font-semibold">Status</th><th className="px-4 py-3 font-semibold">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800">
-              <tr><td colSpan="5" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-            </tbody>
-          </table>
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+            {events.map((event, idx) => (
+              <div key={event.name} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg bg-zinc-950/50 border border-zinc-800/50">
+                <span className="text-sm font-medium text-zinc-200 mb-4 sm:mb-0">{event.name}</span>
+                <div className="flex gap-4">
+                  {renderToggle(event.email, () => toggleSetting(idx, 'email'), 'Email')}
+                  {renderToggle(event.sms, () => toggleSetting(idx, 'sms'), 'SMS')}
+                  {renderToggle(event.push, () => toggleSetting(idx, 'push'), 'Push')}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 flex justify-end">
+            <button className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-8 rounded transition-colors">
+              SAVE
+            </button>
+          </div>
         </div>
       </div>
     </div>

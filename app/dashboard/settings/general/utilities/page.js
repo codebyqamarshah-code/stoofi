@@ -1,44 +1,145 @@
 'use client';
+import { useState, useRef } from 'react';
+import { ChevronRight, Cloud, FileText, Monitor, Lock } from 'lucide-react';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { ChevronRight, Search, Download, Printer, FileText } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+const APPLICABLE_FOR_OPTIONS = ['Student', 'Parents', 'Teacher', 'Admin', 'Accountant', 'Receptionist', 'Librarian', 'Driver', 'Frontend/Website'];
 
-export default function UtilitiesSettingsPage() {
-  const [search, setSearch] = useState('');
+const quickActions = [
+  { label: 'Clear Cache', icon: Cloud, border: 'border-l-emerald-500' },
+  { label: 'Clear Log', icon: FileText, border: 'border-l-zinc-500' },
+  { label: 'Enable App Debug', icon: Monitor, border: 'border-l-emerald-500' },
+  { label: 'Enable Force HTTPS', icon: Lock, border: 'border-l-rose-500' },
+];
+
+export default function UtilitiesPage() {
+  const [mode, setMode] = useState('disable');
+  const [title, setTitle] = useState('We will be back soon!');
+  const [subTitle, setSubTitle] = useState('Sorry for the inconvenience but we are performing some maintenance at the moment.');
+  const [applicableFor, setApplicableFor] = useState(['Student', 'Parents', 'Teacher', 'Admin', 'Accountant', 'Receptionist', 'Librarian', 'Driver', 'Frontend/Website']);
+  const [preview, setPreview] = useState(null);
+  const [toast, setToast] = useState('');
+  const fileRef = useRef();
+
+  const toggleApplicable = (opt) => {
+    setApplicableFor(prev => prev.includes(opt) ? prev.filter(x => x !== opt) : [...prev, opt]);
+  };
+
+  const handleQuickAction = (label) => {
+    setToast(`${label} executed successfully!`);
+    setTimeout(() => setToast(''), 3000);
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Utilities Settings</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-emerald-400 transition-colors">General Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Utilities</span>
+    <div className="min-h-screen bg-zinc-950 p-6">
+      {/* Toast */}
+      {toast && (
+        <div className="fixed top-4 right-4 z-50 bg-emerald-600 text-white text-sm px-4 py-2 rounded shadow-lg">
+          {toast}
         </div>
+      )}
+
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-1 text-xs text-zinc-400 mb-4">
+        <span>Dashboard</span>
+        <ChevronRight className="w-3 h-3" />
+        <span>System Settings</span>
+        <ChevronRight className="w-3 h-3" />
+        <span className="text-emerald-400">Utilities</span>
       </div>
 
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-white">Utilities Settings Overview</h2>
-          <div className="relative w-48">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-            <Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs text-white" />
+      <h1 className="text-xl font-bold text-white mb-6">Utilities</h1>
+
+      {/* Quick Action Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        {quickActions.map(({ label, icon: Icon, border }) => (
+          <button
+            key={label}
+            onClick={() => handleQuickAction(label)}
+            className={`bg-zinc-900 border border-zinc-800 border-l-4 ${border} rounded-lg p-5 flex flex-col items-center gap-3 hover:bg-zinc-800 transition-colors`}
+          >
+            <Icon className="w-7 h-7 text-zinc-400" />
+            <span className="text-sm font-medium text-zinc-300 text-center">{label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Maintenance Mode Setting */}
+      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6">
+        <h2 className="text-base font-semibold text-white text-center mb-6">Maintenance Mode Setting</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+          {/* Mode */}
+          <div>
+            <p className="text-xs font-semibold text-zinc-400 uppercase mb-3">MAINTENANCE MODE</p>
+            <div className="flex gap-6">
+              {['enable', 'disable'].map(opt => (
+                <label key={opt} className="flex items-center gap-2 cursor-pointer" onClick={() => setMode(opt)}>
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${mode === opt ? 'border-emerald-500' : 'border-zinc-600'}`}>
+                    {mode === opt && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
+                  </div>
+                  <span className="text-sm text-zinc-300 capitalize">{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Title */}
+          <div>
+            <label className="text-xs font-semibold text-zinc-400 uppercase mb-1 block">TITLE</label>
+            <input
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
-              <tr>
-                <th className="px-4 py-3 font-semibold">SL</th>
-                <th className="px-4 py-3 font-semibold">Utility Name</th><th className="px-4 py-3 font-semibold">Description</th><th className="px-4 py-3 font-semibold">Status</th><th className="px-4 py-3 font-semibold">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800">
-              <tr><td colSpan="5" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-            </tbody>
-          </table>
+
+        {/* Sub Title */}
+        <div className="mb-6">
+          <label className="text-xs font-semibold text-zinc-400 uppercase mb-1 block">SUB TITLE</label>
+          <textarea
+            value={subTitle}
+            onChange={e => setSubTitle(e.target.value)}
+            rows={3}
+            className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+          />
         </div>
+
+        {/* Applicable For */}
+        <div className="mb-6">
+          <p className="text-xs font-semibold text-zinc-400 uppercase mb-3">APPLICABLE FOR</p>
+          <div className="flex flex-wrap gap-4">
+            {APPLICABLE_FOR_OPTIONS.map(opt => (
+              <label key={opt} className="flex items-center gap-2 cursor-pointer" onClick={() => toggleApplicable(opt)}>
+                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${applicableFor.includes(opt) ? 'bg-emerald-600 border-emerald-600' : 'border-zinc-600 bg-transparent'}`}>
+                  {applicableFor.includes(opt) && <span className="text-white text-xs font-bold">✓</span>}
+                </div>
+                <span className="text-sm text-zinc-300">{opt}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Image Upload */}
+        <div className="mb-6">
+          {preview && (
+            <div className="flex justify-center mb-4 bg-zinc-800 border border-zinc-700 rounded-lg p-6">
+              <img src={preview} alt="Maintenance" className="max-h-48 object-contain" />
+            </div>
+          )}
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-zinc-400 flex-1 border border-zinc-700 rounded px-3 py-2 bg-zinc-800">Upload Image</span>
+            <button onClick={() => fileRef.current.click()} className="bg-zinc-700 hover:bg-zinc-600 text-white text-sm font-semibold px-4 py-2 rounded">BROWSE</button>
+            <input type="file" ref={fileRef} className="hidden" accept="image/*" onChange={e => {
+              const file = e.target.files[0];
+              if (file) setPreview(URL.createObjectURL(file));
+            }} />
+          </div>
+        </div>
+
+        <button className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-6 py-2 rounded flex items-center gap-2">
+          ✓ UPDATE
+        </button>
       </div>
     </div>
   );

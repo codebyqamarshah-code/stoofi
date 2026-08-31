@@ -1,43 +1,78 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
-import { ChevronRight, Search, Download, Printer, FileText } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { ChevronRight } from 'lucide-react';
+
+const staffFields = [
+  'Staff No', 'Role', 'Department', 'Designation', 'First Name', 'Last Name',
+  'Father Name', 'Mother Name', 'Email', 'Gender', 'Date Of Birth',
+  'Date Of Joining', 'Phone', 'Emergency Contact', 'Marital Status',
+  'Photo', 'Current Address', 'Permanent Address', 'Qualification', 'Work Experience'
+];
 
 export default function StaffSettingsPage() {
-  const [search, setSearch] = useState('');
+  const [fields, setFields] = useState(
+    staffFields.map(f => ({ name: f, staffEdit: false, required: false }))
+  );
+
+  const toggleField = (index, key) => {
+    const newFields = [...fields];
+    newFields[index][key] = !newFields[index][key];
+    setFields(newFields);
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Staff Settings</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-emerald-400 transition-colors">General Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Staff Settings</span>
-        </div>
+    <div className="min-h-screen bg-zinc-950 p-6">
+      <div className="mb-6 flex items-center text-sm text-zinc-400">
+        <span>Dashboard</span>
+        <ChevronRight className="mx-2 h-4 w-4" />
+        <span>Human Resource</span>
+        <ChevronRight className="mx-2 h-4 w-4" />
+        <span className="text-zinc-100">Settings</span>
       </div>
 
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-white">Staff Settings Overview</h2>
-          <div className="relative w-48">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-            <Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs text-white" />
-          </div>
+      <h1 className="text-2xl font-semibold text-white mb-6">Settings</h1>
+
+      <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
+        <div className="px-6 py-4 border-b border-zinc-800">
+          <h2 className="text-lg font-medium text-white">Staff Information Field</h2>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
-              <tr>
-                <th className="px-4 py-3 font-semibold">SL</th>
-                <th className="px-4 py-3 font-semibold">Name</th><th className="px-4 py-3 font-semibold">Details</th><th className="px-4 py-3 font-semibold">Status</th><th className="px-4 py-3 font-semibold">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800">
-              <tr><td colSpan="5" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-            </tbody>
-          </table>
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+            {fields.map((field, index) => (
+              <div key={field.name} className="flex items-center justify-between">
+                <span className="text-sm font-medium text-zinc-300">{field.name}</span>
+                <div className="flex gap-4">
+                  <label className="flex flex-col items-center gap-2 cursor-pointer">
+                    <span className="text-xs text-zinc-400 font-semibold tracking-wider">STAFF EDIT</span>
+                    <div className="relative">
+                      <input 
+                        type="checkbox" 
+                        className="sr-only" 
+                        checked={field.staffEdit}
+                        onChange={() => toggleField(index, 'staffEdit')}
+                      />
+                      <div className={`block w-10 h-6 rounded-full transition-colors ${field.staffEdit ? 'bg-emerald-600' : 'bg-zinc-700'}`}></div>
+                      <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${field.staffEdit ? 'transform translate-x-4' : ''}`}></div>
+                    </div>
+                  </label>
+                  <label className="flex flex-col items-center gap-2 cursor-pointer">
+                    <span className="text-xs text-zinc-400 font-semibold tracking-wider">REQUIRED</span>
+                    <div className="relative">
+                      <input 
+                        type="checkbox" 
+                        className="sr-only" 
+                        checked={field.required}
+                        onChange={() => toggleField(index, 'required')}
+                      />
+                      <div className={`block w-10 h-6 rounded-full transition-colors ${field.required ? 'bg-emerald-600' : 'bg-zinc-700'}`}></div>
+                      <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${field.required ? 'transform translate-x-4' : ''}`}></div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

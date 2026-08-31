@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef } from 'lucide-react';
+import { useState, useRef } from 'react';
 import { ChevronRight, ImageIcon } from 'lucide-react';
 
 export default function PreloaderSettingsPage() {

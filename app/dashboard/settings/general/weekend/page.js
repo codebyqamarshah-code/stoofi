@@ -1,45 +1,66 @@
 'use client';
+import { useState } from 'react';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { ChevronRight, Search, Download, Printer, FileText } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+export default function Weekend() {
+    const [days, setDays] = useState([
+        { id: 1, name: 'Saturday', isWeekend: true },
+        { id: 2, name: 'Sunday', isWeekend: true },
+        { id: 3, name: 'Monday', isWeekend: false },
+        { id: 4, name: 'Tuesday', isWeekend: false },
+        { id: 5, name: 'Wednesday', isWeekend: false },
+        { id: 6, name: 'Thursday', isWeekend: false },
+        { id: 7, name: 'Friday', isWeekend: false },
+    ]);
 
-export default function WeekendPage() {
-  const [search, setSearch] = useState('');
+    const toggleDay = (id) => {
+        setDays(days.map(day => day.id === id ? { ...day, isWeekend: !day.isWeekend } : day));
+    };
 
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Weekend</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-emerald-400 transition-colors">General Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Weekend</span>
+    return (
+        <div className="min-h-screen bg-zinc-950 p-6 text-zinc-100">
+            <div className="mb-6">
+                <h1 className="text-2xl font-semibold">Weekend</h1>
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-lg shadow-sm max-w-4xl">
+                <div className="border-b border-zinc-800 px-6 py-4">
+                    <h2 className="text-lg font-medium">Day list</h2>
+                </div>
+                
+                <div className="p-6">
+                    <table className="w-full text-sm text-left">
+                        <thead className="text-xs text-zinc-400 uppercase bg-zinc-950/50">
+                            <tr>
+                                <th className="px-6 py-3 font-medium">NAME</th>
+                                <th className="px-6 py-3 font-medium">WEEKEND</th>
+                                <th className="px-6 py-3 font-medium">ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-zinc-800">
+                            {days.map((day) => (
+                                <tr key={day.id} className="hover:bg-zinc-800/50">
+                                    <td className="px-6 py-4 font-medium">{day.name}</td>
+                                    <td className="px-6 py-4">
+                                        <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${
+                                            day.isWeekend ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
+                                        }`}>
+                                            {day.isWeekend ? 'Yes' : 'No'}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <button 
+                                            onClick={() => toggleDay(day.id)}
+                                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${day.isWeekend ? 'bg-emerald-600' : 'bg-zinc-600'}`}
+                                        >
+                                            <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${day.isWeekend ? 'translate-x-5' : 'translate-x-1'}`} />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-      </div>
-
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-white">Weekend Overview</h2>
-          <div className="relative w-48">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-            <Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs text-white" />
-          </div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
-              <tr>
-                <th className="px-4 py-3 font-semibold">SL</th>
-                <th className="px-4 py-3 font-semibold">Day</th><th className="px-4 py-3 font-semibold">Is Weekend</th><th className="px-4 py-3 font-semibold">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800">
-              <tr><td colSpan="5" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
+    );
 }

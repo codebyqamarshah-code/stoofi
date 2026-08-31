@@ -1,43 +1,136 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
-import { ChevronRight, Search, Download, Printer, FileText } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 
-export default function MessengerChatPage() {
-  const [search, setSearch] = useState('');
+export default function MessengerChat() {
+  const [chatEnabled, setChatEnabled] = useState('enable');
+  const [applicableFor, setApplicableFor] = useState({ student: true, parent: false, teacher: false });
+  const [showOnAdmin, setShowOnAdmin] = useState('yes');
+  const [showOnFront, setShowOnFront] = useState('yes');
+  const [position, setPosition] = useState('right');
+  const [availability, setAvailability] = useState('both');
+  const [showingPage, setShowingPage] = useState('all');
+  const [shortcode, setShortcode] = useState('');
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Messenger Chat</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-emerald-400 transition-colors">General Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Messenger Chat</span>
+    <div className="p-6 bg-zinc-950 min-h-screen text-zinc-100">
+      <h1 className="text-2xl font-semibold mb-6">Messenger Chat Setting</h1>
+      
+      <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden shadow-sm max-w-4xl">
+        <div className="px-6 py-4 border-b border-zinc-800">
+          <h2 className="text-lg font-medium">Messenger Chat Setting</h2>
         </div>
-      </div>
-
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-white">Messenger Chat Overview</h2>
-          <div className="relative w-48">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-            <Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs text-white" />
+        
+        <div className="p-6 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+             <label className="text-sm font-medium text-zinc-300 pt-2">MESSENGER CHAT</label>
+             <div className="col-span-2 flex gap-6">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="chatEnabled" checked={chatEnabled === 'enable'} onChange={() => setChatEnabled('enable')} className="accent-emerald-600" />
+                  <span className="text-sm">Enable</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="chatEnabled" checked={chatEnabled === 'disable'} onChange={() => setChatEnabled('disable')} className="accent-emerald-600" />
+                  <span className="text-sm">Disable</span>
+                </label>
+             </div>
           </div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
-              <tr>
-                <th className="px-4 py-3 font-semibold">SL</th>
-                <th className="px-4 py-3 font-semibold">Name</th><th className="px-4 py-3 font-semibold">Details</th><th className="px-4 py-3 font-semibold">Status</th><th className="px-4 py-3 font-semibold">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800">
-              <tr><td colSpan="5" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-            </tbody>
-          </table>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border-t border-zinc-800 pt-6">
+             <label className="text-sm font-medium text-zinc-300 pt-2">APPLICABLE FOR</label>
+             <div className="col-span-2 flex gap-6 flex-wrap">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={applicableFor.student} onChange={(e) => setApplicableFor({...applicableFor, student: e.target.checked})} className="rounded border-zinc-700 text-emerald-600 focus:ring-emerald-500 bg-zinc-800 cursor-pointer accent-emerald-600" />
+                  <span className="text-sm">Student</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={applicableFor.parent} onChange={(e) => setApplicableFor({...applicableFor, parent: e.target.checked})} className="rounded border-zinc-700 text-emerald-600 focus:ring-emerald-500 bg-zinc-800 cursor-pointer accent-emerald-600" />
+                  <span className="text-sm">Parent</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={applicableFor.teacher} onChange={(e) => setApplicableFor({...applicableFor, teacher: e.target.checked})} className="rounded border-zinc-700 text-emerald-600 focus:ring-emerald-500 bg-zinc-800 cursor-pointer accent-emerald-600" />
+                  <span className="text-sm">Teacher</span>
+                </label>
+             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border-t border-zinc-800 pt-6">
+             <label className="text-sm font-medium text-zinc-300 pt-2">SHOW ON ADMIN PANEL</label>
+             <div className="col-span-2 flex gap-6">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="showOnAdmin" checked={showOnAdmin === 'yes'} onChange={() => setShowOnAdmin('yes')} className="accent-emerald-600" />
+                  <span className="text-sm">Yes</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="showOnAdmin" checked={showOnAdmin === 'no'} onChange={() => setShowOnAdmin('no')} className="accent-emerald-600" />
+                  <span className="text-sm">No</span>
+                </label>
+             </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border-t border-zinc-800 pt-6">
+             <label className="text-sm font-medium text-zinc-300 pt-2">SHOW ON FRONTEND</label>
+             <div className="col-span-2 flex gap-6">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="showOnFront" checked={showOnFront === 'yes'} onChange={() => setShowOnFront('yes')} className="accent-emerald-600" />
+                  <span className="text-sm">Yes</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="showOnFront" checked={showOnFront === 'no'} onChange={() => setShowOnFront('no')} className="accent-emerald-600" />
+                  <span className="text-sm">No</span>
+                </label>
+             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center border-t border-zinc-800 pt-6">
+             <label className="text-sm font-medium text-zinc-300">POSITION</label>
+             <div className="col-span-2">
+                <select value={position} onChange={(e) => setPosition(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500 max-w-sm">
+                   <option value="left">Left</option>
+                   <option value="right">Right</option>
+                </select>
+             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center border-t border-zinc-800 pt-6">
+             <label className="text-sm font-medium text-zinc-300">AVAILABILITY</label>
+             <div className="col-span-2">
+                <select value={availability} onChange={(e) => setAvailability(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500 max-w-sm">
+                   <option value="mobile">Mobile</option>
+                   <option value="desktop">Desktop</option>
+                   <option value="both">Desktop & Mobile</option>
+                </select>
+             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center border-t border-zinc-800 pt-6">
+             <label className="text-sm font-medium text-zinc-300">SHOWING PAGE</label>
+             <div className="col-span-2">
+                <select value={showingPage} onChange={(e) => setShowingPage(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500 max-w-sm">
+                   <option value="homepage">Homepage</option>
+                   <option value="all">All Pages</option>
+                </select>
+             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border-t border-zinc-800 pt-6">
+             <label className="text-sm font-medium text-zinc-300 pt-2">SHORT CODE</label>
+             <div className="col-span-2">
+                <textarea 
+                  value={shortcode}
+                  onChange={(e) => setShortcode(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500" 
+                  rows={4}
+                  placeholder="Paste your messenger chat shortcode here"
+                />
+             </div>
+          </div>
+
+          <div className="border-t border-zinc-800 pt-6">
+             <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded text-sm transition-colors">
+                UPDATE
+             </button>
+          </div>
         </div>
       </div>
     </div>
