@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
@@ -8,10 +8,8 @@ const api = axios.create({
   },
 });
 
-// Request interceptor — attach token from Zustand persisted store or js-cookie
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
-    // 1. Try Zustand persisted auth store (primary source)
     try {
       const raw = localStorage.getItem('auth-storage');
       if (raw) {
@@ -24,7 +22,6 @@ api.interceptors.request.use((config) => {
       }
     } catch (_) {}
 
-    // 2. Fallback: plain token key
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -33,10 +30,16 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor for error handling
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
+    // If it's a network error (no response from server)
+    if (!error.response) {
+      console.warn("Backend server is not reachable (Network Error). Returning empty response.");
+      // Return a fake successful response with no data so the UI doesn't break
+      return Promise.resolve({ success: false, data: [], message: 'Network Error' });
+    }
+
     const message = error.response?.data?.message || error.message || 'An unexpected error occurred';
     const err = new Error(message);
     err.response = error.response;

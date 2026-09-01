@@ -1,138 +1,127 @@
 ﻿'use client';
-
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import { ChevronRight, Search, Edit, Trash2, X, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 export default function SetupExamRulePage() {
-  const [formData, setFormData] = useState({});
-  const [editId, setEditId] = useState(null);
-  const [records, setRecords] = useState([]);
-  const [search, setSearch] = useState('');
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (editId) {
-      setRecords(records.map(r => r.id === editId ? { ...r, ...formData } : r));
-      setEditId(null);
-    } else {
-      setRecords([{ id: Date.now(), ...formData }, ...records]);
-    }
-    setFormData({});
-  };
-
-  const handleEdit = (item) => {
-    setFormData(item);
-    setEditId(item.id);
-  };
-
-  const handleDelete = (id) => {
-    if (confirm('Delete this record?')) {
-      setRecords(records.filter(r => r.id !== id));
-    }
-  };
-
-  const cancelEdit = () => {
-    setFormData({});
-    setEditId(null);
-  };
-
+  const [cbt, setCbt] = useState('0');
+  const [firstTerm, setFirstTerm] = useState('0');
+  
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Setup Exam Rule</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Exam Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Setup Exam Rule</span>
+    <div className="min-h-screen bg-zinc-950 p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-800 pb-4">
+        <h1 className="text-xl font-bold text-white">Setup Exam Rule</h1>
+        <div className="flex items-center text-xs text-zinc-400">
+          <Link href="/dashboard" className="hover:text-zinc-200">Dashboard</Link><span className="mx-2">|</span>
+          <span className="hover:text-zinc-200 cursor-pointer">Examination</span><span className="mx-2">|</span>
+          <span className="hover:text-zinc-200 cursor-pointer">Settings</span><span className="mx-2">|</span>
+          <span className="text-indigo-400 font-medium">Setup Exam Rule</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-1">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl">
-            <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">{editId ? 'Edit' : 'Add'} Setup Exam Rule</h2>
-              {editId && <button onClick={cancelEdit} className="text-zinc-400 hover:text-white"><X className="h-4 w-4" /></button>}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 space-y-6">
+          <h2 className="text-sm font-semibold text-indigo-900 dark:text-indigo-100">Setup Final Exam Rule</h2>
+          
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-zinc-400 uppercase">EXAM TYPE CBT (%)</span>
+              <input type="number" value={cbt} onChange={e => setCbt(e.target.value)} className="w-32 bg-zinc-950 border border-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-2 text-right focus:outline-none focus:ring-1 focus:ring-indigo-500" />
             </div>
-            <form className="p-4 space-y-4" onSubmit={handleSubmit}>
-              
-        <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-zinc-400 uppercase">Rule Name</Label>
-          <Input 
-            type="text"
-            name="ruleName"
-            value={formData.ruleName || ''} 
-            onChange={handleChange}
-            className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-zinc-400 uppercase">Pass Marks %</Label>
-          <Input 
-            type="number"
-            name="passMarks"
-            value={formData.passMarks || ''} 
-            onChange={handleChange}
-            className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
-          />
-        </div>
-              <div className="flex gap-2 pt-2">
-                <Button type="submit" className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
-                  {editId ? 'UPDATE' : 'SAVE'}
-                </Button>
-                {editId && (
-                  <Button type="button" onClick={cancelEdit} variant="outline" className="border-zinc-700 text-zinc-400 hover:text-white">Cancel</Button>
-                )}
-              </div>
-            </form>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-zinc-400 uppercase">EXAM TYPE FIRST TERM EXAM (%)</span>
+              <input type="number" value={firstTerm} onChange={e => setFirstTerm(e.target.value)} className="w-32 bg-zinc-950 border border-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-2 text-right focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+            </div>
+            <div className="pt-2 text-xs font-semibold text-zinc-400 uppercase">
+              TOTAL MARK 100%
+            </div>
+          </div>
+          
+          <div className="flex justify-center mt-6">
+            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-6 py-2 rounded-lg transition-colors">✓ STORE</button>
           </div>
         </div>
 
-        <div className="xl:col-span-2">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl">
-            <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-white">Setup Exam Rule List</h2>
-              <div className="relative w-48">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                <Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500 text-white" />
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
-                  <tr>
-                    <th className="px-4 py-3 font-semibold">SL</th>
-                    <th className="px-4 py-3 font-semibold">Rule Name</th><th className="px-4 py-3 font-semibold">Pass Marks %</th><th className="px-4 py-3 font-semibold">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-800">
-                  {records.length === 0 ? (
-                    <tr><td colSpan="4" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-                  ) : records.map((r, i) => (
-                    <tr key={r.id} className="hover:bg-zinc-900/50">
-                      <td className="px-4 py-3 text-emerald-500">+{i+1}</td>
-                      <td className="px-4 py-3 text-zinc-300">{r.ruleName || '-'}</td><td className="px-4 py-3 text-zinc-300">{r.passMarks || '-'}</td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button onClick={() => handleEdit(r)} variant="ghost" size="sm" className="h-8 text-emerald-500 hover:bg-emerald-500/10"><Edit className="h-4 w-4" /></Button>
-                          <Button onClick={() => handleDelete(r.id)} variant="ghost" size="sm" className="h-8 text-rose-500 hover:bg-rose-500/10"><Trash2 className="h-4 w-4" /></Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
+          <h2 className="text-sm font-semibold text-indigo-900 dark:text-indigo-100 mb-6">Mark Contribution</h2>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-zinc-800/50">
+                <th className="text-left text-xs font-semibold text-zinc-400 pb-3">EXAM TERM</th>
+                <th className="text-right text-xs font-semibold text-zinc-400 pb-3">PERCENTAGE</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="py-4 font-semibold text-zinc-200">Total</td>
+                <td className="py-4 text-right font-semibold text-zinc-200">0%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 space-y-6">
+          <h2 className="text-sm font-semibold text-indigo-900 dark:text-indigo-100">Do you want to skip this step for mark register/store?</h2>
+          
+          <div className="space-y-3">
+            <div className="text-xs font-bold text-indigo-900 dark:text-indigo-100 uppercase">NAME OF STEP</div>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" className="w-4 h-4 text-indigo-600 bg-zinc-950 border-zinc-700 rounded focus:ring-indigo-500" />
+              <span className="text-sm text-zinc-400">Exam Schedule</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" className="w-4 h-4 text-indigo-600 bg-zinc-950 border-zinc-700 rounded focus:ring-indigo-500" />
+              <span className="text-sm text-zinc-400">Exam Attendance</span>
+            </label>
           </div>
+          
+          <div className="flex justify-center mt-6">
+            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-6 py-2 rounded-lg transition-colors">✓ UPDATE</button>
+          </div>
+        </div>
+
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 space-y-6">
+          <h2 className="text-sm font-semibold text-indigo-900 dark:text-indigo-100">Merit List Contribution Using</h2>
+          
+          <div className="flex items-center gap-6">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="merit" className="w-4 h-4 text-indigo-600 bg-zinc-950 border-zinc-700 focus:ring-indigo-500" />
+              <span className="text-sm text-zinc-400">Total Mark</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="merit" className="w-4 h-4 text-indigo-600 bg-zinc-950 border-zinc-700 focus:ring-indigo-500" />
+              <span className="text-sm text-zinc-400">Total Grade</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="merit" defaultChecked className="w-4 h-4 text-indigo-600 bg-zinc-950 border-zinc-700 focus:ring-indigo-500" />
+              <span className="text-sm text-zinc-400">Roll Number</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 shadow-sm">
+        <h2 className="text-sm font-semibold text-indigo-900 dark:text-indigo-100 mb-6">Result Print Style</h2>
+        
+        <div className="flex flex-wrap gap-8">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" defaultChecked className="w-4 h-4 text-indigo-600 bg-zinc-950 border-zinc-700 rounded focus:ring-indigo-500" />
+            <span className="text-sm text-zinc-400">With Profile Image</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" defaultChecked className="w-4 h-4 text-indigo-600 bg-zinc-950 border-zinc-700 rounded focus:ring-indigo-500" />
+            <span className="text-sm text-zinc-400">With Header Background</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" defaultChecked className="w-4 h-4 text-indigo-600 bg-zinc-950 border-zinc-700 rounded focus:ring-indigo-500" />
+            <span className="text-sm text-zinc-400">With Body Background</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" className="w-4 h-4 text-indigo-600 bg-zinc-950 border-zinc-700 rounded focus:ring-indigo-500" />
+            <span className="text-sm text-zinc-400">With Vertical Border</span>
+          </label>
         </div>
       </div>
     </div>
   );
 }
-

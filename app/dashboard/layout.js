@@ -233,7 +233,7 @@ export default function DashboardLayout({ children }) {
                           {/* Smooth animated accordion dropdown */}
                           <div
                             className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                              isOpen ? 'max-h-[450px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+                              isOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
                             }`}
                           >
                             <div className="pl-7 pr-2 py-1 space-y-0.5 border-l border-zinc-800 ml-5 my-1">

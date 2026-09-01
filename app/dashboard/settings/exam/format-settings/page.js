@@ -1,43 +1,142 @@
-'use client';
-
-import React, { useState } from 'react';
+﻿'use client';
+import { useState } from 'react';
+import { ChevronRight, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
-import { ChevronRight, Search, Download, Printer, FileText } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 
 export default function FormatSettingsPage() {
+  const [type, setType] = useState('Term Exam');
+  const [exam, setExam] = useState('');
+  const [title, setTitle] = useState('');
+  const [pubDate, setPubDate] = useState('09/01/2026');
+  const [startDate, setStartDate] = useState('09/01/2026');
+  const [endDate, setEndDate] = useState('09/01/2026');
   const [search, setSearch] = useState('');
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Format Settings</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Exam Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Format Settings</span>
+    <div className="min-h-screen bg-zinc-950 p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-800 pb-4">
+        <h1 className="text-xl font-bold text-white">Format Settings</h1>
+        <div className="flex items-center text-xs text-zinc-400">
+          <Link href="/dashboard" className="hover:text-zinc-200">Dashboard</Link><span className="mx-2">|</span>
+          <span className="hover:text-zinc-200 cursor-pointer">Examination</span><span className="mx-2">|</span>
+          <span className="hover:text-zinc-200 cursor-pointer">Settings</span><span className="mx-2">|</span>
+          <span className="text-indigo-400 font-medium">Format Settings</span>
         </div>
       </div>
 
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-white">Format Settings Overview</h2>
-          <div className="relative w-48">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-            <Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs text-white" />
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 space-y-5">
+          <h2 className="text-sm font-semibold text-white mb-4">Add Exam Format</h2>
+          <div className="bg-yellow-900/20 border border-yellow-700/50 text-yellow-500/80 text-[11px] p-3 rounded leading-relaxed">
+            For term exam type, Controller title and signature will shows on mark sheet report and merit list report. And Result publication date shows on mark sheet report and merit list report and tabulation sheet report. For progress card type publication date shows on progress card, 100 percent progress card report.
           </div>
+          
+          <div>
+            <label className="text-xs font-semibold text-red-500 uppercase block mb-1">TYPE *</label>
+            <select value={type} onChange={e => setType(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+              <option>Term Exam</option>
+              <option>CBT</option>
+              <option>Progress Card</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-red-500 uppercase block mb-1">EXAM *</label>
+            <select value={exam} onChange={e => setExam(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+              <option value="">Select Exam *</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-red-500 uppercase block mb-1">CONTROLLER TITLE *</label>
+            <input type="text" value={title} onChange={e => setTitle(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-zinc-400 uppercase block mb-1">SIGNATURE</label>
+            <div className="flex gap-2">
+              <div className="flex-1 bg-zinc-950 border border-zinc-800 text-zinc-500 text-sm rounded-lg px-3 py-2.5 flex items-center">Signature</div>
+              <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs px-4 rounded-lg">BROWSE</button>
+            </div>
+            <p className="text-[10px] text-indigo-400 mt-1">(Allow file jpg, png, jpeg, svg)</p>
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-red-500 uppercase block mb-1">RESULT PUBLICATION DATE *</label>
+            <input type="date" value={pubDate} onChange={e => setPubDate(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 [&::-webkit-calendar-picker-indicator]:invert" />
+          </div>
+
+          <div className="pt-2">
+            <h3 className="text-sm font-semibold text-indigo-400 mb-4">Attendance</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-red-500 uppercase block mb-1">START DATE *</label>
+                <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 [&::-webkit-calendar-picker-indicator]:invert" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-red-500 uppercase block mb-1">END DATE *</label>
+                <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 [&::-webkit-calendar-picker-indicator]:invert" />
+              </div>
+            </div>
+          </div>
+
+          <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm py-3 rounded-lg flex items-center justify-center gap-2 transition-colors mt-4">✓ SAVE CONTENT</button>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
-              <tr>
-                <th className="px-4 py-3 font-semibold">SL</th>
-                <th className="px-4 py-3 font-semibold">Name</th><th className="px-4 py-3 font-semibold">Details</th><th className="px-4 py-3 font-semibold">Status</th><th className="px-4 py-3 font-semibold">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800">
-              <tr><td colSpan="5" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-            </tbody>
-          </table>
+
+        <div className="xl:col-span-2 bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-sm font-semibold text-white">Exam Format List</h2>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 border border-zinc-800 rounded-md px-2 py-1.5 bg-zinc-950">
+                <Search className="w-3.5 h-3.5 text-zinc-500" />
+                <input value={search} onChange={e => setSearch(e.target.value)} placeholder="SEARCH" className="bg-transparent text-xs text-zinc-300 outline-none w-32" />
+              </div>
+              <div className="flex gap-1">
+                {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
+                  <button key={i} className="p-1.5 text-zinc-400 hover:text-indigo-400 hover:bg-zinc-800 rounded transition-colors"><Icon className="w-3.5 h-3.5" /></button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead>
+                <tr className="border-b border-zinc-800 text-zinc-400">
+                  <th className="py-3 px-3 font-medium text-xs">↓ Exam</th>
+                  <th className="py-3 px-3 font-medium text-xs">↓ Title</th>
+                  <th className="py-3 px-3 font-medium text-xs">↓ Signature</th>
+                  <th className="py-3 px-3 font-medium text-xs">↓ Publish Date</th>
+                  <th className="py-3 px-3 font-medium text-xs">↓ Start Date</th>
+                  <th className="py-3 px-3 font-medium text-xs">↓ End Date</th>
+                  <th className="py-3 px-3 font-medium text-xs text-center">↓ Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
+                  <td className="py-4 px-3 text-zinc-300">CBT</td>
+                  <td className="py-4 px-3 text-zinc-300">Exam Controller</td>
+                  <td className="py-4 px-3 text-zinc-400 italic font-serif">Signature</td>
+                  <td className="py-4 px-3 text-zinc-400 text-xs">15th Aug, 2026</td>
+                  <td className="py-4 px-3 text-zinc-400 text-xs">15th Aug, 2026</td>
+                  <td className="py-4 px-3 text-zinc-400 text-xs">15th Aug, 2026</td>
+                  <td className="py-4 px-3 text-center">
+                    <button className="border border-indigo-500/30 text-indigo-400 hover:bg-indigo-900/30 text-[11px] font-medium px-3 py-1 rounded-full flex items-center justify-center gap-1 mx-auto transition-colors">
+                      SELECT <ChevronDown className="w-3 h-3" />
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="flex items-center justify-between mt-6 text-xs text-zinc-500">
+            <span>Showing 1 to 1 of 1 entries</span>
+            <div className="flex items-center gap-1">
+              <button className="w-6 h-6 flex items-center justify-center text-zinc-500 hover:text-zinc-300">‹</button>
+              <button className="w-6 h-6 flex items-center justify-center bg-indigo-600 text-white rounded">1</button>
+              <button className="w-6 h-6 flex items-center justify-center text-zinc-500 hover:text-zinc-300">›</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
