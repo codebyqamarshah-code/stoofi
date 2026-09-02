@@ -24,13 +24,17 @@ export default function PhoneCallLogPage() {
 
   const [isMounted, setIsMounted] = useState(false);
   
+  const fetchLogs = async () => {
+    try {
+      const res = await api.get('/phone-call-log');
+      if (res.success) setLogs(res.data);
+    } catch(e) {}
+  };
+
   useEffect(() => {
-    const saved = const fetchLogs = async () => { try { const res = await api.get('/phone-call-log'); if(res.success) setLogs(res.data); } catch(e){} }; fetchLogs(); setIsMounted(true);
-  useEffect(() => {
-    if (isMounted) {
-      
-    }
-  }, [logs, isMounted]);
+    fetchLogs();
+    setIsMounted(true);
+  }, []);
 
   const [callType, setCallType] = useState('Incoming');
   const [searchQuery, setSearchQuery] = useState('');
