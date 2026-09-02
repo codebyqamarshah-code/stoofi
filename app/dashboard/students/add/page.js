@@ -204,7 +204,7 @@ export default function AddStudentPage() {
                           value={formData.section} 
                           onChange={handleInputChange} 
                           placeholder="Select Section *"
-                          options={sections.map(s => ({ label: s.name, value: s.name }))} 
+                          options={(classes.find(c => c.name === formData.className)?.sections || []).map(s => ({ label: s, value: s }))} 
                         />
                       </div>
                       <div className="space-y-1.5">

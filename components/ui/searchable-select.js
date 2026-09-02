@@ -17,7 +17,7 @@ export function SearchableSelect({ options, value, onChange, placeholder, name }
   }, []);
 
   const filteredOptions = (options || []).filter(opt => 
-    opt?.label?.toLowerCase().includes((searchTerm || '').toLowerCase())
+    String(opt?.label || '').toLowerCase().includes((searchTerm || '').toLowerCase())
   );
 
   const selectedOption = (options || []).find(opt => opt.value === value);

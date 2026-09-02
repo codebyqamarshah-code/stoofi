@@ -33,11 +33,21 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    // If it's a network error (no response from server)
     if (!error.response) {
       console.warn("Backend server is not reachable (Network Error). Returning empty response.");
-      // Return a fake successful response with no data so the UI doesn't break
       return Promise.resolve({ success: false, data: [], message: 'Network Error' });
+    }
+
+    if (error.response.status === 401) {
+      if (typeof window !== 'undefined' && window.location.pathname !== '/login' && window.location.pathname !== '/') {
+        // Clear token
+        localStorage.removeItem('auth-storage');
+        localStorage.removeItem('token');
+        // Redirect to login
+        window.location.href = '/login';
+        // Return a promise that never resolves, so the component's catch block doesn't run and show an alert
+        return new Promise(() => {});
+      }
     }
 
     const message = error.response?.data?.message || error.message || 'An unexpected error occurred';

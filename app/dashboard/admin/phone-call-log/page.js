@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 
@@ -25,16 +25,10 @@ export default function PhoneCallLogPage() {
   const [isMounted, setIsMounted] = useState(false);
   
   useEffect(() => {
-    const saved = localStorage.getItem('eskooly_call_logs');
-    if (saved) {
-      try { setLogs(JSON.parse(saved)); } catch(e) {}
-    }
-    setIsMounted(true);
-  }, []);
-
+    const saved = const fetchLogs = async () => { try { const res = await api.get('/phone-call-log'); if(res.success) setLogs(res.data); } catch(e){} }; fetchLogs(); setIsMounted(true);
   useEffect(() => {
     if (isMounted) {
-      localStorage.setItem('eskooly_call_logs', JSON.stringify(logs));
+      
     }
   }, [logs, isMounted]);
 
@@ -56,7 +50,7 @@ export default function PhoneCallLogPage() {
         await api.post('/phone-call-log', payload);
       }
       setEditingId(null);
-      fetchData();
+      fetchLogs();
       if(typeof setShowForm === 'function') setShowForm(false);
       const resetForm = {};
       Object.keys(formData).forEach(k => resetForm[k] = '');
@@ -279,3 +273,6 @@ export default function PhoneCallLogPage() {
     </div>
   );
 }
+
+
+

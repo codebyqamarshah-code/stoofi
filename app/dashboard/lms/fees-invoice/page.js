@@ -2,13 +2,16 @@
 
 import Link from 'next/link';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '@/services/api';
 import { ChevronRight, Search, Download, Printer, FileText, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 export default function LmsFeesInvoicePage() {
   const [invoices, setInvoices] = useState([]);
+  useEffect(() => { fetchRecords(); }, []);
+  const fetchRecords = async () => { try { const res = await api.get('/lms-fees-invoice'); if(res.success) setInvoices(res.data); } catch(e){} };
 
   return (
     <div className="space-y-6">

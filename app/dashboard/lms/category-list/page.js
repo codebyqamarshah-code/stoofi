@@ -3,6 +3,7 @@
 import Link from 'next/link';
 
 import React, { useState, useMemo } from 'react';
+import api from '@/services/api';
 import { ChevronRight, Search, Download, Printer, FileText, MoreVertical, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,8 @@ import { Label } from '@/components/ui/label';
 
 export default function CategoryListPage() {
   const [categories, setCategories] = useState([]);
+  React.useEffect(() => { fetchCategories(); }, []);
+  const fetchCategories = async () => { try { const res = await api.get('/lms-category'); if(res.success) setCategories(res.data); } catch(e){} };
   const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({
     name: '',
@@ -37,8 +40,11 @@ export default function CategoryListPage() {
     });
   };
 
-  const handleDelete = (id) => {
-    setCategories(categories.filter(c => c.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      await api.delete('/lms-category/' + id);
+      fetchCategories();
+    } catch(e) { alert(e.message); }
   };
 
   const filteredCategories = useMemo(() => {

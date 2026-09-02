@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { ChevronRight, Search, Edit, Trash2, X, Plus } from 'lucide-react';
+import api from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,20 +13,27 @@ export default function FundTransferPage() {
   const [editId, setEditId] = useState(null);
   const [records, setRecords] = useState([]);
   const [search, setSearch] = useState('');
+  React.useEffect(() => { fetchRecords(); }, []);
+  const fetchRecords = async () => { try { const res = await api.get('/fund-transfer'); if(res.success) setRecords(res.data); } catch(e){} };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editId) {
-      setRecords(records.map(r => r.id === editId ? { ...r, ...formData } : r));
-      setEditId(null);
-    } else {
-      setRecords([{ id: Date.now(), ...formData }, ...records]);
+    try {
+      if (editId) {
+        await api.put('/fund-transfer/' + editId, formData);
+        setEditId(null);
+      } else {
+        await api.post('/fund-transfer', formData);
+      }
+      fetchRecords();
+      setFormData({});
+    } catch(e) {
+      alert(e.message);
     }
-    setFormData({});
   };
 
   const handleEdit = (item) => {
@@ -33,11 +41,12 @@ export default function FundTransferPage() {
     setEditId(item.id);
   };
 
-  const handleDelete = (id) => {
-    if (confirm('Delete this record?')) {
-      setRecords(records.filter(r => r.id !== id));
-    }
-  };
+  const handleDelete = async (id) => {
+      if(confirm('Delete?')) {
+        await api.delete('/fund-transfer/' + id);
+        fetchRecords();
+      }
+    };
 
   const cancelEdit = () => {
     setFormData({});
@@ -135,13 +144,13 @@ export default function FundTransferPage() {
                   {records.length === 0 ? (
                     <tr><td colSpan="6" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
                   ) : records.map((r, i) => (
-                    <tr key={r.id} className="hover:bg-zinc-900/50">
+                    <tr key={r._id} className="hover:bg-zinc-900/50">
                       <td className="px-4 py-3 text-emerald-500">+{i+1}</td>
                       <td className="px-4 py-3 text-zinc-300">{r.fromAccount || '-'}</td><td className="px-4 py-3 text-zinc-300">{r.toAccount || '-'}</td><td className="px-4 py-3 text-zinc-300">{r.amount || '-'}</td><td className="px-4 py-3 text-zinc-300">{r.date || '-'}</td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-2">
                           <Button onClick={() => handleEdit(r)} variant="ghost" size="sm" className="h-8 text-emerald-500 hover:bg-emerald-500/10"><Edit className="h-4 w-4" /></Button>
-                          <Button onClick={() => handleDelete(r.id)} variant="ghost" size="sm" className="h-8 text-rose-500 hover:bg-rose-500/10"><Trash2 className="h-4 w-4" /></Button>
+                          <Button onClick={() => handleDelete(r._id)} variant="ghost" size="sm" className="h-8 text-rose-500 hover:bg-rose-500/10"><Trash2 className="h-4 w-4" /></Button>
                         </div>
                       </td>
                     </tr>

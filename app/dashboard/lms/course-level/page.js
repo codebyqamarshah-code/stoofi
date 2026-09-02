@@ -2,36 +2,45 @@
 
 import Link from 'next/link';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import api from '@/services/api';
 import { ChevronRight, Search, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 export default function CourseLevelPage() {
-  const [levels, setLevels] = useState([
-    { id: 1, name: 'Advance', status: true },
-    { id: 2, name: 'Beginner', status: true },
-    { id: 3, name: 'Intermediate', status: true },
-    { id: 4, name: 'Pro', status: true }
-  ]);
+  const [levels, setLevels] = useState([]);
+  useEffect(() => { fetchLevels(); }, []);
+  const fetchLevels = async () => { try { const res = await api.get('/lms-course-level'); if (res.success) setLevels(res.data); } catch(e){} };
   const [levelTitle, setLevelTitle] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     if (!levelTitle.trim()) return;
-    
-    setLevels([{ id: Date.now(), name: levelTitle, status: true }, ...levels]);
-    setLevelTitle('');
+    try {
+      await api.post('/lms-course-level', { name: levelTitle });
+      fetchLevels();
+      setLevelTitle('');
+    } catch(e) { alert(e.message); }
   };
 
-  const handleDelete = (id) => {
-    setLevels(levels.filter(l => l.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      await api.delete('/lms-course-level/' + id);
+      fetchLevels();
+    } catch(e) { alert(e.message); }
   };
 
-  const toggleStatus = (id) => {
-    setLevels(levels.map(l => l.id === id ? { ...l, status: !l.status } : l));
+  const toggleStatus = async (id) => {
+    try {
+      const level = levels.find(l => l._id === id);
+      if (level) {
+        await api.put('/lms-course-level/' + id, { status: !level.status });
+        fetchLevels();
+      }
+    } catch(e) { alert(e.message); }
   };
 
   const filteredLevels = useMemo(() => {
@@ -104,11 +113,11 @@ export default function CourseLevelPage() {
                 </thead>
                 <tbody>
                   {filteredLevels.length > 0 ? filteredLevels.map((lv) => (
-                    <tr key={lv.id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
+                    <tr key={lv._id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
                       <td className="px-4 py-4 text-zinc-300">{lv.name}</td>
                       <td className="px-4 py-4">
                         <div
-                          onClick={() => toggleStatus(lv.id)}
+                          onClick={() => toggleStatus(lv._id)}
                           className={`relative inline-flex h-5 w-9 items-center rounded-full cursor-pointer transition-colors ${lv.status ? 'bg-emerald-600' : 'bg-zinc-700'}`}
                         >
                           <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${lv.status ? 'translate-x-4' : 'translate-x-1'}`} />
@@ -116,7 +125,7 @@ export default function CourseLevelPage() {
                       </td>
                       <td className="px-4 py-4 text-right">
                         <Button 
-                          onClick={() => handleDelete(lv.id)}
+                          onClick={() => handleDelete(lv._id)}
                           variant="outline" 
                           size="sm" 
                           className="h-8 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10"

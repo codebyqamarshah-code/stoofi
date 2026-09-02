@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '@/services/api';
 import { ChevronRight, Search, Download, Printer, FileText, MoreVertical, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,8 @@ import { Label } from '@/components/ui/label';
 
 export default function EnrollHistoryPage() {
   const [logs, setLogs] = useState([]);
+  useEffect(() => { fetchRecords(); }, []);
+  const fetchRecords = async () => { try { const res = await api.get('/lms-enroll-history'); if(res.success) setLogs(res.data); } catch(e){} };
 
   return (
     <div className="space-y-6">
