@@ -27,24 +27,24 @@
 }
 
 :root {
-  /* Strictly White & Green Light Mode - No Grays */
-  --custom-zinc-950: #ffffff; /* Pure White Background */
-  --custom-zinc-900: #ffffff; /* Pure White Cards/Inputs */
-  --custom-zinc-800: #d1fae5; /* Emerald 100 - Borders */
-  --custom-zinc-700: #a7f3d0; /* Emerald 200 */
-  --custom-zinc-600: #34d399; /* Emerald 400 */
-  --custom-zinc-500: #10b981; /* Emerald 500 */
-  --custom-zinc-400: #047857; /* Emerald 700 - Subtext */
-  --custom-zinc-300: #064e3b; /* Emerald 900 - Text */
-  --custom-zinc-200: #022c22; /* Emerald 950 - Bold Text */
-  --custom-zinc-100: #000000; /* Black for contrast if needed */
-  --custom-zinc-50: #000000;  /* Black */
-  --custom-white: #064e3b;    /* Dark Green instead of white text */
-  
-  /* Make dark emeralds turn into very light greens in light mode to prevent murky gray shadows */
-  --custom-emerald-950: #ecfdf5; /* Emerald 50 */
-  --custom-emerald-900: #d1fae5; /* Emerald 100 */
-  --custom-emerald-800: #a7f3d0; /* Emerald 200 */
+  /* Standard zinc scale - light mode uses real grays/whites */
+  --custom-zinc-950: #09090b;
+  --custom-zinc-900: #18181b;
+  --custom-zinc-800: #27272a;
+  --custom-zinc-700: #3f3f46;
+  --custom-zinc-600: #52525b;
+  --custom-zinc-500: #71717a;
+  --custom-zinc-400: #a1a1aa;
+  --custom-zinc-300: #d4d4d8;
+  --custom-zinc-200: #e4e4e7;
+  --custom-zinc-100: #f4f4f5;
+  --custom-zinc-50: #fafafa;
+  --custom-white: #ffffff;
+
+  /* Standard emerald scale */
+  --custom-emerald-950: #022c22;
+  --custom-emerald-900: #064e3b;
+  --custom-emerald-800: #065f46;
 }
 
 .dark {

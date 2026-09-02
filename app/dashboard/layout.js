@@ -51,6 +51,7 @@ export default function DashboardLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [menuStructure, setMenuStructure] = useState(DEFAULT_MENU_STRUCTURE);
   
@@ -164,7 +165,7 @@ export default function DashboardLayout({ children }) {
       <aside
         className={`${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed inset-y-0 left-0 z-50 w-64 border-r border-zinc-800 bg-zinc-950 transition-transform duration-300 md:relative md:translate-x-0 flex flex-col shrink-0`}
+        } fixed inset-y-0 left-0 z-50 w-64 border-r border-zinc-800 bg-zinc-950 transition-transform duration-300 md:relative md:translate-x-0 ${sidebarCollapsed ? 'md:hidden' : 'md:flex'} flex-col shrink-0`}
       >
         {/* Brand Header */}
         <div className="flex h-[100px] items-center justify-between border-b border-zinc-800 px-6 shrink-0 bg-zinc-950">
@@ -293,7 +294,15 @@ export default function DashboardLayout({ children }) {
             <Button
               variant="ghost"
               size="icon"
-              className="text-zinc-400 hover:text-zinc-50 cursor-pointer"
+              className="text-zinc-400 hover:text-zinc-50 cursor-pointer hidden md:flex" 
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-zinc-400 hover:text-zinc-50 cursor-pointer md:hidden"
               onClick={() => setSidebarOpen(!sidebarOpen)}
             >
               <Menu className="h-5 w-5" />
@@ -325,7 +334,7 @@ export default function DashboardLayout({ children }) {
             {/* Academic Session Dropdown */}
             <div className="relative hidden lg:block">
               <div 
-                className="flex items-center justify-between gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1 text-xs text-zinc-300 font-medium cursor-pointer hover:border-zinc-700 w-32"
+                className="flex items-center justify-between gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1 text-[11px] text-zinc-300 font-medium cursor-pointer hover:border-zinc-700 w-auto min-w-[110px] whitespace-nowrap"
                 onClick={() => setIsSessionDropdownOpen(!isSessionDropdownOpen)}
               >
                 <span>{session}</span>
@@ -349,21 +358,35 @@ export default function DashboardLayout({ children }) {
             {/* Language Dropdown */}
             <div className="relative hidden sm:block">
               <div 
-                className="flex items-center justify-between gap-1 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1 text-xs text-zinc-300 font-semibold cursor-pointer hover:border-zinc-700 w-14"
+                className="flex items-center justify-between gap-1.5 bg-zinc-900 border border-zinc-700 rounded-lg px-2.5 py-1 text-xs text-zinc-200 font-bold cursor-pointer hover:border-zinc-600 transition-colors min-w-[54px]"
                 onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
               >
                 <span>{lang}</span>
-                <ChevronDown className={`h-3 w-3 transition-transform ${isLangDropdownOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${isLangDropdownOpen ? 'rotate-180' : ''}`} />
               </div>
               {isLangDropdownOpen && (
-                <div className="absolute top-full right-0 mt-1 w-24 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl overflow-hidden py-1">
-                  {['EN', 'UR', 'AR'].map((l) => (
+                <div className="absolute top-full right-0 mt-1.5 w-28 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl overflow-hidden p-1 z-50">
+                  {[
+                    { code: 'EN', name: 'English' },
+                    { code: 'UR', name: 'Urdu' },
+                    { code: 'AR', name: 'Arabic' }
+                  ].map((l) => (
                     <div 
-                      key={l} 
-                      onClick={() => { setLang(l); setIsLangDropdownOpen(false); }}
-                      className="px-3 py-1.5 text-xs text-zinc-300 hover:bg-emerald-950/50 hover:text-emerald-400 cursor-pointer transition-colors"
+                      key={l.code} 
+                      onClick={() => { 
+                        setLang(l.code); 
+                        setIsLangDropdownOpen(false); 
+                        if (typeof window !== 'undefined') {
+                          localStorage.setItem('eskooly_lang', l.code);
+                        }
+                      }}
+                      className={`px-3 py-2 text-xs rounded-lg cursor-pointer transition-colors ${
+                        lang === l.code 
+                          ? 'bg-emerald-950/50 text-emerald-400 font-bold' 
+                          : 'text-zinc-300 hover:bg-zinc-800 hover:text-emerald-400 font-medium'
+                      }`}
                     >
-                      {l === 'EN' ? 'English' : l === 'UR' ? 'Urdu' : 'Arabic'}
+                      {l.name}
                     </div>
                   ))}
                 </div>
