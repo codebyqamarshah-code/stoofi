@@ -1,0 +1,5 @@
+const Model = require("../models/LMSCourseLevel");
+exports.getAll = async(req,res) => { try{ res.json({success:true, data: await Model.find().sort({createdAt:-1})}) } catch(e){ res.status(500).json({success:false, message:e.message}) } };
+exports.create = async(req,res) => { try{ res.json({success:true, data: await Model.create(req.body)}) } catch(e){ res.status(500).json({success:false, message:e.message}) } };
+exports.update = async(req,res) => { try{ res.json({success:true, data: await Model.findByIdAndUpdate(req.params.id, req.body, {new:true})}) } catch(e){ res.status(500).json({success:false, message:e.message}) } };
+exports.remove = async(req,res) => { try{ res.json({success:true, data: await Model.findByIdAndDelete(req.params.id)}) } catch(e){ res.status(500).json({success:false, message:e.message}) } };

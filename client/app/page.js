@@ -1,0 +1,615 @@
+"use client";
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { Button } from "@/components/ui/button";
+import { translations } from "@/utils/translations";
+import {
+  CheckCircle2, Monitor, Users, GraduationCap, Calculator,
+  ShieldCheck, Menu, X, Star, ArrowRight, Zap, BarChart3,
+  Bell, BookOpen, CreditCard, Clock, Globe, Phone, Mail, MapPin,
+  Settings2, UserPlus, FileSpreadsheet, Award, HelpCircle, ChevronDown
+} from "lucide-react";
+
+export default function LandingPage() {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeStepTab, setActiveStepTab] = useState("admin");
+  const [openFaq, setOpenFaq] = useState(0);
+  const [lang, setLang] = useState("EN");
+  const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+
+  const t = translations[lang] || translations['EN'];
+
+  const changeLanguage = (langCode) => {
+    setLang(langCode);
+    setIsLangDropdownOpen(false);
+    
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('eskooly_lang', langCode);
+      
+      let googleLang = 'en';
+      if (langCode === 'UR') googleLang = 'ur';
+      if (langCode === 'AR') googleLang = 'ar';
+      
+      // Set the Google Translate cookie
+      document.cookie = `googtrans=/en/${googleLang}; path=/`;
+      
+      // Reload the page to apply the translation
+      window.location.reload();
+    }
+  };
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+
+  // Animated counter
+  const [countersStarted, setCountersStarted] = useState(false);
+  const [counts, setCounts] = useState({ schools: 0, students: 0, uptime: 0, rating: 0 });
+  const statsRef = useRef(null);
+  const langDropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target)) {
+        setIsLangDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !countersStarted) {
+          setCountersStarted(true);
+          const targets = { schools: 500, students: 200, uptime: 99.9, rating: 5 };
+          const duration = 2000;
+          const steps = 60;
+          const interval = duration / steps;
+          let step = 0;
+          const timer = setInterval(() => {
+            step++;
+            const progress = step / steps;
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setCounts({
+              schools: Math.floor(targets.schools * eased),
+              students: Math.floor(targets.students * eased),
+              uptime: Math.min((targets.uptime * eased).toFixed(1), targets.uptime),
+              rating: Math.min((targets.rating * eased).toFixed(1), targets.rating),
+            });
+            if (step >= steps) clearInterval(timer);
+          }, interval);
+        }
+      },
+      { threshold: 0.3 }
+    );
+    if (statsRef.current) observer.observe(statsRef.current);
+    return () => observer.disconnect();
+  }, [countersStarted]);
+
+  const portals = [
+    { title: "Super Admin", desc: "Full control over the entire system, settings, branches, and all users.", icon: ShieldCheck, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800" },
+    { title: "Teacher", desc: "Manage classes, attendance, homework, assignments, and student grades.", icon: Monitor, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800" },
+    { title: "Student", desc: "Access homework, schedules, exam results, study material, and fees.", icon: GraduationCap, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800" },
+    { title: "Accountant", desc: "Handle fee collection, payroll, expenses, invoices, and bank payments.", icon: Calculator, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800" },
+    { title: "Parents", desc: "Track child progress, attendance, fee status and communicate with teachers.", icon: Users, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800" },
+  ];
+
+  const howToUseSteps = [
+    {
+      role: "admin",
+      roleTitle: "School Setup & Onboarding",
+      badge: "Quick Setup (Day 1)",
+      steps: [
+        { number: "01", title: "General Settings & Academic Year", desc: "Set up school name, logo, currency, grading systems, and define the active academic session (e.g. 2026).", icon: Settings2 },
+        { number: "02", title: "Classes, Sections & Subjects", desc: "Create classes (e.g., Class 1 to 10), assign sections (A, B, C), and map curriculum subjects with teacher allocations.", icon: BookOpen },
+        { number: "03", title: "Staff & Student Enrollment", desc: "Add teachers, assign roles/permissions, and enroll students with parent contact info or bulk import via Excel/CSV.", icon: UserPlus },
+        { number: "04", title: "System Activation & Live Go", desc: "Enable automated SMS gateway, issue portal credentials to parents & staff, and monitor live dashboard analytics.", icon: ShieldCheck }
+      ]
+    },
+    {
+      role: "accountant",
+      roleTitle: "Fee & Financial Management",
+      badge: "Accounting Workflow",
+      steps: [
+        { number: "01", title: "Configure Fee Structure", desc: "Define monthly tuition fees, admission charges, transport fees, and customized concession/discount rules.", icon: Calculator },
+        { number: "02", title: "Bulk Invoicing & Carry Forward", desc: "Auto-generate monthly fee invoice vouchers for entire classes with previous unpaid balance carry-forward.", icon: CreditCard },
+        { number: "03", title: "Collect & Reconcile Payments", desc: "Record cash, bank transfers, or online payment submissions with instant printed & digital receipts.", icon: FileSpreadsheet },
+        { number: "04", title: "Profit & Loss / Payroll", desc: "Process monthly staff payroll, record daily school expenses, and generate detailed profit/loss balance sheets.", icon: BarChart3 }
+      ]
+    },
+    {
+      role: "teacher",
+      roleTitle: "Daily Teaching & Academic Flow",
+      badge: "Classroom Workflow",
+      steps: [
+        { number: "01", title: "Class Timetable & Roster", desc: "Access the teacher portal to view daily schedule, class timetable, and student lists with contact details.", icon: Monitor },
+        { number: "02", title: "1-Tap Attendance with SMS", desc: "Mark student attendance (Present/Absent/Late) in under 30 seconds with automatic instant SMS alert to parents.", icon: Clock },
+        { number: "03", title: "Homework & Syllabus Sharing", desc: "Publish daily homework assignments, lecture notes, syllabus files, and study materials for students.", icon: BookOpen },
+        { number: "04", title: "Online Exams & Auto Grading", desc: "Build MCQ/descriptive question banks, conduct online tests, and publish report cards with auto grade ranking.", icon: Award }
+      ]
+    },
+    {
+      role: "student",
+      roleTitle: "Student & Parent Self-Service",
+      badge: "Portal Experience",
+      steps: [
+        { number: "01", title: "Instant Mobile/Web Login", desc: "Login securely using student admission ID or registered parent phone number across web and mobile browsers.", icon: GraduationCap },
+        { number: "02", title: "Daily Homework & Notices", desc: "Review daily homework deadlines, download teacher study notes, and check school event announcements.", icon: FileSpreadsheet },
+        { number: "03", title: "Fee Slips & Online Receipts", desc: "View due fee vouchers, download official stamp receipts, and verify submitted bank payment proofs.", icon: CreditCard },
+        { number: "04", title: "Progress & Exam Report Cards", desc: "Track subject-wise term marks, class position ranks, percentage graphs, and daily attendance percentages.", icon: Award }
+      ]
+    }
+  ];
+
+  const features = [
+    { icon: CreditCard, title: "Comprehensive Fee Management", slug: "fee-management", desc: "Auto-generate fee invoices, track partial & full payments, apply dynamic discounts, add late fines, and print detailed fee receipts instantly." },
+    { icon: Clock, title: "Smart Attendance System", slug: "attendance", desc: "1-Tap student & staff attendance tracking with instant absentee SMS alerts for parents. Supports future RFID/Biometric integration." },
+    { icon: Award, title: "Advanced Exam & Results", slug: "exam-results", desc: "Create dynamic exam schedules, manage subject-wise marks, print beautiful customized report cards, and auto-calculate grades & positions." },
+    { icon: BookOpen, title: "LMS & Online E-Learning", slug: "lms-elearning", desc: "Upload detailed study notes, assign and grade digital homework, manage class syllabus, and conduct secure online exams with auto-grading." },
+    { icon: Users, title: "HR & Payroll Administration", slug: "hr-payroll", desc: "Maintain complete staff profiles, handle leave requests, track daily employee attendance, and generate automated custom salary slips." },
+    { icon: BarChart3, title: "Live Financial Accounting", slug: "financial-accounting", desc: "Monitor daily school cash flows, record income/expenses, manage chart of accounts, and generate real-time Profit & Loss balance sheets." },
+    { icon: Globe, title: "Multi-Branch Central Control", slug: "multi-branch", desc: "Manage multiple school campuses from a single Super Admin login. Compare branch revenues, standardize data, and track global analytics." },
+    { icon: Bell, title: "Automated Communication", slug: "communication", desc: "Send bulk SMS and email notifications to parents and staff regarding fee dues, exam results, holiday notices, and emergency alerts." },
+    { icon: ShieldCheck, title: "Role-Based Access Security", slug: "security", desc: "Secure data with strict permission locks. Ensure Accountants only see finances, Teachers only see academics, and Parents only see their child's data." },
+  ];
+
+  const testimonials = [
+    { name: "Khalid Mehmood", role: "Principal, Al-Noor School System", text: "eSkooly transformed how we manage our 1200+ students. The fee collection and attendance system alone saves us 3 hours daily.", stars: 5 },
+    { name: "Sara Ahmed", role: "Admin, Bright Future Academy", text: "The multi-portal design is brilliant. Teachers love it, parents love it, and our admin team can finally breathe!", stars: 5 },
+    { name: "Usman Tariq", role: "Director, Scholars Institute", text: "Switching from manual registers to eSkooly was the best decision. Reports that used to take days now take seconds.", stars: 5 },
+  ];
+
+  const faqs = [
+    { q: "How quickly can our school get up and running on eSkooly ERP?", a: "Most schools go live in less than 24 hours. Our step-by-step onboarding wizard lets you configure classes, assign teachers, and bulk import student records via Excel in minutes." },
+    { q: "How do automated SMS notifications work?", a: "eSkooly integrates with SMS gateways. Whenever attendance is marked, fee vouchers are generated, or exam results are published, the system automatically dispatches customized SMS alerts to parents' mobile numbers." },
+    { q: "Can we manage multi-branch campuses with single billing?", a: "Yes! Super Admin accounts have multi-branch capabilities to oversee branch finances, compare campus performance, and transfer students between branches seamlessly." },
+    { q: "Is our student and financial data safe?", a: "Absolutely. eSkooly ERP features end-to-end encryption, role-based permission locks, daily automated cloud database backups, and 99.9% uptime reliability." }
+  ];
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-zinc-100 font-poppins selection:bg-emerald-500 selection:text-white transition-colors duration-300">
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/90 dark:bg-zinc-950/90 backdrop-blur-lg border-b border-zinc-100 dark:border-zinc-800 py-3 shadow-sm" : "bg-transparent py-5"}`}>
+        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/eskooly light.png" alt="eSkooly" className="h-16 sm:h-20 w-auto object-contain dark:hidden transform hover:scale-105 transition-transform duration-300" />
+            <img src="/logo dark.png" alt="eSkooly" className="h-16 sm:h-20 w-auto object-contain hidden dark:block transform hover:scale-105 transition-transform duration-300" />
+          </Link>
+          <nav className="hidden md:flex items-center gap-8">
+            <Link href="#home" className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">{t.nav.home}</Link>
+            <Link href="#how-it-works" className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">{t.nav.howToUse}</Link>
+            <Link href="#about" className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">{t.nav.portals}</Link>
+            <Link href="#features" className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">{t.nav.features}</Link>
+            <Link href="#pricing" className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">{t.nav.pricing}</Link>
+          </nav>
+          <div className="hidden md:flex items-center gap-3">
+            {/* Language Dropdown */}
+            <div className="relative" ref={langDropdownRef}>
+              <div 
+                className="flex items-center justify-between gap-1.5 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-zinc-800 dark:text-zinc-200 font-bold cursor-pointer hover:border-zinc-400 dark:hover:border-zinc-700 transition-colors min-w-[54px]"
+                onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
+              >
+                <span>{lang}</span>
+                <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${isLangDropdownOpen ? 'rotate-180' : ''}`} />
+              </div>
+              {isLangDropdownOpen && (
+                <div className="absolute top-full right-0 mt-1.5 w-28 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl overflow-hidden p-1 z-50">
+                  {[
+                    { code: 'EN', name: 'English' },
+                    { code: 'UR', name: 'Urdu' },
+                    { code: 'AR', name: 'Arabic' }
+                  ].map((l) => (
+                    <div 
+                      key={l.code} 
+                      onClick={() => changeLanguage(l.code)}
+                      className={`px-3 py-2 text-xs rounded-lg cursor-pointer transition-colors ${
+                        lang === l.code 
+                          ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 font-bold' 
+                          : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-emerald-600 font-medium'
+                      }`}
+                    >
+                      {l.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <ThemeToggle />
+            <Link href="/login" className="text-sm font-bold text-zinc-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 px-3">{t.nav.login}</Link>
+            <Link href="/login">
+              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-full px-6">{t.nav.getStarted}</Button>
+            </Link>
+          </div>
+          <div className="md:hidden flex items-center gap-3">
+            {/* Mobile Language Button */}
+            <div className="relative">
+              <button 
+                className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-2 py-1 text-xs font-bold text-zinc-800 dark:text-zinc-200"
+                onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
+              >
+                <span>{lang}</span>
+                <ChevronDown size={12} className={isLangDropdownOpen ? 'rotate-180' : ''} />
+              </button>
+              {isLangDropdownOpen && (
+                <div className="absolute top-full right-0 mt-1 w-28 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xl p-1 z-50">
+                  {[
+                    { code: 'EN', name: 'English' },
+                    { code: 'UR', name: 'Urdu' },
+                    { code: 'AR', name: 'Arabic' }
+                  ].map((l) => (
+                    <div 
+                      key={l.code} 
+                      onClick={() => changeLanguage(l.code)}
+                      className={`px-3 py-2 text-xs rounded-lg cursor-pointer ${
+                        lang === l.code ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 font-bold' : 'text-zinc-700 dark:text-zinc-300 font-medium'
+                      }`}
+                    >
+                      {l.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <ThemeToggle />
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-zinc-700 dark:text-zinc-300">{mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}</button>
+          </div>
+        </div>
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-white dark:bg-zinc-950 border-b border-zinc-100 dark:border-zinc-800 px-6 py-4 flex flex-col gap-3">
+            <Link href="#home" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 py-1.5">Home</Link>
+            <Link href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 py-1.5">How To Use</Link>
+            <Link href="#about" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 py-1.5">Portals</Link>
+            <Link href="#features" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 py-1.5">Features</Link>
+            <Link href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 py-1.5">Pricing</Link>
+            <Link href="/login" onClick={() => setMobileMenuOpen(false)}><Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white mt-2">Login / Try Free</Button></Link>
+          </div>
+        )}
+      </header>
+
+      <section id="home" className="relative pt-36 pb-20 lg:pt-48 lg:pb-28 bg-white dark:bg-black overflow-hidden">
+        <div className="max-w-5xl mx-auto px-6 text-center relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-zinc-100 dark:bg-zinc-900 text-emerald-700 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-8 border border-zinc-200 dark:border-zinc-800">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            {t.hero.badge}
+          </div>
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight mb-6 leading-[1.1] text-zinc-900 dark:text-white">
+            {t.hero.title1} <br /><span className="text-emerald-600 dark:text-emerald-400">{t.hero.title2}</span> {t.hero.title3}
+          </h1>
+          <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+            {t.hero.desc}
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/login">
+              <Button className="h-14 px-10 text-base bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-bold shadow-md hover:-translate-y-0.5 transition-all">
+                {t.hero.trialBtn}
+              </Button>
+            </Link>
+            <Link href="#how-it-works">
+              <Button variant="outline" className="h-14 px-10 text-base rounded-full font-bold border-zinc-300 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all">
+                {t.hero.howItWorks} <ArrowRight size={16} className="ml-2 inline" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Stats Bar with Animated Number Counters ── */}
+      <section ref={statsRef} className="py-12 bg-zinc-50 dark:bg-zinc-950 border-y border-zinc-200 dark:border-zinc-800">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
+              <div className="text-4xl font-extrabold text-emerald-600 dark:text-emerald-400 mb-1 tabular-nums">{counts.schools}+</div>
+              <div className="text-xs text-zinc-600 dark:text-zinc-400 font-bold uppercase tracking-wider">{t.stats.schools}</div>
+            </div>
+            <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
+              <div className="text-4xl font-extrabold text-emerald-600 dark:text-emerald-400 mb-1 tabular-nums">{counts.students}K+</div>
+              <div className="text-xs text-zinc-600 dark:text-zinc-400 font-bold uppercase tracking-wider">{t.stats.students}</div>
+            </div>
+            <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
+              <div className="text-4xl font-extrabold text-emerald-600 dark:text-emerald-400 mb-1 tabular-nums">{counts.uptime}%</div>
+              <div className="text-xs text-zinc-600 dark:text-zinc-400 font-bold uppercase tracking-wider">{t.stats.uptime}</div>
+            </div>
+            <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
+              <div className="text-4xl font-extrabold text-emerald-600 dark:text-emerald-400 mb-1 tabular-nums">{counts.rating} ★</div>
+              <div className="text-xs text-zinc-600 dark:text-zinc-400 font-bold uppercase tracking-wider">{t.stats.rating}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── How To Use / Step-by-Step Guide Section ── */}
+      <section id="how-it-works" className="py-24 bg-white dark:bg-black">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-3 block">Step-by-Step System Guide</span>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-white mb-4">How To Use eSkooly ERP</h2>
+            <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
+              Follow these simple, streamlined workflows designed for every user role in your institution.
+            </p>
+
+            {/* Role Switcher Tabs */}
+            <div className="flex flex-wrap justify-center gap-3 mt-8">
+              {[
+                { id: "admin", label: "Super Admin Flow", icon: ShieldCheck, badge: "Setup" },
+                { id: "accountant", label: "Accountant Flow", icon: Calculator, badge: "Finance" },
+                { id: "teacher", label: "Teacher Flow", icon: Monitor, badge: "Academic" },
+                { id: "student", label: "Student & Parent Flow", icon: GraduationCap, badge: "Portal" },
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveStepTab(tab.id)}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all ${
+                    activeStepTab === tab.id
+                      ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
+                      : "bg-zinc-100 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-800"
+                  }`}
+                >
+                  <tab.icon size={16} />
+                  <span>{tab.label}</span>
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold uppercase ${activeStepTab === tab.id ? "bg-white/20 text-white" : "bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"}`}>
+                    {tab.badge}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Active Workflow Sub-heading */}
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                {(howToUseSteps.find(s => s.role === activeStepTab) || howToUseSteps[0]).badge}
+              </span>
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-white">
+                {(howToUseSteps.find(s => s.role === activeStepTab) || howToUseSteps[0]).roleTitle}
+              </h3>
+            </div>
+            <span className="text-xs font-semibold text-zinc-500 hidden sm:block">4 Simple Consecutive Steps</span>
+          </div>
+
+          {/* Workflow Steps Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {(howToUseSteps.find(s => s.role === activeStepTab) || howToUseSteps[0]).steps.map((step, idx) => (
+              <div
+                key={idx}
+                className="relative p-7 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500/50 hover:shadow-lg transition-all flex flex-col justify-between group"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="text-3xl font-black text-emerald-600/40 dark:text-emerald-400/30 group-hover:text-emerald-600 transition-colors">
+                      {step.number}
+                    </span>
+                    <div className="w-12 h-12 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
+                      <step.icon size={22} />
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">{step.title}</h3>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{step.desc}</p>
+                </div>
+                <div className="mt-6 pt-4 border-t border-zinc-200/60 dark:border-zinc-800/60 flex items-center text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                  <span>Step {idx + 1} of 4</span>
+                  <ArrowRight size={14} className="ml-auto" />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Button linking to Detailed Guide Page */}
+          <div className="mt-12 text-center">
+            <Link href="/guide">
+              <Button className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-emerald-600 dark:hover:bg-emerald-500 hover:text-white font-bold rounded-full px-8 h-12 shadow-lg transition-colors">
+                Read Detailed User Guide <ArrowRight size={18} className="ml-2" />
+              </Button>
+            </Link>
+          </div>
+
+          {/* FAQ Accordion Section */}
+          <div className="mt-20 pt-16 border-t border-zinc-200 dark:border-zinc-800">
+            <div className="text-center mb-10">
+              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest block mb-2">Common Questions</span>
+              <h3 className="text-3xl font-bold text-zinc-900 dark:text-white">Frequently Asked Questions</h3>
+            </div>
+            <div className="max-w-3xl mx-auto space-y-4">
+              {faqs.map((faq, i) => (
+                <div
+                  key={i}
+                  className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 overflow-hidden transition-colors"
+                >
+                  <button
+                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                    className="w-full p-5 text-left font-bold text-zinc-900 dark:text-white flex items-center justify-between gap-4 focus:outline-none"
+                  >
+                    <span>{faq.q}</span>
+                    <span className={`text-emerald-600 dark:text-emerald-400 text-lg font-black shrink-0 transition-transform duration-300 ${openFaq === i ? 'rotate-45' : ''}`}>
+                      +
+                    </span>
+                  </button>
+                  <div 
+                    className={`transition-all duration-300 ease-in-out ${openFaq === i ? 'max-h-96 opacity-100 mb-5' : 'max-h-0 opacity-0 mb-0'}`}
+                  >
+                    <div className="px-5 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed border-t border-zinc-200/60 dark:border-zinc-800/60 pt-4">
+                      {faq.a}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="about" className="py-24 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-3 block">Dedicated Portals</span>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-white mb-4">One System, Five Portals</h2>
+            <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">Every role gets their own tailored dashboard — no clutter, just the right tools.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {portals.map((p, i) => (
+              <div key={i} className={`p-8 rounded-2xl ${p.bg} hover:-translate-y-2 transition-all duration-300 group`}>
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 bg-white dark:bg-zinc-900 shadow-sm group-hover:scale-110 transition-transform">
+                  <p.icon size={26} className={p.color} />
+                </div>
+                <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-3">{p.title} Portal</h3>
+                <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">{p.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="features" className="py-24 bg-white dark:bg-black border-t border-zinc-200 dark:border-zinc-800">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-3 block">Everything You Need</span>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-white mb-4">Powerful Features</h2>
+            <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">Built for modern schools with all the tools needed to run efficiently.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((f, i) => (
+              <Link key={i} href={`/guide/${f.slug}`} className="block">
+                <div className="p-7 bg-zinc-50 dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500/50 hover:shadow-lg transition-all group cursor-pointer h-full flex flex-col">
+                  <div className="w-12 h-12 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center mb-5">
+                    <f.icon size={22} className="text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">{f.title}</h3>
+                  <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed flex-1">{f.desc}</p>
+                  <div className="mt-5 pt-4 border-t border-zinc-200 dark:border-zinc-800 flex items-center text-xs font-bold text-emerald-600 dark:text-emerald-400 group-hover:gap-2 transition-all">
+                    <span>Read Full Guide</span>
+                    <ArrowRight size={13} className="ml-auto group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-3 block">Testimonials</span>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-white mb-4">Loved By Schools</h2>
+            <p className="text-lg text-zinc-600 dark:text-zinc-400">What educators are saying about eSkooly PRO.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((t, i) => (
+              <div key={i} className="p-8 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+                <div className="flex gap-1 mb-5">{Array.from({length: t.stars}).map((_, j) => <Star key={j} size={16} className="fill-amber-400 text-amber-400" />)}</div>
+                <p className="text-zinc-700 dark:text-zinc-300 text-sm leading-relaxed mb-6 italic">"{t.text}"</p>
+                <div>
+                  <p className="font-bold text-zinc-900 dark:text-white text-sm">{t.name}</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">{t.role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="pricing" className="py-24 bg-white dark:bg-black border-t border-zinc-200 dark:border-zinc-800">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-3 block">Pricing Plans</span>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-white mb-4">Simple, Transparent Pricing</h2>
+            <p className="text-lg text-zinc-600 dark:text-zinc-400">Start free for 1 month. No credit card required. Cancel anytime.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+            <div className="p-8 rounded-3xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-1">Basic</h3>
+              <p className="text-sm text-zinc-500 mb-6">For small primary schools.</p>
+              <div className="mb-6"><span className="text-5xl font-black text-zinc-900 dark:text-white">$29</span><span className="text-zinc-500">/mo</span></div>
+              <ul className="space-y-4 mb-8">{["Up to 500 Students","Basic Attendance","Fee Management","Admin & Teacher Portals","Email Support"].map((f,i) => <li key={i} className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-300"><CheckCircle2 size={18} className="text-emerald-500 shrink-0" />{f}</li>)}</ul>
+              <Link href="/login"><Button variant="outline" className="w-full rounded-xl h-12 font-bold border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300">Start Free Trial</Button></Link>
+            </div>
+            <div className="p-8 rounded-3xl bg-white dark:bg-zinc-900 border-2 border-emerald-500 shadow-xl relative md:-translate-y-4">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <span className="bg-emerald-600 text-white text-[11px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-sm">Most Popular</span>
+              </div>
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-1">Professional</h3>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">For growing high schools.</p>
+              <div className="mb-6"><span className="text-5xl font-black text-zinc-900 dark:text-white">$79</span><span className="text-zinc-500">/mo</span></div>
+              <ul className="space-y-4 mb-8">
+                {["Up to 2000 Students", "All 5 Portals Included", "Advanced Payroll & HR", "LMS & Online Exams", "SMS Notifications", "Priority Support"].map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-300">
+                    <CheckCircle2 size={18} className="text-emerald-500 shrink-0" />{f}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/login"><Button className="w-full rounded-xl h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-md">Start 1 Month Free</Button></Link>
+            </div>
+            <div className="p-8 rounded-3xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800">
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-1">Enterprise</h3>
+              <p className="text-sm text-zinc-500 mb-6">For large school networks.</p>
+              <div className="mb-6"><span className="text-5xl font-black text-zinc-900 dark:text-white">$199</span><span className="text-zinc-500">/mo</span></div>
+              <ul className="space-y-4 mb-8">{["Unlimited Students","Multi-Branch Support","Custom Domain","White-label Mobile App","Dedicated Account Manager"].map((f,i) => <li key={i} className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-300"><CheckCircle2 size={18} className="text-emerald-500 shrink-0" />{f}</li>)}</ul>
+              <Link href="/login"><Button variant="outline" className="w-full rounded-xl h-12 font-bold border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300">Contact Sales</Button></Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Clean Dark / Neutral CTA Section (No Solid Green Banner) ── */}
+      <section className="py-24 bg-zinc-50 dark:bg-black border-y border-zinc-200 dark:border-zinc-800">
+        <div className="max-w-3xl mx-auto px-6 text-center">
+          <Zap size={48} className="text-emerald-600 dark:text-emerald-400 mx-auto mb-6" />
+          <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-white mb-5">Ready to Digitize Your School?</h2>
+          <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-10 max-w-xl mx-auto">Join 500+ schools already running on eSkooly PRO. Get started with a full 1-month free trial — no credit card needed.</p>
+          <Link href="/login">
+            <Button className="h-14 px-12 text-lg bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-black shadow-lg shadow-emerald-600/20 hover:-translate-y-0.5 transition-all">
+              Get Started Free Today
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      <section id="contact" className="py-24 bg-white dark:bg-zinc-950">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-3 block">Contact Us</span>
+            <h2 className="text-4xl font-extrabold text-zinc-900 dark:text-white mb-4">Get In Touch</h2>
+            <p className="text-zinc-600 dark:text-zinc-400">Have questions? Our team is here to help you get started.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { icon: Phone, title: "Call Us", info: "+92 300 1234567", sub: "Mon-Fri, 9am-6pm" },
+              { icon: Mail, title: "Email Us", info: "support@eskooly.com", sub: "We reply within 24 hours" },
+              { icon: MapPin, title: "Visit Us", info: "Lahore, Pakistan", sub: "Head Office" },
+            ].map((c, i) => (
+              <div key={i} className="text-center p-8 bg-zinc-50 dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+                <div className="w-14 h-14 bg-emerald-50 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-5">
+                  <c.icon size={24} className="text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <h3 className="font-bold text-zinc-900 dark:text-white mb-1">{c.title}</h3>
+                <p className="text-emerald-600 dark:text-emerald-400 font-semibold text-sm mb-1">{c.info}</p>
+                <p className="text-xs text-zinc-500">{c.sub}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <footer className="border-t border-zinc-200 dark:border-zinc-800 py-16 bg-zinc-50 dark:bg-zinc-950">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <Link href="/" className="inline-block mb-6">
+            <img src="/eskooly light.png" alt="eSkooly PRO" className="h-20 sm:h-24 w-auto object-contain dark:hidden mx-auto" />
+            <img src="/logo dark.png" alt="eSkooly PRO" className="h-20 sm:h-24 w-auto object-contain hidden dark:block mx-auto" />
+          </Link>
+          <p className="text-base text-zinc-600 dark:text-zinc-400 font-medium mb-3">The ultimate school management ERP solution for modern educational institutes.</p>
+          <p className="text-sm text-zinc-500 dark:text-zinc-500">&copy; {new Date().getFullYear()} eSkooly PRO. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
+  );
+}
