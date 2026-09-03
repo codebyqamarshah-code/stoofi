@@ -55,7 +55,7 @@ export function DataTable({
       styles: { fontSize: 8 },
       headStyles: { fillColor: [16, 185, 129] } // emerald-500
     });
-    doc.save($($){title}.pdf);
+    doc.save(`${title}.pdf`);
   };
 
   // Export to Excel
@@ -67,7 +67,7 @@ export function DataTable({
     }));
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
-    XLSX.writeFile(workbook, $($){title}.xlsx);
+    XLSX.writeFile(workbook, `${title}.xlsx`);
   };
 
   return (

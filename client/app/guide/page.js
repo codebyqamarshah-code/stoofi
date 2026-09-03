@@ -4,7 +4,7 @@ import Link from "next/link";
 import { 
   ShieldCheck, Calculator, Monitor, GraduationCap, ArrowLeft, 
   CheckCircle2, PlayCircle, Settings2, Users, FileSpreadsheet,
-  Clock, BookOpen, Award, CreditCard
+  Clock, BookOpen, Award, CreditCard, BarChart3
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
@@ -126,11 +126,6 @@ export default function GuidePage() {
       ]
     }
   };
-
-  // Fix BarChart3 missing error
-  const BarChart3 = ({ size, className }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-  );
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-100 font-poppins selection:bg-emerald-500 selection:text-white transition-colors duration-300">

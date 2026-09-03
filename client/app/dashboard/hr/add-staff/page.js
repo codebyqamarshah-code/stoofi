@@ -93,11 +93,11 @@ export default function AddStaffPage() {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all $($){
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all ${
                 activeTab === tab.id 
                   ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20" 
                   : "bg-white dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500 hover:text-emerald-500"
-              }}
+              }`}
             >
               <tab.icon size={18} />
               {tab.label}
