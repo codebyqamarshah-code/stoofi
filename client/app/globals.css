@@ -29,17 +29,17 @@
 }
 
 :root {
-  --custom-zinc-950: #ffffff;
-  --custom-zinc-900: #ffffff;
-  --custom-zinc-800: #d1fae5;
-  --custom-zinc-700: #d1fae5;
-  --custom-zinc-600: #007a52;
-  --custom-zinc-500: #009966;
-  --custom-zinc-400: #009966;
-  --custom-zinc-300: #009966;
-  --custom-zinc-200: #d1fae5;
-  --custom-zinc-100: #f0fdf4;
-  --custom-zinc-50: #ffffff;
+  --custom-zinc-950: #09090b;
+  --custom-zinc-900: #18181b;
+  --custom-zinc-800: #27272a;
+  --custom-zinc-700: #3f3f46;
+  --custom-zinc-600: #52525b;
+  --custom-zinc-500: #71717a;
+  --custom-zinc-400: #a1a1aa;
+  --custom-zinc-300: #d4d4d8;
+  --custom-zinc-200: #e4e4e7;
+  --custom-zinc-100: #f4f4f5;
+  --custom-zinc-50: #fafafa;
   --custom-emerald-950: #f0fdf4;
   --custom-emerald-900: #d1fae5;
   --custom-emerald-800: #a7f3d0;
@@ -68,7 +68,28 @@
   --custom-emerald-500: #00d294;
 }
 
-/* LIGHT MODE: Content text must be GREEN #009966 (not white or invisible) */
+/* LIGHT MODE: Ensure dark card containers (bg-zinc-950, bg-zinc-900) become clean white */
+:root:not(.dark) .bg-zinc-950,
+:root:not(.dark) .bg-zinc-900 {
+  background-color: #ffffff !important;
+}
+:root:not(.dark) .bg-zinc-900\/50,
+:root:not(.dark) .bg-zinc-950\/50 {
+  background-color: #f8fafc !important;
+}
+
+/* LIGHT MODE: Remove all black borders and black divider lines - make them soft emerald */
+:root:not(.dark) .border-zinc-800,
+:root:not(.dark) .border-zinc-700,
+:root:not(.dark) .border-zinc-200,
+:root:not(.dark) .border-zinc-100,
+:root:not(.dark) .divide-zinc-800 > * + *,
+:root:not(.dark) .divide-zinc-700 > * + *,
+:root:not(.dark) .divide-zinc-200 > * + * {
+  border-color: #d1fae5 !important;
+}
+
+/* LIGHT MODE: Fix accidental text-white on light card backgrounds */
 :root:not(.dark) h1.text-white,
 :root:not(.dark) h2.text-white,
 :root:not(.dark) h3.text-white,
@@ -78,22 +99,6 @@
 :root:not(.dark) span.text-white:not(button *, .badge *, [class*="bg-emerald"] *, [class*="bg-[#009966]"] *, [class*="bg-rose"] *, [class*="bg-amber"] *),
 :root:not(.dark) div.text-white:not(button *, .badge *, [class*="bg-emerald"] *, [class*="bg-[#009966]"] *, [class*="bg-rose"] *, [class*="bg-amber"] *) {
   color: #009966 !important;
-}
-
-:root:not(.dark) .text-zinc-400,
-:root:not(.dark) .text-zinc-500 {
-  color: #009966 !important;
-}
-
-/* LIGHT MODE: Remove all black borders and black divider lines */
-:root:not(.dark) .border-zinc-800,
-:root:not(.dark) .border-zinc-700,
-:root:not(.dark) .border-zinc-200,
-:root:not(.dark) .border-zinc-100,
-:root:not(.dark) .divide-zinc-800 > * + *,
-:root:not(.dark) .divide-zinc-700 > * + *,
-:root:not(.dark) .divide-zinc-200 > * + * {
-  border-color: #d1fae5 !important;
 }
 
 @theme {
