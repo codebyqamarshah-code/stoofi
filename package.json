@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
-    "build": "npm run build --prefix client",
+    "build": "cd client && npm install && npm run build",
     "start": "concurrently \"npm run start --prefix server\" \"npm run start --prefix client\"",
     "install:all": "npm install && npm install --prefix server && npm install --prefix client"
   },
@@ -13,6 +13,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "concurrently": "^10.0.5"
+    "concurrently": "^10.0.5",
+    "next": "^15.5.25",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   }
 }
