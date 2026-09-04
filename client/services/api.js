@@ -7,7 +7,7 @@ const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes cache
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
-  timeout: 800, // 800ms fast timeout - never keep the user waiting
+  timeout: 10000, // 10s timeout to allow MongoDB queries to complete
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -38,18 +38,6 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (response) => {
-    const url = response.config?.url || '';
-    const cleanPath = url.split('?')[0];
-    const fallback = endpointMockMap[cleanPath];
-
-    if (fallback && (!response.data || !response.data.data || (Array.isArray(response.data.data) && response.data.data.length === 0))) {
-      response.data = {
-        success: true,
-        data: fallback,
-        message: 'Loaded from seed data'
-      };
-    }
-
     // Cache successful GET responses
     if (response.config?.method === 'get') {
       const cacheKey = response.config.url;

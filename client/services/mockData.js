@@ -58,31 +58,9 @@ export const mockDesignations = [
   { _id: 'des10', id: '10', name: 'Lab Assistant' },
 ];
 
-export const mockStaff = [
-  { _id: 'st1', id: '1', name: 'Mudassir Bajwa', fullName: 'Mudassir Bajwa', email: 'mudassir@eskooly.edu', phone: '+92 300 1234567', role: 'Teacher', designation: 'Senior Teacher', department: 'Mathematics Department' },
-  { _id: 'st2', id: '2', name: 'Fatima Zahra', fullName: 'Fatima Zahra', email: 'fatima.zahra@eskooly.edu', phone: '+92 301 2345678', role: 'Teacher', designation: 'Head of Department', department: 'Science Department' },
-  { _id: 'st3', id: '3', name: 'Muhammad Ali', fullName: 'Muhammad Ali', email: 'muhammad.ali@eskooly.edu', phone: '+92 302 3456789', role: 'Teacher', designation: 'Senior Teacher', department: 'Science Department' },
-  { _id: 'st4', id: '4', name: 'Ahmed Khan', fullName: 'Ahmed Khan', email: 'ahmed.khan@eskooly.edu', phone: '+92 303 4567890', role: 'Teacher', designation: 'Senior Teacher', department: 'English & Languages' },
-  { _id: 'st5', id: '5', name: 'Ayesha Noor', fullName: 'Ayesha Noor', email: 'ayesha.noor@eskooly.edu', phone: '+92 304 5678901', role: 'Staff', designation: 'Admin Officer', department: 'Administration' },
-  { _id: 'st6', id: '6', name: 'Dr. Bilal Siddiqui', fullName: 'Dr. Bilal Siddiqui', email: 'bilal.siddiqui@eskooly.edu', phone: '+92 305 6789012', role: 'Principal', designation: 'Vice Principal', department: 'Administration' },
-  { _id: 'st7', id: '7', name: 'Usman Tariq', fullName: 'Usman Tariq', email: 'usman.tariq@eskooly.edu', phone: '+92 306 7890123', role: 'Accountant', designation: 'Accountant', department: 'Finance & Accounts' },
-  { _id: 'st8', id: '8', name: 'Zainab Bibi', fullName: 'Zainab Bibi', email: 'zainab.bibi@eskooly.edu', phone: '+92 307 8901234', role: 'Librarian', designation: 'Librarian', department: 'Administration' },
-  { _id: 'st9', id: '9', name: 'Hamza Raza', fullName: 'Hamza Raza', email: 'hamza.raza@eskooly.edu', phone: '+92 308 9012345', role: 'Staff', designation: 'IT Specialist', department: 'Computer & IT' },
-  { _id: 'st10', id: '10', name: 'Tariq Mehmood', fullName: 'Tariq Mehmood', email: 'tariq.mehmood@eskooly.edu', phone: '+92 309 0123456', role: 'Staff', designation: 'Sports Instructor', department: 'Physical Education & Sports' },
-];
+export const mockStaff = [];
 
-export const mockStudents = [
-  { _id: 'stu1', id: '1', firstName: 'Muhammad', lastName: 'Rayyan', name: 'Muhammad Rayyan', fullName: 'Muhammad Rayyan', admissionNo: 'ADM-2026-001', rollNo: '101', className: 'Class 9', section: 'A', gender: 'Male', phone: '+92 300 1111111', fatherName: 'Shahzad Ahmad', dob: '2010-05-12' },
-  { _id: 'stu2', id: '2', firstName: 'Zoya', lastName: 'Fatima', name: 'Zoya Fatima', fullName: 'Zoya Fatima', admissionNo: 'ADM-2026-002', rollNo: '102', className: 'Class 10', section: 'A', gender: 'Female', phone: '+92 300 2222222', fatherName: 'Tariq Mehmood', dob: '2009-08-20' },
-  { _id: 'stu3', id: '3', firstName: 'Bilal', lastName: 'Hassan', name: 'Bilal Hassan', fullName: 'Bilal Hassan', admissionNo: 'ADM-2026-003', rollNo: '103', className: 'Class 8', section: 'B', gender: 'Male', phone: '+92 300 3333333', fatherName: 'Hassan Farooq', dob: '2011-03-15' },
-  { _id: 'stu4', id: '4', firstName: 'Sara', lastName: 'Khan', name: 'Sara Khan', fullName: 'Sara Khan', admissionNo: 'ADM-2026-004', rollNo: '104', className: 'Class 7', section: 'A', gender: 'Female', phone: '+92 300 4444444', fatherName: 'Imran Khan', dob: '2012-11-09' },
-  { _id: 'stu5', id: '5', firstName: 'Hamza', lastName: 'Ali', name: 'Hamza Ali', fullName: 'Hamza Ali', admissionNo: 'ADM-2026-005', rollNo: '105', className: 'Class 6', section: 'C', gender: 'Male', phone: '+92 300 5555555', fatherName: 'Ali Asghar', dob: '2013-02-18' },
-  { _id: 'stu6', id: '6', firstName: 'Ayan', lastName: 'Qureshi', name: 'Ayan Qureshi', fullName: 'Ayan Qureshi', admissionNo: 'ADM-2026-006', rollNo: '106', className: 'Class 5', section: 'A', gender: 'Male', phone: '+92 300 6666666', fatherName: 'Rashid Qureshi', dob: '2014-07-25' },
-  { _id: 'stu7', id: '7', firstName: 'Dua', lastName: 'Fatima', name: 'Dua Fatima', fullName: 'Dua Fatima', admissionNo: 'ADM-2026-007', rollNo: '107', className: 'Class 4', section: 'B', gender: 'Female', phone: '+92 300 7777777', fatherName: 'Naveed Akhtar', dob: '2015-09-30' },
-  { _id: 'stu8', id: '8', firstName: 'Daniyal', lastName: 'Shah', name: 'Daniyal Shah', fullName: 'Daniyal Shah', admissionNo: 'ADM-2026-008', rollNo: '108', className: 'Class 3', section: 'A', gender: 'Male', phone: '+92 300 8888888', fatherName: 'Qamar Shah', dob: '2016-04-14' },
-  { _id: 'stu9', id: '9', firstName: 'Mahnoor', lastName: 'Noor', name: 'Mahnoor Noor', fullName: 'Mahnoor Noor', admissionNo: 'ADM-2026-009', rollNo: '109', className: 'Class 2', section: 'B', gender: 'Female', phone: '+92 300 9999999', fatherName: 'Noor Muhammad', dob: '2017-01-05' },
-  { _id: 'stu10', id: '10', firstName: 'Ibrahim', lastName: 'Sheikh', name: 'Ibrahim Sheikh', fullName: 'Ibrahim Sheikh', admissionNo: 'ADM-2026-010', rollNo: '110', className: 'Class 1', section: 'A', gender: 'Male', phone: '+92 300 1212121', fatherName: 'Farhan Sheikh', dob: '2018-06-22' },
-];
+export const mockStudents = [];
 
 export const mockExamTypes = [
   { _id: 'et1', id: '1', name: '1st Term Examination', title: '1st Term Examination' },
@@ -230,83 +208,54 @@ export const mockIdCards = [
 
 export const mockDashboardStats = {
   stats: {
-    students: { total: 1240, male: 680, female: 560, malePercent: 55, femalePercent: 45 },
-    teachers: 48,
-    parents: 920,
-    staffs: 24,
+    students: { total: 0, male: 0, female: 0, malePercent: 0, femalePercent: 0 },
+    teachers: 0,
+    parents: 0,
+    staffs: 0,
     attendance: {
-      studentsPresent: 1180,
-      studentsTotal: 1240,
-      staffPresent: 68,
-      staffTotal: 72,
-      studentAttPercent: 95,
-      staffAttPercent: 94
+      studentsPresent: 0,
+      studentsTotal: 0,
+      staffPresent: 0,
+      staffTotal: 0,
+      studentAttPercent: 0,
+      staffAttPercent: 0
     },
     fees: {
-      totalIncome: 1480000,
-      totalExpenses: 420000,
-      totalProfit: 1060000,
-      totalFees: 1800000,
-      collectedFees: 1480000,
-      collectionPercentage: 82
+      totalIncome: 0,
+      totalExpenses: 0,
+      totalProfit: 0,
+      totalFees: 0,
+      collectedFees: 0,
+      collectionPercentage: 0
     }
   },
   charts: {
     monthly: [
-      { day: '01', income: 180000, expense: 45000 },
-      { day: '05', income: 320000, expense: 80000 },
-      { day: '10', income: 290000, expense: 60000 },
-      { day: '15', income: 240000, expense: 95000 },
-      { day: '20', income: 210000, expense: 50000 },
-      { day: '25', income: 150000, expense: 40000 },
-      { day: '30', income: 90000, expense: 50000 },
+      { day: '01', income: 0, expense: 0 },
+      { day: '05', income: 0, expense: 0 },
+      { day: '10', income: 0, expense: 0 },
+      { day: '15', income: 0, expense: 0 },
+      { day: '20', income: 0, expense: 0 },
+      { day: '25', income: 0, expense: 0 },
+      { day: '30', income: 0, expense: 0 },
     ],
     yearly: [
-      { month: 'Jan', income: 1200000, expense: 380000 },
-      { month: 'Feb', income: 1350000, expense: 410000 },
-      { month: 'Mar', income: 1400000, expense: 390000 },
-      { month: 'Apr', income: 1280000, expense: 420000 },
-      { month: 'May', income: 1500000, expense: 450000 },
-      { month: 'Jun', income: 1100000, expense: 350000 },
-      { month: 'Jul', income: 950000, expense: 320000 },
-      { month: 'Aug', income: 1600000, expense: 480000 },
-      { month: 'Sep', income: 1480000, expense: 420000 },
-      { month: 'Oct', income: 1420000, expense: 400000 },
-      { month: 'Nov', income: 1380000, expense: 390000 },
-      { month: 'Dec', income: 1520000, expense: 460000 },
+      { month: 'Jan', income: 0, expense: 0 },
+      { month: 'Feb', income: 0, expense: 0 },
+      { month: 'Mar', income: 0, expense: 0 },
+      { month: 'Apr', income: 0, expense: 0 },
+      { month: 'May', income: 0, expense: 0 },
+      { month: 'Jun', income: 0, expense: 0 },
+      { month: 'Jul', income: 0, expense: 0 },
+      { month: 'Aug', income: 0, expense: 0 },
+      { month: 'Sep', income: 0, expense: 0 },
+      { month: 'Oct', income: 0, expense: 0 },
+      { month: 'Nov', income: 0, expense: 0 },
+      { month: 'Dec', income: 0, expense: 0 },
     ]
   },
-  notices: [
-    {
-      _id: 'n1',
-      title: 'Annual Sports Gala 2026',
-      description: 'Annual Sports Week will commence from next Monday. All classes are requested to finalize athlete lists.',
-      audience: 'All',
-      date: '2026-09-08',
-      createdAt: '2026-09-04T10:00:00.000Z'
-    },
-    {
-      _id: 'n2',
-      title: 'First Term Examination Schedule',
-      description: 'First Term Date Sheet has been published. Exams will begin from September 20, 2026.',
-      audience: 'Students',
-      date: '2026-09-15',
-      createdAt: '2026-09-03T11:00:00.000Z'
-    },
-    {
-      _id: 'n3',
-      title: 'Parent-Teacher Meeting (PTM)',
-      description: 'PTM for junior section will be held on Saturday from 9:00 AM to 1:00 PM.',
-      audience: 'Parents',
-      date: '2026-09-12',
-      createdAt: '2026-09-02T09:30:00.000Z'
-    }
-  ],
-  todos: [
-    { _id: 't1', title: 'Verify Grade 10 examination roll numbers', completed: false, date: '2026-09-05' },
-    { _id: 't2', title: 'Approve staff leave applications', completed: true, date: '2026-09-04' },
-    { _id: 't3', title: 'Generate monthly fee invoice reports', completed: false, date: '2026-09-06' }
-  ]
+  notices: [],
+  todos: []
 };
 
 export const mockAuthUser = {
@@ -317,40 +266,22 @@ export const mockAuthUser = {
   fullName: 'Administrator'
 };
 
-export const mockHomework = [
-  { _id: 'hw1', class: 'Class 10', section: 'A', subject: 'Mathematics', title: 'Quadratic Equations Exercise 2.1', homeworkDate: '2026-09-04', submissionDate: '2026-09-06', evaluated: false },
-  { _id: 'hw2', class: 'Class 9', section: 'B', subject: 'Physics', title: 'Kinematics Numericals 1 to 5', homeworkDate: '2026-09-04', submissionDate: '2026-09-07', evaluated: true },
-  { _id: 'hw3', class: 'Class 8', section: 'A', subject: 'English', title: 'Essay on My Favorite Book', homeworkDate: '2026-09-03', submissionDate: '2026-09-05', evaluated: true },
-];
+export const mockHomework = [];
 
-export const mockFeesInvoices = [
-  { _id: 'inv1', invoiceNo: 'INV-2026-001', studentName: 'Muhammad Rayyan', class: 'Class 10', section: 'A', amount: 4500, paidAmount: 4500, status: 'Paid', date: '2026-09-01' },
-  { _id: 'inv2', invoiceNo: 'INV-2026-002', studentName: 'Zoya Fatima', class: 'Class 9', section: 'A', amount: 4500, paidAmount: 0, status: 'Unpaid', date: '2026-09-01' },
-  { _id: 'inv3', invoiceNo: 'INV-2026-003', studentName: 'Abdullah Khan', class: 'Class 8', section: 'B', amount: 4000, paidAmount: 2000, status: 'Partial', date: '2026-09-02' },
-];
+export const mockFeesInvoices = [];
 
 export const mockAdminQueries = [
   { _id: 'aq1', name: 'Zahid Mehmood', phone: '+92 321 9876543', email: 'zahid@gmail.com', source: 'Website', date: '2026-09-03', status: 'Follow Up' },
   { _id: 'aq2', name: 'Rashid Minhas', phone: '+92 333 4567890', email: 'rashid@yahoo.com', source: 'Walk In', date: '2026-09-04', status: 'Converted' },
 ];
 
-export const mockComplaints = [
-  { _id: 'cmp1', complaintBy: 'Tariq Mehmood (Parent)', complaintType: 'Transport', date: '2026-09-02', status: 'Resolved', description: 'Van Route 3 delayed by 20 mins' },
-  { _id: 'cmp2', complaintBy: 'Amina Bibi (Parent)', complaintType: 'Academics', date: '2026-09-03', status: 'Pending', description: 'Request extra coaching in Physics' },
-];
+export const mockComplaints = [];
 
-export const mockVisitors = [
-  { _id: 'v1', name: 'Dr. Tariq Jamil', purpose: 'Campus Inspection', inTime: '10:00 AM', outTime: '11:30 AM', date: '2026-09-04' },
-  { _id: 'v2', name: 'Kamran Akmal', purpose: 'Admission Inquiry', inTime: '11:45 AM', outTime: '12:15 PM', date: '2026-09-04' },
-];
+export const mockVisitors = [];
 
-export const mockCalls = [
-  { _id: 'c1', name: 'Sajid Iqbal', phone: '+92 300 1122334', callType: 'Incoming', date: '2026-09-04', duration: '3m 24s', purpose: 'Fee Inquiry' },
-];
+export const mockCalls = [];
 
-export const mockPostal = [
-  { _id: 'p1', referenceNo: 'REF-2026-901', senderTitle: 'BISE Lahore Board', toTitle: 'Principal', date: '2026-09-02', type: 'Receive' },
-];
+export const mockPostal = [];
 
 export const mockLmsCourses = [
   { _id: 'lms1', title: 'Full Stack Web Development (MERN)', category: 'Computer Science', instructor: 'Jessica Pearson', price: 0, status: 'Published', studentsCount: 145 },
@@ -365,16 +296,9 @@ export const mockLmsCategories = [
   { _id: 'cat4', title: 'Languages & Communication', totalCourses: 3 },
 ];
 
-export const mockOnlineExams = [
-  { _id: 'oe1', title: 'Physics Mid-Term Online Quiz', class: 'Class 10', subject: 'Physics', totalMarks: 50, passingMarks: 20, status: 'Active' },
-  { _id: 'oe2', title: 'Mathematics Chapter 1-3 Assessment', class: 'Class 9', subject: 'Mathematics', totalMarks: 40, passingMarks: 16, status: 'Upcoming' },
-];
+export const mockOnlineExams = [];
 
-export const mockAttendanceRecords = [
-  { _id: 'att1', studentName: 'Muhammad Rayyan', rollNumber: '101', class: 'Class 10', section: 'A', status: 'Present', date: '2026-09-04' },
-  { _id: 'att2', studentName: 'Zoya Fatima', rollNumber: '102', class: 'Class 10', section: 'A', status: 'Present', date: '2026-09-04' },
-  { _id: 'att3', studentName: 'Abdullah Khan', rollNumber: '103', class: 'Class 10', section: 'A', status: 'Absent', date: '2026-09-04' },
-];
+export const mockAttendanceRecords = [];
 
 // Endpoint to Mock Data Mapping lookup table
 export const endpointMockMap = {

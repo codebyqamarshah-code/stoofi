@@ -174,24 +174,27 @@ exports.getDashboardStats = async (req, res, next) => {
 // Quick Student Admission
 exports.quickStudentAdmission = async (req, res, next) => {
   try {
-    const { firstName, lastName, gender, dateOfBirth, contactNumber, email } = req.body;
-    if (!firstName || !lastName) {
-      return res.status(400).json({ success: false, message: 'First and Last name are required' });
+    const { firstName, lastName, gender, dateOfBirth, contactNumber, email, className, section, academicYear } = req.body;
+    if (!firstName) {
+      return res.status(400).json({ success: false, message: 'First name is required' });
     }
 
     const count = await Student.countDocuments();
-    const admissionNumber = `ADM-${new Date().getFullYear()}-${String(count + 1).padStart(3, '0')}`;
+    const admissionNo = `ADM-${new Date().getFullYear()}-${String(count + 1).padStart(3, '0')}`;
 
     const student = await Student.create({
-      user: req.user?._id || null,
-      admissionNumber,
-      rollNumber: String(100 + count + 1),
+      academicYear: academicYear || '2026[Jan-Dec]',
+      className: className || 'Class 1',
+      section: section || 'A',
+      admissionNo,
+      admissionDate: new Date().toISOString().split('T')[0],
+      rollNo: String(100 + count + 1),
       firstName,
-      lastName,
+      lastName: lastName || '',
       gender: gender || 'Male',
-      dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : new Date('2012-01-01'),
-      contactNumber: contactNumber || '',
-      email: email || ''
+      dob: dateOfBirth ? new Date(dateOfBirth).toISOString().split('T')[0] : '2012-01-01',
+      phone: contactNumber || '',
+      otherInfo: email ? `Email: ${email}` : ''
     });
 
     res.status(201).json({ success: true, data: student });
