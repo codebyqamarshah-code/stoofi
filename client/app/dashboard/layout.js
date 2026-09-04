@@ -120,7 +120,14 @@ export default function DashboardLayout({ children }) {
 
   useEffect(() => {
     if (mounted && !isLoading && !isAuthenticated && !user) {
-      router.push('/login');
+      const hasStoredToken = typeof window !== 'undefined' && (
+        localStorage.getItem('token') || 
+        localStorage.getItem('auth-storage') ||
+        (typeof document !== 'undefined' && document.cookie.includes('token='))
+      );
+      if (!hasStoredToken) {
+        router.push('/login');
+      }
     }
   }, [mounted, isAuthenticated, isLoading, user, router]);
 

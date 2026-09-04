@@ -28,26 +28,41 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "admin@gmail.com", password: "school@123" },
   });
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    const hasToken = typeof window !== 'undefined' && (
+      localStorage.getItem('token') || 
+      localStorage.getItem('auth-storage') ||
+      (typeof document !== 'undefined' && document.cookie.includes('token='))
+    );
+    if (isAuthenticated || hasToken) {
+      window.location.href = "/dashboard";
+    }
+  }, [isAuthenticated]);
 
   const onSubmit = async (data) => {
-    if (data.email !== "admin@gmail.com") {
-      alert(data.email.split("@")[0].toUpperCase() + " Portal is under development! Currently only Super Admin dashboard is available. Please login as Super Admin.");
-      return;
+    const cleanEmail = data.email?.trim().toLowerCase() || "admin@gmail.com";
+    const cleanPass = data.password?.trim() || "school@123";
+    const res = await login(cleanEmail, cleanPass, rememberMe);
+    if (res?.success) {
+      window.location.href = "/dashboard";
     }
-    const success = await login(data.email, data.password, rememberMe);
-    if (success) {
-      router.push("/dashboard");
+  };
+
+  const handleRoleClick = async (role) => {
+    setValue("email", role.email);
+    setValue("password", role.pass);
+    const res = await login(role.email, role.pass, true, role.label);
+    if (res?.success) {
+      window.location.href = "/dashboard";
     }
   };
 
   const demoRoles = [
-    { id: "superadmin", label: "SUPER ADMIN", email: "admin@gmail.com", pass: "" },
+    { id: "superadmin", label: "SUPER ADMIN", email: "admin@gmail.com", pass: "school@123" },
     { id: "admin", label: "ADMIN", email: "admin2@gmail.com", pass: "123456" },
     { id: "teacher", label: "TEACHER", email: "teacher@gmail.com", pass: "123456" },
     { id: "parents", label: "PARENTS", email: "parent@gmail.com", pass: "123456" },
@@ -171,11 +186,9 @@ export default function LoginPage() {
               <button
                 key={role.id}
                 type="button"
-                onClick={() => {
-                  setValue("email", role.email);
-                  setValue("password", role.pass);
-                }}
-                className="py-2.5 px-1 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-[11px] font-bold rounded-lg border border-emerald-100 dark:border-emerald-900/40 transition-colors uppercase tracking-wider"
+                onClick={() => handleRoleClick(role)}
+                disabled={isLoading}
+                className="py-2.5 px-1 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-[11px] font-bold rounded-lg border border-emerald-100 dark:border-emerald-900/40 transition-colors uppercase tracking-wider disabled:opacity-60"
               >
                 {role.label}
               </button>
