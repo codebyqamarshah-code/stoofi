@@ -119,12 +119,12 @@ export default function DashboardLayout({ children }) {
   }, [checkAuth]);
 
   useEffect(() => {
-    if (mounted && !isLoading && !isAuthenticated) {
+    if (mounted && !isLoading && !isAuthenticated && !user) {
       router.push('/login');
     }
-  }, [mounted, isAuthenticated, isLoading, router]);
+  }, [mounted, isAuthenticated, isLoading, user, router]);
 
-  if (!mounted || isLoading || !isAuthenticated) {
+  if (!mounted || (isLoading && !user) || (!isAuthenticated && !user)) {
     return (
       <div className="flex h-screen items-center justify-center bg-white dark:bg-zinc-950 overflow-hidden">
         <div className="relative flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-700">

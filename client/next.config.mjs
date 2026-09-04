@@ -7,6 +7,8 @@ const __dirname = path.dirname(__filename);
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   compress: true,
+  poweredByHeader: false,
+  reactStrictMode: false,
   outputFileTracingRoot: path.join(__dirname, '../'),
   eslint: {
     ignoreDuringBuilds: true,

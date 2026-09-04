@@ -228,8 +228,158 @@ export const mockIdCards = [
   { _id: 'idc3', id: '3', name: 'Staff Identification Card', title: 'Staff Identification Card', role: 'Staff' },
 ];
 
+export const mockDashboardStats = {
+  stats: {
+    students: { total: 1240, male: 680, female: 560, malePercent: 55, femalePercent: 45 },
+    teachers: 48,
+    parents: 920,
+    staffs: 24,
+    attendance: {
+      studentsPresent: 1180,
+      studentsTotal: 1240,
+      staffPresent: 68,
+      staffTotal: 72,
+      studentAttPercent: 95,
+      staffAttPercent: 94
+    },
+    fees: {
+      totalIncome: 1480000,
+      totalExpenses: 420000,
+      totalProfit: 1060000,
+      totalFees: 1800000,
+      collectedFees: 1480000,
+      collectionPercentage: 82
+    }
+  },
+  charts: {
+    monthly: [
+      { day: '01', income: 180000, expense: 45000 },
+      { day: '05', income: 320000, expense: 80000 },
+      { day: '10', income: 290000, expense: 60000 },
+      { day: '15', income: 240000, expense: 95000 },
+      { day: '20', income: 210000, expense: 50000 },
+      { day: '25', income: 150000, expense: 40000 },
+      { day: '30', income: 90000, expense: 50000 },
+    ],
+    yearly: [
+      { month: 'Jan', income: 1200000, expense: 380000 },
+      { month: 'Feb', income: 1350000, expense: 410000 },
+      { month: 'Mar', income: 1400000, expense: 390000 },
+      { month: 'Apr', income: 1280000, expense: 420000 },
+      { month: 'May', income: 1500000, expense: 450000 },
+      { month: 'Jun', income: 1100000, expense: 350000 },
+      { month: 'Jul', income: 950000, expense: 320000 },
+      { month: 'Aug', income: 1600000, expense: 480000 },
+      { month: 'Sep', income: 1480000, expense: 420000 },
+      { month: 'Oct', income: 1420000, expense: 400000 },
+      { month: 'Nov', income: 1380000, expense: 390000 },
+      { month: 'Dec', income: 1520000, expense: 460000 },
+    ]
+  },
+  notices: [
+    {
+      _id: 'n1',
+      title: 'Annual Sports Gala 2026',
+      description: 'Annual Sports Week will commence from next Monday. All classes are requested to finalize athlete lists.',
+      audience: 'All',
+      date: '2026-09-08',
+      createdAt: '2026-09-04T10:00:00.000Z'
+    },
+    {
+      _id: 'n2',
+      title: 'First Term Examination Schedule',
+      description: 'First Term Date Sheet has been published. Exams will begin from September 20, 2026.',
+      audience: 'Students',
+      date: '2026-09-15',
+      createdAt: '2026-09-03T11:00:00.000Z'
+    },
+    {
+      _id: 'n3',
+      title: 'Parent-Teacher Meeting (PTM)',
+      description: 'PTM for junior section will be held on Saturday from 9:00 AM to 1:00 PM.',
+      audience: 'Parents',
+      date: '2026-09-12',
+      createdAt: '2026-09-02T09:30:00.000Z'
+    }
+  ],
+  todos: [
+    { _id: 't1', title: 'Verify Grade 10 examination roll numbers', completed: false, date: '2026-09-05' },
+    { _id: 't2', title: 'Approve staff leave applications', completed: true, date: '2026-09-04' },
+    { _id: 't3', title: 'Generate monthly fee invoice reports', completed: false, date: '2026-09-06' }
+  ]
+};
+
+export const mockAuthUser = {
+  _id: 'super-admin-001',
+  username: 'Super Admin',
+  email: 'admin@eskooly.com',
+  role: 'Super Admin',
+  fullName: 'Administrator'
+};
+
+export const mockHomework = [
+  { _id: 'hw1', class: 'Class 10', section: 'A', subject: 'Mathematics', title: 'Quadratic Equations Exercise 2.1', homeworkDate: '2026-09-04', submissionDate: '2026-09-06', evaluated: false },
+  { _id: 'hw2', class: 'Class 9', section: 'B', subject: 'Physics', title: 'Kinematics Numericals 1 to 5', homeworkDate: '2026-09-04', submissionDate: '2026-09-07', evaluated: true },
+  { _id: 'hw3', class: 'Class 8', section: 'A', subject: 'English', title: 'Essay on My Favorite Book', homeworkDate: '2026-09-03', submissionDate: '2026-09-05', evaluated: true },
+];
+
+export const mockFeesInvoices = [
+  { _id: 'inv1', invoiceNo: 'INV-2026-001', studentName: 'Muhammad Rayyan', class: 'Class 10', section: 'A', amount: 4500, paidAmount: 4500, status: 'Paid', date: '2026-09-01' },
+  { _id: 'inv2', invoiceNo: 'INV-2026-002', studentName: 'Zoya Fatima', class: 'Class 9', section: 'A', amount: 4500, paidAmount: 0, status: 'Unpaid', date: '2026-09-01' },
+  { _id: 'inv3', invoiceNo: 'INV-2026-003', studentName: 'Abdullah Khan', class: 'Class 8', section: 'B', amount: 4000, paidAmount: 2000, status: 'Partial', date: '2026-09-02' },
+];
+
+export const mockAdminQueries = [
+  { _id: 'aq1', name: 'Zahid Mehmood', phone: '+92 321 9876543', email: 'zahid@gmail.com', source: 'Website', date: '2026-09-03', status: 'Follow Up' },
+  { _id: 'aq2', name: 'Rashid Minhas', phone: '+92 333 4567890', email: 'rashid@yahoo.com', source: 'Walk In', date: '2026-09-04', status: 'Converted' },
+];
+
+export const mockComplaints = [
+  { _id: 'cmp1', complaintBy: 'Tariq Mehmood (Parent)', complaintType: 'Transport', date: '2026-09-02', status: 'Resolved', description: 'Van Route 3 delayed by 20 mins' },
+  { _id: 'cmp2', complaintBy: 'Amina Bibi (Parent)', complaintType: 'Academics', date: '2026-09-03', status: 'Pending', description: 'Request extra coaching in Physics' },
+];
+
+export const mockVisitors = [
+  { _id: 'v1', name: 'Dr. Tariq Jamil', purpose: 'Campus Inspection', inTime: '10:00 AM', outTime: '11:30 AM', date: '2026-09-04' },
+  { _id: 'v2', name: 'Kamran Akmal', purpose: 'Admission Inquiry', inTime: '11:45 AM', outTime: '12:15 PM', date: '2026-09-04' },
+];
+
+export const mockCalls = [
+  { _id: 'c1', name: 'Sajid Iqbal', phone: '+92 300 1122334', callType: 'Incoming', date: '2026-09-04', duration: '3m 24s', purpose: 'Fee Inquiry' },
+];
+
+export const mockPostal = [
+  { _id: 'p1', referenceNo: 'REF-2026-901', senderTitle: 'BISE Lahore Board', toTitle: 'Principal', date: '2026-09-02', type: 'Receive' },
+];
+
+export const mockLmsCourses = [
+  { _id: 'lms1', title: 'Full Stack Web Development (MERN)', category: 'Computer Science', instructor: 'Jessica Pearson', price: 0, status: 'Published', studentsCount: 145 },
+  { _id: 'lms2', title: 'Cambridge O-Level Physics Complete', category: 'Science', instructor: 'Sarah Connor', price: 0, status: 'Published', studentsCount: 98 },
+  { _id: 'lms3', title: 'Mathematics Olympiad Mastery', category: 'Mathematics', instructor: 'John Doe', price: 0, status: 'Published', studentsCount: 112 },
+];
+
+export const mockLmsCategories = [
+  { _id: 'cat1', title: 'Computer Science & IT', totalCourses: 6 },
+  { _id: 'cat2', title: 'Mathematics & Logic', totalCourses: 4 },
+  { _id: 'cat3', title: 'Natural Sciences', totalCourses: 5 },
+  { _id: 'cat4', title: 'Languages & Communication', totalCourses: 3 },
+];
+
+export const mockOnlineExams = [
+  { _id: 'oe1', title: 'Physics Mid-Term Online Quiz', class: 'Class 10', subject: 'Physics', totalMarks: 50, passingMarks: 20, status: 'Active' },
+  { _id: 'oe2', title: 'Mathematics Chapter 1-3 Assessment', class: 'Class 9', subject: 'Mathematics', totalMarks: 40, passingMarks: 16, status: 'Upcoming' },
+];
+
+export const mockAttendanceRecords = [
+  { _id: 'att1', studentName: 'Muhammad Rayyan', rollNumber: '101', class: 'Class 10', section: 'A', status: 'Present', date: '2026-09-04' },
+  { _id: 'att2', studentName: 'Zoya Fatima', rollNumber: '102', class: 'Class 10', section: 'A', status: 'Present', date: '2026-09-04' },
+  { _id: 'att3', studentName: 'Abdullah Khan', rollNumber: '103', class: 'Class 10', section: 'A', status: 'Absent', date: '2026-09-04' },
+];
+
 // Endpoint to Mock Data Mapping lookup table
 export const endpointMockMap = {
+  '/dashboard/stats': mockDashboardStats,
+  '/auth/me': mockAuthUser,
   '/class': mockClasses,
   '/section': mockSections,
   '/subject': mockSubjects,
@@ -241,22 +391,59 @@ export const endpointMockMap = {
   '/students': mockStudents,
   '/exam-type': mockExamTypes,
   '/exam-grade': mockExamGrades,
+  '/exam-setup': mockExamTypes,
+  '/marks-register': mockExamGrades,
   '/fees/group': mockFeesGroups,
   '/fees/type': mockFeesTypes,
+  '/fees-invoice': mockFeesInvoices,
   '/dormitory': mockDormitories,
   '/dormitory-room-type': mockDormitoryRoomTypes,
   '/dormitory-room': mockDormitoryRooms,
   '/transport-route': mockTransportRoutes,
   '/transport-vehicle': mockTransportVehicles,
+  '/transport-assign': mockTransportRoutes,
   '/book': mockBooks,
   '/book-category': mockBookCategories,
+  '/issue-book': mockBooks,
   '/library-subject': mockSubjects,
   '/library-member': [...mockStaff, ...mockStudents],
+  '/leave': mockLeaveTypes,
   '/leave-type': mockLeaveTypes,
+  '/leave-define': mockLeaveTypes,
   '/classroom': mockClassRooms,
   '/bank-account': mockBankAccounts,
+  '/bank-payment': mockBankAccounts,
+  '/chart-of-account': mockBankAccounts,
+  '/fund-transfer': [],
+  '/income': [],
+  '/expense': [],
+  '/payroll': mockStaff,
   '/item-category': mockItemCategories,
   '/question-group': mockQuestionGroups,
+  '/question-bank': mockQuestionGroups,
   '/certificate': mockCertificates,
   '/id-card': mockIdCards,
+  '/admission-query': mockAdminQueries,
+  '/complaint': mockComplaints,
+  '/visitor-book': mockVisitors,
+  '/phone-call-log': mockCalls,
+  '/postal-dispatch': mockPostal,
+  '/postal-receive': mockPostal,
+  '/homework': mockHomework,
+  '/lms-category': mockLmsCategories,
+  '/lms-course': mockLmsCourses,
+  '/lms-course-level': [{ id: '1', name: 'Beginner' }, { id: '2', name: 'Intermediate' }, { id: '3', name: 'Advanced' }],
+  '/lms-enroll-history': [],
+  '/lms-fees-invoice': mockFeesInvoices,
+  '/lms-purchase-log': [],
+  '/online-exam': mockOnlineExams,
+  '/sms-sending-time': [],
+  '/staff-attendance': mockStaff,
+  '/student-attendance': mockAttendanceRecords,
+  '/teacher-evaluation/approved': mockStaff,
+  '/teacher-evaluation/pending': mockStaff,
+  '/teacher-evaluation/teacher-wise': mockStaff,
+  '/setup': {},
+  '/whatsapp/contacts': mockStaff,
 };
+

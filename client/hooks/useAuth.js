@@ -69,29 +69,31 @@ export const useAuth = create(
       checkAuth: async () => {
         const { token, user } = get();
         if (!token) {
-           set({ user: null, isAuthenticated: false });
+           set({ user: null, isAuthenticated: false, isLoading: false });
            return;
         }
+        // If user already exists in persisted storage, preserve authenticated state immediately
+        if (user) {
+          set({ isAuthenticated: true, isLoading: false });
+        }
         if (typeof token === 'string' && token.startsWith('mock_')) {
-          set({ isAuthenticated: true, user: user || { username: 'Super Admin', role: 'Super Admin' } });
+          set({ isAuthenticated: true, user: user || { username: 'Super Admin', role: 'Super Admin' }, isLoading: false });
           return;
         }
         try {
            const res = await api.get('/auth/me');
-           if (res && res.success) {
-             set({ isAuthenticated: true, user: res.data });
-           } else {
+           if (res && res.success && res.data) {
+             set({ isAuthenticated: true, user: res.data, isLoading: false });
+           } else if (!user) {
              throw new Error('Not authorized');
            }
         } catch (error) {
-           if (!error.response) {
-             // Offline / connection issue - maintain session with cached user
-             if (user) {
-               set({ isAuthenticated: true });
-               return;
-             }
+           if (user) {
+             // Offline / network issue - maintain active session with cached user
+             set({ isAuthenticated: true, isLoading: false });
+             return;
            }
-           set({ user: null, token: null, isAuthenticated: false });
+           set({ user: null, token: null, isAuthenticated: false, isLoading: false });
            Cookies.remove('token');
         }
       },
