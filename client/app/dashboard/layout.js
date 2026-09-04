@@ -255,6 +255,9 @@ export default function DashboardLayout({ children }) {
                                 <Link
                                   key={sub.id || sIdx}
                                   href={sub.href}
+                                  prefetch={true}
+                                  onMouseEnter={() => router.prefetch(sub.href)}
+                                  onClick={() => setSidebarOpen(false)}
                                   className={`block rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer transition-colors ${
                                     pathname === sub.href
                                       ? 'text-[#007a52] dark:text-emerald-400 bg-emerald-100/70 dark:bg-emerald-950/50 font-bold border border-emerald-200/80 dark:border-emerald-500/20'
@@ -274,6 +277,9 @@ export default function DashboardLayout({ children }) {
                       <Link
                         key={item.id || iIdx}
                         href={item.href}
+                        prefetch={true}
+                        onMouseEnter={() => router.prefetch(item.href)}
+                        onClick={() => setSidebarOpen(false)}
                         className={`flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold cursor-pointer transition-all duration-200 group ${
                           pathname === item.href
                             ? 'border border-[#009966] dark:border-emerald-400 bg-white dark:bg-emerald-950/30 text-[#009966] dark:text-emerald-400 font-bold shadow-xs'
