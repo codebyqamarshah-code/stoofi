@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState } from 'react';
 import { ChevronRight, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
@@ -44,6 +44,12 @@ export default function FormatSettingsPage() {
             <label className="text-xs font-semibold text-red-500 uppercase block mb-1">EXAM *</label>
             <select value={exam} onChange={e => setExam(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500">
               <option value="">Select Exam *</option>
+              <option value="1">First Term Examination</option>
+              <option value="2">Mid Term Examination</option>
+              <option value="3">Final Examination</option>
+              <option value="4">Class Test 1</option>
+              <option value="5">Monthly Assessment</option>
+              <option value="6">Annual Board Examination</option>
             </select>
           </div>
 

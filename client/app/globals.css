@@ -101,6 +101,61 @@
   color: #009966 !important;
 }
 
+/* UNIVERSAL DROPDOWN & SELECT VISIBILITY RULES (Light Mode: Black/Dark text, Clean White bg, Mint border) */
+:root:not(.dark) select,
+:root:not(.dark) select.text-white,
+:root:not(.dark) select.text-zinc-400,
+:root:not(.dark) select.text-zinc-500,
+:root:not(.dark) select.text-zinc-300,
+:root:not(.dark) select.text-zinc-200,
+:root:not(.dark) select.text-zinc-100 {
+  background-color: #ffffff !important;
+  color: #09090b !important;
+  border-color: #d1fae5 !important;
+}
+
+:root:not(.dark) select:focus {
+  border-color: #009966 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(0, 153, 102, 0.2) !important;
+}
+
+:root:not(.dark) option,
+:root:not(.dark) optgroup {
+  background-color: #ffffff !important;
+  color: #09090b !important;
+}
+
+:root:not(.dark) option:checked,
+:root:not(.dark) option:hover {
+  background-color: #f0fdf4 !important;
+  color: #009966 !important;
+}
+
+/* DARK MODE: Dropdown & Select styling */
+.dark select {
+  background-color: #18181b !important;
+  color: #f4f4f5 !important;
+  border-color: #27272a !important;
+}
+
+.dark option,
+.dark optgroup {
+  background-color: #18181b !important;
+  color: #f4f4f5 !important;
+}
+
+/* Form input elements in light mode: ensure dark crisp text */
+:root:not(.dark) input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+:root:not(.dark) textarea {
+  color: #09090b !important;
+}
+:root:not(.dark) input::placeholder,
+:root:not(.dark) textarea::placeholder {
+  color: #71717a !important;
+}
+
+
 @theme {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);

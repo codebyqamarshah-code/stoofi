@@ -29,7 +29,7 @@ export default function BulkPrintIdCardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Select Role <span className="text-rose-500">*</span></Label>
-            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
               <option value="">Select Role *</option>
               <option value="Student">Student</option>
               <option value="Teacher">Teacher</option>
@@ -38,10 +38,11 @@ export default function BulkPrintIdCardPage() {
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Select ID Card <span className="text-rose-500">*</span></Label>
-            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
               <option value="">Select Id Card *</option>
-              <option value="1">Student ID Card</option>
-              <option value="2">Staff ID Card</option>
+              <option value="1">Student Smart Card 2026</option>
+              <option value="2">Teacher / Faculty ID Card</option>
+              <option value="3">Staff Identification Card</option>
             </select>
           </div>
           <div className="space-y-1.5">

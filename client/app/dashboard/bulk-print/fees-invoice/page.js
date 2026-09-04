@@ -28,24 +28,31 @@ export default function FeesInvoiceBulkPrintPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Class</Label>
-            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
               <option value="">Select Class</option>
-              <option value="1">Class 1</option>
-              <option value="2">Class 2</option>
+              {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels'].map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
             </select>
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Section</Label>
-            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
               <option value="">Select Section</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
+              {['A', 'B', 'C', 'D'].map(s => (
+                <option key={s} value={s}>Section {s}</option>
+              ))}
             </select>
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Student</Label>
-            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
               <option value="">Select Student</option>
+              <option value="stu1">Muhammad Rayyan (Roll 101)</option>
+              <option value="stu2">Zoya Fatima (Roll 102)</option>
+              <option value="stu3">Bilal Hassan (Roll 103)</option>
+              <option value="stu4">Sara Khan (Roll 104)</option>
+              <option value="stu5">Hamza Ali (Roll 105)</option>
             </select>
           </div>
         </div>

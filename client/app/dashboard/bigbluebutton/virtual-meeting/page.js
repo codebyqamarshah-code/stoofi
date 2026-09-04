@@ -26,15 +26,21 @@ export default function BBBVirtualMeetingPage() {
           <div>
             <label className="text-xs font-bold text-gray-700 uppercase block mb-1">CLASS <span className="text-red-500">*</span></label>
             <select className="w-full bg-white border border-gray-300 text-gray-700 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-indigo-500">
-              <option>Member Type *</option>
-            </select>
+              <option value="">Member Type *</option>
+              {['Teacher', 'Staff', 'Student', 'Parent'].map(mt => (
+                <option key={mt} value={mt}>{mt}</option>
+              ))}
+</select>
           </div>
 
           <div>
             <label className="text-xs font-bold text-gray-700 uppercase block mb-1">MEMBER <span className="text-red-500">*</span></label>
             <select className="w-full bg-white border border-gray-300 text-gray-700 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-indigo-500">
-              <option>Select</option>
-            </select>
+              <option value="">Select Member</option>
+              {['Mudassir Bajwa (Teacher)', 'Fatima Zahra (Teacher)', 'Muhammad Ali (Teacher)', 'Usman Tariq (Staff)', 'Muhammad Rayyan (Student)', 'Zoya Fatima (Student)'].map(m => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+</select>
           </div>
 
           <div>

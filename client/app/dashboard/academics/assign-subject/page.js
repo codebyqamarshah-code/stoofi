@@ -33,18 +33,20 @@ export default function AssignSubjectPage() {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="space-y-1.5">
-            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-zinc-400 font-medium">
+            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-zinc-900 dark:text-zinc-100 font-medium">
               <option value="">Select Class *</option>
-              <option value="1">Class 1</option>
-              <option value="2">Class 2</option>
+              {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
             </select>
           </div>
           
           <div className="space-y-1.5">
-            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-zinc-400 font-medium">
+            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-zinc-900 dark:text-zinc-100 font-medium">
               <option value="">Select Section *</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
+              {['A', 'B', 'C', 'D'].map(s => (
+                <option key={s} value={s}>Section {s}</option>
+              ))}
             </select>
           </div>
         </div>

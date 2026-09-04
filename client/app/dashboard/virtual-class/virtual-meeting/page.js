@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useRef } from 'react';
 import { Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns } from 'lucide-react';
 import Link from 'next/link';
@@ -37,15 +37,21 @@ export default function VirtualClassVirtualMeetingPage() {
 
           <div>
             <label className="text-xs font-bold text-gray-700 uppercase block mb-1">MEMBER TYPE <span className="text-red-500">*</span></label>
-            <select value={memberType} onChange={e => setMemberType(e.target.value)} className="w-full bg-white border border-gray-300 text-gray-700 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-              <option>Member Type *</option>
+            <select value={memberType} onChange={e => setMemberType(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+              <option value="">Member Type *</option>
+              {['Teacher', 'Staff', 'Student', 'Parent', 'Board Member'].map(mt => (
+                <option key={mt} value={mt}>{mt}</option>
+              ))}
             </select>
           </div>
 
           <div>
             <label className="text-xs font-bold text-gray-700 uppercase block mb-1">MEMBER <span className="text-red-500">*</span></label>
-            <select value={member} onChange={e => setMember(e.target.value)} className="w-full bg-white border border-gray-300 text-gray-700 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-              <option>Select</option>
+            <select value={member} onChange={e => setMember(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+              <option value="">Select Member</option>
+              {['Mudassir Bajwa (Senior Teacher)', 'Fatima Zahra (HOD Science)', 'Dr. Bilal Siddiqui (Vice Principal)', 'Usman Tariq (Accountant)', 'Muhammad Rayyan (Student)', 'Zoya Fatima (Student)'].map(m => (
+                <option key={m} value={m}>{m}</option>
+              ))}
             </select>
           </div>
 

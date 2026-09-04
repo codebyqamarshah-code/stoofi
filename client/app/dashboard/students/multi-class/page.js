@@ -46,9 +46,11 @@ export default function MultiClassStudentPage() {
             <select 
               value={formData.academicYear}
               onChange={(e) => setFormData({...formData, academicYear: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
             >
               <option value="2026[Jan-Dec]">2026[Jan-Dec]</option>
+              <option value="2025[Jan-Dec]">2025[Jan-Dec]</option>
+              <option value="2027[Jan-Dec]">2027[Jan-Dec]</option>
             </select>
           </div>
           <div className="space-y-1.5">
@@ -56,11 +58,12 @@ export default function MultiClassStudentPage() {
             <select 
               value={formData.class}
               onChange={(e) => setFormData({...formData, class: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
             >
               <option value="">Select Class</option>
-              <option value="Class 1">Class 1</option>
-              <option value="Class 2">Class 2</option>
+              {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
             </select>
           </div>
           <div className="space-y-1.5">
@@ -68,11 +71,12 @@ export default function MultiClassStudentPage() {
             <select 
               value={formData.section}
               onChange={(e) => setFormData({...formData, section: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
             >
               <option value="">Select Section</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
+              {['A', 'B', 'C', 'D'].map(s => (
+                <option key={s} value={s}>Section {s}</option>
+              ))}
             </select>
           </div>
           <div className="space-y-1.5">
@@ -80,11 +84,15 @@ export default function MultiClassStudentPage() {
             <select 
               value={formData.student}
               onChange={(e) => setFormData({...formData, student: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
             >
               <option value="">Select Student</option>
-              <option value="Adam">Adam</option>
-              <option value="Ava">Ava</option>
+              <option value="Muhammad Rayyan">Muhammad Rayyan (Roll 101)</option>
+              <option value="Zoya Fatima">Zoya Fatima (Roll 102)</option>
+              <option value="Bilal Hassan">Bilal Hassan (Roll 103)</option>
+              <option value="Sara Khan">Sara Khan (Roll 104)</option>
+              <option value="Hamza Ali">Hamza Ali (Roll 105)</option>
+              <option value="Ayan Qureshi">Ayan Qureshi (Roll 106)</option>
             </select>
           </div>
           

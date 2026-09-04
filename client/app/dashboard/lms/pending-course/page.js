@@ -39,29 +39,46 @@ export default function PendingCoursePage() {
               <option value="">Select Class</option>
               <option value="1">Class 1</option>
               <option value="2">Class 2</option>
+              <option value="3">Class 3</option>
+              <option value="4">Class 4</option>
+              <option value="5">Class 5</option>
+              <option value="6">Class 6</option>
+              <option value="7">Class 7</option>
+              <option value="8">Class 8</option>
+              <option value="9">Class 9</option>
+              <option value="10">Class 10</option>
+              <option value="11">O-Levels</option>
+              <option value="12">A-Levels</option>
             </select>
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Select Section</Label>
             <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
               <option value="">Select Section</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
+              <option value="A">Section A</option>
+              <option value="B">Section B</option>
+              <option value="C">Section C</option>
+              <option value="D">Section D</option>
             </select>
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Select Teacher</Label>
             <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
               <option value="">Select Teacher</option>
+              <option value="1">John Doe (Senior Mathematics)</option>
+              <option value="2">Sarah Connor (Physics HOD)</option>
+              <option value="3">Michael Scott (Management Studies)</option>
+              <option value="4">Jessica Pearson (Computer Science)</option>
+              <option value="5">Alex Morgan (English Literature)</option>
             </select>
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Select Status</Label>
             <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
-              <option value="">Select Status</option>
-              <option value="Pending">Pending</option>
+              <option value="Pending">Pending Review</option>
               <option value="Approved">Approved</option>
               <option value="Rejected">Rejected</option>
+              <option value="Revision">Revision Requested</option>
             </select>
           </div>
         </div>

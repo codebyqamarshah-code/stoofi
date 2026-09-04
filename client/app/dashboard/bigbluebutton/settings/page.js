@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState } from 'react';
 import Link from 'next/link';
 
@@ -78,14 +78,19 @@ export default function BBBSettingsPage() {
 
             <div className="flex items-center justify-between pt-4">
               <span className="text-xs font-bold text-gray-500 uppercase">GUEST POLICY</span>
-              <select className="w-32 bg-white border border-gray-300 text-gray-700 text-sm rounded px-3 py-2 focus:outline-none focus:border-indigo-500">
-                <option>Always Accept</option>
+              <select className="w-40 bg-white border border-gray-300 text-gray-700 text-sm rounded px-3 py-2 focus:outline-none focus:border-indigo-500">
+                <option value="Always Accept">Always Accept</option>
+                <option value="Always Deny">Always Deny</option>
+                <option value="Ask Moderator">Ask Moderator</option>
               </select>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-gray-500 uppercase">STATUS</span>
-              <select className="w-32 bg-white border border-gray-300 text-gray-700 text-sm rounded px-3 py-2 focus:outline-none focus:border-indigo-500">
-                <option>Any</option>
+              <select className="w-40 bg-white border border-gray-300 text-gray-700 text-sm rounded px-3 py-2 focus:outline-none focus:border-indigo-500">
+                <option value="Any">Any</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Suspended">Suspended</option>
               </select>
             </div>
           </div>

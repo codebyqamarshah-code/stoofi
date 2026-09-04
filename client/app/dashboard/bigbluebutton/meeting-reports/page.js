@@ -29,14 +29,24 @@ export default function BBBMeetingReportsPage() {
           <div>
             <label className="text-xs font-bold text-gray-700 uppercase block mb-1">MEMBER TYPE</label>
             <select value={memberType} onChange={e => setMemberType(e.target.value)} className="w-full bg-white border border-gray-300 text-gray-700 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-indigo-500">
-              <option>Member Type *</option>
+              <option value="">Member Type *</option>
+              <option value="Teacher">Teacher</option>
+              <option value="Staff">Staff</option>
+              <option value="Student">Student</option>
+              <option value="Parent">Parent</option>
             </select>
           </div>
 
           <div>
             <label className="text-xs font-bold text-gray-700 uppercase block mb-1">USER</label>
             <select value={user} onChange={e => setUser(e.target.value)} className="w-full bg-white border border-gray-300 text-gray-700 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-indigo-500">
-              <option>Select User</option>
+              <option value="">Select Member</option>
+              <option value="Mudassir Bajwa (Teacher)">Mudassir Bajwa (Teacher)</option>
+              <option value="Fatima Zahra (Teacher)">Fatima Zahra (Teacher)</option>
+              <option value="Muhammad Ali (Teacher)">Muhammad Ali (Teacher)</option>
+              <option value="Usman Tariq (Staff)">Usman Tariq (Staff)</option>
+              <option value="Muhammad Rayyan (Student)">Muhammad Rayyan (Student)</option>
+              <option value="Zoya Fatima (Student)">Zoya Fatima (Student)</option>
             </select>
           </div>
 

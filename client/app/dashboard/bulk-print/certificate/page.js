@@ -29,18 +29,21 @@ export default function BulkPrintCertificatePage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Select Class</Label>
-            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
-              <option value="">Select</option>
-              <option value="1">Class 1</option>
-              <option value="2">Class 2</option>
+            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+              <option value="">Select Class</option>
+              {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels'].map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
             </select>
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Certificate <span className="text-rose-500">*</span></Label>
-            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
               <option value="">Select Certificate *</option>
-              <option value="transfer">Transfer Certificate</option>
-              <option value="character">Character Certificate</option>
+              <option value="transfer">School Leaving / Transfer Certificate</option>
+              <option value="character">Character & Conduct Certificate</option>
+              <option value="merit">Academic Merit Certificate</option>
+              <option value="sports">Sports & Extracurricular Certificate</option>
             </select>
           </div>
           <div className="space-y-1.5">

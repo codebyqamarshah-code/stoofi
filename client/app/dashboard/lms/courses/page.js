@@ -37,12 +37,24 @@ export default function AllCoursesPage() {
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Select Category</Label>
             <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
               <option value="">Select Category</option>
+              <option value="cs">Computer Science & IT</option>
+              <option value="math">Mathematics & Logic</option>
+              <option value="science">Natural Sciences</option>
+              <option value="business">Business & Management</option>
+              <option value="languages">Languages & Communication</option>
+              <option value="arts">Arts & Humanities</option>
             </select>
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Select SubCategory</Label>
             <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
               <option value="">Select SubCategory</option>
+              <option value="web">Web Development & Design</option>
+              <option value="python">Python Programming</option>
+              <option value="algebra">Higher Algebra</option>
+              <option value="physics">Applied Physics</option>
+              <option value="accounting">Financial Accounting</option>
+              <option value="english">IELTS & Academic English</option>
             </select>
           </div>
           <div className="space-y-1.5">
@@ -51,6 +63,16 @@ export default function AllCoursesPage() {
               <option value="">Select Class</option>
               <option value="1">Class 1</option>
               <option value="2">Class 2</option>
+              <option value="3">Class 3</option>
+              <option value="4">Class 4</option>
+              <option value="5">Class 5</option>
+              <option value="6">Class 6</option>
+              <option value="7">Class 7</option>
+              <option value="8">Class 8</option>
+              <option value="9">Class 9</option>
+              <option value="10">Class 10</option>
+              <option value="11">O-Levels</option>
+              <option value="12">A-Levels</option>
             </select>
           </div>
         </div>
@@ -59,8 +81,10 @@ export default function AllCoursesPage() {
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Select Section</Label>
             <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
               <option value="">Select Section</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
+              <option value="A">Section A</option>
+              <option value="B">Section B</option>
+              <option value="C">Section C</option>
+              <option value="D">Section D</option>
             </select>
           </div>
           <div className="space-y-1.5">

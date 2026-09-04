@@ -44,39 +44,50 @@ export default function AssignClassTeacherPage() {
             <form className="p-4 space-y-6" onSubmit={(e) => e.preventDefault()}>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Class <span className="text-rose-500">*</span></Label>
-                <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white">
+                <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-zinc-900 dark:text-zinc-100 font-medium">
                   <option value="">Select Class *</option>
-                  <option value="1">Class 1</option>
-                  <option value="2">Class 2</option>
+                  {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
                 </select>
               </div>
 
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Section <span className="text-rose-500">*</span></Label>
-                <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white">
+                <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-zinc-900 dark:text-zinc-100 font-medium">
                   <option value="">Select Section *</option>
-                  <option value="A">A</option>
-                  <option value="B">B</option>
+                  {['A', 'B', 'C', 'D'].map(s => (
+                    <option key={s} value={s}>Section {s}</option>
+                  ))}
                 </select>
               </div>
               
               <div className="space-y-3">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Teacher <span className="text-rose-500">*</span></Label>
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${selectedTeacher === 'Mudassir Bajwa' ? 'border-emerald-500 bg-emerald-500' : 'border-zinc-500 bg-transparent'}`}>
-                      {selectedTeacher === 'Mudassir Bajwa' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                    </div>
-                    <span className="text-sm text-zinc-300">Mudassir Bajwa</span>
-                    <input 
-                      type="radio" 
-                      className="hidden" 
-                      name="teacher" 
-                      value="Mudassir Bajwa"
-                      checked={selectedTeacher === 'Mudassir Bajwa'}
-                      onChange={() => setSelectedTeacher('Mudassir Bajwa')} 
-                    />
-                  </label>
+                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                  {[
+                    'Mudassir Bajwa',
+                    'Fatima Zahra',
+                    'Muhammad Ali',
+                    'Ahmed Khan',
+                    'Ayesha Noor',
+                    'Dr. Bilal Siddiqui'
+                  ].map(t => (
+                    <label key={t} className="flex items-center gap-2 cursor-pointer p-1.5 rounded hover:bg-zinc-900/50">
+                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${selectedTeacher === t ? 'border-emerald-500 bg-emerald-500' : 'border-zinc-500 bg-transparent'}`}>
+                        {selectedTeacher === t && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                      </div>
+                      <span className="text-sm text-zinc-800 dark:text-zinc-200">{t}</span>
+                      <input 
+                        type="radio" 
+                        className="hidden" 
+                        name="teacher" 
+                        value={t}
+                        checked={selectedTeacher === t}
+                        onChange={() => setSelectedTeacher(t)} 
+                      />
+                    </label>
+                  ))}
                 </div>
               </div>
 

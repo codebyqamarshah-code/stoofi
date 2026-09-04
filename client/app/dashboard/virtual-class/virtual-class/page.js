@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useRef } from 'react';
 import { Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns } from 'lucide-react';
 import Link from 'next/link';
@@ -38,15 +38,21 @@ export default function VirtualClassModulePage() {
 
           <div>
             <label className="text-xs font-bold text-gray-700 uppercase block mb-1">CLASS <span className="text-red-500">*</span></label>
-            <select value={classVal} onChange={e => setClassVal(e.target.value)} className="w-full bg-white border border-gray-300 text-gray-700 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-              <option>Select Class *</option>
+            <select value={classVal} onChange={e => setClassVal(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+              <option value="">Select Class *</option>
+              {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels'].map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
             </select>
           </div>
 
           <div>
             <label className="text-xs font-bold text-gray-700 uppercase block mb-1">SECTION</label>
-            <select value={section} onChange={e => setSection(e.target.value)} className="w-full bg-white border border-gray-300 text-gray-700 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-              <option>Select Section</option>
+            <select value={section} onChange={e => setSection(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+              <option value="">Select Section</option>
+              {['A', 'B', 'C', 'D'].map(s => (
+                <option key={s} value={s}>Section {s}</option>
+              ))}
             </select>
           </div>
 

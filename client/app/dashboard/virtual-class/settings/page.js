@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState } from 'react';
 import Link from 'next/link';
 
@@ -54,28 +54,37 @@ export default function ZoomSettingsPage() {
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-gray-500 uppercase">MEETING JOIN APPROVAL</span>
               <select value={approval} onChange={e => setApproval(e.target.value)} className="w-64 bg-white border border-gray-300 text-gray-700 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-indigo-500">
-                <option>Automatically</option>
+                <option value="Automatically">Automatically</option>
+                <option value="Manually">Manually</option>
+                <option value="No Registration Required">No Registration Required</option>
               </select>
             </div>
             
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-gray-500 uppercase">AUTO RECORDING FOR PAID PACKAGE )</span>
               <select value={autoRecord} onChange={e => setAutoRecord(e.target.value)} className="w-64 bg-white border border-gray-300 text-gray-700 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-indigo-500">
-                <option>None</option>
+                <option value="None">None</option>
+                <option value="Local">Local Recording</option>
+                <option value="Cloud">Cloud Recording</option>
               </select>
             </div>
             
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-gray-500 uppercase">AUDIO OPTION</span>
               <select value={audioOption} onChange={e => setAudioOption(e.target.value)} className="w-64 bg-white border border-gray-300 text-gray-700 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-indigo-500">
-                <option>Both</option>
+                <option value="Both">Both (Telephony & VOIP)</option>
+                <option value="Telephony">Telephony Only</option>
+                <option value="VOIP">Computer Audio / VOIP Only</option>
               </select>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-gray-500 uppercase">PAKAGE</span>
+              <span className="text-xs font-bold text-gray-500 uppercase">PACKAGE</span>
               <select value={packageType} onChange={e => setPackageType(e.target.value)} className="w-64 bg-white border border-gray-300 text-gray-700 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-indigo-500">
-                <option>Basic Free)</option>
+                <option value="Basic Free">Basic (Free)</option>
+                <option value="Pro Plan">Pro Plan</option>
+                <option value="Business Plan">Business Plan</option>
+                <option value="Enterprise Plan">Enterprise Plan</option>
               </select>
             </div>
 

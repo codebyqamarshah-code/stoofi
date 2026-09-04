@@ -1,6 +1,7 @@
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import GoogleTranslate from "@/components/google-translate";
 
 const poppins = Poppins({ weight: ["300", "400", "500", "600", "700"], variable: "--font-poppins", subsets: ["latin"] });
 
@@ -15,20 +16,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning >
       <body suppressHydrationWarning className={`min-h-screen bg-background text-foreground ${poppins.className}`}>
-        <div id="google_translate_element" style={{ display: 'none' }}></div>
-        <script type="text/javascript" dangerouslySetInnerHTML={{
-          __html: `
-            function googleTranslateElementInit() {
-              new google.translate.TranslateElement({
-                pageLanguage: 'en',
-                includedLanguages: 'en,ur,ar',
-                autoDisplay: false
-              }, 'google_translate_element');
-            }
-          `
-        }} />
-        <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async />
-        
+        <GoogleTranslate />
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           {children}
         </ThemeProvider>

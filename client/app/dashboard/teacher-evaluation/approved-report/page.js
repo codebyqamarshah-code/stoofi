@@ -40,32 +40,47 @@ export default function ApprovedReportPage() {
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                     <div>
                         <label className="block text-xs font-medium text-zinc-400 mb-1">CLASS *</label>
-                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500">
                             <option value="">Select Class *</option>
+                            {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels'].map(c => (
+                                <option key={c} value={c}>{c}</option>
+                            ))}
                         </select>
                     </div>
                     <div>
                         <label className="block text-xs font-medium text-zinc-400 mb-1">SUBJECT</label>
-                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500">
                             <option value="">Select Subject</option>
+                            {['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English Language', 'Computer Science'].map(sub => (
+                                <option key={sub} value={sub}>{sub}</option>
+                            ))}
                         </select>
                     </div>
                     <div>
                         <label className="block text-xs font-medium text-zinc-400 mb-1">SECTION</label>
-                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                            <option value="">Select</option>
+                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <option value="">Select Section</option>
+                            {['A', 'B', 'C', 'D'].map(s => (
+                                <option key={s} value={s}>Section {s}</option>
+                            ))}
                         </select>
                     </div>
                     <div>
                         <label className="block text-xs font-medium text-zinc-400 mb-1">TEACHER</label>
-                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500">
                             <option value="">Select Teacher</option>
+                            {['Mudassir Bajwa', 'Fatima Zahra', 'Muhammad Ali', 'Ahmed Khan', 'Dr. Bilal Siddiqui'].map(t => (
+                                <option key={t} value={t}>{t}</option>
+                            ))}
                         </select>
                     </div>
                     <div>
                         <label className="block text-xs font-medium text-zinc-400 mb-1">SUBMITTED BY</label>
-                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                            <option value="">Select</option>
+                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <option value="">Select Submitter</option>
+                            {['Principal Office', 'Academic Coordinator', 'Vice Principal', 'HOD Science', 'Admin Officer'].map(sub => (
+                                <option key={sub} value={sub}>{sub}</option>
+                            ))}
                         </select>
                     </div>
                 </div>

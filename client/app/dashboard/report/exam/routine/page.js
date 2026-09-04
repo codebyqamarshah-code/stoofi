@@ -47,8 +47,9 @@ export default function ExamRoutinePage() {
               className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
             >
               <option value="">All Classes</option>
-              <option value="Class 9">Class 9</option>
-              <option value="Class 10">Class 10</option>
+              {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
             </select>
           </div>
           <div className="flex items-end justify-end">

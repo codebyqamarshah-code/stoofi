@@ -52,7 +52,14 @@ export default function ApplyLeave() {
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-zinc-400 mb-1">Leave Type *</label>
                   <select className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-emerald-500" required>
-                    <option value="">Select</option>
+                    <option value="">Select Leave Type</option>
+                    <option value="casual">Casual Leave</option>
+                    <option value="medical">Medical / Sick Leave</option>
+                    <option value="annual">Annual Leave</option>
+                    <option value="maternity">Maternity Leave</option>
+                    <option value="paternity">Paternity Leave</option>
+                    <option value="study">Study Leave</option>
+                    <option value="emergency">Emergency Leave</option>
                   </select>
                 </div>
                 <div className="mb-4">
