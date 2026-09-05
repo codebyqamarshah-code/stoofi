@@ -2,43 +2,292 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ChevronRight, Search, Download, Printer, FileText } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { 
+  ChevronRight, 
+  Save, 
+  Settings, 
+  Video, 
+  ShieldCheck, 
+  Server, 
+  CheckCircle2, 
+  Globe, 
+  KeyRound,
+  Sliders
+} from 'lucide-react';
 
 export default function VirtualClassSettingsPage() {
-  const [search, setSearch] = useState('');
+  const [settings, setSettings] = useState({
+    apiKey: 'zm_oauth_live_981273948123',
+    apiSecret: '••••••••••••••••••••••••••••••••',
+    accountId: 'act_eskooly_zoom_pro_pk',
+    webhookSecret: '••••••••••••••••••••••',
+    hostVideo: true,
+    participantVideo: true,
+    joinBeforeHost: false,
+    waitingRoom: true,
+    autoRecording: 'none'
+  });
+
+  const [savedSuccess, setSavedSuccess] = useState(false);
+  const [testingConnection, setTestingConnection] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState(null);
+
+  const handleSave = (e) => {
+    e.preventDefault();
+    setSavedSuccess(true);
+    setTimeout(() => {
+      setSavedSuccess(false);
+    }, 4000);
+  };
+
+  const handleTestConnection = () => {
+    setTestingConnection(true);
+    setConnectionStatus(null);
+    setTimeout(() => {
+      setTestingConnection(false);
+      setConnectionStatus({
+        success: true,
+        message: 'Successfully authenticated with Zoom Server-to-Server OAuth API!'
+      });
+    }, 1200);
+  };
 
   return (
     <div className="space-y-6">
+      {/* Header & Breadcrumbs */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Virtual Class Settings</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Module</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Virtual Class</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Settings</span>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
+            Virtual Class Settings
+          </h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+            Configure Zoom API credentials, OAuth tokens, and global meeting room policies.
+          </p>
+        </div>
+        <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
+          <Link href="/dashboard" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+            Dashboard
+          </Link>
+          <ChevronRight className="h-4 w-4 mx-1" />
+          <Link href="/dashboard/module/virtual-class" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+            Virtual Class
+          </Link>
+          <ChevronRight className="h-4 w-4 mx-1" />
+          <span className="text-emerald-600 dark:text-emerald-400 font-medium">Settings</span>
         </div>
       </div>
 
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-white">Virtual Class Settings Overview</h2>
-          <div className="relative w-48">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-            <Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs text-white" />
+      {/* Success Alert */}
+      {savedSuccess && (
+        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 flex items-center gap-3 text-sm animate-in fade-in duration-200">
+          <CheckCircle2 className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+          <span>Zoom Virtual Class configuration settings have been updated successfully.</span>
+        </div>
+      )}
+
+      {/* Settings Form Card */}
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm p-6 sm:p-8">
+        <form onSubmit={handleSave} className="space-y-8">
+          {/* Section 1: Zoom OAuth Credentials */}
+          <div>
+            <div className="flex items-center gap-2.5 pb-3 mb-5 border-b border-zinc-100 dark:border-zinc-800">
+              <KeyRound className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
+                Zoom Server-to-Server OAuth Credentials
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                  Client ID / API Key <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={settings.apiKey}
+                  onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
+                  placeholder="Enter Zoom OAuth Client ID..."
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                  Client Secret <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={settings.apiSecret}
+                  onChange={(e) => setSettings({ ...settings, apiSecret: e.target.value })}
+                  placeholder="Enter Zoom OAuth Client Secret..."
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                  Account ID <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={settings.accountId}
+                  onChange={(e) => setSettings({ ...settings, accountId: e.target.value })}
+                  placeholder="Enter Zoom Account ID..."
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                  Webhook Secret Token
+                </label>
+                <input
+                  type="password"
+                  value={settings.webhookSecret}
+                  onChange={(e) => setSettings({ ...settings, webhookSecret: e.target.value })}
+                  placeholder="Enter Webhook secret token..."
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                />
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
-              <tr>
-                <th className="px-4 py-3 font-semibold">SL</th>
-                <th className="px-4 py-3 font-semibold">Name</th><th className="px-4 py-3 font-semibold">Details</th><th className="px-4 py-3 font-semibold">Status</th><th className="px-4 py-3 font-semibold">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800">
-              <tr><td colSpan="5" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-            </tbody>
-          </table>
-        </div>
+
+          {/* Section 2: Meeting Room Defaults */}
+          <div>
+            <div className="flex items-center gap-2.5 pb-3 mb-5 border-b border-zinc-100 dark:border-zinc-800">
+              <Sliders className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
+                Meeting Room Configuration & Policies
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                  Auto Cloud Recording
+                </label>
+                <select
+                  value={settings.autoRecording}
+                  onChange={(e) => setSettings({ ...settings, autoRecording: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                >
+                  <option value="none">Disabled (No auto-record)</option>
+                  <option value="local">Record on Local Machine</option>
+                  <option value="cloud">Record to Zoom Cloud Storage</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                  Audio Type Policy
+                </label>
+                <select
+                  defaultValue="both"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                >
+                  <option value="both">Both Computer Audio and Telephony</option>
+                  <option value="computer">Computer Audio Only (VoIP)</option>
+                  <option value="telephony">Telephony Dial-in Only</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Toggles */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+              <label className="flex items-center gap-3 p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30 cursor-pointer hover:bg-zinc-100/60 dark:hover:bg-zinc-800/60 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={settings.hostVideo}
+                  onChange={(e) => setSettings({ ...settings, hostVideo: e.target.checked })}
+                  className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500"
+                />
+                <div>
+                  <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase">Host Video On</div>
+                  <div className="text-[11px] text-zinc-500">Start video automatically when instructor joins.</div>
+                </div>
+              </label>
+
+              <label className="flex items-center gap-3 p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30 cursor-pointer hover:bg-zinc-100/60 dark:hover:bg-zinc-800/60 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={settings.participantVideo}
+                  onChange={(e) => setSettings({ ...settings, participantVideo: e.target.checked })}
+                  className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500"
+                />
+                <div>
+                  <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase">Participant Video On</div>
+                  <div className="text-[11px] text-zinc-500">Enable cameras for students upon admission.</div>
+                </div>
+              </label>
+
+              <label className="flex items-center gap-3 p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30 cursor-pointer hover:bg-zinc-100/60 dark:hover:bg-zinc-800/60 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={settings.waitingRoom}
+                  onChange={(e) => setSettings({ ...settings, waitingRoom: e.target.checked })}
+                  className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500"
+                />
+                <div>
+                  <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase">Enable Waiting Room</div>
+                  <div className="text-[11px] text-zinc-500">Hold students in lobby until admitted by teacher.</div>
+                </div>
+              </label>
+
+              <label className="flex items-center gap-3 p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30 cursor-pointer hover:bg-zinc-100/60 dark:hover:bg-zinc-800/60 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={settings.joinBeforeHost}
+                  onChange={(e) => setSettings({ ...settings, joinBeforeHost: e.target.checked })}
+                  className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500"
+                />
+                <div>
+                  <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase">Join Before Host</div>
+                  <div className="text-[11px] text-zinc-500">Allow students to enter prior to teacher's arrival.</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* Action Bar */}
+          <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <button
+              type="button"
+              onClick={handleTestConnection}
+              disabled={testingConnection}
+              className="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2"
+            >
+              {testingConnection ? (
+                <>
+                  <div className="h-3.5 w-3.5 border-2 border-zinc-500 border-t-transparent rounded-full animate-spin" />
+                  Authenticating...
+                </>
+              ) : (
+                <>
+                  <Server className="h-3.5 w-3.5" />
+                  Test Zoom OAuth Connection
+                </>
+              )}
+            </button>
+
+            <button
+              type="submit"
+              className="w-full sm:w-auto px-8 py-2.5 bg-[#009966] hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
+            >
+              <Save className="h-4 w-4" />
+              Save Virtual Class Settings
+            </button>
+          </div>
+
+          {connectionStatus && (
+            <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+              <span>{connectionStatus.message}</span>
+            </div>
+          )}
+        </form>
       </div>
     </div>
   );

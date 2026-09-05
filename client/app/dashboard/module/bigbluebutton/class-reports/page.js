@@ -1,45 +1,183 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { ChevronRight, Search, Download, Printer, FileText } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { ChevronRight, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Eye } from 'lucide-react';
+import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 
 export default function BBBClassReportsPage() {
+  const [criteria, setCriteria] = useState({ classVal: 'All Classes', section: 'All Sections', fromDate: '2026-09-01', toDate: '2026-09-30' });
+  const [activeFilter, setActiveFilter] = useState({ classVal: 'All Classes', section: 'All Sections' });
   const [search, setSearch] = useState('');
+  const [selectedReport, setSelectedReport] = useState(null);
+
+  const classes = ['All Classes','Class 1','Class 2','Class 3','Class 4','Class 5','Class 6','Class 7','Class 8','Class 9','Class 10'];
+  const sections = ['All Sections','A','B','C','D'];
+
+  const [reportsList] = useState([
+    { id:1, topic:'Computer Science - Algorithms & Flowcharts', classVal:'Class 10', section:'A', teacher:'Mudassir Bajwa', date:'2026-09-02', time:'10:00 AM', duration:'45 mins', totalEnrolled:35, attended:33, percentage:'94.3%' },
+    { id:2, topic:'Chemistry - Chemical Kinetics', classVal:'Class 9', section:'A', teacher:'Fatima Zahra', date:'2026-09-03', time:'12:00 PM', duration:'60 mins', totalEnrolled:30, attended:28, percentage:'93.3%' },
+    { id:3, topic:'English - Essay Writing & Structure', classVal:'Class 8', section:'B', teacher:'Ayesha Noor', date:'2026-09-04', time:'09:30 AM', duration:'40 mins', totalEnrolled:32, attended:30, percentage:'93.8%' },
+  ]);
+
+  const handleSearch = (e) => { e.preventDefault(); setActiveFilter({ classVal: criteria.classVal, section: criteria.section }); };
+
+  const filtered = useMemo(() => reportsList.filter(item => {
+    const mClass = activeFilter.classVal === 'All Classes' || item.classVal === activeFilter.classVal;
+    const mSec = activeFilter.section === 'All Sections' || item.section === activeFilter.section;
+    const mSearch = !search || item.topic.toLowerCase().includes(search.toLowerCase()) || item.teacher.toLowerCase().includes(search.toLowerCase());
+    return mClass && mSec && mSearch;
+  }), [reportsList, activeFilter, search]);
+
+  const handleCopy = () => { navigator.clipboard.writeText(filtered.map(r => `${r.topic} | ${r.classVal}(${r.section}) | ${r.teacher} | ${r.date} | ${r.attended}/${r.totalEnrolled} (${r.percentage})`).join('\n')); alert('Copied!'); };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">BBB Class Reports</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Module</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-emerald-400 transition-colors">BigBlueButton</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Class Reports</span>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">BigBlueButton Class Reports</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Analyze BBB session attendance, duration, and participation metrics per class.</p>
+        </div>
+        <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
+          <Link href="/dashboard" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <ChevronRight className="h-4 w-4 mx-1" />
+          <Link href="/dashboard/module/bigbluebutton" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">BigBlueButton</Link>
+          <ChevronRight className="h-4 w-4 mx-1" />
+          <span className="text-emerald-600 dark:text-emerald-400 font-medium">Class Reports</span>
         </div>
       </div>
 
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-white">BBB Class Reports Overview</h2>
-          <div className="relative w-48">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-            <Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs text-white" />
+      {/* Criteria */}
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm p-6">
+        <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider mb-5">Select Criteria</h2>
+        <form onSubmit={handleSearch}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">Class <span className="text-rose-500">*</span></label>
+              <select value={criteria.classVal} onChange={(e) => setCriteria({...criteria, classVal: e.target.value})} className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors">
+                {classes.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">Section <span className="text-rose-500">*</span></label>
+              <select value={criteria.section} onChange={(e) => setCriteria({...criteria, section: e.target.value})} className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors">
+                {sections.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">From Date <span className="text-rose-500">*</span></label>
+              <input type="date" required value={criteria.fromDate} onChange={(e) => setCriteria({...criteria, fromDate: e.target.value})} className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">To Date <span className="text-rose-500">*</span></label>
+              <input type="date" required value={criteria.toDate} onChange={(e) => setCriteria({...criteria, toDate: e.target.value})} className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors" />
+            </div>
+          </div>
+          <div className="flex justify-end mt-5">
+            <button type="submit" className="px-6 py-2.5 bg-[#009966] hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-2 shadow-sm">
+              <Search className="h-4 w-4" />Search
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Table */}
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm p-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 mb-4 border-b border-zinc-100 dark:border-zinc-800">
+          <div className="flex items-center gap-3">
+            <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider">BBB Class Reports Overview</h2>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">{filtered.length}</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative min-w-[180px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
+              <input type="text" placeholder="SEARCH" value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 outline-none focus:ring-1 focus:ring-emerald-500" />
+            </div>
+            <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
+              <button onClick={handleCopy} title="Copy" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"><Copy className="h-3.5 w-3.5" /></button>
+              <button onClick={() => exportToExcel(filtered, 'BBB_Class_Reports')} title="Excel" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"><FileSpreadsheet className="h-3.5 w-3.5" /></button>
+              <button onClick={() => exportToCSV(filtered, 'BBB_Class_Reports')} title="CSV" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"><FileText className="h-3.5 w-3.5" /></button>
+              <button onClick={() => exportToPDF(filtered, ['topic','classVal','section','teacher','date','duration','attended','percentage'], 'BBB Class Reports', 'BBB_Class_Reports')} title="PDF" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"><Download className="h-3.5 w-3.5" /></button>
+              <button onClick={() => printData(filtered, ['topic','classVal','section','teacher','date','duration','attended','percentage'], 'BBB Class Reports')} title="Print" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"><Printer className="h-3.5 w-3.5" /></button>
+            </div>
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
+
+        <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
+          <table className="w-full text-xs text-left">
+            <thead className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
               <tr>
-                <th className="px-4 py-3 font-semibold">SL</th>
-                <th className="px-4 py-3 font-semibold">Topic</th><th className="px-4 py-3 font-semibold">Date</th><th className="px-4 py-3 font-semibold">Duration</th>
+                <th className="px-3.5 py-3">SL</th>
+                <th className="px-3.5 py-3">Topic</th>
+                <th className="px-3.5 py-3">Class (Sec)</th>
+                <th className="px-3.5 py-3">Teacher</th>
+                <th className="px-3.5 py-3">Date & Time</th>
+                <th className="px-3.5 py-3">Duration</th>
+                <th className="px-3.5 py-3">Attendance</th>
+                <th className="px-3.5 py-3 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800">
-              <tr><td colSpan="5" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
+            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+              {filtered.length === 0 ? (
+                <tr><td colSpan={8} className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
+              ) : filtered.map((item, index) => (
+                <tr key={item.id} className="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 transition-colors">
+                  <td className="px-3.5 py-3 font-medium text-zinc-900 dark:text-zinc-200">{index + 1}</td>
+                  <td className="px-3.5 py-3 font-semibold text-zinc-900 dark:text-white">{item.topic}</td>
+                  <td className="px-3.5 py-3"><span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">{item.classVal} ({item.section})</span></td>
+                  <td className="px-3.5 py-3 font-medium text-zinc-700 dark:text-zinc-300">{item.teacher}</td>
+                  <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-400 whitespace-nowrap"><div>{item.date}</div><div className="text-[10px] text-zinc-400">{item.time}</div></td>
+                  <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{item.duration}</td>
+                  <td className="px-3.5 py-3 whitespace-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-semibold text-zinc-900 dark:text-white">{item.attended}/{item.totalEnrolled}</span>
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400">{item.percentage}</span>
+                    </div>
+                  </td>
+                  <td className="px-3.5 py-3 text-right">
+                    <button onClick={() => setSelectedReport(item)} className="px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 rounded text-[11px] font-medium inline-flex items-center gap-1 transition-colors"><Eye className="h-3 w-3" />Details</button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
+        <div className="flex items-center justify-between pt-4 mt-2 text-xs text-zinc-500">
+          <div>Showing {filtered.length} of {reportsList.length} entries</div>
+          <div className="flex items-center gap-1">
+            <button disabled className="px-2.5 py-1 rounded border border-zinc-200 dark:border-zinc-800 text-zinc-400 opacity-50 cursor-not-allowed">&lt;</button>
+            <button className="px-2.5 py-1 rounded border border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-semibold">1</button>
+            <button disabled className="px-2.5 py-1 rounded border border-zinc-200 dark:border-zinc-800 text-zinc-400 opacity-50 cursor-not-allowed">&gt;</button>
+          </div>
+        </div>
       </div>
+
+      {/* Detail Modal */}
+      {selectedReport && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-3">
+              <h3 className="font-bold text-base text-zinc-900 dark:text-white">BBB Class Report Details</h3>
+              <button onClick={() => setSelectedReport(null)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white font-bold">✕</button>
+            </div>
+            <div className="space-y-3 text-xs">
+              <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-800">
+                <div className="font-semibold text-sm text-zinc-900 dark:text-white">{selectedReport.topic}</div>
+                <div className="text-zinc-500 mt-1">{selectedReport.classVal} - Section {selectedReport.section} | Teacher: {selectedReport.teacher}</div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800"><span className="text-zinc-500 block">Date & Time:</span><span className="font-semibold text-zinc-800 dark:text-zinc-200">{selectedReport.date} ({selectedReport.time})</span></div>
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800"><span className="text-zinc-500 block">Duration:</span><span className="font-semibold text-zinc-800 dark:text-zinc-200">{selectedReport.duration}</span></div>
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800"><span className="text-zinc-500 block">Attended / Total:</span><span className="font-semibold text-emerald-600">{selectedReport.attended} / {selectedReport.totalEnrolled}</span></div>
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800"><span className="text-zinc-500 block">Attendance Rate:</span><span className="font-semibold text-emerald-600">{selectedReport.percentage}</span></div>
+              </div>
+            </div>
+            <div className="flex justify-end pt-2">
+              <button onClick={() => setSelectedReport(null)} className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg text-xs font-semibold">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

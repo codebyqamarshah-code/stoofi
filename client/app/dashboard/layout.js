@@ -116,7 +116,20 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     setMounted(true);
     checkAuth();
-  }, [checkAuth]);
+
+    // Safety timeout: if still loading after 3s, force proceed (avoids infinite spinner)
+    const timer = setTimeout(() => {
+      const hasToken = typeof window !== 'undefined' && (
+        localStorage.getItem('token') ||
+        localStorage.getItem('auth-storage')
+      );
+      if (!hasToken) {
+        router.push('/login');
+      }
+    }, 3000);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (mounted && !isLoading && !isAuthenticated && !user) {
@@ -131,7 +144,14 @@ export default function DashboardLayout({ children }) {
     }
   }, [mounted, isAuthenticated, isLoading, user, router]);
 
-  if (!mounted || (isLoading && !user) || (!isAuthenticated && !user)) {
+  // Check if we have a stored token (trust persisted state immediately)
+  const hasStoredSession = typeof window !== 'undefined' && Boolean(
+    localStorage.getItem('token') ||
+    localStorage.getItem('auth-storage')
+  );
+
+  // Only show full-screen loading screen if user has NO session saved at all
+  if (!hasStoredSession && (!mounted || (isLoading && !user))) {
     return (
       <div className="flex h-screen items-center justify-center bg-white dark:bg-zinc-950 overflow-hidden">
         <div className="relative flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-700">

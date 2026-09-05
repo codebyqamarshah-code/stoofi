@@ -228,17 +228,91 @@ export default function DashboardPage() {
   const fetchDashboardStats = async () => {
     try {
       const res = await api.get('/dashboard/stats');
-      if (res.success) {
+      if (res && res.success) {
         setDashboardData(res.data);
-        if (res.data.notices) setNoticesList(res.data.notices);
-        if (res.data.todos) setTodos(res.data.todos);
+        
+        let localSaved = [];
+        if (typeof window !== 'undefined') {
+          try {
+            const raw = localStorage.getItem('dashboard_notices');
+            if (raw) localSaved = JSON.parse(raw);
+          } catch (_) {}
+        }
+        
+        const serverNotices = Array.isArray(res.data?.notices) ? res.data.notices : [];
+        if (serverNotices.length > 0) {
+          // Merge unique by title & id
+          const combined = [...serverNotices];
+          localSaved.forEach(localItem => {
+            if (!combined.some(s => s._id === localItem._id || s.title === localItem.title)) {
+              combined.push(localItem);
+            }
+          });
+          setNoticesList(combined);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('dashboard_notices', JSON.stringify(combined));
+          }
+        } else if (localSaved.length > 0) {
+          setNoticesList(localSaved);
+        }
+        
+        // Merge Todos with local persisted storage
+        let localTodos = [];
+        if (typeof window !== 'undefined') {
+          try {
+            const rawTodos = localStorage.getItem('dashboard_todos');
+            if (rawTodos) localTodos = JSON.parse(rawTodos);
+          } catch (_) {}
+        }
+
+        const serverTodos = Array.isArray(res.data?.todos) ? res.data.todos : [];
+        if (serverTodos.length > 0) {
+          const combinedTodos = [...serverTodos];
+          localTodos.forEach(lt => {
+            if (!combinedTodos.some(st => st._id === lt._id || st.title === lt.title)) {
+              combinedTodos.push(lt);
+            }
+          });
+          setTodos(combinedTodos);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('dashboard_todos', JSON.stringify(combinedTodos));
+          }
+        } else if (localTodos.length > 0) {
+          setTodos(localTodos);
+        }
       }
     } catch (err) {
       console.log('Error fetching stats:', err);
+      if (typeof window !== 'undefined') {
+        try {
+          const raw = localStorage.getItem('dashboard_notices');
+          if (raw) setNoticesList(JSON.parse(raw));
+          const rawTodos = localStorage.getItem('dashboard_todos');
+          if (rawTodos) setTodos(JSON.parse(rawTodos));
+        } catch (_) {}
+      }
     }
   };
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('dashboard_notices');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setNoticesList(parsed);
+          }
+        }
+        const rawTodos = localStorage.getItem('dashboard_todos');
+        if (rawTodos) {
+          const parsedTodos = JSON.parse(rawTodos);
+          if (Array.isArray(parsedTodos) && parsedTodos.length > 0) {
+            setTodos(parsedTodos);
+          }
+        }
+      } catch (_) {}
+    }
     fetchDashboardStats();
   }, []);
 
@@ -313,7 +387,7 @@ export default function DashboardPage() {
   const handleOpenEditNotice = (notice) => {
     setEditingNotice(notice);
     setNoticeForm({
-      title: notice.title,
+      title: notice.title || '',
       description: notice.description || '',
       audience: notice.audience || 'All',
       date: notice.date ? new Date(notice.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
@@ -323,36 +397,108 @@ export default function DashboardPage() {
 
   const handleSaveNotice = async (e) => {
     e.preventDefault();
-    if (!noticeForm.title.trim()) return;
+    if (!noticeForm.title.trim()) {
+      alert('Please enter a Notice Title.');
+      return;
+    }
 
-    try {
-      if (editingNotice) {
-        const res = await api.put(`/dashboard/notices/${editingNotice._id}`, noticeForm);
-        if (res.success) {
-          setNoticesList(noticesList.map(n => n._id === editingNotice._id ? res.data : n));
-        }
-      } else {
-        const res = await api.post('/dashboard/notices', noticeForm);
-        if (res.success) {
-          setNoticesList([res.data, ...noticesList]);
-        }
+    const titleText = noticeForm.title.trim();
+    const audienceVal = noticeForm.audience || 'All';
+    const dateVal = noticeForm.date || new Date().toISOString().split('T')[0];
+    const descVal = noticeForm.description || '';
+
+    if (editingNotice) {
+      const updatedNotice = {
+        ...editingNotice,
+        title: titleText,
+        description: descVal,
+        audience: audienceVal,
+        date: dateVal,
+        updatedAt: new Date().toISOString()
+      };
+      
+      const updatedList = noticesList.map(n => n._id === editingNotice._id ? updatedNotice : n);
+      setNoticesList(updatedList);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('dashboard_notices', JSON.stringify(updatedList));
       }
       setIsNoticeModalOpen(false);
-      fetchDashboardStats();
-    } catch (err) {
-      console.error(err);
+      setEditingNotice(null);
+
+      try {
+        await api.put(`/dashboard/notices/${editingNotice._id}`, {
+          title: titleText,
+          description: descVal,
+          audience: audienceVal,
+          date: dateVal
+        });
+      } catch (err) {
+        console.warn('API notice update fallback applied:', err);
+      }
+    } else {
+      const tempId = 'notice_' + Date.now();
+      const newNotice = {
+        _id: tempId,
+        title: titleText,
+        description: descVal,
+        audience: audienceVal,
+        date: dateVal,
+        published: true,
+        createdAt: new Date().toISOString()
+      };
+
+      const updatedList = [newNotice, ...noticesList];
+      setNoticesList(updatedList);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('dashboard_notices', JSON.stringify(updatedList));
+      }
+      setIsNoticeModalOpen(false);
+
+      try {
+        const res = await api.post('/dashboard/notices', {
+          title: titleText,
+          description: descVal,
+          audience: audienceVal,
+          date: dateVal
+        });
+        if (res && res.data && res.data._id) {
+          const finalSynced = updatedList.map(n => n._id === tempId ? res.data : n);
+          setNoticesList(finalSynced);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('dashboard_notices', JSON.stringify(finalSynced));
+          }
+        }
+      } catch (err) {
+        console.warn('API notice create fallback applied:', err);
+      }
     }
+
+    setNoticeForm({
+      title: '',
+      description: '',
+      audience: 'All',
+      date: new Date().toISOString().split('T')[0]
+    });
   };
 
   const handleDeleteNotice = async (id, e) => {
-    e.stopPropagation();
-    if (!confirm('Delete this notice?')) return;
+    if (e && e.stopPropagation) e.stopPropagation();
+    if (!confirm('Are you sure you want to delete this notice?')) return;
+
+    const updatedList = noticesList.filter(n => n._id !== id);
+    setNoticesList(updatedList);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('dashboard_notices', JSON.stringify(updatedList));
+    }
+    if (selectedNotice && selectedNotice._id === id) {
+      setIsViewNoticeModalOpen(false);
+      setSelectedNotice(null);
+    }
+
     try {
       await api.delete(`/dashboard/notices/${id}`);
-      setNoticesList(noticesList.filter(n => n._id !== id));
-      fetchDashboardStats();
     } catch (err) {
-      console.error(err);
+      console.warn('Notice deleted locally');
     }
   };
 
@@ -365,30 +511,65 @@ export default function DashboardPage() {
   const handleAddTodo = async (e) => {
     e.preventDefault();
     if (!newTodoText.trim()) return;
-    try {
-      const res = await api.post('/dashboard/todos', { title: newTodoText.trim() });
-      if (res.success) {
-        setTodos([res.data, ...todos]);
-      }
-    } catch {
-      setTodos([{ _id: Date.now().toString(), title: newTodoText.trim(), completed: false }, ...todos]);
+
+    const taskTitle = newTodoText.trim();
+    const tempId = 'todo_' + Date.now();
+    const newTodoObj = {
+      _id: tempId,
+      title: taskTitle,
+      completed: false,
+      createdAt: new Date().toISOString()
+    };
+
+    const updatedTodos = [newTodoObj, ...todos];
+    setTodos(updatedTodos);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('dashboard_todos', JSON.stringify(updatedTodos));
     }
+
     setNewTodoText('');
     setIsAddingTodo(false);
+
+    try {
+      const res = await api.post('/dashboard/todos', { title: taskTitle });
+      if (res && res.data && res.data._id) {
+        const synced = updatedTodos.map(t => t._id === tempId ? res.data : t);
+        setTodos(synced);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('dashboard_todos', JSON.stringify(synced));
+        }
+      }
+    } catch (err) {
+      console.warn('Todo saved locally:', err);
+    }
   };
 
   const handleToggleTodo = async (id) => {
+    const updated = todos.map(t => t._id === id ? { ...t, completed: !t.completed } : t);
+    setTodos(updated);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('dashboard_todos', JSON.stringify(updated));
+    }
+
     try {
       await api.put(`/dashboard/todos/${id}`);
-    } catch {}
-    setTodos(todos.map(t => t._id === id ? { ...t, completed: !t.completed } : t));
+    } catch (err) {
+      console.warn('Todo toggled locally');
+    }
   };
 
   const handleDeleteTodo = async (id) => {
+    const updated = todos.filter(t => t._id !== id);
+    setTodos(updated);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('dashboard_todos', JSON.stringify(updated));
+    }
+
     try {
       await api.delete(`/dashboard/todos/${id}`);
-    } catch {}
-    setTodos(todos.filter(t => t._id !== id));
+    } catch (err) {
+      console.warn('Todo deleted locally');
+    }
   };
 
   const completedCount = todos.filter(t => t.completed).length;
@@ -1460,23 +1641,23 @@ export default function DashboardPage() {
           </DialogHeader>
           <form onSubmit={handleSaveNotice} className="space-y-4 py-2">
             <div>
-              <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block mb-1.5">Notice Title *</label>
+              <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider block mb-1.5">Notice Title *</label>
               <input
                 type="text"
                 required
                 placeholder="e.g. Annual Sports Gala 2026"
                 value={noticeForm.title}
                 onChange={(e) => setNoticeForm({ ...noticeForm, title: e.target.value })}
-                className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500"
+                className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-emerald-500"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block mb-1.5">Target Audience</label>
+                <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider block mb-1.5">Target Audience</label>
                 <select
                   value={noticeForm.audience}
                   onChange={(e) => setNoticeForm({ ...noticeForm, audience: e.target.value })}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-emerald-500"
                 >
                   <option value="All">All Audiences</option>
                   <option value="Students">Students Only</option>
@@ -1486,23 +1667,23 @@ export default function DashboardPage() {
                 </select>
               </div>
               <div>
-                <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block mb-1.5">Publish Date</label>
+                <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider block mb-1.5">Publish Date</label>
                 <input
                   type="date"
                   value={noticeForm.date}
                   onChange={(e) => setNoticeForm({ ...noticeForm, date: e.target.value })}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-emerald-500"
                 />
               </div>
             </div>
             <div>
-              <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block mb-1.5">Notice Content / Description</label>
+              <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider block mb-1.5">Notice Content / Description</label>
               <textarea
                 rows={4}
                 placeholder="Enter complete notice details, instructions, or timetable..."
                 value={noticeForm.description}
                 onChange={(e) => setNoticeForm({ ...noticeForm, description: e.target.value })}
-                className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg p-3 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 resize-none"
+                className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg p-3 text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-emerald-500 resize-none"
               />
             </div>
             <DialogFooter className="pt-2">

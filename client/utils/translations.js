@@ -1,6 +1,6 @@
 export const translations = {
   EN: {
-    nav: { home: "Home", howToUse: "How To Use", portals: "Portals", features: "Features", pricing: "Pricing", login: "Login", getStarted: "Get Started" },
+    nav: { home: "Home", howToUse: "How To Use", notices: "Notice Board", portals: "Portals", features: "Features", pricing: "Pricing", login: "Login", getStarted: "Get Started" },
     hero: { badge: "eSkooly PRO is Live — 30 Days Free Trial", title1: "The Complete", title2: "School Management", title3: "ERP", desc: "Manage your entire institution from one unified platform. Tailored portals for Admins, Teachers, Students, Accountants and Parents.", trialBtn: "Start 1 Month Free Trial", howItWorks: "How It Works" },
     stats: { schools: "Schools Onboarded", students: "Active Students", uptime: "Uptime Guarantee", rating: "Customer Rating" },
     howTo: { badge: "Step-by-Step System Guide", title: "How To Use eSkooly ERP", desc: "Follow these simple, streamlined workflows designed for every user role in your institution.", admin: "Super Admin Flow", accountant: "Accountant Flow", teacher: "Teacher Flow", student: "Student & Parent Flow", btnGuide: "Read Detailed User Guide", stepTitle: "4 Simple Consecutive Steps" },
@@ -16,7 +16,7 @@ export const translations = {
     footer: { text: "The complete School Management ERP system." }
   },
   UR: {
-    nav: { home: "ہوم", howToUse: "استعمال کا طریقہ", portals: "پورٹلز", features: "خصوصیات", pricing: "قیمتیں", login: "لاگ ان", getStarted: "شروع کریں" },
+    nav: { home: "ہوم", howToUse: "استعمال کا طریقہ", notices: "نوٹس بورڈ", portals: "پورٹلز", features: "خصوصیات", pricing: "قیمتیں", login: "لاگ ان", getStarted: "شروع کریں" },
     hero: { badge: "ای سکولی پرو لائیو ہے — 30 دن کا مفت ٹرائل", title1: "مکمل", title2: "سکول مینجمنٹ", title3: "سسٹم", desc: "اپنے پورے ادارے کو ایک ہی پلیٹ فارم سے مینیج کریں۔ ایڈمنز، اساتذہ، طلباء، اکاؤنٹنٹس اور والدین کے لیے مخصوص پورٹلز۔", trialBtn: "1 مہینے کا مفت ٹرائل شروع کریں", howItWorks: "یہ کیسے کام کرتا ہے" },
     stats: { schools: "شامل شدہ سکولز", students: "فعال طلباء", uptime: "اپ ٹائم کی گارنٹی", rating: "کسٹمر ریٹنگ" },
     howTo: { badge: "مرحلہ وار سسٹم گائیڈ", title: "ای سکولی ای آر پی کیسے استعمال کریں", desc: "اپنے ادارے میں ہر صارف کے کردار کے لیے بنائے گئے ان آسان ورک فلوز پر عمل کریں۔", admin: "سپر ایڈمن فلو", accountant: "اکاؤنٹنٹ فلو", teacher: "ٹیچر فلو", student: "سٹوڈنٹ اور پیرنٹ فلو", btnGuide: "تفصیلی یوزر گائیڈ پڑھیں", stepTitle: "4 آسان اقدامات" },
@@ -32,7 +32,7 @@ export const translations = {
     footer: { text: "ایک مکمل سکول مینجمنٹ ای آر پی سسٹم۔" }
   },
   AR: {
-    nav: { home: "الرئيسية", howToUse: "كيفية الاستخدام", portals: "البوابات", features: "الميزات", pricing: "الأسعار", login: "تسجيل الدخول", getStarted: "ابدأ الآن" },
+    nav: { home: "الرئيسية", howToUse: "كيفية الاستخدام", notices: "لوحة الإعلانات", portals: "البوابات", features: "الميزات", pricing: "الأسعار", login: "تسجيل الدخول", getStarted: "ابدأ الآن" },
     hero: { badge: "نظام إي سكولي برو متاح الآن — نسخة تجريبية مجانية لمدة 30 يومًا", title1: "النظام الشامل", title2: "لإدارة المدارس", title3: "", desc: "إدارة مؤسستك بالكامل من منصة واحدة موحدة. بوابات مخصصة للمسؤولين والمعلمين والطلاب والمحاسبين وأولياء الأمور.", trialBtn: "ابدأ التجربة المجانية لمدة شهر", howItWorks: "كيف يعمل النظام" },
     stats: { schools: "المدارس المسجلة", students: "الطلاب النشطون", uptime: "ضمان التشغيل", rating: "تقييم العملاء" },
     howTo: { badge: "دليل النظام خطوة بخطوة", title: "كيفية استخدام إي سكولي", desc: "اتبع هذه المسارات البسيطة والمبسطة المصممة لكل دور مستخدم في مؤسستك.", admin: "مسار المسؤول العام", accountant: "مسار المحاسب", teacher: "مسار المعلم", student: "مسار الطالب وولي الأمر", btnGuide: "قراءة دليل المستخدم التفصيلي", stepTitle: "٤ خطوات بسيطة" },

@@ -1,136 +1,297 @@
-﻿'use client';
+'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { ChevronRight, Search, Edit, Trash2, X, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { 
+  ChevronRight, 
+  Search, 
+  Copy, 
+  FileSpreadsheet, 
+  FileText, 
+  Printer, 
+  Edit, 
+  Trash2, 
+  Eye, 
+  CheckCircle2, 
+  Mail, 
+  Download,
+  Code
+} from 'lucide-react';
+import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 
 export default function EmailTemplatePage() {
-  const [formData, setFormData] = useState({});
-  const [editId, setEditId] = useState(null);
-  const [records, setRecords] = useState([]);
-  const [search, setSearch] = useState('');
+  const [records, setRecords] = useState([
+    {
+      id: 1,
+      title: 'Monthly Fee Reminder Template',
+      subject: 'Urgent: Monthly Tuition Fee Due Reminder for [student_name]',
+      type: 'Fee Alert',
+      body: 'Dear [parent_name],\n\nThis is a friendly reminder that the tuition fee for [student_name] (Class: [class]-[section]) for this month is due.\nTotal Amount: [due_fee]\nDue Date: [date]\n\nPlease pay promptly to ensure continuous academic portal access.\n\nRegards,\n[school_name]'
+    },
+    {
+      id: 2,
+      title: 'Student Absent Alert Notification',
+      subject: 'Attendance Notice: [student_name] was marked Absent today',
+      type: 'Attendance',
+      body: 'Dear [parent_name],\n\nYour child [student_name] was marked absent from school on [date] without prior leave approval. Please inform the class teacher immediately.\n\nRegards,\nAttendance Dept, [school_name]'
+    },
+    {
+      id: 3,
+      title: 'Examination Marksheet Release Notification',
+      subject: 'Term Examination Results Published - [student_name]',
+      type: 'Academics',
+      body: 'Dear [parent_name],\n\nThe results for the recent term examinations have been published online on Eskooly Portal. Please login to review the detailed marksheet of [student_name].\n\nRegards,\nExamination Wing'
+    }
+  ]);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const [form, setForm] = useState({
+    title: '',
+    subject: '',
+    type: 'Fee Alert',
+    body: ''
+  });
+
+  const [editId, setEditId] = useState(null);
+  const [search, setSearch] = useState('');
+  const [selectedTpl, setSelectedTpl] = useState(null);
+  const [successMsg, setSuccessMsg] = useState('');
+
+  const types = ['Fee Alert', 'Attendance', 'Academics', 'Admission', 'General Announcement'];
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!form.title.trim()) { alert('Please enter Template Title.'); return; }
+    if (!form.subject.trim()) { alert('Please enter Email Subject.'); return; }
+
     if (editId) {
-      setRecords(records.map(r => r.id === editId ? { ...r, ...formData } : r));
+      setRecords(records.map(r => r.id === editId ? { ...r, ...form } : r));
+      setSuccessMsg('Email template updated!');
       setEditId(null);
     } else {
-      setRecords([{ id: Date.now(), ...formData }, ...records]);
+      setRecords([{ id: Date.now(), ...form }, ...records]);
+      setSuccessMsg('Email template saved successfully!');
     }
-    setFormData({});
+
+    setForm({ title: '', subject: '', type: 'Fee Alert', body: '' });
+    setTimeout(() => setSuccessMsg(''), 3000);
   };
 
   const handleEdit = (item) => {
-    setFormData(item);
     setEditId(item.id);
+    setForm({
+      title: item.title,
+      subject: item.subject,
+      type: item.type,
+      body: item.body
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = (id) => {
-    if (confirm('Delete this record?')) {
+    if (confirm('Delete this email template?')) {
       setRecords(records.filter(r => r.id !== id));
+      if (editId === id) cancelEdit();
+      setSuccessMsg('Template deleted.');
+      setTimeout(() => setSuccessMsg(''), 3000);
     }
   };
 
   const cancelEdit = () => {
-    setFormData({});
     setEditId(null);
+    setForm({ title: '', subject: '', type: 'Fee Alert', body: '' });
+  };
+
+  const filteredRecords = useMemo(() => records.filter(rec => {
+    return !search || 
+      rec.title.toLowerCase().includes(search.toLowerCase()) || 
+      rec.subject.toLowerCase().includes(search.toLowerCase()) ||
+      rec.type.toLowerCase().includes(search.toLowerCase());
+  }), [records, search]);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(filteredRecords.map(r => `${r.title} | ${r.type} | Subject: ${r.subject}`).join('\n'));
+    alert('Copied!');
   };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Email Template</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Utilities</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Communicate</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Email Template</span>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Email Templates</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Pre-configured responsive email templates for automated fee alerts, results, and notifications.</p>
+        </div>
+        <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
+          <Link href="/dashboard" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <ChevronRight className="h-4 w-4 mx-1" />
+          <span className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Communicate</span>
+          <ChevronRight className="h-4 w-4 mx-1" />
+          <span className="text-emerald-600 dark:text-emerald-400 font-medium">Email Template</span>
         </div>
       </div>
 
+      {successMsg && (
+        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-sm flex items-center gap-2 shadow-sm">
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+          {successMsg}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Form */}
         <div className="xl:col-span-1">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl">
-            <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">{editId ? 'Edit' : 'Add'} Email Template</h2>
-              {editId && <button onClick={cancelEdit} className="text-zinc-400 hover:text-white"><X className="h-4 w-4" /></button>}
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm p-6">
+            <div className="flex items-center justify-between pb-4 mb-5 border-b border-zinc-100 dark:border-zinc-800">
+              <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                <Mail className="h-4 w-4 text-emerald-600" />
+                {editId ? 'Edit Template' : 'Add Email Template'}
+              </h2>
+              {editId && (
+                <button onClick={cancelEdit} className="text-xs text-rose-500 hover:text-rose-600 font-medium cursor-pointer">
+                  Cancel Edit
+                </button>
+              )}
             </div>
-            <form className="p-4 space-y-4" onSubmit={handleSubmit}>
-              
-        <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-zinc-400 uppercase">Template Name</Label>
-          <Input 
-            type="text"
-            name="name"
-            value={formData.name || ''} 
-            onChange={handleChange}
-            className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-zinc-400 uppercase">Subject</Label>
-          <Input 
-            type="text"
-            name="subject"
-            value={formData.subject || ''} 
-            onChange={handleChange}
-            className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
-          />
-        </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Body</Label>
-            <textarea 
-              name="body"
-              value={formData.body || ''} 
-              onChange={handleChange}
-              className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" 
-            />
-          </div>
-              <div className="flex gap-2 pt-2">
-                <Button type="submit" className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
-                  {editId ? 'UPDATE' : 'SAVE'}
-                </Button>
-                {editId && (
-                  <Button type="button" onClick={cancelEdit} variant="outline" className="border-zinc-700 text-zinc-400 hover:text-white">Cancel</Button>
-                )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                  Template Title <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  placeholder="e.g. Fee Due Notice"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                  Category / Type <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={form.type}
+                  onChange={(e) => setForm({ ...form, type: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                >
+                  {types.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                  Email Subject <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.subject}
+                  onChange={(e) => setForm({ ...form, subject: e.target.value })}
+                  placeholder="Subject line with [student_name]"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
+                    Template Content <span className="text-rose-500">*</span>
+                  </label>
+                </div>
+                <textarea
+                  rows={5}
+                  required
+                  value={form.body}
+                  onChange={(e) => setForm({ ...form, body: e.target.value })}
+                  placeholder="Write email template with placeholders..."
+                  className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors resize-none font-mono text-xs"
+                />
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="w-full px-6 py-2.5 bg-[#009966] hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  {editId ? 'Update Template' : 'Save Email Template'}
+                </button>
               </div>
             </form>
           </div>
         </div>
 
+        {/* List */}
         <div className="xl:col-span-2">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl">
-            <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-white">Email Template List</h2>
-              <div className="relative w-48">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                <Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500 text-white" />
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm p-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 mb-4 border-b border-zinc-100 dark:border-zinc-800">
+              <div className="flex items-center gap-3">
+                <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider">Email Templates</h2>
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                  {filteredRecords.length}
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="relative min-w-[180px]">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
+                  <input
+                    type="text"
+                    placeholder="SEARCH TEMPLATES"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                </div>
+                <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
+                  <button onClick={handleCopy} title="Copy" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"><Copy className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => exportToExcel(filteredRecords, 'Email_Templates')} title="Excel" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"><FileSpreadsheet className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => exportToCSV(filteredRecords, 'Email_Templates')} title="CSV" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"><FileText className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => exportToPDF(filteredRecords, ['title', 'type', 'subject'], 'Email Templates', 'Email_Templates')} title="PDF" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"><Download className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => printData(filteredRecords, ['title', 'type', 'subject'], 'Email Templates')} title="Print" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"><Printer className="h-3.5 w-3.5" /></button>
+                </div>
               </div>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
+
+            <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
+              <table className="w-full text-xs text-left">
+                <thead className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
                   <tr>
-                    <th className="px-4 py-3 font-semibold">SL</th>
-                    <th className="px-4 py-3 font-semibold">Template Name</th><th className="px-4 py-3 font-semibold">Subject</th><th className="px-4 py-3 font-semibold">Action</th>
+                    <th className="px-3.5 py-3">SL</th>
+                    <th className="px-3.5 py-3">Template Name</th>
+                    <th className="px-3.5 py-3">Type</th>
+                    <th className="px-3.5 py-3">Subject Line</th>
+                    <th className="px-3.5 py-3 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-800">
-                  {records.length === 0 ? (
-                    <tr><td colSpan="4" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-                  ) : records.map((r, i) => (
-                    <tr key={r.id} className="hover:bg-zinc-900/50">
-                      <td className="px-4 py-3 text-emerald-500">+{i+1}</td>
-                      <td className="px-4 py-3 text-zinc-300">{r.name || '-'}</td><td className="px-4 py-3 text-zinc-300">{r.subject || '-'}</td><td className="px-4 py-3 text-zinc-300">{r.body || '-'}</td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button onClick={() => handleEdit(r)} variant="ghost" size="sm" className="h-8 text-emerald-500 hover:bg-emerald-500/10"><Edit className="h-4 w-4" /></Button>
-                          <Button onClick={() => handleDelete(r.id)} variant="ghost" size="sm" className="h-8 text-rose-500 hover:bg-rose-500/10"><Trash2 className="h-4 w-4" /></Button>
+                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+                  {filteredRecords.length === 0 ? (
+                    <tr><td colSpan={5} className="px-4 py-8 text-center text-zinc-500">No Templates Found</td></tr>
+                  ) : filteredRecords.map((item, index) => (
+                    <tr key={item.id} className="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 transition-colors">
+                      <td className="px-3.5 py-3 font-medium text-zinc-900 dark:text-zinc-200">{index + 1}</td>
+                      <td className="px-3.5 py-3 font-semibold text-zinc-900 dark:text-white">{item.title}</td>
+                      <td className="px-3.5 py-3">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400">
+                          {item.type}
+                        </span>
+                      </td>
+                      <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-400 line-clamp-1">{item.subject}</td>
+                      <td className="px-3.5 py-3 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => setSelectedTpl(item)}
+                            className="px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 rounded text-[11px] font-medium inline-flex items-center gap-1 transition-colors"
+                          >
+                            <Eye className="h-3 w-3" /> Preview
+                          </button>
+                          <button onClick={() => handleEdit(item)} className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded transition-colors" title="Edit">
+                            <Edit className="h-3.5 w-3.5" />
+                          </button>
+                          <button onClick={() => handleDelete(item.id)} className="p-1 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-rose-600 rounded transition-colors" title="Delete">
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -141,7 +302,35 @@ export default function EmailTemplatePage() {
           </div>
         </div>
       </div>
+
+      {/* Preview Modal */}
+      {selectedTpl && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-3">
+              <h3 className="font-bold text-base text-zinc-900 dark:text-white flex items-center gap-2">
+                <Mail className="h-4 w-4 text-emerald-600" /> Template Preview
+              </h3>
+              <button onClick={() => setSelectedTpl(null)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white font-bold text-sm">✕</button>
+            </div>
+            <div className="space-y-3 text-xs">
+              <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-800">
+                <div className="font-bold text-sm text-zinc-900 dark:text-white">{selectedTpl.title}</div>
+                <div className="text-zinc-500 mt-1">Subject: <strong>{selectedTpl.subject}</strong></div>
+              </div>
+              <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800">
+                <span className="text-zinc-500 block font-semibold mb-1">Body:</span>
+                <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap font-sans">{selectedTpl.body}</p>
+              </div>
+            </div>
+            <div className="flex justify-end pt-2">
+              <button onClick={() => setSelectedTpl(null)} className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg text-xs font-semibold">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-

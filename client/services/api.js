@@ -7,7 +7,7 @@ const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes cache
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
-  timeout: 10000, // 10s timeout to allow MongoDB queries to complete
+  timeout: 3500, // 3.5s fast timeout to prevent page hangs
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
