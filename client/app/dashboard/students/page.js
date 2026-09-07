@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import Link from 'next/link';
 import api from '@/services/api';
+import { mockStudents } from '@/services/mockData';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 
 const FALLBACK_CLASSES = [
@@ -70,12 +71,40 @@ export default function StudentListPage() {
   const fetchData = async () => {
     try {
       const [stuRes, classRes, secRes] = await Promise.all([
-        api.get('/student'),
-        api.get('/class'),
-        api.get('/section')
+        api.get('/student').catch(() => null),
+        api.get('/class').catch(() => null),
+        api.get('/section').catch(() => null)
       ]);
       
-      if (stuRes?.success && Array.isArray(stuRes.data)) setStudents(stuRes.data);
+      let list = [];
+      if (Array.isArray(stuRes?.data)) list = stuRes.data;
+      else if (Array.isArray(stuRes?.students)) list = stuRes.students;
+      else if (Array.isArray(stuRes)) list = stuRes;
+
+      // Read from localStorage mockDB_student
+      let localStudents = [];
+      try {
+        const raw = localStorage.getItem('mockDB_student');
+        if (raw) localStudents = JSON.parse(raw);
+      } catch (_) {}
+
+      let finalList = [];
+      if (list.length > 0) {
+        // Merge any new locally added students with API list
+        const idSet = new Set(list.map(s => s._id || s.admissionNo));
+        const extraLocal = localStudents.filter(s => !idSet.has(s._id || s.admissionNo));
+        finalList = [...extraLocal, ...list];
+      } else if (localStudents.length > 0) {
+        finalList = localStudents;
+      } else {
+        finalList = mockStudents;
+        try {
+          localStorage.setItem('mockDB_student', JSON.stringify(mockStudents));
+        } catch (_) {}
+      }
+
+      setStudents(finalList);
+
       if (classRes?.success && Array.isArray(classRes.data) && classRes.data.length > 0) {
         setClasses(classRes.data);
       } else {
@@ -88,6 +117,12 @@ export default function StudentListPage() {
       }
     } catch (error) {
       console.error(error);
+      let localStudents = [];
+      try {
+        const raw = localStorage.getItem('mockDB_student');
+        if (raw) localStudents = JSON.parse(raw);
+      } catch (_) {}
+      setStudents(localStudents.length > 0 ? localStudents : mockStudents);
       setClasses(FALLBACK_CLASSES);
       setSections(FALLBACK_SECTIONS);
     } finally {
@@ -108,13 +143,20 @@ export default function StudentListPage() {
 
   const handleDelete = async (id) => {
     if(confirm('Are you sure you want to delete this student?')) {
+      // 1. Instant Live UI Update
+      setStudents(prev => prev.filter(s => s._id !== id));
+      
+      // 2. Instant Local Storage Update
       try {
-        const res = await api.delete(`/student/${id}`);
-        if(res.success) {
-          setStudents(students.filter(s => s._id !== id));
-        }
+        const local = JSON.parse(localStorage.getItem('mockDB_student') || '[]');
+        localStorage.setItem('mockDB_student', JSON.stringify(local.filter(s => s._id !== id)));
+      } catch (_) {}
+
+      // 3. API Update (for live backend)
+      try {
+        await api.delete(`/student/${id}`);
       } catch (error) {
-        alert(error.message);
+        console.warn('API delete note:', error.message);
       }
     }
   };
@@ -141,16 +183,23 @@ export default function StudentListPage() {
       return;
     }
     setEditLoading(true);
+    
+    // 1. Instant Live UI Update
+    setStudents(prev => prev.map(s => s._id === editStudent._id ? { ...s, ...editStudent } : s));
+    
+    // 2. Instant Local Storage Update
     try {
-      const res = await api.put(`/student/${editStudent._id}`, editStudent);
-      if (res.success) {
-        setStudents(prev => prev.map(s => s._id === editStudent._id ? { ...s, ...editStudent } : s));
-        closeEdit();
-      } else {
-        alert(res.message || 'Failed to update student');
-      }
+      const local = JSON.parse(localStorage.getItem('mockDB_student') || '[]');
+      localStorage.setItem('mockDB_student', JSON.stringify(local.map(s => s._id === editStudent._id ? { ...s, ...editStudent } : s)));
+    } catch (_) {}
+
+    closeEdit();
+
+    // 3. API Update (for live backend)
+    try {
+      await api.put(`/student/${editStudent._id}`, editStudent);
     } catch (error) {
-      alert(error.message || 'Failed to update student');
+      console.warn('API update note:', error.message);
     } finally {
       setEditLoading(false);
     }

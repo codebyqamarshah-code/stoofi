@@ -204,10 +204,10 @@ export default function DashboardLayout({ children }) {
         } fixed inset-y-0 left-0 z-50 w-64 border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 transition-transform duration-300 md:relative md:translate-x-0 ${sidebarCollapsed ? 'md:hidden' : 'md:flex'} flex-col shrink-0`}
       >
         {/* Brand Header */}
-        <div className="flex h-[100px] items-center justify-between border-b border-zinc-200 dark:border-zinc-800 px-6 shrink-0 bg-white dark:bg-zinc-950">
+        <div className="flex h-[70px] items-center justify-between border-b border-zinc-200 dark:border-zinc-800 px-5 shrink-0 bg-white dark:bg-zinc-950">
           <Link href="/dashboard" className="flex items-center cursor-pointer">
-            <img src="/stoofi light.png" alt="Stoofi PRO" className="h-20 sm:h-[85px] w-auto object-contain dark:hidden transform hover:scale-105 transition-transform duration-300" />
-            <img src="/stoofi dark.png" alt="Stoofi PRO" className="h-20 sm:h-[85px] w-auto object-contain hidden dark:block transform hover:scale-105 transition-transform duration-300" />
+            <img src="/stoofi light.png" alt="Stoofi PRO" className="h-10 sm:h-11 max-w-[155px] w-auto object-contain dark:hidden transform hover:scale-105 transition-transform duration-300" />
+            <img src="/stoofi dark.png" alt="Stoofi PRO" className="h-10 sm:h-11 max-w-[155px] w-auto object-contain hidden dark:block transform hover:scale-105 transition-transform duration-300" />
           </Link>
           <Button
             variant="ghost"

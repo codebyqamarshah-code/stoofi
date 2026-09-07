@@ -58,9 +58,99 @@ export const mockDesignations = [
   { _id: 'des10', id: '10', name: 'Lab Assistant' },
 ];
 
-export const mockStaff = [];
+export const mockStaff = [
+  { _id: 'st1', staffId: 'STF-001', firstName: 'Ahmad', lastName: 'Khan', role: 'Teacher', designation: 'Senior Teacher', department: 'Science Department', phone: '0300-1122334', email: 'ahmad.khan@stoofi.edu.pk' },
+  { _id: 'st2', staffId: 'STF-002', firstName: 'Fatima', lastName: 'Zahra', role: 'Teacher', designation: 'Head of Department', department: 'Mathematics Department', phone: '0301-5566778', email: 'fatima.zahra@stoofi.edu.pk' },
+  { _id: 'st3', staffId: 'STF-003', firstName: 'Usman', lastName: 'Tariq', role: 'Accountant', designation: 'Accountant', department: 'Finance & Accounts', phone: '0302-9988776', email: 'usman.tariq@stoofi.edu.pk' },
+];
 
-export const mockStudents = [];
+export const mockStudents = [
+  {
+    _id: 'stu-101',
+    admissionNo: 'ADM-2026-001',
+    rollNo: '101',
+    firstName: 'Muhammad',
+    lastName: 'Ali',
+    fatherName: 'Tariq Mahmood',
+    dob: '2010-05-14',
+    className: 'Class 10',
+    section: 'A',
+    gender: 'Male',
+    phone: '0300-1234567',
+    academicYear: '2026 [Jan-Dec]',
+    currentAddress: 'Gulberg III, Lahore',
+    permanentAddress: 'Gulberg III, Lahore',
+    religion: 'Islam'
+  },
+  {
+    _id: 'stu-102',
+    admissionNo: 'ADM-2026-002',
+    rollNo: '102',
+    firstName: 'Ayesha',
+    lastName: 'Noor',
+    fatherName: 'Imran Shah',
+    dob: '2011-08-20',
+    className: 'Class 9',
+    section: 'B',
+    gender: 'Female',
+    phone: '0301-9876543',
+    academicYear: '2026 [Jan-Dec]',
+    currentAddress: 'DHA Phase 5, Lahore',
+    permanentAddress: 'DHA Phase 5, Lahore',
+    religion: 'Islam'
+  },
+  {
+    _id: 'stu-103',
+    admissionNo: 'ADM-2026-003',
+    rollNo: '103',
+    firstName: 'Bilal',
+    lastName: 'Hassan',
+    fatherName: 'Kamran Hassan',
+    dob: '2012-03-11',
+    className: 'Class 8',
+    section: 'A',
+    gender: 'Male',
+    phone: '0302-3344556',
+    academicYear: '2026 [Jan-Dec]',
+    currentAddress: 'Johar Town, Lahore',
+    permanentAddress: 'Johar Town, Lahore',
+    religion: 'Islam'
+  },
+  {
+    _id: 'stu-104',
+    admissionNo: 'ADM-2026-004',
+    rollNo: '104',
+    firstName: 'Zainab',
+    lastName: 'Bibi',
+    fatherName: 'Rashid Ali',
+    dob: '2013-11-05',
+    className: 'Class 7',
+    section: 'C',
+    gender: 'Female',
+    phone: '0303-7788990',
+    academicYear: '2026 [Jan-Dec]',
+    currentAddress: 'Model Town, Lahore',
+    permanentAddress: 'Model Town, Lahore',
+    religion: 'Islam'
+  },
+  {
+    _id: 'stu-105',
+    admissionNo: 'ADM-2026-005',
+    rollNo: '105',
+    firstName: 'Hamza',
+    lastName: 'Saeed',
+    fatherName: 'Saeed Akhtar',
+    dob: '2010-09-18',
+    className: 'Class 10',
+    section: 'B',
+    gender: 'Male',
+    phone: '0304-4455667',
+    academicYear: '2026 [Jan-Dec]',
+    currentAddress: 'Faisal Town, Lahore',
+    permanentAddress: 'Faisal Town, Lahore',
+    religion: 'Islam'
+  }
+];
 
 export const mockExamTypes = [
   { _id: 'et1', id: '1', name: '1st Term Examination', title: '1st Term Examination' },
@@ -268,7 +358,72 @@ export const mockAuthUser = {
 
 export const mockHomework = [];
 
-export const mockFeesInvoices = [];
+export const mockFeesInvoices = [
+  {
+    _id: 'inv-101',
+    invoiceNo: 'INV-2026-001',
+    student: 'Muhammad Ali',
+    admissionNo: 'ADM-2026-001',
+    className: 'Class 10 (A)',
+    feeType: 'Tuition Fee 2026',
+    amount: 15000,
+    waiver: 1000,
+    fine: 0,
+    paid: 14000,
+    balance: 0,
+    status: 'PAID',
+    paymentMethod: 'Cash',
+    date: '2026-09-01'
+  },
+  {
+    _id: 'inv-102',
+    invoiceNo: 'INV-2026-002',
+    student: 'Ayesha Noor',
+    admissionNo: 'ADM-2026-002',
+    className: 'Class 9 (B)',
+    feeType: 'Tuition Fee 2026',
+    amount: 14000,
+    waiver: 0,
+    fine: 500,
+    paid: 10000,
+    balance: 4500,
+    status: 'PARTIAL',
+    paymentMethod: 'Online Bank Transfer',
+    date: '2026-09-03'
+  },
+  {
+    _id: 'inv-103',
+    invoiceNo: 'INV-2026-003',
+    student: 'Bilal Hassan',
+    admissionNo: 'ADM-2026-003',
+    className: 'Class 8 (A)',
+    feeType: 'Admission & Registration Fee',
+    amount: 25000,
+    waiver: 2000,
+    fine: 0,
+    paid: 23000,
+    balance: 0,
+    status: 'PAID',
+    paymentMethod: 'Cash',
+    date: '2026-09-05'
+  },
+  {
+    _id: 'inv-104',
+    invoiceNo: 'INV-2026-004',
+    student: 'Zainab Bibi',
+    admissionNo: 'ADM-2026-004',
+    className: 'Class 7 (C)',
+    feeType: 'Exam Fee 2026',
+    amount: 8000,
+    waiver: 0,
+    fine: 0,
+    paid: 0,
+    balance: 8000,
+    status: 'UNPAID',
+    paymentMethod: 'Pending',
+    date: '2026-09-07'
+  }
+];
 
 export const mockAdminQueries = [
   { _id: 'aq1', name: 'Zahid Mehmood', phone: '+92 321 9876543', email: 'zahid@gmail.com', source: 'Website', date: '2026-09-03', status: 'Follow Up' },
@@ -302,6 +457,8 @@ export const mockAttendanceRecords = [];
 
 export const endpointMockMap = {
   '/auth/me': mockAuthUser,
+  '/student': mockStudents,
+  '/staff': mockStaff,
   '/class': mockClasses,
   '/section': mockSections,
   '/subject': mockSubjects,

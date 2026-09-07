@@ -228,11 +228,36 @@ export default function AdminDashboardUI({ user }) {
     try {
       const res = await api.get('/dashboard/stats');
       if (res && res.success) {
+        let liveStats = res?.data?.stats;
+        
+        // If local DB has students, compute live student count dynamically
+        try {
+          const raw = localStorage.getItem('mockDB_student');
+          if (raw) {
+            const list = JSON.parse(raw);
+            if (list.length > 0) {
+              const male = list.filter(s => s.gender?.toLowerCase() === 'male').length;
+              const female = list.filter(s => s.gender?.toLowerCase() === 'female').length;
+              const total = list.length;
+              liveStats = {
+                ...(liveStats || {}),
+                students: {
+                  total,
+                  male,
+                  female,
+                  malePercent: total > 0 ? Math.round((male / total) * 100) : 50,
+                  femalePercent: total > 0 ? Math.round((female / total) * 100) : 50
+                }
+              };
+            }
+          }
+        } catch (_) {}
+
         setDashboardData(prev => ({
           ...prev,
-          ...(res.data || {}),
-          stats: res.data?.stats || prev.stats,
-          charts: res.data?.charts || prev.charts
+          ...(res?.data || {}),
+          stats: liveStats || res?.data?.stats || prev.stats,
+          charts: res?.data?.charts || prev.charts
         }));
         
         let localSaved = [];
@@ -768,16 +793,16 @@ export default function AdminDashboardUI({ user }) {
               <div className="mt-3 space-y-1">
                 <div className="text-xs text-[#009966] dark:text-zinc-300 flex items-center gap-2 font-medium">
                   <span className="h-2 w-2 rounded-full bg-[#009966]" />
-                  STUDENTS: <span className="font-extrabold text-[#009966] dark:text-white">{dashboardData.stats.attendance.studentsPresent} / {dashboardData.stats.attendance.studentsTotal}</span>
+                  STUDENTS: <span className="font-extrabold text-[#009966] dark:text-white">{(dashboardData?.stats?.attendance?.studentsPresent ?? 0)} / {(dashboardData?.stats?.attendance?.studentsTotal ?? 0)}</span>
                 </div>
                 <div className="text-xs text-[#009966] dark:text-zinc-300 flex items-center gap-2 font-medium">
                   <span className="h-2 w-2 rounded-full bg-[#00bb7f]" />
-                  STAFF: <span className="font-extrabold text-[#009966] dark:text-white">{dashboardData.stats.attendance.staffPresent} / {dashboardData.stats.attendance.staffTotal}</span>
+                  STAFF: <span className="font-extrabold text-[#009966] dark:text-white">{(dashboardData?.stats?.attendance?.staffPresent ?? 0)} / {(dashboardData?.stats?.attendance?.staffTotal ?? 0)}</span>
                 </div>
               </div>
             </div>
             <div className="h-14 w-14 rounded-full border-4 border-emerald-200 dark:border-zinc-800 flex items-center justify-center">
-              <span className="text-xs font-bold text-[#009966] dark:text-emerald-400">{dashboardData.stats.attendance.studentAttPercent}%</span>
+              <span className="text-xs font-bold text-[#009966] dark:text-emerald-400">{(dashboardData?.stats?.attendance?.studentAttPercent ?? 0)}%</span>
             </div>
           </div>
 
@@ -790,16 +815,16 @@ export default function AdminDashboardUI({ user }) {
               <div className="mt-3 space-y-1">
                 <div className="text-xs text-[#009966] dark:text-zinc-300 flex items-center gap-2 font-medium">
                   <span className="h-2 w-2 rounded-full bg-[#009966]" />
-                  COLLECTED: <span className="font-extrabold text-[#009966] dark:text-white">${dashboardData.stats.fees.collectedFees.toLocaleString()} ({dashboardData.stats.fees.collectionPercentage}%)</span>
+                  COLLECTED: <span className="font-extrabold text-[#009966] dark:text-white">${(dashboardData?.stats?.fees?.collectedFees?.toLocaleString?.() || '0')} ({(dashboardData?.stats?.fees?.collectionPercentage ?? 0)}%)</span>
                 </div>
                 <div className="text-xs text-[#009966] dark:text-zinc-300 flex items-center gap-2 font-medium">
                   <span className="h-2 w-2 rounded-full bg-[#00bb7f]" />
-                  TOTAL FEES: <span className="font-extrabold text-[#009966] dark:text-white">${dashboardData.stats.fees.totalFees.toLocaleString()}</span>
+                  TOTAL FEES: <span className="font-extrabold text-[#009966] dark:text-white">${(dashboardData?.stats?.fees?.totalFees?.toLocaleString?.() || '0')}</span>
                 </div>
               </div>
             </div>
             <div className="h-14 w-14 rounded-full border-4 border-emerald-200 dark:border-zinc-800 flex items-center justify-center">
-              <span className="text-xs font-bold text-[#009966] dark:text-emerald-400">{dashboardData.stats.fees.collectionPercentage}%</span>
+              <span className="text-xs font-bold text-[#009966] dark:text-emerald-400">{(dashboardData?.stats?.fees?.collectionPercentage ?? 0)}%</span>
             </div>
           </div>
         </div>
@@ -837,7 +862,7 @@ export default function AdminDashboardUI({ user }) {
             variant="outline"
             size="sm"
             className="h-9 rounded-full border border-emerald-200/90 dark:border-zinc-700 bg-white dark:bg-zinc-950/50 text-xs font-bold text-[#009966] dark:text-zinc-300 hover:bg-emerald-50 hover:border-[#009966] hover:text-[#007a52] dark:hover:bg-emerald-950/50 dark:hover:text-emerald-400 cursor-pointer shadow-xs"
-            onClick={() => router.push('/dashboard/utilities/communicate')}
+            onClick={handleOpenAddNotice}
           >
             <Bell className="h-3.5 w-3.5 text-[#009966] dark:text-emerald-400" /> Add Notice
           </Button>
@@ -846,7 +871,7 @@ export default function AdminDashboardUI({ user }) {
             variant="outline"
             size="sm"
             className="h-9 rounded-full border border-emerald-200/90 dark:border-zinc-700 bg-white dark:bg-zinc-950/50 text-xs font-bold text-[#009966] dark:text-zinc-300 hover:bg-emerald-50 hover:border-[#009966] hover:text-[#007a52] dark:hover:bg-emerald-950/50 dark:hover:text-emerald-400 cursor-pointer shadow-xs"
-            onClick={() => router.push('/dashboard/accounts/accounts')}
+            onClick={() => setIsExpenseModalOpen(true)}
           >
             <Receipt className="h-3.5 w-3.5 text-[#009966] dark:text-emerald-400" /> Add Expense
           </Button>
@@ -879,7 +904,7 @@ export default function AdminDashboardUI({ user }) {
               <Briefcase className="h-6 w-6" />
             </div>
             <div>
-              <div className="text-2xl font-black text-[#009966] dark:text-white">{dashboardData.stats.teachers}</div>
+              <div className="text-2xl font-black text-[#009966] dark:text-white">{(dashboardData?.stats?.teachers ?? 0)}</div>
               <div className="text-xs uppercase font-extrabold text-[#009966] dark:text-zinc-400 tracking-wider">TOTAL TEACHERS</div>
             </div>
           </div>
@@ -892,7 +917,7 @@ export default function AdminDashboardUI({ user }) {
               <Users className="h-6 w-6" />
             </div>
             <div>
-              <div className="text-2xl font-black text-[#009966] dark:text-white">{dashboardData.stats.parents}</div>
+              <div className="text-2xl font-black text-[#009966] dark:text-white">{(dashboardData?.stats?.parents ?? 0)}</div>
               <div className="text-xs uppercase font-extrabold text-[#009966] dark:text-zinc-400 tracking-wider">TOTAL PARENTS</div>
             </div>
           </div>
@@ -907,7 +932,7 @@ export default function AdminDashboardUI({ user }) {
               <UserCheck className="h-6 w-6" />
             </div>
             <div>
-              <div className="text-2xl font-black text-[#009966] dark:text-white">{dashboardData.stats.staffs}</div>
+              <div className="text-2xl font-black text-[#009966] dark:text-white">{(dashboardData?.stats?.staffs ?? 0)}</div>
               <div className="text-xs uppercase font-extrabold text-[#009966] dark:text-zinc-400 tracking-wider">TOTAL STAFFS</div>
             </div>
           </div>
@@ -938,15 +963,15 @@ export default function AdminDashboardUI({ user }) {
             <div className="grid grid-cols-3 gap-2">
               <div className="bg-emerald-50/40 dark:bg-zinc-950 p-2.5 rounded-lg border border-emerald-100 dark:border-zinc-800">
                 <div className="text-[10px] uppercase font-extrabold text-[#009966] dark:text-zinc-400">TOTAL INCOME</div>
-                <div className="text-sm font-black text-[#009966] dark:text-emerald-400 mt-0.5">${dashboardData.stats.fees.totalIncome.toLocaleString()}</div>
+                <div className="text-sm font-black text-[#009966] dark:text-emerald-400 mt-0.5">${(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
               </div>
               <div className="bg-emerald-50/40 dark:bg-zinc-950 p-2.5 rounded-lg border border-emerald-100 dark:border-zinc-800">
                 <div className="text-[10px] uppercase font-extrabold text-[#009966] dark:text-zinc-400">TOTAL EXPENSES</div>
-                <div className="text-sm font-black text-rose-500 mt-0.5">${dashboardData.stats.fees.totalExpenses.toLocaleString()}</div>
+                <div className="text-sm font-black text-rose-500 mt-0.5">${(dashboardData?.stats?.fees?.totalExpenses?.toLocaleString?.() || '0')}</div>
               </div>
               <div className="bg-emerald-50/40 dark:bg-zinc-950 p-2.5 rounded-lg border border-emerald-100 dark:border-zinc-800">
                 <div className="text-[10px] uppercase font-extrabold text-[#009966] dark:text-zinc-400">TOTAL PROFIT</div>
-                <div className="text-sm font-black text-[#009966] dark:text-emerald-400 mt-0.5">${dashboardData.stats.fees.totalProfit.toLocaleString()}</div>
+                <div className="text-sm font-black text-[#009966] dark:text-emerald-400 mt-0.5">${(dashboardData?.stats?.fees?.totalProfit?.toLocaleString?.() || '0')}</div>
               </div>
             </div>
 
@@ -1008,15 +1033,15 @@ export default function AdminDashboardUI({ user }) {
             <div className="grid grid-cols-3 gap-2">
               <div className="bg-emerald-50/40 dark:bg-zinc-950 p-2.5 rounded-lg border border-emerald-100 dark:border-zinc-800">
                 <div className="text-[10px] uppercase font-extrabold text-[#009966] dark:text-zinc-400">TOTAL INCOME</div>
-                <div className="text-sm font-black text-[#009966] dark:text-emerald-400 mt-0.5">${dashboardData.stats.fees.totalIncome.toLocaleString()}</div>
+                <div className="text-sm font-black text-[#009966] dark:text-emerald-400 mt-0.5">${(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
               </div>
               <div className="bg-emerald-50/40 dark:bg-zinc-950 p-2.5 rounded-lg border border-emerald-100 dark:border-zinc-800">
                 <div className="text-[10px] uppercase font-extrabold text-[#009966] dark:text-zinc-400">TOTAL EXPENSES</div>
-                <div className="text-sm font-black text-rose-500 mt-0.5">${dashboardData.stats.fees.totalExpenses.toLocaleString()}</div>
+                <div className="text-sm font-black text-rose-500 mt-0.5">${(dashboardData?.stats?.fees?.totalExpenses?.toLocaleString?.() || '0')}</div>
               </div>
               <div className="bg-emerald-50/40 dark:bg-zinc-950 p-2.5 rounded-lg border border-emerald-100 dark:border-zinc-800">
                 <div className="text-[10px] uppercase font-extrabold text-[#009966] dark:text-zinc-400">TOTAL REVENUE</div>
-                <div className="text-sm font-black text-[#009966] dark:text-emerald-400 mt-0.5">${dashboardData.stats.fees.totalIncome.toLocaleString()}</div>
+                <div className="text-sm font-black text-[#009966] dark:text-emerald-400 mt-0.5">${(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
               </div>
             </div>
 

@@ -226,8 +226,8 @@ export default function LandingPage() {
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/90 dark:bg-zinc-950/90 backdrop-blur-lg border-b border-zinc-100 dark:border-zinc-800 py-3 shadow-sm" : "bg-transparent py-5"}`}>
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/stoofi light.png" alt="Stoofi" className="h-16 sm:h-20 w-auto object-contain dark:hidden transform hover:scale-105 transition-transform duration-300" />
-            <img src="/stoofi dark.png" alt="Stoofi" className="h-16 sm:h-20 w-auto object-contain hidden dark:block transform hover:scale-105 transition-transform duration-300" />
+            <img src="/stoofi light.png" alt="Stoofi" className="h-9 sm:h-10 max-w-[150px] w-auto object-contain dark:hidden transform hover:scale-105 transition-transform duration-300" />
+            <img src="/stoofi dark.png" alt="Stoofi" className="h-9 sm:h-10 max-w-[150px] w-auto object-contain hidden dark:block transform hover:scale-105 transition-transform duration-300" />
           </Link>
           <nav className="hidden md:flex items-center gap-8">
             <Link href="#home" className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">{t.nav.home}</Link>
@@ -741,8 +741,8 @@ export default function LandingPage() {
       <footer className="border-t border-zinc-200 dark:border-zinc-800 py-16 bg-zinc-50 dark:bg-zinc-950">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <Link href="/" className="inline-block mb-6">
-            <img src="/stoofi light.png" alt="Stoofi PRO" className="h-20 sm:h-24 w-auto object-contain dark:hidden mx-auto" />
-            <img src="/stoofi dark.png" alt="Stoofi PRO" className="h-20 sm:h-24 w-auto object-contain hidden dark:block mx-auto" />
+            <img src="/stoofi light.png" alt="Stoofi PRO" className="h-10 sm:h-12 max-w-[170px] w-auto object-contain dark:hidden mx-auto" />
+            <img src="/stoofi dark.png" alt="Stoofi PRO" className="h-10 sm:h-12 max-w-[170px] w-auto object-contain hidden dark:block mx-auto" />
           </Link>
           <p className="text-base text-zinc-600 dark:text-zinc-400 font-medium mb-3">The ultimate school management ERP solution for modern educational institutes.</p>
           <p className="text-sm text-zinc-500 dark:text-zinc-500">&copy; {new Date().getFullYear()} Stoofi PRO. All rights reserved.</p>

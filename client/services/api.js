@@ -81,7 +81,10 @@ api.interceptors.response.use(
       const method = error.config?.method?.toLowerCase();
       // Use cleanPath as table name, e.g. '/student' -> 'student'
       const pathParts = cleanPath.split('/').filter(Boolean);
-      const table = pathParts[0] || 'general';
+      let table = pathParts[0] || 'general';
+      if (table === 'students') table = 'student';
+      if (table === 'classes') table = 'class';
+      if (table === 'sections') table = 'section';
       const recordId = pathParts.length > 1 ? pathParts[1] : null;
 
       // Initialize from localStorage or fallback
@@ -92,7 +95,7 @@ api.interceptors.response.use(
         if (stored) {
           records = JSON.parse(stored);
         } else if (fallback !== undefined) {
-           records = Array.isArray(fallback) ? fallback : [fallback];
+           records = Array.isArray(fallback) ? [...fallback] : [fallback];
            localStorage.setItem(lsKey, JSON.stringify(records));
         }
       } catch(e) {}
@@ -100,19 +103,63 @@ api.interceptors.response.use(
       if (method === 'get') {
         if (cleanPath === '/dashboard/stats') {
           // Compute dynamic stats from local DBs
-          const totalStudents = JSON.parse(localStorage.getItem('mockDB_student') || '[]').length;
-          const totalStaff = JSON.parse(localStorage.getItem('mockDB_staff') || '[]').length;
-          const totalClasses = JSON.parse(localStorage.getItem('mockDB_class') || '[]').length;
+          let studentsList = [];
+          try {
+            const rawStu = localStorage.getItem('mockDB_student');
+            studentsList = rawStu ? JSON.parse(rawStu) : (fallback || []);
+          } catch(e) {}
+          if (!studentsList || studentsList.length === 0) {
+            try {
+              const { mockStudents } = require('./mockData.js');
+              if (mockStudents?.length > 0) {
+                studentsList = mockStudents;
+                localStorage.setItem('mockDB_student', JSON.stringify(mockStudents));
+              }
+            } catch(e) {}
+          }
+          const totalStudents = studentsList.length;
+          const maleCount = studentsList.filter(s => s.gender?.toLowerCase() === 'male').length;
+          const femaleCount = studentsList.filter(s => s.gender?.toLowerCase() === 'female').length;
+          const malePercent = totalStudents > 0 ? Math.round((maleCount / totalStudents) * 100) : 50;
+          const femalePercent = totalStudents > 0 ? Math.round((femaleCount / totalStudents) * 100) : 50;
+
+          const totalStaff = JSON.parse(localStorage.getItem('mockDB_staff') || '[]').length || 3;
+          const totalClasses = JSON.parse(localStorage.getItem('mockDB_class') || '[]').length || 12;
           const fallbackStats = fallback || {};
           return Promise.resolve({
             success: true,
             data: {
               ...fallbackStats,
               stats: {
-                ...fallbackStats.stats,
-                students: { total: totalStudents || 0, male: 0, female: 0, malePercent: 0, femalePercent: 0 },
-                staff: { total: totalStaff || 0 },
-                classes: { total: totalClasses || 0 }
+                teachers: 15,
+                parents: totalStudents || 5,
+                staffs: totalStaff,
+                classes: { total: totalClasses },
+                attendance: {
+                  studentsPresent: Math.round(totalStudents * 0.95),
+                  studentsTotal: totalStudents,
+                  staffPresent: totalStaff,
+                  staffTotal: totalStaff,
+                  studentAttPercent: totalStudents > 0 ? 95 : 0,
+                  staffAttPercent: 100
+                },
+                fees: {
+                  totalIncome: 1250000,
+                  totalExpenses: 450000,
+                  totalProfit: 800000,
+                  totalFees: 1500000,
+                  collectedFees: 1250000,
+                  collectionPercentage: 83
+                },
+                ...(fallbackStats.stats || {}),
+                students: {
+                  total: totalStudents,
+                  male: maleCount,
+                  female: femaleCount,
+                  malePercent,
+                  femalePercent
+                },
+                staff: { total: totalStaff }
               }
             },
             message: 'Loaded dynamic dashboard stats from local DB'
