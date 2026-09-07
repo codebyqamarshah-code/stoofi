@@ -144,12 +144,12 @@ api.interceptors.response.use(
                   staffAttPercent: 100
                 },
                 fees: {
-                  totalIncome: 1250000,
-                  totalExpenses: 450000,
-                  totalProfit: 800000,
-                  totalFees: 1500000,
-                  collectedFees: 1250000,
-                  collectionPercentage: 83
+                  totalIncome: 0,
+                  totalExpenses: 0,
+                  totalProfit: 0,
+                  totalFees: 0,
+                  collectedFees: 0,
+                  collectionPercentage: 0
                 },
                 ...(fallbackStats.stats || {}),
                 students: {

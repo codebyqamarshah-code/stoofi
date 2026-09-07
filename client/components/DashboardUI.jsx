@@ -862,7 +862,7 @@ export default function DashboardUI({ user }) {
             variant="outline"
             size="sm"
             className="h-9 rounded-full border border-emerald-200/90 dark:border-zinc-700 bg-white dark:bg-zinc-950/50 text-xs font-bold text-[#009966] dark:text-zinc-300 hover:bg-emerald-50 hover:border-[#009966] hover:text-[#007a52] dark:hover:bg-emerald-950/50 dark:hover:text-emerald-400 cursor-pointer shadow-xs"
-            onClick={handleOpenAddNotice}
+            onClick={handleOpenCreateNotice}
           >
             <Bell className="h-3.5 w-3.5 text-[#009966] dark:text-emerald-400" /> Add Notice
           </Button>
@@ -977,7 +977,7 @@ export default function DashboardUI({ user }) {
 
             <div className="h-[220px] w-full pt-2">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={dashboardData.charts.monthly} barGap={4}>
+                <BarChart data={dashboardData?.charts?.monthly || []} barGap={4}>
                   <defs>
                     <linearGradient id="incomeGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#009966" stopOpacity={0.9} />
