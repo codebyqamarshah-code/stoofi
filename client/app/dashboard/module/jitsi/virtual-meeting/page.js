@@ -33,7 +33,7 @@ export default function JitsiVirtualMeetingPage() {
       time: '02:00 PM',
       duration: '45',
       status: 'Scheduled',
-      roomUrl: 'https://meet.jit.si/eskooly-staff-review-908'
+      roomUrl: 'https://meet.jit.si/stoofi-staff-review-908'
     },
     {
       id: 2,
@@ -45,7 +45,7 @@ export default function JitsiVirtualMeetingPage() {
       time: '04:30 PM',
       duration: '60',
       status: 'Scheduled',
-      roomUrl: 'https://meet.jit.si/eskooly-pta-meeting-912'
+      roomUrl: 'https://meet.jit.si/stoofi-pta-meeting-912'
     },
     {
       id: 3,
@@ -57,7 +57,7 @@ export default function JitsiVirtualMeetingPage() {
       time: '11:00 AM',
       duration: '90',
       status: 'Scheduled',
-      roomUrl: 'https://meet.jit.si/eskooly-admin-strategy-915'
+      roomUrl: 'https://meet.jit.si/stoofi-admin-strategy-915'
     }
   ]);
 
@@ -95,7 +95,7 @@ export default function JitsiVirtualMeetingPage() {
         id: Date.now(),
         ...form,
         status: 'Scheduled',
-        roomUrl: `https://meet.jit.si/eskooly-meeting-${encodeURIComponent(form.topic.toLowerCase().replace(/[^a-z0-9]/g, '-'))}-${Date.now().toString().slice(-4)}`
+        roomUrl: `https://meet.jit.si/stoofi-meeting-${encodeURIComponent(form.topic.toLowerCase().replace(/[^a-z0-9]/g, '-'))}-${Date.now().toString().slice(-4)}`
       };
       setRecords([newRec, ...records]);
     }

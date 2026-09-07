@@ -16,16 +16,16 @@ import {
 } from 'lucide-react';
 
 const INITIAL_PAGES = [
-  { id: 1, sl: 1, name: 'Home', isHome: true, url: 'https://eskooly.pro/home', status: true },
-  { id: 2, sl: 2, name: 'About', isHome: false, url: 'https://eskooly.pro/about', status: true },
-  { id: 3, sl: 3, name: 'About', isHome: false, url: 'https://eskooly.pro/aboutus-page', status: true },
-  { id: 4, sl: 4, name: 'Academic Calendar', isHome: false, url: 'https://eskooly.pro/academic-calendars', status: true },
-  { id: 5, sl: 5, name: 'Book a Visit', isHome: false, url: 'https://eskooly.pro/book-a-visit', status: true },
-  { id: 6, sl: 6, name: 'Class Routine', isHome: false, url: 'https://eskooly.pro/class-routines', status: true },
-  { id: 7, sl: 7, name: 'Contact Us', isHome: false, url: 'https://eskooly.pro/contact-us', status: true },
-  { id: 8, sl: 8, name: 'Course', isHome: false, url: 'https://eskooly.pro/course', status: true },
-  { id: 9, sl: 9, name: 'Donor List', isHome: false, url: 'https://eskooly.pro/donor-list', status: true },
-  { id: 10, sl: 10, name: 'Events', isHome: false, url: 'https://eskooly.pro/events', status: true },
+  { id: 1, sl: 1, name: 'Home', isHome: true, url: 'https://stoofi.pro/home', status: true },
+  { id: 2, sl: 2, name: 'About', isHome: false, url: 'https://stoofi.pro/about', status: true },
+  { id: 3, sl: 3, name: 'About', isHome: false, url: 'https://stoofi.pro/aboutus-page', status: true },
+  { id: 4, sl: 4, name: 'Academic Calendar', isHome: false, url: 'https://stoofi.pro/academic-calendars', status: true },
+  { id: 5, sl: 5, name: 'Book a Visit', isHome: false, url: 'https://stoofi.pro/book-a-visit', status: true },
+  { id: 6, sl: 6, name: 'Class Routine', isHome: false, url: 'https://stoofi.pro/class-routines', status: true },
+  { id: 7, sl: 7, name: 'Contact Us', isHome: false, url: 'https://stoofi.pro/contact-us', status: true },
+  { id: 8, sl: 8, name: 'Course', isHome: false, url: 'https://stoofi.pro/course', status: true },
+  { id: 9, sl: 9, name: 'Donor List', isHome: false, url: 'https://stoofi.pro/donor-list', status: true },
+  { id: 10, sl: 10, name: 'Events', isHome: false, url: 'https://stoofi.pro/events', status: true },
 ];
 
 export default function AoraPagebuilderPage() {
@@ -48,7 +48,7 @@ export default function AoraPagebuilderPage() {
       sl: pages.length + 1,
       name: pageName,
       isHome: isHomePage,
-      url: `https://eskooly.pro/${pageSlug.toLowerCase().replace(/\s+/g, '-')}`,
+      url: `https://stoofi.pro/${pageSlug.toLowerCase().replace(/\s+/g, '-')}`,
       status: true
     };
     setPages(prev => [...prev, newPage]);

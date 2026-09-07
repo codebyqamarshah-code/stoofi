@@ -17,7 +17,7 @@ export default function BBBVirtualMeetingPage() {
       time: '02:00 PM',
       duration: '45',
       status: 'Scheduled',
-      roomUrl: 'https://bbb.eskooly.com/b/mud-staff-0901'
+      roomUrl: 'https://bbb.stoofi.com/b/mud-staff-0901'
     },
     {
       id: 2,
@@ -29,7 +29,7 @@ export default function BBBVirtualMeetingPage() {
       time: '04:00 PM',
       duration: '60',
       status: 'Scheduled',
-      roomUrl: 'https://bbb.eskooly.com/b/bil-pta-0912'
+      roomUrl: 'https://bbb.stoofi.com/b/bil-pta-0912'
     }
   ]);
 
@@ -59,7 +59,7 @@ export default function BBBVirtualMeetingPage() {
       setRecords(records.map(r => r.id === editId ? { ...r, ...form } : r));
       setEditId(null);
     } else {
-      setRecords([{ id: Date.now(), ...form, status: 'Scheduled', roomUrl: `https://bbb.eskooly.com/b/bbb-meeting-${Date.now().toString().slice(-5)}` }, ...records]);
+      setRecords([{ id: Date.now(), ...form, status: 'Scheduled', roomUrl: `https://bbb.stoofi.com/b/bbb-meeting-${Date.now().toString().slice(-5)}` }, ...records]);
     }
     setForm({ topic: '', host: 'Mudassir Bajwa', audience: 'All Teachers', description: '', date: new Date().toISOString().split('T')[0], time: '14:00', duration: '45', autoRecord: 'Yes', password: '' });
   };

@@ -32,7 +32,7 @@ export default function LandingPage() {
     setIsLangDropdownOpen(false);
     
     if (typeof window !== 'undefined') {
-      localStorage.setItem('eskooly_lang', langCode);
+      localStorage.setItem('stoofi_lang', langCode);
       
       let googleLang = 'en';
       if (langCode === 'UR') googleLang = 'ur';
@@ -209,16 +209,16 @@ export default function LandingPage() {
   ];
 
   const testimonials = [
-    { name: "Khalid Mehmood", role: "Principal, Al-Noor School System", text: "eSkooly transformed how we manage our 1200+ students. The fee collection and attendance system alone saves us 3 hours daily.", stars: 5 },
+    { name: "Khalid Mehmood", role: "Principal, Al-Noor School System", text: "Stoofi transformed how we manage our 1200+ students. The fee collection and attendance system alone saves us 3 hours daily.", stars: 5 },
     { name: "Sara Ahmed", role: "Admin, Bright Future Academy", text: "The multi-portal design is brilliant. Teachers love it, parents love it, and our admin team can finally breathe!", stars: 5 },
-    { name: "Usman Tariq", role: "Director, Scholars Institute", text: "Switching from manual registers to eSkooly was the best decision. Reports that used to take days now take seconds.", stars: 5 },
+    { name: "Usman Tariq", role: "Director, Scholars Institute", text: "Switching from manual registers to Stoofi was the best decision. Reports that used to take days now take seconds.", stars: 5 },
   ];
 
   const faqs = [
-    { q: "How quickly can our school get up and running on eSkooly ERP?", a: "Most schools go live in less than 24 hours. Our step-by-step onboarding wizard lets you configure classes, assign teachers, and bulk import student records via Excel in minutes." },
-    { q: "How do automated SMS notifications work?", a: "eSkooly integrates with SMS gateways. Whenever attendance is marked, fee vouchers are generated, or exam results are published, the system automatically dispatches customized SMS alerts to parents' mobile numbers." },
+    { q: "How quickly can our school get up and running on Stoofi ERP?", a: "Most schools go live in less than 24 hours. Our step-by-step onboarding wizard lets you configure classes, assign teachers, and bulk import student records via Excel in minutes." },
+    { q: "How do automated SMS notifications work?", a: "Stoofi integrates with SMS gateways. Whenever attendance is marked, fee vouchers are generated, or exam results are published, the system automatically dispatches customized SMS alerts to parents' mobile numbers." },
     { q: "Can we manage multi-branch campuses with single billing?", a: "Yes! Super Admin accounts have multi-branch capabilities to oversee branch finances, compare campus performance, and transfer students between branches seamlessly." },
-    { q: "Is our student and financial data safe?", a: "Absolutely. eSkooly ERP features end-to-end encryption, role-based permission locks, daily automated cloud database backups, and 99.9% uptime reliability." }
+    { q: "Is our student and financial data safe?", a: "Absolutely. Stoofi ERP features end-to-end encryption, role-based permission locks, daily automated cloud database backups, and 99.9% uptime reliability." }
   ];
 
   return (
@@ -226,8 +226,8 @@ export default function LandingPage() {
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/90 dark:bg-zinc-950/90 backdrop-blur-lg border-b border-zinc-100 dark:border-zinc-800 py-3 shadow-sm" : "bg-transparent py-5"}`}>
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/eskooly light.png" alt="eSkooly" className="h-16 sm:h-20 w-auto object-contain dark:hidden transform hover:scale-105 transition-transform duration-300" />
-            <img src="/logo dark.png" alt="eSkooly" className="h-16 sm:h-20 w-auto object-contain hidden dark:block transform hover:scale-105 transition-transform duration-300" />
+            <img src="/stoofi light.png" alt="Stoofi" className="h-16 sm:h-20 w-auto object-contain dark:hidden transform hover:scale-105 transition-transform duration-300" />
+            <img src="/stoofi dark.png" alt="Stoofi" className="h-16 sm:h-20 w-auto object-contain hidden dark:block transform hover:scale-105 transition-transform duration-300" />
           </Link>
           <nav className="hidden md:flex items-center gap-8">
             <Link href="#home" className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">{t.nav.home}</Link>
@@ -470,7 +470,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-14">
             <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-3 block">Step-by-Step System Guide</span>
-            <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-white mb-4">How To Use eSkooly ERP</h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-white mb-4">How To Use Stoofi ERP</h2>
             <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
               Follow these simple, streamlined workflows designed for every user role in your institution.
             </p>
@@ -639,7 +639,7 @@ export default function LandingPage() {
           <div className="text-center mb-16">
             <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-3 block">Testimonials</span>
             <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-white mb-4">Loved By Schools</h2>
-            <p className="text-lg text-zinc-600 dark:text-zinc-400">What educators are saying about eSkooly PRO.</p>
+            <p className="text-lg text-zinc-600 dark:text-zinc-400">What educators are saying about Stoofi PRO.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((t, i) => (
@@ -703,7 +703,7 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto px-6 text-center">
           <Zap size={48} className="text-emerald-600 dark:text-emerald-400 mx-auto mb-6" />
           <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-white mb-5">Ready to Digitize Your School?</h2>
-          <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-10 max-w-xl mx-auto">Join 500+ schools already running on eSkooly PRO. Get started with a full 1-month free trial — no credit card needed.</p>
+          <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-10 max-w-xl mx-auto">Join 500+ schools already running on Stoofi PRO. Get started with a full 1-month free trial — no credit card needed.</p>
           <Link href="/login">
             <Button className="h-14 px-12 text-lg bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-black shadow-lg shadow-emerald-600/20 hover:-translate-y-0.5 transition-all">
               Get Started Free Today
@@ -722,7 +722,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { icon: Phone, title: "Call Us", info: "+92 300 1234567", sub: "Mon-Fri, 9am-6pm" },
-              { icon: Mail, title: "Email Us", info: "support@eskooly.com", sub: "We reply within 24 hours" },
+              { icon: Mail, title: "Email Us", info: "support@stoofi.com", sub: "We reply within 24 hours" },
               { icon: MapPin, title: "Visit Us", info: "Lahore, Pakistan", sub: "Head Office" },
             ].map((c, i) => (
               <div key={i} className="text-center p-8 bg-zinc-50 dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800">
@@ -741,11 +741,11 @@ export default function LandingPage() {
       <footer className="border-t border-zinc-200 dark:border-zinc-800 py-16 bg-zinc-50 dark:bg-zinc-950">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <Link href="/" className="inline-block mb-6">
-            <img src="/eskooly light.png" alt="eSkooly PRO" className="h-20 sm:h-24 w-auto object-contain dark:hidden mx-auto" />
-            <img src="/logo dark.png" alt="eSkooly PRO" className="h-20 sm:h-24 w-auto object-contain hidden dark:block mx-auto" />
+            <img src="/stoofi light.png" alt="Stoofi PRO" className="h-20 sm:h-24 w-auto object-contain dark:hidden mx-auto" />
+            <img src="/stoofi dark.png" alt="Stoofi PRO" className="h-20 sm:h-24 w-auto object-contain hidden dark:block mx-auto" />
           </Link>
           <p className="text-base text-zinc-600 dark:text-zinc-400 font-medium mb-3">The ultimate school management ERP solution for modern educational institutes.</p>
-          <p className="text-sm text-zinc-500 dark:text-zinc-500">&copy; {new Date().getFullYear()} eSkooly PRO. All rights reserved.</p>
+          <p className="text-sm text-zinc-500 dark:text-zinc-500">&copy; {new Date().getFullYear()} Stoofi PRO. All rights reserved.</p>
         </div>
       </footer>
 

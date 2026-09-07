@@ -12,12 +12,12 @@ import {
 
 export default function HeaderContentPage() {
   const [phone, setPhone] = useState('+92 300 1234567');
-  const [email, setEmail] = useState('info@eskooly.pro');
+  const [email, setEmail] = useState('info@stoofi.pro');
   const [openingHours, setOpeningHours] = useState('Mon - Sat: 8:00 AM - 4:00 PM');
-  const [facebook, setFacebook] = useState('https://facebook.com/eskooly');
-  const [twitter, setTwitter] = useState('https://twitter.com/eskooly');
-  const [linkedin, setLinkedin] = useState('https://linkedin.com/company/eskooly');
-  const [instagram, setInstagram] = useState('https://instagram.com/eskooly');
+  const [facebook, setFacebook] = useState('https://facebook.com/stoofi');
+  const [twitter, setTwitter] = useState('https://twitter.com/stoofi');
+  const [linkedin, setLinkedin] = useState('https://linkedin.com/company/stoofi');
+  const [instagram, setInstagram] = useState('https://instagram.com/stoofi');
   const [showTopBar, setShowTopBar] = useState(true);
   const [saved, setSaved] = useState(false);
 

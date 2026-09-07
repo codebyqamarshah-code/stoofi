@@ -18,9 +18,9 @@ import {
 import api from '@/services/api';
 
 const INITIAL_SLIDERS = [
-  { id: 1, sl: 1, image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=300&auto=format&fit=crop&q=60', link: 'https://eskooly.pro/admission' },
-  { id: 2, sl: 2, image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=300&auto=format&fit=crop&q=60', link: 'https://eskooly.pro/courses' },
-  { id: 3, sl: 3, image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=300&auto=format&fit=crop&q=60', link: 'https://eskooly.pro/events' },
+  { id: 1, sl: 1, image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=300&auto=format&fit=crop&q=60', link: 'https://stoofi.pro/admission' },
+  { id: 2, sl: 2, image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=300&auto=format&fit=crop&q=60', link: 'https://stoofi.pro/courses' },
+  { id: 3, sl: 3, image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=300&auto=format&fit=crop&q=60', link: 'https://stoofi.pro/events' },
 ];
 
 export default function HomeSliderPage() {
@@ -42,7 +42,7 @@ export default function HomeSliderPage() {
       id: Date.now(),
       sl: sliders.length + 1,
       image: file ? URL.createObjectURL(file) : 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=300&auto=format&fit=crop&q=60',
-      link: link || 'https://eskooly.pro/slider'
+      link: link || 'https://stoofi.pro/slider'
     };
     setSliders(prev => [...prev, newSlider]);
     setLink('');

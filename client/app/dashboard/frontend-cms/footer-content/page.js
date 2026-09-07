@@ -10,11 +10,11 @@ import {
 } from 'lucide-react';
 
 export default function FooterContentPage() {
-  const [about, setAbout] = useState('eSkooly Pro is a comprehensive multi-purpose educational institution management system providing modern student and faculty automation.');
-  const [copyright, setCopyright] = useState('Copyright © 2026 All rights reserved | This application is made by eSkooly Inc.');
+  const [about, setAbout] = useState('Stoofi Pro is a comprehensive multi-purpose educational institution management system providing modern student and faculty automation.');
+  const [copyright, setCopyright] = useState('Copyright © 2026 All rights reserved | This application is made by Stoofi Inc.');
   const [address, setAddress] = useState('Sector F-7/2, Islamabad, Pakistan');
   const [phone, setPhone] = useState('+92 51 111 222 333');
-  const [email, setEmail] = useState('support@eskooly.pro');
+  const [email, setEmail] = useState('support@stoofi.pro');
   const [showNewsletter, setShowNewsletter] = useState(true);
   const [saved, setSaved] = useState(false);
 

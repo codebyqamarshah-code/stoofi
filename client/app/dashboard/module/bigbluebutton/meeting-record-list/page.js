@@ -12,9 +12,9 @@ export default function BBBMeetingRecordListPage() {
   const audiences = ['All','All Teachers','Staff Members','Parents','Admin & Management','General'];
 
   const [records, setRecords] = useState([
-    { id:1, topic:'Staff Academic Progress Review', host:'Mudassir Bajwa', audience:'All Teachers', date:'2026-09-02', duration:'43:18', fileSize:'116 MB', playbackUrl:'https://bbb.eskooly.com/playback/staff-review-001', status:'Available' },
-    { id:2, topic:'Parent-Teacher Annual Interaction', host:'Dr. Bilal Siddiqui', audience:'Parents', date:'2026-09-04', duration:'59:52', fileSize:'176 MB', playbackUrl:'https://bbb.eskooly.com/playback/pta-2026-002', status:'Available' },
-    { id:3, topic:'Academic Calendar Planning Q4 2026', host:'Fatima Zahra', audience:'Admin & Management', date:'2026-09-06', duration:'28:40', fileSize:'74 MB', playbackUrl:'https://bbb.eskooly.com/playback/acad-plan-003', status:'Processing' },
+    { id:1, topic:'Staff Academic Progress Review', host:'Mudassir Bajwa', audience:'All Teachers', date:'2026-09-02', duration:'43:18', fileSize:'116 MB', playbackUrl:'https://bbb.stoofi.com/playback/staff-review-001', status:'Available' },
+    { id:2, topic:'Parent-Teacher Annual Interaction', host:'Dr. Bilal Siddiqui', audience:'Parents', date:'2026-09-04', duration:'59:52', fileSize:'176 MB', playbackUrl:'https://bbb.stoofi.com/playback/pta-2026-002', status:'Available' },
+    { id:3, topic:'Academic Calendar Planning Q4 2026', host:'Fatima Zahra', audience:'Admin & Management', date:'2026-09-06', duration:'28:40', fileSize:'74 MB', playbackUrl:'https://bbb.stoofi.com/playback/acad-plan-003', status:'Processing' },
   ]);
 
   const handleDelete = (id) => {

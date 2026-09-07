@@ -20,7 +20,7 @@ import {
 const INITIAL_VIDEOS = [
   { id: 1, name: 'Annual Sports Day 2026', description: 'Highlights and awards ceremony from annual sports event', link: 'https://youtube.com/watch?v=sports2026', thumbnail: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=150&auto=format&fit=crop&q=80' },
   { id: 2, name: 'Science & Robotics Exhibition', description: 'Students presenting advanced AI and robotics science models', link: 'https://youtube.com/watch?v=science2026', thumbnail: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=150&auto=format&fit=crop&q=80' },
-  { id: 3, name: 'Campus Virtual Tour', description: 'Complete 360 virtual tour of eSkooly pro school campus', link: 'https://youtube.com/watch?v=campustour', thumbnail: 'https://images.unsplash.com/photo-1562774053-701939374585?w=150&auto=format&fit=crop&q=80' },
+  { id: 3, name: 'Campus Virtual Tour', description: 'Complete 360 virtual tour of Stoofi pro school campus', link: 'https://youtube.com/watch?v=campustour', thumbnail: 'https://images.unsplash.com/photo-1562774053-701939374585?w=150&auto=format&fit=crop&q=80' },
 ];
 
 export default function VideoGalleryPage() {

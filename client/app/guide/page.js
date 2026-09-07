@@ -17,7 +17,7 @@ export default function GuidePage() {
       title: "Super Admin Workflow",
       badge: "System Setup & Control",
       icon: ShieldCheck,
-      description: "The Super Admin is the core controller of the eSkooly ERP. Learn how to configure the system, manage branches, and oversee all operations.",
+      description: "The Super Admin is the core controller of the Stoofi ERP. Learn how to configure the system, manage branches, and oversee all operations.",
       sections: [
         {
           title: "1. Basic System Configuration",
@@ -152,7 +152,7 @@ export default function GuidePage() {
             Comprehensive User Guide
           </span>
           <h1 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-white mb-6">
-            How to Use eSkooly ERP
+            How to Use Stoofi ERP
           </h1>
           <p className="text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed">
             Everything you need to know to get your school running smoothly. Select a role below to see exactly how the platform works for them.

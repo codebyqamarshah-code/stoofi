@@ -28,42 +28,49 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "admin@gmail.com", password: "school@123" },
+    defaultValues: { email: "", password: "" },
   });
 
   useEffect(() => {
     setMounted(true);
-    const hasToken = typeof window !== 'undefined' && (
-      localStorage.getItem('token') || 
-      localStorage.getItem('auth-storage') ||
-      (typeof document !== 'undefined' && document.cookie.includes('token='))
-    );
-    if (isAuthenticated || hasToken) {
-      window.location.href = "/dashboard";
-    }
-  }, [isAuthenticated]);
+    // Removed auto-redirect logic so the user stays on the login page
+    // until they actively submit the form or click a role button.
+  }, []);
 
   const onSubmit = async (data) => {
-    const cleanEmail = data.email?.trim().toLowerCase() || "admin@gmail.com";
-    const cleanPass = data.password?.trim() || "school@123";
-    const res = await login(cleanEmail, cleanPass, rememberMe);
-    if (res?.success) {
+  const cleanEmail = data.email?.trim().toLowerCase();
+  const cleanPass = data.password?.trim();
+  const res = await login(cleanEmail, cleanPass, rememberMe);
+  if (res?.success) {
+    // Redirect based on email role
+    if (cleanEmail === "super@gmail.com") {
+      window.location.href = "/dashboard"; // Super admin dashboard
+    } else if (cleanEmail === "admin@gmail.com") {
+      window.location.href = "/dashboard/admin"; // Admin dashboard
+    } else {
+      // Fallback – you may adjust as needed
       window.location.href = "/dashboard";
     }
-  };
+  }
+};
 
   const handleRoleClick = async (role) => {
     setValue("email", role.email);
     setValue("password", role.pass);
     const res = await login(role.email, role.pass, true, role.label);
     if (res?.success) {
-      window.location.href = "/dashboard";
+      // Redirect based on email role (same as form submit)
+      if (role.email === "admin@gmail.com") {
+        window.location.href = "/dashboard/admin";
+      } else {
+        window.location.href = "/dashboard";
+      }
     }
   };
 
   const demoRoles = [
-    { id: "superadmin", label: "SUPER ADMIN", email: "admin@gmail.com", pass: "school@123" },
-    { id: "admin", label: "ADMIN", email: "admin2@gmail.com", pass: "123456" },
+    { id: "superadmin", label: "SUPER ADMIN", email: "super@gmail.com", pass: "school@123" },
+    { id: "admin", label: "ADMIN", email: "admin@gmail.com", pass: "school@123" },
     { id: "teacher", label: "TEACHER", email: "teacher@gmail.com", pass: "123456" },
     { id: "parents", label: "PARENTS", email: "parent@gmail.com", pass: "123456" },
     { id: "accountant", label: "ACCOUNTANT", email: "accountant@gmail.com", pass: "123456" },
@@ -90,8 +97,8 @@ export default function LoginPage() {
         
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <img src="/eskooly light.png" alt="eSkooly PRO" className="h-16 w-auto object-contain dark:hidden" />
-          <img src="/logo dark.png" alt="eSkooly PRO" className="h-16 w-auto object-contain hidden dark:block" />
+          <img src="/stoofi light.png" alt="Stoofi PRO" className="h-16 w-auto object-contain dark:hidden" />
+          <img src="/stoofi dark.png" alt="Stoofi PRO" className="h-16 w-auto object-contain hidden dark:block" />
         </div>
 
         {/* Title */}

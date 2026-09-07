@@ -19,7 +19,7 @@ import {
 export default function JitsiSettingsPage() {
   const [settings, setSettings] = useState({
     serverUrl: 'https://meet.jit.si',
-    appId: 'eskooly-jitsi-org-pk',
+    appId: 'stoofi-jitsi-org-pk',
     secretKey: '••••••••••••••••••••••••••',
     enableJwt: false,
     resolution: '720p',
@@ -242,7 +242,7 @@ export default function JitsiSettingsPage() {
                   className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500"
                 />
                 <div>
-                  <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase">Show eSkooly Branding</div>
+                  <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase">Show Stoofi Branding</div>
                   <div className="text-[11px] text-zinc-500">Render institutional watermark inside live classroom.</div>
                 </div>
               </label>

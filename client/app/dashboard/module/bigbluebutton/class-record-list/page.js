@@ -13,10 +13,10 @@ export default function BBBClassRecordListPage() {
   const classes = ['All','Class 7','Class 8','Class 9','Class 10','O-Levels','A-Levels'];
 
   const [records, setRecords] = useState([
-    { id:1, topic:'Computer Science - Algorithms & Flowcharts', classVal:'Class 10', section:'A', teacher:'Mudassir Bajwa', date:'2026-09-02', duration:'44:32', fileSize:'128 MB', playbackUrl:'https://bbb.eskooly.com/playback/csc-algo-001', status:'Available' },
-    { id:2, topic:'Chemistry - Chemical Kinetics', classVal:'Class 9', section:'A', teacher:'Fatima Zahra', date:'2026-09-03', duration:'58:47', fileSize:'182 MB', playbackUrl:'https://bbb.eskooly.com/playback/chem-kin-002', status:'Available' },
-    { id:3, topic:'English - Essay Writing & Structure', classVal:'Class 8', section:'B', teacher:'Ayesha Noor', date:'2026-09-04', duration:'39:15', fileSize:'96 MB', playbackUrl:'https://bbb.eskooly.com/playback/eng-essay-003', status:'Processing' },
-    { id:4, topic:'Physics - Momentum & Collision Laws', classVal:'Class 10', section:'B', teacher:'Muhammad Ali', date:'2026-09-05', duration:'52:08', fileSize:'154 MB', playbackUrl:'https://bbb.eskooly.com/playback/phy-mom-004', status:'Available' },
+    { id:1, topic:'Computer Science - Algorithms & Flowcharts', classVal:'Class 10', section:'A', teacher:'Mudassir Bajwa', date:'2026-09-02', duration:'44:32', fileSize:'128 MB', playbackUrl:'https://bbb.stoofi.com/playback/csc-algo-001', status:'Available' },
+    { id:2, topic:'Chemistry - Chemical Kinetics', classVal:'Class 9', section:'A', teacher:'Fatima Zahra', date:'2026-09-03', duration:'58:47', fileSize:'182 MB', playbackUrl:'https://bbb.stoofi.com/playback/chem-kin-002', status:'Available' },
+    { id:3, topic:'English - Essay Writing & Structure', classVal:'Class 8', section:'B', teacher:'Ayesha Noor', date:'2026-09-04', duration:'39:15', fileSize:'96 MB', playbackUrl:'https://bbb.stoofi.com/playback/eng-essay-003', status:'Processing' },
+    { id:4, topic:'Physics - Momentum & Collision Laws', classVal:'Class 10', section:'B', teacher:'Muhammad Ali', date:'2026-09-05', duration:'52:08', fileSize:'154 MB', playbackUrl:'https://bbb.stoofi.com/playback/phy-mom-004', status:'Available' },
   ]);
 
   const handleDelete = (id) => {

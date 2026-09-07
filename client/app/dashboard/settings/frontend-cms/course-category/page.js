@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 const INITIAL_CATEGORIES = [
-  { id: 1, title: 'eSkoolyPro', image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=150&auto=format&fit=crop&q=80' }
+  { id: 1, title: 'StoofiPro', image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=150&auto=format&fit=crop&q=80' }
 ];
 
 export default function CourseCategoryPage() {

@@ -11,7 +11,7 @@ const guideData = {
     subtitle: "Collect fees, manage invoices, apply discounts and print receipts",
     icon: "💳",
     color: "emerald",
-    overview: "The Fee Management module is the financial backbone of eSkooly ERP. It lets you create fee structures, generate monthly invoices for entire classes in one click, collect payments, and maintain a full audit trail — all without any manual calculation.",
+    overview: "The Fee Management module is the financial backbone of Stoofi ERP. It lets you create fee structures, generate monthly invoices for entire classes in one click, collect payments, and maintain a full audit trail — all without any manual calculation.",
     steps: [
       {
         step: "1",
@@ -176,7 +176,7 @@ const guideData = {
     subtitle: "Homework, study notes, online exams and syllabus management",
     icon: "📚",
     color: "violet",
-    overview: "The Learning Management System (LMS) transforms eSkooly into a complete digital classroom. Teachers can share study material, assign and grade homework digitally, manage the class syllabus, and conduct full online examinations — all within the platform.",
+    overview: "The Learning Management System (LMS) transforms Stoofi into a complete digital classroom. Teachers can share study material, assign and grade homework digitally, manage the class syllabus, and conduct full online examinations — all within the platform.",
     steps: [
       {
         step: "1",
@@ -291,7 +291,7 @@ const guideData = {
       {
         step: "1",
         title: "Understand Income Sources",
-        desc: "Income in eSkooly comes automatically from fee collections. Every time a fee is collected via Accounts → Collect Fee, that amount is recorded in the income ledger under the appropriate fee type.",
+        desc: "Income in Stoofi comes automatically from fee collections. Every time a fee is collected via Accounts → Collect Fee, that amount is recorded in the income ledger under the appropriate fee type.",
         tip: "You do not need to manually enter fee income — it's 100% automated."
       },
       {
@@ -341,7 +341,7 @@ const guideData = {
     subtitle: "Manage multiple school campuses from one Super Admin account",
     icon: "🌐",
     color: "blue",
-    overview: "If your school operates multiple campuses or branches, eSkooly lets you manage all of them from a single Super Admin account. Each branch has its own students, staff, fees, and data — but you can compare and consolidate everything from the central dashboard.",
+    overview: "If your school operates multiple campuses or branches, Stoofi lets you manage all of them from a single Super Admin account. Each branch has its own students, staff, fees, and data — but you can compare and consolidate everything from the central dashboard.",
     steps: [
       {
         step: "1",
@@ -396,7 +396,7 @@ const guideData = {
     subtitle: "Send bulk SMS and email alerts to parents and staff",
     icon: "🔔",
     color: "orange",
-    overview: "eSkooly has a powerful built-in communication engine. You can send instant or scheduled SMS messages to parents, staff, or both. Automated triggers (fee due, exam result, attendance) send messages without any manual action — the system does it for you.",
+    overview: "Stoofi has a powerful built-in communication engine. You can send instant or scheduled SMS messages to parents, staff, or both. Automated triggers (fee due, exam result, attendance) send messages without any manual action — the system does it for you.",
     steps: [
       {
         step: "1",
@@ -441,7 +441,7 @@ const guideData = {
     ],
     tips: [
       "Keep all parent phone numbers up to date — outdated numbers mean missed alerts.",
-      "WhatsApp Business API integration is also available via the eSkooly add-on module.",
+      "WhatsApp Business API integration is also available via the Stoofi add-on module.",
       "Use the SMS balance widget on the dashboard to monitor remaining SMS credits."
     ]
   },
@@ -451,12 +451,12 @@ const guideData = {
     subtitle: "Control who can see and do what in the ERP system",
     icon: "🛡️",
     color: "red",
-    overview: "eSkooly uses a strict Role-Based Access Control (RBAC) system. Every user is assigned a role (Super Admin, Accountant, Teacher, Student, Parent). Each role can only access the parts of the system they need — protecting sensitive data and preventing unauthorized actions.",
+    overview: "Stoofi uses a strict Role-Based Access Control (RBAC) system. Every user is assigned a role (Super Admin, Accountant, Teacher, Student, Parent). Each role can only access the parts of the system they need — protecting sensitive data and preventing unauthorized actions.",
     steps: [
       {
         step: "1",
         title: "Understanding Default Roles",
-        desc: "eSkooly comes with built-in roles: Super Admin (full access), Accountant (finance only), Teacher (academics only), Student (own portal only), Parent (child's data only). Each role has pre-configured permissions.",
+        desc: "Stoofi comes with built-in roles: Super Admin (full access), Accountant (finance only), Teacher (academics only), Student (own portal only), Parent (child's data only). Each role has pre-configured permissions.",
         tip: "Most schools can operate with just these 5 default roles."
       },
       {

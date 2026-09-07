@@ -19,7 +19,7 @@ export default function VirtualClassSettingsPage() {
   const [settings, setSettings] = useState({
     apiKey: 'zm_oauth_live_981273948123',
     apiSecret: '••••••••••••••••••••••••••••••••',
-    accountId: 'act_eskooly_zoom_pro_pk',
+    accountId: 'act_stoofi_zoom_pro_pk',
     webhookSecret: '••••••••••••••••••••••',
     hostVideo: true,
     participantVideo: true,

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronRight, Search, Download, Printer, FileText, Plus, Edit, Trash2, X, Save } from 'lucide-react';
@@ -10,23 +10,56 @@ import Link from 'next/link';
 import api from '@/services/api';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 
+const FALLBACK_CLASSES = [
+  { _id: 'c-nursery', name: 'Nursery' },
+  { _id: 'c-kg', name: 'KG' },
+  { _id: 'c-prep', name: 'Prep' },
+  { _id: 'c-1', name: 'Class 1' },
+  { _id: 'c-2', name: 'Class 2' },
+  { _id: 'c-3', name: 'Class 3' },
+  { _id: 'c-4', name: 'Class 4' },
+  { _id: 'c-5', name: 'Class 5' },
+  { _id: 'c-6', name: 'Class 6' },
+  { _id: 'c-7', name: 'Class 7' },
+  { _id: 'c-8', name: 'Class 8' },
+  { _id: 'c-9', name: 'Class 9' },
+  { _id: 'c-10', name: 'Class 10' },
+  { _id: 'c-olevel', name: 'O-Levels' },
+  { _id: 'c-alevel', name: 'A-Levels' },
+];
+
+const FALLBACK_SECTIONS = [
+  { _id: 's-a', name: 'Section A' },
+  { _id: 's-b', name: 'Section B' },
+  { _id: 's-c', name: 'Section C' },
+  { _id: 's-d', name: 'Section D' },
+];
+
+const ACADEMIC_YEARS = [
+  { label: '2026 [Jan-Dec]', value: '2026 [Jan-Dec]' },
+  { label: '2025 [Jan-Dec]', value: '2025 [Jan-Dec]' },
+  { label: '2024 [Jan-Dec]', value: '2024 [Jan-Dec]' },
+  { label: '2023 [Jan-Dec]', value: '2023 [Jan-Dec]' },
+  { label: '2027 [Jan-Dec]', value: '2027 [Jan-Dec]' },
+];
+
 export default function StudentListPage() {
   const [students, setStudents] = useState([]);
-  const [classes, setClasses] = useState([]);
-  const [sections, setSections] = useState([]);
+  const [classes, setClasses] = useState(FALLBACK_CLASSES);
+  const [sections, setSections] = useState(FALLBACK_SECTIONS);
   const [loading, setLoading] = useState(true);
 
   const [quickSearch, setQuickSearch] = useState('');
   
   // Filters
-  const [academicYear, setAcademicYear] = useState('2026[Jan-Dec]');
+  const [academicYear, setAcademicYear] = useState('2026 [Jan-Dec]');
   const [classFilter, setClassFilter] = useState('');
   const [sectionFilter, setSectionFilter] = useState('');
   const [nameFilter, setNameFilter] = useState('');
   const [rollFilter, setRollFilter] = useState('');
 
   const [appliedFilters, setAppliedFilters] = useState({
-    academicYear: '2026[Jan-Dec]', classFilter: '', sectionFilter: '', nameFilter: '', rollFilter: ''
+    academicYear: '2026 [Jan-Dec]', classFilter: '', sectionFilter: '', nameFilter: '', rollFilter: ''
   });
 
   // Edit modal state
@@ -42,11 +75,21 @@ export default function StudentListPage() {
         api.get('/section')
       ]);
       
-      if (stuRes.success) setStudents(stuRes.data);
-      if (classRes.success) setClasses(classRes.data);
-      if (secRes.success) setSections(secRes.data);
+      if (stuRes?.success && Array.isArray(stuRes.data)) setStudents(stuRes.data);
+      if (classRes?.success && Array.isArray(classRes.data) && classRes.data.length > 0) {
+        setClasses(classRes.data);
+      } else {
+        setClasses(FALLBACK_CLASSES);
+      }
+      if (secRes?.success && Array.isArray(secRes.data) && secRes.data.length > 0) {
+        setSections(secRes.data);
+      } else {
+        setSections(FALLBACK_SECTIONS);
+      }
     } catch (error) {
       console.error(error);
+      setClasses(FALLBACK_CLASSES);
+      setSections(FALLBACK_SECTIONS);
     } finally {
       setLoading(false);
     }
@@ -54,6 +97,9 @@ export default function StudentListPage() {
 
   useEffect(() => {
     fetchData();
+    const handleFocus = () => fetchData();
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, []);
 
   const handleSearch = () => {
@@ -338,10 +384,7 @@ export default function StudentListPage() {
               value={academicYear} 
               onChange={(e) => setAcademicYear(e.target.value)} 
               placeholder="Select Year"
-              options={[
-                { label: '2026[Jan-Dec]', value: '2026[Jan-Dec]' },
-                { label: '2027[Jan-Dec]', value: '2027[Jan-Dec]' }
-              ]} 
+              options={ACADEMIC_YEARS} 
             />
           </div>
           <div className="space-y-1.5">

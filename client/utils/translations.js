@@ -1,9 +1,9 @@
 export const translations = {
   EN: {
     nav: { home: "Home", howToUse: "How To Use", notices: "Notice Board", portals: "Portals", features: "Features", pricing: "Pricing", login: "Login", getStarted: "Get Started" },
-    hero: { badge: "eSkooly PRO is Live — 30 Days Free Trial", title1: "The Complete", title2: "School Management", title3: "ERP", desc: "Manage your entire institution from one unified platform. Tailored portals for Admins, Teachers, Students, Accountants and Parents.", trialBtn: "Start 1 Month Free Trial", howItWorks: "How It Works" },
+    hero: { badge: "Stoofi PRO is Live — 30 Days Free Trial", title1: "The Complete", title2: "School Management", title3: "ERP", desc: "Manage your entire institution from one unified platform. Tailored portals for Admins, Teachers, Students, Accountants and Parents.", trialBtn: "Start 1 Month Free Trial", howItWorks: "How It Works" },
     stats: { schools: "Schools Onboarded", students: "Active Students", uptime: "Uptime Guarantee", rating: "Customer Rating" },
-    howTo: { badge: "Step-by-Step System Guide", title: "How To Use eSkooly ERP", desc: "Follow these simple, streamlined workflows designed for every user role in your institution.", admin: "Super Admin Flow", accountant: "Accountant Flow", teacher: "Teacher Flow", student: "Student & Parent Flow", btnGuide: "Read Detailed User Guide", stepTitle: "4 Simple Consecutive Steps" },
+    howTo: { badge: "Step-by-Step System Guide", title: "How To Use Stoofi ERP", desc: "Follow these simple, streamlined workflows designed for every user role in your institution.", admin: "Super Admin Flow", accountant: "Accountant Flow", teacher: "Teacher Flow", student: "Student & Parent Flow", btnGuide: "Read Detailed User Guide", stepTitle: "4 Simple Consecutive Steps" },
     portals: { badge: "Dedicated Portals", title: "One System, Five Portals", desc: "Every role gets their own tailored dashboard — no clutter, just the right tools.", 
                admin: "Super Admin Portal", tAdmin: "Full control over the entire system, settings, branches, and all users.",
                teacher: "Teacher Portal", tTeacher: "Manage classes, attendance, homework, assignments, and student grades.",

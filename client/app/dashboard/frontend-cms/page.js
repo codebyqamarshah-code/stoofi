@@ -25,13 +25,13 @@ const SECTION_TEMPLATES = {
     type: 'header',
     icon: Heading,
     label: 'Navbar Header',
-    defaultProps: { brand: 'eSkooly', links: 'Home, Features, About, Contact' }
+    defaultProps: { brand: 'Stoofi', links: 'Home, Features, About, Contact' }
   },
   hero: {
     type: 'hero',
     icon: LayoutTemplate,
     label: 'Hero Section',
-    defaultProps: { title: 'Welcome to eSkooly ERP', subtitle: 'The most advanced and powerful school management system in the cloud.', buttonText: 'Get Started Today' }
+    defaultProps: { title: 'Welcome to Stoofi ERP', subtitle: 'The most advanced and powerful school management system in the cloud.', buttonText: 'Get Started Today' }
   },
   features: {
     type: 'features',
@@ -49,7 +49,7 @@ const SECTION_TEMPLATES = {
     type: 'footer',
     icon: PanelBottom,
     label: 'Footer',
-    defaultProps: { copyright: 'Â© 2026 eSkooly. All rights reserved.' }
+    defaultProps: { copyright: 'Â© 2026 Stoofi. All rights reserved.' }
   }
 };
 

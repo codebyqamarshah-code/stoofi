@@ -135,7 +135,7 @@ export default function RegistrationSettingsPage() {
         </div>
 
         <div className="mt-6 flex items-center border border-gray-300 rounded px-4 py-3 bg-gray-50 text-sm text-gray-600">
-          https://eskooly.pro/online/ <span className="text-gray-900 bg-white border border-gray-300 px-3 py-1 rounded ml-2">registration</span>
+          https://stoofi.pro/online/ <span className="text-gray-900 bg-white border border-gray-300 px-3 py-1 rounded ml-2">registration</span>
         </div>
 
         <div className="mt-6">

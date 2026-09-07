@@ -31,7 +31,7 @@ export default function BBBVirtualClassPage() {
       time: '10:00 AM',
       duration: '45',
       status: 'Scheduled',
-      roomUrl: 'https://bbb.eskooly.com/b/mud-771-092'
+      roomUrl: 'https://bbb.stoofi.com/b/mud-771-092'
     },
     {
       id: 2,
@@ -44,7 +44,7 @@ export default function BBBVirtualClassPage() {
       time: '12:00 PM',
       duration: '60',
       status: 'Scheduled',
-      roomUrl: 'https://bbb.eskooly.com/b/fat-491-112'
+      roomUrl: 'https://bbb.stoofi.com/b/fat-491-112'
     }
   ]);
 
@@ -85,7 +85,7 @@ export default function BBBVirtualClassPage() {
         id: Date.now(),
         ...form,
         status: 'Scheduled',
-        roomUrl: `https://bbb.eskooly.com/b/eskooly-${encodeURIComponent(form.classVal.toLowerCase().replace(/\s+/g, '-'))}-${Date.now().toString().slice(-4)}`
+        roomUrl: `https://bbb.stoofi.com/b/stoofi-${encodeURIComponent(form.classVal.toLowerCase().replace(/\s+/g, '-'))}-${Date.now().toString().slice(-4)}`
       };
       setRecords([newRec, ...records]);
     }

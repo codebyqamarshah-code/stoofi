@@ -9,7 +9,7 @@ export default function GeneralSettingsPage() {
     siteTitle: 'Eskooly Admin',
     address: '123 Education Street, NY',
     phoneNumber: '+1 234 567 8900',
-    email: 'admin@eskooly.com',
+    email: 'admin@stoofi.com',
     language: 'English',
     dateFormat: 'DD/MM/YYYY',
     currency: 'USD ($)',

@@ -6,7 +6,7 @@ import { ChevronRight, Save, CheckCircle2, ShieldCheck, KeyRound, Server } from 
 
 export default function BBBSettingsPage() {
   const [settings, setSettings] = useState({
-    serverUrl: 'https://bbb.eskooly.com/bigbluebutton/api',
+    serverUrl: 'https://bbb.stoofi.com/bigbluebutton/api',
     sharedSecret: '8cd8ef52e8e101574e400365b55e11a6',
     autoRecordAll: true,
     allowGuestJoin: true,

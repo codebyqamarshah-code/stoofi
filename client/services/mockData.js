@@ -261,7 +261,7 @@ export const mockDashboardStats = {
 export const mockAuthUser = {
   _id: 'super-admin-001',
   username: 'Super Admin',
-  email: 'admin@eskooly.com',
+  email: 'admin@stoofi.com',
   role: 'Super Admin',
   fullName: 'Administrator'
 };
@@ -300,9 +300,7 @@ export const mockOnlineExams = [];
 
 export const mockAttendanceRecords = [];
 
-// Endpoint to Mock Data Mapping lookup table
 export const endpointMockMap = {
-  '/dashboard/stats': mockDashboardStats,
   '/auth/me': mockAuthUser,
   '/class': mockClasses,
   '/section': mockSections,
@@ -310,9 +308,6 @@ export const endpointMockMap = {
   '/department': mockDepartments,
   '/Department': mockDepartments,
   '/designation': mockDesignations,
-  '/staff': mockStaff,
-  '/student': mockStudents,
-  '/students': mockStudents,
   '/exam-type': mockExamTypes,
   '/exam-grade': mockExamGrades,
   '/exam-setup': mockExamTypes,

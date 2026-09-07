@@ -14,16 +14,30 @@ export const useAuth = create(
 
       login: async (email, password, remember = true, roleLabel = null) => {
         set({ isLoading: true, error: null });
-        const cleanEmail = email?.trim().toLowerCase() || 'admin@gmail.com';
-        const role = roleLabel || (cleanEmail.includes('admin') ? 'Super Admin' : cleanEmail.split('@')[0].toUpperCase());
+        const cleanEmail = email?.trim().toLowerCase() || 'super@gmail.com';
+        
+        let role = roleLabel;
+        if (!role) {
+          if (cleanEmail === 'super@gmail.com') {
+            role = 'Super Admin';
+          } else if (cleanEmail === 'admin@gmail.com') {
+            role = 'Admin';
+          } else {
+            role = cleanEmail.split('@')[0].toUpperCase();
+          }
+        }
+
+        const isSuperAdmin = role === 'Super Admin' || cleanEmail === 'super@gmail.com';
+        const isAdmin = role === 'Admin' || cleanEmail === 'admin@gmail.com';
+
         const userObj = {
-          _id: 'super-admin-001',
-          username: role,
+          _id: isSuperAdmin ? 'super-admin-001' : isAdmin ? 'admin-002' : `user-${Date.now()}`,
+          username: isSuperAdmin ? 'Super Admin' : isAdmin ? 'Admin' : role,
           email: cleanEmail,
           role: role,
-          fullName: role
+          fullName: isSuperAdmin ? 'Super Admin' : isAdmin ? 'Admin' : role
         };
-        const tokenStr = 'mock_jwt_token_super_admin_2026';
+        const tokenStr = isSuperAdmin ? 'mock_jwt_token_super_admin_2026' : isAdmin ? 'mock_jwt_token_admin_2026' : 'mock_jwt_token_user_2026';
 
         try {
           const res = await api.post('/auth/login', { email: cleanEmail, password });
@@ -96,13 +110,12 @@ export const useAuth = create(
            return;
         }
 
-        const resolvedUser = user || {
-          _id: 'super-admin-001',
-          username: 'Super Admin',
-          email: 'admin@gmail.com',
-          role: 'Super Admin',
-          fullName: 'Super Admin'
-        };
+        let resolvedUser = user;
+        if (!resolvedUser) {
+          // No user data found — don't assume any role, force re-login
+          set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+          return;
+        }
 
         set({ isAuthenticated: true, user: resolvedUser, token, isLoading: false });
 

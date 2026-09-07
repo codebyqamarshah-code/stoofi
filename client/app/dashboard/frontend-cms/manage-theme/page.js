@@ -11,7 +11,7 @@ export default function ManageThemePage() {
       name: 'Edulia',
       tag: 'Active: Edulia',
       previewGradient: 'from-emerald-950 via-zinc-900 to-zinc-950',
-      heroTitle: 'ESKOOLY PRO - EDULIA',
+      heroTitle: 'STOOFI PRO - EDULIA',
       heroSubtitle: 'Modern next-generation school management & student portal',
     },
     {
@@ -19,8 +19,8 @@ export default function ManageThemePage() {
       name: 'Default',
       tag: 'Default Theme',
       previewGradient: 'from-zinc-900 via-zinc-800 to-zinc-900',
-      heroTitle: 'ESKOOLY PRO',
-      heroSubtitle: 'Managing various administrative tasks in one place is not easy, eSkooly pro is here to help you.',
+      heroTitle: 'STOOFI PRO',
+      heroSubtitle: 'Managing various administrative tasks in one place is not easy, Stoofi pro is here to help you.',
     }
   ];
 
@@ -51,7 +51,7 @@ export default function ManageThemePage() {
               <div className={`h-56 bg-gradient-to-br ${theme.previewGradient} p-6 flex flex-col justify-center items-center text-center relative border-b border-zinc-800`}>
                 <div className="absolute top-4 left-4 flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-                  <span className="text-xs font-bold tracking-wider text-white uppercase">eSkooly Pro</span>
+                  <span className="text-xs font-bold tracking-wider text-white uppercase">Stoofi Pro</span>
                 </div>
                 <h3 className="text-2xl font-black text-white tracking-wide mb-2 drop-shadow-md">
                   {theme.heroTitle}

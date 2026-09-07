@@ -69,7 +69,7 @@ export default function JitsiHubPage() {
             Jitsi Live Learning & Conferencing
           </h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Integrated high-definition open-source video conferencing module for eSkooly ERP.
+            Integrated high-definition open-source video conferencing module for Stoofi ERP.
           </p>
         </div>
         <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">

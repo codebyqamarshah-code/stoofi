@@ -31,7 +31,7 @@ export default function JitsiVirtualClassPage() {
       time: '10:00 AM',
       duration: '45',
       status: 'Scheduled',
-      roomUrl: 'https://meet.jit.si/eskooly-math-10a'
+      roomUrl: 'https://meet.jit.si/stoofi-math-10a'
     },
     {
       id: 2,
@@ -44,7 +44,7 @@ export default function JitsiVirtualClassPage() {
       time: '11:30 AM',
       duration: '60',
       status: 'Scheduled',
-      roomUrl: 'https://meet.jit.si/eskooly-phy-9b'
+      roomUrl: 'https://meet.jit.si/stoofi-phy-9b'
     }
   ]);
 
@@ -85,7 +85,7 @@ export default function JitsiVirtualClassPage() {
         id: Date.now(),
         ...form,
         status: 'Scheduled',
-        roomUrl: `https://meet.jit.si/eskooly-${encodeURIComponent(form.classVal.toLowerCase().replace(/\s+/g, '-'))}-${Date.now().toString().slice(-4)}`
+        roomUrl: `https://meet.jit.si/stoofi-${encodeURIComponent(form.classVal.toLowerCase().replace(/\s+/g, '-'))}-${Date.now().toString().slice(-4)}`
       };
       setRecords([newRec, ...records]);
     }

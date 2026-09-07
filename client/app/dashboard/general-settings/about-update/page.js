@@ -12,7 +12,7 @@ export default function UpdateSystemPage() {
     { label: 'PHP Version', value: '8.2.30' },
     { label: 'CURL Enable', value: 'enable' },
     { label: 'Purchase Code', value: 'Verified' },
-    { label: 'Install Domain', value: 'https://eskooly.pro' },
+    { label: 'Install Domain', value: 'https://stoofi.pro' },
     { label: 'System Activation Date', value: '15th Aug, 2026' },
     { label: 'Last Update', value: '15th Aug, 2026' },
   ];

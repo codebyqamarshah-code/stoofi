@@ -24,10 +24,10 @@ import {
 const INITIAL_NEWS = [
   { id: 1, title: 'Aut nostrum aut ad repudiandae.', date: '2nd Jun, 2019', category: 'Our mission and vision', image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=150&auto=format&fit=crop&q=80' },
   { id: 2, title: 'Debitis voluptate sed hic.', date: '2nd Jun, 2019', category: 'International', image: 'https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=150&auto=format&fit=crop&q=80' },
-  { id: 3, title: 'Digital Transformation in Education: ESKOOLY PRO Paving the Way', date: '2nd Jun, 2019', category: 'International', image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=150&auto=format&fit=crop&q=80' },
+  { id: 3, title: 'Digital Transformation in Education: STOOFI PRO Paving the Way', date: '2nd Jun, 2019', category: 'International', image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=150&auto=format&fit=crop&q=80' },
   { id: 4, title: 'Dolores aperiam dolor sed expedita.', date: '2nd Jun, 2019', category: 'Our history', image: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=150&auto=format&fit=crop&q=80' },
   { id: 5, title: 'Error eaque qui voluptas aspernatur.', date: '2nd Jun, 2019', category: 'Our history', image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=150&auto=format&fit=crop&q=80' },
-  { id: 6, title: 'ESKOOLY PRO Launches Enhanced Features for a Seamless School Year', date: '2nd Jun, 2019', category: 'International', image: 'https://images.unsplash.com/photo-1519452635265-7b1fbfd1e4e0?w=150&auto=format&fit=crop&q=80' },
+  { id: 6, title: 'STOOFI PRO Launches Enhanced Features for a Seamless School Year', date: '2nd Jun, 2019', category: 'International', image: 'https://images.unsplash.com/photo-1519452635265-7b1fbfd1e4e0?w=150&auto=format&fit=crop&q=80' },
   { id: 7, title: 'Inventore veritatis ea illo eius et.', date: '2nd Jun, 2019', category: 'Our history', image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=150&auto=format&fit=crop&q=80' },
   { id: 8, title: 'Molestiae quo animi explicabo.', date: '2nd Jun, 2019', category: 'Our mission and vision', image: 'https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=150&auto=format&fit=crop&q=80' },
   { id: 9, title: 'Non est nisi est consequatur vitae.', date: '2nd Jun, 2019', category: 'Our mission and vision', image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=150&auto=format&fit=crop&q=80' },

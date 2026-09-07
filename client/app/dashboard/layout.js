@@ -61,7 +61,7 @@ export default function DashboardLayout({ children }) {
   // Sync sidebar configuration from localStorage and event listener
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const stored = getStoredSidebar('Super Admin');
+      const stored = getStoredSidebar(user?.role || 'Super Admin');
       if (stored && Array.isArray(stored)) {
         setMenuStructure(stored);
       }
@@ -72,10 +72,10 @@ export default function DashboardLayout({ children }) {
         }
       };
 
-      window.addEventListener('eskooly_sidebar_updated', handleUpdate);
-      return () => window.removeEventListener('eskooly_sidebar_updated', handleUpdate);
+      window.addEventListener('stoofi_sidebar_updated', handleUpdate);
+      return () => window.removeEventListener('stoofi_sidebar_updated', handleUpdate);
     }
-  }, []);
+  }, [user?.role]);
 
   // Navbar interactive states
   const [globalSearchStr, setGlobalSearchStr] = useState('');
@@ -119,10 +119,9 @@ export default function DashboardLayout({ children }) {
 
     // Safety timeout: if still loading after 3s, force proceed (avoids infinite spinner)
     const timer = setTimeout(() => {
-      const hasToken = typeof window !== 'undefined' && (
+      const hasToken =
         localStorage.getItem('token') ||
-        localStorage.getItem('auth-storage')
-      );
+        localStorage.getItem('auth-storage');
       if (!hasToken) {
         router.push('/login');
       }
@@ -133,11 +132,10 @@ export default function DashboardLayout({ children }) {
 
   useEffect(() => {
     if (mounted && !isLoading && !isAuthenticated && !user) {
-      const hasStoredToken = typeof window !== 'undefined' && (
+      const hasStoredToken =
         localStorage.getItem('token') || 
         localStorage.getItem('auth-storage') ||
-        (typeof document !== 'undefined' && document.cookie.includes('token='))
-      );
+        document.cookie.includes('token=');
       if (!hasStoredToken) {
         router.push('/login');
       }
@@ -150,19 +148,17 @@ export default function DashboardLayout({ children }) {
     localStorage.getItem('auth-storage')
   );
 
-  // Only show full-screen loading screen if user has NO session saved at all
-  if (!hasStoredSession && (!mounted || (isLoading && !user))) {
+
+  // After mounting, if we still don't have a session, we also show it while checking auth.
+  if (!mounted || (!hasStoredSession && (isLoading && !user))) {
     return (
       <div className="flex h-screen items-center justify-center bg-white dark:bg-zinc-950 overflow-hidden">
         <div className="relative flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-700">
-          {/* Glowing ambient background */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-emerald-500/20 blur-[60px] rounded-full animate-pulse pointer-events-none"></div>
-          
           <div className="mb-10 relative z-10 transform hover:scale-105 transition-transform duration-500">
-            <img src="/eskooly light.png" alt="eSkooly PRO" className="h-24 sm:h-32 w-auto object-contain drop-shadow-2xl dark:hidden" />
-            <img src="/logo dark.png" alt="eSkooly PRO" className="h-24 sm:h-32 w-auto object-contain drop-shadow-2xl hidden dark:block" />
+            <img src="/stoofi light.png" alt="Stoofi PRO" className="h-24 sm:h-32 w-auto object-contain drop-shadow-2xl dark:hidden" />
+            <img src="/stoofi dark.png" alt="Stoofi PRO" className="h-24 sm:h-32 w-auto object-contain drop-shadow-2xl hidden dark:block" />
           </div>
-          
           <div className="flex flex-col items-center gap-4 relative z-10">
             <div className="flex gap-2">
               <div className="h-2 w-2 rounded-full bg-emerald-500/80 animate-bounce" style={{ animationDelay: '0ms' }}></div>
@@ -190,7 +186,7 @@ export default function DashboardLayout({ children }) {
     setLang(langCode);
     setIsLangDropdownOpen(false);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('eskooly_lang', langCode);
+      localStorage.setItem('stoofi_lang', langCode);
       let googleLang = 'en';
       if (langCode === 'UR') googleLang = 'ur';
       if (langCode === 'AR') googleLang = 'ar';
@@ -210,8 +206,8 @@ export default function DashboardLayout({ children }) {
         {/* Brand Header */}
         <div className="flex h-[100px] items-center justify-between border-b border-zinc-200 dark:border-zinc-800 px-6 shrink-0 bg-white dark:bg-zinc-950">
           <Link href="/dashboard" className="flex items-center cursor-pointer">
-            <img src="/eskooly light.png" alt="eSkooly PRO" className="h-20 sm:h-[85px] w-auto object-contain dark:hidden transform hover:scale-105 transition-transform duration-300" />
-            <img src="/logo dark.png" alt="eSkooly PRO" className="h-20 sm:h-[85px] w-auto object-contain hidden dark:block transform hover:scale-105 transition-transform duration-300" />
+            <img src="/stoofi light.png" alt="Stoofi PRO" className="h-20 sm:h-[85px] w-auto object-contain dark:hidden transform hover:scale-105 transition-transform duration-300" />
+            <img src="/stoofi dark.png" alt="Stoofi PRO" className="h-20 sm:h-[85px] w-auto object-contain hidden dark:block transform hover:scale-105 transition-transform duration-300" />
           </Link>
           <Button
             variant="ghost"
@@ -300,21 +296,29 @@ export default function DashboardLayout({ children }) {
                       );
                     }
 
+                    const isDashItem = item.id === 'item-dash' || item.name === 'Dashboard';
+                    const targetHref = isDashItem
+                      ? (user?.role === 'Admin' || user?.email === 'admin@gmail.com' ? '/dashboard/admin' : '/dashboard')
+                      : item.href;
+                    const isItemActive = isDashItem
+                      ? (pathname === '/dashboard' || pathname === '/dashboard/admin')
+                      : pathname === item.href;
+
                     return (
                       <Link
                         key={item.id || iIdx}
-                        href={item.href}
+                        href={targetHref}
                         prefetch={true}
-                        onMouseEnter={() => router.prefetch(item.href)}
+                        onMouseEnter={() => router.prefetch(targetHref)}
                         onClick={() => setSidebarOpen(false)}
                         className={`flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold cursor-pointer transition-all duration-200 group ${
-                          pathname === item.href
+                          isItemActive
                             ? 'border border-[#009966] dark:border-emerald-400 bg-white dark:bg-emerald-950/30 text-[#009966] dark:text-emerald-400 font-bold shadow-xs'
                             : 'text-[#009966] dark:text-zinc-400 hover:bg-emerald-50/70 dark:hover:bg-zinc-900/80 hover:text-[#007a52] dark:hover:text-emerald-400 border border-transparent'
                         }`}
                       >
                         <div className="flex items-center space-x-3">
-                          <IconComponent className={`h-4 w-4 transition-colors ${pathname === item.href ? 'text-[#009966] dark:text-emerald-400' : 'text-[#009966] dark:text-zinc-400 group-hover:text-[#007a52] dark:group-hover:text-emerald-400'}`} />
+                          <IconComponent className={`h-4 w-4 transition-colors ${isItemActive ? 'text-[#009966] dark:text-emerald-400' : 'text-[#009966] dark:text-zinc-400 group-hover:text-[#007a52] dark:group-hover:text-emerald-400'}`} />
                           <span>{item.name}</span>
                         </div>
                         {item.badge && (
@@ -467,42 +471,63 @@ export default function DashboardLayout({ children }) {
             </div>
 
             {/* Profile Dropdown */}
-            <div className="relative flex items-center space-x-3 border-l border-emerald-100 dark:border-zinc-800 pl-3">
-              <div 
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-600/20 border border-emerald-300 dark:border-emerald-500/30 flex items-center justify-center text-[#009966] dark:text-emerald-400 font-bold text-xs cursor-pointer hover:bg-emerald-200/60 transition-colors"
-              >
-                {user?.username ? user.username.charAt(0).toUpperCase() : 'S'}
-              </div>
-              <div 
-                className="hidden sm:block text-left cursor-pointer"
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
-              >
-                <div className="text-xs font-bold text-zinc-900 dark:text-zinc-200 leading-none hover:text-[#009966] transition-colors">{user?.username || 'Super Admin'}</div>
-                <div className="text-[10px] text-[#009966] dark:text-emerald-400 font-bold mt-1 uppercase">{user?.role || 'SUPER ADMIN'}</div>
-              </div>
-              
-              {isProfileOpen && (
-                <div className="absolute top-full right-0 mt-2 w-48 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-xl overflow-hidden py-1">
-                  <div className="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800 mb-1">
-                    <div className="text-xs font-bold text-white">{user?.username || 'Super Admin'}</div>
-                    <div className="text-[10px] text-zinc-600 dark:text-zinc-400">{user?.email || 'admin@eskooly.com'}</div>
+            {(() => {
+              const isAdmRoute = pathname.startsWith('/dashboard/admin');
+              const isAdmUser = user?.role === 'Admin' || user?.email === 'admin@gmail.com';
+              const isSuperUser = user?.role === 'Super Admin' || user?.email === 'super@gmail.com';
+
+              const displayUsername = (isAdmRoute || isAdmUser) && !isSuperUser
+                ? 'Admin'
+                : (user?.username || (isAdmRoute ? 'Admin' : 'Super Admin'));
+
+              const displayRole = (isAdmRoute || isAdmUser) && !isSuperUser
+                ? 'ADMIN'
+                : (user?.role || (isAdmRoute ? 'ADMIN' : 'SUPER ADMIN'));
+
+              const displayInitial = displayUsername.charAt(0).toUpperCase() || 'A';
+              const displayEmail = (isAdmRoute || isAdmUser) && !isSuperUser
+                ? (user?.email || 'admin@gmail.com')
+                : (user?.email || 'super@gmail.com');
+
+              return (
+                <div className="relative flex items-center space-x-3 border-l border-emerald-100 dark:border-zinc-800 pl-3">
+                  <div 
+                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                    className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-600/20 border border-emerald-300 dark:border-emerald-500/30 flex items-center justify-center text-[#009966] dark:text-emerald-400 font-bold text-xs cursor-pointer hover:bg-emerald-200/60 transition-colors"
+                  >
+                    {displayInitial}
                   </div>
                   <div 
-                    onClick={() => { setIsProfileOpen(false); router.push('/dashboard/settings/general'); }}
-                    className="px-3 py-1.5 text-xs text-zinc-700 dark:text-zinc-300 hover:bg-emerald-950/50 hover:text-emerald-400 cursor-pointer flex items-center gap-2 transition-colors"
+                    className="hidden sm:block text-left cursor-pointer"
+                    onClick={() => setIsProfileOpen(!isProfileOpen)}
                   >
-                    <Settings className="h-3.5 w-3.5" /> Settings
+                    <div className="text-xs font-bold text-zinc-900 dark:text-zinc-200 leading-none hover:text-[#009966] transition-colors">{displayUsername}</div>
+                    <div className="text-[10px] text-[#009966] dark:text-emerald-400 font-bold mt-1 uppercase">{displayRole}</div>
                   </div>
-                  <div 
-                    onClick={handleLogout}
-                    className="px-3 py-1.5 text-xs text-rose-400 hover:bg-rose-950/50 hover:text-rose-300 cursor-pointer flex items-center gap-2 transition-colors border-t border-zinc-200 dark:border-zinc-800 mt-1 pt-1.5"
-                  >
-                    <LogOut className="h-3.5 w-3.5" /> Logout
-                  </div>
+                  
+                  {isProfileOpen && (
+                    <div className="absolute top-full right-0 mt-2 w-48 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-xl overflow-hidden py-1">
+                      <div className="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800 mb-1">
+                        <div className="text-xs font-bold text-zinc-900 dark:text-white">{displayUsername}</div>
+                        <div className="text-[10px] text-zinc-600 dark:text-zinc-400">{displayEmail}</div>
+                      </div>
+                      <div 
+                        onClick={() => { setIsProfileOpen(false); router.push('/dashboard/settings/general'); }}
+                        className="px-3 py-1.5 text-xs text-zinc-700 dark:text-zinc-300 hover:bg-emerald-950/50 hover:text-emerald-400 cursor-pointer flex items-center gap-2 transition-colors"
+                      >
+                        <Settings className="h-3.5 w-3.5" /> Settings
+                      </div>
+                      <div 
+                        onClick={handleLogout}
+                        className="px-3 py-1.5 text-xs text-rose-400 hover:bg-rose-950/50 hover:text-rose-300 cursor-pointer flex items-center gap-2 transition-colors border-t border-zinc-200 dark:border-zinc-800 mt-1 pt-1.5"
+                      >
+                        <LogOut className="h-3.5 w-3.5" /> Logout
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              );
+            })()}
           </div>
         </header>
 

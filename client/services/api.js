@@ -1,20 +1,21 @@
 import axios from 'axios';
 import { endpointMockMap } from './mockData.js';
 
-// In-memory instant cache for zero-delay page navigation
-const apiCache = new Map();
-const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes cache
-
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
-  timeout: 3500, // 3.5s fast timeout to prevent page hangs
+  timeout: 5000,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
+// Attach Auth Token from localStorage
 api.interceptors.request.use((config) => {
+  if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
+
   if (typeof window !== 'undefined') {
     try {
       const raw = localStorage.getItem('auth-storage');
@@ -36,18 +37,9 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Response Interceptor: Always return response.data directly from MongoDB
 api.interceptors.response.use(
   (response) => {
-    // Cache successful GET responses
-    if (response.config?.method === 'get') {
-      const cacheKey = response.config.url;
-      if (cacheKey) {
-        apiCache.set(cacheKey, { data: response.data, timestamp: Date.now() });
-      }
-    } else {
-      // Invalidate cache on mutations
-      apiCache.clear();
-    }
     return response.data;
   },
   (error) => {
@@ -55,31 +47,138 @@ api.interceptors.response.use(
     const cleanPath = url.split('?')[0];
     const fallback = endpointMockMap[cleanPath];
 
+    // Fast login mock if backend is down
     if (cleanPath === '/auth/login' || cleanPath === '/login') {
+      let reqEmail = 'super@gmail.com';
+      try {
+        if (error.config?.data) {
+          const parsed = typeof error.config.data === 'string' ? JSON.parse(error.config.data) : error.config.data;
+          if (parsed?.email) reqEmail = parsed.email.trim().toLowerCase();
+        }
+      } catch (_) {}
+
+      const isAdm = reqEmail === 'admin@gmail.com';
+      const isSuper = reqEmail === 'super@gmail.com';
+
       return Promise.resolve({
         success: true,
-        token: 'mock_jwt_token_super_admin_2026',
+        token: isAdm ? 'mock_jwt_token_admin_2026' : 'mock_jwt_token_super_admin_2026',
         data: {
-          _id: 'super-admin-001',
-          username: 'Super Admin',
-          email: 'admin@gmail.com',
-          role: 'Super Admin',
-          fullName: 'Super Admin'
+          _id: isAdm ? 'admin-002' : 'super-admin-001',
+          username: isAdm ? 'Admin' : isSuper ? 'Super Admin' : reqEmail.split('@')[0],
+          email: reqEmail,
+          role: isAdm ? 'Admin' : 'Super Admin',
+          fullName: isAdm ? 'Admin' : 'Super Admin'
         },
         message: 'Login successful'
       });
     }
 
+    // Network error fallback: only when backend cannot be reached
     if (!error.response || error.code === 'ECONNABORTED' || (error.message && error.message.includes('Network Error'))) {
+      console.warn(`[API Network Warning] Failed to reach backend for ${cleanPath}. Running in offline/local mode.`);
+      
+      const method = error.config?.method?.toLowerCase();
+      // Use cleanPath as table name, e.g. '/student' -> 'student'
+      const pathParts = cleanPath.split('/').filter(Boolean);
+      const table = pathParts[0] || 'general';
+      const recordId = pathParts.length > 1 ? pathParts[1] : null;
+
+      // Initialize from localStorage or fallback
+      const lsKey = 'mockDB_' + table;
+      let records = [];
+      try {
+        const stored = localStorage.getItem(lsKey);
+        if (stored) {
+          records = JSON.parse(stored);
+        } else if (fallback !== undefined) {
+           records = Array.isArray(fallback) ? fallback : [fallback];
+           localStorage.setItem(lsKey, JSON.stringify(records));
+        }
+      } catch(e) {}
+
+      if (method === 'get') {
+        if (cleanPath === '/dashboard/stats') {
+          // Compute dynamic stats from local DBs
+          const totalStudents = JSON.parse(localStorage.getItem('mockDB_student') || '[]').length;
+          const totalStaff = JSON.parse(localStorage.getItem('mockDB_staff') || '[]').length;
+          const totalClasses = JSON.parse(localStorage.getItem('mockDB_class') || '[]').length;
+          const fallbackStats = fallback || {};
+          return Promise.resolve({
+            success: true,
+            data: {
+              ...fallbackStats,
+              stats: {
+                ...fallbackStats.stats,
+                students: { total: totalStudents || 0, male: 0, female: 0, malePercent: 0, femalePercent: 0 },
+                staff: { total: totalStaff || 0 },
+                classes: { total: totalClasses || 0 }
+              }
+            },
+            message: 'Loaded dynamic dashboard stats from local DB'
+          });
+        }
+        return Promise.resolve({ success: true, data: records, message: 'Loaded from local DB' });
+      }
+
+      if (method === 'post') {
+        let newData = {};
+        if (error.config.data) {
+          try {
+            if (typeof error.config.data === 'string') {
+               newData = JSON.parse(error.config.data);
+            } else if (typeof FormData !== 'undefined' && error.config.data instanceof FormData) {
+               for (let [key, val] of error.config.data.entries()) {
+                 newData[key] = val;
+               }
+            } else {
+               newData = error.config.data;
+            }
+          } catch(e) {}
+        }
+        newData._id = 'mock_' + Date.now();
+        records.push(newData);
+        localStorage.setItem(lsKey, JSON.stringify(records));
+        return Promise.resolve({ success: true, data: newData, message: 'Saved to local DB successfully!' });
+      }
+
+      if (method === 'put' || method === 'patch') {
+        let updateData = {};
+        if (error.config.data) {
+           try {
+             if (typeof error.config.data === 'string') {
+               updateData = JSON.parse(error.config.data);
+             } else if (typeof FormData !== 'undefined' && error.config.data instanceof FormData) {
+               for (let [key, val] of error.config.data.entries()) {
+                 updateData[key] = val;
+               }
+             } else {
+               updateData = error.config.data;
+             }
+           } catch(e) {}
+        }
+        if (recordId) {
+          records = records.map(r => r._id === recordId ? { ...r, ...updateData } : r);
+        }
+        localStorage.setItem(lsKey, JSON.stringify(records));
+        return Promise.resolve({ success: true, data: updateData, message: 'Updated in local DB successfully!' });
+      }
+
+      if (method === 'delete') {
+        if (recordId) {
+           records = records.filter(r => r._id !== recordId);
+           localStorage.setItem(lsKey, JSON.stringify(records));
+        }
+        return Promise.resolve({ success: true, data: null, message: 'Deleted from local DB successfully!' });
+      }
+
       if (fallback !== undefined) {
-        return Promise.resolve({ success: true, data: fallback, message: 'Loaded from offline seed' });
+        return Promise.resolve({ success: true, data: fallback, message: 'Loaded from offline fallback' });
       }
-      if (error.config?.method !== 'get') {
-        return Promise.resolve({ success: true, message: 'Saved successfully (Fast Mode)' });
-      }
-      return Promise.resolve({ success: true, data: [], message: 'Fast offline mode' });
+      return Promise.reject(new Error('Backend server is unreachable. Please check connection.'));
     }
 
+    // 401 Unauthorized handling
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined' && window.location.pathname !== '/login' && window.location.pathname !== '/') {
         const storedToken = localStorage.getItem('token');
@@ -96,65 +195,11 @@ api.interceptors.response.use(
       }
     }
 
-    if (fallback !== undefined) {
-      return Promise.resolve({ success: true, data: fallback, message: 'Loaded from fallback seed' });
-    }
-
     const message = error.response?.data?.message || error.message || 'An unexpected error occurred';
     const err = new Error(message);
     err.response = error.response;
     return Promise.reject(err);
   }
 );
-
-// Zero-Delay Instant GET Wrapper: Returns mock/cached data in 0ms, revalidates in background
-const originalGet = api.get.bind(api);
-api.get = function(url, config = {}) {
-  const cleanPath = url ? url.split('?')[0] : '';
-  const fallback = endpointMockMap[cleanPath];
-
-  // 1. If we have active memory cache, return immediately (0ms)
-  const cached = apiCache.get(url);
-  if (cached && (Date.now() - cached.timestamp < CACHE_TTL_MS)) {
-    return Promise.resolve(JSON.parse(JSON.stringify(cached.data)));
-  }
-
-  // 2. If seed/mock data exists, return INSTANTLY (0ms response)
-  // and trigger silent background sync without blocking the UI
-  if (fallback !== undefined) {
-    const immediateData = {
-      success: true,
-      data: JSON.parse(JSON.stringify(fallback)),
-      message: 'Instant Seed'
-    };
-    
-    apiCache.set(url, { data: immediateData, timestamp: Date.now() });
-
-    // Silent background sync if online (non-blocking)
-    if (typeof window !== 'undefined' && navigator.onLine) {
-      originalGet(url, { ...config, timeout: 1000 })
-        .then(res => {
-          if (res && res.data && (!Array.isArray(res.data) || res.data.length > 0)) {
-            apiCache.set(url, { data: res, timestamp: Date.now() });
-          }
-        })
-        .catch(() => {});
-    }
-
-    return Promise.resolve(immediateData);
-  }
-
-  // 3. For any other endpoints, perform fast fetch with immediate fallback
-  return originalGet(url, config)
-    .then(res => {
-      if (res && res.data) {
-        apiCache.set(url, { data: res, timestamp: Date.now() });
-      }
-      return res;
-    })
-    .catch(() => {
-      return { success: true, data: [], message: 'Fast mode' };
-    });
-};
 
 export default api;

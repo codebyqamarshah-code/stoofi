@@ -6,9 +6,9 @@ import { ChevronRight, Save, CheckCircle2, ShieldCheck, KeyRound, Globe } from '
 
 export default function GMeetSettingsPage() {
   const [settings, setSettings] = useState({
-    workspaceDomain: 'school.eskooly.edu.pk',
-    serviceAccountEmail: 'admin-gmeet@eskooly-workspace.iam.gserviceaccount.com',
-    clientId: '782910482910-eskooly948271.apps.googleusercontent.com',
+    workspaceDomain: 'school.stoofi.edu.pk',
+    serviceAccountEmail: 'admin-gmeet@stoofi-workspace.iam.gserviceaccount.com',
+    clientId: '782910482910-stoofi948271.apps.googleusercontent.com',
     autoAdmitInternal: true,
     requireHostToStart: true,
     enableHostManagement: true,

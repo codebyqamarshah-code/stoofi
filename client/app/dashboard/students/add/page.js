@@ -11,6 +11,39 @@ import { SearchableSelect } from '@/components/ui/searchable-select';
 import api from '@/services/api';
 import { useRouter } from 'next/navigation';
 
+const FALLBACK_CLASSES = [
+  { _id: 'c-nursery', name: 'Nursery', sections: ['A', 'B'] },
+  { _id: 'c-kg', name: 'KG', sections: ['A', 'B'] },
+  { _id: 'c-prep', name: 'Prep', sections: ['A', 'B'] },
+  { _id: 'c-1', name: 'Class 1', sections: ['A', 'B', 'C'] },
+  { _id: 'c-2', name: 'Class 2', sections: ['A', 'B', 'C'] },
+  { _id: 'c-3', name: 'Class 3', sections: ['A', 'B', 'C'] },
+  { _id: 'c-4', name: 'Class 4', sections: ['A', 'B', 'C'] },
+  { _id: 'c-5', name: 'Class 5', sections: ['A', 'B', 'C', 'D'] },
+  { _id: 'c-6', name: 'Class 6', sections: ['A', 'B', 'C', 'D'] },
+  { _id: 'c-7', name: 'Class 7', sections: ['A', 'B', 'C', 'D'] },
+  { _id: 'c-8', name: 'Class 8', sections: ['A', 'B', 'C', 'D'] },
+  { _id: 'c-9', name: 'Class 9', sections: ['A', 'B', 'C'] },
+  { _id: 'c-10', name: 'Class 10', sections: ['A', 'B', 'C'] },
+  { _id: 'c-olevel', name: 'O-Levels', sections: ['A', 'B'] },
+  { _id: 'c-alevel', name: 'A-Levels', sections: ['A', 'B'] },
+];
+
+const FALLBACK_SECTIONS = [
+  { _id: 's-a', name: 'A' },
+  { _id: 's-b', name: 'B' },
+  { _id: 's-c', name: 'C' },
+  { _id: 's-d', name: 'D' },
+];
+
+const ACADEMIC_YEARS = [
+  { label: '2026 [Jan-Dec]', value: '2026 [Jan-Dec]' },
+  { label: '2025 [Jan-Dec]', value: '2025 [Jan-Dec]' },
+  { label: '2024 [Jan-Dec]', value: '2024 [Jan-Dec]' },
+  { label: '2023 [Jan-Dec]', value: '2023 [Jan-Dec]' },
+  { label: '2027 [Jan-Dec]', value: '2027 [Jan-Dec]' },
+];
+
 export default function AddStudentPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('PERSONAL INFO');
@@ -18,7 +51,7 @@ export default function AddStudentPage() {
   const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
-    academicYear: '2026[Jan-Dec]',
+    academicYear: '2026 [Jan-Dec]',
     className: '',
     section: '',
     admissionNo: '',
@@ -61,19 +94,29 @@ export default function AddStudentPage() {
     'OTHER INFO'
   ];
 
-  const [classes, setClasses] = useState([]);
-  const [sections, setSections] = useState([]);
+  const [classes, setClasses] = useState(FALLBACK_CLASSES);
+  const [sections, setSections] = useState(FALLBACK_SECTIONS);
 
   React.useEffect(() => {
     const fetchData = async () => {
       try {
         const classRes = await api.get('/class');
-        if (classRes.success) setClasses(classRes.data);
+        if (classRes?.success && Array.isArray(classRes.data) && classRes.data.length > 0) {
+          setClasses(classRes.data);
+        } else {
+          setClasses(FALLBACK_CLASSES);
+        }
         
         const secRes = await api.get('/section');
-        if (secRes.success) setSections(secRes.data);
+        if (secRes?.success && Array.isArray(secRes.data) && secRes.data.length > 0) {
+          setSections(secRes.data);
+        } else {
+          setSections(FALLBACK_SECTIONS);
+        }
       } catch (err) {
         console.error(err);
+        setClasses(FALLBACK_CLASSES);
+        setSections(FALLBACK_SECTIONS);
       }
     };
     fetchData();
@@ -119,9 +162,7 @@ export default function AddStudentPage() {
         dataToSubmit.append('file', fileInputRef.current.files[0]);
       }
 
-      const res = await api.post('/student', dataToSubmit, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const res = await api.post('/student', dataToSubmit);
 
       if (res.success) {
         alert("Student saved successfully!");
@@ -197,11 +238,7 @@ export default function AddStudentPage() {
                           name="academicYear" 
                           value={formData.academicYear} 
                           onChange={handleInputChange} 
-                          placeholder="Select Year"
-                          options={[
-                            { label: '2026[Jan-Dec]', value: '2026[Jan-Dec]' },
-                            { label: '2027[Jan-Dec]', value: '2027[Jan-Dec]' }
-                          ]} 
+                          options={ACADEMIC_YEARS} 
                         />
                       </div>
                       <div className="space-y-1.5">

@@ -796,7 +796,7 @@ export const DEFAULT_MENU_STRUCTURE = [
   }
 ];
 
-export const STORAGE_KEY = 'eskooly_custom_sidebar_v5';
+export const STORAGE_KEY = 'stoofi_custom_sidebar_v5';
 
 export function getStoredSidebar(role = 'Super Admin') {
   if (typeof window === 'undefined') return DEFAULT_MENU_STRUCTURE;
@@ -816,7 +816,7 @@ export function saveStoredSidebar(menuData, role = 'Super Admin') {
   try {
     localStorage.setItem(`${STORAGE_KEY}_${role}`, JSON.stringify(menuData));
     // Dispatch custom event for real-time live sync across components
-    window.dispatchEvent(new CustomEvent('eskooly_sidebar_updated', { detail: { role, menuData } }));
+    window.dispatchEvent(new CustomEvent('stoofi_sidebar_updated', { detail: { role, menuData } }));
   } catch (e) {
     console.error('Failed to save sidebar data:', e);
   }
@@ -826,7 +826,7 @@ export function resetStoredSidebar(role = 'Super Admin') {
   if (typeof window === 'undefined') return DEFAULT_MENU_STRUCTURE;
   try {
     localStorage.removeItem(`${STORAGE_KEY}_${role}`);
-    window.dispatchEvent(new CustomEvent('eskooly_sidebar_updated', { detail: { role, menuData: DEFAULT_MENU_STRUCTURE } }));
+    window.dispatchEvent(new CustomEvent('stoofi_sidebar_updated', { detail: { role, menuData: DEFAULT_MENU_STRUCTURE } }));
   } catch (e) {
     console.error('Failed to reset sidebar data:', e);
   }
