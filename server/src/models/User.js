@@ -42,6 +42,9 @@ const userSchema = new mongoose.Schema({
   roleModel: {
     type: String,
     enum: ['Student', 'Teacher', 'Parent', 'Staff']
+  },
+  avatar: {
+    type: String // To store base64 profile picture
   }
 }, { timestamps: true });
 

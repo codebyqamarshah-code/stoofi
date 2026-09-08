@@ -37,8 +37,8 @@ export default function GeneralSettingsPage() {
               <h2 className="text-lg font-medium text-white">Change Logo</h2>
             </div>
             <div className="p-6 flex flex-col items-center">
-              <div className="w-32 h-32 bg-zinc-950 border border-zinc-800 rounded-lg flex items-center justify-center mb-4">
-                <ImageIcon size={48} className="text-zinc-700" />
+              <div className="w-24 h-24 bg-zinc-950 border border-zinc-800 rounded-lg flex items-center justify-center mb-4">
+                <ImageIcon size={32} className="text-zinc-700" />
               </div>
               <div className="flex gap-2 w-full">
                 <button className="flex-1 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-medium py-2 px-2 rounded text-sm transition-colors flex justify-center items-center gap-2">

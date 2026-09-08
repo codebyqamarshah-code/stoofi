@@ -38,34 +38,29 @@ export default function LoginPage() {
   }, []);
 
   const onSubmit = async (data) => {
-  const cleanEmail = data.email?.trim().toLowerCase();
-  const cleanPass = data.password?.trim();
-  const res = await login(cleanEmail, cleanPass, rememberMe);
-  if (res?.success) {
-    // Redirect based on email role
-    if (cleanEmail === "super@gmail.com") {
-      window.location.href = "/dashboard"; // Super admin dashboard
-    } else if (cleanEmail === "admin@gmail.com") {
-      window.location.href = "/dashboard/admin"; // Admin dashboard
-    } else {
-      // Fallback – you may adjust as needed
-      window.location.href = "/dashboard";
-    }
-  }
-};
-
-  const handleRoleClick = async (role) => {
-    setValue("email", role.email);
-    setValue("password", role.pass);
-    const res = await login(role.email, role.pass, true, role.label);
+    const cleanEmail = data.email?.trim().toLowerCase();
+    const cleanPass = data.password?.trim();
+    const res = await login(cleanEmail, cleanPass, rememberMe);
     if (res?.success) {
-      // Redirect based on email role (same as form submit)
-      if (role.email === "admin@gmail.com") {
-        window.location.href = "/dashboard/admin";
+      const isSuperAdmin = cleanEmail === 'super@gmail.com';
+      const isAdmin = cleanEmail === 'admin@gmail.com';
+
+      if (isSuperAdmin) {
+        window.location.href = '/dashboard';
+      } else if (isAdmin) {
+        window.location.href = '/dashboard/admin';
       } else {
-        window.location.href = "/dashboard";
+        // Students, Teachers, Parents, Accountants — dashboard under construction
+        window.location.href = '/coming-soon';
       }
     }
+  };
+
+  const handleRoleClick = (role) => {
+    setValue("email", role.email);
+    setValue("password", role.pass);
+    // Auto-login removed for all roles as requested
+    // Users must click SIGN IN manually
   };
 
   const demoRoles = [
@@ -97,8 +92,8 @@ export default function LoginPage() {
         
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <img src="/stoofi light.png" alt="Stoofi PRO" className="h-16 w-auto object-contain dark:hidden" />
-          <img src="/stoofi dark.png" alt="Stoofi PRO" className="h-16 w-auto object-contain hidden dark:block" />
+           <img src="/stoofi light.png" alt="Stoofi PRO" className="h-24 w-auto object-contain dark:hidden" />
+           <img src="/stoofi dark.png" alt="Stoofi PRO" className="h-24 w-auto object-contain hidden dark:block" />
         </div>
 
         {/* Title */}
@@ -201,6 +196,16 @@ export default function LoginPage() {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Register Link */}
+        <div className="mt-6 text-center">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Don't have an account?{' '}
+            <Link href="/register" className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">
+              Register here
+            </Link>
+          </p>
         </div>
         
       </div>

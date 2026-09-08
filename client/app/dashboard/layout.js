@@ -83,22 +83,30 @@ export default function DashboardLayout({ children }) {
   const [session, setSession] = useState('2026 [Jan-Dec]');
   const [isSessionDropdownOpen, setIsSessionDropdownOpen] = useState(false);
   const [lang, setLang] = useState('EN');
-  const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
-  const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+  const [isInitialAppLoading, setIsInitialAppLoading] = useState(true);
 
-  // Close dropdowns on outside click (simple effect for professional feel)
+  // Close menus when clicking outside
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (!e.target.closest('.dropdown-container')) {
-        setIsSessionDropdownOpen(false);
-        setIsLangDropdownOpen(false);
-        setIsNotifOpen(false);
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.relative')) {
         setIsProfileOpen(false);
+        setIsNotifOpen(false);
+        setIsLangDropdownOpen(false);
       }
     };
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  // Artificial Global Loader
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialAppLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleGlobalSearch = (e) => {
@@ -150,23 +158,23 @@ export default function DashboardLayout({ children }) {
 
 
   // After mounting, if we still don't have a session, we also show it while checking auth.
-  if (!mounted || (!hasStoredSession && (isLoading && !user))) {
+  if (!mounted || (!hasStoredSession && (isLoading && !user)) || isInitialAppLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-white dark:bg-zinc-950 overflow-hidden">
-        <div className="relative flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-700">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-emerald-500/20 blur-[60px] rounded-full animate-pulse pointer-events-none"></div>
-          <div className="mb-10 relative z-10 transform hover:scale-105 transition-transform duration-500">
-            <img src="/stoofi light.png" alt="Stoofi PRO" className="h-24 sm:h-32 w-auto object-contain drop-shadow-2xl dark:hidden" />
-            <img src="/stoofi dark.png" alt="Stoofi PRO" className="h-24 sm:h-32 w-auto object-contain drop-shadow-2xl hidden dark:block" />
+      <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300">
+        <div className="relative flex items-center justify-center w-32 h-32 mb-6">
+          {/* Background Border */}
+          <div className="absolute inset-0 border-[3px] border-zinc-200 dark:border-zinc-800 rounded-full"></div>
+          {/* Spinning Ring */}
+          <div className="absolute inset-0 border-[3px] border-[#009966] dark:border-emerald-500 rounded-full border-t-transparent dark:border-t-transparent animate-spin"></div>
+          
+          {/* Center Mascot Logo */}
+          <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center p-2">
+            <img src="/loader.png" alt="Loading" className="w-full h-full object-contain dark:hidden" onError={(e) => e.target.src='/stoofi light.png'} />
+            <img src="/loader.png" alt="Loading" className="w-full h-full object-contain hidden dark:block" onError={(e) => e.target.src='/stoofi dark.png'} />
           </div>
-          <div className="flex flex-col items-center gap-4 relative z-10">
-            <div className="flex gap-2">
-              <div className="h-2 w-2 rounded-full bg-emerald-500/80 animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="h-2 w-2 rounded-full bg-emerald-500/80 animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="h-2 w-2 rounded-full bg-emerald-500/80 animate-bounce" style={{ animationDelay: '300ms' }}></div>
-            </div>
-            <p className="text-zinc-500 dark:text-zinc-500 text-xs font-bold tracking-[0.2em] uppercase">Loading Workspace</p>
-          </div>
+        </div>
+        <div className="text-[#009966] dark:text-emerald-500 font-bold tracking-[0.3em] text-xs sm:text-sm animate-pulse">
+          LOADING ERP...
         </div>
       </div>
     );
@@ -493,9 +501,13 @@ export default function DashboardLayout({ children }) {
                 <div className="relative flex items-center space-x-3 border-l border-emerald-100 dark:border-zinc-800 pl-3">
                   <div 
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-600/20 border border-emerald-300 dark:border-emerald-500/30 flex items-center justify-center text-[#009966] dark:text-emerald-400 font-bold text-xs cursor-pointer hover:bg-emerald-200/60 transition-colors"
+                    className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-600/20 border border-emerald-300 dark:border-emerald-500/30 flex items-center justify-center text-[#009966] dark:text-emerald-400 font-bold text-xs cursor-pointer hover:bg-emerald-200/60 transition-colors overflow-hidden"
                   >
-                    {displayInitial}
+                    {user?.avatar ? (
+                      <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                      displayInitial
+                    )}
                   </div>
                   <div 
                     className="hidden sm:block text-left cursor-pointer"
@@ -510,6 +522,12 @@ export default function DashboardLayout({ children }) {
                       <div className="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800 mb-1">
                         <div className="text-xs font-bold text-zinc-900 dark:text-white">{displayUsername}</div>
                         <div className="text-[10px] text-zinc-600 dark:text-zinc-400">{displayEmail}</div>
+                      </div>
+                      <div 
+                        onClick={() => { setIsProfileOpen(false); router.push('/dashboard/profile'); }}
+                        className="px-3 py-1.5 text-xs text-zinc-700 dark:text-zinc-300 hover:bg-emerald-950/50 hover:text-emerald-400 cursor-pointer flex items-center gap-2 transition-colors"
+                      >
+                        <User className="h-3.5 w-3.5" /> Profile
                       </div>
                       <div 
                         onClick={() => { setIsProfileOpen(false); router.push('/dashboard/settings/general'); }}

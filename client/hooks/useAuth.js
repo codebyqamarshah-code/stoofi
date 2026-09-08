@@ -30,20 +30,11 @@ export const useAuth = create(
         const isSuperAdmin = role === 'Super Admin' || cleanEmail === 'super@gmail.com';
         const isAdmin = role === 'Admin' || cleanEmail === 'admin@gmail.com';
 
-        const userObj = {
-          _id: isSuperAdmin ? 'super-admin-001' : isAdmin ? 'admin-002' : `user-${Date.now()}`,
-          username: isSuperAdmin ? 'Super Admin' : isAdmin ? 'Admin' : role,
-          email: cleanEmail,
-          role: role,
-          fullName: isSuperAdmin ? 'Super Admin' : isAdmin ? 'Admin' : role
-        };
-        const tokenStr = isSuperAdmin ? 'mock_jwt_token_super_admin_2026' : isAdmin ? 'mock_jwt_token_admin_2026' : 'mock_jwt_token_user_2026';
-
         try {
           const res = await api.post('/auth/login', { email: cleanEmail, password });
           if (res && res.success) {
-            const finalUser = res.data || userObj;
-            const finalToken = res.token || tokenStr;
+            const finalUser = res.data;
+            const finalToken = res.token;
             set({
               user: finalUser,
               token: finalToken,
@@ -58,21 +49,38 @@ export const useAuth = create(
             return { success: true };
           }
         } catch (error) {
-          // Fallback to offline / demo login
+          // If NOT super admin or admin, enforce strict DB check and return error
+          if (!isSuperAdmin && !isAdmin) {
+            const errorMsg = error?.response?.data?.message || 'Please register first.';
+            set({ isLoading: false, error: errorMsg });
+            return { success: false, error: errorMsg };
+          }
         }
 
-        set({
-          user: userObj,
-          token: tokenStr,
-          isAuthenticated: true,
-          isLoading: false,
-          error: null
-        });
-        Cookies.set('token', tokenStr, { expires: 7 });
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('token', tokenStr);
+        // Fallback for Super Admin and Admin only (as requested)
+        if (isSuperAdmin || isAdmin) {
+          const userObj = {
+            _id: isSuperAdmin ? 'super-admin-001' : 'admin-002',
+            username: isSuperAdmin ? 'Super Admin' : 'Admin',
+            email: cleanEmail,
+            role: role,
+            fullName: isSuperAdmin ? 'Super Admin' : 'Admin'
+          };
+          const tokenStr = isSuperAdmin ? 'mock_jwt_token_super_admin_2026' : 'mock_jwt_token_admin_2026';
+          
+          set({
+            user: userObj,
+            token: tokenStr,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null
+          });
+          Cookies.set('token', tokenStr, { expires: 7 });
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('token', tokenStr);
+          }
+          return { success: true };
         }
-        return { success: true };
       },
 
       logout: async () => {

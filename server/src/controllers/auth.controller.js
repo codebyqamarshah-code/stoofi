@@ -1,4 +1,7 @@
 const User = require('../models/User');
+const Student = require('../models/Student');
+const Teacher = require('../models/Teacher');
+const Staff = require('../models/Staff');
 const jwt = require('jsonwebtoken');
 
 // Helper to generate tokens
@@ -10,7 +13,12 @@ const generateToken = (id) => {
 
 exports.register = async (req, res, next) => {
   try {
-    const { username, email, password, role } = req.body;
+    const { 
+      username, email, password, role, 
+      fullName, address, fatherName, phone, 
+      dob, joiningDate, studentClass, section, cnic,
+      picture
+    } = req.body;
 
     // Check if user exists
     const userExists = await User.findOne({ email });
@@ -18,13 +26,79 @@ exports.register = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'User already exists' });
     }
 
+    // Determine the role model based on the role
+    let roleModel = 'Student';
+    const finalRole = role || 'Student';
+    if (finalRole === 'Teacher') roleModel = 'Teacher';
+    else if (finalRole === 'Parent') roleModel = 'Parent';
+    else if (['Accountant', 'Librarian', 'Staff'].includes(finalRole)) roleModel = 'Staff';
+
     // Create user
     const user = await User.create({
-      username,
+      username: username || (fullName || '').split(' ')[0] || email.split('@')[0],
       email,
       password,
-      role: role || 'Student' // Default to Student if not provided
+      role: finalRole,
+      roleModel,
+      avatar: picture || ''
     });
+
+    let referenceId = null;
+
+    // Extract first and last name safely
+    const nameParts = (fullName || username || '').split(' ');
+    const firstName = nameParts[0] || 'User';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    // Create the associated record based on role
+    if (finalRole === 'Student') {
+      const student = await Student.create({
+        user: user._id,
+        firstName,
+        lastName,
+        phone: phone || '',
+        currentAddress: address || '',
+        fatherName: fatherName || '',
+        dob: dob || new Date().toISOString(),
+        className: studentClass || '1',
+        section: section || 'A',
+        academicYear: new Date().getFullYear().toString(),
+        admissionNo: 'ADM-' + Date.now(),
+        gender: 'Male', // Default
+        studentPhoto: picture || ''
+      });
+      referenceId = student._id;
+    } else if (finalRole === 'Teacher') {
+      const teacher = await Teacher.create({
+        user: user._id,
+        firstName,
+        lastName,
+        email,
+        phone: phone || '',
+        joiningDate: joiningDate || Date.now(),
+        cnic: cnic || '',
+        gender: 'Male'
+      });
+      referenceId = teacher._id;
+    } else if (roleModel === 'Staff') {
+      const staff = await Staff.create({
+        user: user._id,
+        firstName,
+        lastName,
+        email,
+        phone: phone || '',
+        role: finalRole,
+        cnic: cnic || '',
+        joiningDate: joiningDate || Date.now()
+      });
+      referenceId = staff._id;
+    }
+
+    // Update the user with the reference ID
+    if (referenceId) {
+      user.referenceId = referenceId;
+      await user.save();
+    }
 
     // Generate token
     const token = generateToken(user._id);
@@ -35,11 +109,13 @@ exports.register = async (req, res, next) => {
         _id: user._id,
         username: user.username,
         email: user.email,
-        role: user.role
+        role: user.role,
+        avatar: user.avatar
       },
       token
     });
   } catch (error) {
+    console.error("Registration error: ", error);
     next(error);
   }
 };
@@ -101,7 +177,8 @@ exports.login = async (req, res, next) => {
         _id: user._id,
         username: user.username,
         email: user.email,
-        role: user.role
+        role: user.role,
+        avatar: user.avatar
       },
       token
     });
