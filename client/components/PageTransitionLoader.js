@@ -10,7 +10,6 @@ export default function PageTransitionLoader() {
 
   useEffect(() => {
     if (prevPath !== null && prevPath !== pathname) {
-      // Page changed — show loader briefly
       setLoading(true);
       const timer = setTimeout(() => setLoading(false), 700);
       return () => clearTimeout(timer);
@@ -22,17 +21,11 @@ export default function PageTransitionLoader() {
 
   return (
     <div className="fixed inset-0 z-[9998] flex flex-col items-center justify-center">
-      {/* Blurred backdrop */}
       <div className="absolute inset-0 bg-white/60 dark:bg-zinc-950/70 backdrop-blur-sm transition-all duration-300" />
-
-      {/* Loader card */}
       <div className="relative flex flex-col items-center gap-4 z-10">
         <div className="relative flex items-center justify-center w-20 h-20">
-          {/* Static ring */}
           <div className="absolute inset-0 border-[3px] border-zinc-200 dark:border-zinc-800 rounded-full" />
-          {/* Spinning ring */}
           <div className="absolute inset-0 border-[3px] border-[#009966] dark:border-emerald-500 rounded-full border-t-transparent animate-spin" />
-          {/* Logo inside */}
           <div className="w-11 h-11 flex items-center justify-center">
             <img src="/stoofi light.png" alt="Stoofi" className="w-full h-full object-contain dark:hidden" />
             <img src="/stoofi dark.png" alt="Stoofi" className="w-full h-full object-contain hidden dark:block" />
