@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import PageTransitionLoader from '@/components/PageTransitionLoader';
 import { 
   LayoutDashboard, 
   Users, 
@@ -169,8 +170,8 @@ export default function DashboardLayout({ children }) {
           
           {/* Center Mascot Logo */}
           <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center p-2">
-            <img src="/loader.png" alt="Loading" className="w-full h-full object-contain dark:hidden" onError={(e) => e.target.src='/stoofi light.png'} />
-            <img src="/loader.png" alt="Loading" className="w-full h-full object-contain hidden dark:block" onError={(e) => e.target.src='/stoofi dark.png'} />
+            <img src="/stoofi light.png" alt="Loading" className="w-full h-full object-contain dark:hidden" />
+            <img src="/stoofi dark.png" alt="Loading" className="w-full h-full object-contain hidden dark:block" />
           </div>
         </div>
         <div className="text-[#009966] dark:text-emerald-500 font-bold tracking-[0.3em] text-xs sm:text-sm animate-pulse">
@@ -205,6 +206,7 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="flex h-screen bg-white dark:bg-zinc-950 overflow-hidden">
+      <PageTransitionLoader />
       {/* Sidebar with Accordion Animation */}
       <aside
         className={`${
@@ -556,4 +558,5 @@ export default function DashboardLayout({ children }) {
     </div>
   );
 }
+
 

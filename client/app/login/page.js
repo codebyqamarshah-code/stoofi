@@ -91,10 +91,10 @@ export default function LoginPage() {
       <div className="w-full max-w-[440px] bg-white dark:bg-zinc-900 rounded-2xl p-8 sm:p-10 border border-zinc-100 dark:border-zinc-800">
         
         {/* Logo */}
-        <div className="flex justify-center mb-6">
-           <img src="/stoofi light.png" alt="Stoofi PRO" className="h-24 w-auto object-contain dark:hidden" />
-           <img src="/stoofi dark.png" alt="Stoofi PRO" className="h-24 w-auto object-contain hidden dark:block" />
-        </div>
+          <div className="flex justify-center mb-6">
+           <img src="/stoofi light.png" alt="Stoofi PRO" className="h-12 w-auto object-contain dark:hidden" />
+           <img src="/stoofi dark.png" alt="Stoofi PRO" className="h-12 w-auto object-contain hidden dark:block" />
+          </div>
 
         {/* Title */}
         <div className="text-center mb-8">
@@ -178,11 +178,21 @@ export default function LoginPage() {
               "SIGN IN"
             )}
           </button>
+
+          {/* Register Link - right below Sign In */}
+          <div className="text-center mt-4">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              Don&apos;t have an account?{' '}
+              <Link href="/register" className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">
+                Register here
+              </Link>
+            </p>
+          </div>
         </form>
 
         {/* Demo Roles */}
         <div className="mt-7 pt-6 border-t border-zinc-100 dark:border-zinc-800">
-          <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-4 font-medium text-center uppercase tracking-wider">Click any button below to auto login for demo</p>
+          <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-4 font-medium text-center uppercase tracking-wider">Click any button below to auto-fill for demo</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {demoRoles.map((role) => (
               <button
@@ -196,16 +206,6 @@ export default function LoginPage() {
               </button>
             ))}
           </div>
-        </div>
-
-        {/* Register Link */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Don't have an account?{' '}
-            <Link href="/register" className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">
-              Register here
-            </Link>
-          </p>
         </div>
         
       </div>

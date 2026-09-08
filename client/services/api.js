@@ -47,33 +47,6 @@ api.interceptors.response.use(
     const cleanPath = url.split('?')[0];
     const fallback = endpointMockMap[cleanPath];
 
-    // Fast login mock if backend is down
-    if (cleanPath === '/auth/login' || cleanPath === '/login') {
-      let reqEmail = 'super@gmail.com';
-      try {
-        if (error.config?.data) {
-          const parsed = typeof error.config.data === 'string' ? JSON.parse(error.config.data) : error.config.data;
-          if (parsed?.email) reqEmail = parsed.email.trim().toLowerCase();
-        }
-      } catch (_) {}
-
-      const isAdm = reqEmail === 'admin@gmail.com';
-      const isSuper = reqEmail === 'super@gmail.com';
-
-      return Promise.resolve({
-        success: true,
-        token: isAdm ? 'mock_jwt_token_admin_2026' : 'mock_jwt_token_super_admin_2026',
-        data: {
-          _id: isAdm ? 'admin-002' : 'super-admin-001',
-          username: isAdm ? 'Admin' : isSuper ? 'Super Admin' : reqEmail.split('@')[0],
-          email: reqEmail,
-          role: isAdm ? 'Admin' : 'Super Admin',
-          fullName: isAdm ? 'Admin' : 'Super Admin'
-        },
-        message: 'Login successful'
-      });
-    }
-
     // Network error fallback: only when backend cannot be reached
     if (!error.response || error.code === 'ECONNABORTED' || (error.message && error.message.includes('Network Error'))) {
       console.warn(`[API Network Warning] Failed to reach backend for ${cleanPath}. Running in offline/local mode.`);

@@ -59,7 +59,7 @@ export default function ComingSoonPage() {
       </div>
 
       <h1 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-white mb-4">
-        Dashboard <span className="text-[#009966]">Ban Raha Hai!</span>
+        Dashboard <span className="text-[#009966]">Under Construction</span>
       </h1>
 
       <div className="inline-flex items-center gap-2 bg-[#009966]/10 border border-[#009966]/30 rounded-full px-5 py-2 mb-6">
@@ -75,12 +75,12 @@ export default function ComingSoonPage() {
       </div>
 
       <p className="text-zinc-600 dark:text-zinc-400 text-base max-w-md mb-4 leading-relaxed">
-        Aapka <span className="font-bold text-zinc-900 dark:text-white">{displayRole} Dashboard</span> abhi under construction hai.
-        Jab ye tayyar ho jayega, aap seedha is se apna kaam kar sakenge.
+        Your <span className="font-bold text-zinc-900 dark:text-white">{displayRole} Dashboard</span> is currently under construction.
+        Once it is ready, you will be able to access your portal and manage your workflow seamlessly.
       </p>
 
       <p className="text-zinc-400 dark:text-zinc-600 text-sm">
-        Jald aata hai &mdash; <span className="font-bold text-[#009966]">Stoofi ERP Team</span>
+        Coming Soon &mdash; <span className="font-bold text-[#009966]">Stoofi ERP Team</span>
       </p>
 
     </div>
