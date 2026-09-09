@@ -129,26 +129,25 @@ exports.login = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Please provide email and password' });
     }
 
-    // Clean and check email variations
-    const trimmedEmail = email.trim().toLowerCase();
-    const emailVariations = [
-      trimmedEmail,
-      trimmedEmail.includes('@') && !trimmedEmail.includes('.') ? `${trimmedEmail}.com` : trimmedEmail
-    ];
+    // Clean and check email
+    const cleanEmail = email.trim().toLowerCase();
 
     // Check for user
     const user = await User.findOne({ 
-      email: { $in: emailVariations } 
+      $or: [
+        { email: cleanEmail },
+        { username: cleanEmail }
+      ]
     }).select('+password');
     
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      return res.status(401).json({ success: false, message: 'User not found. Please register first.' });
     }
 
     // Check if password matches
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      return res.status(401).json({ success: false, message: 'Incorrect password.' });
     }
 
     // Check if user is active
