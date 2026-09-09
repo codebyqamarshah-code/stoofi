@@ -142,6 +142,9 @@ api.interceptors.response.use(
       }
 
       if (method === 'post') {
+        if (cleanPath === '/auth/login' || cleanPath === '/login' || cleanPath === '/auth/register' || cleanPath === '/register') {
+           return Promise.reject(new Error('Cannot reach the backend server to authenticate. Please ensure the server is running.'));
+        }
         let newData = {};
         if (error.config.data) {
           try {

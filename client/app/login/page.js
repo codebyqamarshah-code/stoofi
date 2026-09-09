@@ -42,15 +42,18 @@ export default function LoginPage() {
     const cleanPass = data.password?.trim();
     const res = await login(cleanEmail, cleanPass, rememberMe);
     if (res?.success) {
-      const isSuperAdmin = cleanEmail === 'super@gmail.com';
-      const isAdmin = cleanEmail === 'admin@gmail.com';
+      const isSuperAdmin = cleanEmail === 'super@gmail.com' || res.user?.role === 'Super Admin';
+      const isAdmin = cleanEmail === 'admin@gmail.com' || res.user?.role === 'Admin';
+      const isTeacher = res.user?.role === 'Teacher';
 
       if (isSuperAdmin) {
         window.location.href = '/dashboard';
       } else if (isAdmin) {
         window.location.href = '/dashboard/admin';
+      } else if (isTeacher) {
+        window.location.href = '/dashboard/teacher';
       } else {
-        // Students, Teachers, Parents, Accountants — dashboard under construction
+        // Students, Parents, Accountants — dashboard under construction
         window.location.href = '/coming-soon';
       }
     }

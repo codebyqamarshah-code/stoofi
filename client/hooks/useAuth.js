@@ -46,7 +46,7 @@ export const useAuth = create(
             if (typeof window !== 'undefined') {
               localStorage.setItem('token', finalToken);
             }
-            return { success: true };
+            return { success: true, user: finalUser };
           }
         } catch (error) {
           // If NOT super admin or admin, enforce strict DB check and return error
