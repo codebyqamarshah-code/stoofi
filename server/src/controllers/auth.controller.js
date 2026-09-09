@@ -77,6 +77,7 @@ exports.register = async (req, res, next) => {
         phone: phone || '',
         joiningDate: joiningDate || Date.now(),
         cnic: cnic || '',
+        avatar: picture || '',
         gender: 'Male'
       });
       referenceId = teacher._id;

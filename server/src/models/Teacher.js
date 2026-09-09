@@ -9,6 +9,8 @@ const teacherSchema = new mongoose.Schema({
   lastName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   phone: { type: String },
+  cnic: { type: String },
+  avatar: { type: String },
   gender: { type: String, enum: ['Male', 'Female', 'Other'], default: 'Male' },
   designation: { type: String, default: 'Senior Teacher' },
   department: { type: String, default: 'Science' },

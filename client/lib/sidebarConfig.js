@@ -795,11 +795,179 @@ export const DEFAULT_MENU_STRUCTURE = [
     ]
   }
 ];
-
+// Teacher specific sidebar menu
+export const TEACHER_MENU_STRUCTURE = [
+  {
+    id: 'grp-dashboard',
+    groupTitle: 'DASHBOARD',
+    visible: true,
+    items: [
+      { id: 'item-dash', name: 'Dashboard', href: '/dashboard/teacher', iconName: 'LayoutDashboard', visible: true },
+    ],
+  },
+  {
+    id: 'grp-administration',
+    groupTitle: 'ADMINISTRATION',
+    visible: true,
+    items: [
+      {
+        id: 'item-academics',
+        name: 'Academics',
+        iconName: 'GraduationCap',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'sub-acad-class', name: 'Class', href: '/dashboard/academics/class', visible: true },
+          { id: 'sub-acad-section', name: 'Section', href: '/dashboard/academics/section', visible: true },
+          { id: 'sub-acad-subjects', name: 'Subjects', href: '/dashboard/academics/subjects', visible: true },
+        ],
+      },
+      {
+        id: 'item-study-mat',
+        name: 'Study Material',
+        iconName: 'FolderOpen',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'sub-study-upload', name: 'Upload', href: '/dashboard/study/upload', visible: true },
+          { id: 'sub-study-assign', name: 'Assignment', href: '/dashboard/study/assignment', visible: true },
+          { id: 'sub-study-syllabus', name: 'Syllabus', href: '/dashboard/study/syllabus', visible: true },
+          { id: 'sub-study-downloads', name: 'Downloads', href: '/dashboard/study/downloads', visible: true },
+        ],
+      },
+      {
+        id: 'item-lesson-plan',
+        name: 'Lesson Plan',
+        iconName: 'BookMarked',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [],
+      },
+    ],
+  },
+  {
+    id: 'grp-student',
+    groupTitle: 'STUDENT',
+    visible: true,
+    items: [
+      {
+        id: 'item-stu-info',
+        name: 'Student Info',
+        iconName: 'Users',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'sub-stu-list', name: 'Student List', href: '/dashboard/students', visible: true },
+          { id: 'sub-stu-att', name: 'Student Attendance', href: '/dashboard/students/attendance', visible: true },
+        ],
+      },
+      {
+        id: 'item-homework',
+        name: 'Homework',
+        iconName: 'BookOpen',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'sub-hw-add', name: 'Add Homework', href: '/dashboard/homework/add', visible: true },
+          { id: 'sub-hw-list', name: 'Homework List', href: '/dashboard/homework/list', visible: true },
+        ],
+      },
+      {
+        id: 'item-transport',
+        name: 'Transport',
+        iconName: 'BookOpen',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'sub-trans-routes', name: 'Routes', href: '/dashboard/transport/routes', visible: true },
+          { id: 'sub-trans-veh', name: 'Vehicle', href: '/dashboard/transport/vehicle', visible: true },
+        ],
+      },
+      {
+        id: 'item-dormitory',
+        name: 'Dormitory',
+        iconName: 'BookOpen',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'sub-dorm-rooms', name: 'Dormitory Rooms', href: '/dashboard/dormitory/dormitory-rooms', visible: true },
+          { id: 'sub-dorm-dorm', name: 'Dormitory', href: '/dashboard/dormitory', visible: true },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'grp-exam',
+    groupTitle: 'EXAM',
+    visible: true,
+    items: [
+      {
+        id: 'item-exam-main',
+        name: 'Examination',
+        iconName: 'Award',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'sub-ex-type', name: 'Exam Type', href: '/dashboard/examination/exam-type', visible: true },
+          { id: 'sub-ex-setup', name: 'Exam Setup', href: '/dashboard/examination/exam-setup', visible: true },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'grp-hr',
+    groupTitle: 'HR',
+    visible: true,
+    items: [
+      {
+        id: 'item-teacher-eval',
+        name: 'Teacher Evaluation',
+        iconName: 'Award',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [],
+      },
+    ],
+  },
+  {
+    id: 'grp-utilities',
+    groupTitle: 'UTILITIES',
+    visible: true,
+    items: [
+      {
+        id: 'item-ut-comm',
+        name: 'Communicate',
+        iconName: 'Megaphone',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [],
+      },
+    ],
+  },
+  {
+    id: 'grp-module',
+    groupTitle: 'MODULE',
+    visible: true,
+    items: [
+      {
+        id: 'item-mod-vclass',
+        name: 'Virtual Class',
+        iconName: 'Video',
+        badge: 'ADDON',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [],
+      },
+    ],
+  },
+];
 export const STORAGE_KEY = 'stoofi_custom_sidebar_v5';
 
+
 export function getStoredSidebar(role = 'Super Admin') {
-  if (typeof window === 'undefined') return DEFAULT_MENU_STRUCTURE;
+  if (typeof window === 'undefined') {
+    return role === 'Teacher' ? TEACHER_MENU_STRUCTURE : DEFAULT_MENU_STRUCTURE;
+  }
   try {
     const raw = localStorage.getItem(`${STORAGE_KEY}_${role}`);
     if (raw) {
@@ -808,8 +976,9 @@ export function getStoredSidebar(role = 'Super Admin') {
   } catch (e) {
     console.error('Failed to parse sidebar data:', e);
   }
-  return DEFAULT_MENU_STRUCTURE;
+  return role === 'Teacher' ? TEACHER_MENU_STRUCTURE : DEFAULT_MENU_STRUCTURE;
 }
+
 
 export function saveStoredSidebar(menuData, role = 'Super Admin') {
   if (typeof window === 'undefined') return;

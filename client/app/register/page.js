@@ -64,7 +64,7 @@ export default function RegisterPage() {
         }, 2000);
       }
     } catch (err) {
-      setError(err?.response?.data?.message || 'Registration failed. Please try again.');
+      setError(err?.response?.data?.message || err?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
