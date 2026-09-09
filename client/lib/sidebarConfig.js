@@ -817,9 +817,15 @@ export const TEACHER_MENU_STRUCTURE = [
         hasSubmenu: true,
         visible: true,
         subItems: [
-          { id: 'sub-acad-class', name: 'Class', href: '/dashboard/academics/class', visible: true },
+          { id: 'sub-acad-opt-subj', name: 'Optional Subject', href: '/dashboard/academics/optional-subject', visible: true },
           { id: 'sub-acad-section', name: 'Section', href: '/dashboard/academics/section', visible: true },
+          { id: 'sub-acad-class', name: 'Class', href: '/dashboard/academics/class', visible: true },
           { id: 'sub-acad-subjects', name: 'Subjects', href: '/dashboard/academics/subjects', visible: true },
+          { id: 'sub-acad-assign-teacher', name: 'Assign Class Teacher', href: '/dashboard/academics/assign-class-teacher', visible: true },
+          { id: 'sub-acad-assign-subj', name: 'Assign Subject', href: '/dashboard/academics/assign-subject', visible: true },
+          { id: 'sub-acad-classroom', name: 'Class Room', href: '/dashboard/academics/classroom', visible: true },
+          { id: 'sub-acad-routine', name: 'Class Routine', href: '/dashboard/academics/routine', visible: true },
+          { id: 'sub-acad-teacher-routine', name: 'Teacher Class Routine', href: '/dashboard/academics/routine', visible: true },
         ],
       },
       {
@@ -829,10 +835,10 @@ export const TEACHER_MENU_STRUCTURE = [
         hasSubmenu: true,
         visible: true,
         subItems: [
-          { id: 'sub-study-upload', name: 'Upload', href: '/dashboard/study/upload', visible: true },
+          { id: 'sub-study-upload', name: 'Upload Content', href: '/dashboard/study/upload', visible: true },
           { id: 'sub-study-assign', name: 'Assignment', href: '/dashboard/study/assignment', visible: true },
           { id: 'sub-study-syllabus', name: 'Syllabus', href: '/dashboard/study/syllabus', visible: true },
-          { id: 'sub-study-downloads', name: 'Downloads', href: '/dashboard/study/downloads', visible: true },
+          { id: 'sub-study-downloads', name: 'Other Downloads', href: '/dashboard/study/downloads', visible: true },
         ],
       },
       {
@@ -841,7 +847,13 @@ export const TEACHER_MENU_STRUCTURE = [
         iconName: 'BookMarked',
         hasSubmenu: true,
         visible: true,
-        subItems: [],
+        subItems: [
+          { id: 'sub-lesson-item', name: 'Lesson', href: '/dashboard/lesson-plan/lesson', visible: true },
+          { id: 'sub-lesson-topic', name: 'Topic', href: '/dashboard/lesson-plan/topic', visible: true },
+          { id: 'sub-lesson-topic-ov', name: 'Topic Overview', href: '/dashboard/lesson-plan/topic-overview', visible: true },
+          { id: 'sub-lesson-plan-item', name: 'Lesson Plan', href: '/dashboard/lesson-plan/plan', visible: true },
+          { id: 'sub-lesson-plan-ov', name: 'Lesson Plan Overview', href: '/dashboard/lesson-plan/overview', visible: true },
+        ],
       },
     ],
   },
@@ -857,17 +869,24 @@ export const TEACHER_MENU_STRUCTURE = [
         hasSubmenu: true,
         visible: true,
         subItems: [
+          { id: 'sub-stu-cat', name: 'Student Category', href: '/dashboard/students/category', visible: true },
+          { id: 'sub-stu-add', name: 'Add Student', href: '/dashboard/students/add', visible: true },
           { id: 'sub-stu-list', name: 'Student List', href: '/dashboard/students', visible: true },
           { id: 'sub-stu-att', name: 'Student Attendance', href: '/dashboard/students/attendance', visible: true },
+          { id: 'sub-stu-subj-att', name: 'Subject Wise Attendance', href: '/dashboard/students/subject-attendance', visible: true },
+          { id: 'sub-stu-grp', name: 'Student Group', href: '/dashboard/students/groups', visible: true },
+          { id: 'sub-stu-promote', name: 'Student Promote', href: '/dashboard/students/promote', visible: true },
+          { id: 'sub-stu-disable', name: 'Disabled Students', href: '/dashboard/students/disabled', visible: true },
         ],
       },
       {
         id: 'item-homework',
-        name: 'Homework',
+        name: 'HomeWork',
         iconName: 'BookOpen',
         hasSubmenu: true,
         visible: true,
         subItems: [
+          { id: 'sub-hw-rep', name: 'Homework Report', href: '/dashboard/homework/report', visible: true },
           { id: 'sub-hw-add', name: 'Add Homework', href: '/dashboard/homework/add', visible: true },
           { id: 'sub-hw-list', name: 'Homework List', href: '/dashboard/homework/list', visible: true },
         ],
@@ -881,17 +900,19 @@ export const TEACHER_MENU_STRUCTURE = [
         subItems: [
           { id: 'sub-trans-routes', name: 'Routes', href: '/dashboard/transport/routes', visible: true },
           { id: 'sub-trans-veh', name: 'Vehicle', href: '/dashboard/transport/vehicle', visible: true },
+          { id: 'sub-trans-assign', name: 'Assign Vehicle', href: '/dashboard/transport/assign-vehicle', visible: true },
         ],
       },
       {
         id: 'item-dormitory',
         name: 'Dormitory',
-        iconName: 'BookOpen',
+        iconName: 'Building',
         hasSubmenu: true,
         visible: true,
         subItems: [
-          { id: 'sub-dorm-rooms', name: 'Dormitory Rooms', href: '/dashboard/dormitory/dormitory-rooms', visible: true },
+          { id: 'sub-dorm-type', name: 'Room Type', href: '/dashboard/dormitory/room-type', visible: true },
           { id: 'sub-dorm-dorm', name: 'Dormitory', href: '/dashboard/dormitory', visible: true },
+          { id: 'sub-dorm-rooms', name: 'Dormitory Rooms', href: '/dashboard/dormitory/dormitory-rooms', visible: true },
         ],
       },
     ],
@@ -908,8 +929,10 @@ export const TEACHER_MENU_STRUCTURE = [
         hasSubmenu: true,
         visible: true,
         subItems: [
+          { id: 'sub-ex-grade', name: 'Marks Grade', href: '/dashboard/examination/marks-grade', visible: true },
           { id: 'sub-ex-type', name: 'Exam Type', href: '/dashboard/examination/exam-type', visible: true },
           { id: 'sub-ex-setup', name: 'Exam Setup', href: '/dashboard/examination/exam-setup', visible: true },
+          { id: 'sub-ex-sms', name: 'Send Marks By Sms', href: '/dashboard/examination/send-marks-by-sms', visible: true },
         ],
       },
     ],
@@ -925,7 +948,9 @@ export const TEACHER_MENU_STRUCTURE = [
         iconName: 'Award',
         hasSubmenu: true,
         visible: true,
-        subItems: [],
+        subItems: [
+          { id: 'sub-te-my-report', name: 'My Report', href: '/dashboard/teacher-evaluation/teacher-wise-report', visible: true },
+        ],
       },
     ],
   },
@@ -940,7 +965,13 @@ export const TEACHER_MENU_STRUCTURE = [
         iconName: 'Megaphone',
         hasSubmenu: true,
         visible: true,
-        subItems: [],
+        subItems: [
+          { id: 'sub-comm-notice', name: 'Notice Board', href: '/dashboard/utilities/communicate/notice-board', visible: true },
+          { id: 'sub-comm-send', name: 'Send Email / Sms', href: '/dashboard/utilities/communicate/send-email-sms', visible: true },
+          { id: 'sub-comm-log', name: 'Email / Sms Log', href: '/dashboard/utilities/communicate/email-sms-log', visible: true },
+          { id: 'sub-comm-event', name: 'Event', href: '/dashboard/utilities/communicate/event', visible: true },
+          { id: 'sub-comm-cal', name: 'Calendar', href: '/dashboard/utilities/communicate/calendar', visible: true },
+        ],
       },
     ],
   },
@@ -956,11 +987,17 @@ export const TEACHER_MENU_STRUCTURE = [
         badge: 'ADDON',
         hasSubmenu: true,
         visible: true,
-        subItems: [],
+        subItems: [
+          { id: 'sub-vc-vclass', name: 'Virtual Class', href: '/dashboard/module/virtual-class/virtual-class', visible: true },
+          { id: 'sub-vc-vmeet', name: 'Virtual Meeting', href: '/dashboard/module/virtual-class/virtual-meeting', visible: true },
+          { id: 'sub-vc-clsrep', name: 'Class Reports', href: '/dashboard/module/virtual-class/class-reports', visible: true },
+          { id: 'sub-vc-mtrep', name: 'Meeting Reports', href: '/dashboard/module/virtual-class/meeting-reports', visible: true },
+        ],
       },
     ],
   },
 ];
+
 export const STORAGE_KEY = 'stoofi_custom_sidebar_v5';
 
 
@@ -992,12 +1029,13 @@ export function saveStoredSidebar(menuData, role = 'Super Admin') {
 }
 
 export function resetStoredSidebar(role = 'Super Admin') {
-  if (typeof window === 'undefined') return DEFAULT_MENU_STRUCTURE;
+  const defaultMenu = role === 'Teacher' ? TEACHER_MENU_STRUCTURE : DEFAULT_MENU_STRUCTURE;
+  if (typeof window === 'undefined') return defaultMenu;
   try {
     localStorage.removeItem(`${STORAGE_KEY}_${role}`);
-    window.dispatchEvent(new CustomEvent('stoofi_sidebar_updated', { detail: { role, menuData: DEFAULT_MENU_STRUCTURE } }));
+    window.dispatchEvent(new CustomEvent('stoofi_sidebar_updated', { detail: { role, menuData: defaultMenu } }));
   } catch (e) {
     console.error('Failed to reset sidebar data:', e);
   }
-  return DEFAULT_MENU_STRUCTURE;
+  return defaultMenu;
 }
