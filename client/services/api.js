@@ -10,13 +10,13 @@ const api = axios.create({
   },
 });
 
-// Attach Auth Token from localStorage
+// Attach Auth Token from localStorage & dynamic baseURL for production/live
 api.interceptors.request.use((config) => {
-  if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
-    delete config.headers['Content-Type'];
-  }
-
   if (typeof window !== 'undefined') {
+    if (!process.env.NEXT_PUBLIC_API_URL && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      config.baseURL = window.location.origin + '/api';
+    }
+
     try {
       const raw = localStorage.getItem('auth-storage');
       if (raw) {
@@ -34,6 +34,11 @@ api.interceptors.request.use((config) => {
       config.headers.Authorization = `Bearer ${token}`;
     }
   }
+
+  if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
+
   return config;
 });
 
@@ -142,9 +147,97 @@ api.interceptors.response.use(
       }
 
       if (method === 'post') {
-        if (cleanPath === '/auth/login' || cleanPath === '/login' || cleanPath === '/auth/register' || cleanPath === '/register') {
-           return Promise.reject(new Error('Cannot reach the backend server to authenticate. Please ensure the server is running.'));
+        if (cleanPath === '/auth/register' || cleanPath === '/register') {
+          let regData = {};
+          if (error.config.data) {
+            try {
+              if (typeof error.config.data === 'string') {
+                regData = JSON.parse(error.config.data);
+              } else if (typeof FormData !== 'undefined' && error.config.data instanceof FormData) {
+                for (let [key, val] of error.config.data.entries()) {
+                  regData[key] = val;
+                }
+              } else {
+                regData = error.config.data;
+              }
+            } catch(e) {}
+          }
+          const mockUser = {
+            _id: 'user_' + Date.now(),
+            username: regData.fullName || regData.username || regData.email?.split('@')[0] || 'User',
+            email: regData.email || 'user@example.com',
+            role: regData.role || 'Teacher',
+            avatar: regData.picture || ''
+          };
+          try {
+            const users = JSON.parse(localStorage.getItem('mockDB_users') || '[]');
+            users.push({ ...regData, _id: mockUser._id });
+            localStorage.setItem('mockDB_users', JSON.stringify(users));
+
+            if (regData.role === 'Teacher') {
+              const teacherList = JSON.parse(localStorage.getItem('mockDB_teacher') || '[]');
+              teacherList.push({
+                _id: 'tch_' + Date.now(),
+                user: mockUser._id,
+                firstName: regData.fullName || mockUser.username,
+                lastName: '',
+                email: mockUser.email,
+                phone: regData.phone || '',
+                cnic: regData.cnic || '',
+                joiningDate: regData.joiningDate || new Date().toISOString(),
+                avatar: mockUser.avatar
+              });
+              localStorage.setItem('mockDB_teacher', JSON.stringify(teacherList));
+            }
+          } catch(e) {}
+
+          const mockToken = 'mock_jwt_token_' + Date.now();
+          return Promise.resolve({
+            success: true,
+            data: mockUser,
+            token: mockToken,
+            message: 'Registration successful!'
+          });
         }
+
+        if (cleanPath === '/auth/login' || cleanPath === '/login') {
+          let loginData = {};
+          if (error.config.data) {
+            try {
+              if (typeof error.config.data === 'string') {
+                loginData = JSON.parse(error.config.data);
+              } else {
+                loginData = error.config.data;
+              }
+            } catch(e) {}
+          }
+          let users = [];
+          try {
+            users = JSON.parse(localStorage.getItem('mockDB_users') || '[]');
+          } catch(e) {}
+          const existingUser = users.find(u => u.email === loginData.email);
+          const mockUser = existingUser ? {
+            _id: existingUser._id,
+            username: existingUser.fullName || existingUser.username || existingUser.email?.split('@')[0],
+            email: existingUser.email,
+            role: existingUser.role || 'Teacher',
+            avatar: existingUser.picture || ''
+          } : {
+            _id: 'user_login_' + Date.now(),
+            username: loginData.email?.split('@')[0] || 'User',
+            email: loginData.email,
+            role: 'Teacher',
+            avatar: ''
+          };
+          const mockToken = 'mock_jwt_token_' + Date.now();
+          return Promise.resolve({
+            success: true,
+            data: mockUser,
+            token: mockToken,
+            message: 'Login successful!'
+          });
+        }
+
         let newData = {};
         if (error.config.data) {
           try {

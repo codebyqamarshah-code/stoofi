@@ -6,7 +6,7 @@ const teacherSchema = new mongoose.Schema({
     ref: 'User'
   },
   firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
+  lastName: { type: String, default: '' },
   email: { type: String, required: true, unique: true },
   phone: { type: String },
   cnic: { type: String },
