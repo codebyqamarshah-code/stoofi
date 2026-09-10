@@ -211,23 +211,42 @@ api.interceptors.response.use(
               }
             } catch(e) {}
           }
+          const emailInput = (loginData.email || '').trim().toLowerCase();
+
+          // Default system accounts
+          const predefined = [
+            { email: 'super@gmail.com', role: 'Super Admin', username: 'Super Admin' },
+            { email: 'admin@gmail.com', role: 'Admin', username: 'Admin' }
+          ];
+
           let users = [];
           try {
             users = JSON.parse(localStorage.getItem('mockDB_users') || '[]');
           } catch(e) {}
-          const existingUser = users.find(u => u.email === loginData.email);
-          const mockUser = existingUser ? {
-            _id: existingUser._id,
-            username: existingUser.fullName || existingUser.username || existingUser.email?.split('@')[0],
-            email: existingUser.email,
-            role: existingUser.role || 'Teacher',
-            avatar: existingUser.picture || ''
-          } : {
-            _id: 'user_login_' + Date.now(),
-            username: loginData.email?.split('@')[0] || 'User',
-            email: loginData.email,
-            role: 'Teacher',
-            avatar: ''
+
+          const foundInDb = users.find(u => (u.email || '').trim().toLowerCase() === emailInput || (u.username || '').trim().toLowerCase() === emailInput);
+          const foundPredefined = predefined.find(p => p.email === emailInput);
+
+          const matchedUser = foundInDb || foundPredefined;
+
+          if (!matchedUser) {
+            return Promise.reject({
+              response: {
+                data: {
+                  success: false,
+                  message: 'User not found. Please register first.'
+                }
+              },
+              message: 'User not found. Please register first.'
+            });
+          }
+
+          const mockUser = {
+            _id: matchedUser._id || 'user_' + Date.now(),
+            username: matchedUser.fullName || matchedUser.username || matchedUser.email?.split('@')[0],
+            email: matchedUser.email,
+            role: matchedUser.role || 'Teacher',
+            avatar: matchedUser.picture || matchedUser.avatar || ''
           };
           const mockToken = 'mock_jwt_token_' + Date.now();
           return Promise.resolve({

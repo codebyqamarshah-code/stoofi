@@ -49,37 +49,9 @@ export const useAuth = create(
             return { success: true, user: finalUser };
           }
         } catch (error) {
-          // If NOT super admin or admin, enforce strict DB check and return error
-          if (!isSuperAdmin && !isAdmin) {
-            const errorMsg = error?.response?.data?.message || 'Please register first.';
-            set({ isLoading: false, error: errorMsg });
-            return { success: false, error: errorMsg };
-          }
-        }
-
-        // Fallback for Super Admin and Admin only (as requested)
-        if (isSuperAdmin || isAdmin) {
-          const userObj = {
-            _id: isSuperAdmin ? 'super-admin-001' : 'admin-002',
-            username: isSuperAdmin ? 'Super Admin' : 'Admin',
-            email: cleanEmail,
-            role: role,
-            fullName: isSuperAdmin ? 'Super Admin' : 'Admin'
-          };
-          const tokenStr = isSuperAdmin ? 'mock_jwt_token_super_admin_2026' : 'mock_jwt_token_admin_2026';
-          
-          set({
-            user: userObj,
-            token: tokenStr,
-            isAuthenticated: true,
-            isLoading: false,
-            error: null
-          });
-          Cookies.set('token', tokenStr, { expires: 7 });
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('token', tokenStr);
-          }
-          return { success: true };
+          const errorMsg = error?.response?.data?.message || error?.message || 'User not found. Please register first.';
+          set({ isLoading: false, error: errorMsg });
+          return { success: false, error: errorMsg };
         }
       },
 
