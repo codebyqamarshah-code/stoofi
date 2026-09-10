@@ -162,32 +162,38 @@ api.interceptors.response.use(
               }
             } catch(e) {}
           }
+          let safeAvatar = regData.picture || regData.avatar || '';
+          if (typeof safeAvatar === 'string' && safeAvatar.length > 5000) {
+            safeAvatar = ''; // Prevent QuotaExceededError from large base64 images
+          }
+          const safeRegData = { ...regData, picture: safeAvatar, avatar: safeAvatar };
+
           const mockUser = {
             _id: 'user_' + Date.now(),
-            username: regData.fullName || regData.username || regData.email?.split('@')[0] || 'User',
-            email: regData.email || 'user@example.com',
-            role: regData.role || 'Teacher',
-            avatar: regData.picture || ''
+            username: safeRegData.fullName || safeRegData.username || safeRegData.email?.split('@')[0] || 'User',
+            email: safeRegData.email || 'user@example.com',
+            role: safeRegData.role || 'Teacher',
+            avatar: safeAvatar
           };
           try {
             const users = JSON.parse(localStorage.getItem('mockDB_users') || '[]');
-            users.push({ ...regData, _id: mockUser._id });
-            localStorage.setItem('mockDB_users', JSON.stringify(users));
+            users.push({ ...safeRegData, _id: mockUser._id });
+            try { localStorage.setItem('mockDB_users', JSON.stringify(users)); } catch(e) {}
 
-            if (regData.role === 'Teacher') {
+            if (safeRegData.role === 'Teacher') {
               const teacherList = JSON.parse(localStorage.getItem('mockDB_teacher') || '[]');
               teacherList.push({
                 _id: 'tch_' + Date.now(),
                 user: mockUser._id,
-                firstName: regData.fullName || mockUser.username,
+                firstName: safeRegData.fullName || mockUser.username,
                 lastName: '',
                 email: mockUser.email,
-                phone: regData.phone || '',
-                cnic: regData.cnic || '',
-                joiningDate: regData.joiningDate || new Date().toISOString(),
-                avatar: mockUser.avatar
+                phone: safeRegData.phone || '',
+                cnic: safeRegData.cnic || '',
+                joiningDate: safeRegData.joiningDate || new Date().toISOString(),
+                avatar: safeAvatar
               });
-              localStorage.setItem('mockDB_teacher', JSON.stringify(teacherList));
+              try { localStorage.setItem('mockDB_teacher', JSON.stringify(teacherList)); } catch(e) {}
             }
           } catch(e) {}
 
@@ -241,12 +247,15 @@ api.interceptors.response.use(
             });
           }
 
+          let safeAvatar = matchedUser.picture || matchedUser.avatar || '';
+          if (typeof safeAvatar === 'string' && safeAvatar.length > 5000) safeAvatar = '';
+
           const mockUser = {
             _id: matchedUser._id || 'user_' + Date.now(),
             username: matchedUser.fullName || matchedUser.username || matchedUser.email?.split('@')[0],
             email: matchedUser.email,
             role: matchedUser.role || 'Teacher',
-            avatar: matchedUser.picture || matchedUser.avatar || ''
+            avatar: safeAvatar
           };
           const mockToken = 'mock_jwt_token_' + Date.now();
           return Promise.resolve({
@@ -272,8 +281,11 @@ api.interceptors.response.use(
           } catch(e) {}
         }
         newData._id = 'mock_' + Date.now();
+        if (typeof newData.avatar === 'string' && newData.avatar.length > 5000) newData.avatar = '';
+        if (typeof newData.picture === 'string' && newData.picture.length > 5000) newData.picture = '';
+        if (typeof newData.image === 'string' && newData.image.length > 5000) newData.image = '';
         records.push(newData);
-        localStorage.setItem(lsKey, JSON.stringify(records));
+        try { localStorage.setItem(lsKey, JSON.stringify(records)); } catch(e) {}
         return Promise.resolve({ success: true, data: newData, message: 'Saved to local DB successfully!' });
       }
 
@@ -292,10 +304,13 @@ api.interceptors.response.use(
              }
            } catch(e) {}
         }
+        if (typeof updateData.avatar === 'string' && updateData.avatar.length > 5000) updateData.avatar = '';
+        if (typeof updateData.picture === 'string' && updateData.picture.length > 5000) updateData.picture = '';
+        if (typeof updateData.image === 'string' && updateData.image.length > 5000) updateData.image = '';
         if (recordId) {
           records = records.map(r => r._id === recordId ? { ...r, ...updateData } : r);
         }
-        localStorage.setItem(lsKey, JSON.stringify(records));
+        try { localStorage.setItem(lsKey, JSON.stringify(records)); } catch(e) {}
         return Promise.resolve({ success: true, data: updateData, message: 'Updated in local DB successfully!' });
       }
 

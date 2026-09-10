@@ -115,7 +115,15 @@ export const useAuth = create(
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({ user: state.user, token: state.token, isAuthenticated: state.isAuthenticated }),
+      partialize: (state) => {
+        let safeUser = state.user;
+        if (safeUser) {
+          safeUser = { ...safeUser };
+          if (safeUser.avatar && safeUser.avatar.length > 5000) safeUser.avatar = '';
+          if (safeUser.picture && safeUser.picture.length > 5000) safeUser.picture = '';
+        }
+        return { user: safeUser, token: state.token, isAuthenticated: state.isAuthenticated };
+      },
     }
   )
 );
