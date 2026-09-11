@@ -219,9 +219,9 @@ export default function FrontendCmsPage() {
                 <div 
                   key={key}
                   onClick={() => addSection(key)}
-                  className="flex items-center gap-3 p-3 bg-zinc-900 border border-zinc-800 rounded-lg cursor-pointer hover:border-zinc-600/50 hover:bg-emerald-950/20 transition group"
+                  className="flex items-center gap-3 p-3 bg-zinc-900 border border-zinc-800 rounded-lg cursor-pointer hover:border-zinc-600/50 hover:bg-zinc-100 transition group"
                 >
-                  <div className="h-8 w-8 rounded-md bg-zinc-800 text-zinc-400 group-hover:text-zinc-500 group-hover:bg-emerald-900/40 flex items-center justify-center transition">
+                  <div className="h-8 w-8 rounded-md bg-zinc-800 text-zinc-400 group-hover:text-zinc-500 group-hover:bg-zinc-100 flex items-center justify-center transition">
                     <Icon size={16} />
                   </div>
                   <div className="flex-1 text-xs font-semibold text-zinc-300 group-hover:text-zinc-200">{tmpl.label}</div>

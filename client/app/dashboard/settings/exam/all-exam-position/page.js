@@ -23,7 +23,7 @@ export default function AllExamPositionPage() {
         <h2 className="text-sm font-bold text-indigo-900 dark:text-indigo-100 mb-6">Select Criteria</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <select value={classVal} onChange={(e) => setClassVal(e.target.value)} className="w-full bg-transparent border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-sm rounded-md px-3 py-3 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+          <select value={classVal} onChange={(e) => setClassVal(e.target.value)} className="w-full bg-transparent border border-zinc-200 dark:border-zinc-200 text-zinc-700 dark:text-zinc-700 text-sm rounded-md px-3 py-3 focus:outline-none focus:ring-1 focus:ring-indigo-500">
             <option value="">Select Class *</option>
             <option value="1">Class 1</option>
             <option value="2">Class 2</option>
@@ -38,7 +38,7 @@ export default function AllExamPositionPage() {
             <option value="11">O-Levels</option>
             <option value="12">A-Levels</option>
           </select>
-          <select value={section} onChange={(e) => setSection(e.target.value)} className="w-full bg-transparent border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-sm rounded-md px-3 py-3 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+          <select value={section} onChange={(e) => setSection(e.target.value)} className="w-full bg-transparent border border-zinc-200 dark:border-zinc-200 text-zinc-700 dark:text-zinc-700 text-sm rounded-md px-3 py-3 focus:outline-none focus:ring-1 focus:ring-indigo-500">
             <option value="">Select Section *</option>
             <option value="A">Section A</option>
             <option value="B">Section B</option>

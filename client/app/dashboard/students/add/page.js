@@ -237,7 +237,7 @@ export default function AddStudentPage() {
                   onClick={() => setActiveTab(tab)}
                   className={`px-4 py-3 text-xs font-semibold transition-colors border-b-2 uppercase ${
                     activeTab === tab
-                      ? 'border-zinc-600 text-zinc-500 bg-emerald-950/20'
+                      ? 'border-zinc-600 text-zinc-500 bg-zinc-100'
                       : 'border-transparent text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50'
                   }`}
                 >

@@ -77,32 +77,31 @@ export default function LoginPage() {
 
   if (!mounted) return null;
 
-  const inputClass = "w-full pl-14 pr-4 py-3.5 rounded-xl focus:outline-none focus:border-zinc-600 focus:ring-2 focus:ring-zinc-600/20 transition-all font-medium border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600";
+  const inputClass = "w-full pl-14 pr-4 py-3.5 rounded-xl focus:outline-none focus:border-zinc-600 focus:ring-2 focus:ring-zinc-600/20 transition-all font-medium border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white text-zinc-900 dark:text-zinc-900 placeholder-zinc-400 dark:placeholder-zinc-600";
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-zinc-50 dark:bg-white transition-colors duration-300">
       
       {/* Top Controls */}
       <div className="absolute top-6 left-6 right-6 flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-2 text-zinc-800 dark:text-emerald-400 font-semibold hover:opacity-80 transition-opacity text-sm">
+        <Link href="/" className="flex items-center gap-2 text-zinc-800 dark:text-zinc-900 font-semibold hover:opacity-80 transition-opacity text-sm">
           <ArrowLeft size={16} /> Back to Home
         </Link>
         <ThemeToggle />
       </div>
 
       {/* Card - no shadow */}
-      <div className="w-full max-w-[440px] bg-white dark:bg-zinc-900 rounded-2xl p-8 sm:p-10 border border-zinc-100 dark:border-zinc-800">
+      <div className="w-full max-w-[440px] bg-white dark:bg-zinc-50 rounded-2xl p-8 sm:p-10 border border-zinc-100 dark:border-zinc-200">
         
         {/* Logo */}
           <div className="flex justify-center mb-6">
-           <img src="/logo dark(2).png" alt="Stoofi PRO" className="h-12 w-auto object-contain dark:hidden" />
-           <img src="/stoofi dark.png" alt="Stoofi PRO" className="h-12 w-auto object-contain hidden dark:block" />
+           <img src="/logo dark(2).png" alt="Stoofi PRO" className="h-12 w-auto object-contain" />
           </div>
 
         {/* Title */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-1.5">Login Details</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">Sign in to your account to continue</p>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-900 mb-1.5">Login Details</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-600">Sign in to your account to continue</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -158,13 +157,13 @@ export default function LoginPage() {
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
-                className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-700 accent-zinc-800"
+                className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-200 accent-zinc-800"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
               />
-              <span className="text-sm text-zinc-600 dark:text-zinc-400">Remember Me</span>
+              <span className="text-sm text-zinc-600 dark:text-zinc-600">Remember Me</span>
             </label>
-            <a href="#" className="text-sm text-zinc-800 dark:text-emerald-400 font-semibold hover:underline">
+            <a href="#" className="text-sm text-zinc-800 dark:text-zinc-900 font-semibold hover:underline">
               Forget Password?
             </a>
           </div>
@@ -184,9 +183,9 @@ export default function LoginPage() {
 
           {/* Register Link - right below Sign In */}
           <div className="text-center mt-4">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="text-sm text-zinc-500 dark:text-zinc-600">
               Don&apos;t have an account?{' '}
-              <Link href="/register" className="text-zinc-800 dark:text-emerald-400 font-bold hover:underline cursor-pointer">
+              <Link href="/register" className="text-zinc-800 dark:text-zinc-900 font-bold hover:underline cursor-pointer">
                 Register here
               </Link>
             </p>
@@ -194,8 +193,8 @@ export default function LoginPage() {
         </form>
 
         {/* Demo Roles */}
-        <div className="mt-7 pt-6 border-t border-zinc-100 dark:border-zinc-800">
-          <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-4 font-medium text-center uppercase tracking-wider">Click any button below to auto-fill for demo</p>
+        <div className="mt-7 pt-6 border-t border-zinc-100 dark:border-zinc-200">
+          <p className="text-xs text-zinc-400 dark:text-zinc-9000 mb-4 font-medium text-center uppercase tracking-wider">Click any button below to auto-fill for demo</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {demoRoles.map((role) => (
               <button
@@ -203,7 +202,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => handleRoleClick(role)}
                 disabled={isLoading}
-                className="py-2.5 px-1 bg-zinc-100 dark:bg-emerald-950/30 hover:bg-zinc-200 dark:hover:bg-emerald-900/40 text-zinc-800 dark:text-emerald-400 text-[11px] font-bold rounded-lg border border-zinc-200 dark:border-emerald-900/40 transition-colors uppercase tracking-wider disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed"
+                className="py-2.5 px-1 bg-zinc-100 dark:bg-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-200 text-zinc-800 dark:text-zinc-900 text-[11px] font-bold rounded-lg border border-zinc-200 dark:border-zinc-200 transition-colors uppercase tracking-wider disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed"
               >
                 {role.label}
               </button>

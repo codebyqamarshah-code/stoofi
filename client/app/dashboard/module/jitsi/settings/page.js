@@ -58,49 +58,49 @@ export default function JitsiSettingsPage() {
       {/* Header & Breadcrumbs */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-900">
             Jitsi Settings
           </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+          <p className="text-sm text-zinc-500 dark:text-zinc-600 mt-1">
             Configure Jitsi Meet integration parameters, domain URLs, and session defaults.
           </p>
         </div>
-        <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
-          <Link href="/dashboard" className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">
+        <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-600">
+          <Link href="/dashboard" className="hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">
             Dashboard
           </Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/module/jitsi" className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">
+          <Link href="/dashboard/module/jitsi" className="hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">
             Jitsi
           </Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-800 dark:text-emerald-400 font-medium">Settings</span>
+          <span className="text-zinc-800 dark:text-zinc-900 font-medium">Settings</span>
         </div>
       </div>
 
       {/* Success Alert */}
       {savedSuccess && (
-        <div className="p-4 rounded-xl bg-zinc-100 dark:bg-emerald-950/50 border border-zinc-300 dark:border-emerald-800 text-zinc-900 dark:text-emerald-300 flex items-center gap-3 text-sm animate-in fade-in duration-200">
+        <div className="p-4 rounded-xl bg-zinc-100 dark:bg-zinc-100 border border-zinc-300 dark:border-zinc-200 text-zinc-900 dark:text-zinc-900 flex items-center gap-3 text-sm animate-in fade-in duration-200">
           <CheckCircle2 className="h-5 w-5 text-zinc-800 flex-shrink-0" />
           <span>Jitsi configuration settings have been updated successfully.</span>
         </div>
       )}
 
       {/* Settings Form Card */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm p-6 sm:p-8">
+      <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl shadow-sm p-6 sm:p-8">
         <form onSubmit={handleSave} className="space-y-8">
           {/* Section 1: Server Connection */}
           <div>
-            <div className="flex items-center gap-2.5 pb-3 mb-5 border-b border-zinc-100 dark:border-zinc-800">
-              <Server className="h-5 w-5 text-zinc-800 dark:text-emerald-400" />
-              <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
+            <div className="flex items-center gap-2.5 pb-3 mb-5 border-b border-zinc-100 dark:border-zinc-200">
+              <Server className="h-5 w-5 text-zinc-800 dark:text-zinc-900" />
+              <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900 uppercase tracking-wider">
                 Server Credentials & Domain
               </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                   Jitsi Server URL <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
@@ -111,7 +111,7 @@ export default function JitsiSettingsPage() {
                     value={settings.serverUrl}
                     onChange={(e) => setSettings({ ...settings, serverUrl: e.target.value })}
                     placeholder="https://meet.jit.si"
-                    className="w-full pl-10 pr-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                    className="w-full pl-10 pr-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                   />
                 </div>
                 <p className="text-[11px] text-zinc-400 mt-1">
@@ -120,7 +120,7 @@ export default function JitsiSettingsPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                   App ID / Tenant ID
                 </label>
                 <input
@@ -128,7 +128,7 @@ export default function JitsiSettingsPage() {
                   value={settings.appId}
                   onChange={(e) => setSettings({ ...settings, appId: e.target.value })}
                   placeholder="e.g. vpaas-magic-cookie-xxx"
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                 />
                 <p className="text-[11px] text-zinc-400 mt-1">
                   Leave blank if utilizing community server without 8x8 JaaS tenant.
@@ -136,7 +136,7 @@ export default function JitsiSettingsPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                   App Secret / JWT Private Key
                 </label>
                 <div className="relative">
@@ -146,7 +146,7 @@ export default function JitsiSettingsPage() {
                     value={settings.secretKey}
                     onChange={(e) => setSettings({ ...settings, secretKey: e.target.value })}
                     placeholder="Enter private JWT secret..."
-                    className="w-full pl-10 pr-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                    className="w-full pl-10 pr-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -155,22 +155,22 @@ export default function JitsiSettingsPage() {
 
           {/* Section 2: Meeting Room Defaults */}
           <div>
-            <div className="flex items-center gap-2.5 pb-3 mb-5 border-b border-zinc-100 dark:border-zinc-800">
-              <Sliders className="h-5 w-5 text-zinc-800 dark:text-emerald-400" />
-              <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
+            <div className="flex items-center gap-2.5 pb-3 mb-5 border-b border-zinc-100 dark:border-zinc-200">
+              <Sliders className="h-5 w-5 text-zinc-800 dark:text-zinc-900" />
+              <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900 uppercase tracking-wider">
                 Meeting Room Configuration & Defaults
               </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                   Default Video Quality
                 </label>
                 <select
                   value={settings.resolution}
                   onChange={(e) => setSettings({ ...settings, resolution: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                 >
                   <option value="480p">Standard Definition (480p - Low Bandwidth)</option>
                   <option value="720p">High Definition (720p HD - Recommended)</option>
@@ -179,13 +179,13 @@ export default function JitsiSettingsPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                   JWT Authentication Mode
                 </label>
                 <select
                   value={settings.enableJwt ? 'true' : 'false'}
                   onChange={(e) => setSettings({ ...settings, enableJwt: e.target.value === 'true' })}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                 >
                   <option value="false">Standard Open Room Access</option>
                   <option value="true">Secure Tokenized JWT Verification</option>
@@ -195,7 +195,7 @@ export default function JitsiSettingsPage() {
 
             {/* Toggles */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-              <label className="flex items-center gap-3 p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30 cursor-pointer hover:bg-zinc-100/60 dark:hover:bg-zinc-800/60 transition-colors">
+              <label className="flex items-center gap-3 p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-200 bg-zinc-50/50 dark:bg-zinc-800/30 cursor-pointer hover:bg-zinc-100/60 dark:hover:bg-zinc-100/60 transition-colors">
                 <input
                   type="checkbox"
                   checked={settings.muteAudioOnStart}
@@ -203,12 +203,12 @@ export default function JitsiSettingsPage() {
                   className="h-4 w-4 rounded border-zinc-300 text-zinc-800 focus:ring-zinc-600"
                 />
                 <div>
-                  <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase">Mute Audio on Start</div>
+                  <div className="text-xs font-bold text-zinc-800 dark:text-zinc-800 uppercase">Mute Audio on Start</div>
                   <div className="text-[11px] text-zinc-500">Automatically mute participants upon joining.</div>
                 </div>
               </label>
 
-              <label className="flex items-center gap-3 p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30 cursor-pointer hover:bg-zinc-100/60 dark:hover:bg-zinc-800/60 transition-colors">
+              <label className="flex items-center gap-3 p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-200 bg-zinc-50/50 dark:bg-zinc-800/30 cursor-pointer hover:bg-zinc-100/60 dark:hover:bg-zinc-100/60 transition-colors">
                 <input
                   type="checkbox"
                   checked={settings.muteVideoOnStart}
@@ -216,12 +216,12 @@ export default function JitsiSettingsPage() {
                   className="h-4 w-4 rounded border-zinc-300 text-zinc-800 focus:ring-zinc-600"
                 />
                 <div>
-                  <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase">Mute Video on Start</div>
+                  <div className="text-xs font-bold text-zinc-800 dark:text-zinc-800 uppercase">Mute Video on Start</div>
                   <div className="text-[11px] text-zinc-500">Participants join with cameras turned off by default.</div>
                 </div>
               </label>
 
-              <label className="flex items-center gap-3 p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30 cursor-pointer hover:bg-zinc-100/60 dark:hover:bg-zinc-800/60 transition-colors">
+              <label className="flex items-center gap-3 p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-200 bg-zinc-50/50 dark:bg-zinc-800/30 cursor-pointer hover:bg-zinc-100/60 dark:hover:bg-zinc-100/60 transition-colors">
                 <input
                   type="checkbox"
                   checked={settings.requireHostApproval}
@@ -229,12 +229,12 @@ export default function JitsiSettingsPage() {
                   className="h-4 w-4 rounded border-zinc-300 text-zinc-800 focus:ring-zinc-600"
                 />
                 <div>
-                  <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase">Require Host Approval (Lobby)</div>
+                  <div className="text-xs font-bold text-zinc-800 dark:text-zinc-800 uppercase">Require Host Approval (Lobby)</div>
                   <div className="text-[11px] text-zinc-500">Attendees wait in lobby until teacher or host admits them.</div>
                 </div>
               </label>
 
-              <label className="flex items-center gap-3 p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30 cursor-pointer hover:bg-zinc-100/60 dark:hover:bg-zinc-800/60 transition-colors">
+              <label className="flex items-center gap-3 p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-200 bg-zinc-50/50 dark:bg-zinc-800/30 cursor-pointer hover:bg-zinc-100/60 dark:hover:bg-zinc-100/60 transition-colors">
                 <input
                   type="checkbox"
                   checked={settings.enableWatermark}
@@ -242,7 +242,7 @@ export default function JitsiSettingsPage() {
                   className="h-4 w-4 rounded border-zinc-300 text-zinc-800 focus:ring-zinc-600"
                 />
                 <div>
-                  <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase">Show Stoofi Branding</div>
+                  <div className="text-xs font-bold text-zinc-800 dark:text-zinc-800 uppercase">Show Stoofi Branding</div>
                   <div className="text-[11px] text-zinc-500">Render institutional watermark inside live classroom.</div>
                 </div>
               </label>
@@ -250,12 +250,12 @@ export default function JitsiSettingsPage() {
           </div>
 
           {/* Action Bar */}
-          <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="pt-4 border-t border-zinc-100 dark:border-zinc-200 flex flex-col sm:flex-row items-center justify-between gap-4">
             <button
               type="button"
               onClick={handleTestConnection}
               disabled={testingConnection}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-100 text-zinc-700 dark:text-zinc-700 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2"
             >
               {testingConnection ? (
                 <>
@@ -280,7 +280,7 @@ export default function JitsiSettingsPage() {
           </div>
 
           {connectionStatus && (
-            <div className="p-3 rounded-lg bg-zinc-100 dark:bg-emerald-950/40 border border-zinc-300 dark:border-emerald-800 text-xs text-zinc-800 dark:text-emerald-300 flex items-center gap-2">
+            <div className="p-3 rounded-lg bg-zinc-100 dark:bg-zinc-100 border border-zinc-300 dark:border-zinc-200 text-xs text-zinc-800 dark:text-zinc-900 flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-zinc-600 flex-shrink-0" />
               <span>{connectionStatus.message}</span>
             </div>

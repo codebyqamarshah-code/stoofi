@@ -200,32 +200,32 @@ export default function JitsiVirtualMeetingPage() {
       {/* Header & Breadcrumbs */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-900">
             Jitsi Virtual Meeting
           </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+          <p className="text-sm text-zinc-500 dark:text-zinc-600 mt-1">
             Schedule and manage staff, parent, and institutional online video conferences.
           </p>
         </div>
-        <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
-          <Link href="/dashboard" className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">
+        <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-600">
+          <Link href="/dashboard" className="hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">
             Dashboard
           </Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/module/jitsi" className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">
+          <Link href="/dashboard/module/jitsi" className="hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">
             Jitsi
           </Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-800 dark:text-emerald-400 font-medium">Virtual Meeting</span>
+          <span className="text-zinc-800 dark:text-zinc-900 font-medium">Virtual Meeting</span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Left Form: Add / Edit Meeting */}
         <div className="xl:col-span-1">
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm p-6">
-            <div className="flex items-center justify-between pb-4 mb-5 border-b border-zinc-100 dark:border-zinc-800">
-              <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
+          <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl shadow-sm p-6">
+            <div className="flex items-center justify-between pb-4 mb-5 border-b border-zinc-100 dark:border-zinc-200">
+              <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900 uppercase tracking-wider">
                 {editId ? 'Edit Virtual Meeting' : 'Add Virtual Meeting'}
               </h2>
               {editId && (
@@ -240,7 +240,7 @@ export default function JitsiVirtualMeetingPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                   Meeting Topic <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -249,19 +249,19 @@ export default function JitsiVirtualMeetingPage() {
                   placeholder="e.g. Staff Weekly Academic Review"
                   value={form.topic}
                   onChange={(e) => setForm({ ...form, topic: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                     Host / Organizer <span className="text-rose-500">*</span>
                   </label>
                   <select
                     value={form.host}
                     onChange={(e) => setForm({ ...form, host: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                   >
                     {hosts.map(h => (
                       <option key={h} value={h}>{h}</option>
@@ -270,13 +270,13 @@ export default function JitsiVirtualMeetingPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                     Audience <span className="text-rose-500">*</span>
                   </label>
                   <select
                     value={form.audience}
                     onChange={(e) => setForm({ ...form, audience: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                   >
                     {audienceOptions.map(aud => (
                       <option key={aud} value={aud}>{aud}</option>
@@ -286,7 +286,7 @@ export default function JitsiVirtualMeetingPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                   Description
                 </label>
                 <textarea
@@ -294,13 +294,13 @@ export default function JitsiVirtualMeetingPage() {
                   placeholder="Meeting agenda or briefing note..."
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors resize-none"
+                  className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors resize-none"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                     Meeting Date <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -308,12 +308,12 @@ export default function JitsiVirtualMeetingPage() {
                     required
                     value={form.date}
                     onChange={(e) => setForm({ ...form, date: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                    className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                     Meeting Time <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -321,14 +321,14 @@ export default function JitsiVirtualMeetingPage() {
                     required
                     value={form.time}
                     onChange={(e) => setForm({ ...form, time: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                    className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                     Duration (Minutes) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -338,18 +338,18 @@ export default function JitsiVirtualMeetingPage() {
                     required
                     value={form.duration}
                     onChange={(e) => setForm({ ...form, duration: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                    className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                     Join Before Host
                   </label>
                   <select
                     value={form.joinBeforeHost}
                     onChange={(e) => setForm({ ...form, joinBeforeHost: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                    className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                   >
                     <option value="0">Disabled</option>
                     <option value="5">5 Minutes</option>
@@ -360,7 +360,7 @@ export default function JitsiVirtualMeetingPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                   Room Password (Optional)
                 </label>
                 <input
@@ -368,7 +368,7 @@ export default function JitsiVirtualMeetingPage() {
                   placeholder="Set room password..."
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                  className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                 />
               </div>
 
@@ -387,14 +387,14 @@ export default function JitsiVirtualMeetingPage() {
 
         {/* Right List: Virtual Meeting List */}
         <div className="xl:col-span-2">
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm p-6">
+          <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl shadow-sm p-6">
             {/* Header with Title and Search/Export Controls */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 mb-4 border-b border-zinc-100 dark:border-zinc-800">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 mb-4 border-b border-zinc-100 dark:border-zinc-200">
               <div className="flex items-center gap-3">
-                <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
+                <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900 uppercase tracking-wider">
                   Virtual Meeting List
                 </h2>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-200 text-zinc-900 dark:bg-emerald-950/60 dark:text-emerald-400 border border-zinc-300 dark:border-emerald-800">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-200 text-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 border border-zinc-300 dark:border-zinc-200">
                   {filteredRecords.length}
                 </span>
               </div>
@@ -408,44 +408,44 @@ export default function JitsiVirtualMeetingPage() {
                     placeholder="SEARCH"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 outline-none focus:ring-1 focus:ring-zinc-600"
+                    className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-900 placeholder-zinc-400 outline-none focus:ring-1 focus:ring-zinc-600"
                   />
                 </div>
 
                 {/* Export Buttons */}
-                <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
+                <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-lg border border-zinc-200 dark:border-zinc-200">
                   <button
                     onClick={handleCopy}
                     title="Copy Table"
-                    className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"
+                    className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"
                   >
                     <Copy className="h-3.5 w-3.5" />
                   </button>
                   <button
                     onClick={handleExportExcel}
                     title="Export Excel"
-                    className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"
+                    className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"
                   >
                     <FileSpreadsheet className="h-3.5 w-3.5" />
                   </button>
                   <button
                     onClick={handleExportCSV}
                     title="Export CSV"
-                    className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"
+                    className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"
                   >
                     <FileText className="h-3.5 w-3.5" />
                   </button>
                   <button
                     onClick={handleExportPDF}
                     title="Export PDF"
-                    className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"
+                    className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"
                   >
                     <Video className="h-3.5 w-3.5" />
                   </button>
                   <button
                     onClick={handlePrint}
                     title="Print"
-                    className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"
+                    className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"
                   >
                     <Printer className="h-3.5 w-3.5" />
                   </button>
@@ -460,7 +460,7 @@ export default function JitsiVirtualMeetingPage() {
                 <select
                   value={filterAudience}
                   onChange={(e) => setFilterAudience(e.target.value)}
-                  className="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-xs outline-none focus:ring-1 focus:ring-zinc-600"
+                  className="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-900 text-xs outline-none focus:ring-1 focus:ring-zinc-600"
                 >
                   <option value="All">All Audiences</option>
                   {audienceOptions.map(aud => (
@@ -471,9 +471,9 @@ export default function JitsiVirtualMeetingPage() {
             </div>
 
             {/* Table */}
-            <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
+            <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-200">
               <table className="w-full text-xs text-left">
-                <thead className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
+                <thead className="text-[11px] font-bold text-zinc-500 dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-200">
                   <tr>
                     <th className="px-3.5 py-3">SL</th>
                     <th className="px-3.5 py-3">Meeting Topic</th>
@@ -496,13 +496,13 @@ export default function JitsiVirtualMeetingPage() {
                     filteredRecords.map((item, index) => (
                       <tr
                         key={item.id}
-                        className="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 transition-colors"
+                        className="hover:bg-zinc-50/80 dark:hover:bg-zinc-100/40 transition-colors"
                       >
-                        <td className="px-3.5 py-3 font-medium text-zinc-900 dark:text-zinc-200">
+                        <td className="px-3.5 py-3 font-medium text-zinc-900 dark:text-zinc-800">
                           {index + 1}
                         </td>
                         <td className="px-3.5 py-3">
-                          <div className="font-semibold text-zinc-900 dark:text-white line-clamp-1">
+                          <div className="font-semibold text-zinc-900 dark:text-zinc-900 line-clamp-1">
                             {item.topic}
                           </div>
                           {item.description && (
@@ -511,7 +511,7 @@ export default function JitsiVirtualMeetingPage() {
                             </div>
                           )}
                         </td>
-                        <td className="px-3.5 py-3 font-medium text-zinc-700 dark:text-zinc-300">
+                        <td className="px-3.5 py-3 font-medium text-zinc-700 dark:text-zinc-700">
                           {item.host}
                         </td>
                         <td className="px-3.5 py-3">
@@ -519,15 +519,15 @@ export default function JitsiVirtualMeetingPage() {
                             {item.audience}
                           </span>
                         </td>
-                        <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-400 whitespace-nowrap">
+                        <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap">
                           <div>{item.date}</div>
                           <div className="text-[10px] text-zinc-400">{item.time}</div>
                         </td>
-                        <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-400 whitespace-nowrap">
+                        <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap">
                           {item.duration} Mins
                         </td>
                         <td className="px-3.5 py-3">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-200 text-zinc-800 dark:bg-emerald-950/60 dark:text-emerald-400">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-200 text-zinc-800 dark:bg-zinc-100 dark:text-zinc-900">
                             {item.status}
                           </span>
                         </td>
@@ -544,7 +544,7 @@ export default function JitsiVirtualMeetingPage() {
                             </a>
                             <button
                               onClick={() => handleEdit(item)}
-                              className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded transition-colors"
+                              className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-100 text-zinc-600 dark:text-zinc-600 rounded transition-colors"
                               title="Edit"
                             >
                               <Edit className="h-3.5 w-3.5" />
@@ -573,18 +573,18 @@ export default function JitsiVirtualMeetingPage() {
               <div className="flex items-center gap-1 self-end sm:self-auto">
                 <button
                   disabled
-                  className="px-2.5 py-1 rounded border border-zinc-200 dark:border-zinc-800 text-zinc-400 opacity-50 cursor-not-allowed"
+                  className="px-2.5 py-1 rounded border border-zinc-200 dark:border-zinc-200 text-zinc-400 opacity-50 cursor-not-allowed"
                 >
                   &lt;
                 </button>
                 <button
-                  className="px-2.5 py-1 rounded border border-zinc-600 bg-zinc-100 dark:bg-emerald-950/40 text-zinc-800 dark:text-emerald-400 font-semibold"
+                  className="px-2.5 py-1 rounded border border-zinc-600 bg-zinc-100 dark:bg-zinc-100 text-zinc-800 dark:text-zinc-900 font-semibold"
                 >
                   1
                 </button>
                 <button
                   disabled
-                  className="px-2.5 py-1 rounded border border-zinc-200 dark:border-zinc-800 text-zinc-400 opacity-50 cursor-not-allowed"
+                  className="px-2.5 py-1 rounded border border-zinc-200 dark:border-zinc-200 text-zinc-400 opacity-50 cursor-not-allowed"
                 >
                   &gt;
                 </button>

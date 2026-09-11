@@ -10,7 +10,7 @@ export default function ManageThemePage() {
       id: 'edulia',
       name: 'Edulia',
       tag: 'Active: Edulia',
-      previewGradient: 'from-emerald-950 via-zinc-900 to-zinc-950',
+      previewGradient: 'from-zinc-100 via-zinc-900 to-zinc-950',
       heroTitle: 'STOOFI PRO - EDULIA',
       heroSubtitle: 'Modern next-generation school management & student portal',
     },

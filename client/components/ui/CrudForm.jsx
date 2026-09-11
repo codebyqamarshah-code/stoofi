@@ -27,8 +27,8 @@ export function CrudForm({
   };
 
   return (
-    <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
-      {title && <h2 className="text-lg font-bold text-zinc-900 dark:text-white mb-6 border-b border-zinc-100 dark:border-zinc-800 pb-3">{title}</h2>}
+    <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-xl p-6 shadow-sm">
+      {title && <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-900 mb-6 border-b border-zinc-100 dark:border-zinc-200 pb-3">{title}</h2>}
       <form onSubmit={handleSubmit} className="space-y-4">
         {children}
         <div className="pt-4">

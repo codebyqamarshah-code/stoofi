@@ -18,7 +18,7 @@ export default function RootLayout({ children }) {
     <html lang="en" suppressHydrationWarning >
       <body suppressHydrationWarning className={`min-h-screen bg-background text-foreground ${poppins.className}`}>
         <GoogleTranslate />
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <ThemeProvider attribute="class" forcedTheme="light">
           <PageTransitionLoader />
           {children}
         </ThemeProvider>

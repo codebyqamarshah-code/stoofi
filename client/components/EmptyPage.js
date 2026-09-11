@@ -4,7 +4,7 @@ import { Construction } from 'lucide-react';
 export default function EmptyPage({ title, description, icon: Icon }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-      <div className="h-20 w-20 rounded-2xl bg-emerald-950/40 border border-zinc-600/20 flex items-center justify-center mb-6">
+      <div className="h-20 w-20 rounded-2xl bg-zinc-100 border border-zinc-600/20 flex items-center justify-center mb-6">
         {Icon ? (
           <Icon className="h-10 w-10 text-zinc-600" />
         ) : (

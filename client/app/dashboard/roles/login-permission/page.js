@@ -18,7 +18,7 @@ export default function LoginPermission() {
           <div className="flex flex-col sm:flex-row gap-4 items-end">
             <div className="w-full sm:w-1/2">
               <label className="block text-sm font-medium text-zinc-400 mb-1">Select Role *</label>
-              <select className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:border-zinc-600" required>
+              <select className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-zinc-900 dark:text-zinc-900 font-medium focus:outline-none focus:border-zinc-600" required>
                 <option value="">Select Role</option>
                 {['Admin', 'Principal', 'Teacher', 'Staff', 'Accountant', 'Librarian', 'Student', 'Parent'].map(r => (
                   <option key={r} value={r}>{r}</option>

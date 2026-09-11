@@ -123,24 +123,24 @@ export default function ProfilePage() {
   const InputField = ({ label, name, type = "text" }) => {
     if (isEditing) {
       return (
-        <div className="flex flex-col sm:flex-row py-3 border-b border-zinc-100 dark:border-zinc-800">
-          <div className="sm:w-1/3 text-sm text-zinc-500 dark:text-zinc-400 py-1">{label}</div>
+        <div className="flex flex-col sm:flex-row py-3 border-b border-zinc-100 dark:border-zinc-200">
+          <div className="sm:w-1/3 text-sm text-zinc-500 dark:text-zinc-600 py-1">{label}</div>
           <div className="sm:w-2/3">
             <input 
               type={type} 
               name={name} 
               value={formData[name]} 
               onChange={handleChange}
-              className="w-full px-3 py-1.5 text-sm rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-950"
+              className="w-full px-3 py-1.5 text-sm rounded border border-zinc-300 dark:border-zinc-200 bg-white dark:bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-950"
             />
           </div>
         </div>
       );
     }
     return (
-      <div className="flex flex-col sm:flex-row py-4 border-b border-zinc-100 dark:border-zinc-800">
-        <div className="sm:w-1/3 text-sm text-zinc-500 dark:text-zinc-400">{label}</div>
-        <div className="sm:w-2/3 text-sm text-zinc-900 dark:text-zinc-200">{formData[name] || '-'}</div>
+      <div className="flex flex-col sm:flex-row py-4 border-b border-zinc-100 dark:border-zinc-200">
+        <div className="sm:w-1/3 text-sm text-zinc-500 dark:text-zinc-600">{label}</div>
+        <div className="sm:w-2/3 text-sm text-zinc-900 dark:text-zinc-800">{formData[name] || '-'}</div>
       </div>
     );
   };
@@ -150,12 +150,12 @@ export default function ProfilePage() {
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-10 font-sans">
       {/* Header */}
-      <div className="flex justify-between items-end border-b border-zinc-200 dark:border-zinc-800 pb-4">
+      <div className="flex justify-between items-end border-b border-zinc-200 dark:border-zinc-200 pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-950 dark:text-emerald-400">Human Resource</h1>
+          <h1 className="text-2xl font-bold text-zinc-950 dark:text-zinc-900">Human Resource</h1>
         </div>
         <div className="text-xs text-zinc-500 font-medium">
-          Dashboard <span className="mx-1">|</span> Human Resource <span className="mx-1">|</span> <span className="text-zinc-950 dark:text-emerald-400">Staff Details</span>
+          Dashboard <span className="mx-1">|</span> Human Resource <span className="mx-1">|</span> <span className="text-zinc-950 dark:text-zinc-900">Staff Details</span>
         </div>
       </div>
 
@@ -163,7 +163,7 @@ export default function ProfilePage() {
         
         {/* Left Column (Profile Card) */}
         <div className="md:col-span-4 lg:col-span-3">
-          <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-sm overflow-hidden relative">
+          <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-lg shadow-sm overflow-hidden relative">
             <div className="h-24 bg-zinc-950"></div>
             <div className="flex justify-center -mt-12 mb-2 relative group">
               <div className="h-24 w-24 bg-zinc-200 rounded-md border-4 border-white dark:border-zinc-950 overflow-hidden relative shadow-sm">
@@ -194,37 +194,37 @@ export default function ProfilePage() {
             
             <div className="px-4 pb-4">
               <div className="space-y-3 mt-4 text-sm">
-                <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
+                <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-200 pb-2">
                   <span className="text-zinc-500">Staff Name</span>
-                  <span className="font-semibold text-zinc-800 dark:text-zinc-200 text-right">{user.fullName || user.username || 'System Administrator'}</span>
+                  <span className="font-semibold text-zinc-800 dark:text-zinc-800 text-right">{user.fullName || user.username || 'System Administrator'}</span>
                 </div>
-                <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
+                <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-200 pb-2">
                   <span className="text-zinc-500">Role</span>
-                  <span className="font-semibold text-zinc-950 dark:text-emerald-400 capitalize">{user.role}</span>
+                  <span className="font-semibold text-zinc-950 dark:text-zinc-900 capitalize">{user.role}</span>
                 </div>
-                <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
+                <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-200 pb-2">
                   <span className="text-zinc-500">Designation</span>
-                  <span className="font-semibold text-zinc-950 dark:text-emerald-400">Principal</span>
+                  <span className="font-semibold text-zinc-950 dark:text-zinc-900">Principal</span>
                 </div>
-                <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
+                <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-200 pb-2">
                   <span className="text-zinc-500">Department</span>
-                  <span className="font-semibold text-zinc-950 dark:text-emerald-400">Admin</span>
+                  <span className="font-semibold text-zinc-950 dark:text-zinc-900">Admin</span>
                 </div>
-                <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
+                <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-200 pb-2">
                   <span className="text-zinc-500">EPF NO</span>
-                  <span className="font-semibold text-zinc-800 dark:text-zinc-200">-</span>
+                  <span className="font-semibold text-zinc-800 dark:text-zinc-800">-</span>
                 </div>
-                <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
+                <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-200 pb-2">
                   <span className="text-zinc-500">Basic Salary</span>
-                  <span className="font-semibold text-zinc-800 dark:text-zinc-200">-</span>
+                  <span className="font-semibold text-zinc-800 dark:text-zinc-800">-</span>
                 </div>
-                <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
+                <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-200 pb-2">
                   <span className="text-zinc-500">Contract Type</span>
-                  <span className="font-semibold text-zinc-800 dark:text-zinc-200">-</span>
+                  <span className="font-semibold text-zinc-800 dark:text-zinc-800">-</span>
                 </div>
-                <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
+                <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-200 pb-2">
                   <span className="text-zinc-500">Date of Joining</span>
-                  <span className="font-semibold text-zinc-950 dark:text-emerald-400">15th Aug, 2026</span>
+                  <span className="font-semibold text-zinc-950 dark:text-zinc-900">15th Aug, 2026</span>
                 </div>
               </div>
             </div>
@@ -243,8 +243,8 @@ export default function ProfilePage() {
                   onClick={() => setActiveTab(tab)}
                   className={`px-4 py-2 text-xs font-bold rounded transition-colors ${
                     activeTab === tab 
-                      ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white border-b-2 border-zinc-600 shadow-sm' 
-                      : 'bg-zinc-100 dark:bg-zinc-900/50 text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-800'
+                      ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-900 border-b-2 border-zinc-600 shadow-sm' 
+                      : 'bg-zinc-100 dark:bg-zinc-50/50 text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-100'
                   }`}
                 >
                   {tab}
@@ -272,24 +272,24 @@ export default function ProfilePage() {
           </div>
 
           {/* Tab Content */}
-          <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-sm p-6">
+          <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-lg shadow-sm p-6">
             
             {activeTab === 'PROFILE' && (
               <div className="space-y-8 animate-in fade-in">
                 
                 {/* Personal Info */}
                 <div>
-                  <h3 className="text-zinc-950 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Personal Info</h3>
-                  <div className="border-t border-zinc-200 dark:border-zinc-800">
+                  <h3 className="text-zinc-950 dark:text-zinc-900 font-bold text-xs uppercase tracking-wider mb-2">Personal Info</h3>
+                  <div className="border-t border-zinc-200 dark:border-zinc-200">
                     <InputField label="Mobile No" name="mobile" />
                     <InputField label="Emergency Mobile" name="emergencyMobile" />
                     <InputField label="Email (Used for Login)" name="email" type="email" />
                     <InputField label="Driving License" name="drivingLicense" />
                     {isEditing ? (
-                      <div className="flex flex-col sm:flex-row py-3 border-b border-zinc-100 dark:border-zinc-800">
-                        <div className="sm:w-1/3 text-sm text-zinc-500 dark:text-zinc-400 py-1">Gender</div>
+                      <div className="flex flex-col sm:flex-row py-3 border-b border-zinc-100 dark:border-zinc-200">
+                        <div className="sm:w-1/3 text-sm text-zinc-500 dark:text-zinc-600 py-1">Gender</div>
                         <div className="sm:w-2/3">
-                          <select name="gender" value={formData.gender} onChange={handleChange} className="w-full px-3 py-1.5 text-sm rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-950">
+                          <select name="gender" value={formData.gender} onChange={handleChange} className="w-full px-3 py-1.5 text-sm rounded border border-zinc-300 dark:border-zinc-200 bg-white dark:bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-950">
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                             <option value="Other">Other</option>
@@ -301,10 +301,10 @@ export default function ProfilePage() {
                     )}
                     <InputField label="Date Of Birth" name="dateOfBirth" type="date" />
                     {isEditing ? (
-                      <div className="flex flex-col sm:flex-row py-3 border-b border-zinc-100 dark:border-zinc-800">
-                        <div className="sm:w-1/3 text-sm text-zinc-500 dark:text-zinc-400 py-1">Marital Status</div>
+                      <div className="flex flex-col sm:flex-row py-3 border-b border-zinc-100 dark:border-zinc-200">
+                        <div className="sm:w-1/3 text-sm text-zinc-500 dark:text-zinc-600 py-1">Marital Status</div>
                         <div className="sm:w-2/3">
-                          <select name="maritalStatus" value={formData.maritalStatus} onChange={handleChange} className="w-full px-3 py-1.5 text-sm rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-950">
+                          <select name="maritalStatus" value={formData.maritalStatus} onChange={handleChange} className="w-full px-3 py-1.5 text-sm rounded border border-zinc-300 dark:border-zinc-200 bg-white dark:bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-950">
                             <option value="Single">Single</option>
                             <option value="Married">Married</option>
                           </select>
@@ -322,8 +322,8 @@ export default function ProfilePage() {
 
                 {/* Address */}
                 <div>
-                  <h3 className="text-zinc-950 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Address</h3>
-                  <div className="border-t border-zinc-200 dark:border-zinc-800">
+                  <h3 className="text-zinc-950 dark:text-zinc-900 font-bold text-xs uppercase tracking-wider mb-2">Address</h3>
+                  <div className="border-t border-zinc-200 dark:border-zinc-200">
                     <InputField label="Current Address" name="currentAddress" />
                     <InputField label="Permanent Address" name="permanentAddress" />
                   </div>
@@ -331,8 +331,8 @@ export default function ProfilePage() {
 
                 {/* Bank Account */}
                 <div>
-                  <h3 className="text-zinc-950 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Bank Account Details</h3>
-                  <div className="border-t border-zinc-200 dark:border-zinc-800">
+                  <h3 className="text-zinc-950 dark:text-zinc-900 font-bold text-xs uppercase tracking-wider mb-2">Bank Account Details</h3>
+                  <div className="border-t border-zinc-200 dark:border-zinc-200">
                     <InputField label="Account Name" name="accountName" />
                     <InputField label="Bank Account Number" name="bankAccountNumber" />
                     <InputField label="Bank Name" name="bankName" />
@@ -342,8 +342,8 @@ export default function ProfilePage() {
 
                 {/* Social Links */}
                 <div>
-                  <h3 className="text-zinc-950 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Social Links Details</h3>
-                  <div className="border-t border-zinc-200 dark:border-zinc-800">
+                  <h3 className="text-zinc-950 dark:text-zinc-900 font-bold text-xs uppercase tracking-wider mb-2">Social Links Details</h3>
+                  <div className="border-t border-zinc-200 dark:border-zinc-200">
                     <InputField label="Facebook Url" name="facebookUrl" />
                     <InputField label="Twitter Url" name="twitterUrl" />
                     <InputField label="Linkedin Url" name="linkedinUrl" />

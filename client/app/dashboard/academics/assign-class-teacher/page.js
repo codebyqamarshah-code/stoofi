@@ -44,7 +44,7 @@ export default function AssignClassTeacherPage() {
             <form className="p-4 space-y-6" onSubmit={(e) => e.preventDefault()}>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Class <span className="text-rose-500">*</span></Label>
-                <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-zinc-900 dark:text-zinc-100 font-medium">
+                <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-zinc-900 dark:text-zinc-900 font-medium">
                   <option value="">Select Class *</option>
                   {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
                     <option key={c} value={c}>{c}</option>
@@ -54,7 +54,7 @@ export default function AssignClassTeacherPage() {
 
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Section <span className="text-rose-500">*</span></Label>
-                <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-zinc-900 dark:text-zinc-100 font-medium">
+                <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-zinc-900 dark:text-zinc-900 font-medium">
                   <option value="">Select Section *</option>
                   {['A', 'B', 'C', 'D'].map(s => (
                     <option key={s} value={s}>Section {s}</option>
@@ -77,7 +77,7 @@ export default function AssignClassTeacherPage() {
                       <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${selectedTeacher === t ? 'border-zinc-600 bg-zinc-600' : 'border-zinc-500 bg-transparent'}`}>
                         {selectedTeacher === t && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                       </div>
-                      <span className="text-sm text-zinc-800 dark:text-zinc-200">{t}</span>
+                      <span className="text-sm text-zinc-800 dark:text-zinc-800">{t}</span>
                       <input 
                         type="radio" 
                         className="hidden" 

@@ -40,7 +40,7 @@ export default function TeacherWiseReportPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label className="block text-xs font-medium text-zinc-400 mb-1">TEACHER</label>
-                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:ring-1 focus:ring-zinc-600">
+                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-900 dark:text-zinc-900 font-medium focus:outline-none focus:ring-1 focus:ring-zinc-600">
                             <option value="">Select Teacher</option>
                             {['Mudassir Bajwa', 'Fatima Zahra', 'Muhammad Ali', 'Ahmed Khan', 'Dr. Bilal Siddiqui'].map(t => (
                                 <option key={t} value={t}>{t}</option>
@@ -49,7 +49,7 @@ export default function TeacherWiseReportPage() {
                     </div>
                     <div>
                         <label className="block text-xs font-medium text-zinc-400 mb-1">SUBMITTED BY</label>
-                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:ring-1 focus:ring-zinc-600">
+                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-900 dark:text-zinc-900 font-medium focus:outline-none focus:ring-1 focus:ring-zinc-600">
                             <option value="">Select Submitted By</option>
                             {['Principal Office', 'Academic Coordinator', 'Vice Principal', 'HOD Science', 'Admin Officer'].map(sub => (
                                 <option key={sub} value={sub}>{sub}</option>

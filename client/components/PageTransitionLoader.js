@@ -27,19 +27,18 @@ export default function PageTransitionLoader() {
 
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center">
-      <div className="absolute inset-0 bg-white/80 dark:bg-zinc-950/85 backdrop-blur-md" />
+      <div className="absolute inset-0 bg-white/80 dark:bg-white/85 backdrop-blur-md" />
       <div className="relative flex flex-col items-center gap-5 z-10">
         <div className="relative flex items-center justify-center w-28 h-28">
-          <div className="absolute inset-0 border-[3px] border-zinc-200 dark:border-zinc-800 rounded-full" />
-          <div className="absolute inset-0 border-[3px] border-zinc-950 dark:border-emerald-400 rounded-full border-t-transparent animate-spin" />
-          <div className="absolute inset-1 border-[2px] border-dashed border-zinc-300 dark:border-emerald-900 rounded-full animate-spin" style={{animationDirection:'reverse', animationDuration:'3s'}} />
-          <div className="w-14 h-14 flex items-center justify-center rounded-full overflow-hidden bg-white dark:bg-zinc-950 shadow">
-            <img src="/logo dark(2).png" alt="Stoofi" className="w-full h-full object-contain dark:hidden p-1" />
-            <img src="/stoofi dark.png" alt="Stoofi" className="w-full h-full object-contain hidden dark:block p-1" />
+          <div className="absolute inset-0 border-[3px] border-zinc-200 dark:border-zinc-200 rounded-full" />
+          <div className="absolute inset-0 border-[3px] border-zinc-950 dark:border-zinc-200 rounded-full border-t-transparent animate-spin" />
+          <div className="absolute inset-1 border-[2px] border-dashed border-zinc-300 dark:border-zinc-200 rounded-full animate-spin" style={{animationDirection:'reverse', animationDuration:'3s'}} />
+          <div className="w-14 h-14 flex items-center justify-center rounded-full overflow-hidden bg-white shadow">
+            <img src="/logo dark(2).png" alt="Stoofi" className="w-full h-full object-contain p-1" />
           </div>
         </div>
         <div className="flex flex-col items-center gap-2">
-          <span className="text-xs font-bold tracking-[0.3em] text-zinc-950 dark:text-emerald-400 uppercase animate-pulse">
+          <span className="text-xs font-bold tracking-[0.3em] text-zinc-950 dark:text-zinc-900 uppercase animate-pulse">
             Loading...
           </span>
           <div className="flex gap-1.5">

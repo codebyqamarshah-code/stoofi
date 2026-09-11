@@ -86,23 +86,23 @@ export default function EmailSmsLogPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Email / SMS Log</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Audit trail of all broadcast emails, SMS messages, and delivery receipts.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-900">Email / SMS Log</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-600 mt-1">Audit trail of all broadcast emails, SMS messages, and delivery receipts.</p>
         </div>
-        <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
-          <Link href="/dashboard" className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">Dashboard</Link>
+        <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-600">
+          <Link href="/dashboard" className="hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">Communicate</span>
+          <span className="hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">Communicate</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-800 dark:text-emerald-400 font-medium">Email / SMS Log</span>
+          <span className="text-zinc-800 dark:text-zinc-900 font-medium">Email / SMS Log</span>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm p-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 mb-4 border-b border-zinc-100 dark:border-zinc-800">
+      <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl shadow-sm p-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 mb-4 border-b border-zinc-100 dark:border-zinc-200">
           <div className="flex items-center gap-3">
-            <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider">Communication Logs</h2>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-200 text-zinc-900 dark:bg-emerald-950/60 dark:text-emerald-400 border border-zinc-300 dark:border-emerald-800">
+            <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900 uppercase tracking-wider">Communication Logs</h2>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-200 text-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 border border-zinc-300 dark:border-zinc-200">
               {filteredLogs.length}
             </span>
           </div>
@@ -110,7 +110,7 @@ export default function EmailSmsLogPage() {
             <select
               value={filterChannel}
               onChange={(e) => setFilterChannel(e.target.value)}
-              className="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-xs outline-none focus:ring-1 focus:ring-zinc-600"
+              className="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-900 text-xs outline-none focus:ring-1 focus:ring-zinc-600"
             >
               <option value="All">All Channels</option>
               <option value="SMS">SMS</option>
@@ -123,23 +123,23 @@ export default function EmailSmsLogPage() {
                 placeholder="SEARCH LOGS"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 outline-none focus:ring-1 focus:ring-zinc-600"
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-900 placeholder-zinc-400 outline-none focus:ring-1 focus:ring-zinc-600"
               >
               </input>
             </div>
-            <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
-              <button onClick={handleCopy} title="Copy" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"><Copy className="h-3.5 w-3.5" /></button>
-              <button onClick={() => exportToExcel(filteredLogs, 'Communication_Logs')} title="Excel" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"><FileSpreadsheet className="h-3.5 w-3.5" /></button>
-              <button onClick={() => exportToCSV(filteredLogs, 'Communication_Logs')} title="CSV" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"><FileText className="h-3.5 w-3.5" /></button>
-              <button onClick={() => exportToPDF(filteredLogs, ['title', 'channel', 'receiverGroup', 'deliveredCount', 'sentDate', 'status'], 'Communication Logs', 'Communication_Logs')} title="PDF" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"><Download className="h-3.5 w-3.5" /></button>
-              <button onClick={() => printData(filteredLogs, ['title', 'channel', 'receiverGroup', 'deliveredCount', 'sentDate', 'status'], 'Communication Logs')} title="Print" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"><Printer className="h-3.5 w-3.5" /></button>
+            <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-lg border border-zinc-200 dark:border-zinc-200">
+              <button onClick={handleCopy} title="Copy" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><Copy className="h-3.5 w-3.5" /></button>
+              <button onClick={() => exportToExcel(filteredLogs, 'Communication_Logs')} title="Excel" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><FileSpreadsheet className="h-3.5 w-3.5" /></button>
+              <button onClick={() => exportToCSV(filteredLogs, 'Communication_Logs')} title="CSV" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><FileText className="h-3.5 w-3.5" /></button>
+              <button onClick={() => exportToPDF(filteredLogs, ['title', 'channel', 'receiverGroup', 'deliveredCount', 'sentDate', 'status'], 'Communication Logs', 'Communication_Logs')} title="PDF" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><Download className="h-3.5 w-3.5" /></button>
+              <button onClick={() => printData(filteredLogs, ['title', 'channel', 'receiverGroup', 'deliveredCount', 'sentDate', 'status'], 'Communication Logs')} title="Print" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><Printer className="h-3.5 w-3.5" /></button>
             </div>
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
+        <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-200">
           <table className="w-full text-xs text-left">
-            <thead className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
+            <thead className="text-[11px] font-bold text-zinc-500 dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-200">
               <tr>
                 <th className="px-3.5 py-3">SL</th>
                 <th className="px-3.5 py-3">Subject / Title</th>
@@ -155,10 +155,10 @@ export default function EmailSmsLogPage() {
               {filteredLogs.length === 0 ? (
                 <tr><td colSpan={8} className="px-4 py-8 text-center text-zinc-500">No Communication Logs Found</td></tr>
               ) : filteredLogs.map((item, index) => (
-                <tr key={item.id} className="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 transition-colors">
-                  <td className="px-3.5 py-3 font-medium text-zinc-900 dark:text-zinc-200">{index + 1}</td>
+                <tr key={item.id} className="hover:bg-zinc-50/80 dark:hover:bg-zinc-100/40 transition-colors">
+                  <td className="px-3.5 py-3 font-medium text-zinc-900 dark:text-zinc-800">{index + 1}</td>
                   <td className="px-3.5 py-3">
-                    <div className="font-semibold text-zinc-900 dark:text-white line-clamp-1">{item.title}</div>
+                    <div className="font-semibold text-zinc-900 dark:text-zinc-900 line-clamp-1">{item.title}</div>
                     <div className="text-[10px] text-zinc-400">By: {item.sender}</div>
                   </td>
                   <td className="px-3.5 py-3">
@@ -166,14 +166,14 @@ export default function EmailSmsLogPage() {
                       {item.channel}
                     </span>
                   </td>
-                  <td className="px-3.5 py-3 text-zinc-700 dark:text-zinc-300 font-medium">{item.receiverGroup}</td>
+                  <td className="px-3.5 py-3 text-zinc-700 dark:text-zinc-700 font-medium">{item.receiverGroup}</td>
                   <td className="px-3.5 py-3">
-                    <span className="font-semibold text-zinc-900 dark:text-white">{item.deliveredCount}</span>
+                    <span className="font-semibold text-zinc-900 dark:text-zinc-900">{item.deliveredCount}</span>
                     <span className="text-zinc-400 text-[10px]"> / {item.totalCount}</span>
                   </td>
-                  <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{item.sentDate}</td>
+                  <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap">{item.sentDate}</td>
                   <td className="px-3.5 py-3">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-200 text-zinc-800 dark:bg-emerald-950/60 dark:text-emerald-400">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-200 text-zinc-800 dark:bg-zinc-100 dark:text-zinc-900">
                       {item.status}
                     </span>
                   </td>
@@ -181,7 +181,7 @@ export default function EmailSmsLogPage() {
                     <div className="flex items-center justify-end gap-1.5">
                       <button
                         onClick={() => setSelectedLog(item)}
-                        className="px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 rounded text-[11px] font-medium inline-flex items-center gap-1 transition-colors"
+                        className="px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-800 rounded text-[11px] font-medium inline-flex items-center gap-1 transition-colors"
                       >
                         <Eye className="h-3 w-3" /> View
                       </button>
@@ -200,29 +200,29 @@ export default function EmailSmsLogPage() {
       {/* Log Details Modal */}
       {selectedLog && (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-3">
-              <h3 className="font-bold text-base text-zinc-900 dark:text-white">Broadcast Message Details</h3>
-              <button onClick={() => setSelectedLog(null)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white font-bold text-sm">✕</button>
+          <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-200 pb-3">
+              <h3 className="font-bold text-base text-zinc-900 dark:text-zinc-900">Broadcast Message Details</h3>
+              <button onClick={() => setSelectedLog(null)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-950 font-bold text-sm">✕</button>
             </div>
             <div className="space-y-3 text-xs">
-              <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-800">
-                <div className="font-bold text-sm text-zinc-900 dark:text-white">{selectedLog.title}</div>
+              <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-200">
+                <div className="font-bold text-sm text-zinc-900 dark:text-zinc-900">{selectedLog.title}</div>
                 <div className="text-zinc-500 mt-1">Channel: <strong>{selectedLog.channel}</strong> | Sent to: <strong>{selectedLog.receiverGroup}</strong></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Sent Date:</span>
-                  <span className="font-semibold text-zinc-800 dark:text-zinc-200">{selectedLog.sentDate}</span>
+                  <span className="font-semibold text-zinc-800 dark:text-zinc-800">{selectedLog.sentDate}</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Delivered Rate:</span>
                   <span className="font-semibold text-zinc-800">{selectedLog.deliveredCount} of {selectedLog.totalCount} ({((selectedLog.deliveredCount/selectedLog.totalCount)*100).toFixed(1)}%)</span>
                 </div>
               </div>
-              <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800">
+              <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
                 <span className="text-zinc-500 block font-semibold mb-1">Message Body:</span>
-                <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">{selectedLog.message}</p>
+                <p className="text-zinc-700 dark:text-zinc-700 leading-relaxed whitespace-pre-wrap">{selectedLog.message}</p>
               </div>
             </div>
             <div className="flex justify-end pt-2">

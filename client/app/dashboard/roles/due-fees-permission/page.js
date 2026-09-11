@@ -19,7 +19,7 @@ export default function DueFeesPermission() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-400 mb-1">CLASS</label>
-                <select className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:border-zinc-600">
+                <select className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-zinc-900 dark:text-zinc-900 font-medium focus:outline-none focus:border-zinc-600">
                   <option value="">Select Class</option>
                   {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels'].map(c => (
                     <option key={c} value={c}>{c}</option>
@@ -28,7 +28,7 @@ export default function DueFeesPermission() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-zinc-400 mb-1">SECTION</label>
-                <select className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:border-zinc-600">
+                <select className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-zinc-900 dark:text-zinc-900 font-medium focus:outline-none focus:border-zinc-600">
                   <option value="">Select Section</option>
                   {['A', 'B', 'C', 'D'].map(s => (
                     <option key={s} value={s}>Section {s}</option>

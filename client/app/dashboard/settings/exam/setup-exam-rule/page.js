@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
@@ -38,7 +38,7 @@ export default function SetupExamRulePage() {
           </div>
           
           <div className="flex justify-center mt-6">
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-6 py-2 rounded-lg transition-colors">✓ STORE</button>
+            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-6 py-2 rounded-lg transition-colors">? STORE</button>
           </div>
         </div>
 
@@ -76,7 +76,7 @@ export default function SetupExamRulePage() {
           </div>
           
           <div className="flex justify-center mt-6">
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-6 py-2 rounded-lg transition-colors">✓ UPDATE</button>
+            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-6 py-2 rounded-lg transition-colors">? UPDATE</button>
           </div>
         </div>
 

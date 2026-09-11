@@ -35,7 +35,7 @@ export default function ComingSoonPage() {
   const displayRole = roleMessages[roleName] || roleName;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 transition-colors p-6 text-center relative">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-50 dark:bg-white transition-colors p-6 text-center relative">
 
       <div className="absolute top-6 right-6 flex items-center gap-3">
         <ThemeToggle />
@@ -48,17 +48,16 @@ export default function ComingSoonPage() {
       </div>
 
       <div className="mb-8">
-        <img src="/logo dark(2).png" alt="Stoofi" className="h-20 w-auto object-contain dark:hidden" />
-        <img src="/stoofi dark.png" alt="Stoofi" className="h-20 w-auto object-contain hidden dark:block" />
+        <img src="/logo dark(2).png" alt="Stoofi" className="h-20 w-auto object-contain" />
       </div>
 
       <div className="relative w-24 h-24 mb-8 flex items-center justify-center">
-        <div className="absolute inset-0 border-[3px] border-zinc-200 dark:border-zinc-800 rounded-full"></div>
-        <div className="absolute inset-0 border-[3px] border-zinc-950 dark:border-emerald-500 rounded-full border-t-transparent animate-spin"></div>
-        <Clock size={36} className="text-zinc-950 dark:text-emerald-500" />
+        <div className="absolute inset-0 border-[3px] border-zinc-200 dark:border-zinc-200 rounded-full"></div>
+        <div className="absolute inset-0 border-[3px] border-zinc-950 dark:border-zinc-200 rounded-full border-t-transparent animate-spin"></div>
+        <Clock size={36} className="text-zinc-950 dark:text-zinc-900" />
       </div>
 
-      <h1 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-white mb-4">
+      <h1 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-zinc-900 mb-4">
         Dashboard <span className="text-zinc-950">Under Construction</span>
       </h1>
 
@@ -70,12 +69,12 @@ export default function ComingSoonPage() {
             {userName.charAt(0).toUpperCase()}
           </div>
         )}
-        <span className="text-sm font-bold text-zinc-950 dark:text-emerald-400">{userName}</span>
+        <span className="text-sm font-bold text-zinc-950 dark:text-zinc-900">{userName}</span>
         <span className="text-xs bg-zinc-950 text-white rounded-full px-2 py-0.5 font-bold">{displayRole}</span>
       </div>
 
-      <p className="text-zinc-600 dark:text-zinc-400 text-base max-w-md mb-4 leading-relaxed">
-        Your <span className="font-bold text-zinc-900 dark:text-white">{displayRole} Dashboard</span> is currently under construction.
+      <p className="text-zinc-600 dark:text-zinc-600 text-base max-w-md mb-4 leading-relaxed">
+        Your <span className="font-bold text-zinc-900 dark:text-zinc-900">{displayRole} Dashboard</span> is currently under construction.
         Once it is ready, you will be able to access your portal and manage your workflow seamlessly.
       </p>
 

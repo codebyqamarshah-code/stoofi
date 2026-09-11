@@ -419,7 +419,7 @@ export default function SidebarManagerPage() {
     <div className="space-y-6 max-w-7xl mx-auto pb-16">
       
       {/* Top Header & Role Selector Banner */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-emerald-950 border border-zinc-900 p-5 rounded-2xl shadow-xl">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-zinc-100 border border-zinc-900 p-5 rounded-2xl shadow-xl">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-xl bg-zinc-600/10 text-zinc-500 border border-zinc-600/20">
@@ -427,7 +427,7 @@ export default function SidebarManagerPage() {
             </div>
             <div>
               <h1 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
-                Sidebar Manager <span className="text-[10px] font-bold uppercase bg-zinc-600 text-emerald-950 px-2 py-0.5 rounded-full">Live Builder</span>
+                Sidebar Manager <span className="text-[10px] font-bold uppercase bg-zinc-600 text-zinc-900 px-2 py-0.5 rounded-full">Live Builder</span>
               </h1>
               <div className="flex items-center text-xs text-zinc-500 mt-0.5">
                 <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">
@@ -447,7 +447,7 @@ export default function SidebarManagerPage() {
         {/* Action Controls */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Role Switcher */}
-          <div className="flex items-center bg-emerald-900 border border-zinc-900 rounded-xl px-3 py-1.5 gap-2">
+          <div className="flex items-center bg-zinc-100 border border-zinc-900 rounded-xl px-3 py-1.5 gap-2">
             <span className="text-xs font-semibold text-zinc-400">Role:</span>
             <select
               value={selectedRole}
@@ -475,7 +475,7 @@ export default function SidebarManagerPage() {
           {/* Save changes button */}
           <Button 
             onClick={handleSaveLayout}
-            className="bg-zinc-800 hover:bg-zinc-800 text-white font-bold text-xs h-9 shadow-lg shadow-emerald-950/50"
+            className="bg-zinc-800 hover:bg-zinc-800 text-white font-bold text-xs h-9 shadow-lg shadow-zinc-300/50"
           >
             <Save className="h-3.5 w-3.5 mr-1.5" /> Save & Update Sidebar
           </Button>
@@ -500,7 +500,7 @@ export default function SidebarManagerPage() {
         <div className="lg:col-span-4 space-y-6">
           
           {/* Quick Filter Box */}
-          <div className="bg-emerald-950 border border-zinc-900 p-4 rounded-2xl shadow-md">
+          <div className="bg-zinc-100 border border-zinc-900 p-4 rounded-2xl shadow-md">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600" />
               <input
@@ -508,7 +508,7 @@ export default function SidebarManagerPage() {
                 placeholder="Search menus or sections..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-emerald-900 border border-zinc-900 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+                className="w-full bg-zinc-100 border border-zinc-900 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
               />
               {searchTerm && (
                 <button 
@@ -633,7 +633,7 @@ export default function SidebarManagerPage() {
           </div>
 
           {/* Quick Tips */}
-          <div className="bg-emerald-950/10 border border-zinc-600/20 p-4 rounded-2xl">
+          <div className="bg-zinc-100 border border-zinc-600/20 p-4 rounded-2xl">
             <div className="flex items-center gap-2 text-zinc-500 font-bold text-xs mb-1.5">
               <Sparkles className="h-4 w-4" /> Drag & Drop Guide
             </div>

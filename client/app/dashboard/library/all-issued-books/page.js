@@ -74,7 +74,7 @@ export default function AllIssuedBooksPage() {
                   <td className="px-4 py-3 text-zinc-400">{item.dueDate ? item.dueDate.substring(0,10) : '-'}</td>
                   <td className="px-4 py-3 text-zinc-400">{item.returnDate ? item.returnDate.substring(0,10) : '-'}</td>
                   <td className="px-4 py-3">
-                    <span className={`text-xs font-bold px-2 py-1 rounded ${item.status === 'returned' ? 'bg-emerald-900/30 text-zinc-500' : 'bg-amber-900/30 text-amber-400'}`}>{item.status}</span>
+                    <span className={`text-xs font-bold px-2 py-1 rounded ${item.status === 'returned' ? 'bg-zinc-100 text-zinc-500' : 'bg-amber-900/30 text-amber-400'}`}>{item.status}</span>
                   </td>
                   <td className="px-4 py-3 text-zinc-400">{item.fine > 0 ? `$${item.fine}` : '-'}</td>
                 </tr>

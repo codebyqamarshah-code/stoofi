@@ -49,7 +49,7 @@ export default function SubjectWiseAttendancePage() {
             <select 
               value={formData.class}
               onChange={(e) => setFormData({...formData, class: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-900 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
             >
               <option value="">Select Class *</option>
               {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
@@ -62,7 +62,7 @@ export default function SubjectWiseAttendancePage() {
             <select 
               value={formData.section}
               onChange={(e) => setFormData({...formData, section: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-900 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
             >
               <option value="">Select Section *</option>
               {['A', 'B', 'C', 'D'].map(s => (
@@ -75,7 +75,7 @@ export default function SubjectWiseAttendancePage() {
             <select 
               value={formData.subject}
               onChange={(e) => setFormData({...formData, subject: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-900 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
             >
               <option value="">Select Subject *</option>
               {['Mathematics', 'English Language', 'Urdu Literature', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Islamiat', 'Pakistan Studies'].map(sub => (

@@ -128,11 +128,11 @@ export default function GuidePage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-100 font-poppins selection:bg-zinc-600 selection:text-white transition-colors duration-300">
-      <header className="bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800 py-4 sticky top-0 z-50">
+    <div className="min-h-screen bg-zinc-50 dark:bg-white text-zinc-900 dark:text-zinc-900 font-poppins selection:bg-zinc-600 selection:text-white transition-colors duration-300">
+      <header className="bg-white dark:bg-white border-b border-zinc-200 dark:border-zinc-200 py-4 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">
-            <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center group-hover:bg-zinc-100 dark:group-hover:bg-emerald-950/50 transition-colors">
+          <Link href="/" className="flex items-center gap-3 group text-zinc-600 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">
+            <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-50 flex items-center justify-center group-hover:bg-zinc-100 dark:group-hover:bg-zinc-100 transition-colors">
               <ArrowLeft size={18} />
             </div>
             <span className="font-bold text-sm hidden sm:block">Back to Home</span>
@@ -148,13 +148,13 @@ export default function GuidePage() {
 
       <div className="max-w-7xl mx-auto px-6 py-12 lg:py-20">
         <div className="text-center mb-16 max-w-3xl mx-auto">
-          <span className="inline-block py-1.5 px-4 rounded-full bg-zinc-200 dark:bg-emerald-900/30 text-zinc-800 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-4">
+          <span className="inline-block py-1.5 px-4 rounded-full bg-zinc-200 dark:bg-zinc-100 text-zinc-800 dark:text-zinc-900 text-xs font-bold uppercase tracking-widest mb-4">
             Comprehensive User Guide
           </span>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-white mb-6">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-zinc-900 mb-6">
             How to Use Stoofi ERP
           </h1>
-          <p className="text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed">
+          <p className="text-lg text-zinc-600 dark:text-zinc-600 leading-relaxed">
             Everything you need to know to get your school running smoothly. Select a role below to see exactly how the platform works for them.
           </p>
         </div>
@@ -171,7 +171,7 @@ export default function GuidePage() {
                 className={`flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${
                   isActive
                     ? "bg-zinc-800 text-white shadow-xl shadow-zinc-800/20 scale-105"
-                    : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-600 hover:text-zinc-800 dark:hover:text-emerald-400"
+                    : "bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 text-zinc-600 dark:text-zinc-600 hover:border-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-950"
                 }`}
               >
                 <Icon size={24} className={isActive ? "text-white" : ""} />
@@ -187,38 +187,38 @@ export default function GuidePage() {
         </div>
 
         {/* Active Guide Content */}
-        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-8 md:p-12 shadow-sm">
+        <div className="bg-white dark:bg-zinc-50 rounded-3xl border border-zinc-200 dark:border-zinc-200 p-8 md:p-12 shadow-sm">
           <div className="flex flex-col md:flex-row gap-12">
             
             <div className="md:w-1/3">
               <div className="sticky top-28">
-                <div className="w-16 h-16 rounded-2xl bg-zinc-200 dark:bg-emerald-900/40 flex items-center justify-center text-zinc-800 dark:text-emerald-400 mb-6">
+                <div className="w-16 h-16 rounded-2xl bg-zinc-200 dark:bg-zinc-100 flex items-center justify-center text-zinc-800 dark:text-zinc-900 mb-6">
                   {(() => {
                     const ActiveIcon = guides[activeTab].icon;
                     return <ActiveIcon size={32} />;
                   })()}
                 </div>
-                <h2 className="text-3xl font-extrabold text-zinc-900 dark:text-white mb-4">
+                <h2 className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-900 mb-4">
                   {guides[activeTab].title}
                 </h2>
-                <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed mb-8">
+                <p className="text-zinc-600 dark:text-zinc-600 leading-relaxed mb-8">
                   {guides[activeTab].description}
                 </p>
                 
-                <div className="bg-zinc-50 dark:bg-zinc-950 rounded-2xl p-6 border border-zinc-200 dark:border-zinc-800">
-                  <h4 className="font-bold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
+                <div className="bg-zinc-50 dark:bg-white rounded-2xl p-6 border border-zinc-200 dark:border-zinc-200">
+                  <h4 className="font-bold text-zinc-900 dark:text-zinc-900 mb-4 flex items-center gap-2">
                     <PlayCircle size={18} className="text-zinc-600" /> Quick Tips
                   </h4>
                   <ul className="space-y-3">
-                    <li className="flex gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+                    <li className="flex gap-2 text-sm text-zinc-600 dark:text-zinc-600">
                       <CheckCircle2 size={16} className="text-zinc-600 shrink-0 mt-0.5" />
                       Keep your login credentials secure.
                     </li>
-                    <li className="flex gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+                    <li className="flex gap-2 text-sm text-zinc-600 dark:text-zinc-600">
                       <CheckCircle2 size={16} className="text-zinc-600 shrink-0 mt-0.5" />
                       Use the search bar to find records quickly.
                     </li>
-                    <li className="flex gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+                    <li className="flex gap-2 text-sm text-zinc-600 dark:text-zinc-600">
                       <CheckCircle2 size={16} className="text-zinc-600 shrink-0 mt-0.5" />
                       Contact Super Admin for permission issues.
                     </li>
@@ -237,15 +237,15 @@ export default function GuidePage() {
                     )}
                     
                     {/* Number / Icon Badge */}
-                    <div className="absolute left-0 md:left-2 top-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white dark:bg-zinc-900 border-2 border-zinc-600 flex items-center justify-center text-zinc-800 dark:text-emerald-400 shadow-sm z-10">
+                    <div className="absolute left-0 md:left-2 top-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white dark:bg-zinc-50 border-2 border-zinc-600 flex items-center justify-center text-zinc-800 dark:text-zinc-900 shadow-sm z-10">
                       <section.icon size={16} />
                     </div>
 
-                    <div className="bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl p-6 hover:border-zinc-600/30 transition-colors">
-                      <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-3">
+                    <div className="bg-zinc-50 dark:bg-white border border-zinc-100 dark:border-zinc-200 rounded-2xl p-6 hover:border-zinc-600/30 transition-colors">
+                      <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-900 mb-3">
                         {section.title}
                       </h3>
-                      <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed text-sm md:text-base">
+                      <p className="text-zinc-600 dark:text-zinc-600 leading-relaxed text-sm md:text-base">
                         {section.content}
                       </p>
                     </div>
@@ -253,8 +253,8 @@ export default function GuidePage() {
                 ))}
               </div>
               
-              <div className="mt-12 pt-10 border-t border-zinc-200 dark:border-zinc-800 text-center">
-                <h4 className="font-bold text-zinc-900 dark:text-white mb-4">Ready to put this into action?</h4>
+              <div className="mt-12 pt-10 border-t border-zinc-200 dark:border-zinc-200 text-center">
+                <h4 className="font-bold text-zinc-900 dark:text-zinc-900 mb-4">Ready to put this into action?</h4>
                 <Link href="/login">
                   <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-bold rounded-full px-8 h-12 shadow-lg shadow-zinc-800/20">
                     Open {guides[activeTab].title}

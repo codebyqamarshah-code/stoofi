@@ -123,7 +123,7 @@ export default function ContactMessagePage() {
                           <div className="absolute right-0 mt-1 w-32 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-20 py-1">
                             <button
                               onClick={() => { setSelectedMessage(item); setOpenDropdownId(null); }}
-                              className="w-full text-left px-3 py-1.5 text-xs text-zinc-300 hover:bg-emerald-950/40 hover:text-zinc-500 flex items-center gap-2"
+                              className="w-full text-left px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-100 hover:text-zinc-500 flex items-center gap-2"
                             >
                               <Eye className="w-3.5 h-3.5" /> View
                             </button>

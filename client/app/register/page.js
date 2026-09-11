@@ -70,11 +70,11 @@ export default function RegisterPage() {
     }
   };
 
-  const inputClass = "w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-950/20 focus:border-zinc-950 transition-all text-sm";
-  const labelClass = "block text-xs font-bold text-zinc-600 dark:text-zinc-400 mb-1.5 uppercase tracking-wide";
+  const inputClass = "w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-950/20 focus:border-zinc-950 transition-all text-sm";
+  const labelClass = "block text-xs font-bold text-zinc-600 dark:text-zinc-600 mb-1.5 uppercase tracking-wide";
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 py-12 bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300">
+    <div className="min-h-screen flex items-center justify-center p-4 py-12 bg-zinc-50 dark:bg-white transition-colors duration-300">
       
       {/* Top Controls */}
       <div className="absolute top-6 left-6 right-6 flex justify-between items-center">
@@ -84,20 +84,19 @@ export default function RegisterPage() {
         <ThemeToggle />
       </div>
 
-      <div className="w-full max-w-2xl bg-white dark:bg-zinc-950 rounded-2xl p-8 sm:p-10 border border-zinc-200 dark:border-zinc-800 shadow-xl">
+      <div className="w-full max-w-2xl bg-white dark:bg-white rounded-2xl p-8 sm:p-10 border border-zinc-200 dark:border-zinc-200 shadow-xl">
         
         <div className="flex justify-center mb-6">
-           <img src="/logo dark(2).png" alt="Stoofi PRO" className="h-20 w-auto object-contain dark:hidden" />
-           <img src="/stoofi dark.png" alt="Stoofi PRO" className="h-20 w-auto object-contain hidden dark:block" />
+           <img src="/logo dark(2).png" alt="Stoofi PRO" className="h-20 w-auto object-contain" />
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">Create an Account</h1>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-900 mb-2">Create an Account</h1>
           <p className="text-sm text-zinc-500">Join our ERP platform. Register below.</p>
         </div>
 
         {success ? (
-          <div className="p-6 rounded-xl bg-zinc-100 dark:bg-emerald-900/30 text-zinc-800 dark:text-emerald-400 text-center border border-zinc-300 dark:border-emerald-800">
+          <div className="p-6 rounded-xl bg-zinc-100 dark:bg-zinc-100 text-zinc-800 dark:text-zinc-900 text-center border border-zinc-300 dark:border-zinc-200">
             <UserPlus className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <h3 className="font-bold text-lg mb-1">Registration Successful!</h3>
             <p className="text-sm opacity-80">You will be redirected to the login page shortly.</p>
@@ -116,7 +115,7 @@ export default function RegisterPage() {
               <label className={labelClass}>Register As</label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {['Student', 'Teacher', 'Parent', 'Accountant'].map(r => (
-                  <label key={r} className={`cursor-pointer border rounded-xl p-3 text-center transition-all ${role === r ? 'border-zinc-950 bg-zinc-950/5 dark:bg-zinc-950/10 text-zinc-950 font-bold shadow-sm' : 'border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:border-zinc-950/50'}`}>
+                  <label key={r} className={`cursor-pointer border rounded-xl p-3 text-center transition-all ${role === r ? 'border-zinc-950 bg-zinc-950/5 dark:bg-white/10 text-zinc-950 font-bold shadow-sm' : 'border-zinc-200 dark:border-zinc-200 text-zinc-500 hover:border-zinc-950/50'}`}>
                     <input type="radio" name="role" value={r} checked={role === r} onChange={handleRoleChange} className="hidden" />
                     <span className="text-sm">{r}</span>
                   </label>
@@ -199,7 +198,7 @@ export default function RegisterPage() {
               {/* Photo Upload */}
               <div className="sm:col-span-2">
                 <label className={labelClass}>Profile Picture</label>
-                <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl p-4 flex flex-col items-center justify-center text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors relative overflow-hidden group">
+                <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-200 rounded-xl p-4 flex flex-col items-center justify-center text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-100 transition-colors relative overflow-hidden group">
                   {formData.picture ? (
                     <div className="relative w-full flex flex-col items-center">
                       <img src={formData.picture} alt="Preview" className="h-24 w-24 rounded-full object-cover border-4 border-zinc-950 shadow-sm mb-2" />
@@ -208,7 +207,7 @@ export default function RegisterPage() {
                   ) : (
                     <div className="flex flex-col items-center pointer-events-none">
                       <ImageIcon size={24} className="mb-2 text-zinc-950" />
-                      <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Click to upload picture</span>
+                      <span className="text-sm font-medium text-zinc-700 dark:text-zinc-700">Click to upload picture</span>
                       <span className="text-xs opacity-70 mt-1">PNG, JPG up to 2MB</span>
                     </div>
                   )}

@@ -181,41 +181,41 @@ export default function RegistrationStudentListPage() {
       {/* Header & Breadcrumbs */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-900">
             Registration Student List
           </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+          <p className="text-sm text-zinc-500 dark:text-zinc-600 mt-1">
             Review and manage prospective student admissions submitted via the online portal.
           </p>
         </div>
-        <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
-          <Link href="/dashboard" className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">
+        <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-600">
+          <Link href="/dashboard" className="hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">
             Dashboard
           </Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/module/registration" className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">
+          <Link href="/dashboard/module/registration" className="hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">
             Registration
           </Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-800 dark:text-emerald-400 font-medium">Student List</span>
+          <span className="text-zinc-800 dark:text-zinc-900 font-medium">Student List</span>
         </div>
       </div>
 
       {/* Select Criteria Card */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm p-6">
-        <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider mb-5">
+      <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl shadow-sm p-6">
+        <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900 uppercase tracking-wider mb-5">
           Select Criteria
         </h2>
         <form onSubmit={handleSearchCriteria}>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                 Academic Year <span className="text-rose-500">*</span>
               </label>
               <select
                 value={criteria.academicYear}
                 onChange={(e) => setCriteria({ ...criteria, academicYear: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
               >
                 <option value="2026">2026 - 2027</option>
                 <option value="2025">2025 - 2026</option>
@@ -223,13 +223,13 @@ export default function RegistrationStudentListPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                 Class <span className="text-rose-500">*</span>
               </label>
               <select
                 value={criteria.classVal}
                 onChange={(e) => setCriteria({ ...criteria, classVal: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
               >
                 {classes.map(cls => (
                   <option key={cls} value={cls}>{cls}</option>
@@ -238,13 +238,13 @@ export default function RegistrationStudentListPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                 Status
               </label>
               <select
                 value={criteria.status}
                 onChange={(e) => setCriteria({ ...criteria, status: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
               >
                 {statusList.map(st => (
                   <option key={st} value={st}>{st}</option>
@@ -266,13 +266,13 @@ export default function RegistrationStudentListPage() {
       </div>
 
       {/* Applicant List Table Card */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm p-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 mb-4 border-b border-zinc-100 dark:border-zinc-800">
+      <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl shadow-sm p-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 mb-4 border-b border-zinc-100 dark:border-zinc-200">
           <div className="flex items-center gap-3">
-            <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
+            <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900 uppercase tracking-wider">
               Applicant Student List
             </h2>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-200 text-zinc-900 dark:bg-emerald-950/60 dark:text-emerald-400 border border-zinc-300 dark:border-emerald-800">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-200 text-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 border border-zinc-300 dark:border-zinc-200">
               {filteredApplicants.length}
             </span>
           </div>
@@ -285,43 +285,43 @@ export default function RegistrationStudentListPage() {
                 placeholder="SEARCH"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 outline-none focus:ring-1 focus:ring-zinc-600"
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-900 placeholder-zinc-400 outline-none focus:ring-1 focus:ring-zinc-600"
               />
             </div>
 
-            <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
+            <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-lg border border-zinc-200 dark:border-zinc-200">
               <button
                 onClick={handleCopy}
                 title="Copy Table"
-                className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"
+                className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"
               >
                 <Copy className="h-3.5 w-3.5" />
               </button>
               <button
                 onClick={handleExportExcel}
                 title="Export Excel"
-                className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"
+                className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"
               >
                 <FileSpreadsheet className="h-3.5 w-3.5" />
               </button>
               <button
                 onClick={handleExportCSV}
                 title="Export CSV"
-                className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"
+                className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"
               >
                 <FileText className="h-3.5 w-3.5" />
               </button>
               <button
                 onClick={handleExportPDF}
                 title="Export PDF"
-                className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"
+                className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"
               >
                 <Download className="h-3.5 w-3.5" />
               </button>
               <button
                 onClick={handlePrint}
                 title="Print"
-                className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-300 transition-colors"
+                className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"
               >
                 <Printer className="h-3.5 w-3.5" />
               </button>
@@ -330,9 +330,9 @@ export default function RegistrationStudentListPage() {
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
+        <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-200">
           <table className="w-full text-xs text-left">
-            <thead className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
+            <thead className="text-[11px] font-bold text-zinc-500 dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-200">
               <tr>
                 <th className="px-3.5 py-3">SL</th>
                 <th className="px-3.5 py-3">App No</th>
@@ -357,35 +357,35 @@ export default function RegistrationStudentListPage() {
                 filteredApplicants.map((item, index) => (
                   <tr
                     key={item.id}
-                    className="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 transition-colors"
+                    className="hover:bg-zinc-50/80 dark:hover:bg-zinc-100/40 transition-colors"
                   >
-                    <td className="px-3.5 py-3 font-medium text-zinc-900 dark:text-zinc-200">
+                    <td className="px-3.5 py-3 font-medium text-zinc-900 dark:text-zinc-800">
                       {index + 1}
                     </td>
-                    <td className="px-3.5 py-3 font-mono font-bold text-zinc-800 dark:text-emerald-400">
+                    <td className="px-3.5 py-3 font-mono font-bold text-zinc-800 dark:text-zinc-900">
                       {item.appNo}
                     </td>
-                    <td className="px-3.5 py-3 font-semibold text-zinc-900 dark:text-white">
+                    <td className="px-3.5 py-3 font-semibold text-zinc-900 dark:text-zinc-900">
                       {item.studentName}
                     </td>
                     <td className="px-3.5 py-3">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-700">
                         {item.classVal}
                       </span>
                     </td>
-                    <td className="px-3.5 py-3 text-zinc-700 dark:text-zinc-300">
+                    <td className="px-3.5 py-3 text-zinc-700 dark:text-zinc-700">
                       {item.fatherName}
                     </td>
-                    <td className="px-3.5 py-3 font-mono text-zinc-600 dark:text-zinc-400 whitespace-nowrap">
+                    <td className="px-3.5 py-3 font-mono text-zinc-600 dark:text-zinc-600 whitespace-nowrap">
                       {item.mobile}
                     </td>
-                    <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-400 whitespace-nowrap">
+                    <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap">
                       {item.appliedDate}
                     </td>
                     <td className="px-3.5 py-3">
                       <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                         item.paymentStatus === 'Paid'
-                          ? 'bg-zinc-200 text-zinc-800 dark:bg-emerald-950/60 dark:text-emerald-400'
+                          ? 'bg-zinc-200 text-zinc-800 dark:bg-zinc-100 dark:text-zinc-900'
                           : 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400'
                       }`}>
                         {item.paymentStatus}
@@ -394,7 +394,7 @@ export default function RegistrationStudentListPage() {
                     <td className="px-3.5 py-3">
                       <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                         item.applicationStatus === 'Approved'
-                          ? 'bg-zinc-200 text-zinc-800 dark:bg-emerald-950/60 dark:text-emerald-400'
+                          ? 'bg-zinc-200 text-zinc-800 dark:bg-zinc-100 dark:text-zinc-900'
                           : item.applicationStatus === 'Rejected'
                           ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400'
                           : 'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400'
@@ -406,7 +406,7 @@ export default function RegistrationStudentListPage() {
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => setSelectedApplicant(item)}
-                          className="px-2 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 rounded text-[11px] font-medium inline-flex items-center gap-1 transition-colors"
+                          className="px-2 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-800 rounded text-[11px] font-medium inline-flex items-center gap-1 transition-colors"
                           title="View Application Details"
                         >
                           <Eye className="h-3 w-3" />
@@ -415,7 +415,7 @@ export default function RegistrationStudentListPage() {
                         {item.applicationStatus !== 'Approved' && (
                           <button
                             onClick={() => handleApprove(item.id)}
-                            className="p-1 hover:bg-zinc-100 dark:hover:bg-emerald-950/50 text-zinc-800 rounded transition-colors"
+                            className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-200 text-zinc-800 rounded transition-colors"
                             title="Approve Applicant"
                           >
                             <UserCheck className="h-3.5 w-3.5" />
@@ -454,18 +454,18 @@ export default function RegistrationStudentListPage() {
           <div className="flex items-center gap-1 self-end sm:self-auto">
             <button
               disabled
-              className="px-2.5 py-1 rounded border border-zinc-200 dark:border-zinc-800 text-zinc-400 opacity-50 cursor-not-allowed"
+              className="px-2.5 py-1 rounded border border-zinc-200 dark:border-zinc-200 text-zinc-400 opacity-50 cursor-not-allowed"
             >
               &lt;
             </button>
             <button
-              className="px-2.5 py-1 rounded border border-zinc-600 bg-zinc-100 dark:bg-emerald-950/40 text-zinc-800 dark:text-emerald-400 font-semibold"
+              className="px-2.5 py-1 rounded border border-zinc-600 bg-zinc-100 dark:bg-zinc-100 text-zinc-800 dark:text-zinc-900 font-semibold"
             >
               1
             </button>
             <button
               disabled
-              className="px-2.5 py-1 rounded border border-zinc-200 dark:border-zinc-800 text-zinc-400 opacity-50 cursor-not-allowed"
+              className="px-2.5 py-1 rounded border border-zinc-200 dark:border-zinc-200 text-zinc-400 opacity-50 cursor-not-allowed"
             >
               &gt;
             </button>
@@ -476,52 +476,52 @@ export default function RegistrationStudentListPage() {
       {/* Applicant Details Modal */}
       {selectedApplicant && (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-3">
+          <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-200 pb-3">
               <div>
-                <h3 className="font-bold text-base text-zinc-900 dark:text-white">Applicant Profile</h3>
+                <h3 className="font-bold text-base text-zinc-900 dark:text-zinc-900">Applicant Profile</h3>
                 <span className="text-xs font-mono text-zinc-800">{selectedApplicant.appNo}</span>
               </div>
               <button
                 onClick={() => setSelectedApplicant(null)}
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white font-bold"
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-950 font-bold"
               >
                 ✕
               </button>
             </div>
             <div className="space-y-3 text-xs">
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Full Name:</span>
-                  <span className="font-semibold text-zinc-900 dark:text-white">{selectedApplicant.studentName}</span>
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-900">{selectedApplicant.studentName}</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Applying For Class:</span>
-                  <span className="font-semibold text-zinc-900 dark:text-white">{selectedApplicant.classVal}</span>
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-900">{selectedApplicant.classVal}</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Father / Guardian:</span>
-                  <span className="font-semibold text-zinc-900 dark:text-white">{selectedApplicant.fatherName}</span>
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-900">{selectedApplicant.fatherName}</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Contact Phone:</span>
-                  <span className="font-semibold text-zinc-900 dark:text-white">{selectedApplicant.mobile}</span>
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-900">{selectedApplicant.mobile}</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Date of Birth / Gender:</span>
-                  <span className="font-semibold text-zinc-900 dark:text-white">{selectedApplicant.dob} ({selectedApplicant.gender})</span>
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-900">{selectedApplicant.dob} ({selectedApplicant.gender})</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Previous Institution:</span>
-                  <span className="font-semibold text-zinc-900 dark:text-white">{selectedApplicant.previousSchool}</span>
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-900">{selectedApplicant.previousSchool}</span>
                 </div>
-                <div className="col-span-2 p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800">
+                <div className="col-span-2 p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Residential Address:</span>
-                  <span className="font-semibold text-zinc-900 dark:text-white">{selectedApplicant.address}</span>
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-900">{selectedApplicant.address}</span>
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-between pt-3 border-t border-zinc-100 dark:border-zinc-800">
+            <div className="flex items-center justify-between pt-3 border-t border-zinc-100 dark:border-zinc-200">
               <div className="flex gap-2">
                 <button
                   onClick={() => {

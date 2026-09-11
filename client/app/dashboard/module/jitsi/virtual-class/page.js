@@ -148,18 +148,18 @@ export default function JitsiVirtualClassPage() {
     );
   };
 
-  const inputClass = "w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950 transition-colors";
-  const labelClass = "text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5 block";
+  const inputClass = "w-full bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 text-zinc-900 dark:text-zinc-900 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950 transition-colors";
+  const labelClass = "text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-700 mb-1.5 block";
 
   return (
     <div className="space-y-6 pb-12">
       {/* Header & Breadcrumb */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Jitsi Virtual Class</h1>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Schedule and manage live interactive video classes via Jitsi Meet</p>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-900">Jitsi Virtual Class</h1>
+          <p className="text-xs text-zinc-500 dark:text-zinc-600 mt-0.5">Schedule and manage live interactive video classes via Jitsi Meet</p>
         </div>
-        <div className="flex items-center text-xs text-zinc-500 dark:text-zinc-400">
+        <div className="flex items-center text-xs text-zinc-500 dark:text-zinc-600">
           <Link href="/dashboard" className="hover:text-zinc-950 transition-colors">Dashboard</Link>
           <ChevronRight className="h-3.5 w-3.5 mx-1" />
           <span>Module</span>
@@ -173,8 +173,8 @@ export default function JitsiVirtualClassPage() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Left Form: Add Virtual Class */}
         <div className="xl:col-span-1">
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-xs">
-            <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100 mb-4 pb-3 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+          <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-xl p-5 shadow-xs">
+            <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900 mb-4 pb-3 border-b border-zinc-100 dark:border-zinc-200 flex items-center justify-between">
               <span>{editId ? 'Edit Virtual Class' : 'Add Virtual Class'}</span>
               {editId && (
                 <button 
@@ -301,12 +301,12 @@ export default function JitsiVirtualClassPage() {
 
         {/* Right Table: Virtual Class List */}
         <div className="xl:col-span-2">
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xs overflow-hidden">
+          <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-xl shadow-xs overflow-hidden">
             {/* Table Action Bar */}
-            <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-3">
+            <div className="p-4 border-b border-zinc-200 dark:border-zinc-200 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100">Virtual Class List</h2>
-                <span className="text-xs bg-zinc-100 dark:bg-emerald-950/40 text-zinc-950 font-bold px-2 py-0.5 rounded-full border border-zinc-300 dark:border-emerald-800">
+                <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900">Virtual Class List</h2>
+                <span className="text-xs bg-zinc-100 dark:bg-zinc-100 text-zinc-950 font-bold px-2 py-0.5 rounded-full border border-zinc-300 dark:border-zinc-200">
                   {filteredRecords.length} Classes
                 </span>
               </div>
@@ -316,7 +316,7 @@ export default function JitsiVirtualClassPage() {
                 <select 
                   value={filterClass} 
                   onChange={e => setFilterClass(e.target.value)}
-                  className="bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none"
+                  className="bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200 text-zinc-800 dark:text-zinc-800 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none"
                 >
                   <option value="All">All Classes</option>
                   {classes.map(c => <option key={c} value={c}>{c}</option>)}
@@ -330,17 +330,17 @@ export default function JitsiVirtualClassPage() {
                     placeholder="Search classes..." 
                     value={search} 
                     onChange={e => setSearch(e.target.value)}
-                    className="pl-8 pr-3 py-1.5 text-xs bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-lg focus:outline-none w-36 sm:w-48"
+                    className="pl-8 pr-3 py-1.5 text-xs bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200 text-zinc-900 dark:text-zinc-900 rounded-lg focus:outline-none w-36 sm:w-48"
                   />
                 </div>
 
                 {/* Export Buttons */}
-                <div className="flex items-center gap-1 border-l border-zinc-200 dark:border-zinc-800 pl-2">
-                  <button onClick={handleCopy} title="Copy" className="p-1.5 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded transition-colors"><Copy size={14} /></button>
-                  <button onClick={handleExportExcel} title="Excel" className="p-1.5 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded transition-colors"><FileSpreadsheet size={14} /></button>
-                  <button onClick={handleExportCSV} title="CSV" className="p-1.5 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded transition-colors"><FileText size={14} /></button>
-                  <button onClick={handleExportPDF} title="PDF" className="p-1.5 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded transition-colors"><Download size={14} /></button>
-                  <button onClick={handlePrint} title="Print" className="p-1.5 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded transition-colors"><Printer size={14} /></button>
+                <div className="flex items-center gap-1 border-l border-zinc-200 dark:border-zinc-200 pl-2">
+                  <button onClick={handleCopy} title="Copy" className="p-1.5 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-100 rounded transition-colors"><Copy size={14} /></button>
+                  <button onClick={handleExportExcel} title="Excel" className="p-1.5 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-100 rounded transition-colors"><FileSpreadsheet size={14} /></button>
+                  <button onClick={handleExportCSV} title="CSV" className="p-1.5 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-100 rounded transition-colors"><FileText size={14} /></button>
+                  <button onClick={handleExportPDF} title="PDF" className="p-1.5 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-100 rounded transition-colors"><Download size={14} /></button>
+                  <button onClick={handlePrint} title="Print" className="p-1.5 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-100 rounded transition-colors"><Printer size={14} /></button>
                 </div>
               </div>
             </div>
@@ -348,7 +348,7 @@ export default function JitsiVirtualClassPage() {
             {/* Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="bg-zinc-50 dark:bg-zinc-950/60 text-[11px] font-bold uppercase text-zinc-500 dark:text-zinc-400 tracking-wider border-b border-zinc-200 dark:border-zinc-800">
+                <thead className="bg-zinc-50 dark:bg-white/60 text-[11px] font-bold uppercase text-zinc-500 dark:text-zinc-600 tracking-wider border-b border-zinc-200 dark:border-zinc-200">
                   <tr>
                     <th className="py-3 px-4">SL</th>
                     <th className="py-3 px-4">Class</th>
@@ -360,19 +360,19 @@ export default function JitsiVirtualClassPage() {
                     <th className="py-3 px-4 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800 text-xs text-zinc-800 dark:text-zinc-200">
+                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800 text-xs text-zinc-800 dark:text-zinc-800">
                   {filteredRecords.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="py-10 text-center text-zinc-400 dark:text-zinc-500">
+                      <td colSpan={8} className="py-10 text-center text-zinc-400 dark:text-zinc-9000">
                         No Virtual Classes Found
                       </td>
                     </tr>
                   ) : (
                     filteredRecords.map((r, i) => (
-                      <tr key={r.id} className="hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 transition-colors">
+                      <tr key={r.id} className="hover:bg-zinc-50/60 dark:hover:bg-zinc-100/40 transition-colors">
                         <td className="py-3 px-4 font-bold text-zinc-950">#{i + 1}</td>
                         <td className="py-3 px-4">
-                          <span className="font-semibold text-zinc-900 dark:text-zinc-100">{r.classVal}</span>
+                          <span className="font-semibold text-zinc-900 dark:text-zinc-900">{r.classVal}</span>
                           <span className="text-[10px] text-zinc-400 block">Sec {r.section}</span>
                         </td>
                         <td className="py-3 px-4 font-medium max-w-[200px] truncate" title={r.topic}>
@@ -385,7 +385,7 @@ export default function JitsiVirtualClassPage() {
                         </td>
                         <td className="py-3 px-4 font-medium">{r.duration} Min</td>
                         <td className="py-3 px-4">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-zinc-100 dark:bg-emerald-950/40 text-zinc-950 border border-zinc-300 dark:border-emerald-800">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-zinc-100 dark:bg-zinc-100 text-zinc-950 border border-zinc-300 dark:border-zinc-200">
                             {r.status}
                           </span>
                         </td>
@@ -401,14 +401,14 @@ export default function JitsiVirtualClassPage() {
                             </a>
                             <button 
                               onClick={() => handleEdit(r)}
-                              className="p-1 text-zinc-400 hover:text-zinc-950 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                              className="p-1 text-zinc-400 hover:text-zinc-950 rounded hover:bg-zinc-100 dark:hover:bg-zinc-100"
                               title="Edit"
                             >
                               <Edit size={14} />
                             </button>
                             <button 
                               onClick={() => handleDelete(r.id)}
-                              className="p-1 text-zinc-400 hover:text-rose-500 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                              className="p-1 text-zinc-400 hover:text-rose-500 rounded hover:bg-zinc-100 dark:hover:bg-zinc-100"
                               title="Delete"
                             >
                               <Trash2 size={14} />

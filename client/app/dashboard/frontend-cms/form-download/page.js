@@ -189,7 +189,7 @@ export default function FormDownloadPage() {
                       <td className="py-3 px-3">
                         <button
                           onClick={() => alert(`Downloading: ${item.fileName}`)}
-                          className="px-3 py-1.5 bg-zinc-800 hover:bg-emerald-950/60 hover:text-zinc-500 text-zinc-300 text-xs font-semibold rounded-md border border-zinc-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-100 hover:text-zinc-500 text-zinc-300 text-xs font-semibold rounded-md border border-zinc-700 flex items-center gap-1.5 transition-colors cursor-pointer"
                         >
                           <FileDown className="w-3.5 h-3.5 text-zinc-500" /> Download
                         </button>

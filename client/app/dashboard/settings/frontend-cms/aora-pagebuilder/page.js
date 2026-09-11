@@ -206,7 +206,7 @@ export default function AoraPagebuilderPage() {
                         <div className="flex items-center gap-2">
                           <span className="text-zinc-200 font-medium">{p.name}</span>
                           {p.isHome && (
-                            <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-950 text-zinc-500 border border-zinc-600/30">
+                            <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-500 border border-zinc-600/30">
                               HOME
                             </span>
                           )}

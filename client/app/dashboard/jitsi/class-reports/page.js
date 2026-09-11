@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState } from 'react';
 import { ChevronRight, Search } from 'lucide-react';
 import Link from 'next/link';
@@ -34,7 +34,7 @@ export default function ClassReportsPage() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
           <div>
             <label className="text-xs font-bold text-indigo-900 dark:text-indigo-100 uppercase block mb-1">CLASS <span className="text-red-500">*</span></label>
-            <select value={classVal} onChange={(e) => setClassVal(e.target.value)} className="w-full bg-transparent border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-sm rounded-md px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+            <select value={classVal} onChange={(e) => setClassVal(e.target.value)} className="w-full bg-transparent border border-zinc-200 dark:border-zinc-200 text-zinc-700 dark:text-zinc-700 text-sm rounded-md px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500">
               <option value="">Select Class</option>
               <option value="1">Class 1</option>
             </select>
@@ -42,7 +42,7 @@ export default function ClassReportsPage() {
 
           <div>
             <label className="text-xs font-bold text-indigo-900 dark:text-indigo-100 uppercase block mb-1">SECTION</label>
-            <select value={section} onChange={(e) => setSection(e.target.value)} className="w-full bg-transparent border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-sm rounded-md px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+            <select value={section} onChange={(e) => setSection(e.target.value)} className="w-full bg-transparent border border-zinc-200 dark:border-zinc-200 text-zinc-700 dark:text-zinc-700 text-sm rounded-md px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500">
               <option value="">Select Section</option>
               <option value="A">A</option>
             </select>
@@ -50,7 +50,7 @@ export default function ClassReportsPage() {
 
           <div>
             <label className="text-xs font-bold text-indigo-900 dark:text-indigo-100 uppercase block mb-1">TEACHERS</label>
-            <select value={teacher} onChange={(e) => setTeacher(e.target.value)} className="w-full bg-transparent border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-sm rounded-md px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+            <select value={teacher} onChange={(e) => setTeacher(e.target.value)} className="w-full bg-transparent border border-zinc-200 dark:border-zinc-200 text-zinc-700 dark:text-zinc-700 text-sm rounded-md px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500">
               <option value="">Select Teacher</option>
               <option value="1">Mudassir Bajwa</option>
             </select>
@@ -58,12 +58,12 @@ export default function ClassReportsPage() {
 
           <div>
             <label className="text-xs font-bold text-indigo-900 dark:text-indigo-100 uppercase block mb-1">FROM DATE</label>
-            <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="w-full bg-transparent border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-sm rounded-md px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 [&::-webkit-calendar-picker-indicator]:dark:invert" />
+            <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="w-full bg-transparent border border-zinc-200 dark:border-zinc-200 text-zinc-700 dark:text-zinc-700 text-sm rounded-md px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 [&::-webkit-calendar-picker-indicator]:dark:invert" />
           </div>
 
           <div>
             <label className="text-xs font-bold text-indigo-900 dark:text-indigo-100 uppercase block mb-1">TO DATE</label>
-            <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="w-full bg-transparent border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-sm rounded-md px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 [&::-webkit-calendar-picker-indicator]:dark:invert" />
+            <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="w-full bg-transparent border border-zinc-200 dark:border-zinc-200 text-zinc-700 dark:text-zinc-700 text-sm rounded-md px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 [&::-webkit-calendar-picker-indicator]:dark:invert" />
           </div>
         </div>
 

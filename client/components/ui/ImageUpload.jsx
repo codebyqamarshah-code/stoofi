@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState, useRef, useEffect } from "react";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 
@@ -31,9 +31,9 @@ export function ImageUpload({ label = "Upload Picture", currentImage, onUpload }
 
   return (
     <div className="space-y-2">
-      <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase">{label}</label>
+      <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-600 uppercase">{label}</label>
       <div className="flex items-center gap-4">
-        <div className="relative w-24 h-24 rounded-full border-2 border-dashed border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 flex flex-col items-center justify-center overflow-hidden group">
+        <div className="relative w-24 h-24 rounded-full border-2 border-dashed border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-50 flex flex-col items-center justify-center overflow-hidden group">
           {preview ? (
             <>
               <img src={preview} alt="Preview" className="w-full h-full object-cover" />
@@ -62,7 +62,7 @@ export function ImageUpload({ label = "Upload Picture", currentImage, onUpload }
           />
           <label 
             htmlFor="image-upload" 
-            className="inline-flex items-center justify-center h-9 px-4 rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-sm font-medium text-zinc-900 dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 cursor-pointer transition-colors"
+            className="inline-flex items-center justify-center h-9 px-4 rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white text-sm font-medium text-zinc-900 dark:text-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-100 cursor-pointer transition-colors"
           >
             <Upload size={16} className="mr-2" />
             Choose Image
