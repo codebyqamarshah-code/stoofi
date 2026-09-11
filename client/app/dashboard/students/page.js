@@ -574,16 +574,16 @@ export default function StudentListPage() {
                   <tr key={student._id} className="hover:bg-zinc-100/70 transition-colors border-b border-zinc-200">
                     <td className="px-4 py-3 font-semibold text-zinc-900">{student.admissionNo || '-'}</td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-zinc-900 text-white overflow-hidden border border-zinc-300 flex items-center justify-center">
+                      <Link href={`/dashboard/students/${student._id}`} className="flex items-center gap-3 group">
+                        <div className="h-8 w-8 rounded-full bg-zinc-900 text-white overflow-hidden border border-zinc-300 flex items-center justify-center shrink-0">
                           {student.photo ? (
                             <img src={`http://localhost:5000/${student.photo}`} alt={student.firstName} className="h-full w-full object-cover" />
                           ) : (
                             <div className="h-full w-full flex items-center justify-center text-xs font-bold text-white uppercase">{student.firstName?.charAt(0)}</div>
                           )}
                         </div>
-                        <span className="font-semibold text-zinc-900 hover:underline cursor-pointer">{student.firstName} {student.lastName}</span>
-                      </div>
+                        <span className="font-semibold text-zinc-900 group-hover:underline cursor-pointer">{student.firstName} {student.lastName}</span>
+                      </Link>
                     </td>
                     <td className="px-4 py-3 text-zinc-800">{student.fatherName || '-'}</td>
                     <td className="px-4 py-3 text-zinc-800">{student.dob || '-'}</td>
@@ -592,7 +592,39 @@ export default function StudentListPage() {
                     <td className="px-4 py-3 text-zinc-800">Regular</td>
                     <td className="px-4 py-3 text-zinc-800">{student.phone || '-'}</td>
                     <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-1">
+                        <Link href={`/dashboard/students/${student._id}`}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-200 cursor-pointer" title="View Profile">
+                            <FileText className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                        <Button
+                          onClick={() => {
+                            const row = {
+                              'Admission No': student.admissionNo || '—',
+                              'Full Name': `${student.firstName || ''} ${student.lastName || ''}`.trim(),
+                              'Father Name': student.fatherName || '—',
+                              'Mother Name': student.motherName || '—',
+                              'Date of Birth': student.dob || '—',
+                              'Class': student.className || '—',
+                              'Section': student.section || '—',
+                              'Gender': student.gender || '—',
+                              'Type': student.type || 'Regular',
+                              'Phone': student.phone || '—',
+                              'Email': student.email || '—',
+                              'Address': student.address || '—',
+                              'Blood Group': student.bloodGroup || '—',
+                              'Religion': student.religion || '—',
+                              'Roll No': student.rollNo || '—',
+                              'Father Phone': student.fatherPhone || '—',
+                              'Emergency Contact': student.emergencyContact || '—',
+                            };
+                            exportToExcel([row], `Student_${student.firstName}_${student.admissionNo || 'export'}`, 'Student Profile');
+                          }}
+                          variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-200 cursor-pointer" title="Export to Excel"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
                         <Button onClick={() => openEdit(student)} variant="ghost" size="icon" className="h-8 w-8 text-zinc-700 hover:text-zinc-950 hover:bg-zinc-200 cursor-pointer" title="Edit Student">
                           <Edit className="h-4 w-4" />
                         </Button>
