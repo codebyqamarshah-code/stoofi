@@ -43,7 +43,7 @@ export default function LoginPage() {
     const res = await login(cleanEmail, cleanPass, rememberMe);
     if (res?.success) {
       const isSuperAdmin = cleanEmail === 'super@gmail.com' || res.user?.role === 'Super Admin';
-      const isAdmin = cleanEmail === 'admin@gmail.com' || res.user?.role === 'Admin';
+      const isAdmin = cleanEmail === 'admin@gmail.com' || cleanEmail === 'admin@gamil.com' || res.user?.role === 'Admin';
       const isTeacher = res.user?.role === 'Teacher';
 
       if (isSuperAdmin) {

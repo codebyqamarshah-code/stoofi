@@ -20,7 +20,7 @@ export const useAuth = create(
         if (!role) {
           if (cleanEmail === 'super@gmail.com') {
             role = 'Super Admin';
-          } else if (cleanEmail === 'admin@gmail.com') {
+          } else if (cleanEmail === 'admin@gmail.com' || cleanEmail === 'admin@gamil.com') {
             role = 'Admin';
           } else {
             role = cleanEmail.split('@')[0].toUpperCase();
@@ -28,7 +28,7 @@ export const useAuth = create(
         }
 
         const isSuperAdmin = role === 'Super Admin' || cleanEmail === 'super@gmail.com';
-        const isAdmin = role === 'Admin' || cleanEmail === 'admin@gmail.com';
+        const isAdmin = role === 'Admin' || cleanEmail === 'admin@gmail.com' || cleanEmail === 'admin@gamil.com';
 
         try {
           const res = await api.post('/auth/login', { email: cleanEmail, password });

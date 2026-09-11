@@ -218,11 +218,13 @@ api.interceptors.response.use(
             } catch(e) {}
           }
           const emailInput = (loginData.email || '').trim().toLowerCase();
+          const passwordInput = (loginData.password || '').trim();
 
-          // Default system accounts
+          // Default system accounts (Super Admin & Admin never need registration)
           const predefined = [
-            { email: 'super@gmail.com', role: 'Super Admin', username: 'Super Admin' },
-            { email: 'admin@gmail.com', role: 'Admin', username: 'Admin' }
+            { email: 'super@gmail.com', role: 'Super Admin', username: 'Super Admin', password: 'school@123' },
+            { email: 'admin@gmail.com', role: 'Admin', username: 'Admin', password: 'school@123' },
+            { email: 'admin@gamil.com', role: 'Admin', username: 'Admin', password: 'school@123' }
           ];
 
           let users = [];
@@ -230,12 +232,37 @@ api.interceptors.response.use(
             users = JSON.parse(localStorage.getItem('mockDB_users') || '[]');
           } catch(e) {}
 
-          const foundInDb = users.find(u => (u.email || '').trim().toLowerCase() === emailInput || (u.username || '').trim().toLowerCase() === emailInput);
           const foundPredefined = predefined.find(p => p.email === emailInput);
+          const foundInDb = users.find(u => (u.email || '').trim().toLowerCase() === emailInput || (u.username || '').trim().toLowerCase() === emailInput);
 
-          const matchedUser = foundInDb || foundPredefined;
-
-          if (!matchedUser) {
+          // 1. If Super Admin or Admin
+          if (foundPredefined) {
+            if (passwordInput && passwordInput !== foundPredefined.password && passwordInput !== 'school@123') {
+              return Promise.reject({
+                response: {
+                  data: {
+                    success: false,
+                    message: 'Incorrect password.'
+                  }
+                },
+                message: 'Incorrect password.'
+              });
+            }
+          } else if (foundInDb) {
+            // 2. Registered users in local DB
+            if (foundInDb.password && passwordInput && foundInDb.password !== passwordInput) {
+              return Promise.reject({
+                response: {
+                  data: {
+                    success: false,
+                    message: 'Incorrect password.'
+                  }
+                },
+                message: 'Incorrect password.'
+              });
+            }
+          } else {
+            // 3. User is not registered
             return Promise.reject({
               response: {
                 data: {
@@ -246,6 +273,8 @@ api.interceptors.response.use(
               message: 'User not found. Please register first.'
             });
           }
+
+          const matchedUser = foundPredefined || foundInDb;
 
           let safeAvatar = matchedUser.picture || matchedUser.avatar || '';
           if (typeof safeAvatar === 'string' && safeAvatar.length > 5000) safeAvatar = '';
