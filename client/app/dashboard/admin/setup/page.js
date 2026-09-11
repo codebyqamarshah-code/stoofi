@@ -118,11 +118,11 @@ export default function AdminSetupPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Admin Setup</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/admin/admission-query" className="hover:text-emerald-400 transition-colors">Admin Section</Link>
+          <Link href="/dashboard/admin/admission-query" className="hover:text-zinc-500 transition-colors">Admin Section</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Admin Setup</span>
+          <span className="text-zinc-600">Admin Setup</span>
         </div>
       </div>
 
@@ -137,7 +137,7 @@ export default function AdminSetupPage() {
             <form className="p-4 space-y-4" onSubmit={handleSave}>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Type <span className="text-rose-500">*</span></Label>
-                <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white" required>
+                <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white" required>
                   <option value="">Type *</option>
                   <option value="Purpose">Purpose</option>
                   <option value="Complaint Type">Complaint Type</option>
@@ -147,15 +147,15 @@ export default function AdminSetupPage() {
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Name <span className="text-rose-500">*</span></Label>
-                <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Name" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" required />
+                <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Name" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" required />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Description</Label>
-                <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Description" className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white resize-y" />
+                <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Description" className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white resize-y" />
               </div>
 
               <div className="pt-4">
-                <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+                <Button type="submit" className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                   {editingId ? 'UPDATE' : 'SAVE'} SETUP
                 </Button>
               </div>
@@ -172,7 +172,7 @@ export default function AdminSetupPage() {
                 <Input 
                   value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                   placeholder="Quick Search" 
-                  className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500"
+                  className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600"
                 />
               </div>
             </div>
@@ -195,7 +195,7 @@ export default function AdminSetupPage() {
                         <td className="px-4 py-3 text-zinc-300">{s.name}</td>
                         <td className="px-4 py-3 text-zinc-300">{s.description || '-'}</td>
                         <td className="px-4 py-3 text-right space-x-2">
-                          <Button onClick={() => handleEdit(s)} variant="outline" size="sm" className="h-7 text-xs text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10 px-2"><Edit className="h-3 w-3" /></Button>
+                          <Button onClick={() => handleEdit(s)} variant="outline" size="sm" className="h-7 text-xs text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10 px-2"><Edit className="h-3 w-3" /></Button>
                           <Button onClick={() => handleDelete(s._id)} variant="outline" size="sm" className="h-7 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10 px-2"><Trash2 className="h-3 w-3" /></Button>
                         </td>
                       </tr>

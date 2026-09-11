@@ -43,7 +43,7 @@ export function ThemeToggle() {
       variant="outline"
       size="icon"
       title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-      className="h-8 w-8 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-emerald-400 hover:border-emerald-500/40 transition-all duration-300 cursor-pointer flex items-center justify-center overflow-hidden relative"
+      className="h-8 w-8 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-500 hover:border-zinc-600/40 transition-all duration-300 cursor-pointer flex items-center justify-center overflow-hidden relative"
       onClick={handleToggle}
     >
       <span

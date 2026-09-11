@@ -72,11 +72,11 @@ export default function DormitoryListPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Dormitory List</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Dormitory</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Dormitory List</span>
+          <span className="text-zinc-600">Dormitory List</span>
         </div>
       </div>
 
@@ -91,7 +91,7 @@ export default function DormitoryListPage() {
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Dormitory Name <span className="text-rose-500">*</span></Label>
                 <Input 
                   value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
                 />
               </div>
               <div className="space-y-1.5">
@@ -106,7 +106,7 @@ export default function DormitoryListPage() {
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Address <span className="text-rose-500">*</span></Label>
                 <Input 
                   value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
                 />
               </div>
               <div className="space-y-1.5">
@@ -114,17 +114,17 @@ export default function DormitoryListPage() {
                 <Input 
                   type="number"
                   value={formData.intake} onChange={(e) => setFormData({...formData, intake: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
                 />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Description</Label>
                 <textarea 
                   value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  className="flex min-h-[100px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" 
+                  className="flex min-h-[100px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600" 
                 />
               </div>
-              <Button disabled={submitting} type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+              <Button disabled={submitting} type="submit" className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                 {submitting ? 'SAVING...' : 'SAVE DORMITORY'}
               </Button>
             </form>
@@ -140,7 +140,7 @@ export default function DormitoryListPage() {
                 <Input 
                   placeholder="SEARCH" 
                   value={search} onChange={(e) => setSearch(e.target.value)}
-                  className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500"
+                  className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-zinc-600"
                 />
               </div>
             </div>
@@ -165,7 +165,7 @@ export default function DormitoryListPage() {
                   ) : (
                     filtered.map((item, idx) => (
                       <tr key={item._id} className="hover:bg-zinc-900/50 transition-colors">
-                        <td className="px-4 py-3 text-emerald-500 font-medium">+{idx + 1}</td>
+                        <td className="px-4 py-3 text-zinc-600 font-medium">+{idx + 1}</td>
                         <td className="px-4 py-3 text-zinc-300">{item.name}</td>
                         <td className="px-4 py-3 text-zinc-400">{item.type}</td>
                         <td className="px-4 py-3 text-zinc-400">{item.address}</td>

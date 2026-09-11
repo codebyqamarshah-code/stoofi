@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -49,7 +49,7 @@ export default function ItemReceivePage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Item Receive</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Accounts</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Inventory</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Item Receive</span>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Accounts</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Inventory</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-zinc-600">Item Receive</span>
         </div>
       </div>
 
@@ -69,7 +69,7 @@ export default function ItemReceivePage() {
             name="item"
             value={formData.item || ''} 
             onChange={handleChange}
-            className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+            className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
           />
         </div>
         <div className="space-y-1.5">
@@ -79,7 +79,7 @@ export default function ItemReceivePage() {
             name="supplier"
             value={formData.supplier || ''} 
             onChange={handleChange}
-            className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+            className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
           />
         </div>
         <div className="space-y-1.5">
@@ -89,7 +89,7 @@ export default function ItemReceivePage() {
             name="quantity"
             value={formData.quantity || ''} 
             onChange={handleChange}
-            className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+            className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
           />
         </div>
         <div className="space-y-1.5">
@@ -99,11 +99,11 @@ export default function ItemReceivePage() {
             name="price"
             value={formData.price || ''} 
             onChange={handleChange}
-            className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+            className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
           />
         </div>
               <div className="flex gap-2 pt-2">
-                <Button type="submit" className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+                <Button type="submit" className="flex-1 bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                   {editId ? 'UPDATE' : 'SAVE'}
                 </Button>
                 {editId && (
@@ -120,7 +120,7 @@ export default function ItemReceivePage() {
               <h2 className="text-lg font-semibold text-white">Item Receive List</h2>
               <div className="relative w-48">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                <Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500 text-white" />
+                <Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-zinc-600 text-white" />
               </div>
             </div>
             <div className="overflow-x-auto">
@@ -136,11 +136,11 @@ export default function ItemReceivePage() {
                     <tr><td colSpan="6" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
                   ) : records.map((r, i) => (
                     <tr key={r.id} className="hover:bg-zinc-900/50">
-                      <td className="px-4 py-3 text-emerald-500">+{i+1}</td>
+                      <td className="px-4 py-3 text-zinc-600">+{i+1}</td>
                       <td className="px-4 py-3 text-zinc-300">{r.item || '-'}</td><td className="px-4 py-3 text-zinc-300">{r.supplier || '-'}</td><td className="px-4 py-3 text-zinc-300">{r.quantity || '-'}</td><td className="px-4 py-3 text-zinc-300">{r.price || '-'}</td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-2">
-                          <Button onClick={() => handleEdit(r)} variant="ghost" size="sm" className="h-8 text-emerald-500 hover:bg-emerald-500/10"><Edit className="h-4 w-4" /></Button>
+                          <Button onClick={() => handleEdit(r)} variant="ghost" size="sm" className="h-8 text-zinc-600 hover:bg-zinc-600/10"><Edit className="h-4 w-4" /></Button>
                           <Button onClick={() => handleDelete(r.id)} variant="ghost" size="sm" className="h-8 text-rose-500 hover:bg-rose-500/10"><Trash2 className="h-4 w-4" /></Button>
                         </div>
                       </td>

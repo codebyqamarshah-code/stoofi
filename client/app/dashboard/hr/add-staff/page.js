@@ -82,7 +82,7 @@ export default function AddStaffPage() {
       <div className="flex items-center gap-2 text-sm text-zinc-500 mb-6">
         <span>Dashboard</span> <ChevronRight size={14} /> 
         <span>Human Resource</span> <ChevronRight size={14} /> 
-        <span className="text-emerald-600 font-semibold">Add Staff</span>
+        <span className="text-zinc-800 font-semibold">Add Staff</span>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
@@ -95,8 +95,8 @@ export default function AddStaffPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all ${
                 activeTab === tab.id 
-                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20" 
-                  : "bg-white dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500 hover:text-emerald-500"
+                  ? "bg-zinc-800 text-white shadow-md shadow-zinc-800/20" 
+                  : "bg-white dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-600 hover:text-zinc-600"
               }`}
             >
               <tab.icon size={18} />
@@ -120,14 +120,14 @@ export default function AddStaffPage() {
                 </div>
                 <div className="space-y-2">
                   <Label>Department</Label>
-                  <select name="departmentId" value={formData.departmentId} onChange={handleChange} className="flex h-9 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500">
+                  <select name="departmentId" value={formData.departmentId} onChange={handleChange} className="flex h-9 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-600">
                     <option value="">Select Department</option>
                     {departments.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
                   </select>
                 </div>
                 <div className="space-y-2">
                   <Label>Designation</Label>
-                  <select name="designationId" value={formData.designationId} onChange={handleChange} className="flex h-9 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500">
+                  <select name="designationId" value={formData.designationId} onChange={handleChange} className="flex h-9 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-600">
                     <option value="">Select Designation</option>
                     {designations.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
                   </select>

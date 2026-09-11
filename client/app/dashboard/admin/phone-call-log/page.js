@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 
@@ -123,11 +123,11 @@ export default function PhoneCallLogPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Phone Call Log</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/admin/admission-query" className="hover:text-emerald-400 transition-colors">Admin Section</Link>
+          <Link href="/dashboard/admin/admission-query" className="hover:text-zinc-500 transition-colors">Admin Section</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Phone Call Log</span>
+          <span className="text-zinc-600">Phone Call Log</span>
         </div>
       </div>
 
@@ -142,41 +142,41 @@ export default function PhoneCallLogPage() {
             <form className="p-4 space-y-4" onSubmit={handleSave}>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Name <span className="text-rose-500">*</span></Label>
-                <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Name" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" required />
+                <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Name" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" required />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Phone <span className="text-rose-500">*</span></Label>
-                <Input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="Phone" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" required />
+                <Input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="Phone" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" required />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Date</Label>
-                <Input type="date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 [color-scheme:dark]" />
+                <Input type="date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 [color-scheme:dark]" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Follow Up Date</Label>
-                <Input type="date" value={formData.followUpDate} onChange={e => setFormData({...formData, followUpDate: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 [color-scheme:dark]" />
+                <Input type="date" value={formData.followUpDate} onChange={e => setFormData({...formData, followUpDate: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 [color-scheme:dark]" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Call Duration</Label>
-                <Input value={formData.duration} onChange={e => setFormData({...formData, duration: e.target.value})} placeholder="Call Duration" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                <Input value={formData.duration} onChange={e => setFormData({...formData, duration: e.target.value})} placeholder="Call Duration" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Description</Label>
-                <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Description" className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-white resize-y" />
+                <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Description" className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-white resize-y" />
               </div>
               
               <div className="space-y-3 pt-2">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Type</Label>
                 <div className="flex items-center gap-6">
                   <label className="flex items-center gap-2 cursor-pointer">
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${callType === 'Incoming' ? 'border-emerald-500 bg-emerald-500' : 'border-zinc-500 bg-transparent'}`}>
+                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${callType === 'Incoming' ? 'border-zinc-600 bg-zinc-600' : 'border-zinc-500 bg-transparent'}`}>
                       {callType === 'Incoming' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                     </div>
                     <span className="text-sm text-zinc-300">Incoming</span>
                     <input type="radio" className="hidden" name="callType" value="Incoming" checked={callType === 'Incoming'} onChange={() => setCallType('Incoming')} />
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${callType === 'Outgoing' ? 'border-emerald-500 bg-emerald-500' : 'border-zinc-500 bg-transparent'}`}>
+                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${callType === 'Outgoing' ? 'border-zinc-600 bg-zinc-600' : 'border-zinc-500 bg-transparent'}`}>
                       {callType === 'Outgoing' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                     </div>
                     <span className="text-sm text-zinc-300">Outgoing</span>
@@ -186,7 +186,7 @@ export default function PhoneCallLogPage() {
               </div>
 
               <div className="pt-4">
-                <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+                <Button type="submit" className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                   {editingId ? 'UPDATE' : 'SAVE'} PHONE CALL
                 </Button>
               </div>
@@ -205,7 +205,7 @@ export default function PhoneCallLogPage() {
                   <Input 
                     value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                     placeholder="Quick Search" 
-                    className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500"
+                    className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600"
                   />
                 </div>
                 
@@ -243,12 +243,12 @@ export default function PhoneCallLogPage() {
                         <td className="px-4 py-3 text-zinc-300">{l.followUpDate || '-'}</td>
                         <td className="px-4 py-3 text-zinc-300">{l.duration || '-'}</td>
                         <td className="px-4 py-3 text-zinc-300">
-                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${l.type === 'Incoming' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border border-rose-500/20'}`}>
+                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${l.type === 'Incoming' ? 'bg-zinc-600/10 text-zinc-600 border border-zinc-600/20' : 'bg-rose-500/10 text-rose-500 border border-rose-500/20'}`}>
                              {l.type}
                            </span>
                         </td>
                         <td className="px-4 py-3 text-right space-x-2">
-                           <Button onClick={() => handleEdit(l)} variant="outline" size="sm" className="h-7 text-xs text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10 px-2"><Edit className="h-3 w-3" /></Button>
+                           <Button onClick={() => handleEdit(l)} variant="outline" size="sm" className="h-7 text-xs text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10 px-2"><Edit className="h-3 w-3" /></Button>
                            <Button onClick={() => handleDelete(l._id)} variant="outline" size="sm" className="h-7 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10 px-2"><Trash2 className="h-3 w-3" /></Button>
                         </td>
                       </tr>

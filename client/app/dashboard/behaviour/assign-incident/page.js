@@ -32,9 +32,9 @@ export default function AssignIncidentPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Assign Incident</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link><ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/behaviour/incidents" className="hover:text-emerald-400 transition-colors">Behaviour Records</Link><ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Assign Incident</span>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link><ChevronRight className="h-4 w-4 mx-1" />
+          <Link href="/dashboard/behaviour/incidents" className="hover:text-zinc-500 transition-colors">Behaviour Records</Link><ChevronRight className="h-4 w-4 mx-1" />
+          <span className="text-zinc-600">Assign Incident</span>
         </div>
       </div>
 
@@ -46,7 +46,7 @@ export default function AssignIncidentPage() {
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Academic Year <span className="text-rose-500">*</span></Label>
             <select value={filters.academicYear} onChange={e => setFilters({ ...filters, academicYear: e.target.value })}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
               <option value="2025[Jan-Dec]">2025[Jan-Dec]</option>
               <option value="2026[Jan-Dec]">2026[Jan-Dec]</option>
               <option value="2027[Jan-Dec]">2027[Jan-Dec]</option>
@@ -55,7 +55,7 @@ export default function AssignIncidentPage() {
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Class</Label>
             <select value={filters.class} onChange={e => setFilters({ ...filters, class: e.target.value })}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
               <option value="">Select Class</option>
               {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
                 <option key={c} value={c}>{c}</option>
@@ -65,7 +65,7 @@ export default function AssignIncidentPage() {
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Section</Label>
             <select value={filters.section} onChange={e => setFilters({ ...filters, section: e.target.value })}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
               <option value="">Select Section</option>
               {['A', 'B', 'C', 'D'].map(s => (
                 <option key={s} value={s}>Section {s}</option>
@@ -75,15 +75,15 @@ export default function AssignIncidentPage() {
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Search By Name</Label>
             <Input placeholder="Name" value={filters.name} onChange={e => setFilters({ ...filters, name: e.target.value })}
-              className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+              className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Search By Roll</Label>
             <Input placeholder="Roll" value={filters.roll} onChange={e => setFilters({ ...filters, roll: e.target.value })}
-              className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+              className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
           </div>
           <div className="flex items-end justify-end">
-            <Button onClick={handleSearch} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2 w-full">
+            <Button onClick={handleSearch} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2 w-full">
               <Search className="h-4 w-4" /> SEARCH
             </Button>
           </div>
@@ -97,7 +97,7 @@ export default function AssignIncidentPage() {
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
               <Input placeholder="QUICK SEARCH" value={quickSearch} onChange={e => setQuickSearch(e.target.value)}
-                className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-xs font-semibold uppercase" />
+                className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase" />
             </div>
             <div className="flex items-center border border-zinc-800 rounded-md bg-zinc-900">
               {[FileText, Download, FileText, Download, Printer, MoreVertical].map((Icon, i) => (
@@ -122,7 +122,7 @@ export default function AssignIncidentPage() {
             <tbody>
               {filtered.length > 0 ? filtered.map(s => (
                 <tr key={s.id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
-                  <td className="px-4 py-3 text-zinc-300"><span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-xs">+{s.admissionNo}</span></td>
+                  <td className="px-4 py-3 text-zinc-300"><span className="bg-zinc-600/10 text-zinc-500 border border-zinc-600/20 px-2 py-0.5 rounded text-xs">+{s.admissionNo}</span></td>
                   <td className="px-4 py-3 text-zinc-300 font-medium">{s.name}</td>
                   <td className="px-4 py-3 text-zinc-400">{s.class}</td>
                   <td className="px-4 py-3 text-zinc-400">{s.gender}</td>

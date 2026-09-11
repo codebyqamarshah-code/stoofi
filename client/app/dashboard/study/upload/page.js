@@ -25,11 +25,11 @@ export default function UploadContentPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Upload Content List</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Study Material</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Upload Content List</span>
+          <span className="text-zinc-600">Upload Content List</span>
         </div>
       </div>
 
@@ -44,12 +44,12 @@ export default function UploadContentPage() {
             <form className="p-4 space-y-4" onSubmit={(e) => e.preventDefault()}>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Content Title <span className="text-rose-500">*</span></Label>
-                <Input placeholder="Content Title" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                <Input placeholder="Content Title" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
               </div>
               
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Content Type <span className="text-rose-500">*</span></Label>
-                <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white">
+                <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white">
                   <option value="">Content Type *</option>
                   <option value="Assignment">Assignment</option>
                   <option value="Syllabus">Syllabus</option>
@@ -61,15 +61,15 @@ export default function UploadContentPage() {
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Available For <span className="text-rose-500">*</span></Label>
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" className="rounded border-zinc-800 bg-zinc-950 text-emerald-600 focus:ring-emerald-600 focus:ring-offset-zinc-900 cursor-pointer h-4 w-4" />
+                    <input type="checkbox" className="rounded border-zinc-800 bg-zinc-950 text-zinc-800 focus:ring-zinc-800 focus:ring-offset-zinc-900 cursor-pointer h-4 w-4" />
                     <span className="text-sm text-zinc-300">All Admin</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" className="rounded border-zinc-800 bg-zinc-950 text-emerald-600 focus:ring-emerald-600 focus:ring-offset-zinc-900 cursor-pointer h-4 w-4" />
+                    <input type="checkbox" className="rounded border-zinc-800 bg-zinc-950 text-zinc-800 focus:ring-zinc-800 focus:ring-offset-zinc-900 cursor-pointer h-4 w-4" />
                     <span className="text-sm text-zinc-300">Student</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer opacity-50">
-                    <input type="checkbox" className="rounded border-zinc-800 bg-zinc-950 text-emerald-600 focus:ring-emerald-600 focus:ring-offset-zinc-900 cursor-pointer h-4 w-4" disabled />
+                    <input type="checkbox" className="rounded border-zinc-800 bg-zinc-950 text-zinc-800 focus:ring-zinc-800 focus:ring-offset-zinc-900 cursor-pointer h-4 w-4" disabled />
                     <span className="text-sm text-zinc-300">Available for all classes</span>
                   </label>
                 </div>
@@ -77,7 +77,7 @@ export default function UploadContentPage() {
 
               <div className="space-y-1.5 pt-2">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Class</Label>
-                <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-zinc-900 dark:text-zinc-100 font-medium">
+                <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-zinc-900 dark:text-zinc-100 font-medium">
                   <option value="">Select Class</option>
                   {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
                     <option key={c} value={c}>{c}</option>
@@ -87,7 +87,7 @@ export default function UploadContentPage() {
 
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Section</Label>
-                <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-zinc-900 dark:text-zinc-100 font-medium">
+                <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-zinc-900 dark:text-zinc-100 font-medium">
                   <option value="">Select Section</option>
                   {['A', 'B', 'C', 'D'].map(s => (
                     <option key={s} value={s}>Section {s}</option>
@@ -97,25 +97,25 @@ export default function UploadContentPage() {
 
               <div className="space-y-1.5 pt-2">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Date</Label>
-                <Input type="date" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 [color-scheme:dark]" />
+                <Input type="date" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 [color-scheme:dark]" />
               </div>
 
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Description</Label>
                 <textarea 
                   placeholder="Description" 
-                  className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-white resize-y" 
+                  className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-white resize-y" 
                 />
               </div>
 
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Source URL</Label>
-                <Input placeholder="Source URL" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                <Input placeholder="Source URL" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
               </div>
 
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <Input type="text" placeholder="File" readOnly className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                  <Input type="text" placeholder="File" readOnly className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                   <Button type="button" variant="secondary" className="bg-zinc-800 hover:bg-zinc-700 text-white shrink-0">
                     <Upload className="h-4 w-4 mr-2" /> BROWSE
                   </Button>
@@ -124,7 +124,7 @@ export default function UploadContentPage() {
               </div>
 
               <div className="pt-4">
-                <Button className="w-full sm:w-auto px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+                <Button className="w-full sm:w-auto px-6 bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                   SAVE
                 </Button>
               </div>
@@ -143,7 +143,7 @@ export default function UploadContentPage() {
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
                   <Input 
                     placeholder="QUICK SEARCH" 
-                    className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-xs font-semibold uppercase"
+                    className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase"
                   />
                 </div>
                 

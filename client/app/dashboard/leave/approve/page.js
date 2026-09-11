@@ -42,14 +42,14 @@ export default function ApproveLeavePage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Approve Leave Request</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard/leave/apply" className="hover:text-emerald-400 transition-colors">Leave</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Approve Leave Request</span>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard/leave/apply" className="hover:text-zinc-500 transition-colors">Leave</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-zinc-600">Approve Leave Request</span>
         </div>
       </div>
       
       <div className="bg-zinc-950 border border-zinc-800 rounded-xl">
         <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
           <h2 className="text-lg font-semibold text-white">Leave Request List</h2>
-          <div className="relative w-64"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" /><Input placeholder="Search Staff..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500" /></div>
+          <div className="relative w-64"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" /><Input placeholder="Search Staff..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-zinc-600" /></div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
@@ -61,19 +61,19 @@ export default function ApproveLeavePage() {
               : filtered.length === 0 ? <tr><td colSpan="6" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
               : filtered.map((item, idx) => (
                 <tr key={item._id} className="hover:bg-zinc-900/50">
-                  <td className="px-4 py-3 text-emerald-500">+{idx+1}</td>
+                  <td className="px-4 py-3 text-zinc-600">+{idx+1}</td>
                   <td className="px-4 py-3 font-medium text-zinc-300">{getName(staff, item.staffId, 'firstName')} {getName(staff, item.staffId, 'lastName')}</td>
                   <td className="px-4 py-3 text-zinc-400">{getName(leaveTypes, item.leaveTypeId)}</td>
                   <td className="px-4 py-3 text-zinc-400">{item.fromDate ? new Date(item.fromDate).toLocaleDateString() : '-'} - {item.toDate ? new Date(item.toDate).toLocaleDateString() : '-'}</td>
                   <td className="px-4 py-3">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${item.status === 'approved' ? 'bg-emerald-500/10 text-emerald-500' : item.status === 'rejected' ? 'bg-rose-500/10 text-rose-500' : 'bg-amber-500/10 text-amber-500'}`}>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${item.status === 'approved' ? 'bg-zinc-600/10 text-zinc-600' : item.status === 'rejected' ? 'bg-rose-500/10 text-rose-500' : 'bg-amber-500/10 text-amber-500'}`}>
                       {item.status || 'pending'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
                     {(!item.status || item.status === 'pending') && (
                       <div className="flex justify-end gap-2">
-                        <Button onClick={() => handleUpdateStatus(item._id, 'approved')} variant="outline" size="sm" className="h-8 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10">APPROVE</Button>
+                        <Button onClick={() => handleUpdateStatus(item._id, 'approved')} variant="outline" size="sm" className="h-8 border-zinc-600/30 text-zinc-600 hover:bg-zinc-600/10">APPROVE</Button>
                         <Button onClick={() => handleUpdateStatus(item._id, 'rejected')} variant="outline" size="sm" className="h-8 border-rose-500/30 text-rose-500 hover:bg-rose-500/10">REJECT</Button>
                       </div>
                     )}

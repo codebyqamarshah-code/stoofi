@@ -18,7 +18,7 @@ export default function ApiAccessPage() {
         <ChevronRight className="w-3 h-3" />
         <span>System Settings</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">API Access</span>
+        <span className="text-zinc-500">API Access</span>
       </div>
 
       <h1 className="text-xl font-bold text-white mb-6">API Access</h1>
@@ -31,7 +31,7 @@ export default function ApiAccessPage() {
           <span className="text-sm text-zinc-300 font-medium">Enable Api Access</span>
           <button
             onClick={() => setApiEnabled(!apiEnabled)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${apiEnabled ? 'bg-emerald-600' : 'bg-zinc-700'}`}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${apiEnabled ? 'bg-zinc-800' : 'bg-zinc-700'}`}
           >
             <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${apiEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
           </button>
@@ -45,12 +45,12 @@ export default function ApiAccessPage() {
               type="text"
               value={fcmKey}
               onChange={(e) => setFcmKey(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
             />
           </div>
           <button
             onClick={handleSave}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-5 py-2 rounded flex items-center gap-2"
+            className="bg-zinc-800 hover:bg-zinc-800 text-white text-sm font-semibold px-5 py-2 rounded flex items-center gap-2"
           >
             <Save className="w-4 h-4" /> SAVE FCM KEY
           </button>

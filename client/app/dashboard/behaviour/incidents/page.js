@@ -51,9 +51,9 @@ export default function IncidentsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Incidents</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link><ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/behaviour/incidents" className="hover:text-emerald-400 transition-colors">Behaviour Records</Link><ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Incidents</span>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link><ChevronRight className="h-4 w-4 mx-1" />
+          <Link href="/dashboard/behaviour/incidents" className="hover:text-zinc-500 transition-colors">Behaviour Records</Link><ChevronRight className="h-4 w-4 mx-1" />
+          <span className="text-zinc-600">Incidents</span>
         </div>
       </div>
 
@@ -66,18 +66,18 @@ export default function IncidentsPage() {
           <form onSubmit={handleSave} className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Title <span className="text-rose-500">*</span></Label>
-              <Input value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="Incident title" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" required />
+              <Input value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="Incident title" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" required />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Point</Label>
-              <Input type="number" value={formData.point} onChange={e => setFormData({ ...formData, point: e.target.value })} placeholder="Points" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+              <Input type="number" value={formData.point} onChange={e => setFormData({ ...formData, point: e.target.value })} placeholder="Points" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Description</Label>
-              <Input value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Description" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+              <Input value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Description" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
             </div>
             <div className="md:col-span-3 flex justify-end">
-              <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+              <Button type="submit" className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                 {editingId ? 'UPDATE' : 'SAVE'} INCIDENT
               </Button>
             </div>
@@ -92,7 +92,7 @@ export default function IncidentsPage() {
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
               <Input placeholder="SEARCH" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-xs font-semibold uppercase" />
+                className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase" />
             </div>
             <div className="flex items-center border border-zinc-800 rounded-md bg-zinc-900">
               {[FileText, Download, FileText, Download, Printer, MoreVertical].map((Icon, i) => (
@@ -100,7 +100,7 @@ export default function IncidentsPage() {
               ))}
             </div>
             <Button onClick={() => { setShowForm(true); setEditingId(null); setFormData({ title: '', point: '', description: '' }); }}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2">
+              className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2">
               <Plus className="h-4 w-4" /> ADD
             </Button>
           </div>
@@ -123,7 +123,7 @@ export default function IncidentsPage() {
                   <td className="px-4 py-3 text-zinc-400">{i.point || '-'}</td>
                   <td className="px-4 py-3 text-zinc-400">{i.description || '-'}</td>
                   <td className="px-4 py-3 text-right space-x-2">
-                    <Button onClick={() => handleEdit(i)} variant="outline" size="sm" className="h-7 text-xs text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10 px-2"><Edit className="h-3 w-3" /></Button>
+                    <Button onClick={() => handleEdit(i)} variant="outline" size="sm" className="h-7 text-xs text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10 px-2"><Edit className="h-3 w-3" /></Button>
                     <Button onClick={() => handleDelete(i.id)} variant="outline" size="sm" className="h-7 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10 px-2"><Trash2 className="h-3 w-3" /></Button>
                   </td>
                 </tr>

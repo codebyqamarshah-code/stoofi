@@ -31,7 +31,7 @@ export default function LanguageSettings() {
                             <div>
                                 <label className="block text-sm text-zinc-400 mb-2">Select Language *</label>
                                 <select 
-                                    className="w-full p-2.5 rounded-md bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                    className="w-full p-2.5 rounded-md bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                                     value={selectedLanguage}
                                     onChange={(e) => setSelectedLanguage(e.target.value)}
                                 >
@@ -40,7 +40,7 @@ export default function LanguageSettings() {
                                     <option value="es">Spanish</option>
                                 </select>
                             </div>
-                            <button className="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-md transition-colors">
+                            <button className="w-full px-4 py-2 bg-zinc-800 hover:bg-zinc-800 text-white text-sm font-medium rounded-md transition-colors">
                                 SAVE LANGUAGE
                             </button>
                         </div>
@@ -59,7 +59,7 @@ export default function LanguageSettings() {
                                         placeholder="Search..."
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="pl-8 pr-4 py-2 bg-zinc-950 border border-zinc-800 rounded-md text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-48 sm:w-64"
+                                        className="pl-8 pr-4 py-2 bg-zinc-950 border border-zinc-800 rounded-md text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600 w-48 sm:w-64"
                                     />
                                     <Search className="w-4 h-4 text-zinc-500 absolute left-2.5 top-2.5" />
                                 </div>
@@ -95,7 +95,7 @@ export default function LanguageSettings() {
                                         <td className="px-6 py-4">English</td>
                                         <td className="px-6 py-4">en</td>
                                         <td className="px-6 py-4">
-                                            <span className="px-2 py-1 text-xs font-medium rounded-md bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                                            <span className="px-2 py-1 text-xs font-medium rounded-md bg-zinc-600/10 text-zinc-600 border border-zinc-600/20">
                                                 DEFAULT
                                             </span>
                                         </td>
@@ -129,7 +129,7 @@ export default function LanguageSettings() {
                                                 <Settings className="w-3 h-3" />
                                                 <span>SETUP</span>
                                             </button>
-                                            <button className="flex items-center space-x-1 px-3 py-1.5 text-xs font-medium bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-500 rounded border border-emerald-500/20 transition-colors">
+                                            <button className="flex items-center space-x-1 px-3 py-1.5 text-xs font-medium bg-zinc-800/20 hover:bg-zinc-800/30 text-zinc-600 rounded border border-zinc-600/20 transition-colors">
                                                 <Check className="w-3 h-3" />
                                                 <span>MAKE DEFAULT</span>
                                             </button>

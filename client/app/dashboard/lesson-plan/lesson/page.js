@@ -70,11 +70,11 @@ export default function LessonPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Lesson</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Lesson Plan</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Lesson</span>
+          <span className="text-zinc-600">Lesson</span>
         </div>
       </div>
 
@@ -91,7 +91,7 @@ export default function LessonPage() {
                 <select 
                   value={formData.class}
                   onChange={(e) => setFormData({...formData, class: e.target.value})}
-                  className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                  className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
                   required
                 >
                   <option value="">Select Class</option>
@@ -104,7 +104,7 @@ export default function LessonPage() {
                 <select 
                   value={formData.subject}
                   onChange={(e) => setFormData({...formData, subject: e.target.value})}
-                  className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                  className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
                   required
                 >
                   <option value="">Select Subject</option>
@@ -121,11 +121,11 @@ export default function LessonPage() {
                       placeholder="Title" 
                       value={t.value}
                       onChange={(e) => handleTitleChange(t.id, e.target.value)}
-                      className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" 
+                      className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" 
                       required
                     />
                     {index === titles.length - 1 ? (
-                      <Button type="button" onClick={addTitleRow} variant="secondary" size="icon" className="h-10 w-10 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md">
+                      <Button type="button" onClick={addTitleRow} variant="secondary" size="icon" className="h-10 w-10 shrink-0 bg-zinc-800 hover:bg-zinc-800 text-white rounded-md">
                         <Plus className="h-4 w-4" />
                       </Button>
                     ) : (
@@ -138,7 +138,7 @@ export default function LessonPage() {
               ))}
               
               <div className="pt-2">
-                <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">SAVE LESSON</Button>
+                <Button type="submit" className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">SAVE LESSON</Button>
               </div>
             </form>
           </div>
@@ -156,7 +156,7 @@ export default function LessonPage() {
                     placeholder="SEARCH" 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-xs font-semibold uppercase" 
+                    className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase" 
                   />
                 </div>
                 <div className="flex items-center border border-zinc-800 rounded-md bg-zinc-900">
@@ -174,7 +174,7 @@ export default function LessonPage() {
                <select 
                   value={classFilter}
                   onChange={(e) => setClassFilter(e.target.value)}
-                  className="flex h-9 w-full sm:w-[200px] rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                  className="flex h-9 w-full sm:w-[200px] rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
                 >
                   <option value="">All Classes</option>
                   <option value="Class 1">Class 1</option>
@@ -183,7 +183,7 @@ export default function LessonPage() {
                 <select 
                   value={subjectFilter}
                   onChange={(e) => setSubjectFilter(e.target.value)}
-                  className="flex h-9 w-full sm:w-[200px] rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                  className="flex h-9 w-full sm:w-[200px] rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
                 >
                   <option value="">All Subjects</option>
                   <option value="Mathematics">Mathematics</option>

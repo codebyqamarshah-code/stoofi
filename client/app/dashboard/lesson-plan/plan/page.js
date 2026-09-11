@@ -13,11 +13,11 @@ export default function LessonPlanPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Lesson Plan Create</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Lesson Plan</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Lesson Plan Create</span>
+          <span className="text-zinc-600">Lesson Plan Create</span>
         </div>
       </div>
 
@@ -28,13 +28,13 @@ export default function LessonPlanPage() {
         </div>
         <div className="space-y-1.5 max-w-md">
           <Label className="text-xs font-semibold text-zinc-400 uppercase">Teacher <span className="text-rose-500">*</span></Label>
-          <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+          <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
             <option value="">Select Teacher *</option>
             <option value="1">Mudassir Bajwa</option>
           </select>
         </div>
         <div className="flex justify-end mt-6">
-          <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+          <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
             <Search className="h-4 w-4 mr-2" /> SEARCH
           </Button>
         </div>

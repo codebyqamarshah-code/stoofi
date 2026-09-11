@@ -70,11 +70,11 @@ export default function MarksGradePage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Marks Grade</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/examination/exam-setup" className="hover:text-emerald-400 transition-colors">Examination</Link>
+          <Link href="/dashboard/examination/exam-setup" className="hover:text-zinc-500 transition-colors">Examination</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Marks Grade</span>
+          <span className="text-zinc-600">Marks Grade</span>
         </div>
       </div>
 
@@ -89,7 +89,7 @@ export default function MarksGradePage() {
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Grade Name <span className="text-rose-500">*</span></Label>
                 <Input 
                   value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
                 />
               </div>
               <div className="space-y-1.5">
@@ -97,7 +97,7 @@ export default function MarksGradePage() {
                 <Input 
                   type="number" step="0.01"
                   value={formData.gpa} onChange={(e) => setFormData({...formData, gpa: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
                 />
               </div>
               <div className="space-y-1.5">
@@ -105,7 +105,7 @@ export default function MarksGradePage() {
                 <Input 
                   type="number"
                   value={formData.percentFrom} onChange={(e) => setFormData({...formData, percentFrom: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
                 />
               </div>
               <div className="space-y-1.5">
@@ -113,7 +113,7 @@ export default function MarksGradePage() {
                 <Input 
                   type="number"
                   value={formData.percentTo} onChange={(e) => setFormData({...formData, percentTo: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
                 />
               </div>
               <div className="space-y-1.5">
@@ -121,7 +121,7 @@ export default function MarksGradePage() {
                 <Input 
                   type="number" step="0.01"
                   value={formData.gpaFrom} onChange={(e) => setFormData({...formData, gpaFrom: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
                 />
               </div>
               <div className="space-y-1.5">
@@ -129,17 +129,17 @@ export default function MarksGradePage() {
                 <Input 
                   type="number" step="0.01"
                   value={formData.gpaTo} onChange={(e) => setFormData({...formData, gpaTo: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
                 />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Description</Label>
                 <textarea 
                   value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" 
+                  className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600" 
                 />
               </div>
-              <Button disabled={submitting} type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+              <Button disabled={submitting} type="submit" className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                 {submitting ? 'SAVING...' : 'SAVE GRADE'}
               </Button>
             </form>
@@ -155,7 +155,7 @@ export default function MarksGradePage() {
                 <Input 
                   placeholder="SEARCH" 
                   value={search} onChange={(e) => setSearch(e.target.value)}
-                  className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500"
+                  className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-zinc-600"
                 />
               </div>
             </div>
@@ -180,7 +180,7 @@ export default function MarksGradePage() {
                   ) : (
                     filtered.map((item, idx) => (
                       <tr key={item._id} className="hover:bg-zinc-900/50 transition-colors">
-                        <td className="px-4 py-3 text-emerald-500 font-medium">+{idx + 1}</td>
+                        <td className="px-4 py-3 text-zinc-600 font-medium">+{idx + 1}</td>
                         <td className="px-4 py-3 text-zinc-300">{item.name}</td>
                         <td className="px-4 py-3 text-zinc-400">{item.gpa}</td>
                         <td className="px-4 py-3 text-zinc-400">{item.percentFrom}% - {item.percentTo}%</td>

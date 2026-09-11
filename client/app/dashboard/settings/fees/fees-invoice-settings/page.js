@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { ChevronRight, X, Check } from 'lucide-react'
@@ -44,7 +44,7 @@ export default function FeesInvoiceSettingsPage() {
       if (t.id === 'section') return 'A'
       return t.label
     })
-    return parts.join(' ') || 'â€”'
+    return parts.join(' ') || '—'
   }
 
   const handleChange = (field) => (e) => {
@@ -70,9 +70,9 @@ export default function FeesInvoiceSettingsPage() {
       {/* Page Title */}
       <h1 className="text-xl font-semibold text-white mb-6">Fees Invoice Settings</h1>
 
-      {/* SECTION 1 â€” Two-column row */}
+      {/* SECTION 1 — Two-column row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-        {/* Left Panel â€” Invoice Number Generator */}
+        {/* Left Panel — Invoice Number Generator */}
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
           <h2 className="text-sm font-semibold text-white mb-5">Invoice Number Generator</h2>
 
@@ -105,12 +105,12 @@ export default function FeesInvoiceSettingsPage() {
             value={newPosition}
             onChange={(e) => setNewPosition(e.target.value)}
             onKeyDown={addTag}
-            placeholder="Type and press Enter to addâ€¦"
-            className="bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full placeholder:text-zinc-500"
+            placeholder="Type and press Enter to add…"
+            className="bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600 w-full placeholder:text-zinc-500"
           />
         </div>
 
-        {/* Right Panel â€” Invoice Number Preview */}
+        {/* Right Panel — Invoice Number Preview */}
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 flex flex-col">
           <h2 className="text-sm font-semibold text-white mb-5">Invoice Number Preview</h2>
           <div className="flex-1 flex items-center justify-center bg-zinc-800 border border-zinc-700 rounded-lg min-h-[96px]">
@@ -121,7 +121,7 @@ export default function FeesInvoiceSettingsPage() {
         </div>
       </div>
 
-      {/* SECTION 2 â€” Invoice Attribute */}
+      {/* SECTION 2 — Invoice Attribute */}
       <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
         <h2 className="text-sm font-semibold text-white mb-6">Invoice Attribute</h2>
 
@@ -135,7 +135,7 @@ export default function FeesInvoiceSettingsPage() {
               type="text"
               value={formData.uniqueIdStart}
               onChange={handleChange('uniqueIdStart')}
-              className="bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full"
+              className="bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600 w-full"
             />
           </div>
 
@@ -149,7 +149,7 @@ export default function FeesInvoiceSettingsPage() {
               value={formData.prefix}
               onChange={handleChange('prefix')}
               maxLength={10}
-              className="bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full"
+              className="bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600 w-full"
             />
           </div>
 
@@ -163,7 +163,7 @@ export default function FeesInvoiceSettingsPage() {
               value={formData.classLimit}
               onChange={handleChange('classLimit')}
               min={0}
-              className="bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full"
+              className="bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600 w-full"
             />
           </div>
 
@@ -177,7 +177,7 @@ export default function FeesInvoiceSettingsPage() {
               value={formData.sectionLimit}
               onChange={handleChange('sectionLimit')}
               min={0}
-              className="bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full"
+              className="bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600 w-full"
             />
           </div>
 
@@ -191,7 +191,7 @@ export default function FeesInvoiceSettingsPage() {
               value={formData.admissionNoLimit}
               onChange={handleChange('admissionNoLimit')}
               min={0}
-              className="bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full"
+              className="bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600 w-full"
             />
           </div>
         </div>
@@ -200,7 +200,7 @@ export default function FeesInvoiceSettingsPage() {
         <div className="flex justify-center">
           <button
             onClick={handleUpdate}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2 rounded transition-colors"
+            className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-800 text-white font-semibold px-6 py-2 rounded transition-colors"
           >
             <Check size={16} />
             UPDATE

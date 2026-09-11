@@ -49,11 +49,11 @@ export default function ExamAttendancePage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Exam Attendance</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Examinations</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Exam Attendance</span>
+          <span className="text-zinc-600">Exam Attendance</span>
         </div>
       </div>
 

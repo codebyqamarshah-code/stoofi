@@ -67,7 +67,7 @@ export default function VideoGalleryPage() {
         <ChevronRight className="w-3 h-3" />
         <span>Frontend CMS</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">Video Gallery</span>
+        <span className="text-zinc-500">Video Gallery</span>
       </div>
 
       <h1 className="text-xl font-bold text-white">Video Gallery</h1>
@@ -83,7 +83,7 @@ export default function VideoGalleryPage() {
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
             />
           </div>
 
@@ -94,7 +94,7 @@ export default function VideoGalleryPage() {
               placeholder="https://www.youtube.com/watch?v=..."
               value={link}
               onChange={e => setLink(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
             />
           </div>
 
@@ -104,7 +104,7 @@ export default function VideoGalleryPage() {
               rows={3}
               value={description}
               onChange={e => setDescription(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600 resize-none"
             />
           </div>
 
@@ -135,7 +135,7 @@ export default function VideoGalleryPage() {
           <button
             type="button"
             onClick={handleAdd}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm py-2 rounded flex items-center justify-center gap-2 mt-4 cursor-pointer"
+            className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold text-sm py-2 rounded flex items-center justify-center gap-2 mt-4 cursor-pointer"
           >
             <Plus className="w-4 h-4" /> ADD VIDEO
           </button>
@@ -157,7 +157,7 @@ export default function VideoGalleryPage() {
               </div>
               <div className="flex gap-1">
                 {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                  <button key={i} className="p-1 text-zinc-400 hover:text-emerald-400">
+                  <button key={i} className="p-1 text-zinc-400 hover:text-zinc-500">
                     <Icon className="w-4 h-4" />
                   </button>
                 ))}
@@ -189,7 +189,7 @@ export default function VideoGalleryPage() {
                       <td className="py-3 px-3 text-zinc-400">
                         <div className="flex items-center gap-1.5">
                           <GripVertical className="w-3.5 h-3.5 text-zinc-600 cursor-grab" />
-                          <span className="text-emerald-500 font-medium">{idx + 1}</span>
+                          <span className="text-zinc-600 font-medium">{idx + 1}</span>
                         </div>
                       </td>
                       <td className="py-3 px-3">
@@ -197,7 +197,7 @@ export default function VideoGalleryPage() {
                         <span className="text-zinc-500 text-xs truncate max-w-xs block">{item.description}</span>
                       </td>
                       <td className="py-3 px-3 text-zinc-300">
-                        <a href={item.link} target="_blank" rel="noreferrer" className="text-emerald-400 hover:underline flex items-center gap-1 text-xs">
+                        <a href={item.link} target="_blank" rel="noreferrer" className="text-zinc-500 hover:underline flex items-center gap-1 text-xs">
                           <Video className="w-3 h-3" /> Watch Video <ExternalLink className="w-3 h-3" />
                         </a>
                       </td>
@@ -210,7 +210,7 @@ export default function VideoGalleryPage() {
                         <div className="relative inline-block text-left">
                           <button
                             onClick={() => setOpenDropdownId(openDropdownId === item.id ? null : item.id)}
-                            className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-emerald-500 hover:text-emerald-400 cursor-pointer"
+                            className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-zinc-600 hover:text-zinc-500 cursor-pointer"
                           >
                             SELECT <ChevronDown className="w-3 h-3" />
                           </button>
@@ -237,7 +237,7 @@ export default function VideoGalleryPage() {
             <span>Showing 1 to {filtered.length} of {filtered.length} entries</span>
             <div className="flex items-center gap-1">
               <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">←</button>
-              <button className="px-2 py-1 bg-emerald-600 text-white rounded">1</button>
+              <button className="px-2 py-1 bg-zinc-800 text-white rounded">1</button>
               <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">→</button>
             </div>
           </div>

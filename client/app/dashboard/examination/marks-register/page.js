@@ -63,7 +63,7 @@ export default function MarksRegisterPage() {
   const sel = (label, field, arr, nameField = 'name') => (
     <div className="space-y-1.5">
       <Label className="text-xs font-semibold text-zinc-400 uppercase">{label}</Label>
-      <select value={formData[field]} onChange={e => setFormData({...formData, [field]: e.target.value})} className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+      <select value={formData[field]} onChange={e => setFormData({...formData, [field]: e.target.value})} className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-zinc-600">
         <option value="">Select {label}</option>
         {arr.map(x => <option key={x._id} value={x._id}>{x[nameField]}</option>)}
       </select>
@@ -75,7 +75,7 @@ export default function MarksRegisterPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Marks Register</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard/examination/exam-setup" className="hover:text-emerald-400 transition-colors">Examination</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Marks Register</span>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard/examination/exam-setup" className="hover:text-zinc-500 transition-colors">Examination</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-zinc-600">Marks Register</span>
         </div>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -91,10 +91,10 @@ export default function MarksRegisterPage() {
               {[['marks','Marks Obtained *',true],['totalMarks','Total Marks'],['grade','Grade'],['gpa','GPA'],['remarks','Remarks']].map(([field, label]) => (
                 <div key={field} className="space-y-1.5">
                   <Label className="text-xs font-semibold text-zinc-400 uppercase">{label}</Label>
-                  <Input value={formData[field]} onChange={e => setFormData({...formData, [field]: e.target.value})} className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" />
+                  <Input value={formData[field]} onChange={e => setFormData({...formData, [field]: e.target.value})} className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" />
                 </div>
               ))}
-              <Button disabled={submitting} type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+              <Button disabled={submitting} type="submit" className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                 {submitting ? 'SAVING...' : 'SAVE MARKS'}
               </Button>
             </form>
@@ -104,7 +104,7 @@ export default function MarksRegisterPage() {
           <div className="bg-zinc-950 border border-zinc-800 rounded-xl">
             <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
               <h2 className="text-lg font-semibold text-white">Marks Register List</h2>
-              <div className="relative w-48"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" /><Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500" /></div>
+              <div className="relative w-48"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" /><Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-zinc-600" /></div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left">
@@ -116,12 +116,12 @@ export default function MarksRegisterPage() {
                   : filtered.length === 0 ? <tr><td colSpan="8" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
                   : filtered.map((item, idx) => (
                     <tr key={item._id} className="hover:bg-zinc-900/50">
-                      <td className="px-4 py-3 text-emerald-500">+{idx+1}</td>
+                      <td className="px-4 py-3 text-zinc-600">+{idx+1}</td>
                       <td className="px-4 py-3 text-zinc-300">{getName(exams, item.examId)}</td>
                       <td className="px-4 py-3 text-zinc-400">{getName(students, item.studentId, 'firstName')}</td>
                       <td className="px-4 py-3 text-zinc-400">{getName(subjects, item.subjectId)}</td>
                       <td className="px-4 py-3 text-zinc-400">{item.marks}{item.totalMarks ? `/${item.totalMarks}` : ''}</td>
-                      <td className="px-4 py-3 text-emerald-400 font-bold">{item.grade || '-'}</td>
+                      <td className="px-4 py-3 text-zinc-500 font-bold">{item.grade || '-'}</td>
                       <td className="px-4 py-3 text-zinc-400">{item.gpa || '-'}</td>
                       <td className="px-4 py-3 text-right"><Button onClick={() => handleDelete(item._id)} variant="ghost" size="sm" className="h-8 text-rose-500 hover:bg-rose-500/10">DELETE</Button></td>
                     </tr>

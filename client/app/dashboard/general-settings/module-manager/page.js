@@ -23,7 +23,7 @@ export default function ModuleManager() {
       <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden shadow-sm">
         <div className="px-6 py-4 border-b border-zinc-800 flex justify-between items-center">
           <h2 className="text-lg font-medium">Module manage</h2>
-          <button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded text-sm transition-colors">
+          <button className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-800 text-white px-4 py-2 rounded text-sm transition-colors">
             <UploadCloud className="w-4 h-4" />
             UPLOAD/UPDATE MODULE
           </button>
@@ -50,7 +50,7 @@ export default function ModuleManager() {
                              {mod.title}
                              <span className="text-xs text-zinc-500 bg-zinc-800 px-1.5 py-0.5 rounded">{mod.version}</span>
                              {mod.verified ? (
-                               <CheckCircle2 className="w-4 h-4 text-emerald-500" title="Verified" />
+                               <CheckCircle2 className="w-4 h-4 text-zinc-600" title="Verified" />
                              ) : (
                                <XCircle className="w-4 h-4 text-red-500" title="Unverified" />
                              )}
@@ -60,7 +60,7 @@ export default function ModuleManager() {
                     </td>
                     <td className="px-4 py-4 align-top">
                       {mod.status === 'ACTIVE' ? (
-                        <span className="bg-emerald-500/10 text-emerald-500 text-[10px] px-2 py-1 rounded border border-emerald-500/20 font-medium">ACTIVE</span>
+                        <span className="bg-zinc-600/10 text-zinc-600 text-[10px] px-2 py-1 rounded border border-zinc-600/20 font-medium">ACTIVE</span>
                       ) : (
                         <span className="bg-zinc-800 text-zinc-400 text-[10px] px-2 py-1 rounded border border-zinc-700 font-medium">DISABLE</span>
                       )}
@@ -69,12 +69,12 @@ export default function ModuleManager() {
                        {mod.status === 'ACTIVE' ? (
                           <button 
                             onClick={() => toggleStatus(mod.id)}
-                            className="relative inline-flex h-5 w-9 items-center rounded-full bg-emerald-600 transition-colors focus:outline-none"
+                            className="relative inline-flex h-5 w-9 items-center rounded-full bg-zinc-800 transition-colors focus:outline-none"
                           >
                             <span className="inline-block h-4 w-4 translate-x-4 transform rounded-full bg-white transition-transform" />
                           </button>
                        ) : (
-                          <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-xs transition-colors font-medium">
+                          <button className="bg-zinc-800 hover:bg-zinc-800 text-white px-3 py-1.5 rounded text-xs transition-colors font-medium">
                             BUY NOW
                           </button>
                        )}

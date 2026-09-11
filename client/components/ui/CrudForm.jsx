@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState } from "react";
 import { Button } from "./button";
 import { Loader2 } from "lucide-react";
@@ -35,7 +35,7 @@ export function CrudForm({
           <Button 
             type="submit" 
             disabled={isSubmitting || isLoading}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11"
+            className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-bold h-11"
           >
             {isSubmitting ? (
               <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>

@@ -86,7 +86,7 @@
 :root:not(.dark) .divide-zinc-800 > * + *,
 :root:not(.dark) .divide-zinc-700 > * + *,
 :root:not(.dark) .divide-zinc-200 > * + * {
-  border-color: #d1fae5 !important;
+  border-color: #e4e4e7 !important;
 }
 
 /* LIGHT MODE: Fix accidental text-white on light card backgrounds */
@@ -98,7 +98,7 @@
 :root:not(.dark) label.text-white,
 :root:not(.dark) span.text-white:not(button *, .badge *, [class*="bg-emerald"] *, [class*="bg-[#009966]"] *, [class*="bg-rose"] *, [class*="bg-amber"] *),
 :root:not(.dark) div.text-white:not(button *, .badge *, [class*="bg-emerald"] *, [class*="bg-[#009966]"] *, [class*="bg-rose"] *, [class*="bg-amber"] *) {
-  color: #009966 !important;
+  color: #09090b !important;
 }
 
 /* UNIVERSAL DROPDOWN & SELECT VISIBILITY RULES (Light Mode: Black/Dark text, Clean White bg, Mint border) */
@@ -111,13 +111,13 @@
 :root:not(.dark) select.text-zinc-100 {
   background-color: #ffffff !important;
   color: #09090b !important;
-  border-color: #d1fae5 !important;
+  border-color: #e4e4e7 !important;
 }
 
 :root:not(.dark) select:focus {
-  border-color: #009966 !important;
+  border-color: #09090b !important;
   outline: none !important;
-  box-shadow: 0 0 0 2px rgba(0, 153, 102, 0.2) !important;
+  box-shadow: 0 0 0 2px rgba(9, 9, 11, 0.2) !important;
 }
 
 :root:not(.dark) option,
@@ -128,8 +128,8 @@
 
 :root:not(.dark) option:checked,
 :root:not(.dark) option:hover {
-  background-color: #f0fdf4 !important;
-  color: #009966 !important;
+  background-color: #f4f4f5 !important;
+  color: #09090b !important;
 }
 
 /* DARK MODE: Dropdown & Select styling */
@@ -163,38 +163,38 @@
 
 :root {
   --card: #ffffff;
-  --card-foreground: #022c22;
+  --card-foreground: #09090b;
   --popover: #ffffff;
-  --popover-foreground: #022c22;
-  --primary: #009966;
+  --popover-foreground: #09090b;
+  --primary: #09090b;
   --primary-foreground: #ffffff;
-  --secondary: #f0fdf4;
-  --secondary-foreground: #009966;
-  --muted: #f0fdf4;
-  --muted-foreground: #009966;
-  --accent: #f0fdf4;
-  --accent-foreground: #009966;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #09090b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --accent: #f4f4f5;
+  --accent-foreground: #09090b;
   --destructive: #e40014;
   --destructive-foreground: #ffffff;
-  --border: #d1fae5;
-  --input: #d1fae5;
-  --ring: #009966;
-  --chart-1: #009966;
-  --chart-2: #059669;
-  --chart-3: #10b981;
-  --chart-4: #34d399;
-  --chart-5: #6ee7b7;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #09090b;
+  --chart-1: #09090b;
+  --chart-2: #27272a;
+  --chart-3: #3f3f46;
+  --chart-4: #52525b;
+  --chart-5: #71717a;
   --radius: 0.625rem;
   --sidebar: #ffffff;
-  --sidebar-foreground: #009966;
-  --sidebar-primary: #009966;
+  --sidebar-foreground: #09090b;
+  --sidebar-primary: #09090b;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f0fdf4;
-  --sidebar-accent-foreground: #009966;
-  --sidebar-border: #d1fae5;
-  --sidebar-ring: #009966;
+  --sidebar-accent: #f4f4f5;
+  --sidebar-accent-foreground: #09090b;
+  --sidebar-border: #e4e4e7;
+  --sidebar-ring: #09090b;
   --background: #ffffff;
-  --foreground: #022c22;
+  --foreground: #09090b;
 }
 
 .dark {
@@ -279,6 +279,22 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  button,
+  [role="button"],
+  a,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  select,
+  summary {
+    cursor: pointer !important;
+  }
+  button:disabled,
+  [role="button"][aria-disabled="true"],
+  input[type="button"]:disabled,
+  input[type="submit"]:disabled {
+    cursor: not-allowed !important;
   }
   body {
     @apply bg-background text-foreground;

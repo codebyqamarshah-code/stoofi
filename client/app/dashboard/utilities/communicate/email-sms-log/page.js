@@ -90,11 +90,11 @@ export default function EmailSmsLogPage() {
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Audit trail of all broadcast emails, SMS messages, and delivery receipts.</p>
         </div>
         <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Communicate</span>
+          <span className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">Communicate</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-600 dark:text-emerald-400 font-medium">Email / SMS Log</span>
+          <span className="text-zinc-800 dark:text-emerald-400 font-medium">Email / SMS Log</span>
         </div>
       </div>
 
@@ -102,7 +102,7 @@ export default function EmailSmsLogPage() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 mb-4 border-b border-zinc-100 dark:border-zinc-800">
           <div className="flex items-center gap-3">
             <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider">Communication Logs</h2>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-200 text-zinc-900 dark:bg-emerald-950/60 dark:text-emerald-400 border border-zinc-300 dark:border-emerald-800">
               {filteredLogs.length}
             </span>
           </div>
@@ -110,7 +110,7 @@ export default function EmailSmsLogPage() {
             <select
               value={filterChannel}
               onChange={(e) => setFilterChannel(e.target.value)}
-              className="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-xs outline-none focus:ring-1 focus:ring-emerald-500"
+              className="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-xs outline-none focus:ring-1 focus:ring-zinc-600"
             >
               <option value="All">All Channels</option>
               <option value="SMS">SMS</option>
@@ -123,7 +123,7 @@ export default function EmailSmsLogPage() {
                 placeholder="SEARCH LOGS"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 outline-none focus:ring-1 focus:ring-zinc-600"
               >
               </input>
             </div>
@@ -173,7 +173,7 @@ export default function EmailSmsLogPage() {
                   </td>
                   <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{item.sentDate}</td>
                   <td className="px-3.5 py-3">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-200 text-zinc-800 dark:bg-emerald-950/60 dark:text-emerald-400">
                       {item.status}
                     </span>
                   </td>
@@ -217,7 +217,7 @@ export default function EmailSmsLogPage() {
                 </div>
                 <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800">
                   <span className="text-zinc-500 block">Delivered Rate:</span>
-                  <span className="font-semibold text-emerald-600">{selectedLog.deliveredCount} of {selectedLog.totalCount} ({((selectedLog.deliveredCount/selectedLog.totalCount)*100).toFixed(1)}%)</span>
+                  <span className="font-semibold text-zinc-800">{selectedLog.deliveredCount} of {selectedLog.totalCount} ({((selectedLog.deliveredCount/selectedLog.totalCount)*100).toFixed(1)}%)</span>
                 </div>
               </div>
               <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800">

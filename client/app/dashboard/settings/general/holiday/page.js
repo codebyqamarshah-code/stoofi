@@ -62,7 +62,7 @@ export default function HolidayPage() {
       <div className="flex items-center gap-1 text-xs text-zinc-400 mb-4">
         <span>Dashboard</span><ChevronRight className="w-3 h-3" />
         <span>System Settings</span><ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">Holiday List</span>
+        <span className="text-zinc-500">Holiday List</span>
       </div>
       <h1 className="text-xl font-bold text-white mb-6">Holiday List</h1>
 
@@ -72,7 +72,7 @@ export default function HolidayPage() {
           <h2 className="text-sm font-semibold text-zinc-300">Add Holiday</h2>
           <div>
             <label className="text-xs font-semibold text-zinc-400 uppercase block mb-1">HOLIDAY TITLE *</label>
-            <input value={title} onChange={e => setTitle(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            <input value={title} onChange={e => setTitle(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600" />
           </div>
           <div>
             <label className="text-xs font-semibold text-zinc-400 uppercase block mb-1">FROM DATE</label>
@@ -81,7 +81,7 @@ export default function HolidayPage() {
                 type="date"
                 value={fromDate}
                 onChange={e => setFromDate(e.target.value)}
-                className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
               />
             </div>
           </div>
@@ -92,7 +92,7 @@ export default function HolidayPage() {
                 type="date"
                 value={toDate}
                 onChange={e => setToDate(e.target.value)}
-                className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
               />
             </div>
           </div>
@@ -102,7 +102,7 @@ export default function HolidayPage() {
               value={description}
               onChange={e => setDescription(e.target.value)}
               rows={4}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600 resize-none"
             />
           </div>
           <div>
@@ -117,7 +117,7 @@ export default function HolidayPage() {
             </div>
             <p className="text-xs text-zinc-500 mt-1">(PDF,DOC,DOCX,JPG,JPEG,PNG,TXT are allowed for upload)</p>
           </div>
-          <button onClick={handleSave} disabled={loading} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm py-2 rounded">
+          <button onClick={handleSave} disabled={loading} className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold text-sm py-2 rounded">
             {loading ? 'Saving...' : '✓ SAVE'}
           </button>
         </div>
@@ -133,7 +133,7 @@ export default function HolidayPage() {
               </div>
               <div className="flex gap-1">
                 {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                  <button key={i} className="p-1 text-zinc-400 hover:text-emerald-400"><Icon className="w-4 h-4" /></button>
+                  <button key={i} className="p-1 text-zinc-400 hover:text-zinc-500"><Icon className="w-4 h-4" /></button>
                 ))}
               </div>
             </div>
@@ -156,7 +156,7 @@ export default function HolidayPage() {
                   <tr><td colSpan={7} className="py-8 text-center text-zinc-500 text-sm">No Data Available In Table</td></tr>
                 ) : filtered.map((h, idx) => (
                   <tr key={h.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
-                    <td className="py-2 px-3 text-emerald-500 font-medium">{idx + 1}</td>
+                    <td className="py-2 px-3 text-zinc-600 font-medium">{idx + 1}</td>
                     <td className="py-2 px-3 text-zinc-200">{h.title}</td>
                     <td className="py-2 px-3 text-zinc-300">{h.fromDate}</td>
                     <td className="py-2 px-3 text-zinc-300">{h.toDate}</td>
@@ -176,7 +176,7 @@ export default function HolidayPage() {
             <span>Showing 0 to 0 of {filtered.length} entries</span>
             <div className="flex items-center gap-1">
               <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">←</button>
-              <button className="px-2 py-1 bg-emerald-600 text-white rounded">1</button>
+              <button className="px-2 py-1 bg-zinc-800 text-white rounded">1</button>
               <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">→</button>
             </div>
           </div>

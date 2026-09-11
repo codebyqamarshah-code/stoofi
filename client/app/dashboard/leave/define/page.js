@@ -67,7 +67,7 @@ export default function LeaveDefinePage() {
                                 required
                                 value={role}
                                 onChange={(e) => setRole(e.target.value)}
-                                className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                             >
                                 <option value="">Select Role *</option>
                                 <option value="Admin">Admin</option>
@@ -82,7 +82,7 @@ export default function LeaveDefinePage() {
                                 required
                                 value={leaveType}
                                 onChange={(e) => setLeaveType(e.target.value)}
-                                className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                             >
                                 <option value="">Select Leave Type *</option>
                                 <option value="Sick Leave">Sick Leave</option>
@@ -99,7 +99,7 @@ export default function LeaveDefinePage() {
                                 min="0"
                                 value={days}
                                 onChange={(e) => setDays(e.target.value)}
-                                className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                                 placeholder="0"
                             />
                         </div>
@@ -107,7 +107,7 @@ export default function LeaveDefinePage() {
                         <div className="pt-4">
                             <button 
                                 type="submit"
-                                className="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded transition-colors"
+                                className="w-full px-4 py-2 bg-zinc-800 hover:bg-zinc-800 text-white text-sm font-medium rounded transition-colors"
                             >
                                 SAVE
                             </button>
@@ -127,7 +127,7 @@ export default function LeaveDefinePage() {
                                 placeholder="Search..." 
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-9 pr-4 py-2 w-full sm:w-64 bg-zinc-900 border border-zinc-800 rounded text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                className="pl-9 pr-4 py-2 w-full sm:w-64 bg-zinc-900 border border-zinc-800 rounded text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                             />
                         </div>
                         <div className="flex items-center space-x-2">

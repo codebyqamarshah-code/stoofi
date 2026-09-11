@@ -32,28 +32,28 @@ export default function AcademicYearPage() {
           <div className="p-6 space-y-4">
             <div>
               <label className="block text-sm font-medium text-zinc-300 mb-1">YEAR *</label>
-              <input type="text" className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500" placeholder="e.g., 2024-2025" />
+              <input type="text" className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600" placeholder="e.g., 2024-2025" />
             </div>
             <div>
               <label className="block text-sm font-medium text-zinc-300 mb-1">Year Title *</label>
-              <input type="text" className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
+              <input type="text" className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600" />
             </div>
             <div>
               <label className="block text-sm font-medium text-zinc-300 mb-1">STARTING DATE *</label>
-              <input type="date" className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
+              <input type="date" className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600" />
             </div>
             <div>
               <label className="block text-sm font-medium text-zinc-300 mb-1">ENDING DATE *</label>
-              <input type="date" className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
+              <input type="date" className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600" />
             </div>
             <div>
               <label className="block text-sm font-medium text-zinc-300 mb-1">COPY WITH ACADEMIC YEAR</label>
-              <select className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+              <select className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600">
                 <option value="">Select Academic Year</option>
                 <option value="2023-2024">2023-2024</option>
               </select>
             </div>
-            <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded transition-colors mt-2">
+            <button className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-medium py-2 px-4 rounded transition-colors mt-2">
               SAVE
             </button>
           </div>
@@ -70,7 +70,7 @@ export default function AcademicYearPage() {
                 <input 
                   type="text" 
                   placeholder="Search..." 
-                  className="pl-9 pr-4 py-2 bg-zinc-950 border border-zinc-800 rounded text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-full sm:w-64"
+                  className="pl-9 pr-4 py-2 bg-zinc-950 border border-zinc-800 rounded text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600 w-full sm:w-64"
                 />
               </div>
               <div className="flex gap-2">
@@ -102,7 +102,7 @@ export default function AcademicYearPage() {
                       <td className="px-4 py-3">{y.end}</td>
                       <td className="px-4 py-3 text-right">
                         {y.active ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-600/10 text-zinc-600 border border-zinc-600/20">
                             Active
                           </span>
                         ) : (

@@ -36,7 +36,7 @@ export default function StudentSettingsPage() {
   const renderToggle = (checked, onChange) => (
     <div className="relative" onClick={onChange}>
       <input type="checkbox" className="sr-only" checked={checked} readOnly />
-      <div className={`block w-10 h-6 rounded-full transition-colors cursor-pointer ${checked ? 'bg-emerald-600' : 'bg-zinc-700'}`}></div>
+      <div className={`block w-10 h-6 rounded-full transition-colors cursor-pointer ${checked ? 'bg-zinc-800' : 'bg-zinc-700'}`}></div>
       <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform pointer-events-none ${checked ? 'transform translate-x-4' : ''}`}></div>
     </div>
   );

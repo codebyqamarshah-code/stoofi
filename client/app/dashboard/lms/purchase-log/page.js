@@ -19,11 +19,11 @@ export default function PurchaseLogPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Purchase Log</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>LMS</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Purchase Log</span>
+          <span className="text-zinc-600">Purchase Log</span>
         </div>
       </div>
 
@@ -35,7 +35,7 @@ export default function PurchaseLogPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Select Class</Label>
-            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
               <option value="">Select Class *</option>
               <option value="1">Class 1</option>
               <option value="2">Class 2</option>
@@ -43,7 +43,7 @@ export default function PurchaseLogPage() {
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Select Section</Label>
-            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
               <option value="">Select Section</option>
               <option value="A">A</option>
               <option value="B">B</option>
@@ -51,11 +51,11 @@ export default function PurchaseLogPage() {
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Payment Date</Label>
-            <Input type="date" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 [color-scheme:dark]" />
+            <Input type="date" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 [color-scheme:dark]" />
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Status</Label>
-            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
               <option value="">Status</option>
               <option value="Paid">Paid</option>
               <option value="Pending">Pending</option>
@@ -64,7 +64,7 @@ export default function PurchaseLogPage() {
           </div>
         </div>
         <div className="flex justify-end mt-6">
-          <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+          <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
             <Search className="h-4 w-4 mr-2" /> SEARCH
           </Button>
         </div>
@@ -98,7 +98,7 @@ export default function PurchaseLogPage() {
                   <td className="px-4 py-4 text-zinc-300">{l.file}</td>
                   <td className="px-4 py-4 text-zinc-300">{l.status}</td>
                   <td className="px-4 py-4 text-right">
-                    <Button variant="outline" size="sm" className="h-8 text-xs text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10">SELECT</Button>
+                    <Button variant="outline" size="sm" className="h-8 text-xs text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10">SELECT</Button>
                   </td>
                 </tr>
               )) : (

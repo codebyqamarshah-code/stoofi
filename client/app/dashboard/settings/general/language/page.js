@@ -48,7 +48,7 @@ export default function LanguagePage() {
       <div className="flex items-center gap-1 text-xs text-zinc-400 mb-4">
         <span>Dashboard</span><ChevronRight className="w-3 h-3" />
         <span>System Settings</span><ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">Language</span>
+        <span className="text-zinc-500">Language</span>
       </div>
       <h1 className="text-xl font-bold text-white mb-6">Language</h1>
 
@@ -58,24 +58,24 @@ export default function LanguagePage() {
           <h2 className="text-sm font-semibold text-zinc-300">Add Language</h2>
           <div>
             <label className="text-xs font-semibold text-zinc-400 uppercase block mb-1">NAME *</label>
-            <input value={name} onChange={e => setName(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            <input value={name} onChange={e => setName(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600" />
           </div>
           <div>
             <label className="text-xs font-semibold text-zinc-400 uppercase block mb-1">CODE *</label>
-            <input value={code} onChange={e => setCode(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            <input value={code} onChange={e => setCode(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600" />
           </div>
           <div>
             <label className="text-xs font-semibold text-zinc-400 uppercase block mb-1">NATIVE *</label>
-            <input value={native} onChange={e => setNative(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            <input value={native} onChange={e => setNative(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600" />
           </div>
           <div>
             <label className="text-xs font-semibold text-zinc-400 uppercase block mb-1">TEXT ALIGNMENT *</label>
-            <select value={alignment} onChange={e => setAlignment(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <select value={alignment} onChange={e => setAlignment(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600">
               <option value="LTL">LTL</option>
               <option value="RTL">RTL</option>
             </select>
           </div>
-          <button onClick={handleSave} disabled={loading} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm py-2 rounded">
+          <button onClick={handleSave} disabled={loading} className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold text-sm py-2 rounded">
             ✓ SAVE LANGUAGE
           </button>
         </div>
@@ -91,7 +91,7 @@ export default function LanguagePage() {
               </div>
               <div className="flex gap-1">
                 {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                  <button key={i} className="p-1 text-zinc-400 hover:text-emerald-400"><Icon className="w-4 h-4" /></button>
+                  <button key={i} className="p-1 text-zinc-400 hover:text-zinc-500"><Icon className="w-4 h-4" /></button>
                 ))}
               </div>
             </div>
@@ -111,13 +111,13 @@ export default function LanguagePage() {
               <tbody>
                 {filtered.map(lang => (
                   <tr key={lang.sl} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
-                    <td className="py-2 px-3 text-emerald-500 font-medium">{lang.sl}</td>
+                    <td className="py-2 px-3 text-zinc-600 font-medium">{lang.sl}</td>
                     <td className="py-2 px-3 text-zinc-200">{lang.name}</td>
                     <td className="py-2 px-3 text-zinc-400">{lang.code}</td>
                     <td className="py-2 px-3 text-zinc-300">{lang.native}</td>
                     <td className="py-2 px-3 text-zinc-300">{lang.alignment}</td>
                     <td className="py-2 px-3">
-                      <button className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-emerald-500 hover:text-emerald-400">
+                      <button className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-zinc-600 hover:text-zinc-500">
                         SELECT <ChevronDown className="w-3 h-3" />
                       </button>
                     </td>
@@ -130,7 +130,7 @@ export default function LanguagePage() {
             <span>Showing 1 to {filtered.length} of {filtered.length} entries</span>
             <div className="flex items-center gap-1">
               <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">←</button>
-              <button className="px-2 py-1 bg-emerald-600 text-white rounded">1</button>
+              <button className="px-2 py-1 bg-zinc-800 text-white rounded">1</button>
               <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">→</button>
             </div>
           </div>

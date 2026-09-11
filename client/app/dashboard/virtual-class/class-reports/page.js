@@ -29,7 +29,7 @@ export default function VirtualClassReportsPage() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
           <div>
             <label className="text-xs font-bold text-gray-700 uppercase block mb-1">CLASS <span className="text-red-500">*</span></label>
-            <select value={classVal} onChange={e => setClassVal(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+            <select value={classVal} onChange={e => setClassVal(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600">
               <option value="">Select Class</option>
               {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels'].map(c => (
                 <option key={c} value={c}>{c}</option>
@@ -39,7 +39,7 @@ export default function VirtualClassReportsPage() {
 
           <div>
             <label className="text-xs font-bold text-gray-700 uppercase block mb-1">SECTION</label>
-            <select value={section} onChange={e => setSection(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+            <select value={section} onChange={e => setSection(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600">
               <option value="">Select Section</option>
               {['A', 'B', 'C', 'D'].map(s => (
                 <option key={s} value={s}>Section {s}</option>
@@ -49,7 +49,7 @@ export default function VirtualClassReportsPage() {
 
           <div>
             <label className="text-xs font-bold text-gray-700 uppercase block mb-1">TEACHERS</label>
-            <select value={teacher} onChange={e => setTeacher(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+            <select value={teacher} onChange={e => setTeacher(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600">
               <option value="">Select Teacher</option>
               {['Mudassir Bajwa', 'Fatima Zahra', 'Muhammad Ali', 'Ahmed Khan', 'Dr. Bilal Siddiqui'].map(t => (
                 <option key={t} value={t}>{t}</option>

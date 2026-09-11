@@ -22,13 +22,13 @@ export default function RolePermission() {
                 <label className="block text-sm font-medium text-zinc-400 mb-1">NAME *</label>
                 <input
                   type="text"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-zinc-600"
                   required
                 />
               </div>
               <button
                 type="submit"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-medium py-2 px-4 rounded-md transition-colors"
               >
                 SAVE
               </button>
@@ -45,7 +45,7 @@ export default function RolePermission() {
               <input
                 type="text"
                 placeholder="Search..."
-                className="w-full sm:w-64 bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
+                className="w-full sm:w-64 bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-zinc-600"
               />
               <div className="flex gap-2 text-zinc-400">
                 <button className="p-2 hover:text-white transition-colors"><Copy size={18} /></button>
@@ -72,8 +72,8 @@ export default function RolePermission() {
                     <td className="px-4 py-3">System</td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex flex-col items-end gap-2">
-                        <button className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1 rounded">SELECT</button>
-                        <button className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1 rounded w-full sm:w-auto">ASSIGN PERMISSION</button>
+                        <button className="bg-zinc-800 hover:bg-zinc-800 text-white text-xs px-3 py-1 rounded">SELECT</button>
+                        <button className="bg-zinc-800 hover:bg-zinc-800 text-white text-xs px-3 py-1 rounded w-full sm:w-auto">ASSIGN PERMISSION</button>
                       </div>
                     </td>
                   </tr>

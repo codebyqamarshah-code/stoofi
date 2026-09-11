@@ -34,7 +34,7 @@ export default function OptionalSubjectPage() {
                         value={cls} 
                         checked={selectedClass === cls} 
                         onChange={() => setSelectedClass(cls)} 
-                        className="w-4 h-4 text-emerald-600 bg-zinc-900 border-zinc-800 focus:ring-emerald-500 focus:ring-offset-zinc-900" 
+                        className="w-4 h-4 text-zinc-800 bg-zinc-900 border-zinc-800 focus:ring-zinc-600 focus:ring-offset-zinc-900" 
                       />
                       <span className="text-sm">{cls}</span>
                     </label>
@@ -48,13 +48,13 @@ export default function OptionalSubjectPage() {
                   type="number" 
                   value={gpaAbove} 
                   onChange={(e) => setGpaAbove(e.target.value)} 
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500" 
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600 focus:border-zinc-600" 
                   step="0.01"
                 />
               </div>
 
               <div className="flex justify-center pt-2">
-                <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded transition-colors">
+                <button className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-medium py-2 px-4 rounded transition-colors">
                   SAVE
                 </button>
               </div>
@@ -98,7 +98,7 @@ export default function OptionalSubjectPage() {
                   <input 
                     type="text" 
                     placeholder="Search..." 
-                    className="pl-9 pr-3 py-2 bg-zinc-950 border border-zinc-800 rounded-md text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 w-full sm:w-64"
+                    className="pl-9 pr-3 py-2 bg-zinc-950 border border-zinc-800 rounded-md text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600 focus:border-zinc-600 w-full sm:w-64"
                   />
                 </div>
               </div>

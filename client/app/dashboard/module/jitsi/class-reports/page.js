@@ -159,15 +159,15 @@ export default function JitsiClassReportsPage() {
           </p>
         </div>
         <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+          <Link href="/dashboard" className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">
             Dashboard
           </Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/module/jitsi" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+          <Link href="/dashboard/module/jitsi" className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">
             Jitsi
           </Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-600 dark:text-emerald-400 font-medium">Class Reports</span>
+          <span className="text-zinc-800 dark:text-emerald-400 font-medium">Class Reports</span>
         </div>
       </div>
 
@@ -185,7 +185,7 @@ export default function JitsiClassReportsPage() {
               <select
                 value={criteria.classVal}
                 onChange={(e) => setCriteria({ ...criteria, classVal: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
               >
                 {classes.map(cls => (
                   <option key={cls} value={cls}>{cls}</option>
@@ -200,7 +200,7 @@ export default function JitsiClassReportsPage() {
               <select
                 value={criteria.section}
                 onChange={(e) => setCriteria({ ...criteria, section: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
               >
                 {sections.map(sec => (
                   <option key={sec} value={sec}>{sec}</option>
@@ -217,7 +217,7 @@ export default function JitsiClassReportsPage() {
                 required
                 value={criteria.fromDate}
                 onChange={(e) => setCriteria({ ...criteria, fromDate: e.target.value })}
-                className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
               >
               </input>
             </div>
@@ -231,7 +231,7 @@ export default function JitsiClassReportsPage() {
                 required
                 value={criteria.toDate}
                 onChange={(e) => setCriteria({ ...criteria, toDate: e.target.value })}
-                className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
               >
               </input>
             </div>
@@ -240,7 +240,7 @@ export default function JitsiClassReportsPage() {
           <div className="flex justify-end mt-5">
             <button
               type="submit"
-              className="px-6 py-2.5 bg-[#009966] hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-2 shadow-sm"
+              className="px-6 py-2.5 bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-2 shadow-sm"
             >
               <Search className="h-4 w-4" />
               Search
@@ -256,7 +256,7 @@ export default function JitsiClassReportsPage() {
             <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
               Jitsi Class Reports Overview
             </h2>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-200 text-zinc-900 dark:bg-emerald-950/60 dark:text-emerald-400 border border-zinc-300 dark:border-emerald-800">
               {filteredReports.length}
             </span>
           </div>
@@ -269,7 +269,7 @@ export default function JitsiClassReportsPage() {
                 placeholder="SEARCH"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 outline-none focus:ring-1 focus:ring-zinc-600"
               />
             </div>
 
@@ -365,7 +365,7 @@ export default function JitsiClassReportsPage() {
                     <td className="px-3.5 py-3 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
                         <span className="font-semibold text-zinc-900 dark:text-white">{item.attended}/{item.totalEnrolled}</span>
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-zinc-200 text-zinc-800 dark:bg-emerald-950/60 dark:text-emerald-400">
                           {item.percentage}
                         </span>
                       </div>
@@ -399,7 +399,7 @@ export default function JitsiClassReportsPage() {
               &lt;
             </button>
             <button
-              className="px-2.5 py-1 rounded border border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-semibold"
+              className="px-2.5 py-1 rounded border border-zinc-600 bg-zinc-100 dark:bg-emerald-950/40 text-zinc-800 dark:text-emerald-400 font-semibold"
             >
               1
             </button>
@@ -442,11 +442,11 @@ export default function JitsiClassReportsPage() {
                 </div>
                 <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800">
                   <span className="text-zinc-500 block">Attended / Total:</span>
-                  <span className="font-semibold text-emerald-600">{selectedReport.attended} / {selectedReport.totalEnrolled} Students</span>
+                  <span className="font-semibold text-zinc-800">{selectedReport.attended} / {selectedReport.totalEnrolled} Students</span>
                 </div>
                 <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800">
                   <span className="text-zinc-500 block">Attendance Rate:</span>
-                  <span className="font-semibold text-emerald-600">{selectedReport.percentage}</span>
+                  <span className="font-semibold text-zinc-800">{selectedReport.percentage}</span>
                 </div>
               </div>
             </div>

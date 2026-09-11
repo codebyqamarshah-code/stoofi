@@ -61,11 +61,11 @@ export default function BookListPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Book List</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Library</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Book List</span>
+          <span className="text-zinc-600">Book List</span>
         </div>
       </div>
 
@@ -76,7 +76,7 @@ export default function BookListPage() {
             <Input 
               placeholder="QUICK SEARCH" 
               value={search} onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500 text-center"
+              className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-zinc-600 text-center"
             />
           </div>
         </div>
@@ -104,7 +104,7 @@ export default function BookListPage() {
               ) : (
                 filteredBooks.map((item, idx) => (
                   <tr key={item._id} className="hover:bg-zinc-900/50 transition-colors">
-                    <td className="px-4 py-3 text-emerald-500 font-medium">+{idx + 1}</td>
+                    <td className="px-4 py-3 text-zinc-600 font-medium">+{idx + 1}</td>
                     <td className="px-4 py-3 text-zinc-300">{item.title}</td>
                     <td className="px-4 py-3 text-zinc-400">{item.bookNo || '-'}</td>
                     <td className="px-4 py-3 text-zinc-400">{item.isbnNo || '-'}</td>

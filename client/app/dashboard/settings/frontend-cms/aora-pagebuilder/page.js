@@ -78,7 +78,7 @@ export default function AoraPagebuilderPage() {
         <ChevronRight className="w-3 h-3" />
         <span>Frontend CMS</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">Page List</span>
+        <span className="text-zinc-500">Page List</span>
       </div>
 
       <h1 className="text-xl font-bold text-white mb-6">Page List</h1>
@@ -95,7 +95,7 @@ export default function AoraPagebuilderPage() {
               placeholder="Page Name *"
               value={pageName}
               onChange={e => setPageName(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
             />
           </div>
 
@@ -106,7 +106,7 @@ export default function AoraPagebuilderPage() {
               placeholder="Page Title *"
               value={pageTitle}
               onChange={e => setPageTitle(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
             />
           </div>
 
@@ -117,7 +117,7 @@ export default function AoraPagebuilderPage() {
               placeholder="Page Description"
               value={description}
               onChange={e => setDescription(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600 resize-none"
             />
           </div>
 
@@ -128,7 +128,7 @@ export default function AoraPagebuilderPage() {
               placeholder="Page Slug *"
               value={pageSlug}
               onChange={e => setPageSlug(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
             />
           </div>
 
@@ -140,7 +140,7 @@ export default function AoraPagebuilderPage() {
               <button
                 type="button"
                 onClick={() => setIsHomePage(!isHomePage)}
-                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer ${isHomePage ? 'bg-emerald-600' : 'bg-zinc-700'}`}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer ${isHomePage ? 'bg-zinc-800' : 'bg-zinc-700'}`}
               >
                 <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${isHomePage ? 'translate-x-4' : 'translate-x-1'}`} />
               </button>
@@ -150,7 +150,7 @@ export default function AoraPagebuilderPage() {
           <button
             type="button"
             onClick={handleAdd}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm py-2 rounded flex items-center justify-center gap-2 mt-4"
+            className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold text-sm py-2 rounded flex items-center justify-center gap-2 mt-4"
           >
             <Plus className="w-4 h-4" /> ADD NEW PAGE
           </button>
@@ -172,7 +172,7 @@ export default function AoraPagebuilderPage() {
               </div>
               <div className="flex gap-1">
                 {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                  <button key={i} className="p-1 text-zinc-400 hover:text-emerald-400">
+                  <button key={i} className="p-1 text-zinc-400 hover:text-zinc-500">
                     <Icon className="w-4 h-4" />
                   </button>
                 ))}
@@ -201,19 +201,19 @@ export default function AoraPagebuilderPage() {
                 ) : (
                   filtered.map((p, idx) => (
                     <tr key={p.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
-                      <td className="py-3 px-3 text-emerald-500 font-medium">{idx + 1}</td>
+                      <td className="py-3 px-3 text-zinc-600 font-medium">{idx + 1}</td>
                       <td className="py-3 px-3">
                         <div className="flex items-center gap-2">
                           <span className="text-zinc-200 font-medium">{p.name}</span>
                           {p.isHome && (
-                            <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-500/30">
+                            <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-950 text-zinc-500 border border-zinc-600/30">
                               HOME
                             </span>
                           )}
                         </div>
                       </td>
                       <td className="py-3 px-3 text-zinc-300">
-                        <a href={p.url} target="_blank" rel="noreferrer" className="text-emerald-400 hover:underline flex items-center gap-1 text-xs">
+                        <a href={p.url} target="_blank" rel="noreferrer" className="text-zinc-500 hover:underline flex items-center gap-1 text-xs">
                           {p.url} <ExternalLink className="w-3 h-3" />
                         </a>
                       </td>
@@ -221,7 +221,7 @@ export default function AoraPagebuilderPage() {
                         <button
                           type="button"
                           onClick={() => toggleStatus(p.id)}
-                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer ${p.status ? 'bg-emerald-600' : 'bg-zinc-700'}`}
+                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer ${p.status ? 'bg-zinc-800' : 'bg-zinc-700'}`}
                         >
                           <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${p.status ? 'translate-x-4' : 'translate-x-1'}`} />
                         </button>
@@ -230,7 +230,7 @@ export default function AoraPagebuilderPage() {
                         <div className="relative inline-block text-left">
                           <button
                             onClick={() => setOpenDropdownId(openDropdownId === p.id ? null : p.id)}
-                            className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-emerald-500 hover:text-emerald-400"
+                            className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-zinc-600 hover:text-zinc-500"
                           >
                             SELECT <ChevronDown className="w-3 h-3" />
                           </button>
@@ -256,7 +256,7 @@ export default function AoraPagebuilderPage() {
           <div className="flex items-center justify-between mt-4 text-xs text-zinc-400">
             <span>Showing 1 to {filtered.length} of {filtered.length} entries</span>
             <div className="flex items-center gap-1">
-              <button className="px-2.5 py-1 bg-emerald-600 text-white rounded font-bold">1</button>
+              <button className="px-2.5 py-1 bg-zinc-800 text-white rounded font-bold">1</button>
               <button className="px-2.5 py-1 border border-zinc-700 rounded hover:bg-zinc-800">2</button>
               <button className="px-2.5 py-1 border border-zinc-700 rounded hover:bg-zinc-800">3</button>
               <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">→</button>

@@ -49,11 +49,11 @@ export default function StudentCategoryPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Student Category</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/students" className="hover:text-emerald-400 transition-colors">Student Info</Link>
+          <Link href="/dashboard/students" className="hover:text-zinc-500 transition-colors">Student Info</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Student Category</span>
+          <span className="text-zinc-600">Student Category</span>
         </div>
       </div>
 
@@ -74,12 +74,12 @@ export default function StudentCategoryPage() {
                   placeholder="Category Type" 
                   value={formData.type}
                   onChange={(e) => setFormData({...formData, type: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" 
                   required
                 />
               </div>
               <div className="pt-2">
-                <Button type="submit" className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+                <Button type="submit" className="w-full sm:w-auto bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                   {editingId ? 'UPDATE CATEGORY' : 'SAVE CATEGORY'}
                 </Button>
               </div>
@@ -99,7 +99,7 @@ export default function StudentCategoryPage() {
                     placeholder="SEARCH" 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-xs font-semibold uppercase" 
+                    className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase" 
                   />
                 </div>
                 <div className="flex items-center border border-zinc-800 rounded-md bg-zinc-900">
@@ -131,7 +131,7 @@ export default function StudentCategoryPage() {
                           onClick={() => handleEdit(c)}
                           variant="outline" 
                           size="sm" 
-                          className="h-8 text-xs text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10"
+                          className="h-8 text-xs text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10"
                         >
                           <Edit className="h-3.5 w-3.5 mr-1" /> EDIT
                         </Button>

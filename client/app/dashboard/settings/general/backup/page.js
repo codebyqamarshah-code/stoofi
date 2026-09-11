@@ -45,7 +45,7 @@ export default function Backup() {
                                     />
                                 </div>
                             </div>
-                            <button className="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-md transition-colors">
+                            <button className="w-full px-4 py-2 bg-zinc-800 hover:bg-zinc-800 text-white text-sm font-medium rounded-md transition-colors">
                                 UPDATE FILE
                             </button>
                         </div>
@@ -62,7 +62,7 @@ export default function Backup() {
                                     <UploadCloud className="w-4 h-4" />
                                     <span>UPLOAD FILE BACKUP</span>
                                 </button>
-                                <button className="flex items-center space-x-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-md transition-colors">
+                                <button className="flex items-center space-x-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-800 text-white text-sm font-medium rounded-md transition-colors">
                                     <Database className="w-4 h-4" />
                                     <span>DATABASE BACKUP</span>
                                 </button>

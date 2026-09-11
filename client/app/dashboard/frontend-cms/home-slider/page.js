@@ -65,7 +65,7 @@ export default function HomeSliderPage() {
         <ChevronRight className="w-3 h-3" />
         <span>Frontend CMS</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">Home Slider</span>
+        <span className="text-zinc-500">Home Slider</span>
       </div>
 
       <h1 className="text-xl font-bold text-white mb-6">Home Slider</h1>
@@ -107,7 +107,7 @@ export default function HomeSliderPage() {
               value={link}
               placeholder="https://..."
               onChange={e => setLink(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
             />
           </div>
 
@@ -115,7 +115,7 @@ export default function HomeSliderPage() {
             type="button"
             onClick={handleAdd}
             disabled={loading}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm py-2 rounded flex items-center justify-center gap-2"
+            className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold text-sm py-2 rounded flex items-center justify-center gap-2"
           >
             <Plus className="w-4 h-4" /> ADD
           </button>
@@ -137,7 +137,7 @@ export default function HomeSliderPage() {
               </div>
               <div className="flex gap-1">
                 {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                  <button key={i} className="p-1 text-zinc-400 hover:text-emerald-400">
+                  <button key={i} className="p-1 text-zinc-400 hover:text-zinc-500">
                     <Icon className="w-4 h-4" />
                   </button>
                 ))}
@@ -165,14 +165,14 @@ export default function HomeSliderPage() {
                 ) : (
                   filtered.map((slider, idx) => (
                     <tr key={slider.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
-                      <td className="py-3 px-3 text-emerald-500 font-medium">{idx + 1}</td>
+                      <td className="py-3 px-3 text-zinc-600 font-medium">{idx + 1}</td>
                       <td className="py-3 px-3">
                         <div className="w-20 h-12 rounded overflow-hidden border border-zinc-700 bg-zinc-800">
                           <img src={slider.image} alt="Slider" className="w-full h-full object-cover" />
                         </div>
                       </td>
                       <td className="py-3 px-3 text-zinc-300">
-                        <a href={slider.link} target="_blank" rel="noreferrer" className="text-emerald-400 hover:underline flex items-center gap-1">
+                        <a href={slider.link} target="_blank" rel="noreferrer" className="text-zinc-500 hover:underline flex items-center gap-1">
                           {slider.link} <ExternalLink className="w-3 h-3" />
                         </a>
                       </td>
@@ -180,7 +180,7 @@ export default function HomeSliderPage() {
                         <div className="relative inline-block text-left">
                           <button
                             onClick={() => setOpenDropdownId(openDropdownId === slider.id ? null : slider.id)}
-                            className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-emerald-500 hover:text-emerald-400"
+                            className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-zinc-600 hover:text-zinc-500"
                           >
                             SELECT <ChevronDown className="w-3 h-3" />
                           </button>
@@ -207,7 +207,7 @@ export default function HomeSliderPage() {
             <span>Showing 1 to {filtered.length} of {filtered.length} entries</span>
             <div className="flex items-center gap-1">
               <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">←</button>
-              <button className="px-2 py-1 bg-emerald-600 text-white rounded">1</button>
+              <button className="px-2 py-1 bg-zinc-800 text-white rounded">1</button>
               <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">→</button>
             </div>
           </div>

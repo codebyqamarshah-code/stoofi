@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
@@ -86,9 +86,9 @@ export default function StudentAttendancePage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Student Attendance</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Student Attendance</span>
+          <span className="text-zinc-600">Student Attendance</span>
         </div>
       </div>
 
@@ -102,7 +102,7 @@ export default function StudentAttendancePage() {
             <select 
               value={formData.class}
               onChange={(e) => setFormData({...formData, class: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
             >
               <option value="">Select Class *</option>
               {classes.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
@@ -113,7 +113,7 @@ export default function StudentAttendancePage() {
             <select 
               value={formData.section}
               onChange={(e) => setFormData({...formData, section: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
             >
               <option value="">Select Section *</option>
               {(classes.find(c => c.name === formData.class)?.sections || []).map(s => <option key={s} value={s}>{s}</option>)}
@@ -125,7 +125,7 @@ export default function StudentAttendancePage() {
               type="date"
               value={formData.attendanceDate} 
               onChange={(e) => setFormData({...formData, attendanceDate: e.target.value})}
-              className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" 
+              className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" 
             />
           </div>
           
@@ -142,7 +142,7 @@ export default function StudentAttendancePage() {
           <div className="p-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
             <h3 className="text-lg font-bold text-white">Attendance Register</h3>
             <div className="flex gap-2 text-xs">
-              <Button size="sm" variant="outline" onClick={() => handleMarkAll('Present')} className="h-8 border-emerald-500/50 text-emerald-500 hover:bg-emerald-500/10">Mark All Present</Button>
+              <Button size="sm" variant="outline" onClick={() => handleMarkAll('Present')} className="h-8 border-zinc-600/50 text-zinc-600 hover:bg-zinc-600/10">Mark All Present</Button>
               <Button size="sm" variant="outline" onClick={() => handleMarkAll('Absent')} className="h-8 border-rose-500/50 text-rose-500 hover:bg-rose-500/10">Mark All Absent</Button>
             </div>
           </div>
@@ -178,7 +178,7 @@ export default function StudentAttendancePage() {
                                 value={opt}
                                 checked={student.status === opt}
                                 onChange={() => handleStatusChange(student.studentId, opt)}
-                                className={`h-3 w-3 ${opt === 'Present' ? 'accent-emerald-500' : opt === 'Absent' ? 'accent-rose-500' : opt === 'Late' ? 'accent-amber-500' : 'accent-blue-500'}`}
+                                className={`h-3 w-3 ${opt === 'Present' ? 'accent-zinc-600' : opt === 'Absent' ? 'accent-rose-500' : opt === 'Late' ? 'accent-amber-500' : 'accent-blue-500'}`}
                               />
                               <span className="text-zinc-300 text-xs">{opt}</span>
                             </label>
@@ -201,7 +201,7 @@ export default function StudentAttendancePage() {
           </div>
           {students.length > 0 && (
             <div className="p-4 border-t border-zinc-800 flex justify-end bg-zinc-900/50">
-              <Button disabled={saving} onClick={handleSave} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+              <Button disabled={saving} onClick={handleSave} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                 {saving ? 'SAVING...' : <><Save className="h-4 w-4 mr-2" /> SAVE ATTENDANCE</>}
               </Button>
             </div>

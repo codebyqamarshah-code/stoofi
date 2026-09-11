@@ -42,7 +42,7 @@ export default function Weekend() {
                                     <td className="px-6 py-4 font-medium">{day.name}</td>
                                     <td className="px-6 py-4">
                                         <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${
-                                            day.isWeekend ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
+                                            day.isWeekend ? 'bg-zinc-600/10 text-zinc-600 border border-zinc-600/20' : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
                                         }`}>
                                             {day.isWeekend ? 'Yes' : 'No'}
                                         </span>
@@ -50,7 +50,7 @@ export default function Weekend() {
                                     <td className="px-6 py-4">
                                         <button 
                                             onClick={() => toggleDay(day.id)}
-                                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${day.isWeekend ? 'bg-emerald-600' : 'bg-zinc-600'}`}
+                                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${day.isWeekend ? 'bg-zinc-800' : 'bg-zinc-600'}`}
                                         >
                                             <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${day.isWeekend ? 'translate-x-5' : 'translate-x-1'}`} />
                                         </button>

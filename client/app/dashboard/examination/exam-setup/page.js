@@ -101,11 +101,11 @@ export default function ExamSetupPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Exam Setup</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Examinations</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Exam Setup</span>
+          <span className="text-zinc-600">Exam Setup</span>
         </div>
       </div>
 
@@ -129,7 +129,7 @@ export default function ExamSetupPage() {
                 <Input 
                   type="number"
                   value={formData.totalMark} onChange={(e) => setFormData({...formData, totalMark: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
                 />
               </div>
             </div>
@@ -154,14 +154,14 @@ export default function ExamSetupPage() {
                   <div className="col-span-2">
                     <Input 
                       value={dist.title} onChange={(e) => handleDistributionChange(idx, 'title', e.target.value)}
-                      className="bg-zinc-900 border-zinc-800 text-white h-9 focus-visible:ring-emerald-500" 
+                      className="bg-zinc-900 border-zinc-800 text-white h-9 focus-visible:ring-zinc-600" 
                     />
                   </div>
                   <div className="col-span-2">
                     <Input 
                       type="number"
                       value={dist.mark} onChange={(e) => handleDistributionChange(idx, 'mark', e.target.value)}
-                      className="bg-zinc-900 border-zinc-800 text-white h-9 focus-visible:ring-emerald-500" 
+                      className="bg-zinc-900 border-zinc-800 text-white h-9 focus-visible:ring-zinc-600" 
                     />
                   </div>
                   <div className="col-span-1 flex justify-center">
@@ -195,7 +195,7 @@ export default function ExamSetupPage() {
                 <Input 
                   placeholder="SEARCH" 
                   value={search} onChange={(e) => setSearch(e.target.value)}
-                  className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500"
+                  className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-zinc-600"
                 />
               </div>
             </div>
@@ -218,7 +218,7 @@ export default function ExamSetupPage() {
                   ) : (
                     filtered.map((item, idx) => (
                       <tr key={item._id} className="hover:bg-zinc-900/50 transition-colors">
-                        <td className="px-4 py-3 text-emerald-500 font-medium">+{idx + 1}</td>
+                        <td className="px-4 py-3 text-zinc-600 font-medium">+{idx + 1}</td>
                         <td className="px-4 py-3 text-zinc-300">{getExamSystemName(item.examSystemId)}</td>
                         <td className="px-4 py-3 text-zinc-400">{item.totalMark}</td>
                         <td className="px-4 py-3 text-right">

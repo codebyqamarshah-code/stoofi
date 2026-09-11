@@ -23,11 +23,11 @@ export default function OtherDownloadsListPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Other Downloads List</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Study Material</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Other Downloads List</span>
+          <span className="text-zinc-600">Other Downloads List</span>
         </div>
       </div>
 
@@ -40,7 +40,7 @@ export default function OtherDownloadsListPage() {
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
               <Input 
                 placeholder="QUICK SEARCH" 
-                className="pl-9 w-full sm:w-[250px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 uppercase text-xs font-semibold"
+                className="pl-9 w-full sm:w-[250px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 uppercase text-xs font-semibold"
               />
             </div>
             
@@ -91,7 +91,7 @@ export default function OtherDownloadsListPage() {
                     <td className="px-4 py-4 text-zinc-300">{d.availableFor}</td>
                     <td className="px-4 py-4 text-zinc-300">{d.classSection}</td>
                     <td className="px-4 py-4 text-right">
-                      <Button variant="outline" size="sm" className="h-8 text-xs font-semibold text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10 hover:text-emerald-400">
+                      <Button variant="outline" size="sm" className="h-8 text-xs font-semibold text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10 hover:text-zinc-500">
                         SELECT <ChevronRight className="h-3 w-3 ml-1 rotate-90" />
                       </Button>
                     </td>

@@ -56,7 +56,7 @@ export default function FrontendPagesListPage() {
         <ChevronRight className="w-3 h-3" />
         <span>Frontend CMS</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">Pages</span>
+        <span className="text-zinc-500">Pages</span>
       </div>
 
       <h1 className="text-xl font-bold text-white">Pages</h1>
@@ -79,7 +79,7 @@ export default function FrontendPagesListPage() {
 
             <div className="flex gap-1">
               {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                <button key={i} className="p-1 text-zinc-400 hover:text-emerald-400">
+                <button key={i} className="p-1 text-zinc-400 hover:text-zinc-500">
                   <Icon className="w-4 h-4" />
                 </button>
               ))}
@@ -88,7 +88,7 @@ export default function FrontendPagesListPage() {
             <button
               type="button"
               onClick={() => setIsAddModalOpen(true)}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 cursor-pointer shadow-lg transition-colors"
+              className="bg-zinc-800 hover:bg-zinc-800 text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 cursor-pointer shadow-lg transition-colors"
             >
               <Plus className="w-4 h-4" /> ADD
             </button>
@@ -120,7 +120,7 @@ export default function FrontendPagesListPage() {
                       <div className="relative inline-block text-left">
                         <button
                           onClick={() => setOpenDropdownId(openDropdownId === item.id ? null : item.id)}
-                          className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-emerald-500 hover:text-emerald-400 cursor-pointer"
+                          className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-zinc-600 hover:text-zinc-500 cursor-pointer"
                         >
                           SELECT <ChevronDown className="w-3 h-3" />
                         </button>
@@ -170,7 +170,7 @@ export default function FrontendPagesListPage() {
                   placeholder="Page Title *"
                   value={title}
                   onChange={e => setTitle(e.target.value)}
-                  className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
                 />
               </div>
               <div>
@@ -180,7 +180,7 @@ export default function FrontendPagesListPage() {
                   placeholder="Sub Title"
                   value={subTitle}
                   onChange={e => setSubTitle(e.target.value)}
-                  className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
                 />
               </div>
             </div>
@@ -195,7 +195,7 @@ export default function FrontendPagesListPage() {
               <button
                 type="button"
                 onClick={handleAdd}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2 rounded-lg cursor-pointer"
+                className="bg-zinc-800 hover:bg-zinc-800 text-white text-xs font-bold px-5 py-2 rounded-lg cursor-pointer"
               >
                 ✓ SAVE PAGE
               </button>

@@ -30,11 +30,11 @@ export default function DisabledStudentsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Disabled Students</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/students" className="hover:text-emerald-400 transition-colors">Student Info</Link>
+          <Link href="/dashboard/students" className="hover:text-zinc-500 transition-colors">Student Info</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Disabled Students</span>
+          <span className="text-zinc-600">Disabled Students</span>
         </div>
       </div>
 
@@ -49,7 +49,7 @@ export default function DisabledStudentsPage() {
             <select 
               value={formData.class}
               onChange={(e) => setFormData({...formData, class: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
             >
               <option value="">Select Class *</option>
               {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
@@ -62,7 +62,7 @@ export default function DisabledStudentsPage() {
             <select 
               value={formData.section}
               onChange={(e) => setFormData({...formData, section: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
             >
               <option value="">Select Section</option>
               {['A', 'B', 'C', 'D'].map(s => (
@@ -75,7 +75,7 @@ export default function DisabledStudentsPage() {
             <Input 
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" 
+              className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" 
             />
           </div>
           <div className="space-y-1.5">
@@ -83,12 +83,12 @@ export default function DisabledStudentsPage() {
             <Input 
               value={formData.admissionNo}
               onChange={(e) => setFormData({...formData, admissionNo: e.target.value})}
-              className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" 
+              className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" 
             />
           </div>
           
           <div className="lg:col-span-4 flex items-end justify-end pt-2">
-            <Button onClick={handleSearch} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2">
+            <Button onClick={handleSearch} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2">
               <Search className="h-4 w-4" /> SEARCH
             </Button>
           </div>
@@ -106,7 +106,7 @@ export default function DisabledStudentsPage() {
                 placeholder="QUICK SEARCH" 
                 value={quickSearch}
                 onChange={(e) => setQuickSearch(e.target.value)}
-                className="pl-9 w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-xs font-semibold uppercase" 
+                className="pl-9 w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase" 
               />
             </div>
             <div className="flex items-center border border-zinc-800 rounded-md bg-zinc-900">
@@ -138,7 +138,7 @@ export default function DisabledStudentsPage() {
               {students.length > 0 ? students.map((s) => (
                 <tr key={s.id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
                   <td className="px-4 py-3 text-zinc-300">
-                    <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-xs">+{s.admissionNo}</span>
+                    <span className="bg-zinc-600/10 text-zinc-500 border border-zinc-600/20 px-2 py-0.5 rounded text-xs">+{s.admissionNo}</span>
                   </td>
                   <td className="px-4 py-3 text-zinc-300">{s.rollNo}</td>
                   <td className="px-4 py-3 text-zinc-300 font-medium">{s.name}</td>

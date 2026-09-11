@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 
@@ -45,7 +45,7 @@ export default function LibrarySubjectPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Subject</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link><ChevronRight className="h-4 w-4 mx-1" /><span>Library</span><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Subject</span>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link><ChevronRight className="h-4 w-4 mx-1" /><span>Library</span><ChevronRight className="h-4 w-4 mx-1" /><span className="text-zinc-600">Subject</span>
         </div>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -55,11 +55,11 @@ export default function LibrarySubjectPage() {
             <form className="p-4 space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Subject Name <span className="text-rose-500">*</span></Label>
-                <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" required />
+                <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" required />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Category <span className="text-rose-500">*</span></Label>
-                <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" required>
+                <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600" required>
                   <option value="">Category Name</option>
                   <option value="Science">Science</option>
                   <option value="Arts">Arts</option>
@@ -68,7 +68,7 @@ export default function LibrarySubjectPage() {
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Subject Code <span className="text-rose-500">*</span></Label>
-                <Input value={formData.code} onChange={e => setFormData({...formData, code: e.target.value})} className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" required />
+                <Input value={formData.code} onChange={e => setFormData({...formData, code: e.target.value})} className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" required />
               </div>
               <Button disabled={submitting} type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold">
                 {submitting ? 'SAVING...' : 'SAVE SUBJECT'}
@@ -80,7 +80,7 @@ export default function LibrarySubjectPage() {
           <div className="bg-zinc-950 border border-zinc-800 rounded-xl flex flex-col h-full">
             <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
               <h2 className="text-lg font-semibold text-white">Subject List</h2>
-              <div className="relative w-48"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" /><Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500" /></div>
+              <div className="relative w-48"><Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" /><Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-zinc-600" /></div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left">

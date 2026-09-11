@@ -144,11 +144,11 @@ export default function VisitorBookPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Visitor Book</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/admin/admission-query" className="hover:text-emerald-400 transition-colors">Admin Section</Link>
+          <Link href="/dashboard/admin/admission-query" className="hover:text-zinc-500 transition-colors">Admin Section</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Visitor Book</span>
+          <span className="text-zinc-600">Visitor Book</span>
         </div>
       </div>
 
@@ -163,46 +163,46 @@ export default function VisitorBookPage() {
             <form className="p-4 space-y-4" onSubmit={handleSave}>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Purpose <span className="text-rose-500">*</span></Label>
-                <Input value={formData.purpose} onChange={e => setFormData({...formData, purpose: e.target.value})} placeholder="Purpose" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" required />
+                <Input value={formData.purpose} onChange={e => setFormData({...formData, purpose: e.target.value})} placeholder="Purpose" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" required />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Name <span className="text-rose-500">*</span></Label>
-                <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Name" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" required />
+                <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Name" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" required />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Phone</Label>
-                <Input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="Phone" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                <Input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="Phone" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">ID</Label>
-                <Input value={formData.id} onChange={e => setFormData({...formData, id: e.target.value})} placeholder="Id" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                <Input value={formData.id} onChange={e => setFormData({...formData, id: e.target.value})} placeholder="Id" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">No Of Person</Label>
-                <Input type="number" value={formData.noOfPerson} onChange={e => setFormData({...formData, noOfPerson: e.target.value})} placeholder="No Of Person" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                <Input type="number" value={formData.noOfPerson} onChange={e => setFormData({...formData, noOfPerson: e.target.value})} placeholder="No Of Person" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Date</Label>
-                <Input type="date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 [color-scheme:dark]" />
+                <Input type="date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 [color-scheme:dark]" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">In Time</Label>
-                <Input type="time" value={formData.inTime} onChange={e => setFormData({...formData, inTime: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 [color-scheme:dark]" />
+                <Input type="time" value={formData.inTime} onChange={e => setFormData({...formData, inTime: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 [color-scheme:dark]" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Out Time</Label>
-                <Input type="time" value={formData.outTime} onChange={e => setFormData({...formData, outTime: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 [color-scheme:dark]" />
+                <Input type="time" value={formData.outTime} onChange={e => setFormData({...formData, outTime: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 [color-scheme:dark]" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">File</Label>
                 <div className="flex items-center gap-2">
                   <input type="file" ref={fileInputRef} className="hidden" onChange={e => setFileName(e.target.files[0]?.name || '')} />
-                  <Input type="text" value={fileName} placeholder="File" readOnly className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                  <Input type="text" value={fileName} placeholder="File" readOnly className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                   <Button type="button" onClick={() => fileInputRef.current?.click()} variant="secondary" className="bg-zinc-800 hover:bg-zinc-700 text-white shrink-0"><Upload className="h-4 w-4 mr-2" /> BROWSE</Button>
                 </div>
               </div>
               <div className="pt-4">
-                <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+                <Button type="submit" className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                   {editingId ? 'UPDATE' : 'SAVE'} VISITOR
                 </Button>
               </div>
@@ -221,7 +221,7 @@ export default function VisitorBookPage() {
                   <Input 
                     value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                     placeholder="Quick Search" 
-                    className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500"
+                    className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600"
                   />
                 </div>
                 
@@ -260,7 +260,7 @@ export default function VisitorBookPage() {
                         <td className="px-4 py-3 text-zinc-300">{v.date ? v.date.substring(0, 10) : '-'}</td>
                         <td className="px-4 py-3 text-zinc-300">{v.inTime || '-'}</td>
                         <td className="px-4 py-3 text-right space-x-2">
-                          <Button onClick={() => handleEdit(v)} variant="outline" size="sm" className="h-7 text-xs text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10 px-2"><Edit className="h-3 w-3" /></Button>
+                          <Button onClick={() => handleEdit(v)} variant="outline" size="sm" className="h-7 text-xs text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10 px-2"><Edit className="h-3 w-3" /></Button>
                           <Button onClick={() => handleDelete(v._id)} variant="outline" size="sm" className="h-7 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10 px-2"><Trash2 className="h-3 w-3" /></Button>
                         </td>
                       </tr>

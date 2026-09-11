@@ -681,52 +681,52 @@ export default function DashboardUI({ user }) {
   return (
     <div className="space-y-6 pb-12">
       {/* 1. TOP GREETING & PERFORMANCE BANNER */}
-      <div className="rounded-2xl bg-gradient-to-r from-emerald-50/60 via-emerald-50/30 to-emerald-50/70 dark:from-zinc-900 dark:via-zinc-900 dark:to-emerald-950/40 p-6 border border-emerald-200/80 dark:border-zinc-800 shadow-sm relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-100/40 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="rounded-2xl bg-gradient-to-r from-zinc-100/60 via-zinc-100/30 to-zinc-100/70 dark:from-zinc-900 dark:via-zinc-900 dark:to-emerald-950/40 p-6 border border-zinc-300/80 dark:border-zinc-800 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-zinc-200/40 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-emerald-100 dark:border-zinc-800/80 pb-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800/80 pb-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100/60 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/20 text-xs font-bold text-[#009966] dark:text-emerald-400">
-              <Sparkles className="h-3.5 w-3.5 text-[#009966]" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-200/60 dark:bg-emerald-500/10 border border-zinc-400 dark:border-emerald-500/20 text-xs font-bold text-zinc-950 dark:text-emerald-400">
+              <Sparkles className="h-3.5 w-3.5 text-zinc-950" />
               {greeting}
             </div>
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-extrabold text-[#009966] dark:text-white tracking-tight">
+              <h1 className="text-3xl font-extrabold text-zinc-950 dark:text-white tracking-tight">
                 Super Admin Dashboard
               </h1>
-              <span className="bg-[#009966] text-white font-bold text-xs uppercase px-2.5 py-1 rounded-full tracking-wider shadow-xs">
+              <span className="bg-zinc-950 text-white font-bold text-xs uppercase px-2.5 py-1 rounded-full tracking-wider shadow-xs">
                 SUPER ADMIN
               </span>
             </div>
-            <div className="flex items-center gap-4 text-xs text-[#009966] dark:text-zinc-400">
-              <span className="flex items-center gap-1.5 font-semibold text-[#009966] dark:text-emerald-400">
+            <div className="flex items-center gap-4 text-xs text-zinc-950 dark:text-zinc-400">
+              <span className="flex items-center gap-1.5 font-semibold text-zinc-950 dark:text-emerald-400">
                 <GraduationCap className="h-4 w-4" /> Stoofi Pro
               </span>
-              <span className="flex items-center gap-1.5 font-medium text-[#009966]/80 dark:text-zinc-400">
-                <CalendarDays className="h-4 w-4 text-[#009966] dark:text-zinc-400" /> {formattedToday}
+              <span className="flex items-center gap-1.5 font-medium text-zinc-950/80 dark:text-zinc-400">
+                <CalendarDays className="h-4 w-4 text-zinc-950 dark:text-zinc-400" /> {formattedToday}
               </span>
             </div>
           </div>
 
           {/* Real Weather Widget for Lahore */}
-          <div className="bg-white dark:bg-zinc-950/80 border border-emerald-200/80 dark:border-zinc-800 rounded-2xl p-3.5 flex items-center gap-6 shadow-xs relative overflow-hidden">
+          <div className="bg-white dark:bg-zinc-950/80 border border-zinc-300/80 dark:border-zinc-800 rounded-2xl p-3.5 flex items-center gap-6 shadow-xs relative overflow-hidden">
             <div className="absolute top-2 right-2 flex items-center gap-1">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#009966] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#009966]"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-zinc-950 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-zinc-950"></span>
               </span>
-              <span className="text-[9px] font-bold text-[#009966] uppercase tracking-wider">LIVE</span>
+              <span className="text-[9px] font-bold text-zinc-950 uppercase tracking-wider">LIVE</span>
             </div>
             
-            <div className="flex items-center gap-3 border-r border-emerald-100 dark:border-zinc-800 pr-4 mt-1">
-              <CloudSun className="h-8 w-8 text-[#009966] dark:text-emerald-400" />
+            <div className="flex items-center gap-3 border-r border-zinc-200 dark:border-zinc-800 pr-4 mt-1">
+              <CloudSun className="h-8 w-8 text-zinc-950 dark:text-emerald-400" />
               <div>
-                <div className="text-[11px] font-bold text-[#009966] dark:text-emerald-400 flex items-center gap-1">
+                <div className="text-[11px] font-bold text-zinc-950 dark:text-emerald-400 flex items-center gap-1">
                   <span>{weather.city}</span>
                 </div>
-                <div className="text-xl font-extrabold text-[#009966] dark:text-white flex items-baseline gap-1.5">
+                <div className="text-xl font-extrabold text-zinc-950 dark:text-white flex items-baseline gap-1.5">
                   {weather.temp}°C 
-                  <span className="text-[11px] font-semibold text-[#009966] dark:text-zinc-400">
+                  <span className="text-[11px] font-semibold text-zinc-950 dark:text-zinc-400">
                     {weather.condition}
                   </span>
                 </div>
@@ -735,8 +735,8 @@ export default function DashboardUI({ user }) {
             <div className="hidden sm:flex items-center gap-3 text-center text-[10px]">
               {weather.hourly.map((h, idx) => (
                 <div key={idx} className="px-1">
-                  <div className="text-[#009966]/80 dark:text-zinc-400 font-semibold">{h.time}</div>
-                  <div className="font-extrabold text-[#009966] dark:text-zinc-200 mt-0.5">{h.temp}</div>
+                  <div className="text-zinc-950/80 dark:text-zinc-400 font-semibold">{h.time}</div>
+                  <div className="font-extrabold text-zinc-950 dark:text-zinc-200 mt-0.5">{h.temp}</div>
                 </div>
               ))}
             </div>
@@ -746,19 +746,19 @@ export default function DashboardUI({ user }) {
         {/* 3 Banner Mini Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6">
           {/* Students Card */}
-          <div className="bg-white dark:bg-zinc-950/60 border border-emerald-200/80 dark:border-zinc-800/80 rounded-2xl p-4 flex items-center justify-between hover:border-[#009966]/60 transition-colors shadow-xs">
+          <div className="bg-white dark:bg-zinc-950/60 border border-zinc-300/80 dark:border-zinc-800/80 rounded-2xl p-4 flex items-center justify-between hover:border-zinc-950/60 transition-colors shadow-xs">
             <div>
-              <div className="text-xs uppercase font-extrabold text-[#009966] dark:text-emerald-400 tracking-wider flex items-center gap-1">
-                STUDENTS <ChevronRight className="h-3.5 w-3.5 text-[#009966] dark:text-emerald-400" />
+              <div className="text-xs uppercase font-extrabold text-zinc-950 dark:text-emerald-400 tracking-wider flex items-center gap-1">
+                STUDENTS <ChevronRight className="h-3.5 w-3.5 text-zinc-950 dark:text-emerald-400" />
               </div>
               <div className="mt-3 space-y-1">
-                <div className="text-xs text-[#009966] dark:text-zinc-300 flex items-center gap-2 font-medium">
-                  <span className="h-2 w-2 rounded-full bg-[#009966]" />
-                  MALE: <span className="font-extrabold text-[#009966] dark:text-white">{dashboardData?.stats?.students?.male} ({dashboardData?.stats?.students?.malePercent}%)</span>
+                <div className="text-xs text-zinc-950 dark:text-zinc-300 flex items-center gap-2 font-medium">
+                  <span className="h-2 w-2 rounded-full bg-zinc-950" />
+                  MALE: <span className="font-extrabold text-zinc-950 dark:text-white">{dashboardData?.stats?.students?.male} ({dashboardData?.stats?.students?.malePercent}%)</span>
                 </div>
-                <div className="text-xs text-[#009966] dark:text-zinc-300 flex items-center gap-2 font-medium">
+                <div className="text-xs text-zinc-950 dark:text-zinc-300 flex items-center gap-2 font-medium">
                   <span className="h-2 w-2 rounded-full bg-[#00bb7f]" />
-                  FEMALE: <span className="font-extrabold text-[#009966] dark:text-white">{dashboardData?.stats?.students?.female} ({dashboardData?.stats?.students?.femalePercent}%)</span>
+                  FEMALE: <span className="font-extrabold text-zinc-950 dark:text-white">{dashboardData?.stats?.students?.female} ({dashboardData?.stats?.students?.femalePercent}%)</span>
                 </div>
               </div>
             </div>
@@ -780,100 +780,100 @@ export default function DashboardUI({ user }) {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <span className="absolute text-sm font-extrabold text-[#009966] dark:text-white">{dashboardData?.stats?.students?.total}</span>
+              <span className="absolute text-sm font-extrabold text-zinc-950 dark:text-white">{dashboardData?.stats?.students?.total}</span>
             </div>
           </div>
 
           {/* Attendance Card */}
-          <div className="bg-white dark:bg-zinc-950/60 border border-emerald-200/80 dark:border-zinc-800/80 rounded-2xl p-4 flex items-center justify-between hover:border-[#009966]/60 transition-colors shadow-xs">
+          <div className="bg-white dark:bg-zinc-950/60 border border-zinc-300/80 dark:border-zinc-800/80 rounded-2xl p-4 flex items-center justify-between hover:border-zinc-950/60 transition-colors shadow-xs">
             <div>
-              <div className="text-xs uppercase font-extrabold text-[#009966] dark:text-emerald-400 tracking-wider flex items-center gap-1">
-                TODAY'S ATTENDANCE <ChevronRight className="h-3.5 w-3.5 text-[#009966] dark:text-emerald-400" />
+              <div className="text-xs uppercase font-extrabold text-zinc-950 dark:text-emerald-400 tracking-wider flex items-center gap-1">
+                TODAY'S ATTENDANCE <ChevronRight className="h-3.5 w-3.5 text-zinc-950 dark:text-emerald-400" />
               </div>
               <div className="mt-3 space-y-1">
-                <div className="text-xs text-[#009966] dark:text-zinc-300 flex items-center gap-2 font-medium">
-                  <span className="h-2 w-2 rounded-full bg-[#009966]" />
-                  STUDENTS: <span className="font-extrabold text-[#009966] dark:text-white">{(dashboardData?.stats?.attendance?.studentsPresent ?? 0)} / {(dashboardData?.stats?.attendance?.studentsTotal ?? 0)}</span>
+                <div className="text-xs text-zinc-950 dark:text-zinc-300 flex items-center gap-2 font-medium">
+                  <span className="h-2 w-2 rounded-full bg-zinc-950" />
+                  STUDENTS: <span className="font-extrabold text-zinc-950 dark:text-white">{(dashboardData?.stats?.attendance?.studentsPresent ?? 0)} / {(dashboardData?.stats?.attendance?.studentsTotal ?? 0)}</span>
                 </div>
-                <div className="text-xs text-[#009966] dark:text-zinc-300 flex items-center gap-2 font-medium">
+                <div className="text-xs text-zinc-950 dark:text-zinc-300 flex items-center gap-2 font-medium">
                   <span className="h-2 w-2 rounded-full bg-[#00bb7f]" />
-                  STAFF: <span className="font-extrabold text-[#009966] dark:text-white">{(dashboardData?.stats?.attendance?.staffPresent ?? 0)} / {(dashboardData?.stats?.attendance?.staffTotal ?? 0)}</span>
+                  STAFF: <span className="font-extrabold text-zinc-950 dark:text-white">{(dashboardData?.stats?.attendance?.staffPresent ?? 0)} / {(dashboardData?.stats?.attendance?.staffTotal ?? 0)}</span>
                 </div>
               </div>
             </div>
-            <div className="h-14 w-14 rounded-full border-4 border-emerald-200 dark:border-zinc-800 flex items-center justify-center">
-              <span className="text-xs font-bold text-[#009966] dark:text-emerald-400">{(dashboardData?.stats?.attendance?.studentAttPercent ?? 0)}%</span>
+            <div className="h-14 w-14 rounded-full border-4 border-zinc-300 dark:border-zinc-800 flex items-center justify-center">
+              <span className="text-xs font-bold text-zinc-950 dark:text-emerald-400">{(dashboardData?.stats?.attendance?.studentAttPercent ?? 0)}%</span>
             </div>
           </div>
 
           {/* Fees Collection Card */}
-          <div className="bg-white dark:bg-zinc-950/60 border border-emerald-200/80 dark:border-zinc-800/80 rounded-2xl p-4 flex items-center justify-between hover:border-[#009966]/60 transition-colors shadow-xs">
+          <div className="bg-white dark:bg-zinc-950/60 border border-zinc-300/80 dark:border-zinc-800/80 rounded-2xl p-4 flex items-center justify-between hover:border-zinc-950/60 transition-colors shadow-xs">
             <div>
-              <div className="text-xs uppercase font-extrabold text-[#009966] dark:text-emerald-400 tracking-wider flex items-center gap-1">
-                FEES COLLECTION <ChevronRight className="h-3.5 w-3.5 text-[#009966] dark:text-emerald-400" />
+              <div className="text-xs uppercase font-extrabold text-zinc-950 dark:text-emerald-400 tracking-wider flex items-center gap-1">
+                FEES COLLECTION <ChevronRight className="h-3.5 w-3.5 text-zinc-950 dark:text-emerald-400" />
               </div>
               <div className="mt-3 space-y-1">
-                <div className="text-xs text-[#009966] dark:text-zinc-300 flex items-center gap-2 font-medium">
-                  <span className="h-2 w-2 rounded-full bg-[#009966]" />
-                  COLLECTED: <span className="font-extrabold text-[#009966] dark:text-white">${(dashboardData?.stats?.fees?.collectedFees?.toLocaleString?.() || '0')} ({(dashboardData?.stats?.fees?.collectionPercentage ?? 0)}%)</span>
+                <div className="text-xs text-zinc-950 dark:text-zinc-300 flex items-center gap-2 font-medium">
+                  <span className="h-2 w-2 rounded-full bg-zinc-950" />
+                  COLLECTED: <span className="font-extrabold text-zinc-950 dark:text-white">${(dashboardData?.stats?.fees?.collectedFees?.toLocaleString?.() || '0')} ({(dashboardData?.stats?.fees?.collectionPercentage ?? 0)}%)</span>
                 </div>
-                <div className="text-xs text-[#009966] dark:text-zinc-300 flex items-center gap-2 font-medium">
+                <div className="text-xs text-zinc-950 dark:text-zinc-300 flex items-center gap-2 font-medium">
                   <span className="h-2 w-2 rounded-full bg-[#00bb7f]" />
-                  TOTAL FEES: <span className="font-extrabold text-[#009966] dark:text-white">${(dashboardData?.stats?.fees?.totalFees?.toLocaleString?.() || '0')}</span>
+                  TOTAL FEES: <span className="font-extrabold text-zinc-950 dark:text-white">${(dashboardData?.stats?.fees?.totalFees?.toLocaleString?.() || '0')}</span>
                 </div>
               </div>
             </div>
-            <div className="h-14 w-14 rounded-full border-4 border-emerald-200 dark:border-zinc-800 flex items-center justify-center">
-              <span className="text-xs font-bold text-[#009966] dark:text-emerald-400">{(dashboardData?.stats?.fees?.collectionPercentage ?? 0)}%</span>
+            <div className="h-14 w-14 rounded-full border-4 border-zinc-300 dark:border-zinc-800 flex items-center justify-center">
+              <span className="text-xs font-bold text-zinc-950 dark:text-emerald-400">{(dashboardData?.stats?.fees?.collectionPercentage ?? 0)}%</span>
             </div>
           </div>
         </div>
 
         {/* 5 REAL WORKING QUICK ACTION BUTTONS */}
-        <div className="flex flex-wrap gap-3 mt-4 pt-6 border-t border-emerald-100 dark:border-zinc-800/60">
+        <div className="flex flex-wrap gap-3 mt-4 pt-6 border-t border-zinc-200 dark:border-zinc-800/60">
           <Button
             variant="outline"
             size="sm"
-            className="h-9 rounded-full border border-emerald-200/90 dark:border-zinc-700 bg-white dark:bg-zinc-950/50 text-xs font-bold text-[#009966] dark:text-zinc-300 hover:bg-emerald-50 hover:border-[#009966] hover:text-[#007a52] dark:hover:bg-emerald-950/50 dark:hover:text-emerald-400 cursor-pointer shadow-xs"
+            className="h-9 rounded-full border border-zinc-300/90 dark:border-zinc-700 bg-white dark:bg-zinc-950/50 text-xs font-bold text-zinc-950 dark:text-zinc-300 hover:bg-zinc-100 hover:border-zinc-950 hover:text-zinc-800 dark:hover:bg-emerald-950/50 dark:hover:text-emerald-400 cursor-pointer shadow-xs"
             onClick={() => router.push('/dashboard/students/add')}
           >
-            <UserPlus className="h-3.5 w-3.5 text-[#009966] dark:text-emerald-400" /> Student Admission
+            <UserPlus className="h-3.5 w-3.5 text-zinc-950 dark:text-emerald-400" /> Student Admission
           </Button>
           
           <Button
             variant="outline"
             size="sm"
-            className="h-9 rounded-full border border-emerald-200/90 dark:border-zinc-700 bg-white dark:bg-zinc-950/50 text-xs font-bold text-[#009966] dark:text-zinc-300 hover:bg-emerald-50 hover:border-[#009966] hover:text-[#007a52] dark:hover:bg-emerald-950/50 dark:hover:text-emerald-400 cursor-pointer shadow-xs"
+            className="h-9 rounded-full border border-zinc-300/90 dark:border-zinc-700 bg-white dark:bg-zinc-950/50 text-xs font-bold text-zinc-950 dark:text-zinc-300 hover:bg-zinc-100 hover:border-zinc-950 hover:text-zinc-800 dark:hover:bg-emerald-950/50 dark:hover:text-emerald-400 cursor-pointer shadow-xs"
             onClick={() => router.push('/dashboard/fees/invoice')}
           >
-            <CreditCard className="h-3.5 w-3.5 text-[#009966] dark:text-emerald-400" /> Collect Fees
+            <CreditCard className="h-3.5 w-3.5 text-zinc-950 dark:text-emerald-400" /> Collect Fees
           </Button>
 
           <Button
             variant="outline"
             size="sm"
-            className="h-9 rounded-full border border-emerald-200/90 dark:border-zinc-700 bg-white dark:bg-zinc-950/50 text-xs font-bold text-[#009966] dark:text-zinc-300 hover:bg-emerald-50 hover:border-[#009966] hover:text-[#007a52] dark:hover:bg-emerald-950/50 dark:hover:text-emerald-400 cursor-pointer shadow-xs"
+            className="h-9 rounded-full border border-zinc-300/90 dark:border-zinc-700 bg-white dark:bg-zinc-950/50 text-xs font-bold text-zinc-950 dark:text-zinc-300 hover:bg-zinc-100 hover:border-zinc-950 hover:text-zinc-800 dark:hover:bg-emerald-950/50 dark:hover:text-emerald-400 cursor-pointer shadow-xs"
             onClick={() => router.push('/dashboard/students/attendance')}
           >
-            <CheckSquare className="h-3.5 w-3.5 text-[#009966] dark:text-emerald-400" /> Attendance
+            <CheckSquare className="h-3.5 w-3.5 text-zinc-950 dark:text-emerald-400" /> Attendance
           </Button>
 
           <Button
             variant="outline"
             size="sm"
-            className="h-9 rounded-full border border-emerald-200/90 dark:border-zinc-700 bg-white dark:bg-zinc-950/50 text-xs font-bold text-[#009966] dark:text-zinc-300 hover:bg-emerald-50 hover:border-[#009966] hover:text-[#007a52] dark:hover:bg-emerald-950/50 dark:hover:text-emerald-400 cursor-pointer shadow-xs"
+            className="h-9 rounded-full border border-zinc-300/90 dark:border-zinc-700 bg-white dark:bg-zinc-950/50 text-xs font-bold text-zinc-950 dark:text-zinc-300 hover:bg-zinc-100 hover:border-zinc-950 hover:text-zinc-800 dark:hover:bg-emerald-950/50 dark:hover:text-emerald-400 cursor-pointer shadow-xs"
             onClick={handleOpenCreateNotice}
           >
-            <Bell className="h-3.5 w-3.5 text-[#009966] dark:text-emerald-400" /> Add Notice
+            <Bell className="h-3.5 w-3.5 text-zinc-950 dark:text-emerald-400" /> Add Notice
           </Button>
 
           <Button
             variant="outline"
             size="sm"
-            className="h-9 rounded-full border border-emerald-200/90 dark:border-zinc-700 bg-white dark:bg-zinc-950/50 text-xs font-bold text-[#009966] dark:text-zinc-300 hover:bg-emerald-50 hover:border-[#009966] hover:text-[#007a52] dark:hover:bg-emerald-950/50 dark:hover:text-emerald-400 cursor-pointer shadow-xs"
+            className="h-9 rounded-full border border-zinc-300/90 dark:border-zinc-700 bg-white dark:bg-zinc-950/50 text-xs font-bold text-zinc-950 dark:text-zinc-300 hover:bg-zinc-100 hover:border-zinc-950 hover:text-zinc-800 dark:hover:bg-emerald-950/50 dark:hover:text-emerald-400 cursor-pointer shadow-xs"
             onClick={() => setIsExpenseModalOpen(true)}
           >
-            <Receipt className="h-3.5 w-3.5 text-[#009966] dark:text-emerald-400" /> Add Expense
+            <Receipt className="h-3.5 w-3.5 text-zinc-950 dark:text-emerald-400" /> Add Expense
           </Button>
         </div>
       </div>
@@ -881,59 +881,59 @@ export default function DashboardUI({ user }) {
       {/* 2. 4 TOTAL STAT CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card 
-          className="bg-white dark:bg-zinc-900 border border-emerald-200/80 dark:border-zinc-800 p-5 hover:border-[#009966]/60 transition-all cursor-pointer shadow-xs rounded-2xl"
+          className="bg-white dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800 p-5 hover:border-zinc-950/60 transition-all cursor-pointer shadow-xs rounded-2xl"
           onClick={() => router.push('/dashboard/students')}
         >
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/80 dark:border-emerald-500/20 flex items-center justify-center text-[#009966] dark:text-emerald-400">
+            <div className="h-12 w-12 rounded-xl bg-zinc-100 dark:bg-emerald-500/10 border border-zinc-300/80 dark:border-emerald-500/20 flex items-center justify-center text-zinc-950 dark:text-emerald-400">
               <GraduationCap className="h-6 w-6" />
             </div>
             <div>
-              <div className="text-2xl font-black text-[#009966] dark:text-white">{dashboardData?.stats?.students?.total}</div>
-              <div className="text-xs uppercase font-extrabold text-[#009966] dark:text-zinc-400 tracking-wider">TOTAL STUDENTS</div>
+              <div className="text-2xl font-black text-zinc-950 dark:text-white">{dashboardData?.stats?.students?.total}</div>
+              <div className="text-xs uppercase font-extrabold text-zinc-950 dark:text-zinc-400 tracking-wider">TOTAL STUDENTS</div>
             </div>
           </div>
         </Card>
 
         <Card 
-          className="bg-white dark:bg-zinc-900 border border-emerald-200/80 dark:border-zinc-800 p-5 hover:border-[#009966]/60 transition-all cursor-pointer shadow-xs rounded-2xl"
+          className="bg-white dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800 p-5 hover:border-zinc-950/60 transition-all cursor-pointer shadow-xs rounded-2xl"
           onClick={() => router.push('/dashboard/hr/staff-directory')}
         >
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/80 dark:border-emerald-500/20 flex items-center justify-center text-[#009966] dark:text-emerald-400">
+            <div className="h-12 w-12 rounded-xl bg-zinc-100 dark:bg-emerald-500/10 border border-zinc-300/80 dark:border-emerald-500/20 flex items-center justify-center text-zinc-950 dark:text-emerald-400">
               <Briefcase className="h-6 w-6" />
             </div>
             <div>
-              <div className="text-2xl font-black text-[#009966] dark:text-white">{(dashboardData?.stats?.teachers ?? 0)}</div>
-              <div className="text-xs uppercase font-extrabold text-[#009966] dark:text-zinc-400 tracking-wider">TOTAL TEACHERS</div>
+              <div className="text-2xl font-black text-zinc-950 dark:text-white">{(dashboardData?.stats?.teachers ?? 0)}</div>
+              <div className="text-xs uppercase font-extrabold text-zinc-950 dark:text-zinc-400 tracking-wider">TOTAL TEACHERS</div>
             </div>
           </div>
         </Card>
 
         {/* Parents Card */}
-        <Card className="bg-white dark:bg-zinc-900 border border-emerald-200/80 dark:border-zinc-800 p-5 hover:border-[#009966]/60 transition-all shadow-xs rounded-2xl">
+        <Card className="bg-white dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800 p-5 hover:border-zinc-950/60 transition-all shadow-xs rounded-2xl">
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/80 dark:border-emerald-500/20 flex items-center justify-center text-[#009966] dark:text-emerald-400">
+            <div className="h-12 w-12 rounded-xl bg-zinc-100 dark:bg-emerald-500/10 border border-zinc-300/80 dark:border-emerald-500/20 flex items-center justify-center text-zinc-950 dark:text-emerald-400">
               <Users className="h-6 w-6" />
             </div>
             <div>
-              <div className="text-2xl font-black text-[#009966] dark:text-white">{(dashboardData?.stats?.parents ?? 0)}</div>
-              <div className="text-xs uppercase font-extrabold text-[#009966] dark:text-zinc-400 tracking-wider">TOTAL PARENTS</div>
+              <div className="text-2xl font-black text-zinc-950 dark:text-white">{(dashboardData?.stats?.parents ?? 0)}</div>
+              <div className="text-xs uppercase font-extrabold text-zinc-950 dark:text-zinc-400 tracking-wider">TOTAL PARENTS</div>
             </div>
           </div>
         </Card>
 
         <Card 
-          className="bg-white dark:bg-zinc-900 border border-emerald-200/80 dark:border-zinc-800 p-5 hover:border-[#009966]/60 transition-all cursor-pointer shadow-xs rounded-2xl"
+          className="bg-white dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800 p-5 hover:border-zinc-950/60 transition-all cursor-pointer shadow-xs rounded-2xl"
           onClick={() => router.push('/dashboard/hr/staff-directory')}
         >
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/80 dark:border-emerald-500/20 flex items-center justify-center text-[#009966] dark:text-emerald-400">
+            <div className="h-12 w-12 rounded-xl bg-zinc-100 dark:bg-emerald-500/10 border border-zinc-300/80 dark:border-emerald-500/20 flex items-center justify-center text-zinc-950 dark:text-emerald-400">
               <UserCheck className="h-6 w-6" />
             </div>
             <div>
-              <div className="text-2xl font-black text-[#009966] dark:text-white">{(dashboardData?.stats?.staffs ?? 0)}</div>
-              <div className="text-xs uppercase font-extrabold text-[#009966] dark:text-zinc-400 tracking-wider">TOTAL STAFFS</div>
+              <div className="text-2xl font-black text-zinc-950 dark:text-white">{(dashboardData?.stats?.staffs ?? 0)}</div>
+              <div className="text-xs uppercase font-extrabold text-zinc-950 dark:text-zinc-400 tracking-wider">TOTAL STAFFS</div>
             </div>
           </div>
         </Card>
@@ -942,17 +942,17 @@ export default function DashboardUI({ user }) {
       {/* 3. 2 FINANCIAL CHARTS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Chart: Monthly Breakdown */}
-        <Card className="bg-white dark:bg-zinc-900 border border-emerald-200/80 dark:border-zinc-800 shadow-xs">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-emerald-100 dark:border-zinc-800">
+        <Card className="bg-white dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800 shadow-xs">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-zinc-200 dark:border-zinc-800">
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-[#009966]" />
-              <CardTitle className="text-sm font-bold text-[#009966] dark:text-zinc-200">
+              <TrendingUp className="h-4 w-4 text-zinc-950" />
+              <CardTitle className="text-sm font-bold text-zinc-950 dark:text-zinc-200">
                 Income and Expenses for {monthNames[month]} {year}
               </CardTitle>
             </div>
             <div className="flex items-center gap-4 text-xs font-bold">
-              <div className="flex items-center gap-1.5 text-[#009966] dark:text-emerald-400">
-                <span className="h-2 w-2 rounded-full bg-[#009966]" /> Income
+              <div className="flex items-center gap-1.5 text-zinc-950 dark:text-emerald-400">
+                <span className="h-2 w-2 rounded-full bg-zinc-950" /> Income
               </div>
               <div className="flex items-center gap-1.5 text-rose-500">
                 <span className="h-2 w-2 rounded-full bg-rose-500" /> Expense
@@ -961,17 +961,17 @@ export default function DashboardUI({ user }) {
           </CardHeader>
           <CardContent className="pt-4 space-y-4">
             <div className="grid grid-cols-3 gap-2">
-              <div className="bg-emerald-50/40 dark:bg-zinc-950 p-2.5 rounded-lg border border-emerald-100 dark:border-zinc-800">
-                <div className="text-[10px] uppercase font-extrabold text-[#009966] dark:text-zinc-400">TOTAL INCOME</div>
-                <div className="text-sm font-black text-[#009966] dark:text-emerald-400 mt-0.5">${(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
+              <div className="bg-zinc-100/40 dark:bg-zinc-950 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                <div className="text-[10px] uppercase font-extrabold text-zinc-950 dark:text-zinc-400">TOTAL INCOME</div>
+                <div className="text-sm font-black text-zinc-950 dark:text-emerald-400 mt-0.5">${(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
               </div>
-              <div className="bg-emerald-50/40 dark:bg-zinc-950 p-2.5 rounded-lg border border-emerald-100 dark:border-zinc-800">
-                <div className="text-[10px] uppercase font-extrabold text-[#009966] dark:text-zinc-400">TOTAL EXPENSES</div>
+              <div className="bg-zinc-100/40 dark:bg-zinc-950 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                <div className="text-[10px] uppercase font-extrabold text-zinc-950 dark:text-zinc-400">TOTAL EXPENSES</div>
                 <div className="text-sm font-black text-rose-500 mt-0.5">${(dashboardData?.stats?.fees?.totalExpenses?.toLocaleString?.() || '0')}</div>
               </div>
-              <div className="bg-emerald-50/40 dark:bg-zinc-950 p-2.5 rounded-lg border border-emerald-100 dark:border-zinc-800">
-                <div className="text-[10px] uppercase font-extrabold text-[#009966] dark:text-zinc-400">TOTAL PROFIT</div>
-                <div className="text-sm font-black text-[#009966] dark:text-emerald-400 mt-0.5">${(dashboardData?.stats?.fees?.totalProfit?.toLocaleString?.() || '0')}</div>
+              <div className="bg-zinc-100/40 dark:bg-zinc-950 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                <div className="text-[10px] uppercase font-extrabold text-zinc-950 dark:text-zinc-400">TOTAL PROFIT</div>
+                <div className="text-sm font-black text-zinc-950 dark:text-emerald-400 mt-0.5">${(dashboardData?.stats?.fees?.totalProfit?.toLocaleString?.() || '0')}</div>
               </div>
             </div>
 
@@ -1012,17 +1012,17 @@ export default function DashboardUI({ user }) {
         </Card>
 
         {/* Right Chart: Yearly Trajectory */}
-        <Card className="bg-white dark:bg-zinc-900 border border-emerald-200/80 dark:border-zinc-800 shadow-xs">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-emerald-100 dark:border-zinc-800">
+        <Card className="bg-white dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800 shadow-xs">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-zinc-200 dark:border-zinc-800">
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-[#009966]" />
-              <CardTitle className="text-sm font-bold text-[#009966] dark:text-zinc-200">
+              <TrendingUp className="h-4 w-4 text-zinc-950" />
+              <CardTitle className="text-sm font-bold text-zinc-950 dark:text-zinc-200">
                 Income and Expenses for {year}
               </CardTitle>
             </div>
             <div className="flex items-center gap-4 text-xs font-bold">
-              <div className="flex items-center gap-1.5 text-[#009966] dark:text-emerald-400">
-                <span className="h-2 w-2 rounded-full bg-[#009966]" /> Income
+              <div className="flex items-center gap-1.5 text-zinc-950 dark:text-emerald-400">
+                <span className="h-2 w-2 rounded-full bg-zinc-950" /> Income
               </div>
               <div className="flex items-center gap-1.5 text-rose-500">
                 <span className="h-2 w-2 rounded-full bg-rose-500" /> Expense
@@ -1031,17 +1031,17 @@ export default function DashboardUI({ user }) {
           </CardHeader>
           <CardContent className="pt-4 space-y-4">
             <div className="grid grid-cols-3 gap-2">
-              <div className="bg-emerald-50/40 dark:bg-zinc-950 p-2.5 rounded-lg border border-emerald-100 dark:border-zinc-800">
-                <div className="text-[10px] uppercase font-extrabold text-[#009966] dark:text-zinc-400">TOTAL INCOME</div>
-                <div className="text-sm font-black text-[#009966] dark:text-emerald-400 mt-0.5">${(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
+              <div className="bg-zinc-100/40 dark:bg-zinc-950 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                <div className="text-[10px] uppercase font-extrabold text-zinc-950 dark:text-zinc-400">TOTAL INCOME</div>
+                <div className="text-sm font-black text-zinc-950 dark:text-emerald-400 mt-0.5">${(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
               </div>
-              <div className="bg-emerald-50/40 dark:bg-zinc-950 p-2.5 rounded-lg border border-emerald-100 dark:border-zinc-800">
-                <div className="text-[10px] uppercase font-extrabold text-[#009966] dark:text-zinc-400">TOTAL EXPENSES</div>
+              <div className="bg-zinc-100/40 dark:bg-zinc-950 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                <div className="text-[10px] uppercase font-extrabold text-zinc-950 dark:text-zinc-400">TOTAL EXPENSES</div>
                 <div className="text-sm font-black text-rose-500 mt-0.5">${(dashboardData?.stats?.fees?.totalExpenses?.toLocaleString?.() || '0')}</div>
               </div>
-              <div className="bg-emerald-50/40 dark:bg-zinc-950 p-2.5 rounded-lg border border-emerald-100 dark:border-zinc-800">
-                <div className="text-[10px] uppercase font-extrabold text-[#009966] dark:text-zinc-400">TOTAL REVENUE</div>
-                <div className="text-sm font-black text-[#009966] dark:text-emerald-400 mt-0.5">${(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
+              <div className="bg-zinc-100/40 dark:bg-zinc-950 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                <div className="text-[10px] uppercase font-extrabold text-zinc-950 dark:text-zinc-400">TOTAL REVENUE</div>
+                <div className="text-sm font-black text-zinc-950 dark:text-emerald-400 mt-0.5">${(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
               </div>
             </div>
 
@@ -1085,17 +1085,17 @@ export default function DashboardUI({ user }) {
       {/* 4. NOTICE BOARD & UPCOMING EVENTS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Notice Board */}
-        <Card className="bg-white dark:bg-zinc-900 border border-emerald-200/80 dark:border-zinc-800 shadow-xs">
-          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-emerald-100 dark:border-zinc-800">
+        <Card className="bg-white dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800 shadow-xs">
+          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
             <div className="flex items-center gap-2">
-              <Bell className="h-4 w-4 text-emerald-500" />
-              <CardTitle className="text-sm font-semibold text-[#009966] dark:text-zinc-200 font-bold">Notice Board</CardTitle>
+              <Bell className="h-4 w-4 text-zinc-600" />
+              <CardTitle className="text-sm font-semibold text-zinc-950 dark:text-zinc-200 font-bold">Notice Board</CardTitle>
             </div>
             <div className="flex items-center gap-1.5">
               <Button 
                 size="sm" 
                 onClick={handleOpenCreateNotice}
-                className="h-7 px-2.5 bg-[#009966] hover:bg-[#007a52] text-white font-bold text-xs rounded-md flex items-center gap-1"
+                className="h-7 px-2.5 bg-zinc-950 hover:bg-zinc-800 text-white font-bold text-xs rounded-md flex items-center gap-1"
               >
                 <Plus className="h-3.5 w-3.5" /> Add Notice
               </Button>
@@ -1125,17 +1125,17 @@ export default function DashboardUI({ user }) {
                 return (
                   <div key={notice._id} className="p-4 flex items-center justify-between hover:bg-white dark:bg-zinc-950/60 transition-colors group">
                     <div className="flex items-center gap-4 flex-1 cursor-pointer" onClick={() => handleViewNotice(notice)}>
-                      <div className="h-10 w-10 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 flex flex-col items-center justify-center shrink-0">
-                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 leading-none">{dayNum}</span>
+                      <div className="h-10 w-10 rounded-lg bg-zinc-100 dark:bg-emerald-500/10 border border-zinc-300 dark:border-emerald-500/20 flex flex-col items-center justify-center shrink-0">
+                        <span className="text-xs font-bold text-zinc-800 dark:text-emerald-400 leading-none">{dayNum}</span>
                         <span className="text-[9px] font-semibold text-zinc-600 dark:text-zinc-400 uppercase leading-none mt-0.5">{monthStr}</span>
                       </div>
                       <div className="flex-1 pr-2">
-                        <h4 className="text-sm font-medium text-[#009966] dark:text-zinc-200 font-bold group-hover:text-emerald-600 dark:text-emerald-400 transition-colors line-clamp-1">
+                        <h4 className="text-sm font-medium text-zinc-950 dark:text-zinc-200 font-bold group-hover:text-zinc-800 dark:text-emerald-400 transition-colors line-clamp-1">
                           {notice.title}
                         </h4>
                         <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                           <span>{dateFull}</span>
-                          <span className="text-emerald-500/80 font-medium text-[10px] uppercase">{notice.audience || 'All'}</span>
+                          <span className="text-zinc-600/80 font-medium text-[10px] uppercase">{notice.audience || 'All'}</span>
                         </div>
                       </div>
                     </div>
@@ -1145,7 +1145,7 @@ export default function DashboardUI({ user }) {
                         size="icon" 
                         variant="ghost" 
                         onClick={() => handleViewNotice(notice)}
-                        className="h-7 w-7 text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:text-emerald-400 hover:bg-zinc-100 dark:bg-zinc-900"
+                        className="h-7 w-7 text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:text-emerald-400 hover:bg-zinc-100 dark:bg-zinc-900"
                         title="View Notice"
                       >
                         <Eye className="h-3.5 w-3.5" />
@@ -1154,7 +1154,7 @@ export default function DashboardUI({ user }) {
                         size="icon" 
                         variant="ghost" 
                         onClick={() => handleOpenEditNotice(notice)}
-                        className="h-7 w-7 text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:text-emerald-400 hover:bg-zinc-100 dark:bg-zinc-900"
+                        className="h-7 w-7 text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:text-emerald-400 hover:bg-zinc-100 dark:bg-zinc-900"
                         title="Edit Notice"
                       >
                         <Edit className="h-3.5 w-3.5" />
@@ -1177,11 +1177,11 @@ export default function DashboardUI({ user }) {
         </Card>
 
         {/* Upcoming Events & Holidays */}
-        <Card className="bg-white dark:bg-zinc-900 border border-emerald-200/80 dark:border-zinc-800 shadow-xs">
-          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-emerald-100 dark:border-zinc-800">
+        <Card className="bg-white dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800 shadow-xs">
+          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
             <div className="flex items-center gap-2">
-              <CalendarIcon className="h-4 w-4 text-emerald-500" />
-              <CardTitle className="text-sm font-semibold text-[#009966] dark:text-zinc-200 font-bold">Upcoming Events & Holidays</CardTitle>
+              <CalendarIcon className="h-4 w-4 text-zinc-600" />
+              <CardTitle className="text-sm font-semibold text-zinc-950 dark:text-zinc-200 font-bold">Upcoming Events & Holidays</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="flex flex-col items-center justify-center h-[340px] text-center p-6">
@@ -1196,8 +1196,8 @@ export default function DashboardUI({ user }) {
       {/* 5. CALENDAR & TO DO LIST */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* School Calendar */}
-        <Card className="lg:col-span-2 bg-white dark:bg-zinc-900 border border-emerald-200/80 dark:border-zinc-800 shadow-xs">
-          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-emerald-100 dark:border-zinc-800">
+        <Card className="lg:col-span-2 bg-white dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800 shadow-xs">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-200 dark:border-zinc-800">
             <div className="flex items-center gap-2">
               <h3 className="text-base font-bold text-zinc-900 dark:text-white">
                 {monthNames[month]} {year}
@@ -1215,7 +1215,7 @@ export default function DashboardUI({ user }) {
                   size="sm" 
                   variant="outline" 
                   onClick={handleToday}
-                  className="h-7 px-2.5 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-xs text-zinc-700 dark:text-zinc-300 hover:text-emerald-600 dark:text-emerald-400"
+                  className="h-7 px-2.5 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-xs text-zinc-700 dark:text-zinc-300 hover:text-zinc-800 dark:text-emerald-400"
                 >
                   Today
                 </Button>
@@ -1238,8 +1238,8 @@ export default function DashboardUI({ user }) {
                     onClick={() => setCalendarView(mode.toLowerCase())}
                     className={`px-3 py-1 rounded-md font-medium transition-colors ${
                       calendarView === mode.toLowerCase()
-                        ? 'bg-emerald-600 text-zinc-900 dark:text-white shadow'
-                        : 'text-zinc-600 dark:text-zinc-400 hover:text-[#009966] dark:text-zinc-200 font-bold'
+                        ? 'bg-zinc-800 text-zinc-900 dark:text-white shadow'
+                        : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:text-zinc-200 font-bold'
                     }`}
                   >
                     {mode}
@@ -1249,7 +1249,7 @@ export default function DashboardUI({ user }) {
             </div>
           </CardHeader>
           <CardContent className="p-4">
-            <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase pb-2 border-b border-emerald-100 dark:border-zinc-800">
+            <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase pb-2 border-b border-zinc-200 dark:border-zinc-800">
               <span>SUN</span>
               <span>MON</span>
               <span>TUE</span>
@@ -1265,9 +1265,9 @@ export default function DashboardUI({ user }) {
                   onClick={() => item.isCurrentMonth && setSelectedDate(item.date)}
                   className={`min-h-[58px] p-2 rounded-lg border flex flex-col justify-between cursor-pointer transition-all ${
                     item.isSelected
-                      ? 'bg-emerald-600/30 border-emerald-500 text-[#009966] dark:text-zinc-200 font-bold font-bold shadow-[0_0_10px_rgba(16,185,129,0.2)]'
+                      ? 'bg-zinc-800/30 border-zinc-600 text-zinc-950 dark:text-zinc-200 font-bold font-bold shadow-[0_0_10px_rgba(16,185,129,0.2)]'
                       : item.isToday
-                      ? 'bg-emerald-950/40 border-emerald-500/60 text-[#009966] dark:text-zinc-200 font-bold font-bold'
+                      ? 'bg-emerald-950/40 border-zinc-600/60 text-zinc-950 dark:text-zinc-200 font-bold font-bold'
                       : item.isCurrentMonth
                       ? 'bg-white dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800/60 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:bg-zinc-900'
                       : 'bg-white dark:bg-zinc-950/20 border-transparent text-zinc-700 pointer-events-none'
@@ -1276,7 +1276,7 @@ export default function DashboardUI({ user }) {
                   <div className="flex items-center justify-between">
                     <span className="text-xs">{item.day}</span>
                     {item.isToday && (
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" />
                     )}
                   </div>
                 </div>
@@ -1286,17 +1286,17 @@ export default function DashboardUI({ user }) {
         </Card>
 
         {/* Real Interactive To Do List */}
-        <Card className="bg-white dark:bg-zinc-900 border border-emerald-200/80 dark:border-zinc-800 shadow-xs flex flex-col">
-          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-emerald-100 dark:border-zinc-800">
+        <Card className="bg-white dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800 shadow-xs flex flex-col">
+          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-              <CardTitle className="text-sm font-semibold text-[#009966] dark:text-zinc-200 font-bold">To Do List</CardTitle>
+              <CheckCircle2 className="h-4 w-4 text-zinc-600" />
+              <CardTitle className="text-sm font-semibold text-zinc-950 dark:text-zinc-200 font-bold">To Do List</CardTitle>
             </div>
             <Button 
               size="icon" 
               variant="ghost" 
               onClick={() => setIsAddingTodo(!isAddingTodo)}
-              className="h-7 w-7 text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:text-emerald-400 hover:bg-white dark:bg-zinc-950"
+              className="h-7 w-7 text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:text-emerald-400 hover:bg-white dark:bg-zinc-950"
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -1305,11 +1305,11 @@ export default function DashboardUI({ user }) {
             <div>
               <div className="flex items-center justify-between text-xs text-zinc-600 dark:text-zinc-400 mb-2">
                 <span>{completedCount}/{totalTodoCount} Completed</span>
-                <span className="font-bold text-emerald-500">{todoPercentage}%</span>
+                <span className="font-bold text-zinc-600">{todoPercentage}%</span>
               </div>
               <div className="w-full h-1.5 bg-white dark:bg-zinc-950 rounded-full overflow-hidden border border-zinc-200 dark:border-zinc-800">
                 <div 
-                  className="h-full bg-emerald-500 transition-all duration-300" 
+                  className="h-full bg-zinc-600 transition-all duration-300" 
                   style={{ width: `${todoPercentage}%` }}
                 />
               </div>
@@ -1320,8 +1320,8 @@ export default function DashboardUI({ user }) {
                   onClick={() => setTodoTab('all')}
                   className={`flex-1 py-1 rounded-md font-semibold text-center uppercase tracking-wider transition-colors ${
                     todoTab === 'all'
-                      ? 'bg-emerald-600 text-zinc-900 dark:text-white shadow'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:text-[#009966] dark:text-zinc-200 font-bold'
+                      ? 'bg-zinc-800 text-zinc-900 dark:text-white shadow'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:text-zinc-200 font-bold'
                   }`}
                 >
                   ALL
@@ -1330,8 +1330,8 @@ export default function DashboardUI({ user }) {
                   onClick={() => setTodoTab('incomplete')}
                   className={`flex-1 py-1 rounded-md font-semibold text-center uppercase tracking-wider transition-colors ${
                     todoTab === 'incomplete'
-                      ? 'bg-emerald-600 text-zinc-900 dark:text-white shadow'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:text-[#009966] dark:text-zinc-200 font-bold'
+                      ? 'bg-zinc-800 text-zinc-900 dark:text-white shadow'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:text-zinc-200 font-bold'
                   }`}
                 >
                   INCOMPLETE
@@ -1340,8 +1340,8 @@ export default function DashboardUI({ user }) {
                   onClick={() => setTodoTab('completed')}
                   className={`flex-1 py-1 rounded-md font-semibold text-center uppercase tracking-wider transition-colors ${
                     todoTab === 'completed'
-                      ? 'bg-emerald-600 text-zinc-900 dark:text-white shadow'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:text-[#009966] dark:text-zinc-200 font-bold'
+                      ? 'bg-zinc-800 text-zinc-900 dark:text-white shadow'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:text-zinc-200 font-bold'
                   }`}
                 >
                   COMPLETED
@@ -1357,9 +1357,9 @@ export default function DashboardUI({ user }) {
                     value={newTodoText}
                     onChange={(e) => setNewTodoText(e.target.value)}
                     autoFocus
-                    className="flex-1 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-[#009966] dark:text-zinc-200 font-bold placeholder-zinc-500 focus:outline-none focus:border-emerald-500"
+                    className="flex-1 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-950 dark:text-zinc-200 font-bold placeholder-zinc-500 focus:outline-none focus:border-zinc-600"
                   />
-                  <Button size="sm" type="submit" className="bg-[#009966] hover:bg-[#007a52] text-white font-bold text-xs h-8 px-3">
+                  <Button size="sm" type="submit" className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold text-xs h-8 px-3">
                     Add
                   </Button>
                 </form>
@@ -1383,9 +1383,9 @@ export default function DashboardUI({ user }) {
                       className="flex items-center gap-2.5 flex-1 cursor-pointer"
                     >
                       {todo.completed ? (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                        <CheckCircle2 className="h-4 w-4 text-zinc-600 shrink-0" />
                       ) : (
-                        <Circle className="h-4 w-4 text-zinc-500 dark:text-zinc-400 shrink-0 group-hover:text-emerald-500 transition-colors" />
+                        <Circle className="h-4 w-4 text-zinc-500 dark:text-zinc-400 shrink-0 group-hover:text-zinc-600 transition-colors" />
                       )}
                       <span className={`text-xs ${todo.completed ? 'line-through text-zinc-500 dark:text-zinc-400' : 'text-zinc-700 dark:text-zinc-300'}`}>
                         {todo.title}
@@ -1407,10 +1407,10 @@ export default function DashboardUI({ user }) {
 
       {/* MODAL 1: STUDENT ADMISSION */}
       <Dialog open={isAdmissionModalOpen} onOpenChange={setIsAdmissionModalOpen}>
-        <DialogContent className="bg-white dark:bg-zinc-900 border border-emerald-200/80 dark:border-zinc-800 shadow-xs text-zinc-100 sm:max-w-md">
+        <DialogContent className="bg-white dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800 shadow-xs text-zinc-100 sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-              <UserPlus className="h-5 w-5 text-emerald-500" />
+              <UserPlus className="h-5 w-5 text-zinc-600" />
               Quick Student Admission
             </DialogTitle>
           </DialogHeader>
@@ -1424,7 +1424,7 @@ export default function DashboardUI({ user }) {
                   placeholder="e.g. Usman"
                   value={admissionForm.firstName}
                   onChange={(e) => setAdmissionForm({ ...admissionForm, firstName: e.target.value })}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-zinc-600 focus:outline-none"
                 />
               </div>
               <div>
@@ -1435,7 +1435,7 @@ export default function DashboardUI({ user }) {
                   placeholder="e.g. Ali"
                   value={admissionForm.lastName}
                   onChange={(e) => setAdmissionForm({ ...admissionForm, lastName: e.target.value })}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-zinc-600 focus:outline-none"
                 />
               </div>
             </div>
@@ -1446,7 +1446,7 @@ export default function DashboardUI({ user }) {
                 <select
                   value={admissionForm.gender}
                   onChange={(e) => setAdmissionForm({ ...admissionForm, gender: e.target.value })}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-zinc-600 focus:outline-none"
                 >
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
@@ -1459,7 +1459,7 @@ export default function DashboardUI({ user }) {
                   type="date"
                   value={admissionForm.dateOfBirth}
                   onChange={(e) => setAdmissionForm({ ...admissionForm, dateOfBirth: e.target.value })}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-zinc-600 focus:outline-none"
                 />
               </div>
             </div>
@@ -1471,13 +1471,13 @@ export default function DashboardUI({ user }) {
                 placeholder="+92 300 0000000"
                 value={admissionForm.contactNumber}
                 onChange={(e) => setAdmissionForm({ ...admissionForm, contactNumber: e.target.value })}
-                className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-zinc-600 focus:outline-none"
               />
             </div>
 
             <DialogFooter className="pt-2">
               <Button type="button" variant="ghost" onClick={() => setIsAdmissionModalOpen(false)} className="text-zinc-600 dark:text-zinc-400">Cancel</Button>
-              <Button type="submit" className="bg-[#009966] hover:bg-[#007a52] text-white font-bold">Save Student</Button>
+              <Button type="submit" className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold">Save Student</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -1485,10 +1485,10 @@ export default function DashboardUI({ user }) {
 
       {/* MODAL 2: COLLECT FEES */}
       <Dialog open={isFeeModalOpen} onOpenChange={setIsFeeModalOpen}>
-        <DialogContent className="bg-white dark:bg-zinc-900 border border-emerald-200/80 dark:border-zinc-800 shadow-xs text-zinc-100 sm:max-w-md">
+        <DialogContent className="bg-white dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800 shadow-xs text-zinc-100 sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-              <CreditCard className="h-5 w-5 text-emerald-500" />
+              <CreditCard className="h-5 w-5 text-zinc-600" />
               Quick Fee Collection
             </DialogTitle>
           </DialogHeader>
@@ -1501,7 +1501,7 @@ export default function DashboardUI({ user }) {
                 placeholder="e.g. Ali Hassan"
                 value={feeForm.studentName}
                 onChange={(e) => setFeeForm({ ...feeForm, studentName: e.target.value })}
-                className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-zinc-600 focus:outline-none"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -1513,7 +1513,7 @@ export default function DashboardUI({ user }) {
                   placeholder="e.g. 500"
                   value={feeForm.amount}
                   onChange={(e) => setFeeForm({ ...feeForm, amount: e.target.value })}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-zinc-600 focus:outline-none"
                 />
               </div>
               <div>
@@ -1521,7 +1521,7 @@ export default function DashboardUI({ user }) {
                 <select
                   value={feeForm.paymentMethod}
                   onChange={(e) => setFeeForm({ ...feeForm, paymentMethod: e.target.value })}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-zinc-600 focus:outline-none"
                 >
                   <option value="Cash">Cash</option>
                   <option value="Bank Transfer">Bank Transfer</option>
@@ -1536,12 +1536,12 @@ export default function DashboardUI({ user }) {
                 type="text"
                 value={feeForm.note}
                 onChange={(e) => setFeeForm({ ...feeForm, note: e.target.value })}
-                className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-zinc-600 focus:outline-none"
               />
             </div>
             <DialogFooter className="pt-2">
               <Button type="button" variant="ghost" onClick={() => setIsFeeModalOpen(false)} className="text-zinc-600 dark:text-zinc-400">Cancel</Button>
-              <Button type="submit" className="bg-[#009966] hover:bg-[#007a52] text-white font-bold">Record Payment</Button>
+              <Button type="submit" className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold">Record Payment</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -1549,10 +1549,10 @@ export default function DashboardUI({ user }) {
 
       {/* MODAL 3: MARK ATTENDANCE */}
       <Dialog open={isAttendanceModalOpen} onOpenChange={setIsAttendanceModalOpen}>
-        <DialogContent className="bg-white dark:bg-zinc-900 border border-emerald-200/80 dark:border-zinc-800 shadow-xs text-zinc-100 sm:max-w-md">
+        <DialogContent className="bg-white dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800 shadow-xs text-zinc-100 sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-              <CheckSquare className="h-5 w-5 text-emerald-500" />
+              <CheckSquare className="h-5 w-5 text-zinc-600" />
               Quick Mark Attendance
             </DialogTitle>
           </DialogHeader>
@@ -1562,7 +1562,7 @@ export default function DashboardUI({ user }) {
               <select
                 value={attendanceForm.userType}
                 onChange={(e) => setAttendanceForm({ ...attendanceForm, userType: e.target.value })}
-                className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-zinc-600 focus:outline-none"
               >
                 <option value="Student">Students</option>
                 <option value="Staff">Staff</option>
@@ -1577,7 +1577,7 @@ export default function DashboardUI({ user }) {
                   min="1"
                   value={attendanceForm.count}
                   onChange={(e) => setAttendanceForm({ ...attendanceForm, count: e.target.value })}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-zinc-600 focus:outline-none"
                 />
               </div>
               <div>
@@ -1585,7 +1585,7 @@ export default function DashboardUI({ user }) {
                 <select
                   value={attendanceForm.status}
                   onChange={(e) => setAttendanceForm({ ...attendanceForm, status: e.target.value })}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-zinc-600 focus:outline-none"
                 >
                   <option value="Present">Present</option>
                   <option value="Late">Late</option>
@@ -1595,7 +1595,7 @@ export default function DashboardUI({ user }) {
             </div>
             <DialogFooter className="pt-2">
               <Button type="button" variant="ghost" onClick={() => setIsAttendanceModalOpen(false)} className="text-zinc-600 dark:text-zinc-400">Cancel</Button>
-              <Button type="submit" className="bg-[#009966] hover:bg-[#007a52] text-white font-bold">Submit Attendance</Button>
+              <Button type="submit" className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold">Submit Attendance</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -1603,7 +1603,7 @@ export default function DashboardUI({ user }) {
 
       {/* MODAL 4: ADD EXPENSE */}
       <Dialog open={isExpenseModalOpen} onOpenChange={setIsExpenseModalOpen}>
-        <DialogContent className="bg-white dark:bg-zinc-900 border border-emerald-200/80 dark:border-zinc-800 shadow-xs text-zinc-100 sm:max-w-md">
+        <DialogContent className="bg-white dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800 shadow-xs text-zinc-100 sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
               <Receipt className="h-5 w-5 text-rose-500" />
@@ -1619,7 +1619,7 @@ export default function DashboardUI({ user }) {
                 placeholder="e.g. Science Lab Equipment"
                 value={expenseForm.title}
                 onChange={(e) => setExpenseForm({ ...expenseForm, title: e.target.value })}
-                className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-zinc-600 focus:outline-none"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -1631,7 +1631,7 @@ export default function DashboardUI({ user }) {
                   placeholder="e.g. 450"
                   value={expenseForm.amount}
                   onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-zinc-600 focus:outline-none"
                 />
               </div>
               <div>
@@ -1639,7 +1639,7 @@ export default function DashboardUI({ user }) {
                 <select
                   value={expenseForm.category}
                   onChange={(e) => setExpenseForm({ ...expenseForm, category: e.target.value })}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:border-zinc-600 focus:outline-none"
                 >
                   <option value="Utilities">Utilities</option>
                   <option value="Salaries">Salaries</option>
@@ -1659,10 +1659,10 @@ export default function DashboardUI({ user }) {
 
       {/* MODAL 5: ADD / EDIT NOTICE */}
       <Dialog open={isNoticeModalOpen} onOpenChange={setIsNoticeModalOpen}>
-        <DialogContent className="bg-white dark:bg-zinc-900 border border-emerald-200/80 dark:border-zinc-800 shadow-xs text-zinc-100 sm:max-w-lg">
+        <DialogContent className="bg-white dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800 shadow-xs text-zinc-100 sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-              <Bell className="h-5 w-5 text-emerald-500" />
+              <Bell className="h-5 w-5 text-zinc-600" />
               {editingNotice ? 'Edit Notice' : 'Publish New Notice'}
             </DialogTitle>
           </DialogHeader>
@@ -1675,7 +1675,7 @@ export default function DashboardUI({ user }) {
                 placeholder="e.g. Annual Sports Gala 2026"
                 value={noticeForm.title}
                 onChange={(e) => setNoticeForm({ ...noticeForm, title: e.target.value })}
-                className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-emerald-500"
+                className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-zinc-600"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -1684,7 +1684,7 @@ export default function DashboardUI({ user }) {
                 <select
                   value={noticeForm.audience}
                   onChange={(e) => setNoticeForm({ ...noticeForm, audience: e.target.value })}
-                  className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-zinc-600"
                 >
                   <option value="All">All Audiences</option>
                   <option value="Students">Students Only</option>
@@ -1699,7 +1699,7 @@ export default function DashboardUI({ user }) {
                   type="date"
                   value={noticeForm.date}
                   onChange={(e) => setNoticeForm({ ...noticeForm, date: e.target.value })}
-                  className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-zinc-600"
                 />
               </div>
             </div>
@@ -1710,12 +1710,12 @@ export default function DashboardUI({ user }) {
                 placeholder="Enter complete notice details, instructions, or timetable..."
                 value={noticeForm.description}
                 onChange={(e) => setNoticeForm({ ...noticeForm, description: e.target.value })}
-                className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg p-3 text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-emerald-500 resize-none"
+                className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg p-3 text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-zinc-600 resize-none"
               />
             </div>
             <DialogFooter className="pt-2">
               <Button type="button" variant="ghost" onClick={() => setIsNoticeModalOpen(false)} className="text-zinc-600 dark:text-zinc-400">Cancel</Button>
-              <Button type="submit" className="bg-[#009966] hover:bg-[#007a52] text-white font-bold flex items-center gap-1.5">
+              <Button type="submit" className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold flex items-center gap-1.5">
                 <Send className="h-4 w-4" />
                 {editingNotice ? 'Update Notice' : 'Publish Notice'}
               </Button>
@@ -1726,21 +1726,21 @@ export default function DashboardUI({ user }) {
 
       {/* MODAL 6: VIEW NOTICE DETAILS */}
       <Dialog open={isViewNoticeModalOpen} onOpenChange={setIsViewNoticeModalOpen}>
-        <DialogContent className="bg-white dark:bg-zinc-900 border border-emerald-200/80 dark:border-zinc-800 shadow-xs text-zinc-100 sm:max-w-md">
+        <DialogContent className="bg-white dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800 shadow-xs text-zinc-100 sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-base font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
-              <Bell className="h-4 w-4 text-emerald-500" />
+            <DialogTitle className="text-base font-bold text-zinc-800 dark:text-emerald-400 flex items-center gap-2">
+              <Bell className="h-4 w-4 text-zinc-600" />
               Notice Details
             </DialogTitle>
           </DialogHeader>
           {selectedNotice && (
             <div className="space-y-4 py-2">
-              <div className="border-b border-emerald-100 dark:border-zinc-800 pb-3">
+              <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
                 <h3 className="text-lg font-bold text-zinc-900 dark:text-white leading-snug">
                   {selectedNotice.title}
                 </h3>
                 <div className="flex items-center gap-3 text-xs text-zinc-600 dark:text-zinc-400 mt-2">
-                  <span className="bg-emerald-950/60 border border-emerald-800/60 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded text-[10px] font-semibold uppercase">
+                  <span className="bg-emerald-950/60 border border-zinc-900/60 text-zinc-800 dark:text-emerald-400 px-2 py-0.5 rounded text-[10px] font-semibold uppercase">
                     {selectedNotice.audience || 'All'}
                   </span>
                   <span>{new Date(selectedNotice.date || selectedNotice.createdAt || Date.now()).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
@@ -1750,7 +1750,7 @@ export default function DashboardUI({ user }) {
                 {selectedNotice.description || 'No additional description provided.'}
               </div>
               <div className="flex justify-end pt-2">
-                <Button onClick={() => setIsViewNoticeModalOpen(false)} className="bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-[#009966] dark:text-zinc-200 font-bold text-xs">
+                <Button onClick={() => setIsViewNoticeModalOpen(false)} className="bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-950 dark:text-zinc-200 font-bold text-xs">
                   Close
                 </Button>
               </div>

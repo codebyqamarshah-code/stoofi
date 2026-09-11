@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 
@@ -147,11 +147,11 @@ export default function AdmissionQueryPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Admission Query</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/admin/admission-query" className="hover:text-emerald-400 transition-colors">Admin Section</Link>
+          <Link href="/dashboard/admin/admission-query" className="hover:text-zinc-500 transition-colors">Admin Section</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Admission Query</span>
+          <span className="text-zinc-600">Admission Query</span>
         </div>
       </div>
 
@@ -165,15 +165,15 @@ export default function AdmissionQueryPage() {
           <form className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" onSubmit={handleSave}>
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Name <span className="text-rose-500">*</span></Label>
-              <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Name" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" required />
+              <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Name" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" required />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Phone</Label>
-              <Input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="Phone" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+              <Input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="Phone" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Source</Label>
-              <select value={formData.source} onChange={e => setFormData({...formData, source: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white">
+              <select value={formData.source} onChange={e => setFormData({...formData, source: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white">
                 <option value="">Select Source</option>
                 <option value="Front Office">Front Office</option>
                 <option value="Advertisement">Advertisement</option>
@@ -182,7 +182,7 @@ export default function AdmissionQueryPage() {
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Status</Label>
-              <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white">
+              <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white">
                 <option value="Active">Active</option>
                 <option value="Passive">Passive</option>
                 <option value="Dead">Dead</option>
@@ -192,18 +192,18 @@ export default function AdmissionQueryPage() {
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Query Date</Label>
-              <Input type="date" value={formData.queryDate} onChange={e => setFormData({...formData, queryDate: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 [color-scheme:dark]" />
+              <Input type="date" value={formData.queryDate} onChange={e => setFormData({...formData, queryDate: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 [color-scheme:dark]" />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Last Follow Up Date</Label>
-              <Input type="date" value={formData.lastFollowUpDate} onChange={e => setFormData({...formData, lastFollowUpDate: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 [color-scheme:dark]" />
+              <Input type="date" value={formData.lastFollowUpDate} onChange={e => setFormData({...formData, lastFollowUpDate: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 [color-scheme:dark]" />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Next Follow Up Date</Label>
-              <Input type="date" value={formData.nextFollowUpDate} onChange={e => setFormData({...formData, nextFollowUpDate: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 [color-scheme:dark]" />
+              <Input type="date" value={formData.nextFollowUpDate} onChange={e => setFormData({...formData, nextFollowUpDate: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 [color-scheme:dark]" />
             </div>
             <div className="lg:col-span-4 flex justify-end mt-2">
-              <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+              <Button type="submit" className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                 {editingId ? 'UPDATE' : 'SAVE'} QUERY
               </Button>
             </div>
@@ -215,7 +215,7 @@ export default function AdmissionQueryPage() {
         <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-white">Select Criteria</h2>
-            <Button onClick={() => setShowForm(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold h-8 px-4 text-xs">
+            <Button onClick={() => setShowForm(true)} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold h-8 px-4 text-xs">
               <Plus className="h-3.5 w-3.5 mr-1" /> ADD
             </Button>
           </div>
@@ -223,15 +223,15 @@ export default function AdmissionQueryPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Date From</Label>
-              <Input type="date" value={filters.dateFrom} onChange={e => setFilters({...filters, dateFrom: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 [color-scheme:dark]" />
+              <Input type="date" value={filters.dateFrom} onChange={e => setFilters({...filters, dateFrom: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 [color-scheme:dark]" />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Date To</Label>
-              <Input type="date" value={filters.dateTo} onChange={e => setFilters({...filters, dateTo: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 [color-scheme:dark]" />
+              <Input type="date" value={filters.dateTo} onChange={e => setFilters({...filters, dateTo: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 [color-scheme:dark]" />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Source</Label>
-              <select value={filters.source} onChange={e => setFilters({...filters, source: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white">
+              <select value={filters.source} onChange={e => setFilters({...filters, source: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white">
                 <option value="">Select Source</option>
                 <option value="Front Office">Front Office</option>
                 <option value="Advertisement">Advertisement</option>
@@ -240,7 +240,7 @@ export default function AdmissionQueryPage() {
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Status</Label>
-              <select value={filters.status} onChange={e => setFilters({...filters, status: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white">
+              <select value={filters.status} onChange={e => setFilters({...filters, status: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white">
                 <option value="">Select Status</option>
                 <option value="Active">Active</option>
                 <option value="Passive">Passive</option>
@@ -252,7 +252,7 @@ export default function AdmissionQueryPage() {
           </div>
           
           <div className="flex justify-end mt-4">
-            <Button onClick={handleCriteriaSearch} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+            <Button onClick={handleCriteriaSearch} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
               <Search className="h-4 w-4 mr-2" /> SEARCH
             </Button>
           </div>
@@ -269,7 +269,7 @@ export default function AdmissionQueryPage() {
               <Input 
                 value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Quick Search" 
-                className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500"
+                className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600"
               />
             </div>
             
@@ -306,7 +306,7 @@ export default function AdmissionQueryPage() {
                     <td className="px-4 py-3 text-zinc-300">{q.phone || '-'}</td>
                     <td className="px-4 py-3 text-zinc-300">{q.source || '-'}</td>
                     <td className="px-4 py-3 text-zinc-300">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${q.status === 'Active' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : q.status === 'Won' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border border-rose-500/20'}`}>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${q.status === 'Active' ? 'bg-zinc-600/10 text-zinc-600 border border-zinc-600/20' : q.status === 'Won' ? 'bg-zinc-600/10 text-zinc-600 border border-zinc-600/20' : 'bg-rose-500/10 text-rose-500 border border-rose-500/20'}`}>
                         {q.status}
                       </span>
                     </td>
@@ -314,7 +314,7 @@ export default function AdmissionQueryPage() {
                     <td className="px-4 py-3 text-zinc-300">{q.lastFollowUpDate ? q.lastFollowUpDate.substring(0, 10) : '-'}</td>
                     <td className="px-4 py-3 text-zinc-300">{q.nextFollowUpDate ? q.nextFollowUpDate.substring(0, 10) : '-'}</td>
                     <td className="px-4 py-3 text-right space-x-2">
-                      <Button onClick={() => handleEdit(q)} variant="outline" size="sm" className="h-7 text-xs text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10 px-2"><Edit className="h-3 w-3" /></Button>
+                      <Button onClick={() => handleEdit(q)} variant="outline" size="sm" className="h-7 text-xs text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10 px-2"><Edit className="h-3 w-3" /></Button>
                       <Button onClick={() => handleDelete(q._id)} variant="outline" size="sm" className="h-7 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10 px-2"><Trash2 className="h-3 w-3" /></Button>
                     </td>
                   </tr>

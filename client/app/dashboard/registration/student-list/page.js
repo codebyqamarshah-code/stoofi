@@ -26,18 +26,18 @@ export default function RegistrationStudentListPage() {
         <h2 className="text-lg font-semibold text-[#1f2937] mb-6">Select Criteria</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-          <select value={academicYear} onChange={e => setAcademicYear(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-emerald-500">
+          <select value={academicYear} onChange={e => setAcademicYear(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-zinc-600">
             <option value="">Select Academic Year</option>
             <option value="2026-2027">2026-2027</option>
             <option value="2025-2026">2025-2026</option>
           </select>
-          <select value={classVal} onChange={e => setClassVal(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-emerald-500">
+          <select value={classVal} onChange={e => setClassVal(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-zinc-600">
             <option value="">Select Class</option>
             {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels'].map(c => (
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
-          <select value={section} onChange={e => setSection(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-emerald-500">
+          <select value={section} onChange={e => setSection(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-zinc-600">
             <option value="">Select Section</option>
             {['A', 'B', 'C', 'D'].map(s => (
               <option key={s} value={s}>Section {s}</option>

@@ -44,7 +44,7 @@ export default function GeneralSettingsPage() {
                 <button className="flex-1 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-medium py-2 px-2 rounded text-sm transition-colors flex justify-center items-center gap-2">
                   <Upload size={16} /> UPLOAD
                 </button>
-                <button className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-2 rounded text-sm transition-colors">
+                <button className="flex-1 bg-zinc-800 hover:bg-zinc-800 text-white font-medium py-2 px-2 rounded text-sm transition-colors">
                   CHANGE
                 </button>
               </div>
@@ -64,7 +64,7 @@ export default function GeneralSettingsPage() {
                 <button className="flex-1 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-medium py-2 px-2 rounded text-sm transition-colors flex justify-center items-center gap-2">
                   <Upload size={16} /> UPLOAD
                 </button>
-                <button className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-2 rounded text-sm transition-colors">
+                <button className="flex-1 bg-zinc-800 hover:bg-zinc-800 text-white font-medium py-2 px-2 rounded text-sm transition-colors">
                   CHANGE
                 </button>
               </div>
@@ -79,7 +79,7 @@ export default function GeneralSettingsPage() {
               <h2 className="text-lg font-medium text-white">General Settings View</h2>
               <button 
                 onClick={() => setIsEditing(!isEditing)}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-1 px-4 rounded transition-colors text-sm"
+                className="bg-zinc-800 hover:bg-zinc-800 text-white font-medium py-1 px-4 rounded transition-colors text-sm"
               >
                 {isEditing ? 'CANCEL' : 'EDIT'}
               </button>
@@ -98,7 +98,7 @@ export default function GeneralSettingsPage() {
                             type="text"
                             value={value}
                             onChange={(e) => handleSettingChange(key, e.target.value)}
-                            className="w-full bg-zinc-950 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                            className="w-full bg-zinc-950 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600 focus:border-zinc-600"
                           />
                         ) : (
                           <span className="text-sm text-zinc-300">{value}</span>
@@ -112,7 +112,7 @@ export default function GeneralSettingsPage() {
                 <div className="p-4 border-t border-zinc-800 flex justify-end bg-zinc-950">
                   <button 
                     onClick={() => setIsEditing(false)}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-6 rounded transition-colors"
+                    className="bg-zinc-800 hover:bg-zinc-800 text-white font-medium py-2 px-6 rounded transition-colors"
                   >
                     SAVE CHANGES
                   </button>

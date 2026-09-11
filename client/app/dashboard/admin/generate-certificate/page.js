@@ -39,11 +39,11 @@ export default function GenerateCertificatePage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Generate Certificate</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/admin/admission-query" className="hover:text-emerald-400 transition-colors">Admin Section</Link>
+          <Link href="/dashboard/admin/admission-query" className="hover:text-zinc-500 transition-colors">Admin Section</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Generate Certificate</span>
+          <span className="text-zinc-600">Generate Certificate</span>
         </div>
       </div>
 
@@ -56,7 +56,7 @@ export default function GenerateCertificatePage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Class <span className="text-rose-500">*</span></Label>
-              <select value={formData.class} onChange={e => setFormData({...formData, class: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white" required>
+              <select value={formData.class} onChange={e => setFormData({...formData, class: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white" required>
                 <option value="">Select Class *</option>
                 <option value="Class 1">Class 1</option>
                 <option value="Class 2">Class 2</option>
@@ -66,7 +66,7 @@ export default function GenerateCertificatePage() {
             
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Section</Label>
-              <select value={formData.section} onChange={e => setFormData({...formData, section: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white">
+              <select value={formData.section} onChange={e => setFormData({...formData, section: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white">
                 <option value="">Select Section</option>
                 <option value="A">A</option>
                 <option value="B">B</option>
@@ -76,7 +76,7 @@ export default function GenerateCertificatePage() {
             
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Certificate <span className="text-rose-500">*</span></Label>
-              <select value={formData.certificate} onChange={e => setFormData({...formData, certificate: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white" required>
+              <select value={formData.certificate} onChange={e => setFormData({...formData, certificate: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white" required>
                 <option value="">Select Certificate *</option>
                 {availableCerts.map(c => (
                   <option key={c._id} value={c._id}>{c.title}</option>
@@ -86,7 +86,7 @@ export default function GenerateCertificatePage() {
           </div>
           
           <div className="flex justify-end mt-6">
-            <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+            <Button type="submit" className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
               <Search className="h-4 w-4 mr-2" /> SEARCH
             </Button>
           </div>

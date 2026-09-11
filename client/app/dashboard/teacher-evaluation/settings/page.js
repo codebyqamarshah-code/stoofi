@@ -60,7 +60,7 @@ export default function TeacherEvaluationSettingsPage() {
                                         value="Enable" 
                                         checked={evaluation === 'Enable'}
                                         onChange={(e) => setEvaluation(e.target.value)}
-                                        className="text-emerald-500 focus:ring-emerald-500 bg-zinc-800 border-zinc-700"
+                                        className="text-zinc-600 focus:ring-zinc-600 bg-zinc-800 border-zinc-700"
                                     />
                                     <span>Enable</span>
                                 </label>
@@ -71,7 +71,7 @@ export default function TeacherEvaluationSettingsPage() {
                                         value="Disable" 
                                         checked={evaluation === 'Disable'}
                                         onChange={(e) => setEvaluation(e.target.value)}
-                                        className="text-emerald-500 focus:ring-emerald-500 bg-zinc-800 border-zinc-700"
+                                        className="text-zinc-600 focus:ring-zinc-600 bg-zinc-800 border-zinc-700"
                                     />
                                     <span>Disable</span>
                                 </label>
@@ -88,7 +88,7 @@ export default function TeacherEvaluationSettingsPage() {
                                         value="Auto" 
                                         checked={evaluationApproval === 'Auto'}
                                         onChange={(e) => setEvaluationApproval(e.target.value)}
-                                        className="text-emerald-500 focus:ring-emerald-500 bg-zinc-800 border-zinc-700"
+                                        className="text-zinc-600 focus:ring-zinc-600 bg-zinc-800 border-zinc-700"
                                     />
                                     <span>Auto</span>
                                 </label>
@@ -99,7 +99,7 @@ export default function TeacherEvaluationSettingsPage() {
                                         value="Manual" 
                                         checked={evaluationApproval === 'Manual'}
                                         onChange={(e) => setEvaluationApproval(e.target.value)}
-                                        className="text-emerald-500 focus:ring-emerald-500 bg-zinc-800 border-zinc-700"
+                                        className="text-zinc-600 focus:ring-zinc-600 bg-zinc-800 border-zinc-700"
                                     />
                                     <span>Manual</span>
                                 </label>
@@ -110,7 +110,7 @@ export default function TeacherEvaluationSettingsPage() {
                     <div className="mt-8 flex justify-center">
                         <button 
                             onClick={() => handleSaveSettings('evaluation')}
-                            className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded transition-colors"
+                            className="px-6 py-2 bg-zinc-800 hover:bg-zinc-800 text-white text-sm font-medium rounded transition-colors"
                         >
                             SAVE
                         </button>
@@ -132,7 +132,7 @@ export default function TeacherEvaluationSettingsPage() {
                                         value="Student" 
                                         checked={submittedBy === 'Student'}
                                         onChange={(e) => setSubmittedBy(e.target.value)}
-                                        className="text-emerald-500 focus:ring-emerald-500 bg-zinc-800 border-zinc-700"
+                                        className="text-zinc-600 focus:ring-zinc-600 bg-zinc-800 border-zinc-700"
                                     />
                                     <span>Student</span>
                                 </label>
@@ -143,7 +143,7 @@ export default function TeacherEvaluationSettingsPage() {
                                         value="Parent" 
                                         checked={submittedBy === 'Parent'}
                                         onChange={(e) => setSubmittedBy(e.target.value)}
-                                        className="text-emerald-500 focus:ring-emerald-500 bg-zinc-800 border-zinc-700"
+                                        className="text-zinc-600 focus:ring-zinc-600 bg-zinc-800 border-zinc-700"
                                     />
                                     <span>Parent</span>
                                 </label>
@@ -160,7 +160,7 @@ export default function TeacherEvaluationSettingsPage() {
                                         value="Any Time" 
                                         checked={submissionTime === 'Any Time'}
                                         onChange={(e) => setSubmissionTime(e.target.value)}
-                                        className="text-emerald-500 focus:ring-emerald-500 bg-zinc-800 border-zinc-700"
+                                        className="text-zinc-600 focus:ring-zinc-600 bg-zinc-800 border-zinc-700"
                                     />
                                     <span>Any Time</span>
                                 </label>
@@ -171,7 +171,7 @@ export default function TeacherEvaluationSettingsPage() {
                                         value="Fixed Time" 
                                         checked={submissionTime === 'Fixed Time'}
                                         onChange={(e) => setSubmissionTime(e.target.value)}
-                                        className="text-emerald-500 focus:ring-emerald-500 bg-zinc-800 border-zinc-700"
+                                        className="text-zinc-600 focus:ring-zinc-600 bg-zinc-800 border-zinc-700"
                                     />
                                     <span>Fixed Time</span>
                                 </label>
@@ -182,7 +182,7 @@ export default function TeacherEvaluationSettingsPage() {
                     <div className="mt-8 flex justify-center">
                         <button 
                             onClick={() => handleSaveSettings('submission')}
-                            className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded transition-colors"
+                            className="px-6 py-2 bg-zinc-800 hover:bg-zinc-800 text-white text-sm font-medium rounded transition-colors"
                         >
                             SAVE
                         </button>

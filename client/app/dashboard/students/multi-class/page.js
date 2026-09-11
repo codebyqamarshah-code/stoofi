@@ -25,18 +25,18 @@ export default function MultiClassStudentPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Multi Class Student</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/students" className="hover:text-emerald-400 transition-colors">Student Info</Link>
+          <Link href="/dashboard/students" className="hover:text-zinc-500 transition-colors">Student Info</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Multi Class Student</span>
+          <span className="text-zinc-600">Multi Class Student</span>
         </div>
       </div>
 
       <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
         <div className="p-4 border-b border-zinc-800 flex flex-col sm:flex-row justify-between items-center gap-4">
           <h2 className="text-lg font-semibold text-white">Select Criteria</h2>
-          <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2">
+          <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2">
             <Plus className="h-4 w-4" /> DELETE STUDENT RECORD
           </Button>
         </div>
@@ -46,7 +46,7 @@ export default function MultiClassStudentPage() {
             <select 
               value={formData.academicYear}
               onChange={(e) => setFormData({...formData, academicYear: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
             >
               <option value="2026[Jan-Dec]">2026[Jan-Dec]</option>
               <option value="2025[Jan-Dec]">2025[Jan-Dec]</option>
@@ -58,7 +58,7 @@ export default function MultiClassStudentPage() {
             <select 
               value={formData.class}
               onChange={(e) => setFormData({...formData, class: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
             >
               <option value="">Select Class</option>
               {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
@@ -71,7 +71,7 @@ export default function MultiClassStudentPage() {
             <select 
               value={formData.section}
               onChange={(e) => setFormData({...formData, section: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
             >
               <option value="">Select Section</option>
               {['A', 'B', 'C', 'D'].map(s => (
@@ -84,7 +84,7 @@ export default function MultiClassStudentPage() {
             <select 
               value={formData.student}
               onChange={(e) => setFormData({...formData, student: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
             >
               <option value="">Select Student</option>
               <option value="Muhammad Rayyan">Muhammad Rayyan (Roll 101)</option>
@@ -97,7 +97,7 @@ export default function MultiClassStudentPage() {
           </div>
           
           <div className="xl:col-span-4 flex items-end justify-end pt-2">
-            <Button onClick={handleSearch} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2">
+            <Button onClick={handleSearch} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2">
               <Search className="h-4 w-4" /> SEARCH
             </Button>
           </div>

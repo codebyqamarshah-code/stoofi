@@ -34,7 +34,7 @@ export default function StudentRegistrationFields() {
               <label className="block text-sm text-zinc-400 mb-1">LABEL *</label>
               <input 
                 type="text" 
-                className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                 value={formData.label}
                 onChange={(e) => setFormData({...formData, label: e.target.value})}
               />
@@ -42,7 +42,7 @@ export default function StudentRegistrationFields() {
             <div>
               <label className="block text-sm text-zinc-400 mb-1">TYPE *</label>
               <select 
-                className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                 value={formData.type}
                 onChange={(e) => setFormData({...formData, type: e.target.value})}
               >
@@ -57,7 +57,7 @@ export default function StudentRegistrationFields() {
               <label className="flex items-center gap-2 cursor-pointer">
                 <input 
                   type="checkbox" 
-                  className="w-4 h-4 rounded border-zinc-800 bg-zinc-900 text-emerald-600 focus:ring-emerald-500"
+                  className="w-4 h-4 rounded border-zinc-800 bg-zinc-900 text-zinc-800 focus:ring-zinc-600"
                   checked={formData.required}
                   onChange={(e) => setFormData({...formData, required: e.target.checked})}
                 />
@@ -66,7 +66,7 @@ export default function StudentRegistrationFields() {
               <label className="flex items-center gap-2 cursor-pointer">
                 <input 
                   type="checkbox" 
-                  className="w-4 h-4 rounded border-zinc-800 bg-zinc-900 text-emerald-600 focus:ring-emerald-500"
+                  className="w-4 h-4 rounded border-zinc-800 bg-zinc-900 text-zinc-800 focus:ring-zinc-600"
                   checked={formData.onlineReg}
                   onChange={(e) => setFormData({...formData, onlineReg: e.target.checked})}
                 />
@@ -76,7 +76,7 @@ export default function StudentRegistrationFields() {
             <div className="flex justify-end pt-4">
               <button 
                 onClick={handleSave}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded transition-colors text-sm font-medium"
+                className="bg-zinc-800 hover:bg-zinc-800 text-white px-6 py-2 rounded transition-colors text-sm font-medium"
               >
                 SAVE
               </button>
@@ -92,7 +92,7 @@ export default function StudentRegistrationFields() {
               <input 
                 type="text" 
                 placeholder="Search..." 
-                className="w-full pl-9 pr-4 py-2 bg-zinc-900 border border-zinc-800 rounded text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full pl-9 pr-4 py-2 bg-zinc-900 border border-zinc-800 rounded text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -139,7 +139,7 @@ export default function StudentRegistrationFields() {
                       <td className="px-4 py-3">{field.value || '-'}</td>
                       <td className="px-4 py-3">{field.onlineReg ? 'Yes' : 'No'}</td>
                       <td className="px-4 py-3 text-right space-x-2">
-                        <button className="text-emerald-500 hover:text-emerald-400 p-1 transition-colors">
+                        <button className="text-zinc-600 hover:text-zinc-500 p-1 transition-colors">
                           <Edit className="w-4 h-4" />
                         </button>
                         <button onClick={() => handleDelete(field.id)} className="text-rose-500 hover:text-rose-400 p-1 transition-colors">

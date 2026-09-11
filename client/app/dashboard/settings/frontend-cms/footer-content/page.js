@@ -31,7 +31,7 @@ export default function FooterContentPage() {
         <ChevronRight className="w-3 h-3" />
         <span>Frontend CMS</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">Footer Content</span>
+        <span className="text-zinc-500">Footer Content</span>
       </div>
 
       <h1 className="text-xl font-bold text-white">Footer Content</h1>
@@ -45,7 +45,7 @@ export default function FooterContentPage() {
             <button
               type="button"
               onClick={() => setShowNewsletter(!showNewsletter)}
-              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer ${showNewsletter ? 'bg-emerald-600' : 'bg-zinc-700'}`}
+              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer ${showNewsletter ? 'bg-zinc-800' : 'bg-zinc-700'}`}
             >
               <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${showNewsletter ? 'translate-x-4' : 'translate-x-1'}`} />
             </button>
@@ -58,7 +58,7 @@ export default function FooterContentPage() {
             rows={3}
             value={about}
             onChange={e => setAbout(e.target.value)}
-            className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+            className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600 resize-none"
           />
         </div>
 
@@ -70,7 +70,7 @@ export default function FooterContentPage() {
               type="text"
               value={copyright}
               onChange={e => setCopyright(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
             />
           </div>
         </div>
@@ -84,7 +84,7 @@ export default function FooterContentPage() {
                 type="text"
                 value={address}
                 onChange={e => setAddress(e.target.value)}
-                className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
               />
             </div>
           </div>
@@ -97,7 +97,7 @@ export default function FooterContentPage() {
                 type="text"
                 value={phone}
                 onChange={e => setPhone(e.target.value)}
-                className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
               />
             </div>
           </div>
@@ -110,7 +110,7 @@ export default function FooterContentPage() {
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
               />
             </div>
           </div>
@@ -120,12 +120,12 @@ export default function FooterContentPage() {
           <button
             type="button"
             onClick={handleSave}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-6 py-2.5 rounded-lg flex items-center gap-2 cursor-pointer shadow-lg transition-colors"
+            className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold text-sm px-6 py-2.5 rounded-lg flex items-center gap-2 cursor-pointer shadow-lg transition-colors"
           >
             ✓ UPDATE
           </button>
           {saved && (
-            <span className="text-xs text-emerald-400 flex items-center gap-1 font-medium">
+            <span className="text-xs text-zinc-500 flex items-center gap-1 font-medium">
               <Check className="w-3.5 h-3.5" /> Footer content updated successfully!
             </span>
           )}

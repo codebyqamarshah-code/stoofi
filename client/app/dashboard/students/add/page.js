@@ -210,18 +210,18 @@ export default function AddStudentPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Student Admission</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/students" className="hover:text-emerald-400 transition-colors">Student Info</Link>
+          <Link href="/dashboard/students" className="hover:text-zinc-500 transition-colors">Student Info</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Student Admission</span>
+          <span className="text-zinc-600">Student Admission</span>
         </div>
       </div>
 
       <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
         <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
           <h2 className="text-lg font-semibold text-white">Add Student</h2>
-          <Button type="button" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2 text-xs">
+          <Button type="button" className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2 text-xs">
             <Plus className="h-4 w-4" /> IMPORT STUDENT
           </Button>
         </div>
@@ -237,7 +237,7 @@ export default function AddStudentPage() {
                   onClick={() => setActiveTab(tab)}
                   className={`px-4 py-3 text-xs font-semibold transition-colors border-b-2 uppercase ${
                     activeTab === tab
-                      ? 'border-emerald-500 text-emerald-400 bg-emerald-950/20'
+                      ? 'border-zinc-600 text-zinc-500 bg-emerald-950/20'
                       : 'border-transparent text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50'
                   }`}
                 >
@@ -245,7 +245,7 @@ export default function AddStudentPage() {
                 </button>
               ))}
               <div className="absolute right-0 bottom-2 hidden sm:block">
-                <Button disabled={submitting} type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold h-8 text-xs">
+                <Button disabled={submitting} type="submit" className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold h-8 text-xs">
                   {submitting ? 'SAVING...' : 'SAVE STUDENT'}
                 </Button>
               </div>
@@ -291,17 +291,17 @@ export default function AddStudentPage() {
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold text-zinc-400 uppercase">Admission Number <span className="text-rose-500">*</span></Label>
-                        <Input name="admissionNo" value={formData.admissionNo} onChange={handleInputChange} placeholder="e.g. 142" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                        <Input name="admissionNo" value={formData.admissionNo} onChange={handleInputChange} placeholder="e.g. 142" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold text-zinc-400 uppercase">Admission Date</Label>
                         <div className="relative">
-                          <Input type="date" name="admissionDate" value={formData.admissionDate} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                          <Input type="date" name="admissionDate" value={formData.admissionDate} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                         </div>
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold text-zinc-400 uppercase">Roll</Label>
-                        <Input name="rollNo" value={formData.rollNo} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                        <Input name="rollNo" value={formData.rollNo} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                       </div>
                     </div>
                   </div>
@@ -312,7 +312,7 @@ export default function AddStudentPage() {
                     <div className="grid grid-cols-1 gap-4">
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold text-zinc-400 uppercase">Phone Number</Label>
-                        <Input name="phone" value={formData.phone} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                        <Input name="phone" value={formData.phone} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                       </div>
                     </div>
                   </div>
@@ -323,11 +323,11 @@ export default function AddStudentPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold text-zinc-400 uppercase">Current Address</Label>
-                        <textarea name="currentAddress" value={formData.currentAddress} onChange={handleInputChange} className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 resize-none"></textarea>
+                        <textarea name="currentAddress" value={formData.currentAddress} onChange={handleInputChange} className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 resize-none"></textarea>
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold text-zinc-400 uppercase">Permanent Address</Label>
-                        <textarea name="permanentAddress" value={formData.permanentAddress} onChange={handleInputChange} className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 resize-none"></textarea>
+                        <textarea name="permanentAddress" value={formData.permanentAddress} onChange={handleInputChange} className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 resize-none"></textarea>
                       </div>
                     </div>
                   </div>
@@ -341,11 +341,11 @@ export default function AddStudentPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold text-zinc-400 uppercase">First Name <span className="text-rose-500">*</span></Label>
-                        <Input name="firstName" value={formData.firstName} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                        <Input name="firstName" value={formData.firstName} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold text-zinc-400 uppercase">Last Name</Label>
-                        <Input name="lastName" value={formData.lastName} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                        <Input name="lastName" value={formData.lastName} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold text-zinc-400 uppercase">Gender <span className="text-rose-500">*</span></Label>
@@ -364,7 +364,7 @@ export default function AddStudentPage() {
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold text-zinc-400 uppercase">Date of Birth <span className="text-rose-500">*</span></Label>
                         <div className="relative">
-                          <Input type="date" name="dob" value={formData.dob} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                          <Input type="date" name="dob" value={formData.dob} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                         </div>
                       </div>
                       <div className="space-y-1.5">
@@ -384,7 +384,7 @@ export default function AddStudentPage() {
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold text-zinc-400 uppercase">Caste</Label>
-                        <Input name="caste" value={formData.caste} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                        <Input name="caste" value={formData.caste} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                       </div>
                       <div className="space-y-1.5 sm:col-span-2">
                         <Label className="text-xs font-semibold text-zinc-400 uppercase">Student Photo</Label>
@@ -392,7 +392,7 @@ export default function AddStudentPage() {
                           <div className="flex-1 bg-zinc-900 border border-zinc-800 rounded-l-md px-3 py-2 text-sm text-zinc-500 flex items-center">
                             Upload Photo
                           </div>
-                          <Button type="button" onClick={() => fileInputRef.current?.click()} className="rounded-l-none bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+                          <Button type="button" onClick={() => fileInputRef.current?.click()} className="rounded-l-none bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                             BROWSE
                           </Button>
                           <input type="file" ref={fileInputRef} className="hidden" />
@@ -411,15 +411,15 @@ export default function AddStudentPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">Father Name</Label>
-                      <Input name="fatherName" value={formData.fatherName} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                      <Input name="fatherName" value={formData.fatherName} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">Father Phone</Label>
-                      <Input name="fatherPhone" value={formData.fatherPhone} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                      <Input name="fatherPhone" value={formData.fatherPhone} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">Father Occupation</Label>
-                      <Input name="fatherOccupation" value={formData.fatherOccupation} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                      <Input name="fatherOccupation" value={formData.fatherOccupation} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                     </div>
                   </div>
                 </div>
@@ -429,15 +429,15 @@ export default function AddStudentPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">Mother Name</Label>
-                      <Input name="motherName" value={formData.motherName} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                      <Input name="motherName" value={formData.motherName} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">Mother Phone</Label>
-                      <Input name="motherPhone" value={formData.motherPhone} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                      <Input name="motherPhone" value={formData.motherPhone} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">Mother Occupation</Label>
-                      <Input name="motherOccupation" value={formData.motherOccupation} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                      <Input name="motherOccupation" value={formData.motherOccupation} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                     </div>
                   </div>
                 </div>
@@ -447,19 +447,19 @@ export default function AddStudentPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">Guardian Name</Label>
-                      <Input name="guardianName" value={formData.guardianName} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                      <Input name="guardianName" value={formData.guardianName} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">Relation</Label>
-                      <Input name="guardianRelation" value={formData.guardianRelation} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                      <Input name="guardianRelation" value={formData.guardianRelation} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">Guardian Phone</Label>
-                      <Input name="guardianPhone" value={formData.guardianPhone} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                      <Input name="guardianPhone" value={formData.guardianPhone} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                     </div>
                     <div className="space-y-1.5 sm:col-span-3">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">Guardian Address</Label>
-                      <textarea name="guardianAddress" value={formData.guardianAddress} onChange={handleInputChange} className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 resize-none"></textarea>
+                      <textarea name="guardianAddress" value={formData.guardianAddress} onChange={handleInputChange} className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 resize-none"></textarea>
                     </div>
                   </div>
                 </div>
@@ -482,11 +482,11 @@ export default function AddStudentPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">School Name</Label>
-                      <Input name="previousSchoolName" value={formData.previousSchoolName} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                      <Input name="previousSchoolName" value={formData.previousSchoolName} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">School Address</Label>
-                      <Input name="previousSchoolAddress" value={formData.previousSchoolAddress} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                      <Input name="previousSchoolAddress" value={formData.previousSchoolAddress} onChange={handleInputChange} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                     </div>
                   </div>
                 </div>
@@ -500,7 +500,7 @@ export default function AddStudentPage() {
                   <div className="grid grid-cols-1 gap-4">
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">Additional Notes</Label>
-                      <textarea name="otherInfo" value={formData.otherInfo} onChange={handleInputChange} className="flex min-h-[120px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 resize-none"></textarea>
+                      <textarea name="otherInfo" value={formData.otherInfo} onChange={handleInputChange} className="flex min-h-[120px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 resize-none"></textarea>
                     </div>
                   </div>
                 </div>
@@ -508,7 +508,7 @@ export default function AddStudentPage() {
             )}
 
             <div className="mt-8 flex justify-end sm:hidden">
-              <Button disabled={submitting} type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold w-full">
+              <Button disabled={submitting} type="submit" className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold w-full">
                 {submitting ? 'SAVING...' : 'SAVE STUDENT'}
               </Button>
             </div>

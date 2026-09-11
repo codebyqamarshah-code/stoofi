@@ -239,7 +239,7 @@ export default function StudentListPage() {
           <div className="bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-5 border-b border-zinc-800">
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Edit className="h-5 w-5 text-emerald-500" />
+                <Edit className="h-5 w-5 text-zinc-600" />
                 Edit Student
               </h2>
               <button onClick={closeEdit} className="text-zinc-400 hover:text-white transition-colors">
@@ -254,7 +254,7 @@ export default function StudentListPage() {
                     name="firstName"
                     value={editStudent.firstName || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
                     placeholder="First Name"
                     required
                   />
@@ -265,7 +265,7 @@ export default function StudentListPage() {
                     name="lastName"
                     value={editStudent.lastName || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
                     placeholder="Last Name"
                   />
                 </div>
@@ -275,7 +275,7 @@ export default function StudentListPage() {
                     name="fatherName"
                     value={editStudent.fatherName || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
                     placeholder="Father Name"
                   />
                 </div>
@@ -285,7 +285,7 @@ export default function StudentListPage() {
                     name="motherName"
                     value={editStudent.motherName || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
                     placeholder="Mother Name"
                   />
                 </div>
@@ -296,7 +296,7 @@ export default function StudentListPage() {
                     type="date"
                     value={editStudent.dob || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -305,7 +305,7 @@ export default function StudentListPage() {
                     name="gender"
                     value={editStudent.gender || ''}
                     onChange={handleEditChange}
-                    className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-zinc-600"
                   >
                     <option value="">Select Gender</option>
                     <option value="Male">Male</option>
@@ -319,7 +319,7 @@ export default function StudentListPage() {
                     name="phone"
                     value={editStudent.phone || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
                     placeholder="Phone Number"
                   />
                 </div>
@@ -330,7 +330,7 @@ export default function StudentListPage() {
                     type="email"
                     value={editStudent.email || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
                     placeholder="Email Address"
                   />
                 </div>
@@ -340,7 +340,7 @@ export default function StudentListPage() {
                     name="className"
                     value={editStudent.className || ''}
                     onChange={handleEditChange}
-                    className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-zinc-600"
                   >
                     <option value="">Select Class</option>
                     {classes.map(c => (
@@ -354,7 +354,7 @@ export default function StudentListPage() {
                     name="section"
                     value={editStudent.section || ''}
                     onChange={handleEditChange}
-                    className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-zinc-600"
                   >
                     <option value="">Select Section</option>
                     {(classes.find(c => c.name === (formData?.class || formData?.className || (typeof classVal !== 'undefined' ? classVal : '')))?.sections || []).map(s => <option key={s} value={s}>{s}</option>)}
@@ -366,7 +366,7 @@ export default function StudentListPage() {
                     name="rollNo"
                     value={editStudent.rollNo || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
                     placeholder="Roll Number"
                   />
                 </div>
@@ -376,7 +376,7 @@ export default function StudentListPage() {
                     name="admissionNo"
                     value={editStudent.admissionNo || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
                     placeholder="Admission Number"
                   />
                 </div>
@@ -386,7 +386,7 @@ export default function StudentListPage() {
                     name="address"
                     value={editStudent.address || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white"
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
                     placeholder="Address"
                   />
                 </div>
@@ -395,7 +395,7 @@ export default function StudentListPage() {
                 <Button type="button" variant="outline" onClick={closeEdit} className="border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800">
                   Cancel
                 </Button>
-                <Button type="submit" disabled={editLoading} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2">
+                <Button type="submit" disabled={editLoading} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2">
                   <Save className="h-4 w-4" />
                   {editLoading ? 'Saving...' : 'Save Changes'}
                 </Button>
@@ -408,11 +408,11 @@ export default function StudentListPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Manage Student</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/students" className="hover:text-emerald-400 transition-colors">Student Info</Link>
+          <Link href="/dashboard/students" className="hover:text-zinc-500 transition-colors">Student Info</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Student List</span>
+          <span className="text-zinc-600">Student List</span>
         </div>
       </div>
 
@@ -420,7 +420,7 @@ export default function StudentListPage() {
         <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
           <h2 className="text-lg font-semibold text-white">Select Criteria</h2>
           <Link href="/dashboard/students/add">
-            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2">
+            <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2">
               <Plus className="h-4 w-4" /> ADD STUDENT
             </Button>
           </Link>
@@ -462,7 +462,7 @@ export default function StudentListPage() {
               placeholder="Name" 
               value={nameFilter}
               onChange={(e) => setNameFilter(e.target.value)}
-              className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white" 
+              className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white" 
             />
           </div>
           <div className="space-y-1.5">
@@ -471,11 +471,11 @@ export default function StudentListPage() {
               placeholder="Roll or Admission No" 
               value={rollFilter}
               onChange={(e) => setRollFilter(e.target.value)}
-              className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white" 
+              className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white" 
             />
           </div>
           <div className="flex items-end justify-end">
-            <Button onClick={handleSearch} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2">
+            <Button onClick={handleSearch} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2">
               <Search className="h-4 w-4" /> SEARCH
             </Button>
           </div>
@@ -493,7 +493,7 @@ export default function StudentListPage() {
                 placeholder="QUICK SEARCH" 
                 value={quickSearch}
                 onChange={(e) => setQuickSearch(e.target.value)}
-                className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-xs font-semibold"
+                className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold"
               />
             </div>
             
@@ -501,7 +501,7 @@ export default function StudentListPage() {
               <Button onClick={() => exportToCSV(exportData, 'Student_List')} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:text-white" title="Download CSV">
                 <Download className="h-4 w-4" />
               </Button>
-              <Button onClick={() => exportToExcel(exportData, 'Student_List')} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:text-white text-emerald-500" title="Export Excel">
+              <Button onClick={() => exportToExcel(exportData, 'Student_List')} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:text-white text-zinc-600" title="Export Excel">
                 <FileText className="h-4 w-4" />
               </Button>
               <Button onClick={() => printData('Student List', exportData)} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:text-white text-rose-500" title="Print">
@@ -548,7 +548,7 @@ export default function StudentListPage() {
                             <div className="h-full w-full flex items-center justify-center text-xs text-zinc-500 uppercase">{student.firstName?.charAt(0)}</div>
                           )}
                         </div>
-                        <span className="font-medium text-emerald-500 hover:text-emerald-400 cursor-pointer">{student.firstName} {student.lastName}</span>
+                        <span className="font-medium text-zinc-600 hover:text-zinc-500 cursor-pointer">{student.firstName} {student.lastName}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-zinc-300">{student.fatherName || '-'}</td>
@@ -559,7 +559,7 @@ export default function StudentListPage() {
                     <td className="px-4 py-3 text-zinc-300">{student.phone || '-'}</td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button onClick={() => openEdit(student)} variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10" title="Edit Student">
+                        <Button onClick={() => openEdit(student)} variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-500 hover:bg-zinc-600/10" title="Edit Student">
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button onClick={() => handleDelete(student._id)} variant="ghost" size="icon" className="h-8 w-8 text-rose-500 hover:text-rose-400 hover:bg-rose-500/10" title="Delete Student">

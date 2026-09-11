@@ -68,11 +68,11 @@ export default function QuestionGroupPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Question Group</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Examinations</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Question Group</span>
+          <span className="text-zinc-600">Question Group</span>
         </div>
       </div>
 
@@ -87,7 +87,7 @@ export default function QuestionGroupPage() {
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Title <span className="text-rose-500">*</span></Label>
                 <Input 
                   value={title} onChange={(e) => setTitle(e.target.value)}
-                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
                 />
               </div>
               <Button disabled={submitting} type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold">
@@ -106,7 +106,7 @@ export default function QuestionGroupPage() {
                 <Input 
                   placeholder="SEARCH" 
                   value={search} onChange={(e) => setSearch(e.target.value)}
-                  className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500"
+                  className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-zinc-600"
                 />
               </div>
             </div>

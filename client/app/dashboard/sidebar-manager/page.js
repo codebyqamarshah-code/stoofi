@@ -419,26 +419,26 @@ export default function SidebarManagerPage() {
     <div className="space-y-6 max-w-7xl mx-auto pb-16">
       
       {/* Top Header & Role Selector Banner */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-emerald-950 border border-emerald-800 p-5 rounded-2xl shadow-xl">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-emerald-950 border border-zinc-900 p-5 rounded-2xl shadow-xl">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <div className="p-2 rounded-xl bg-zinc-600/10 text-zinc-500 border border-zinc-600/20">
               <Layers className="h-6 w-6" />
             </div>
             <div>
               <h1 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
-                Sidebar Manager <span className="text-[10px] font-bold uppercase bg-emerald-500 text-emerald-950 px-2 py-0.5 rounded-full">Live Builder</span>
+                Sidebar Manager <span className="text-[10px] font-bold uppercase bg-zinc-600 text-emerald-950 px-2 py-0.5 rounded-full">Live Builder</span>
               </h1>
-              <div className="flex items-center text-xs text-emerald-400 mt-0.5">
-                <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">
+              <div className="flex items-center text-xs text-zinc-500 mt-0.5">
+                <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">
                   Dashboard
                 </Link>
-                <ChevronRight className="h-3.5 w-3.5 mx-1 text-emerald-600" />
-                <Link href="/dashboard/settings/general" className="hover:text-emerald-400 transition-colors">
+                <ChevronRight className="h-3.5 w-3.5 mx-1 text-zinc-800" />
+                <Link href="/dashboard/settings/general" className="hover:text-zinc-500 transition-colors">
                   Settings
                 </Link>
-                <ChevronRight className="h-3.5 w-3.5 mx-1 text-emerald-600" />
-                <span className="text-emerald-400 font-semibold">Sidebar Manager</span>
+                <ChevronRight className="h-3.5 w-3.5 mx-1 text-zinc-800" />
+                <span className="text-zinc-500 font-semibold">Sidebar Manager</span>
               </div>
             </div>
           </div>
@@ -447,12 +447,12 @@ export default function SidebarManagerPage() {
         {/* Action Controls */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Role Switcher */}
-          <div className="flex items-center bg-emerald-900 border border-emerald-800 rounded-xl px-3 py-1.5 gap-2">
+          <div className="flex items-center bg-emerald-900 border border-zinc-900 rounded-xl px-3 py-1.5 gap-2">
             <span className="text-xs font-semibold text-zinc-400">Role:</span>
             <select
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
-              className="bg-transparent text-xs font-bold text-emerald-400 focus:outline-none cursor-pointer"
+              className="bg-transparent text-xs font-bold text-zinc-500 focus:outline-none cursor-pointer"
             >
               {ROLES.map(role => (
                 <option key={role} value={role} className="bg-zinc-900 text-white font-medium">
@@ -475,7 +475,7 @@ export default function SidebarManagerPage() {
           {/* Save changes button */}
           <Button 
             onClick={handleSaveLayout}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-9 shadow-lg shadow-emerald-950/50"
+            className="bg-zinc-800 hover:bg-zinc-800 text-white font-bold text-xs h-9 shadow-lg shadow-emerald-950/50"
           >
             <Save className="h-3.5 w-3.5 mr-1.5" /> Save & Update Sidebar
           </Button>
@@ -484,12 +484,12 @@ export default function SidebarManagerPage() {
 
       {/* Success Notification Alert */}
       {savedSuccess && (
-        <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-4 py-3 rounded-xl text-xs font-semibold animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between bg-zinc-600/10 border border-zinc-600/30 text-zinc-500 px-4 py-3 rounded-xl text-xs font-semibold animate-in fade-in zoom-in-95 duration-200">
           <div className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-emerald-400" />
+            <Check className="h-4 w-4 text-zinc-500" />
             <span>Sidebar layout saved successfully! The navigation has been updated live.</span>
           </div>
-          <span className="text-[10px] text-emerald-500 uppercase tracking-widest font-bold">SAVED</span>
+          <span className="text-[10px] text-zinc-600 uppercase tracking-widest font-bold">SAVED</span>
         </div>
       )}
 
@@ -500,20 +500,20 @@ export default function SidebarManagerPage() {
         <div className="lg:col-span-4 space-y-6">
           
           {/* Quick Filter Box */}
-          <div className="bg-emerald-950 border border-emerald-800 p-4 rounded-2xl shadow-md">
+          <div className="bg-emerald-950 border border-zinc-900 p-4 rounded-2xl shadow-md">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600" />
               <input
                 type="text"
                 placeholder="Search menus or sections..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-emerald-900 border border-emerald-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-emerald-500 focus:outline-none focus:border-emerald-500 transition-colors"
+                className="w-full bg-emerald-900 border border-zinc-900 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
               />
               {searchTerm && (
                 <button 
                   onClick={() => setSearchTerm('')} 
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500 hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-white"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -523,9 +523,9 @@ export default function SidebarManagerPage() {
             <div className="flex items-center justify-between mt-3 pt-3 border-t border-zinc-800/80 text-[11px] text-zinc-400">
               <span>{sections.length} Sections ({sections.reduce((acc, g) => acc + (g.items || []).length, 0)} Items)</span>
               <div className="flex gap-2">
-                <button onClick={() => toggleCollapseAll(false)} className="hover:text-emerald-400 transition-colors">Expand All</button>
+                <button onClick={() => toggleCollapseAll(false)} className="hover:text-zinc-500 transition-colors">Expand All</button>
                 <span>•</span>
-                <button onClick={() => toggleCollapseAll(true)} className="hover:text-emerald-400 transition-colors">Collapse All</button>
+                <button onClick={() => toggleCollapseAll(true)} className="hover:text-zinc-500 transition-colors">Collapse All</button>
               </div>
             </div>
           </div>
@@ -534,7 +534,7 @@ export default function SidebarManagerPage() {
           <div className="bg-zinc-950 border border-zinc-800 p-5 rounded-2xl shadow-lg space-y-4">
             <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
               <h2 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
-                <Plus className="h-4 w-4 text-emerald-500" /> Add New Section
+                <Plus className="h-4 w-4 text-zinc-600" /> Add New Section
               </h2>
             </div>
             
@@ -545,10 +545,10 @@ export default function SidebarManagerPage() {
                   placeholder="e.g. MARKETING / PAYMENTS"
                   value={newGroupTitle}
                   onChange={(e) => setNewGroupTitle(e.target.value)}
-                  className="bg-zinc-900 border-zinc-800 text-xs text-white h-9 rounded-lg focus-visible:ring-emerald-500"
+                  className="bg-zinc-900 border-zinc-800 text-xs text-white h-9 rounded-lg focus-visible:ring-zinc-600"
                 />
               </div>
-              <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs h-9 rounded-lg">
+              <Button type="submit" className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold text-xs h-9 rounded-lg">
                 <Plus className="h-3.5 w-3.5 mr-1" /> Create Section
               </Button>
             </form>
@@ -558,7 +558,7 @@ export default function SidebarManagerPage() {
           <div className="bg-zinc-950 border border-zinc-800 p-5 rounded-2xl shadow-lg space-y-4">
             <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
               <h2 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
-                <Plus className="h-4 w-4 text-emerald-500" /> Add Custom Menu Link
+                <Plus className="h-4 w-4 text-zinc-600" /> Add Custom Menu Link
               </h2>
             </div>
             
@@ -568,7 +568,7 @@ export default function SidebarManagerPage() {
                 <select
                   value={targetGroupId}
                   onChange={(e) => setTargetGroupId(e.target.value)}
-                  className="flex h-9 w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 text-xs text-white focus:outline-none focus:border-emerald-500"
+                  className="flex h-9 w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 text-xs text-white focus:outline-none focus:border-zinc-600"
                   required
                 >
                   <option value="">-- Select Section --</option>
@@ -586,7 +586,7 @@ export default function SidebarManagerPage() {
                   placeholder="e.g. Online Store"
                   value={newItemName}
                   onChange={(e) => setNewItemName(e.target.value)}
-                  className="bg-zinc-900 border-zinc-800 text-xs text-white h-9 rounded-lg focus-visible:ring-emerald-500"
+                  className="bg-zinc-900 border-zinc-800 text-xs text-white h-9 rounded-lg focus-visible:ring-zinc-600"
                   required
                 />
               </div>
@@ -597,7 +597,7 @@ export default function SidebarManagerPage() {
                   placeholder="e.g. /dashboard/store"
                   value={newItemHref}
                   onChange={(e) => setNewItemHref(e.target.value)}
-                  className="bg-zinc-900 border-zinc-800 text-xs text-white h-9 rounded-lg focus-visible:ring-emerald-500"
+                  className="bg-zinc-900 border-zinc-800 text-xs text-white h-9 rounded-lg focus-visible:ring-zinc-600"
                 />
               </div>
 
@@ -607,7 +607,7 @@ export default function SidebarManagerPage() {
                   <select
                     value={newItemIcon}
                     onChange={(e) => setNewItemIcon(e.target.value)}
-                    className="flex h-9 w-full rounded-lg border border-zinc-800 bg-zinc-900 px-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                    className="flex h-9 w-full rounded-lg border border-zinc-800 bg-zinc-900 px-2 text-xs text-white focus:outline-none focus:border-zinc-600"
                   >
                     {AVAILABLE_ICONS.map(iconName => (
                       <option key={iconName} value={iconName}>{iconName}</option>
@@ -621,20 +621,20 @@ export default function SidebarManagerPage() {
                     placeholder="e.g. NEW"
                     value={newItemBadge}
                     onChange={(e) => setNewItemBadge(e.target.value)}
-                    className="bg-zinc-900 border-zinc-800 text-xs text-white h-9 rounded-lg focus-visible:ring-emerald-500"
+                    className="bg-zinc-900 border-zinc-800 text-xs text-white h-9 rounded-lg focus-visible:ring-zinc-600"
                   />
                 </div>
               </div>
 
-              <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs h-9 rounded-lg mt-2">
+              <Button type="submit" className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold text-xs h-9 rounded-lg mt-2">
                 <Plus className="h-3.5 w-3.5 mr-1" /> Add Menu Item
               </Button>
             </form>
           </div>
 
           {/* Quick Tips */}
-          <div className="bg-emerald-950/10 border border-emerald-500/20 p-4 rounded-2xl">
-            <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs mb-1.5">
+          <div className="bg-emerald-950/10 border border-zinc-600/20 p-4 rounded-2xl">
+            <div className="flex items-center gap-2 text-zinc-500 font-bold text-xs mb-1.5">
               <Sparkles className="h-4 w-4" /> Drag & Drop Guide
             </div>
             <p className="text-[11px] text-zinc-400 leading-relaxed">
@@ -652,7 +652,7 @@ export default function SidebarManagerPage() {
           </div>
 
           {filteredSections.length === 0 ? (
-            <div className="bg-emerald-800 border border-emerald-800 rounded-2xl p-12 text-center text-emerald-500 space-y-2">
+            <div className="bg-zinc-900 border border-zinc-900 rounded-2xl p-12 text-center text-zinc-600 space-y-2">
               <Layers className="h-8 w-8 mx-auto text-zinc-600" />
               <p className="text-sm font-semibold text-zinc-400">No menus matched your search</p>
               <p className="text-xs">Try searching for another keyword or clear the search filter.</p>
@@ -675,7 +675,7 @@ export default function SidebarManagerPage() {
                   className={`
                     bg-zinc-950 border rounded-2xl overflow-hidden transition-all duration-200 shadow-md
                     ${isGroupHidden ? 'opacity-60 border-zinc-800/50' : 'border-zinc-800 hover:border-zinc-700'}
-                    ${isDragOver ? 'border-t-4 border-t-emerald-500 ring-2 ring-emerald-500/20' : ''}
+                    ${isDragOver ? 'border-t-4 border-t-zinc-600 ring-2 ring-zinc-600/20' : ''}
                     ${draggedGroupIndex === groupIdx ? 'opacity-40 scale-[0.99]' : ''}
                   `}
                 >
@@ -685,7 +685,7 @@ export default function SidebarManagerPage() {
                     {/* Left: Drag Handle & Title */}
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div 
-                        className="cursor-grab active:cursor-grabbing text-zinc-600 hover:text-emerald-400 transition-colors p-1"
+                        className="cursor-grab active:cursor-grabbing text-zinc-600 hover:text-zinc-500 transition-colors p-1"
                         title="Drag to reorder section"
                       >
                         <GripVertical size={16} />
@@ -697,12 +697,12 @@ export default function SidebarManagerPage() {
                             type="text"
                             value={editGroupTitle}
                             onChange={(e) => setEditGroupTitle(e.target.value)}
-                            className="bg-zinc-950 border border-emerald-500 rounded px-2.5 py-1 text-xs text-white font-bold focus:outline-none"
+                            className="bg-zinc-950 border border-zinc-600 rounded px-2.5 py-1 text-xs text-white font-bold focus:outline-none"
                             autoFocus
                           />
                           <button 
                             onClick={() => saveEditGroup(groupId)} 
-                            className="p-1 text-emerald-400 hover:text-emerald-300"
+                            className="p-1 text-zinc-500 hover:text-zinc-400"
                           >
                             <Check size={14} />
                           </button>
@@ -717,7 +717,7 @@ export default function SidebarManagerPage() {
                         <div className="flex items-center gap-2.5 truncate">
                           <button
                             onClick={() => toggleSectionCollapse(groupId)}
-                            className="flex items-center gap-2 text-left text-xs font-black tracking-wider text-white hover:text-emerald-400 transition-colors truncate"
+                            className="flex items-center gap-2 text-left text-xs font-black tracking-wider text-white hover:text-zinc-500 transition-colors truncate"
                           >
                             <span>{group.groupTitle}</span>
                             {isCollapsed ? (
@@ -750,7 +750,7 @@ export default function SidebarManagerPage() {
                         onClick={() => toggleGroupVisibility(groupId)}
                         className={`p-1.5 rounded-lg text-xs font-semibold transition-colors ${
                           !isGroupHidden 
-                            ? 'text-emerald-400 hover:bg-emerald-500/10' 
+                            ? 'text-zinc-500 hover:bg-zinc-600/10' 
                             : 'text-zinc-600 hover:bg-zinc-800'
                         }`}
                         title={isGroupHidden ? "Show Section" : "Hide Section"}
@@ -807,7 +807,7 @@ export default function SidebarManagerPage() {
                               className={`
                                 rounded-xl border transition-all duration-150
                                 ${isItemHidden ? 'bg-zinc-900/30 border-zinc-900 opacity-60' : 'bg-zinc-900 border-zinc-800 hover:border-zinc-700'}
-                                ${isItemDragOver ? 'border-t-2 border-t-emerald-500 ring-1 ring-emerald-500/30' : ''}
+                                ${isItemDragOver ? 'border-t-2 border-t-zinc-600 ring-1 ring-zinc-600/30' : ''}
                                 ${draggedItemInfo?.groupIdx === groupIdx && draggedItemInfo?.itemIdx === itemIdx ? 'opacity-30' : ''}
                               `}
                             >
@@ -817,7 +817,7 @@ export default function SidebarManagerPage() {
                                 {/* Left Drag & Details */}
                                 <div className="flex items-center gap-2.5 flex-1 min-w-0">
                                   <div 
-                                    className="cursor-grab active:cursor-grabbing text-zinc-600 hover:text-emerald-400 p-0.5"
+                                    className="cursor-grab active:cursor-grabbing text-zinc-600 hover:text-zinc-500 p-0.5"
                                     title="Drag to reorder"
                                   >
                                     <GripVertical size={14} />
@@ -833,7 +833,7 @@ export default function SidebarManagerPage() {
                                         type="text"
                                         value={editFormData.name}
                                         onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
-                                        className="bg-zinc-950 border border-emerald-500 rounded px-2 py-0.5 text-xs text-white font-medium focus:outline-none"
+                                        className="bg-zinc-950 border border-zinc-600 rounded px-2 py-0.5 text-xs text-white font-medium focus:outline-none"
                                         placeholder="Name"
                                       />
                                       <input
@@ -854,7 +854,7 @@ export default function SidebarManagerPage() {
                                       </select>
                                       <button 
                                         onClick={() => saveEditItem(groupId, itemId)} 
-                                        className="p-1 text-emerald-400 hover:text-emerald-300"
+                                        className="p-1 text-zinc-500 hover:text-zinc-400"
                                       >
                                         <Check size={14} />
                                       </button>
@@ -871,7 +871,7 @@ export default function SidebarManagerPage() {
                                         {item.name}
                                       </span>
                                       {item.badge && (
-                                        <span className="text-[9px] font-bold uppercase bg-emerald-500/10 text-emerald-400 px-1.5 py-0.2 rounded border border-emerald-500/20">
+                                        <span className="text-[9px] font-bold uppercase bg-zinc-600/10 text-zinc-500 px-1.5 py-0.2 rounded border border-zinc-600/20">
                                           {item.badge}
                                         </span>
                                       )}
@@ -899,7 +899,7 @@ export default function SidebarManagerPage() {
                                     onClick={() => toggleItemVisibility(groupId, itemId)}
                                     className={`p-1 transition-colors ${
                                       !isItemHidden 
-                                        ? 'text-emerald-400 hover:text-emerald-300' 
+                                        ? 'text-zinc-500 hover:text-zinc-400' 
                                         : 'text-zinc-600 hover:text-zinc-400'
                                     }`}
                                     title={isItemHidden ? "Show Menu" : "Hide Menu"}
@@ -931,7 +931,7 @@ export default function SidebarManagerPage() {
                                         className="flex items-center justify-between p-1.5 rounded-lg bg-zinc-950/60 border border-zinc-800/60 text-xs"
                                       >
                                         <div className="flex items-center gap-2 truncate">
-                                          <div className="h-1.5 w-1.5 rounded-full bg-emerald-500/80"></div>
+                                          <div className="h-1.5 w-1.5 rounded-full bg-zinc-600/80"></div>
                                           <span className={`${isSubHidden ? 'text-zinc-500 line-through' : 'text-zinc-300'} truncate text-[11px]`}>
                                             {sub.name}
                                           </span>
@@ -943,7 +943,7 @@ export default function SidebarManagerPage() {
                                         <div className="flex items-center gap-1">
                                           <button
                                             onClick={() => toggleSubItemVisibility(groupId, itemId, subId)}
-                                            className={`p-0.5 ${!isSubHidden ? 'text-emerald-400' : 'text-zinc-600'}`}
+                                            className={`p-0.5 ${!isSubHidden ? 'text-zinc-500' : 'text-zinc-600'}`}
                                             title="Toggle submenu item visibility"
                                           >
                                             {!isSubHidden ? <Eye size={12} /> : <EyeOff size={12} />}

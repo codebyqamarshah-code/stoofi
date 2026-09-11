@@ -117,13 +117,13 @@ export default function ItemCategoryPage() {
                                     type="text"
                                     value={categoryName}
                                     onChange={(e) => setCategoryName(e.target.value)}
-                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
+                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-zinc-600"
                                     required
                                 />
                             </div>
                             <button
                                 type="submit"
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md transition-colors"
+                                className="bg-zinc-800 hover:bg-zinc-800 text-white px-4 py-2 rounded-md transition-colors"
                             >
                                 SAVE
                             </button>
@@ -144,7 +144,7 @@ export default function ItemCategoryPage() {
                                     placeholder="Search..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-md pl-10 pr-3 py-2 text-white focus:outline-none focus:border-emerald-500"
+                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-md pl-10 pr-3 py-2 text-white focus:outline-none focus:border-zinc-600"
                                 />
                                 <Search className="absolute left-3 top-2.5 w-4 h-4 text-zinc-400" />
                             </div>
@@ -197,7 +197,7 @@ export default function ItemCategoryPage() {
                                                         <div className="relative inline-block text-left">
                                                             <button 
                                                                 onClick={() => toggleDropdown(id)}
-                                                                className="inline-flex items-center justify-center px-3 py-1.5 border border-emerald-600 text-emerald-500 hover:bg-emerald-600/10 rounded-md text-xs font-medium transition-colors"
+                                                                className="inline-flex items-center justify-center px-3 py-1.5 border border-zinc-800 text-zinc-600 hover:bg-zinc-800/10 rounded-md text-xs font-medium transition-colors"
                                                             >
                                                                 SELECT
                                                                 <ChevronDown className="ml-1 w-3 h-3" />

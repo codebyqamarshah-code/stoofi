@@ -23,7 +23,7 @@ export default function NotificationSettingPage() {
     <label className="flex items-center gap-3 cursor-pointer">
       <div className="relative">
         <input type="checkbox" className="sr-only" checked={checked} onChange={onChange} />
-        <div className={`block w-10 h-6 rounded-full transition-colors ${checked ? 'bg-emerald-600' : 'bg-zinc-700'}`}></div>
+        <div className={`block w-10 h-6 rounded-full transition-colors ${checked ? 'bg-zinc-800' : 'bg-zinc-700'}`}></div>
         <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${checked ? 'transform translate-x-4' : ''}`}></div>
       </div>
       <span className="text-sm text-zinc-300 font-medium w-10">{label}</span>
@@ -53,7 +53,7 @@ export default function NotificationSettingPage() {
           </div>
 
           <div className="mt-8 flex justify-end">
-            <button className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-8 rounded transition-colors">
+            <button className="bg-zinc-800 hover:bg-zinc-800 text-white font-medium py-2 px-8 rounded transition-colors">
               SAVE
             </button>
           </div>

@@ -30,11 +30,11 @@ export default function DeleteStudentRecordPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Delete Student Record</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/students" className="hover:text-emerald-400 transition-colors">Student Info</Link>
+          <Link href="/dashboard/students" className="hover:text-zinc-500 transition-colors">Student Info</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Delete Student Record</span>
+          <span className="text-zinc-600">Delete Student Record</span>
         </div>
       </div>
 
@@ -46,7 +46,7 @@ export default function DeleteStudentRecordPage() {
               placeholder="SEARCH" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 w-full sm:w-[250px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-xs font-semibold uppercase" 
+              className="pl-9 w-full sm:w-[250px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase" 
             />
           </div>
           <div className="flex items-center border border-zinc-800 rounded-md bg-zinc-900">
@@ -76,7 +76,7 @@ export default function DeleteStudentRecordPage() {
               {filteredStudents.length > 0 ? filteredStudents.map((s) => (
                 <tr key={s.id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
                   <td className="px-4 py-3 text-zinc-300">
-                    <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-xs">+{s.admissionNo}</span>
+                    <span className="bg-zinc-600/10 text-zinc-500 border border-zinc-600/20 px-2 py-0.5 rounded text-xs">+{s.admissionNo}</span>
                   </td>
                   <td className="px-4 py-3 text-zinc-300">{s.rollNo}</td>
                   <td className="px-4 py-3 text-zinc-300 font-medium">{s.name}</td>

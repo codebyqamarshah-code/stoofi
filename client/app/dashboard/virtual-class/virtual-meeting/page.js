@@ -37,7 +37,7 @@ export default function VirtualClassVirtualMeetingPage() {
 
           <div>
             <label className="text-xs font-bold text-gray-700 uppercase block mb-1">MEMBER TYPE <span className="text-red-500">*</span></label>
-            <select value={memberType} onChange={e => setMemberType(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+            <select value={memberType} onChange={e => setMemberType(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600">
               <option value="">Member Type *</option>
               {['Teacher', 'Staff', 'Student', 'Parent', 'Board Member'].map(mt => (
                 <option key={mt} value={mt}>{mt}</option>
@@ -47,7 +47,7 @@ export default function VirtualClassVirtualMeetingPage() {
 
           <div>
             <label className="text-xs font-bold text-gray-700 uppercase block mb-1">MEMBER <span className="text-red-500">*</span></label>
-            <select value={member} onChange={e => setMember(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+            <select value={member} onChange={e => setMember(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600">
               <option value="">Select Member</option>
               {['Mudassir Bajwa (Senior Teacher)', 'Fatima Zahra (HOD Science)', 'Dr. Bilal Siddiqui (Vice Principal)', 'Usman Tariq (Accountant)', 'Muhammad Rayyan (Student)', 'Zoya Fatima (Student)'].map(m => (
                 <option key={m} value={m}>{m}</option>

@@ -15,11 +15,11 @@ export default function SharedContentListPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Shared Content</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Download Center</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Shared Content</span>
+          <span className="text-zinc-600">Shared Content</span>
         </div>
       </div>
 
@@ -29,7 +29,7 @@ export default function SharedContentListPage() {
           <div className="flex items-center gap-3">
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-              <Input placeholder="SEARCH" className="pl-9 w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-xs font-semibold uppercase" />
+              <Input placeholder="SEARCH" className="pl-9 w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase" />
             </div>
             <div className="flex items-center border border-zinc-800 rounded-md bg-zinc-900">
               {[FileText, Download, FileText, Download, Printer, MoreVertical].map((Icon, i) => (
@@ -65,7 +65,7 @@ export default function SharedContentListPage() {
                   <td className="px-4 py-4 text-zinc-300">{item.sharedBy}</td>
                   <td className="px-4 py-4 text-zinc-300">{item.description}</td>
                   <td className="px-4 py-4 text-right">
-                    <Button variant="outline" size="sm" className="h-8 text-xs text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10">SELECT</Button>
+                    <Button variant="outline" size="sm" className="h-8 text-xs text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10">SELECT</Button>
                   </td>
                 </tr>
               )) : (

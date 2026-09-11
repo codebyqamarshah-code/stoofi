@@ -105,7 +105,7 @@ export default function MenuManagerPage() {
         <ChevronRight className="w-3 h-3" />
         <span>Frontend CMS</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">Menu</span>
+        <span className="text-zinc-500">Menu</span>
       </div>
 
       <h1 className="text-xl font-bold text-white">Menu</h1>
@@ -134,7 +134,7 @@ export default function MenuManagerPage() {
                       onClick={() => togglePageSelect(page)}
                       className="flex items-center gap-2 text-xs text-zinc-300 hover:text-white cursor-pointer py-1"
                     >
-                      <div className={`w-4 h-4 rounded border flex items-center justify-center ${selectedPages.includes(page) ? 'bg-emerald-600 border-emerald-500' : 'border-zinc-700 bg-zinc-800'}`}>
+                      <div className={`w-4 h-4 rounded border flex items-center justify-center ${selectedPages.includes(page) ? 'bg-zinc-800 border-zinc-600' : 'border-zinc-700 bg-zinc-800'}`}>
                         {selectedPages.includes(page) && <Check className="w-3 h-3 text-white" />}
                       </div>
                       <span>{page}</span>
@@ -145,7 +145,7 @@ export default function MenuManagerPage() {
                 <button
                   type="button"
                   onClick={handleAddStaticPages}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs py-2 rounded-lg flex items-center justify-center gap-1.5 cursor-pointer shadow mt-2"
+                  className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold text-xs py-2 rounded-lg flex items-center justify-center gap-1.5 cursor-pointer shadow mt-2"
                 >
                   <Plus className="w-3.5 h-3.5" /> Add to Menu
                 </button>
@@ -171,7 +171,7 @@ export default function MenuManagerPage() {
                     type="text"
                     value={customUrl}
                     onChange={e => setCustomUrl(e.target.value)}
-                    className="w-full bg-zinc-800 border border-zinc-700 text-white text-xs rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full bg-zinc-800 border border-zinc-700 text-white text-xs rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                   />
                 </div>
 
@@ -182,14 +182,14 @@ export default function MenuManagerPage() {
                     placeholder="e.g. Portal"
                     value={customLabel}
                     onChange={e => setCustomLabel(e.target.value)}
-                    className="w-full bg-zinc-800 border border-zinc-700 text-white text-xs rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full bg-zinc-800 border border-zinc-700 text-white text-xs rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                   />
                 </div>
 
                 <button
                   type="button"
                   onClick={handleAddCustomLink}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs py-2 rounded-lg flex items-center justify-center gap-1.5 cursor-pointer shadow mt-2"
+                  className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold text-xs py-2 rounded-lg flex items-center justify-center gap-1.5 cursor-pointer shadow mt-2"
                 >
                   <Plus className="w-3.5 h-3.5" /> Add to Menu
                 </button>
@@ -226,7 +226,7 @@ export default function MenuManagerPage() {
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => handleStartEdit(item)}
-                        className="text-xs text-zinc-400 hover:text-emerald-400 flex items-center gap-1 cursor-pointer"
+                        className="text-xs text-zinc-400 hover:text-zinc-500 flex items-center gap-1 cursor-pointer"
                       >
                         EDIT <ChevronDown className="w-3 h-3" />
                       </button>
@@ -246,11 +246,11 @@ export default function MenuManagerPage() {
                         type="text"
                         value={editingTitle}
                         onChange={e => setEditingTitle(e.target.value)}
-                        className="flex-1 bg-zinc-900 border border-zinc-700 text-white text-xs rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="flex-1 bg-zinc-900 border border-zinc-700 text-white text-xs rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                       />
                       <button
                         onClick={() => handleSaveEdit(item.id)}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded cursor-pointer"
+                        className="bg-zinc-800 hover:bg-zinc-800 text-white text-xs font-semibold px-3 py-1.5 rounded cursor-pointer"
                       >
                         Save
                       </button>

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 
@@ -120,11 +120,11 @@ export default function ClassPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Class</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/academics/class" className="hover:text-emerald-400 transition-colors">Academics</Link>
+          <Link href="/dashboard/academics/class" className="hover:text-zinc-500 transition-colors">Academics</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Class</span>
+          <span className="text-zinc-600">Class</span>
         </div>
       </div>
 
@@ -143,7 +143,7 @@ export default function ClassPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
                   placeholder="e.g. Class 1" 
-                  className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" 
                 />
               </div>
               
@@ -155,7 +155,7 @@ export default function ClassPage() {
                   ) : (
                     sections.map(sec => (
                       <label key={sec._id} className="flex items-center gap-2 cursor-pointer">
-                        <div className={`w-4 h-4 rounded border flex items-center justify-center ${formData.sections.includes(sec.name) ? 'border-emerald-500 bg-emerald-500' : 'border-zinc-500 bg-transparent'}`}>
+                        <div className={`w-4 h-4 rounded border flex items-center justify-center ${formData.sections.includes(sec.name) ? 'border-zinc-600 bg-zinc-600' : 'border-zinc-500 bg-transparent'}`}>
                           {formData.sections.includes(sec.name) && <div className="w-2 h-2 rounded-sm bg-white" />}
                         </div>
                         <span className="text-sm text-zinc-300">{sec.name}</span>
@@ -172,7 +172,7 @@ export default function ClassPage() {
               </div>
 
               <div className="pt-2 flex gap-2">
-                <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+                <Button type="submit" className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                   {isEditing ? 'UPDATE CLASS' : 'SAVE CLASS'}
                 </Button>
                 {isEditing && (
@@ -198,14 +198,14 @@ export default function ClassPage() {
                     placeholder="Search..." 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9 bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 h-9 w-full sm:w-64" 
+                    className="pl-9 bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 h-9 w-full sm:w-64" 
                   />
                 </div>
                 <div className="flex items-center gap-2">
                   <Button onClick={() => exportToCSV(exportData, 'Class_List')} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:text-white" title="Download CSV">
                     <Download className="h-4 w-4" />
                   </Button>
-                  <Button onClick={() => exportToExcel(exportData, 'Class_List')} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:text-white text-emerald-500" title="Export Excel">
+                  <Button onClick={() => exportToExcel(exportData, 'Class_List')} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:text-white text-zinc-600" title="Export Excel">
                     <FileText className="h-4 w-4" />
                   </Button>
                   <Button onClick={() => printData('Class List', exportData)} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:text-white text-rose-500" title="Print">
@@ -244,7 +244,7 @@ export default function ClassPage() {
                         </td>
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Button onClick={() => handleEdit(item)} variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10">
+                            <Button onClick={() => handleEdit(item)} variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-500 hover:bg-zinc-600/10">
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button onClick={() => handleDelete(item._id)} variant="ghost" size="icon" className="h-8 w-8 text-rose-500 hover:text-rose-400 hover:bg-rose-500/10">

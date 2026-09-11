@@ -37,11 +37,11 @@ export default function ContentTypePage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Content Type</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Download Center</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Content Type</span>
+          <span className="text-zinc-600">Content Type</span>
         </div>
       </div>
 
@@ -59,7 +59,7 @@ export default function ContentTypePage() {
                   placeholder="Name" 
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" 
                   required
                 />
               </div>
@@ -69,11 +69,11 @@ export default function ContentTypePage() {
                   placeholder="Description"
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  className="flex min-h-[90px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white resize-y"
+                  className="flex min-h-[90px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white resize-y"
                 />
               </div>
               <div className="pt-2">
-                <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">SAVE</Button>
+                <Button type="submit" className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">SAVE</Button>
               </div>
             </form>
           </div>
@@ -91,7 +91,7 @@ export default function ContentTypePage() {
                     placeholder="SEARCH" 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-xs font-semibold uppercase" 
+                    className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase" 
                   />
                 </div>
                 <div className="flex items-center border border-zinc-800 rounded-md bg-zinc-900">

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 
@@ -49,7 +49,7 @@ const SECTION_TEMPLATES = {
     type: 'footer',
     icon: PanelBottom,
     label: 'Footer',
-    defaultProps: { copyright: 'Â© 2026 Stoofi. All rights reserved.' }
+    defaultProps: { copyright: '© 2026 Stoofi. All rights reserved.' }
   }
 };
 
@@ -60,9 +60,9 @@ const PreviewRenderer = ({ section }) => {
   if (type === 'header') {
     return (
       <div className="bg-white text-zinc-900 py-4 px-6 flex justify-between items-center border-b shadow-sm">
-        <div className="text-xl font-extrabold text-emerald-600">{props.brand}</div>
+        <div className="text-xl font-extrabold text-zinc-800">{props.brand}</div>
         <div className="hidden sm:flex gap-4 text-sm font-medium text-zinc-600">
-          {props.links.split(',').map((l, i) => <span key={i} className="hover:text-emerald-500 cursor-pointer">{l.trim()}</span>)}
+          {props.links.split(',').map((l, i) => <span key={i} className="hover:text-zinc-600 cursor-pointer">{l.trim()}</span>)}
         </div>
       </div>
     );
@@ -73,7 +73,7 @@ const PreviewRenderer = ({ section }) => {
       <div className="bg-zinc-50 py-20 px-6 text-center border-b">
         <h1 className="text-4xl sm:text-5xl font-black text-zinc-900 mb-4">{props.title}</h1>
         <p className="text-zinc-600 max-w-2xl mx-auto mb-8 text-lg">{props.subtitle}</p>
-        <button className="bg-emerald-600 text-white px-8 py-3 rounded-full font-bold hover:bg-emerald-700 transition shadow-lg">
+        <button className="bg-zinc-800 text-white px-8 py-3 rounded-full font-bold hover:bg-zinc-800 transition shadow-lg">
           {props.buttonText}
         </button>
       </div>
@@ -87,7 +87,7 @@ const PreviewRenderer = ({ section }) => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-5xl mx-auto text-center">
           {[props.f1, props.f2, props.f3].map((f, i) => (
             <div key={i} className="p-6 bg-zinc-50 rounded-xl border border-zinc-100 shadow-sm hover:shadow-md transition">
-              <div className="h-12 w-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="h-12 w-12 bg-zinc-200 text-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4">
                 <ImageIcon size={20} />
               </div>
               <h3 className="font-bold text-zinc-800 text-lg">{f}</h3>
@@ -110,7 +110,7 @@ const PreviewRenderer = ({ section }) => {
   
   if (type === 'footer') {
     return (
-      <div className="bg-zinc-900 text-zinc-400 py-8 px-6 text-center text-sm border-t-4 border-emerald-500">
+      <div className="bg-zinc-900 text-zinc-400 py-8 px-6 text-center text-sm border-t-4 border-zinc-600">
         <div className="mb-4 flex justify-center gap-4">
           <span className="hover:text-white cursor-pointer">Privacy Policy</span>
           <span className="hover:text-white cursor-pointer">Terms of Service</span>
@@ -192,13 +192,13 @@ export default function FrontendCmsPage() {
       {/* Breadcrumb & Header */}
       <div className="flex items-center justify-between mb-4 shrink-0">
         <div className="flex items-center text-xs text-zinc-500">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/settings/general" className="hover:text-emerald-400 transition-colors">Settings</Link>
+          <Link href="/dashboard/settings/general" className="hover:text-zinc-500 transition-colors">Settings</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500 font-semibold">Frontend CMS Builder</span>
+          <span className="text-zinc-600 font-semibold">Frontend CMS Builder</span>
         </div>
-        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white h-9 px-4 text-xs">
+        <Button className="bg-zinc-800 hover:bg-zinc-800 text-white h-9 px-4 text-xs">
           <Save className="h-4 w-4 mr-2" /> Save & Publish
         </Button>
       </div>
@@ -219,13 +219,13 @@ export default function FrontendCmsPage() {
                 <div 
                   key={key}
                   onClick={() => addSection(key)}
-                  className="flex items-center gap-3 p-3 bg-zinc-900 border border-zinc-800 rounded-lg cursor-pointer hover:border-emerald-500/50 hover:bg-emerald-950/20 transition group"
+                  className="flex items-center gap-3 p-3 bg-zinc-900 border border-zinc-800 rounded-lg cursor-pointer hover:border-zinc-600/50 hover:bg-emerald-950/20 transition group"
                 >
-                  <div className="h-8 w-8 rounded-md bg-zinc-800 text-zinc-400 group-hover:text-emerald-400 group-hover:bg-emerald-900/40 flex items-center justify-center transition">
+                  <div className="h-8 w-8 rounded-md bg-zinc-800 text-zinc-400 group-hover:text-zinc-500 group-hover:bg-emerald-900/40 flex items-center justify-center transition">
                     <Icon size={16} />
                   </div>
-                  <div className="flex-1 text-xs font-semibold text-zinc-300 group-hover:text-emerald-100">{tmpl.label}</div>
-                  <Plus size={14} className="text-zinc-600 group-hover:text-emerald-500" />
+                  <div className="flex-1 text-xs font-semibold text-zinc-300 group-hover:text-zinc-200">{tmpl.label}</div>
+                  <Plus size={14} className="text-zinc-600 group-hover:text-zinc-600" />
                 </div>
               );
             })}
@@ -235,7 +235,7 @@ export default function FrontendCmsPage() {
         {/* MIDDLE: Canvas / Live Preview */}
         <div className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl flex flex-col overflow-hidden relative shadow-inner">
           <div className="p-3 bg-zinc-950/80 border-b border-zinc-800 flex items-center justify-center gap-2">
-            <MonitorSmartphone size={16} className="text-emerald-500" />
+            <MonitorSmartphone size={16} className="text-zinc-600" />
             <span className="text-xs font-bold text-zinc-300 uppercase tracking-widest">Live Page Preview</span>
           </div>
           
@@ -259,16 +259,16 @@ export default function FrontendCmsPage() {
                     onClick={() => setSelectedId(section.id)}
                     className={`
                       relative group transition-all duration-200 cursor-pointer
-                      ${dragOverId === section.id ? 'border-t-4 border-emerald-500' : 'border-t-4 border-transparent'}
-                      ${selectedId === section.id ? 'ring-2 ring-emerald-500 ring-inset z-10' : ''}
+                      ${dragOverId === section.id ? 'border-t-4 border-zinc-600' : 'border-t-4 border-transparent'}
+                      ${selectedId === section.id ? 'ring-2 ring-zinc-600 ring-inset z-10' : ''}
                     `}
                   >
                     {/* Hover Controls Overlay */}
-                    <div className={`absolute top-0 right-0 left-0 bottom-0 pointer-events-none transition-colors duration-200 ${selectedId === section.id ? 'bg-emerald-500/5' : 'group-hover:bg-emerald-500/5'}`}></div>
+                    <div className={`absolute top-0 right-0 left-0 bottom-0 pointer-events-none transition-colors duration-200 ${selectedId === section.id ? 'bg-zinc-600/5' : 'group-hover:bg-zinc-600/5'}`}></div>
                     
                     <div className={`absolute top-2 right-2 flex gap-1 z-20 transition-opacity duration-200 ${selectedId === section.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                       <div 
-                        className="h-8 w-8 bg-zinc-900 border border-zinc-700 rounded shadow-lg flex items-center justify-center text-zinc-300 hover:text-emerald-400 hover:border-emerald-500 cursor-grab active:cursor-grabbing"
+                        className="h-8 w-8 bg-zinc-900 border border-zinc-700 rounded shadow-lg flex items-center justify-center text-zinc-300 hover:text-zinc-500 hover:border-zinc-600 cursor-grab active:cursor-grabbing"
                         title="Drag to reorder"
                       >
                         <GripHorizontal size={16} />
@@ -314,8 +314,8 @@ export default function FrontendCmsPage() {
                   return (
                     <>
                       <div className="flex items-center gap-2 mb-6">
-                        <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                        <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">{section.type} Settings</span>
+                        <div className="h-2 w-2 rounded-full bg-zinc-600 animate-pulse"></div>
+                        <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">{section.type} Settings</span>
                       </div>
                       
                       {Object.entries(section.props).map(([key, value]) => (
@@ -328,14 +328,14 @@ export default function FrontendCmsPage() {
                               rows={4}
                               value={value}
                               onChange={(e) => handlePropChange(selectedId, key, e.target.value)}
-                              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-xs text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all outline-none resize-none"
+                              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-xs text-white focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600/50 transition-all outline-none resize-none"
                             />
                           ) : (
                             <input
                               type="text"
                               value={value}
                               onChange={(e) => handlePropChange(selectedId, key, e.target.value)}
-                              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all outline-none"
+                              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600/50 transition-all outline-none"
                             />
                           )}
                         </div>

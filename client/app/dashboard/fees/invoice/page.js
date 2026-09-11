@@ -293,11 +293,11 @@ export default function FeesInvoicePage() {
           <p className="text-xs text-zinc-400 mt-1">Generate, track, edit, and print official student fee vouchers</p>
         </div>
         <div className="flex items-center text-xs text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-3.5 w-3.5 mx-1" />
           <span>Fees</span>
           <ChevronRight className="h-3.5 w-3.5 mx-1" />
-          <span className="text-emerald-500 font-semibold">Fees Invoice</span>
+          <span className="text-zinc-600 font-semibold">Fees Invoice</span>
         </div>
       </div>
 
@@ -318,7 +318,7 @@ export default function FeesInvoicePage() {
             <div className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">Total Amount</div>
             <div className="text-2xl font-extrabold text-white mt-1">${stats.totalAmount.toLocaleString()}</div>
           </div>
-          <div className="h-10 w-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+          <div className="h-10 w-10 rounded-lg bg-zinc-600/10 border border-zinc-600/20 flex items-center justify-center text-zinc-500">
             <CheckCircle2 className="h-5 w-5" />
           </div>
         </div>
@@ -326,9 +326,9 @@ export default function FeesInvoicePage() {
         <div className="bg-zinc-950 border border-zinc-800/80 rounded-xl p-4 flex items-center justify-between">
           <div>
             <div className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">Collected Fees</div>
-            <div className="text-2xl font-extrabold text-emerald-400 mt-1">${stats.totalPaid.toLocaleString()}</div>
+            <div className="text-2xl font-extrabold text-zinc-500 mt-1">${stats.totalPaid.toLocaleString()}</div>
           </div>
-          <div className="h-10 w-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+          <div className="h-10 w-10 rounded-lg bg-zinc-600/10 border border-zinc-600/20 flex items-center justify-center text-zinc-500">
             <Download className="h-5 w-5" />
           </div>
         </div>
@@ -351,7 +351,7 @@ export default function FeesInvoicePage() {
           <div className="flex flex-wrap items-center gap-3">
             <Button 
               onClick={handleOpenCreate} 
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-2 shadow-xs text-xs px-4 h-9"
+              className="bg-zinc-800 hover:bg-zinc-800 text-white font-bold flex items-center gap-2 shadow-xs text-xs px-4 h-9"
             >
               <Plus className="h-4 w-4" /> CREATE INVOICE
             </Button>
@@ -364,7 +364,7 @@ export default function FeesInvoicePage() {
                   onClick={() => setStatusFilter(st)}
                   className={`px-3 py-1.5 rounded-md transition-colors ${
                     statusFilter === st 
-                      ? 'bg-emerald-600 text-white shadow-xs' 
+                      ? 'bg-zinc-800 text-white shadow-xs' 
                       : 'text-zinc-400 hover:text-white'
                   }`}
                 >
@@ -381,7 +381,7 @@ export default function FeesInvoicePage() {
                 placeholder="Search student or invoice..." 
                 value={search} 
                 onChange={e => setSearch(e.target.value)} 
-                className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500 text-white rounded-lg" 
+                className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-zinc-600 text-white rounded-lg" 
               />
             </div>
 
@@ -390,7 +390,7 @@ export default function FeesInvoicePage() {
               <Button onClick={() => exportToCSV(exportData, 'Fees_Invoices')} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-300" title="Export CSV">
                 <Download className="h-4 w-4" />
               </Button>
-              <Button onClick={() => exportToExcel(exportData, 'Fees_Invoices')} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-emerald-400" title="Export Excel">
+              <Button onClick={() => exportToExcel(exportData, 'Fees_Invoices')} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-500" title="Export Excel">
                 <FileText className="h-4 w-4" />
               </Button>
               <Button onClick={() => printData('Fees Invoices Report', exportData)} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-rose-400" title="Print List">
@@ -433,7 +433,7 @@ export default function FeesInvoicePage() {
               ) : (
                 filteredRecords.map((r, i) => (
                   <tr key={r._id} className="hover:bg-zinc-900/50 transition-colors">
-                    <td className="px-4 py-3 text-emerald-400 font-medium text-xs">#{i + 1}</td>
+                    <td className="px-4 py-3 text-zinc-500 font-medium text-xs">#{i + 1}</td>
                     <td className="px-4 py-3 font-semibold text-zinc-200 text-xs tracking-wider">{r.invoiceNo || `INV-${100 + i}`}</td>
                     <td className="px-4 py-3">
                       <div className="font-semibold text-white">{r.student}</div>
@@ -447,7 +447,7 @@ export default function FeesInvoicePage() {
                     <td className="px-4 py-3 font-bold text-white">${Number(r.amount || 0).toLocaleString()}</td>
                     <td className="px-4 py-3 text-zinc-400 text-xs">${Number(r.waiver || 0).toLocaleString()}</td>
                     <td className="px-4 py-3 text-zinc-400 text-xs">${Number(r.fine || 0).toLocaleString()}</td>
-                    <td className="px-4 py-3 text-emerald-400 font-bold">${Number(r.paid || 0).toLocaleString()}</td>
+                    <td className="px-4 py-3 text-zinc-500 font-bold">${Number(r.paid || 0).toLocaleString()}</td>
                     <td className="px-4 py-3">
                       <span className={`font-bold ${Number(r.balance || 0) > 0 ? 'text-rose-400' : 'text-zinc-500'}`}>
                         ${Number(r.balance || 0).toLocaleString()}
@@ -456,7 +456,7 @@ export default function FeesInvoicePage() {
                     <td className="px-4 py-3">
                       <span className={`px-2.5 py-1 text-[10px] font-bold rounded-full tracking-wider border ${
                         r.status === 'PAID' 
-                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' 
+                          ? 'bg-zinc-600/10 text-zinc-500 border-zinc-600/30' 
                           : r.status === 'PARTIAL' 
                           ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' 
                           : 'bg-rose-500/10 text-rose-400 border-rose-500/30'
@@ -480,7 +480,7 @@ export default function FeesInvoicePage() {
                           onClick={() => handleOpenEdit(r)} 
                           variant="ghost" 
                           size="icon" 
-                          className="h-8 w-8 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10" 
+                          className="h-8 w-8 text-zinc-500 hover:text-zinc-400 hover:bg-zinc-600/10" 
                           title="Edit Invoice"
                         >
                           <Edit className="h-4 w-4" />
@@ -521,7 +521,7 @@ export default function FeesInvoicePage() {
             <div className="flex items-center justify-between border-b border-zinc-800 pb-4 mb-5">
               <div>
                 <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-emerald-500" />
+                  <FileText className="h-5 w-5 text-zinc-600" />
                   {editingInvoice ? 'Edit Fees Invoice' : 'Fees Invoice Builder'}
                 </h2>
                 <p className="text-xs text-zinc-400 mt-0.5">Fill details below to generate an official fee voucher</p>
@@ -542,7 +542,7 @@ export default function FeesInvoicePage() {
                   <select
                     value={formData.student}
                     onChange={handleStudentSelect}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:border-zinc-600 focus:outline-none"
                     required
                   >
                     <option value="">-- Choose Student --</option>
@@ -560,7 +560,7 @@ export default function FeesInvoicePage() {
                     value={formData.className}
                     onChange={e => setFormData({ ...formData, className: e.target.value })}
                     placeholder="e.g. Class 10 (A)"
-                    className="bg-zinc-900 border-zinc-800 text-xs h-9 text-white focus-visible:ring-emerald-500"
+                    className="bg-zinc-900 border-zinc-800 text-xs h-9 text-white focus-visible:ring-zinc-600"
                   />
                 </div>
               </div>
@@ -573,7 +573,7 @@ export default function FeesInvoicePage() {
                     value={formData.admissionNo}
                     onChange={e => setFormData({ ...formData, admissionNo: e.target.value })}
                     placeholder="e.g. ADM-2026-001"
-                    className="bg-zinc-900 border-zinc-800 text-xs h-9 text-white focus-visible:ring-emerald-500"
+                    className="bg-zinc-900 border-zinc-800 text-xs h-9 text-white focus-visible:ring-zinc-600"
                   />
                 </div>
 
@@ -582,7 +582,7 @@ export default function FeesInvoicePage() {
                   <select
                     value={formData.feeType}
                     onChange={e => setFormData({ ...formData, feeType: e.target.value })}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:border-zinc-600 focus:outline-none"
                   >
                     {FEE_TYPES.map(ft => (
                       <option key={ft} value={ft}>{ft}</option>
@@ -593,7 +593,7 @@ export default function FeesInvoicePage() {
 
               {/* Financial Breakdown Grid */}
               <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl p-4 space-y-3">
-                <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Financial Breakdown ($)</div>
+                <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Financial Breakdown ($)</div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div>
                     <label className="text-[11px] font-medium text-zinc-400 block mb-1">Total Fee ($)</label>
@@ -602,7 +602,7 @@ export default function FeesInvoicePage() {
                       min="0"
                       value={formData.amount}
                       onChange={e => setFormData({ ...formData, amount: e.target.value })}
-                      className="bg-zinc-950 border-zinc-800 text-xs h-8 text-white focus-visible:ring-emerald-500 font-bold"
+                      className="bg-zinc-950 border-zinc-800 text-xs h-8 text-white focus-visible:ring-zinc-600 font-bold"
                       required
                     />
                   </div>
@@ -613,7 +613,7 @@ export default function FeesInvoicePage() {
                       min="0"
                       value={formData.waiver}
                       onChange={e => setFormData({ ...formData, waiver: e.target.value })}
-                      className="bg-zinc-950 border-zinc-800 text-xs h-8 text-white focus-visible:ring-emerald-500"
+                      className="bg-zinc-950 border-zinc-800 text-xs h-8 text-white focus-visible:ring-zinc-600"
                     />
                   </div>
                   <div>
@@ -623,7 +623,7 @@ export default function FeesInvoicePage() {
                       min="0"
                       value={formData.fine}
                       onChange={e => setFormData({ ...formData, fine: e.target.value })}
-                      className="bg-zinc-950 border-zinc-800 text-xs h-8 text-white focus-visible:ring-emerald-500"
+                      className="bg-zinc-950 border-zinc-800 text-xs h-8 text-white focus-visible:ring-zinc-600"
                     />
                   </div>
                   <div>
@@ -633,7 +633,7 @@ export default function FeesInvoicePage() {
                       min="0"
                       value={formData.paid}
                       onChange={e => setFormData({ ...formData, paid: e.target.value })}
-                      className="bg-zinc-950 border-zinc-800 text-xs h-8 text-emerald-400 focus-visible:ring-emerald-500 font-bold"
+                      className="bg-zinc-950 border-zinc-800 text-xs h-8 text-zinc-500 focus-visible:ring-zinc-600 font-bold"
                     />
                   </div>
                 </div>
@@ -643,7 +643,7 @@ export default function FeesInvoicePage() {
                   <div className="flex items-center gap-2">
                     <span className="text-zinc-400">Status:</span>
                     <span className={`px-2 py-0.5 rounded font-bold text-[10px] ${
-                      computedStatus === 'PAID' ? 'bg-emerald-500/20 text-emerald-400' :
+                      computedStatus === 'PAID' ? 'bg-zinc-600/20 text-zinc-500' :
                       computedStatus === 'PARTIAL' ? 'bg-amber-500/20 text-amber-400' : 'bg-rose-500/20 text-rose-400'
                     }`}>
                       {computedStatus}
@@ -663,7 +663,7 @@ export default function FeesInvoicePage() {
                   <select
                     value={formData.paymentMethod}
                     onChange={e => setFormData({ ...formData, paymentMethod: e.target.value })}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:border-zinc-600 focus:outline-none"
                   >
                     <option value="Cash">Cash Counter</option>
                     <option value="Online Bank Transfer">Online Bank Transfer</option>
@@ -679,7 +679,7 @@ export default function FeesInvoicePage() {
                     type="date"
                     value={formData.date}
                     onChange={e => setFormData({ ...formData, date: e.target.value })}
-                    className="bg-zinc-900 border-zinc-800 text-xs h-9 text-white focus-visible:ring-emerald-500"
+                    className="bg-zinc-900 border-zinc-800 text-xs h-9 text-white focus-visible:ring-zinc-600"
                   />
                 </div>
               </div>
@@ -690,7 +690,7 @@ export default function FeesInvoicePage() {
                   value={formData.note}
                   onChange={e => setFormData({ ...formData, note: e.target.value })}
                   placeholder="e.g. Paid in cash at accounts counter"
-                  className="bg-zinc-900 border-zinc-800 text-xs h-9 text-white focus-visible:ring-emerald-500"
+                  className="bg-zinc-900 border-zinc-800 text-xs h-9 text-white focus-visible:ring-zinc-600"
                 />
               </div>
 
@@ -706,7 +706,7 @@ export default function FeesInvoicePage() {
                 </Button>
                 <Button 
                   type="submit" 
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5"
+                  className="bg-zinc-800 hover:bg-zinc-800 text-white font-bold px-5"
                 >
                   {editingInvoice ? 'Update Invoice' : 'Save & Issue Invoice'}
                 </Button>
@@ -725,9 +725,9 @@ export default function FeesInvoicePage() {
             {/* Header / Brand */}
             <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
               <div className="flex items-center gap-3">
-                <img src="/stoofi light.png" alt="Stoofi PRO" className="h-9 w-auto object-contain" />
+                <img src="/logo dark(2).png" alt="Stoofi PRO" className="h-9 w-auto object-contain" />
                 <div>
-                  <h3 className="text-lg font-black text-emerald-800 tracking-tight">STOOFI SCHOOL ERP</h3>
+                  <h3 className="text-lg font-black text-zinc-900 tracking-tight">STOOFI SCHOOL ERP</h3>
                   <p className="text-[10px] text-zinc-500">Official Student Fees Receipt Voucher</p>
                 </div>
               </div>
@@ -754,7 +754,7 @@ export default function FeesInvoicePage() {
               <div>
                 <span className="text-zinc-400 block text-[10px] uppercase font-semibold">Payment Status</span>
                 <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
-                  selectedReceipt.status === 'PAID' ? 'bg-emerald-100 text-emerald-800' :
+                  selectedReceipt.status === 'PAID' ? 'bg-zinc-200 text-zinc-900' :
                   selectedReceipt.status === 'PARTIAL' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800'
                 }`}>
                   {selectedReceipt.status}
@@ -777,7 +777,7 @@ export default function FeesInvoicePage() {
                     <td className="py-2 text-right font-bold">${Number(selectedReceipt.amount || 0).toLocaleString()}</td>
                   </tr>
                   {Number(selectedReceipt.waiver || 0) > 0 && (
-                    <tr className="text-emerald-700">
+                    <tr className="text-zinc-800">
                       <td className="py-1.5">Fee Waiver / Concession</td>
                       <td className="py-1.5 text-right">-${Number(selectedReceipt.waiver).toLocaleString()}</td>
                     </tr>
@@ -797,7 +797,7 @@ export default function FeesInvoicePage() {
                   <span>Net Payable:</span>
                   <span className="font-bold text-zinc-900">${(Number(selectedReceipt.amount || 0) - Number(selectedReceipt.waiver || 0) + Number(selectedReceipt.fine || 0)).toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-emerald-700 font-bold">
+                <div className="flex justify-between text-zinc-800 font-bold">
                   <span>Amount Paid:</span>
                   <span>${Number(selectedReceipt.paid || 0).toLocaleString()}</span>
                 </div>
@@ -829,7 +829,7 @@ export default function FeesInvoicePage() {
               </Button>
               <Button 
                 onClick={() => window.print()}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-9 flex items-center gap-2"
+                className="bg-zinc-800 hover:bg-zinc-800 text-white font-bold text-xs h-9 flex items-center gap-2"
               >
                 <Printer className="h-4 w-4" /> Print / Save PDF
               </Button>

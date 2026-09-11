@@ -14,7 +14,7 @@ export default function BlockedUserPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Blocked User</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Utilities</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Chat</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Blocked User</span>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Utilities</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Chat</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-zinc-600">Blocked User</span>
         </div>
       </div>
 

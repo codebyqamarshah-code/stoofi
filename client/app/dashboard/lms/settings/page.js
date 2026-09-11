@@ -35,14 +35,14 @@ export default function LmsSettingsPage() {
   const RadioGroup = ({ name, value, onChange }) => (
     <div className="flex items-center gap-4">
       <label className="flex items-center gap-2 cursor-pointer group">
-        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${value === 'Enable' ? 'border-emerald-500' : 'border-zinc-700'}`}>
-          {value === 'Enable' && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
+        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${value === 'Enable' ? 'border-zinc-600' : 'border-zinc-700'}`}>
+          {value === 'Enable' && <div className="w-2 h-2 rounded-full bg-zinc-600" />}
         </div>
         <span className="text-sm text-zinc-400 group-hover:text-zinc-300">Enable</span>
       </label>
       <label className="flex items-center gap-2 cursor-pointer group">
-        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${value === 'Disable' ? 'border-emerald-500' : 'border-zinc-700'}`}>
-          {value === 'Disable' && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
+        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${value === 'Disable' ? 'border-zinc-600' : 'border-zinc-700'}`}>
+          {value === 'Disable' && <div className="w-2 h-2 rounded-full bg-zinc-600" />}
         </div>
         <span className="text-sm text-zinc-400 group-hover:text-zinc-300">Disable</span>
       </label>
@@ -54,11 +54,11 @@ export default function LmsSettingsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">LMS Settings</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>LMS</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Settings</span>
+          <span className="text-zinc-600">Settings</span>
         </div>
       </div>
 
@@ -75,7 +75,7 @@ export default function LmsSettingsPage() {
               <Input 
                 value={settings.adminCommission}
                 onChange={(e) => setSettings({...settings, adminCommission: e.target.value})}
-                className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" 
+                className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" 
               />
             </div>
             <div className="space-y-1.5">
@@ -83,12 +83,12 @@ export default function LmsSettingsPage() {
               <Input 
                 value={settings.teacherCommission}
                 onChange={(e) => setSettings({...settings, teacherCommission: e.target.value})}
-                className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" 
+                className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" 
               />
             </div>
           </div>
           <div className="mt-6 flex justify-center">
-            <Button onClick={() => handleUpdate('Commission')} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2">
+            <Button onClick={() => handleUpdate('Commission')} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2">
               <Check className="h-4 w-4" /> UPDATE
             </Button>
           </div>
@@ -125,7 +125,7 @@ export default function LmsSettingsPage() {
             </div>
           </div>
           <div className="mt-8 flex justify-center">
-            <Button onClick={() => handleUpdate('Review & QA')} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2">
+            <Button onClick={() => handleUpdate('Review & QA')} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2">
               <Check className="h-4 w-4" /> UPDATE
             </Button>
           </div>
@@ -146,7 +146,7 @@ export default function LmsSettingsPage() {
             />
           </div>
           <div className="mt-8 flex justify-center">
-            <Button onClick={() => handleUpdate('Checkout')} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2">
+            <Button onClick={() => handleUpdate('Checkout')} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2">
               <Check className="h-4 w-4" /> UPDATE
             </Button>
           </div>
@@ -172,7 +172,7 @@ export default function LmsSettingsPage() {
               <Input 
                 value={settings.payLaterDueDay}
                 onChange={(e) => setSettings({...settings, payLaterDueDay: e.target.value})}
-                className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" 
+                className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" 
               />
             </div>
           </div>
@@ -181,11 +181,11 @@ export default function LmsSettingsPage() {
             <Input 
               value={settings.payLaterMessage}
               onChange={(e) => setSettings({...settings, payLaterMessage: e.target.value})}
-              className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" 
+              className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" 
             />
           </div>
           <div className="mt-8 flex justify-center">
-            <Button onClick={() => handleUpdate('Pay Later')} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2">
+            <Button onClick={() => handleUpdate('Pay Later')} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2">
               <Check className="h-4 w-4" /> UPDATE
             </Button>
           </div>
@@ -201,7 +201,7 @@ export default function LmsSettingsPage() {
           <div className="flex flex-wrap gap-x-8 gap-y-4">
             {['Self', 'Youtube', 'URL', 'Vimeo', 'Iframe', 'Image', 'PDF', 'Word', 'Excel', 'PowerPoint', 'Text', 'Zip'].map((host) => (
               <label key={host} className="flex items-center gap-2 cursor-pointer group">
-                <div className={`w-5 h-5 rounded border flex items-center justify-center ${settings.hosts.includes(host) ? 'bg-emerald-500 border-emerald-500 text-zinc-950' : 'border-zinc-700 bg-zinc-900'}`}>
+                <div className={`w-5 h-5 rounded border flex items-center justify-center ${settings.hosts.includes(host) ? 'bg-zinc-600 border-zinc-600 text-zinc-950' : 'border-zinc-700 bg-zinc-900'}`}>
                   {settings.hosts.includes(host) && <Check className="h-3 w-3" />}
                 </div>
                 <span className="text-sm text-zinc-400 group-hover:text-zinc-300">{host}</span>
@@ -209,7 +209,7 @@ export default function LmsSettingsPage() {
             ))}
           </div>
           <div className="mt-8 flex justify-center">
-            <Button onClick={() => handleUpdate('Host')} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2">
+            <Button onClick={() => handleUpdate('Host')} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2">
               <Check className="h-4 w-4" /> UPDATE
             </Button>
           </div>
@@ -265,7 +265,7 @@ export default function LmsSettingsPage() {
             <select 
               value={settings.youtubeDefaultPlayer}
               onChange={(e) => setSettings({...settings, youtubeDefaultPlayer: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
             >
               <option value="No">No</option>
               <option value="Yes">Yes</option>
@@ -273,7 +273,7 @@ export default function LmsSettingsPage() {
           </div>
 
           <div className="mt-8 flex justify-center">
-            <Button onClick={() => handleUpdate('Others')} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2">
+            <Button onClick={() => handleUpdate('Others')} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2">
               <Check className="h-4 w-4" /> UPDATE
             </Button>
           </div>

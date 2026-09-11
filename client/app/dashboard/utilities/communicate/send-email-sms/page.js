@@ -45,17 +45,17 @@ export default function SendEmailSmsPage() {
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Broadcast bulk SMS notices, announcements, and emails to students, parents, and teachers.</p>
         </div>
         <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Communicate</span>
+          <span className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">Communicate</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-600 dark:text-emerald-400 font-medium">Send Email / SMS</span>
+          <span className="text-zinc-800 dark:text-emerald-400 font-medium">Send Email / SMS</span>
         </div>
       </div>
 
       {statusMsg && (
-        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-sm flex items-center gap-2 shadow-sm">
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+        <div className="p-4 rounded-xl bg-zinc-100 dark:bg-emerald-950/40 border border-zinc-300 dark:border-emerald-800 text-zinc-900 dark:text-emerald-300 text-sm flex items-center gap-2 shadow-sm">
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-zinc-800" />
           {statusMsg}
         </div>
       )}
@@ -65,7 +65,7 @@ export default function SendEmailSmsPage() {
         <div className="lg:col-span-2">
           <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm p-6 sm:p-8">
             <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider mb-5 flex items-center gap-2">
-              <Mail className="h-4 w-4 text-emerald-600" /> Compose Broadcast
+              <Mail className="h-4 w-4 text-zinc-800" /> Compose Broadcast
             </h2>
 
             <form onSubmit={handleSend} className="space-y-5">
@@ -78,7 +78,7 @@ export default function SendEmailSmsPage() {
                     onClick={() => setChannel('both')}
                     className={`py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all flex items-center justify-center gap-2 ${
                       channel === 'both'
-                        ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 text-emerald-700 dark:text-emerald-300'
+                        ? 'bg-zinc-100 dark:bg-emerald-950/60 border-zinc-600 text-zinc-800 dark:text-emerald-300'
                         : 'border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50'
                     }`}
                   >
@@ -89,7 +89,7 @@ export default function SendEmailSmsPage() {
                     onClick={() => setChannel('sms')}
                     className={`py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all flex items-center justify-center gap-2 ${
                       channel === 'sms'
-                        ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 text-emerald-700 dark:text-emerald-300'
+                        ? 'bg-zinc-100 dark:bg-emerald-950/60 border-zinc-600 text-zinc-800 dark:text-emerald-300'
                         : 'border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50'
                     }`}
                   >
@@ -100,7 +100,7 @@ export default function SendEmailSmsPage() {
                     onClick={() => setChannel('email')}
                     className={`py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all flex items-center justify-center gap-2 ${
                       channel === 'email'
-                        ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 text-emerald-700 dark:text-emerald-300'
+                        ? 'bg-zinc-100 dark:bg-emerald-950/60 border-zinc-600 text-zinc-800 dark:text-emerald-300'
                         : 'border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50'
                     }`}
                   >
@@ -118,7 +118,7 @@ export default function SendEmailSmsPage() {
                   <select
                     value={recipientGroup}
                     onChange={(e) => setRecipientGroup(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                   >
                     {groups.map(g => <option key={g} value={g}>{g === 'All' ? 'All (Students, Parents, Teachers)' : g}</option>)}
                   </select>
@@ -132,7 +132,7 @@ export default function SendEmailSmsPage() {
                     <select
                       value={selectedClass}
                       onChange={(e) => setSelectedClass(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                     >
                       {classes.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
@@ -151,7 +151,7 @@ export default function SendEmailSmsPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Fee Submission Reminder / School Holiday Announcement"
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                 />
               </div>
 
@@ -171,7 +171,7 @@ export default function SendEmailSmsPage() {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Type your announcement or SMS notice..."
-                  className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors resize-none"
+                  className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors resize-none"
                 />
               </div>
 
@@ -179,7 +179,7 @@ export default function SendEmailSmsPage() {
               <div className="pt-2 flex justify-end">
                 <button
                   type="submit"
-                  className="px-8 py-3 bg-[#009966] hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-2 shadow-sm"
+                  className="px-8 py-3 bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-2 shadow-sm"
                 >
                   <Send className="h-4 w-4" /> Send Broadcast Now
                 </button>
@@ -199,7 +199,7 @@ export default function SendEmailSmsPage() {
                   key={tag}
                   type="button"
                   onClick={() => setMessage(prev => prev + ' ' + tag)}
-                  className="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-50 hover:text-emerald-700 text-zinc-700 dark:text-zinc-300 font-mono text-[11px] transition-colors"
+                  className="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-100 hover:text-zinc-800 text-zinc-700 dark:text-zinc-300 font-mono text-[11px] transition-colors"
                 >
                   {tag}
                 </button>
@@ -209,7 +209,7 @@ export default function SendEmailSmsPage() {
 
           <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm p-6 space-y-3">
             <h3 className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider">SMS Gateway Balance</h3>
-            <div className="text-2xl font-black text-emerald-600">4,850 SMS</div>
+            <div className="text-2xl font-black text-zinc-800">4,850 SMS</div>
             <p className="text-[11px] text-zinc-500">Twilio / Local GSM Gateway configured and active.</p>
           </div>
         </div>

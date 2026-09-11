@@ -515,7 +515,7 @@ export default function GuideDetailPage() {
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">Guide Not Found</h1>
           <p className="text-zinc-500 mb-6">This guide page doesn&apos;t exist yet.</p>
           <Link href="/guide">
-            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">Back to Guides</Button>
+            <Button className="bg-zinc-800 hover:bg-zinc-800 text-white">Back to Guides</Button>
           </Link>
         </div>
       </div>
@@ -523,7 +523,7 @@ export default function GuideDetailPage() {
   }
 
   const colorMap = {
-    emerald: { bg: "bg-emerald-100 dark:bg-emerald-900/30", text: "text-emerald-600 dark:text-emerald-400", badge: "bg-emerald-600", border: "border-emerald-500" },
+    emerald: { bg: "bg-zinc-200 dark:bg-emerald-900/30", text: "text-zinc-800 dark:text-emerald-400", badge: "bg-zinc-800", border: "border-zinc-600" },
     sky: { bg: "bg-sky-100 dark:bg-sky-900/30", text: "text-sky-600 dark:text-sky-400", badge: "bg-sky-600", border: "border-sky-500" },
     amber: { bg: "bg-amber-100 dark:bg-amber-900/30", text: "text-amber-600 dark:text-amber-400", badge: "bg-amber-600", border: "border-amber-500" },
     violet: { bg: "bg-violet-100 dark:bg-violet-900/30", text: "text-violet-600 dark:text-violet-400", badge: "bg-violet-600", border: "border-violet-500" },
@@ -540,7 +540,7 @@ export default function GuideDetailPage() {
       <header className="bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800 py-4 sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/guide" className="flex items-center gap-2 text-zinc-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+            <Link href="/guide" className="flex items-center gap-2 text-zinc-500 hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">
               <div className="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
                 <ArrowLeft size={16} />
               </div>
@@ -552,7 +552,7 @@ export default function GuideDetailPage() {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <Link href="/login">
-              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-full px-5 text-sm">Login to ERP</Button>
+              <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-bold rounded-full px-5 text-sm">Login to ERP</Button>
             </Link>
           </div>
         </div>
@@ -594,7 +594,7 @@ export default function GuideDetailPage() {
                   <div className={`w-10 h-10 rounded-full ${c.badge} text-white font-extrabold text-sm flex items-center justify-center shrink-0 z-10 shadow-lg`}>
                     {step.step}
                   </div>
-                  <div className="flex-1 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 hover:border-emerald-500/30 transition-colors">
+                  <div className="flex-1 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 hover:border-zinc-600/30 transition-colors">
                     <h3 className="font-bold text-zinc-900 dark:text-white mb-2 text-base">{step.title}</h3>
                     <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed mb-3">{step.desc}</p>
                     {step.tip && (
@@ -613,12 +613,12 @@ export default function GuideDetailPage() {
           <div className="space-y-6">
             <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6">
               <h3 className="font-bold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
-                <CheckCircle2 size={18} className="text-emerald-500" /> Pro Tips
+                <CheckCircle2 size={18} className="text-zinc-600" /> Pro Tips
               </h3>
               <ul className="space-y-3">
                 {guide.tips.map((tip, i) => (
                   <li key={i} className="flex gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                    <span className="text-emerald-500 font-bold shrink-0">→</span>
+                    <span className="text-zinc-600 font-bold shrink-0">→</span>
                     {tip}
                   </li>
                 ))}
@@ -642,7 +642,7 @@ export default function GuideDetailPage() {
             <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 text-center">
               <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">Ready to use this feature?</p>
               <Link href="/login">
-                <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl">
+                <Button className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-bold rounded-xl">
                   Open ERP Dashboard <ArrowRight size={14} className="ml-1" />
                 </Button>
               </Link>

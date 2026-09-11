@@ -78,7 +78,7 @@ export default function CourseListPage() {
         <ChevronRight className="w-3 h-3" />
         <span>Frontend CMS</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">Add Course</span>
+        <span className="text-zinc-500">Add Course</span>
       </div>
 
       <h1 className="text-xl font-bold text-white">Add Course</h1>
@@ -93,7 +93,7 @@ export default function CourseListPage() {
             type="text"
             value={title}
             onChange={e => setTitle(e.target.value)}
-            className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
           />
         </div>
 
@@ -103,7 +103,7 @@ export default function CourseListPage() {
             <select
               value={category}
               onChange={e => setCategory(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
             >
               <option value="">Course Category *</option>
               <option value="Computer Science">Computer Science</option>
@@ -149,11 +149,11 @@ export default function CourseListPage() {
             <div className="bg-zinc-800/80 px-3 py-1.5 border-b border-zinc-700 flex items-center justify-between">
               <span className="text-xs font-bold text-zinc-300 uppercase">{label}</span>
               <div className="flex items-center gap-2 text-zinc-400">
-                <Bold className="w-3.5 h-3.5 hover:text-emerald-400 cursor-pointer" />
-                <Italic className="w-3.5 h-3.5 hover:text-emerald-400 cursor-pointer" />
-                <Underline className="w-3.5 h-3.5 hover:text-emerald-400 cursor-pointer" />
-                <List className="w-3.5 h-3.5 hover:text-emerald-400 cursor-pointer" />
-                <Link2 className="w-3.5 h-3.5 hover:text-emerald-400 cursor-pointer" />
+                <Bold className="w-3.5 h-3.5 hover:text-zinc-500 cursor-pointer" />
+                <Italic className="w-3.5 h-3.5 hover:text-zinc-500 cursor-pointer" />
+                <Underline className="w-3.5 h-3.5 hover:text-zinc-500 cursor-pointer" />
+                <List className="w-3.5 h-3.5 hover:text-zinc-500 cursor-pointer" />
+                <Link2 className="w-3.5 h-3.5 hover:text-zinc-500 cursor-pointer" />
               </div>
             </div>
             <textarea
@@ -168,7 +168,7 @@ export default function CourseListPage() {
         <button
           type="button"
           onClick={handleAdd}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-6 py-2.5 rounded-lg flex items-center gap-2 cursor-pointer shadow-lg"
+          className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold text-sm px-6 py-2.5 rounded-lg flex items-center gap-2 cursor-pointer shadow-lg"
         >
           ✓ UPDATE COURSE
         </button>
@@ -190,7 +190,7 @@ export default function CourseListPage() {
             </div>
             <div className="flex gap-1">
               {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                <button key={i} className="p-1 text-zinc-400 hover:text-emerald-400">
+                <button key={i} className="p-1 text-zinc-400 hover:text-zinc-500">
                   <Icon className="w-4 h-4" />
                 </button>
               ))}
@@ -229,7 +229,7 @@ export default function CourseListPage() {
                       <div className="relative inline-block text-left">
                         <button
                           onClick={() => setOpenDropdownId(openDropdownId === item.id ? null : item.id)}
-                          className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-emerald-500 hover:text-emerald-400"
+                          className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-zinc-600 hover:text-zinc-500"
                         >
                           SELECT <ChevronDown className="w-3 h-3" />
                         </button>
@@ -256,7 +256,7 @@ export default function CourseListPage() {
           <span>Showing 1 to {filtered.length} of {filtered.length} entries</span>
           <div className="flex items-center gap-1">
             <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">←</button>
-            <button className="px-2 py-1 bg-emerald-600 text-white rounded">1</button>
+            <button className="px-2 py-1 bg-zinc-800 text-white rounded">1</button>
             <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">→</button>
           </div>
         </div>

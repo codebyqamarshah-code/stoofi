@@ -40,7 +40,7 @@ export default function TeacherWiseReportPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label className="block text-xs font-medium text-zinc-400 mb-1">TEACHER</label>
-                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:ring-1 focus:ring-zinc-600">
                             <option value="">Select Teacher</option>
                             {['Mudassir Bajwa', 'Fatima Zahra', 'Muhammad Ali', 'Ahmed Khan', 'Dr. Bilal Siddiqui'].map(t => (
                                 <option key={t} value={t}>{t}</option>
@@ -49,7 +49,7 @@ export default function TeacherWiseReportPage() {
                     </div>
                     <div>
                         <label className="block text-xs font-medium text-zinc-400 mb-1">SUBMITTED BY</label>
-                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        <select className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:ring-1 focus:ring-zinc-600">
                             <option value="">Select Submitted By</option>
                             {['Principal Office', 'Academic Coordinator', 'Vice Principal', 'HOD Science', 'Admin Officer'].map(sub => (
                                 <option key={sub} value={sub}>{sub}</option>
@@ -58,7 +58,7 @@ export default function TeacherWiseReportPage() {
                     </div>
                 </div>
                 <div className="flex justify-end mt-4">
-                    <button className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded transition-colors">
+                    <button className="flex items-center px-4 py-2 bg-zinc-800 hover:bg-zinc-800 text-white text-sm font-medium rounded transition-colors">
                         <Search className="w-4 h-4 mr-2" />
                         SEARCH
                     </button>
@@ -75,7 +75,7 @@ export default function TeacherWiseReportPage() {
                             placeholder="Search..." 
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9 pr-4 py-2 w-full sm:w-64 bg-zinc-900 border border-zinc-800 rounded text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            className="pl-9 pr-4 py-2 w-full sm:w-64 bg-zinc-900 border border-zinc-800 rounded text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                         />
                     </div>
                     <div className="flex items-center space-x-2">

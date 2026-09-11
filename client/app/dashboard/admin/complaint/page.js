@@ -119,11 +119,11 @@ export default function ComplaintPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Complaint</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/admin/admission-query" className="hover:text-emerald-400 transition-colors">Admin Section</Link>
+          <Link href="/dashboard/admin/admission-query" className="hover:text-zinc-500 transition-colors">Admin Section</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Complaint</span>
+          <span className="text-zinc-600">Complaint</span>
         </div>
       </div>
 
@@ -138,11 +138,11 @@ export default function ComplaintPage() {
             <form className="p-4 space-y-4" onSubmit={handleSave}>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Complaint By <span className="text-rose-500">*</span></Label>
-                <Input value={formData.complaintBy} onChange={e => setFormData({...formData, complaintBy: e.target.value})} placeholder="Complaint By" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" required />
+                <Input value={formData.complaintBy} onChange={e => setFormData({...formData, complaintBy: e.target.value})} placeholder="Complaint By" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" required />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Complaint Type <span className="text-rose-500">*</span></Label>
-                <select value={formData.complaintType} onChange={e => setFormData({...formData, complaintType: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white" required>
+                <select value={formData.complaintType} onChange={e => setFormData({...formData, complaintType: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white" required>
                   <option value="">Complaint Type *</option>
                   <option value="Academic">Academic</option>
                   <option value="Administrative">Administrative</option>
@@ -150,7 +150,7 @@ export default function ComplaintPage() {
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Complaint Source <span className="text-rose-500">*</span></Label>
-                <select value={formData.source} onChange={e => setFormData({...formData, source: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white" required>
+                <select value={formData.source} onChange={e => setFormData({...formData, source: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white" required>
                   <option value="">Complaint Source *</option>
                   <option value="Parent">Parent</option>
                   <option value="Student">Student</option>
@@ -159,27 +159,27 @@ export default function ComplaintPage() {
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Phone</Label>
-                <Input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="Phone" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                <Input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="Phone" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Date</Label>
-                <Input type="date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 [color-scheme:dark]" />
+                <Input type="date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 [color-scheme:dark]" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Actions Taken</Label>
-                <Input value={formData.actionTaken} onChange={e => setFormData({...formData, actionTaken: e.target.value})} placeholder="Actions Taken" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                <Input value={formData.actionTaken} onChange={e => setFormData({...formData, actionTaken: e.target.value})} placeholder="Actions Taken" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Assigned</Label>
-                <Input value={formData.assigned} onChange={e => setFormData({...formData, assigned: e.target.value})} placeholder="Assigned" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                <Input value={formData.assigned} onChange={e => setFormData({...formData, assigned: e.target.value})} placeholder="Assigned" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Description</Label>
-                <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Description" className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white resize-y" />
+                <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Description" className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white resize-y" />
               </div>
 
               <div className="pt-4">
-                <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+                <Button type="submit" className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                   {editingId ? 'UPDATE' : 'SAVE'} COMPLAINT
                 </Button>
               </div>
@@ -198,7 +198,7 @@ export default function ComplaintPage() {
                   <Input 
                     value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                     placeholder="Quick Search" 
-                    className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500"
+                    className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600"
                   />
                 </div>
                 
@@ -235,7 +235,7 @@ export default function ComplaintPage() {
                         <td className="px-4 py-3 text-zinc-300">{c.phone || '-'}</td>
                         <td className="px-4 py-3 text-zinc-300">{c.date || '-'}</td>
                         <td className="px-4 py-3 text-right space-x-2">
-                          <Button onClick={() => handleEdit(c)} variant="outline" size="sm" className="h-7 text-xs text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10 px-2"><Edit className="h-3 w-3" /></Button>
+                          <Button onClick={() => handleEdit(c)} variant="outline" size="sm" className="h-7 text-xs text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10 px-2"><Edit className="h-3 w-3" /></Button>
                           <Button onClick={() => handleDelete(c._id)} variant="outline" size="sm" className="h-7 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10 px-2"><Trash2 className="h-3 w-3" /></Button>
                         </td>
                       </tr>

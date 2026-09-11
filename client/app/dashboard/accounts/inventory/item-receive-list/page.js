@@ -14,7 +14,7 @@ export default function ItemReceiveListPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Item Receive List</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Accounts</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Inventory</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Item Receive List</span>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Accounts</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Inventory</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-zinc-600">Item Receive List</span>
         </div>
       </div>
 

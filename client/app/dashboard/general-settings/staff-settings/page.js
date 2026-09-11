@@ -52,7 +52,7 @@ export default function StaffSettingsPage() {
                         checked={field.staffEdit}
                         onChange={() => toggleField(index, 'staffEdit')}
                       />
-                      <div className={`block w-10 h-6 rounded-full transition-colors ${field.staffEdit ? 'bg-emerald-600' : 'bg-zinc-700'}`}></div>
+                      <div className={`block w-10 h-6 rounded-full transition-colors ${field.staffEdit ? 'bg-zinc-800' : 'bg-zinc-700'}`}></div>
                       <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${field.staffEdit ? 'transform translate-x-4' : ''}`}></div>
                     </div>
                   </label>
@@ -65,7 +65,7 @@ export default function StaffSettingsPage() {
                         checked={field.required}
                         onChange={() => toggleField(index, 'required')}
                       />
-                      <div className={`block w-10 h-6 rounded-full transition-colors ${field.required ? 'bg-emerald-600' : 'bg-zinc-700'}`}></div>
+                      <div className={`block w-10 h-6 rounded-full transition-colors ${field.required ? 'bg-zinc-800' : 'bg-zinc-700'}`}></div>
                       <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${field.required ? 'transform translate-x-4' : ''}`}></div>
                     </div>
                   </label>

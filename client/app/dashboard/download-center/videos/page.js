@@ -14,11 +14,11 @@ export default function VideoListPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Video</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Download Center</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Video</span>
+          <span className="text-zinc-600">Video</span>
         </div>
       </div>
 
@@ -26,14 +26,14 @@ export default function VideoListPage() {
       <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-5">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4">
           <h2 className="text-base font-semibold text-white">Search</h2>
-          <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold h-9 text-xs self-start sm:self-auto">
+          <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold h-9 text-xs self-start sm:self-auto">
             <Plus className="h-3.5 w-3.5 mr-1" /> ADD
           </Button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Class</Label>
-            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
               <option value="">Select Class</option>
               {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
                 <option key={c} value={c}>{c}</option>
@@ -42,7 +42,7 @@ export default function VideoListPage() {
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Section</Label>
-            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
               <option value="">Select Section</option>
               {['A', 'B', 'C', 'D'].map(s => (
                 <option key={s} value={s}>Section {s}</option>
@@ -51,11 +51,11 @@ export default function VideoListPage() {
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Title</Label>
-            <Input placeholder="Title" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+            <Input placeholder="Title" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
           </div>
         </div>
         <div className="flex mt-6">
-          <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+          <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
             <Search className="h-4 w-4 mr-2" /> SEARCH
           </Button>
         </div>

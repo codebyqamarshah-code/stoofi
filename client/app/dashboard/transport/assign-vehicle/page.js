@@ -90,11 +90,11 @@ export default function AssignVehiclePage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Assign Vehicle</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Transport</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Assign Vehicle</span>
+          <span className="text-zinc-600">Assign Vehicle</span>
         </div>
       </div>
 
@@ -124,14 +124,14 @@ export default function AssignVehiclePage() {
                         value={v._id}
                         checked={formData.vehicleId === v._id}
                         onChange={(e) => setFormData({...formData, vehicleId: e.target.value})}
-                        className="text-emerald-500 focus:ring-emerald-500 bg-zinc-900 border-zinc-700"
+                        className="text-zinc-600 focus:ring-zinc-600 bg-zinc-900 border-zinc-700"
                       />
                       <span className="text-sm text-zinc-300">{v.vehicleNo}</span>
                     </label>
                   ))}
                 </div>
               </div>
-              <Button disabled={submitting} type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold mt-4">
+              <Button disabled={submitting} type="submit" className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold mt-4">
                 {submitting ? 'SAVING...' : 'SAVE'}
               </Button>
             </form>
@@ -147,7 +147,7 @@ export default function AssignVehiclePage() {
                 <Input 
                   placeholder="SEARCH" 
                   value={search} onChange={(e) => setSearch(e.target.value)}
-                  className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500"
+                  className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-zinc-600"
                 />
               </div>
             </div>

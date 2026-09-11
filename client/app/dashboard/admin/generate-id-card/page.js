@@ -40,11 +40,11 @@ export default function GenerateIdCardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Generate ID Card</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/admin/admission-query" className="hover:text-emerald-400 transition-colors">Admin Section</Link>
+          <Link href="/dashboard/admin/admission-query" className="hover:text-zinc-500 transition-colors">Admin Section</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Generate ID Card</span>
+          <span className="text-zinc-600">Generate ID Card</span>
         </div>
       </div>
 
@@ -57,7 +57,7 @@ export default function GenerateIdCardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Role <span className="text-rose-500">*</span></Label>
-              <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white" required>
+              <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white" required>
                 <option value="">Select Role *</option>
                 <option value="Student">Student</option>
                 <option value="Teacher">Teacher</option>
@@ -67,7 +67,7 @@ export default function GenerateIdCardPage() {
             
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">ID Card <span className="text-rose-500">*</span></Label>
-              <select value={formData.idCard} onChange={e => setFormData({...formData, idCard: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white" required>
+              <select value={formData.idCard} onChange={e => setFormData({...formData, idCard: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white" required>
                 <option value="">Select Id Card *</option>
                 {availableCards.map(c => (
                   <option key={c._id} value={c._id}>{c.title}</option>
@@ -77,12 +77,12 @@ export default function GenerateIdCardPage() {
             
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Grid Gap (PX)</Label>
-              <Input type="number" value={formData.gridGap} onChange={e => setFormData({...formData, gridGap: e.target.value})} placeholder="Grid Gap (px)" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+              <Input type="number" value={formData.gridGap} onChange={e => setFormData({...formData, gridGap: e.target.value})} placeholder="Grid Gap (px)" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
             </div>
           </div>
           
           <div className="flex justify-end mt-6">
-            <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+            <Button type="submit" className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
               <Search className="h-4 w-4 mr-2" /> SEARCH
             </Button>
           </div>

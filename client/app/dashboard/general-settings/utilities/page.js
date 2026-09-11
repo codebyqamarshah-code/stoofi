@@ -5,9 +5,9 @@ import { ChevronRight, Cloud, FileText, Monitor, Lock } from 'lucide-react';
 const APPLICABLE_FOR_OPTIONS = ['Student', 'Parents', 'Teacher', 'Admin', 'Accountant', 'Receptionist', 'Librarian', 'Driver', 'Frontend/Website'];
 
 const quickActions = [
-  { label: 'Clear Cache', icon: Cloud, border: 'border-l-emerald-500' },
+  { label: 'Clear Cache', icon: Cloud, border: 'border-l-zinc-600' },
   { label: 'Clear Log', icon: FileText, border: 'border-l-zinc-500' },
-  { label: 'Enable App Debug', icon: Monitor, border: 'border-l-emerald-500' },
+  { label: 'Enable App Debug', icon: Monitor, border: 'border-l-zinc-600' },
   { label: 'Enable Force HTTPS', icon: Lock, border: 'border-l-rose-500' },
 ];
 
@@ -33,7 +33,7 @@ export default function UtilitiesPage() {
     <div className="min-h-screen bg-zinc-950 p-6">
       {/* Toast */}
       {toast && (
-        <div className="fixed top-4 right-4 z-50 bg-emerald-600 text-white text-sm px-4 py-2 rounded shadow-lg">
+        <div className="fixed top-4 right-4 z-50 bg-zinc-800 text-white text-sm px-4 py-2 rounded shadow-lg">
           {toast}
         </div>
       )}
@@ -44,7 +44,7 @@ export default function UtilitiesPage() {
         <ChevronRight className="w-3 h-3" />
         <span>System Settings</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">Utilities</span>
+        <span className="text-zinc-500">Utilities</span>
       </div>
 
       <h1 className="text-xl font-bold text-white mb-6">Utilities</h1>
@@ -74,8 +74,8 @@ export default function UtilitiesPage() {
             <div className="flex gap-6">
               {['enable', 'disable'].map(opt => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer" onClick={() => setMode(opt)}>
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${mode === opt ? 'border-emerald-500' : 'border-zinc-600'}`}>
-                    {mode === opt && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${mode === opt ? 'border-zinc-600' : 'border-zinc-600'}`}>
+                    {mode === opt && <div className="w-2 h-2 rounded-full bg-zinc-600" />}
                   </div>
                   <span className="text-sm text-zinc-300 capitalize">{opt}</span>
                 </label>
@@ -89,7 +89,7 @@ export default function UtilitiesPage() {
             <input
               value={title}
               onChange={e => setTitle(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
             />
           </div>
         </div>
@@ -101,7 +101,7 @@ export default function UtilitiesPage() {
             value={subTitle}
             onChange={e => setSubTitle(e.target.value)}
             rows={3}
-            className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+            className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600 resize-none"
           />
         </div>
 
@@ -111,7 +111,7 @@ export default function UtilitiesPage() {
           <div className="flex flex-wrap gap-4">
             {APPLICABLE_FOR_OPTIONS.map(opt => (
               <label key={opt} className="flex items-center gap-2 cursor-pointer" onClick={() => toggleApplicable(opt)}>
-                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${applicableFor.includes(opt) ? 'bg-emerald-600 border-emerald-600' : 'border-zinc-600 bg-transparent'}`}>
+                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${applicableFor.includes(opt) ? 'bg-zinc-800 border-zinc-800' : 'border-zinc-600 bg-transparent'}`}>
                   {applicableFor.includes(opt) && <span className="text-white text-xs font-bold">✓</span>}
                 </div>
                 <span className="text-sm text-zinc-300">{opt}</span>
@@ -137,7 +137,7 @@ export default function UtilitiesPage() {
           </div>
         </div>
 
-        <button className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-6 py-2 rounded flex items-center gap-2">
+        <button className="bg-zinc-800 hover:bg-zinc-800 text-white text-sm font-semibold px-6 py-2 rounded flex items-center gap-2">
           ✓ UPDATE
         </button>
       </div>

@@ -15,11 +15,11 @@ export default function FeesInvoiceBulkPrintSettingsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Fees Invoice Settings</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Bulk Print</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Fees Invoice Settings</span>
+          <span className="text-zinc-600">Fees Invoice Settings</span>
         </div>
       </div>
 
@@ -38,7 +38,7 @@ export default function FeesInvoiceBulkPrintSettingsPage() {
                     onClick={() => setInvoiceType(type)}
                     className={`w-5 h-5 rounded-full border-2 flex items-center justify-center cursor-pointer transition-colors ${
                       invoiceType === type
-                        ? 'border-emerald-500 bg-emerald-500'
+                        ? 'border-zinc-600 bg-zinc-600'
                         : 'border-zinc-500 bg-transparent'
                     }`}
                   >
@@ -51,7 +51,7 @@ export default function FeesInvoiceBulkPrintSettingsPage() {
           </div>
 
           <div className="flex justify-center pt-4">
-            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8">
+            <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold px-8">
               UPDATE
             </Button>
           </div>

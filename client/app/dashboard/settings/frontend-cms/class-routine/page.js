@@ -55,7 +55,7 @@ export default function FrontClassRoutinePage() {
         <ChevronRight className="w-3 h-3" />
         <span>Frontend CMS</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">Front Class Routine</span>
+        <span className="text-zinc-500">Front Class Routine</span>
       </div>
 
       <h1 className="text-xl font-bold text-white mb-6">Front Class Routine</h1>
@@ -71,7 +71,7 @@ export default function FrontClassRoutinePage() {
               type="text"
               value={title}
               onChange={e => setTitle(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
             />
           </div>
 
@@ -81,7 +81,7 @@ export default function FrontClassRoutinePage() {
               type="date"
               value={publishDate}
               onChange={e => setPublishDate(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
             />
           </div>
 
@@ -115,7 +115,7 @@ export default function FrontClassRoutinePage() {
           <button
             type="button"
             onClick={handleAdd}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm py-2 rounded flex items-center justify-center gap-2 mt-4 cursor-pointer"
+            className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold text-sm py-2 rounded flex items-center justify-center gap-2 mt-4 cursor-pointer"
           >
             <Plus className="w-4 h-4" /> ADD
           </button>
@@ -137,7 +137,7 @@ export default function FrontClassRoutinePage() {
               </div>
               <div className="flex gap-1">
                 {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                  <button key={i} className="p-1 text-zinc-400 hover:text-emerald-400">
+                  <button key={i} className="p-1 text-zinc-400 hover:text-zinc-500">
                     <Icon className="w-4 h-4" />
                   </button>
                 ))}
@@ -165,14 +165,14 @@ export default function FrontClassRoutinePage() {
                 ) : (
                   filtered.map((item, idx) => (
                     <tr key={item.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
-                      <td className="py-3 px-3 text-emerald-500 font-medium">{idx + 1}</td>
+                      <td className="py-3 px-3 text-zinc-600 font-medium">{idx + 1}</td>
                       <td className="py-3 px-3 text-zinc-200 font-medium">{item.title}</td>
                       <td className="py-3 px-3 text-zinc-400">{item.date}</td>
                       <td className="py-3 px-3 relative">
                         <div className="relative inline-block text-left">
                           <button
                             onClick={() => setOpenDropdownId(openDropdownId === item.id ? null : item.id)}
-                            className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-emerald-500 hover:text-emerald-400"
+                            className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-zinc-600 hover:text-zinc-500"
                           >
                             SELECT <ChevronDown className="w-3 h-3" />
                           </button>

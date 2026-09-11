@@ -10,7 +10,7 @@ export default function HeaderOption() {
     const Toggle = ({ checked, onChange }) => (
         <button 
             onClick={onChange}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${checked ? 'bg-emerald-600' : 'bg-zinc-700'}`}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${checked ? 'bg-zinc-800' : 'bg-zinc-700'}`}
         >
             <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
         </button>
@@ -41,7 +41,7 @@ export default function HeaderOption() {
                             <label className="block text-sm text-zinc-400 mb-2">Custom URL</label>
                             <input 
                                 type="text" 
-                                className="w-full p-2.5 rounded-md bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                className="w-full p-2.5 rounded-md bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                                 placeholder="https://example.com"
                                 value={customUrl}
                                 onChange={(e) => setCustomUrl(e.target.value)}
@@ -49,7 +49,7 @@ export default function HeaderOption() {
                         </div>
 
                         <div>
-                            <button className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-md transition-colors">
+                            <button className="px-6 py-2 bg-zinc-800 hover:bg-zinc-800 text-white text-sm font-medium rounded-md transition-colors">
                                 UPDATE
                             </button>
                         </div>

@@ -23,7 +23,7 @@ export default function PayrollReportPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Payroll Report</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Report</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Accounts Report</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-emerald-500">Payroll Report</span>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Report</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Accounts Report</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-zinc-600">Payroll Report</span>
         </div>
       </div>
 
@@ -36,7 +36,7 @@ export default function PayrollReportPage() {
               placeholder="Search..." 
               value={search} 
               onChange={(e) => setSearch(e.target.value)}
-              className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white" 
+              className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white" 
             />
           </div>
           <div className="space-y-1.5">
@@ -44,7 +44,7 @@ export default function PayrollReportPage() {
             <select 
               value={classFilter} 
               onChange={(e) => setClassFilter(e.target.value)}
-              className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-zinc-600"
             >
               <option value="">All Classes</option>
               {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
@@ -53,7 +53,7 @@ export default function PayrollReportPage() {
             </select>
           </div>
           <div className="flex items-end justify-end">
-            <Button onClick={handleSearch} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2">
+            <Button onClick={handleSearch} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2">
               <Search className="h-4 w-4" /> SEARCH REPORT
             </Button>
           </div>
@@ -65,7 +65,7 @@ export default function PayrollReportPage() {
           <h2 className="text-lg font-semibold text-white">Payroll Report List</h2>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white"><Download className="h-4 w-4" /></Button>
-            <Button variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 text-emerald-500 hover:text-white"><FileText className="h-4 w-4" /></Button>
+            <Button variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 text-zinc-600 hover:text-white"><FileText className="h-4 w-4" /></Button>
             <Button variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 text-rose-500 hover:text-white"><Printer className="h-4 w-4" /></Button>
           </div>
         </div>

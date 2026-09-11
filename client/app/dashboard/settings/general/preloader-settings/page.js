@@ -23,7 +23,7 @@ export default function PreloaderSettingsPage() {
         <ChevronRight className="w-3 h-3" />
         <span>Settings</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">Preloader Settings</span>
+        <span className="text-zinc-500">Preloader Settings</span>
       </div>
 
       <h1 className="text-xl font-bold text-white mb-6">Preloader Settings</h1>
@@ -40,9 +40,9 @@ export default function PreloaderSettingsPage() {
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <div
                     onClick={() => setStatus(opt)}
-                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center cursor-pointer ${status === opt ? 'border-emerald-500' : 'border-zinc-600'}`}
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center cursor-pointer ${status === opt ? 'border-zinc-600' : 'border-zinc-600'}`}
                   >
-                    {status === opt && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
+                    {status === opt && <div className="w-2 h-2 rounded-full bg-zinc-600" />}
                   </div>
                   <span className="text-sm text-zinc-300 capitalize">{opt}</span>
                 </label>
@@ -58,9 +58,9 @@ export default function PreloaderSettingsPage() {
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <div
                     onClick={() => setType(opt)}
-                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center cursor-pointer ${type === opt ? 'border-emerald-500' : 'border-zinc-600'}`}
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center cursor-pointer ${type === opt ? 'border-zinc-600' : 'border-zinc-600'}`}
                   >
-                    {type === opt && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
+                    {type === opt && <div className="w-2 h-2 rounded-full bg-zinc-600" />}
                   </div>
                   <span className="text-sm text-zinc-300 capitalize">{opt}</span>
                 </label>
@@ -95,7 +95,7 @@ export default function PreloaderSettingsPage() {
           )}
         </div>
 
-        <button className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-6 py-2 rounded flex items-center gap-2">
+        <button className="bg-zinc-800 hover:bg-zinc-800 text-white text-sm font-semibold px-6 py-2 rounded flex items-center gap-2">
           ✓ UPDATE
         </button>
       </div>

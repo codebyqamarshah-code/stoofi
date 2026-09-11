@@ -32,7 +32,7 @@ export default function ManageThemePage() {
         <ChevronRight className="w-3 h-3" />
         <span>Frontend CMS</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">Theme Manager - {activeTheme}</span>
+        <span className="text-zinc-500">Theme Manager - {activeTheme}</span>
       </div>
 
       <h1 className="text-xl font-bold text-white mb-6">Theme Manager</h1>
@@ -44,13 +44,13 @@ export default function ManageThemePage() {
             <div
               key={theme.id}
               className={`bg-zinc-900 border ${
-                isActive ? 'border-emerald-500 ring-1 ring-emerald-500/50' : 'border-zinc-800'
+                isActive ? 'border-zinc-600 ring-1 ring-zinc-600/50' : 'border-zinc-800'
               } rounded-xl overflow-hidden flex flex-col shadow-xl transition-all`}
             >
               {/* Preview Banner */}
               <div className={`h-56 bg-gradient-to-br ${theme.previewGradient} p-6 flex flex-col justify-center items-center text-center relative border-b border-zinc-800`}>
                 <div className="absolute top-4 left-4 flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-zinc-600"></div>
                   <span className="text-xs font-bold tracking-wider text-white uppercase">Stoofi Pro</span>
                 </div>
                 <h3 className="text-2xl font-black text-white tracking-wide mb-2 drop-shadow-md">
@@ -60,7 +60,7 @@ export default function ManageThemePage() {
                   {theme.heroSubtitle}
                 </p>
                 <div className="mt-4 flex gap-2">
-                  <span className="px-3 py-1 bg-emerald-600/80 text-white rounded text-[11px] font-semibold">Notice Board</span>
+                  <span className="px-3 py-1 bg-zinc-800/80 text-white rounded text-[11px] font-semibold">Notice Board</span>
                   <span className="px-3 py-1 bg-zinc-800/80 text-zinc-300 rounded text-[11px]">Admissions 2026</span>
                 </div>
               </div>
@@ -75,14 +75,14 @@ export default function ManageThemePage() {
                 {isActive ? (
                   <button
                     disabled
-                    className="bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-1.5 cursor-default"
+                    className="bg-zinc-800/20 border border-zinc-600/40 text-zinc-500 text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-1.5 cursor-default"
                   >
                     <Check className="w-3.5 h-3.5" /> Active: {theme.name}
                   </button>
                 ) : (
                   <button
                     onClick={() => setActiveTheme(theme.id)}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-5 py-2 rounded-lg transition-colors cursor-pointer"
+                    className="bg-zinc-800 hover:bg-zinc-800 text-white text-xs font-semibold px-5 py-2 rounded-lg transition-colors cursor-pointer"
                   >
                     Make Active
                   </button>

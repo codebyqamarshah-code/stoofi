@@ -65,22 +65,22 @@ export default function VirtualClassSettingsPage() {
           </p>
         </div>
         <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+          <Link href="/dashboard" className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">
             Dashboard
           </Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/module/virtual-class" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+          <Link href="/dashboard/module/virtual-class" className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">
             Virtual Class
           </Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-600 dark:text-emerald-400 font-medium">Settings</span>
+          <span className="text-zinc-800 dark:text-emerald-400 font-medium">Settings</span>
         </div>
       </div>
 
       {/* Success Alert */}
       {savedSuccess && (
-        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 flex items-center gap-3 text-sm animate-in fade-in duration-200">
-          <CheckCircle2 className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+        <div className="p-4 rounded-xl bg-zinc-100 dark:bg-emerald-950/50 border border-zinc-300 dark:border-emerald-800 text-zinc-900 dark:text-emerald-300 flex items-center gap-3 text-sm animate-in fade-in duration-200">
+          <CheckCircle2 className="h-5 w-5 text-zinc-800 flex-shrink-0" />
           <span>Zoom Virtual Class configuration settings have been updated successfully.</span>
         </div>
       )}
@@ -91,7 +91,7 @@ export default function VirtualClassSettingsPage() {
           {/* Section 1: Zoom OAuth Credentials */}
           <div>
             <div className="flex items-center gap-2.5 pb-3 mb-5 border-b border-zinc-100 dark:border-zinc-800">
-              <KeyRound className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              <KeyRound className="h-5 w-5 text-zinc-800 dark:text-emerald-400" />
               <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
                 Zoom Server-to-Server OAuth Credentials
               </h2>
@@ -108,7 +108,7 @@ export default function VirtualClassSettingsPage() {
                   value={settings.apiKey}
                   onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
                   placeholder="Enter Zoom OAuth Client ID..."
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                 />
               </div>
 
@@ -122,7 +122,7 @@ export default function VirtualClassSettingsPage() {
                   value={settings.apiSecret}
                   onChange={(e) => setSettings({ ...settings, apiSecret: e.target.value })}
                   placeholder="Enter Zoom OAuth Client Secret..."
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                 />
               </div>
 
@@ -136,7 +136,7 @@ export default function VirtualClassSettingsPage() {
                   value={settings.accountId}
                   onChange={(e) => setSettings({ ...settings, accountId: e.target.value })}
                   placeholder="Enter Zoom Account ID..."
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                 />
               </div>
 
@@ -149,7 +149,7 @@ export default function VirtualClassSettingsPage() {
                   value={settings.webhookSecret}
                   onChange={(e) => setSettings({ ...settings, webhookSecret: e.target.value })}
                   placeholder="Enter Webhook secret token..."
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                 />
               </div>
             </div>
@@ -158,7 +158,7 @@ export default function VirtualClassSettingsPage() {
           {/* Section 2: Meeting Room Defaults */}
           <div>
             <div className="flex items-center gap-2.5 pb-3 mb-5 border-b border-zinc-100 dark:border-zinc-800">
-              <Sliders className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              <Sliders className="h-5 w-5 text-zinc-800 dark:text-emerald-400" />
               <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
                 Meeting Room Configuration & Policies
               </h2>
@@ -172,7 +172,7 @@ export default function VirtualClassSettingsPage() {
                 <select
                   value={settings.autoRecording}
                   onChange={(e) => setSettings({ ...settings, autoRecording: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                 >
                   <option value="none">Disabled (No auto-record)</option>
                   <option value="local">Record on Local Machine</option>
@@ -186,7 +186,7 @@ export default function VirtualClassSettingsPage() {
                 </label>
                 <select
                   defaultValue="both"
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                 >
                   <option value="both">Both Computer Audio and Telephony</option>
                   <option value="computer">Computer Audio Only (VoIP)</option>
@@ -202,7 +202,7 @@ export default function VirtualClassSettingsPage() {
                   type="checkbox"
                   checked={settings.hostVideo}
                   onChange={(e) => setSettings({ ...settings, hostVideo: e.target.checked })}
-                  className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500"
+                  className="h-4 w-4 rounded border-zinc-300 text-zinc-800 focus:ring-zinc-600"
                 />
                 <div>
                   <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase">Host Video On</div>
@@ -215,7 +215,7 @@ export default function VirtualClassSettingsPage() {
                   type="checkbox"
                   checked={settings.participantVideo}
                   onChange={(e) => setSettings({ ...settings, participantVideo: e.target.checked })}
-                  className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500"
+                  className="h-4 w-4 rounded border-zinc-300 text-zinc-800 focus:ring-zinc-600"
                 />
                 <div>
                   <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase">Participant Video On</div>
@@ -228,7 +228,7 @@ export default function VirtualClassSettingsPage() {
                   type="checkbox"
                   checked={settings.waitingRoom}
                   onChange={(e) => setSettings({ ...settings, waitingRoom: e.target.checked })}
-                  className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500"
+                  className="h-4 w-4 rounded border-zinc-300 text-zinc-800 focus:ring-zinc-600"
                 />
                 <div>
                   <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase">Enable Waiting Room</div>
@@ -241,7 +241,7 @@ export default function VirtualClassSettingsPage() {
                   type="checkbox"
                   checked={settings.joinBeforeHost}
                   onChange={(e) => setSettings({ ...settings, joinBeforeHost: e.target.checked })}
-                  className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500"
+                  className="h-4 w-4 rounded border-zinc-300 text-zinc-800 focus:ring-zinc-600"
                 />
                 <div>
                   <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase">Join Before Host</div>
@@ -274,7 +274,7 @@ export default function VirtualClassSettingsPage() {
 
             <button
               type="submit"
-              className="w-full sm:w-auto px-8 py-2.5 bg-[#009966] hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
+              className="w-full sm:w-auto px-8 py-2.5 bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
             >
               <Save className="h-4 w-4" />
               Save Virtual Class Settings
@@ -282,8 +282,8 @@ export default function VirtualClassSettingsPage() {
           </div>
 
           {connectionStatus && (
-            <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+            <div className="p-3 rounded-lg bg-zinc-100 dark:bg-emerald-950/40 border border-zinc-300 dark:border-emerald-800 text-xs text-zinc-800 dark:text-emerald-300 flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-zinc-600 flex-shrink-0" />
               <span>{connectionStatus.message}</span>
             </div>
           )}

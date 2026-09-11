@@ -20,7 +20,7 @@ export default function VimeoSettingsPage() {
       <div
         onClick={() => onChange(value)}
         className={`w-4 h-4 rounded-full border-2 flex items-center justify-center cursor-pointer transition-colors ${
-          selected === value ? 'border-emerald-500 bg-emerald-500' : 'border-zinc-500'
+          selected === value ? 'border-zinc-600 bg-zinc-600' : 'border-zinc-500'
         }`}
       >
         {selected === value && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
@@ -34,13 +34,13 @@ export default function VimeoSettingsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Vimeo Settings</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>LMS</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/settings/general" className="hover:text-emerald-400 transition-colors">Settings</Link>
+          <Link href="/dashboard/settings/general" className="hover:text-zinc-500 transition-colors">Settings</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Vimeo Settings</span>
+          <span className="text-zinc-600">Vimeo Settings</span>
         </div>
       </div>
 
@@ -65,7 +65,7 @@ export default function VimeoSettingsPage() {
                 type="password"
                 value={vimeoClient}
                 onChange={(e) => setVimeoClient(e.target.value)}
-                className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500"
+                className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600"
               />
             </div>
           </div>
@@ -78,7 +78,7 @@ export default function VimeoSettingsPage() {
                 type="password"
                 value={vimeoSecret}
                 onChange={(e) => setVimeoSecret(e.target.value)}
-                className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500"
+                className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600"
               />
             </div>
             <div className="space-y-1.5">
@@ -87,7 +87,7 @@ export default function VimeoSettingsPage() {
                 type="password"
                 value={vimeoAccess}
                 onChange={(e) => setVimeoAccess(e.target.value)}
-                className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500"
+                className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600"
               />
             </div>
           </div>
@@ -103,15 +103,15 @@ export default function VimeoSettingsPage() {
 
           {/* Info Text */}
           <div className="space-y-1.5 text-xs">
-            <p className="text-emerald-500 hover:underline cursor-pointer">Click Here to Get Vimeo Api Key | Scopes need to allow public,private,edit,upload</p>
-            <p className="text-emerald-500 hover:underline cursor-pointer">For Secure, Change Privacy to Hide From Vimeo</p>
-            <p className="text-emerald-500 hover:underline cursor-pointer">Where can the video be embedded? Set Use Specific domains &amp; register your domain without http/https</p>
+            <p className="text-zinc-600 hover:underline cursor-pointer">Click Here to Get Vimeo Api Key | Scopes need to allow public,private,edit,upload</p>
+            <p className="text-zinc-600 hover:underline cursor-pointer">For Secure, Change Privacy to Hide From Vimeo</p>
+            <p className="text-zinc-600 hover:underline cursor-pointer">Where can the video be embedded? Set Use Specific domains &amp; register your domain without http/https</p>
             <p className="text-zinc-500">Direct upload is not allow for Vimeo basic plan</p>
           </div>
 
           {/* Update Button */}
           <div className="flex justify-center pt-2">
-            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-10">
+            <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold px-10">
               UPDATE
             </Button>
           </div>

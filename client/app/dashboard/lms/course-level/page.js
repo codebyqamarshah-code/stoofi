@@ -52,11 +52,11 @@ export default function CourseLevelPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Course Level</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>LMS</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Course Level</span>
+          <span className="text-zinc-600">Course Level</span>
         </div>
       </div>
 
@@ -74,12 +74,12 @@ export default function CourseLevelPage() {
                   placeholder="Level Title"
                   value={levelTitle}
                   onChange={(e) => setLevelTitle(e.target.value)}
-                  className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500"
+                  className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600"
                   required
                 />
               </div>
               <div className="pt-2">
-                <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+                <Button type="submit" className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                   ADD COURSE LEVEL
                 </Button>
               </div>
@@ -98,7 +98,7 @@ export default function CourseLevelPage() {
                   placeholder="SEARCH" 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-xs font-semibold uppercase" 
+                  className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase" 
                 />
               </div>
             </div>
@@ -118,7 +118,7 @@ export default function CourseLevelPage() {
                       <td className="px-4 py-4">
                         <div
                           onClick={() => toggleStatus(lv._id)}
-                          className={`relative inline-flex h-5 w-9 items-center rounded-full cursor-pointer transition-colors ${lv.status ? 'bg-emerald-600' : 'bg-zinc-700'}`}
+                          className={`relative inline-flex h-5 w-9 items-center rounded-full cursor-pointer transition-colors ${lv.status ? 'bg-zinc-800' : 'bg-zinc-700'}`}
                         >
                           <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${lv.status ? 'translate-x-4' : 'translate-x-1'}`} />
                         </div>

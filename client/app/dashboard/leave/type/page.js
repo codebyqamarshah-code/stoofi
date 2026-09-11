@@ -21,13 +21,13 @@ export default function LeaveType() {
                 <label className="block text-sm font-medium text-zinc-400 mb-1">TYPE NAME *</label>
                 <input
                   type="text"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-zinc-600"
                   required
                 />
               </div>
               <button
                 type="submit"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-medium py-2 px-4 rounded-md transition-colors"
               >
                 SAVE TYPE
               </button>
@@ -44,7 +44,7 @@ export default function LeaveType() {
               <input
                 type="text"
                 placeholder="Search..."
-                className="w-full sm:w-64 bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
+                className="w-full sm:w-64 bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-zinc-600"
               />
               <div className="flex gap-2 text-zinc-400">
                 <button className="p-2 hover:text-white transition-colors"><Copy size={18} /></button>
@@ -68,7 +68,7 @@ export default function LeaveType() {
                   <tr className="border-b border-zinc-800 hover:bg-zinc-950/50">
                     <td className="px-4 py-3 text-white">Casual Leave</td>
                     <td className="px-4 py-3 text-right">
-                      <select className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1 rounded appearance-none cursor-pointer outline-none text-center">
+                      <select className="bg-zinc-800 hover:bg-zinc-800 text-white text-xs px-3 py-1 rounded appearance-none cursor-pointer outline-none text-center">
                         <option>SELECT</option>
                         <option>Edit</option>
                         <option>Delete</option>

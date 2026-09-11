@@ -19,11 +19,11 @@ export default function PendingCoursePage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Pending Course List</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>LMS</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Pending Course</span>
+          <span className="text-zinc-600">Pending Course</span>
         </div>
       </div>
 
@@ -35,7 +35,7 @@ export default function PendingCoursePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Select Class</Label>
-            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
               <option value="">Select Class</option>
               <option value="1">Class 1</option>
               <option value="2">Class 2</option>
@@ -53,7 +53,7 @@ export default function PendingCoursePage() {
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Select Section</Label>
-            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
               <option value="">Select Section</option>
               <option value="A">Section A</option>
               <option value="B">Section B</option>
@@ -63,7 +63,7 @@ export default function PendingCoursePage() {
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Select Teacher</Label>
-            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
               <option value="">Select Teacher</option>
               <option value="1">John Doe (Senior Mathematics)</option>
               <option value="2">Sarah Connor (Physics HOD)</option>
@@ -74,7 +74,7 @@ export default function PendingCoursePage() {
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Select Status</Label>
-            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+            <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
               <option value="Pending">Pending Review</option>
               <option value="Approved">Approved</option>
               <option value="Rejected">Rejected</option>
@@ -83,7 +83,7 @@ export default function PendingCoursePage() {
           </div>
         </div>
         <div className="flex justify-end mt-6">
-          <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+          <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
             <Search className="h-4 w-4 mr-2" /> SEARCH
           </Button>
         </div>
@@ -96,7 +96,7 @@ export default function PendingCoursePage() {
           <div className="flex items-center gap-3">
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-              <Input placeholder="SEARCH" className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-xs font-semibold uppercase" />
+              <Input placeholder="SEARCH" className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase" />
             </div>
             <div className="flex items-center border border-zinc-800 rounded-md bg-zinc-900">
               {[FileText, Download, FileText, Download, Printer, MoreVertical].map((Icon, i) => (
@@ -138,7 +138,7 @@ export default function PendingCoursePage() {
                   <td className="px-4 py-4 text-zinc-300">{c.createdBy}</td>
                   <td className="px-4 py-4 text-zinc-300">{c.created}</td>
                   <td className="px-4 py-4 text-right">
-                    <Button variant="outline" size="sm" className="h-8 text-xs text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10">
+                    <Button variant="outline" size="sm" className="h-8 text-xs text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10">
                       SELECT <ChevronRight className="h-3 w-3 ml-1 rotate-90" />
                     </Button>
                   </td>

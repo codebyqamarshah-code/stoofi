@@ -58,22 +58,22 @@ export default function RegistrationSettingsPage() {
           </p>
         </div>
         <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+          <Link href="/dashboard" className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">
             Dashboard
           </Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/module/registration" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+          <Link href="/dashboard/module/registration" className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">
             Registration
           </Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-600 dark:text-emerald-400 font-medium">Settings</span>
+          <span className="text-zinc-800 dark:text-emerald-400 font-medium">Settings</span>
         </div>
       </div>
 
       {/* Success Alert */}
       {savedSuccess && (
-        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 flex items-center gap-3 text-sm animate-in fade-in duration-200">
-          <CheckCircle2 className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+        <div className="p-4 rounded-xl bg-zinc-100 dark:bg-emerald-950/50 border border-zinc-300 dark:border-emerald-800 text-zinc-900 dark:text-emerald-300 flex items-center gap-3 text-sm animate-in fade-in duration-200">
+          <CheckCircle2 className="h-5 w-5 text-zinc-800 flex-shrink-0" />
           <span>Online admission portal settings have been successfully updated.</span>
         </div>
       )}
@@ -84,7 +84,7 @@ export default function RegistrationSettingsPage() {
           {/* Section 1: Admission Session & Schedule */}
           <div>
             <div className="flex items-center gap-2.5 pb-3 mb-5 border-b border-zinc-100 dark:border-zinc-800">
-              <Calendar className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              <Calendar className="h-5 w-5 text-zinc-800 dark:text-emerald-400" />
               <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
                 Admission Cycle & Schedule
               </h2>
@@ -98,7 +98,7 @@ export default function RegistrationSettingsPage() {
                 <select
                   value={settings.academicYear}
                   onChange={(e) => setSettings({ ...settings, academicYear: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                 >
                   <option value="2026-2027">2026 - 2027</option>
                   <option value="2025-2026">2025 - 2026</option>
@@ -114,7 +114,7 @@ export default function RegistrationSettingsPage() {
                   required
                   value={settings.startDate}
                   onChange={(e) => setSettings({ ...settings, startDate: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                  className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                 />
               </div>
 
@@ -127,7 +127,7 @@ export default function RegistrationSettingsPage() {
                   required
                   value={settings.endDate}
                   onChange={(e) => setSettings({ ...settings, endDate: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                  className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                 />
               </div>
             </div>
@@ -136,7 +136,7 @@ export default function RegistrationSettingsPage() {
           {/* Section 2: Fee & Approval Policy */}
           <div>
             <div className="flex items-center gap-2.5 pb-3 mb-5 border-b border-zinc-100 dark:border-zinc-800">
-              <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              <DollarSign className="h-5 w-5 text-zinc-800 dark:text-emerald-400" />
               <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
                 Registration Processing Fee
               </h2>
@@ -154,7 +154,7 @@ export default function RegistrationSettingsPage() {
                     min="0"
                     value={settings.feeAmount}
                     onChange={(e) => setSettings({ ...settings, feeAmount: e.target.value })}
-                    className="w-full pl-14 pr-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                    className="w-full pl-14 pr-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -166,7 +166,7 @@ export default function RegistrationSettingsPage() {
                 <select
                   value={settings.isOpen ? 'true' : 'false'}
                   onChange={(e) => setSettings({ ...settings, isOpen: e.target.value === 'true' })}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                 >
                   <option value="true">Open & Accepting Applications</option>
                   <option value="false">Closed (Submissions Suspended)</option>
@@ -181,7 +181,7 @@ export default function RegistrationSettingsPage() {
                   type="checkbox"
                   checked={settings.autoApprove}
                   onChange={(e) => setSettings({ ...settings, autoApprove: e.target.checked })}
-                  className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500"
+                  className="h-4 w-4 rounded border-zinc-300 text-zinc-800 focus:ring-zinc-600"
                 />
                 <div>
                   <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase">Auto-Approve Applicants</div>
@@ -194,7 +194,7 @@ export default function RegistrationSettingsPage() {
                   type="checkbox"
                   checked={settings.requirePaymentProof}
                   onChange={(e) => setSettings({ ...settings, requirePaymentProof: e.target.checked })}
-                  className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500"
+                  className="h-4 w-4 rounded border-zinc-300 text-zinc-800 focus:ring-zinc-600"
                 />
                 <div>
                   <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase">Require Fee Receipt Upload</div>
@@ -207,7 +207,7 @@ export default function RegistrationSettingsPage() {
           {/* Section 3: Document Checklist & Terms */}
           <div>
             <div className="flex items-center gap-2.5 pb-3 mb-5 border-b border-zinc-100 dark:border-zinc-800">
-              <FileText className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              <FileText className="h-5 w-5 text-zinc-800 dark:text-emerald-400" />
               <h2 className="text-base font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
                 Mandatory Documentation & Policy Terms
               </h2>
@@ -233,7 +233,7 @@ export default function RegistrationSettingsPage() {
                         ...settings,
                         documents: { ...settings.documents, [doc.key]: e.target.checked }
                       })}
-                      className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500"
+                      className="h-4 w-4 rounded border-zinc-300 text-zinc-800 focus:ring-zinc-600"
                     />
                     <span>{doc.label}</span>
                   </label>
@@ -248,7 +248,7 @@ export default function RegistrationSettingsPage() {
                   rows={3}
                   value={settings.terms}
                   onChange={(e) => setSettings({ ...settings, terms: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-colors"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                 />
               </div>
             </div>
@@ -258,7 +258,7 @@ export default function RegistrationSettingsPage() {
           <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex justify-end">
             <button
               type="submit"
-              className="w-full sm:w-auto px-8 py-2.5 bg-[#009966] hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
+              className="w-full sm:w-auto px-8 py-2.5 bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
             >
               <Save className="h-4 w-4" />
               Save Registration Settings

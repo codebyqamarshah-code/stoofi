@@ -25,7 +25,7 @@ export default function UpdateSystemPage() {
         <ChevronRight className="w-3 h-3" />
         <span>System Settings</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">Update System</span>
+        <span className="text-zinc-500">Update System</span>
       </div>
 
       <h1 className="text-xl font-bold text-white mb-6">Update System</h1>
@@ -46,7 +46,7 @@ export default function UpdateSystemPage() {
             </button>
             <input type="file" ref={fileRef} className="hidden" onChange={e => setSelectedFile(e.target.files[0])} />
           </div>
-          <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-2 rounded flex items-center justify-center gap-2">
+          <button className="w-full bg-zinc-800 hover:bg-zinc-800 text-white text-sm font-semibold py-2 rounded flex items-center justify-center gap-2">
             <Upload className="w-4 h-4" /> SAVE FILE
           </button>
         </div>
@@ -60,7 +60,7 @@ export default function UpdateSystemPage() {
               <div key={item.label} className="flex items-center py-3">
                 <span className="text-sm text-zinc-400 w-56">{item.label}</span>
                 {item.isLink ? (
-                  <a href="#" className="text-sm text-emerald-400 hover:underline flex items-center gap-1">
+                  <a href="#" className="text-sm text-zinc-500 hover:underline flex items-center gap-1">
                     Update <ExternalLink className="w-3 h-3" />
                   </a>
                 ) : (

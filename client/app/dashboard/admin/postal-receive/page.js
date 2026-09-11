@@ -126,11 +126,11 @@ export default function PostalReceivePage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Postal Receive</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/admin/admission-query" className="hover:text-emerald-400 transition-colors">Admin Section</Link>
+          <Link href="/dashboard/admin/admission-query" className="hover:text-zinc-500 transition-colors">Admin Section</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Postal Receive</span>
+          <span className="text-zinc-600">Postal Receive</span>
         </div>
       </div>
 
@@ -145,39 +145,39 @@ export default function PostalReceivePage() {
             <form className="p-4 space-y-4" onSubmit={handleSave}>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">From Title <span className="text-rose-500">*</span></Label>
-                <Input value={formData.fromTitle} onChange={e => setFormData({...formData, fromTitle: e.target.value})} placeholder="From Title" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" required />
+                <Input value={formData.fromTitle} onChange={e => setFormData({...formData, fromTitle: e.target.value})} placeholder="From Title" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" required />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Reference No <span className="text-rose-500">*</span></Label>
-                <Input value={formData.referenceNo} onChange={e => setFormData({...formData, referenceNo: e.target.value})} placeholder="Reference No" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" required />
+                <Input value={formData.referenceNo} onChange={e => setFormData({...formData, referenceNo: e.target.value})} placeholder="Reference No" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" required />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Address</Label>
-                <Input value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="Address" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                <Input value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="Address" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Note</Label>
-                <textarea value={formData.note} onChange={e => setFormData({...formData, note: e.target.value})} placeholder="Note" className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-white resize-y" />
+                <textarea value={formData.note} onChange={e => setFormData({...formData, note: e.target.value})} placeholder="Note" className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white resize-y" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">To Title <span className="text-rose-500">*</span></Label>
-                <Input value={formData.toTitle} onChange={e => setFormData({...formData, toTitle: e.target.value})} placeholder="To Title" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" required />
+                <Input value={formData.toTitle} onChange={e => setFormData({...formData, toTitle: e.target.value})} placeholder="To Title" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" required />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Date</Label>
-                <Input type="date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 [color-scheme:dark]" />
+                <Input type="date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 [color-scheme:dark]" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">File</Label>
                 <div className="flex items-center gap-2">
                   <input type="file" ref={fileInputRef} className="hidden" onChange={e => setFileName(e.target.files[0]?.name || '')} />
-                  <Input type="text" value={fileName} placeholder="File" readOnly className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                  <Input type="text" value={fileName} placeholder="File" readOnly className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                   <Button type="button" onClick={() => fileInputRef.current?.click()} variant="secondary" className="bg-zinc-800 hover:bg-zinc-700 text-white shrink-0"><Upload className="h-4 w-4 mr-2" /> BROWSE</Button>
                 </div>
               </div>
 
               <div className="pt-4">
-                <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+                <Button type="submit" className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                   {editingId ? 'UPDATE' : 'SAVE'} POSTAL RECEIVE
                 </Button>
               </div>
@@ -196,7 +196,7 @@ export default function PostalReceivePage() {
                   <Input 
                     value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                     placeholder="Quick Search" 
-                    className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500"
+                    className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600"
                   />
                 </div>
                 
@@ -235,7 +235,7 @@ export default function PostalReceivePage() {
                         <td className="px-4 py-3 text-zinc-300">{p.note || '-'}</td>
                         <td className="px-4 py-3 text-zinc-300">{p.date || '-'}</td>
                         <td className="px-4 py-3 text-right space-x-2">
-                          <Button onClick={() => handleEdit(p)} variant="outline" size="sm" className="h-7 text-xs text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10 px-2"><Edit className="h-3 w-3" /></Button>
+                          <Button onClick={() => handleEdit(p)} variant="outline" size="sm" className="h-7 text-xs text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10 px-2"><Edit className="h-3 w-3" /></Button>
                           <Button onClick={() => handleDelete(p._id)} variant="outline" size="sm" className="h-7 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10 px-2"><Trash2 className="h-3 w-3" /></Button>
                         </td>
                       </tr>

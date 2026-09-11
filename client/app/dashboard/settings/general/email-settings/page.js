@@ -16,7 +16,7 @@ export default function EmailSettings() {
       <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden shadow-sm">
         <div className="px-6 py-4 border-b border-zinc-800 flex justify-between items-center">
           <h2 className="text-lg font-medium">Select Email Settings</h2>
-          <button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded text-sm transition-colors">
+          <button className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-800 text-white px-4 py-2 rounded text-sm transition-colors">
             <Mail className="w-4 h-4" />
             SEND TEST MAIL
           </button>
@@ -27,7 +27,7 @@ export default function EmailSettings() {
             <button
               onClick={() => setActiveTab('SMTP SETTINGS')}
               className={`pb-2 px-1 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'SMTP SETTINGS' ? 'border-emerald-500 text-emerald-500' : 'border-transparent text-zinc-400 hover:text-zinc-300'
+                activeTab === 'SMTP SETTINGS' ? 'border-zinc-600 text-zinc-600' : 'border-transparent text-zinc-400 hover:text-zinc-300'
               }`}
             >
               SMTP SETTINGS
@@ -35,7 +35,7 @@ export default function EmailSettings() {
             <button
               onClick={() => setActiveTab('PHP SETTINGS')}
               className={`pb-2 px-1 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'PHP SETTINGS' ? 'border-emerald-500 text-emerald-500' : 'border-transparent text-zinc-400 hover:text-zinc-300'
+                activeTab === 'PHP SETTINGS' ? 'border-zinc-600 text-zinc-600' : 'border-transparent text-zinc-400 hover:text-zinc-300'
               }`}
             >
               PHP SETTINGS
@@ -49,7 +49,7 @@ export default function EmailSettings() {
                 type="text"
                 value={fromName}
                 onChange={(e) => setFromName(e.target.value)}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600 focus:border-zinc-600 transition-colors"
                 placeholder="Enter from name"
               />
             </div>
@@ -60,7 +60,7 @@ export default function EmailSettings() {
                 type="email"
                 value={fromMail}
                 onChange={(e) => setFromMail(e.target.value)}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600 focus:border-zinc-600 transition-colors"
                 placeholder="Enter from mail"
               />
             </div>
@@ -70,7 +70,7 @@ export default function EmailSettings() {
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600 focus:border-zinc-600 transition-colors"
               >
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
@@ -78,7 +78,7 @@ export default function EmailSettings() {
             </div>
             
             <div className="pt-4">
-              <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded text-sm transition-colors">
+              <button className="bg-zinc-800 hover:bg-zinc-800 text-white px-6 py-2 rounded text-sm transition-colors">
                 UPDATE
               </button>
             </div>

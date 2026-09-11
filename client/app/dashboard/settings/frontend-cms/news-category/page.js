@@ -53,7 +53,7 @@ export default function NewsCategoryPage() {
         <ChevronRight className="w-3 h-3" />
         <span>Frontend CMS</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">News Category</span>
+        <span className="text-zinc-500">News Category</span>
       </div>
 
       <h1 className="text-xl font-bold text-white mb-6">News Category</h1>
@@ -69,14 +69,14 @@ export default function NewsCategoryPage() {
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
             />
           </div>
 
           <button
             type="button"
             onClick={handleSave}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm py-2 rounded flex items-center justify-center gap-2 mt-4 cursor-pointer"
+            className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold text-sm py-2 rounded flex items-center justify-center gap-2 mt-4 cursor-pointer"
           >
             ✓ SAVE
           </button>
@@ -98,7 +98,7 @@ export default function NewsCategoryPage() {
               </div>
               <div className="flex gap-1">
                 {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                  <button key={i} className="p-1 text-zinc-400 hover:text-emerald-400">
+                  <button key={i} className="p-1 text-zinc-400 hover:text-zinc-500">
                     <Icon className="w-4 h-4" />
                   </button>
                 ))}
@@ -129,7 +129,7 @@ export default function NewsCategoryPage() {
                         <div className="relative inline-block text-left">
                           <button
                             onClick={() => setOpenDropdownId(openDropdownId === cat.id ? null : cat.id)}
-                            className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-emerald-500 hover:text-emerald-400"
+                            className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-zinc-600 hover:text-zinc-500"
                           >
                             SELECT <ChevronDown className="w-3 h-3" />
                           </button>
@@ -156,7 +156,7 @@ export default function NewsCategoryPage() {
             <span>Showing 1 to {filtered.length} of {filtered.length} entries</span>
             <div className="flex items-center gap-1">
               <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">←</button>
-              <button className="px-2 py-1 bg-emerald-600 text-white rounded">1</button>
+              <button className="px-2 py-1 bg-zinc-800 text-white rounded">1</button>
               <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">→</button>
             </div>
           </div>

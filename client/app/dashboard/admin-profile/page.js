@@ -131,7 +131,7 @@ export default function ProfilePage() {
               name={name} 
               value={formData[name]} 
               onChange={handleChange}
-              className="w-full px-3 py-1.5 text-sm rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 focus:outline-none focus:ring-1 focus:ring-[#009966]"
+              className="w-full px-3 py-1.5 text-sm rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-950"
             />
           </div>
         </div>
@@ -152,10 +152,10 @@ export default function ProfilePage() {
       {/* Header */}
       <div className="flex justify-between items-end border-b border-zinc-200 dark:border-zinc-800 pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#009966] dark:text-emerald-400">Human Resource</h1>
+          <h1 className="text-2xl font-bold text-zinc-950 dark:text-emerald-400">Human Resource</h1>
         </div>
         <div className="text-xs text-zinc-500 font-medium">
-          Dashboard <span className="mx-1">|</span> Human Resource <span className="mx-1">|</span> <span className="text-[#009966] dark:text-emerald-400">Staff Details</span>
+          Dashboard <span className="mx-1">|</span> Human Resource <span className="mx-1">|</span> <span className="text-zinc-950 dark:text-emerald-400">Staff Details</span>
         </div>
       </div>
 
@@ -164,7 +164,7 @@ export default function ProfilePage() {
         {/* Left Column (Profile Card) */}
         <div className="md:col-span-4 lg:col-span-3">
           <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-sm overflow-hidden relative">
-            <div className="h-24 bg-[#009966]"></div>
+            <div className="h-24 bg-zinc-950"></div>
             <div className="flex justify-center -mt-12 mb-2 relative group">
               <div className="h-24 w-24 bg-zinc-200 rounded-md border-4 border-white dark:border-zinc-950 overflow-hidden relative shadow-sm">
                 <img 
@@ -200,15 +200,15 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
                   <span className="text-zinc-500">Role</span>
-                  <span className="font-semibold text-[#009966] dark:text-emerald-400 capitalize">{user.role}</span>
+                  <span className="font-semibold text-zinc-950 dark:text-emerald-400 capitalize">{user.role}</span>
                 </div>
                 <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
                   <span className="text-zinc-500">Designation</span>
-                  <span className="font-semibold text-[#009966] dark:text-emerald-400">Principal</span>
+                  <span className="font-semibold text-zinc-950 dark:text-emerald-400">Principal</span>
                 </div>
                 <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
                   <span className="text-zinc-500">Department</span>
-                  <span className="font-semibold text-[#009966] dark:text-emerald-400">Admin</span>
+                  <span className="font-semibold text-zinc-950 dark:text-emerald-400">Admin</span>
                 </div>
                 <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
                   <span className="text-zinc-500">EPF NO</span>
@@ -224,7 +224,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
                   <span className="text-zinc-500">Date of Joining</span>
-                  <span className="font-semibold text-[#009966] dark:text-emerald-400">15th Aug, 2026</span>
+                  <span className="font-semibold text-zinc-950 dark:text-emerald-400">15th Aug, 2026</span>
                 </div>
               </div>
             </div>
@@ -243,7 +243,7 @@ export default function ProfilePage() {
                   onClick={() => setActiveTab(tab)}
                   className={`px-4 py-2 text-xs font-bold rounded transition-colors ${
                     activeTab === tab 
-                      ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white border-b-2 border-emerald-500 shadow-sm' 
+                      ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white border-b-2 border-zinc-600 shadow-sm' 
                       : 'bg-zinc-100 dark:bg-zinc-900/50 text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-800'
                   }`}
                 >
@@ -254,7 +254,7 @@ export default function ProfilePage() {
             {activeTab === 'PROFILE' && (
               <div>
                 {!isEditing ? (
-                  <button onClick={() => setIsEditing(true)} className="flex items-center gap-2 bg-[#009966] hover:bg-emerald-700 text-white px-5 py-2 rounded text-xs font-bold transition-colors shadow-sm">
+                  <button onClick={() => setIsEditing(true)} className="flex items-center gap-2 bg-zinc-950 hover:bg-zinc-800 text-white px-5 py-2 rounded text-xs font-bold transition-colors shadow-sm">
                     <Edit size={14} /> EDIT
                   </button>
                 ) : (
@@ -262,7 +262,7 @@ export default function ProfilePage() {
                     <button onClick={() => setIsEditing(false)} className="flex items-center gap-1 bg-zinc-500 hover:bg-zinc-600 text-white px-4 py-2 rounded text-xs font-bold transition-colors">
                       <X size={14} /> CANCEL
                     </button>
-                    <button onClick={handleSave} disabled={loading} className="flex items-center gap-1 bg-[#009966] hover:bg-emerald-700 text-white px-5 py-2 rounded text-xs font-bold transition-colors shadow-sm">
+                    <button onClick={handleSave} disabled={loading} className="flex items-center gap-1 bg-zinc-950 hover:bg-zinc-800 text-white px-5 py-2 rounded text-xs font-bold transition-colors shadow-sm">
                       {loading ? 'SAVING...' : <><Save size={14} /> SAVE</>}
                     </button>
                   </div>
@@ -279,7 +279,7 @@ export default function ProfilePage() {
                 
                 {/* Personal Info */}
                 <div>
-                  <h3 className="text-[#009966] dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Personal Info</h3>
+                  <h3 className="text-zinc-950 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Personal Info</h3>
                   <div className="border-t border-zinc-200 dark:border-zinc-800">
                     <InputField label="Mobile No" name="mobile" />
                     <InputField label="Emergency Mobile" name="emergencyMobile" />
@@ -289,7 +289,7 @@ export default function ProfilePage() {
                       <div className="flex flex-col sm:flex-row py-3 border-b border-zinc-100 dark:border-zinc-800">
                         <div className="sm:w-1/3 text-sm text-zinc-500 dark:text-zinc-400 py-1">Gender</div>
                         <div className="sm:w-2/3">
-                          <select name="gender" value={formData.gender} onChange={handleChange} className="w-full px-3 py-1.5 text-sm rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 focus:outline-none focus:ring-1 focus:ring-[#009966]">
+                          <select name="gender" value={formData.gender} onChange={handleChange} className="w-full px-3 py-1.5 text-sm rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-950">
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                             <option value="Other">Other</option>
@@ -304,7 +304,7 @@ export default function ProfilePage() {
                       <div className="flex flex-col sm:flex-row py-3 border-b border-zinc-100 dark:border-zinc-800">
                         <div className="sm:w-1/3 text-sm text-zinc-500 dark:text-zinc-400 py-1">Marital Status</div>
                         <div className="sm:w-2/3">
-                          <select name="maritalStatus" value={formData.maritalStatus} onChange={handleChange} className="w-full px-3 py-1.5 text-sm rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 focus:outline-none focus:ring-1 focus:ring-[#009966]">
+                          <select name="maritalStatus" value={formData.maritalStatus} onChange={handleChange} className="w-full px-3 py-1.5 text-sm rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-950">
                             <option value="Single">Single</option>
                             <option value="Married">Married</option>
                           </select>
@@ -322,7 +322,7 @@ export default function ProfilePage() {
 
                 {/* Address */}
                 <div>
-                  <h3 className="text-[#009966] dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Address</h3>
+                  <h3 className="text-zinc-950 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Address</h3>
                   <div className="border-t border-zinc-200 dark:border-zinc-800">
                     <InputField label="Current Address" name="currentAddress" />
                     <InputField label="Permanent Address" name="permanentAddress" />
@@ -331,7 +331,7 @@ export default function ProfilePage() {
 
                 {/* Bank Account */}
                 <div>
-                  <h3 className="text-[#009966] dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Bank Account Details</h3>
+                  <h3 className="text-zinc-950 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Bank Account Details</h3>
                   <div className="border-t border-zinc-200 dark:border-zinc-800">
                     <InputField label="Account Name" name="accountName" />
                     <InputField label="Bank Account Number" name="bankAccountNumber" />
@@ -342,7 +342,7 @@ export default function ProfilePage() {
 
                 {/* Social Links */}
                 <div>
-                  <h3 className="text-[#009966] dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Social Links Details</h3>
+                  <h3 className="text-zinc-950 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Social Links Details</h3>
                   <div className="border-t border-zinc-200 dark:border-zinc-800">
                     <InputField label="Facebook Url" name="facebookUrl" />
                     <InputField label="Twitter Url" name="twitterUrl" />

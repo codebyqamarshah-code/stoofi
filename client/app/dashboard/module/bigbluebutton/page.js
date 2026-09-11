@@ -11,7 +11,7 @@ export default function BBBHubPage() {
       desc: 'Schedule and host interactive live online lectures with whiteboard and breakout rooms.',
       href: '/dashboard/module/bigbluebutton/virtual-class',
       icon: Video,
-      color: 'bg-emerald-500 text-white'
+      color: 'bg-zinc-600 text-white'
     },
     {
       title: 'Virtual Meeting',
@@ -65,9 +65,9 @@ export default function BBBHubPage() {
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Manage virtual classrooms, meetings, recordings, and reports powered by BigBlueButton.</p>
         </div>
         <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-600 dark:text-emerald-400 font-medium">BigBlueButton</span>
+          <span className="text-zinc-800 dark:text-emerald-400 font-medium">BigBlueButton</span>
         </div>
       </div>
 
@@ -76,7 +76,7 @@ export default function BBBHubPage() {
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm">
           <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Active BBB Classes</div>
           <div className="text-2xl font-black text-zinc-900 dark:text-white mt-1">2</div>
-          <div className="text-[11px] text-emerald-600 font-medium mt-1">● Ready for launch</div>
+          <div className="text-[11px] text-zinc-800 font-medium mt-1">● Ready for launch</div>
         </div>
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm">
           <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Scheduled Meetings</div>
@@ -90,8 +90,8 @@ export default function BBBHubPage() {
         </div>
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm">
           <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Server Status</div>
-          <div className="text-2xl font-black text-emerald-600 mt-1">Online</div>
-          <div className="text-[11px] text-emerald-600 font-medium mt-1">API Connected</div>
+          <div className="text-2xl font-black text-zinc-800 mt-1">Online</div>
+          <div className="text-[11px] text-zinc-800 font-medium mt-1">API Connected</div>
         </div>
       </div>
 
@@ -103,20 +103,20 @@ export default function BBBHubPage() {
             <Link
               key={c.title}
               href={c.href}
-              className="group bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+              className="group bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-600/50 dark:hover:border-emerald-500/50 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
             >
               <div>
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${c.color} shadow-sm group-hover:scale-105 transition-transform`}>
                   <Icon className="h-6 w-6" />
                 </div>
-                <h3 className="text-base font-bold text-zinc-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                <h3 className="text-base font-bold text-zinc-900 dark:text-white group-hover:text-zinc-800 dark:group-hover:text-emerald-400 transition-colors">
                   {c.title}
                 </h3>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed">
                   {c.desc}
                 </p>
               </div>
-              <div className="flex items-center text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mt-5">
+              <div className="flex items-center text-xs font-bold text-zinc-800 dark:text-emerald-400 uppercase tracking-wider mt-5">
                 Open Module <ChevronRight className="h-3.5 w-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>

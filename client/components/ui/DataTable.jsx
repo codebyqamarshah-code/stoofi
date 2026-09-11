@@ -53,7 +53,7 @@ export function DataTable({
       body: tableData,
       startY: 20,
       styles: { fontSize: 8 },
-      headStyles: { fillColor: [16, 185, 129] } // emerald-500
+      headStyles: { fillColor: [16, 185, 129] } // zinc-600
     });
     doc.save(`${title}.pdf`);
   };
@@ -88,7 +88,7 @@ export function DataTable({
             <FileText size={14} className="text-rose-500" /> <span className="hidden sm:inline">PDF</span>
           </Button>
           <Button variant="outline" size="sm" onClick={exportExcel} className="h-9 gap-1.5" disabled={filteredData.length === 0}>
-            <Download size={14} className="text-emerald-500" /> <span className="hidden sm:inline">Excel</span>
+            <Download size={14} className="text-zinc-600" /> <span className="hidden sm:inline">Excel</span>
           </Button>
         </div>
       </div>
@@ -117,7 +117,7 @@ export function DataTable({
             ) : (
               paginatedData.map((row, idx) => (
                 <tr key={row._id || idx} className="border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors group">
-                  <td className="py-3 px-4 text-sm font-medium text-emerald-600 dark:text-emerald-500">
+                  <td className="py-3 px-4 text-sm font-medium text-zinc-800 dark:text-emerald-500">
                     {((currentPage - 1) * rowsPerPage) + idx + 1}
                   </td>
                   {columns.map((col, cIdx) => (

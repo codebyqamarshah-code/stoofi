@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React, { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import api from "@/services/api";
@@ -71,7 +71,7 @@ export default function DepartmentPage() {
       <div className="flex items-center gap-2 text-sm text-zinc-500 mb-6">
         <span>Dashboard</span> <ChevronRight size={14} /> 
         <span>Human Resource</span> <ChevronRight size={14} /> 
-        <span className="text-emerald-600 font-semibold">Department</span>
+        <span className="text-zinc-800 font-semibold">Department</span>
       </div>
 
       <div className="flex flex-col xl:flex-row gap-6">

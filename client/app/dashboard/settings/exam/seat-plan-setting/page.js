@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
@@ -45,11 +45,11 @@ export default function SeatPlanSettingPage() {
               <span className="text-xs font-medium text-zinc-400 uppercase">SCHOOL NAME</span>
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="schoolName" checked={settings.schoolName === true} onChange={() => handleChange('schoolName', true)} className="w-4 h-4 text-emerald-600 bg-zinc-800 border-zinc-600 focus:ring-emerald-500" />
+                  <input type="radio" name="schoolName" checked={settings.schoolName === true} onChange={() => handleChange('schoolName', true)} className="w-4 h-4 text-zinc-800 bg-zinc-800 border-zinc-600 focus:ring-zinc-600" />
                   <span className="text-sm text-zinc-300">Show</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="schoolName" checked={settings.schoolName === false} onChange={() => handleChange('schoolName', false)} className="w-4 h-4 text-emerald-600 bg-zinc-800 border-zinc-600 focus:ring-emerald-500" />
+                  <input type="radio" name="schoolName" checked={settings.schoolName === false} onChange={() => handleChange('schoolName', false)} className="w-4 h-4 text-zinc-800 bg-zinc-800 border-zinc-600 focus:ring-zinc-600" />
                   <span className="text-sm text-zinc-300">Hide</span>
                 </label>
               </div>
@@ -59,11 +59,11 @@ export default function SeatPlanSettingPage() {
               <span className="text-xs font-medium text-zinc-400 uppercase">STUDENT NAME</span>
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="studentName" checked={settings.studentName === true} onChange={() => handleChange('studentName', true)} className="w-4 h-4 text-emerald-600 bg-zinc-800 border-zinc-600 focus:ring-emerald-500" />
+                  <input type="radio" name="studentName" checked={settings.studentName === true} onChange={() => handleChange('studentName', true)} className="w-4 h-4 text-zinc-800 bg-zinc-800 border-zinc-600 focus:ring-zinc-600" />
                   <span className="text-sm text-zinc-300">Show</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="studentName" checked={settings.studentName === false} onChange={() => handleChange('studentName', false)} className="w-4 h-4 text-emerald-600 bg-zinc-800 border-zinc-600 focus:ring-emerald-500" />
+                  <input type="radio" name="studentName" checked={settings.studentName === false} onChange={() => handleChange('studentName', false)} className="w-4 h-4 text-zinc-800 bg-zinc-800 border-zinc-600 focus:ring-zinc-600" />
                   <span className="text-sm text-zinc-300">Hide</span>
                 </label>
               </div>
@@ -73,11 +73,11 @@ export default function SeatPlanSettingPage() {
               <span className="text-xs font-medium text-zinc-400 uppercase">ROLL NO</span>
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="rollNo" checked={settings.rollNo === true} onChange={() => handleChange('rollNo', true)} className="w-4 h-4 text-emerald-600 bg-zinc-800 border-zinc-600 focus:ring-emerald-500" />
+                  <input type="radio" name="rollNo" checked={settings.rollNo === true} onChange={() => handleChange('rollNo', true)} className="w-4 h-4 text-zinc-800 bg-zinc-800 border-zinc-600 focus:ring-zinc-600" />
                   <span className="text-sm text-zinc-300">Show</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="rollNo" checked={settings.rollNo === false} onChange={() => handleChange('rollNo', false)} className="w-4 h-4 text-emerald-600 bg-zinc-800 border-zinc-600 focus:ring-emerald-500" />
+                  <input type="radio" name="rollNo" checked={settings.rollNo === false} onChange={() => handleChange('rollNo', false)} className="w-4 h-4 text-zinc-800 bg-zinc-800 border-zinc-600 focus:ring-zinc-600" />
                   <span className="text-sm text-zinc-300">Hide</span>
                 </label>
               </div>
@@ -87,11 +87,11 @@ export default function SeatPlanSettingPage() {
               <span className="text-xs font-medium text-zinc-400 uppercase">EXAM NAME</span>
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="examName" checked={settings.examName === true} onChange={() => handleChange('examName', true)} className="w-4 h-4 text-emerald-600 bg-zinc-800 border-zinc-600 focus:ring-emerald-500" />
+                  <input type="radio" name="examName" checked={settings.examName === true} onChange={() => handleChange('examName', true)} className="w-4 h-4 text-zinc-800 bg-zinc-800 border-zinc-600 focus:ring-zinc-600" />
                   <span className="text-sm text-zinc-300">Show</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="examName" checked={settings.examName === false} onChange={() => handleChange('examName', false)} className="w-4 h-4 text-emerald-600 bg-zinc-800 border-zinc-600 focus:ring-emerald-500" />
+                  <input type="radio" name="examName" checked={settings.examName === false} onChange={() => handleChange('examName', false)} className="w-4 h-4 text-zinc-800 bg-zinc-800 border-zinc-600 focus:ring-zinc-600" />
                   <span className="text-sm text-zinc-300">Hide</span>
                 </label>
               </div>
@@ -104,11 +104,11 @@ export default function SeatPlanSettingPage() {
               <span className="text-xs font-medium text-zinc-400 uppercase">STUDENT PHOTO</span>
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="studentPhoto" checked={settings.studentPhoto === true} onChange={() => handleChange('studentPhoto', true)} className="w-4 h-4 text-emerald-600 bg-zinc-800 border-zinc-600 focus:ring-emerald-500" />
+                  <input type="radio" name="studentPhoto" checked={settings.studentPhoto === true} onChange={() => handleChange('studentPhoto', true)} className="w-4 h-4 text-zinc-800 bg-zinc-800 border-zinc-600 focus:ring-zinc-600" />
                   <span className="text-sm text-zinc-300">Show</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="studentPhoto" checked={settings.studentPhoto === false} onChange={() => handleChange('studentPhoto', false)} className="w-4 h-4 text-emerald-600 bg-zinc-800 border-zinc-600 focus:ring-emerald-500" />
+                  <input type="radio" name="studentPhoto" checked={settings.studentPhoto === false} onChange={() => handleChange('studentPhoto', false)} className="w-4 h-4 text-zinc-800 bg-zinc-800 border-zinc-600 focus:ring-zinc-600" />
                   <span className="text-sm text-zinc-300">Hide</span>
                 </label>
               </div>
@@ -118,11 +118,11 @@ export default function SeatPlanSettingPage() {
               <span className="text-xs font-medium text-zinc-400 uppercase">ADMISSION NO</span>
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="admissionNo" checked={settings.admissionNo === true} onChange={() => handleChange('admissionNo', true)} className="w-4 h-4 text-emerald-600 bg-zinc-800 border-zinc-600 focus:ring-emerald-500" />
+                  <input type="radio" name="admissionNo" checked={settings.admissionNo === true} onChange={() => handleChange('admissionNo', true)} className="w-4 h-4 text-zinc-800 bg-zinc-800 border-zinc-600 focus:ring-zinc-600" />
                   <span className="text-sm text-zinc-300">Show</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="admissionNo" checked={settings.admissionNo === false} onChange={() => handleChange('admissionNo', false)} className="w-4 h-4 text-emerald-600 bg-zinc-800 border-zinc-600 focus:ring-emerald-500" />
+                  <input type="radio" name="admissionNo" checked={settings.admissionNo === false} onChange={() => handleChange('admissionNo', false)} className="w-4 h-4 text-zinc-800 bg-zinc-800 border-zinc-600 focus:ring-zinc-600" />
                   <span className="text-sm text-zinc-300">Hide</span>
                 </label>
               </div>
@@ -132,11 +132,11 @@ export default function SeatPlanSettingPage() {
               <span className="text-xs font-medium text-zinc-400 uppercase">CLASS & SECTION</span>
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="classSection" checked={settings.classSection === true} onChange={() => handleChange('classSection', true)} className="w-4 h-4 text-emerald-600 bg-zinc-800 border-zinc-600 focus:ring-emerald-500" />
+                  <input type="radio" name="classSection" checked={settings.classSection === true} onChange={() => handleChange('classSection', true)} className="w-4 h-4 text-zinc-800 bg-zinc-800 border-zinc-600 focus:ring-zinc-600" />
                   <span className="text-sm text-zinc-300">Show</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="classSection" checked={settings.classSection === false} onChange={() => handleChange('classSection', false)} className="w-4 h-4 text-emerald-600 bg-zinc-800 border-zinc-600 focus:ring-emerald-500" />
+                  <input type="radio" name="classSection" checked={settings.classSection === false} onChange={() => handleChange('classSection', false)} className="w-4 h-4 text-zinc-800 bg-zinc-800 border-zinc-600 focus:ring-zinc-600" />
                   <span className="text-sm text-zinc-300">Hide</span>
                 </label>
               </div>
@@ -146,11 +146,11 @@ export default function SeatPlanSettingPage() {
               <span className="text-xs font-medium text-zinc-400 uppercase">ACADEMIC YEAR</span>
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="academicYear" checked={settings.academicYear === true} onChange={() => handleChange('academicYear', true)} className="w-4 h-4 text-emerald-600 bg-zinc-800 border-zinc-600 focus:ring-emerald-500" />
+                  <input type="radio" name="academicYear" checked={settings.academicYear === true} onChange={() => handleChange('academicYear', true)} className="w-4 h-4 text-zinc-800 bg-zinc-800 border-zinc-600 focus:ring-zinc-600" />
                   <span className="text-sm text-zinc-300">Show</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="academicYear" checked={settings.academicYear === false} onChange={() => handleChange('academicYear', false)} className="w-4 h-4 text-emerald-600 bg-zinc-800 border-zinc-600 focus:ring-emerald-500" />
+                  <input type="radio" name="academicYear" checked={settings.academicYear === false} onChange={() => handleChange('academicYear', false)} className="w-4 h-4 text-zinc-800 bg-zinc-800 border-zinc-600 focus:ring-zinc-600" />
                   <span className="text-sm text-zinc-300">Hide</span>
                 </label>
               </div>
@@ -164,7 +164,7 @@ export default function SeatPlanSettingPage() {
             onClick={handleUpdate}
             className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-8 py-2 rounded-md transition-colors"
           >
-            ✓ UPDATE
+            ? UPDATE
           </button>
         </div>
       </div>

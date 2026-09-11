@@ -77,14 +77,14 @@ export default function LoginPage() {
 
   if (!mounted) return null;
 
-  const inputClass = "w-full pl-14 pr-4 py-3.5 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all font-medium border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600";
+  const inputClass = "w-full pl-14 pr-4 py-3.5 rounded-xl focus:outline-none focus:border-zinc-600 focus:ring-2 focus:ring-zinc-600/20 transition-all font-medium border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600";
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300">
       
       {/* Top Controls */}
       <div className="absolute top-6 left-6 right-6 flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-semibold hover:opacity-80 transition-opacity text-sm">
+        <Link href="/" className="flex items-center gap-2 text-zinc-800 dark:text-emerald-400 font-semibold hover:opacity-80 transition-opacity text-sm">
           <ArrowLeft size={16} /> Back to Home
         </Link>
         <ThemeToggle />
@@ -95,7 +95,7 @@ export default function LoginPage() {
         
         {/* Logo */}
           <div className="flex justify-center mb-6">
-           <img src="/stoofi light.png" alt="Stoofi PRO" className="h-12 w-auto object-contain dark:hidden" />
+           <img src="/logo dark(2).png" alt="Stoofi PRO" className="h-12 w-auto object-contain dark:hidden" />
            <img src="/stoofi dark.png" alt="Stoofi PRO" className="h-12 w-auto object-contain hidden dark:block" />
           </div>
 
@@ -116,7 +116,7 @@ export default function LoginPage() {
           <div>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Mail className="h-4.5 w-4.5 text-emerald-500" strokeWidth={1.5} />
+                <Mail className="h-4.5 w-4.5 text-zinc-600" strokeWidth={1.5} />
                 <div className="h-5 w-px bg-zinc-200 dark:bg-zinc-700 ml-3"></div>
               </div>
               <input
@@ -133,7 +133,7 @@ export default function LoginPage() {
           <div>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Lock className="h-4.5 w-4.5 text-emerald-500" strokeWidth={1.5} />
+                <Lock className="h-4.5 w-4.5 text-zinc-600" strokeWidth={1.5} />
                 <div className="h-5 w-px bg-zinc-200 dark:bg-zinc-700 ml-3"></div>
               </div>
               <input
@@ -145,7 +145,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-zinc-400 hover:text-emerald-500 transition-colors"
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-zinc-400 hover:text-zinc-600 transition-colors"
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -158,13 +158,13 @@ export default function LoginPage() {
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
-                className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-700 accent-emerald-600"
+                className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-700 accent-zinc-800"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
               />
               <span className="text-sm text-zinc-600 dark:text-zinc-400">Remember Me</span>
             </label>
-            <a href="#" className="text-sm text-emerald-600 dark:text-emerald-400 font-semibold hover:underline">
+            <a href="#" className="text-sm text-zinc-800 dark:text-emerald-400 font-semibold hover:underline">
               Forget Password?
             </a>
           </div>
@@ -173,7 +173,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl font-bold tracking-wide transition-all disabled:opacity-70 flex items-center justify-center mt-2"
+            className="w-full bg-zinc-800 hover:bg-zinc-800 text-white py-3.5 rounded-xl font-bold tracking-wide transition-all disabled:opacity-70 flex items-center justify-center mt-2 cursor-pointer disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -186,7 +186,7 @@ export default function LoginPage() {
           <div className="text-center mt-4">
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
               Don&apos;t have an account?{' '}
-              <Link href="/register" className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">
+              <Link href="/register" className="text-zinc-800 dark:text-emerald-400 font-bold hover:underline cursor-pointer">
                 Register here
               </Link>
             </p>
@@ -203,7 +203,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => handleRoleClick(role)}
                 disabled={isLoading}
-                className="py-2.5 px-1 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-[11px] font-bold rounded-lg border border-emerald-100 dark:border-emerald-900/40 transition-colors uppercase tracking-wider disabled:opacity-60"
+                className="py-2.5 px-1 bg-zinc-100 dark:bg-emerald-950/30 hover:bg-zinc-200 dark:hover:bg-emerald-900/40 text-zinc-800 dark:text-emerald-400 text-[11px] font-bold rounded-lg border border-zinc-200 dark:border-emerald-900/40 transition-colors uppercase tracking-wider disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed"
               >
                 {role.label}
               </button>

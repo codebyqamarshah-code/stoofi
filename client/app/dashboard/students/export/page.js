@@ -16,11 +16,11 @@ export default function StudentExportPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Student Export</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/students" className="hover:text-emerald-400 transition-colors">Student Info</Link>
+          <Link href="/dashboard/students" className="hover:text-zinc-500 transition-colors">Student Info</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Student Export</span>
+          <span className="text-zinc-600">Student Export</span>
         </div>
       </div>
 
@@ -30,13 +30,13 @@ export default function StudentExportPage() {
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <Button 
               onClick={() => handleExport('CSV')}
-              className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold uppercase px-8"
+              className="bg-zinc-600 hover:bg-zinc-800 text-white font-semibold uppercase px-8"
             >
               EXPORT TO CSV
             </Button>
             <Button 
               onClick={() => handleExport('PDF')}
-              className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold uppercase px-8"
+              className="bg-zinc-600 hover:bg-zinc-800 text-white font-semibold uppercase px-8"
             >
               EXPORT TO PDF
             </Button>

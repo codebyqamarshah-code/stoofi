@@ -24,11 +24,11 @@ export default function OptionalSubjectPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Optional Subject</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/academics/class" className="hover:text-emerald-400 transition-colors">Academics</Link>
+          <Link href="/dashboard/academics/class" className="hover:text-zinc-500 transition-colors">Academics</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Optional Subject</span>
+          <span className="text-zinc-600">Optional Subject</span>
         </div>
       </div>
 
@@ -43,16 +43,16 @@ export default function OptionalSubjectPage() {
             <form className="p-4 space-y-4" onSubmit={(e) => e.preventDefault()}>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Subject Name <span className="text-rose-500">*</span></Label>
-                <Input placeholder="Subject Name" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                <Input placeholder="Subject Name" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
               </div>
               
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Subject Code</Label>
-                <Input placeholder="Subject Code" className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" />
+                <Input placeholder="Subject Code" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
               </div>
 
               <div className="pt-4">
-                <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+                <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                   SAVE SUBJECT
                 </Button>
               </div>
@@ -71,7 +71,7 @@ export default function OptionalSubjectPage() {
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
                   <Input 
                     placeholder="SEARCH" 
-                    className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-xs font-semibold uppercase"
+                    className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase"
                   />
                 </div>
                 
@@ -114,7 +114,7 @@ export default function OptionalSubjectPage() {
                         <td className="px-4 py-4 text-zinc-300">{s.name}</td>
                         <td className="px-4 py-4 text-zinc-300">{s.code}</td>
                         <td className="px-4 py-4 text-right">
-                          <Button variant="outline" size="sm" className="h-8 text-xs font-semibold text-emerald-500 border-emerald-500/50 hover:bg-emerald-500/10 hover:text-emerald-400">
+                          <Button variant="outline" size="sm" className="h-8 text-xs font-semibold text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10 hover:text-zinc-500">
                             SELECT <ChevronRight className="h-3 w-3 ml-1 rotate-90" />
                           </Button>
                         </td>

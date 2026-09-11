@@ -71,7 +71,7 @@ export default function ExpertStaffPage() {
         <ChevronRight className="w-3 h-3" />
         <span>Frontend CMS</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">Expert Staff</span>
+        <span className="text-zinc-500">Expert Staff</span>
       </div>
 
       <h1 className="text-xl font-bold text-white mb-6">Expert Staff</h1>
@@ -86,7 +86,7 @@ export default function ExpertStaffPage() {
             <select
               value={role}
               onChange={e => setRole(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
             >
               <option value="">Select Role</option>
               <option value="Teacher">Teacher</option>
@@ -102,14 +102,14 @@ export default function ExpertStaffPage() {
               placeholder="Name *"
               value={staffName}
               onChange={e => setStaffName(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
             />
           </div>
 
           <button
             type="button"
             onClick={handleAdd}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm py-2 rounded flex items-center justify-center gap-2"
+            className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold text-sm py-2 rounded flex items-center justify-center gap-2"
           >
             <Plus className="w-4 h-4" /> ADD
           </button>
@@ -131,7 +131,7 @@ export default function ExpertStaffPage() {
               </div>
               <div className="flex gap-1">
                 {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                  <button key={i} className="p-1 text-zinc-400 hover:text-emerald-400">
+                  <button key={i} className="p-1 text-zinc-400 hover:text-zinc-500">
                     <Icon className="w-4 h-4" />
                   </button>
                 ))}
@@ -163,7 +163,7 @@ export default function ExpertStaffPage() {
                       <td className="py-3 px-3 text-zinc-400">
                         <div className="flex items-center gap-1.5">
                           <GripVertical className="w-3.5 h-3.5 text-zinc-600 cursor-grab" />
-                          <span className="text-emerald-500 font-medium">{idx + 1}</span>
+                          <span className="text-zinc-600 font-medium">{idx + 1}</span>
                         </div>
                       </td>
                       <td className="py-3 px-3 text-zinc-200 font-medium">{staff.name}</td>
@@ -177,7 +177,7 @@ export default function ExpertStaffPage() {
                         <div className="relative inline-block text-left">
                           <button
                             onClick={() => setOpenDropdownId(openDropdownId === staff.id ? null : staff.id)}
-                            className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-emerald-500 hover:text-emerald-400"
+                            className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-zinc-600 hover:text-zinc-500"
                           >
                             SELECT <ChevronDown className="w-3 h-3" />
                           </button>
@@ -204,7 +204,7 @@ export default function ExpertStaffPage() {
             <span>Showing 1 to {filtered.length} of {filtered.length} entries</span>
             <div className="flex items-center gap-1">
               <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">←</button>
-              <button className="px-2 py-1 bg-emerald-600 text-white rounded">1</button>
+              <button className="px-2 py-1 bg-zinc-800 text-white rounded">1</button>
               <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">→</button>
             </div>
           </div>

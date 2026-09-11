@@ -20,18 +20,18 @@ export default function LessonPlanSettingPage() {
             <label className="text-sm font-medium text-zinc-300 md:col-span-1 pt-2">LESSON PLAN SUBTOPIC</label>
             <div className="md:col-span-2 flex gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="subtopic" value="enable" checked={subtopic === 'enable'} onChange={() => setSubtopic('enable')} className="w-4 h-4 text-emerald-600 bg-zinc-900 border-zinc-800 focus:ring-emerald-500 focus:ring-offset-zinc-900" />
+                <input type="radio" name="subtopic" value="enable" checked={subtopic === 'enable'} onChange={() => setSubtopic('enable')} className="w-4 h-4 text-zinc-800 bg-zinc-900 border-zinc-800 focus:ring-zinc-600 focus:ring-offset-zinc-900" />
                 <span>Enable</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="subtopic" value="disable" checked={subtopic === 'disable'} onChange={() => setSubtopic('disable')} className="w-4 h-4 text-emerald-600 bg-zinc-900 border-zinc-800 focus:ring-emerald-500 focus:ring-offset-zinc-900" />
+                <input type="radio" name="subtopic" value="disable" checked={subtopic === 'disable'} onChange={() => setSubtopic('disable')} className="w-4 h-4 text-zinc-800 bg-zinc-900 border-zinc-800 focus:ring-zinc-600 focus:ring-offset-zinc-900" />
                 <span>Disable</span>
               </label>
             </div>
           </div>
 
           <div className="flex justify-center pt-4">
-            <button className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-8 rounded transition-colors">
+            <button className="bg-zinc-800 hover:bg-zinc-800 text-white font-medium py-2 px-8 rounded transition-colors">
               UPDATE
             </button>
           </div>

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, Search, Clock, Trash2 } from 'lucide-react';
@@ -53,11 +53,11 @@ export default function SMSSendingTimePage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">SMS Sending Time</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Student Info</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">SMS Sending Time</span>
+          <span className="text-zinc-600">SMS Sending Time</span>
         </div>
       </div>
 
@@ -81,7 +81,7 @@ export default function SMSSendingTimePage() {
                     type="time" 
                     value={time} 
                     onChange={e => setTime(e.target.value)} 
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 pr-10" 
+                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 pr-10" 
                     required 
                   />
                   <Clock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
@@ -93,7 +93,7 @@ export default function SMSSendingTimePage() {
                 <select 
                   value={status} 
                   onChange={e => setStatus(e.target.value)} 
-                  className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                  className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
                 >
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
@@ -113,7 +113,7 @@ export default function SMSSendingTimePage() {
               <h2 className="text-lg font-semibold text-white">Time Setup List</h2>
               <div className="relative w-48">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                <Input placeholder="SEARCH" className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500" />
+                <Input placeholder="SEARCH" className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-zinc-600" />
               </div>
             </div>
             <div className="overflow-x-auto">

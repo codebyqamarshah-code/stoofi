@@ -46,7 +46,7 @@ export default function BaseSetupPage() {
       <div className="flex items-center gap-1 text-xs text-zinc-400 mb-4">
         <span>Dashboard</span><ChevronRight className="w-3 h-3" />
         <span>System Settings</span><ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">Base Setup</span>
+        <span className="text-zinc-500">Base Setup</span>
       </div>
       <h1 className="text-xl font-bold text-white mb-6">Base Setup</h1>
 
@@ -56,16 +56,16 @@ export default function BaseSetupPage() {
           <h2 className="text-sm font-semibold text-zinc-300">Add Base Setup</h2>
           <div>
             <label className="text-xs font-semibold text-zinc-400 uppercase block mb-1">BASE GROUP *</label>
-            <select value={baseGroup} onChange={e => setBaseGroup(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <select value={baseGroup} onChange={e => setBaseGroup(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600">
               <option value="">Base Group *</option>
               {BASE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
             </select>
           </div>
           <div>
             <label className="text-xs font-semibold text-zinc-400 uppercase block mb-1">NAME *</label>
-            <input value={name} onChange={e => setName(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            <input value={name} onChange={e => setName(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600" />
           </div>
-          <button onClick={handleSave} disabled={loading} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm py-2 rounded">
+          <button onClick={handleSave} disabled={loading} className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold text-sm py-2 rounded">
             ✓ SAVE BASE SETUP
           </button>
         </div>
@@ -81,7 +81,7 @@ export default function BaseSetupPage() {
               </div>
               <div className="flex gap-1">
                 {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                  <button key={i} className="p-1 text-zinc-400 hover:text-emerald-400"><Icon className="w-4 h-4" /></button>
+                  <button key={i} className="p-1 text-zinc-400 hover:text-zinc-500"><Icon className="w-4 h-4" /></button>
                 ))}
               </div>
             </div>
@@ -101,7 +101,7 @@ export default function BaseSetupPage() {
                     <tr key={group.group} className="bg-zinc-800/60 cursor-pointer" onClick={() => toggleGroup(group.group)}>
                       <td colSpan={2} className="py-3 px-3 text-zinc-200 font-medium">{group.group}</td>
                       <td className="py-3 px-3">
-                        <input type="checkbox" className="w-4 h-4 accent-emerald-500" />
+                        <input type="checkbox" className="w-4 h-4 accent-zinc-600" />
                       </td>
                     </tr>
                     {group.expanded && group.items.map(item => (
@@ -109,7 +109,7 @@ export default function BaseSetupPage() {
                         <td className="py-2 px-3"></td>
                         <td className="py-2 px-3 text-zinc-300">{item}</td>
                         <td className="py-2 px-3">
-                          <button className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-emerald-500 hover:text-emerald-400">
+                          <button className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-zinc-600 hover:text-zinc-500">
                             SELECT <ChevronDown className="w-3 h-3" />
                           </button>
                         </td>
@@ -124,7 +124,7 @@ export default function BaseSetupPage() {
             <span>Showing 1 to 1 of 1 entries</span>
             <div className="flex items-center gap-1">
               <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">←</button>
-              <button className="px-2 py-1 bg-emerald-600 text-white rounded">1</button>
+              <button className="px-2 py-1 bg-zinc-800 text-white rounded">1</button>
               <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">→</button>
             </div>
           </div>

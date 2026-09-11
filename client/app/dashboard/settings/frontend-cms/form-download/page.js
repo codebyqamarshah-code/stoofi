@@ -64,7 +64,7 @@ export default function FormDownloadPage() {
         <ChevronRight className="w-3 h-3" />
         <span>Frontend CMS</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">Form Download</span>
+        <span className="text-zinc-500">Form Download</span>
       </div>
 
       <h1 className="text-xl font-bold text-white">Form Download</h1>
@@ -80,7 +80,7 @@ export default function FormDownloadPage() {
               type="text"
               value={title}
               onChange={e => setTitle(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
             />
           </div>
 
@@ -90,7 +90,7 @@ export default function FormDownloadPage() {
               rows={3}
               value={description}
               onChange={e => setDescription(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600 resize-none"
             />
           </div>
 
@@ -121,7 +121,7 @@ export default function FormDownloadPage() {
           <button
             type="button"
             onClick={handleAdd}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm py-2 rounded flex items-center justify-center gap-2 mt-4 cursor-pointer"
+            className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold text-sm py-2 rounded flex items-center justify-center gap-2 mt-4 cursor-pointer"
           >
             <Plus className="w-4 h-4" /> ADD FORM
           </button>
@@ -143,7 +143,7 @@ export default function FormDownloadPage() {
               </div>
               <div className="flex gap-1">
                 {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                  <button key={i} className="p-1 text-zinc-400 hover:text-emerald-400">
+                  <button key={i} className="p-1 text-zinc-400 hover:text-zinc-500">
                     <Icon className="w-4 h-4" />
                   </button>
                 ))}
@@ -175,7 +175,7 @@ export default function FormDownloadPage() {
                       <td className="py-3 px-3 text-zinc-400">
                         <div className="flex items-center gap-1.5">
                           <GripVertical className="w-3.5 h-3.5 text-zinc-600 cursor-grab" />
-                          <span className="text-emerald-500 font-medium">{idx + 1}</span>
+                          <span className="text-zinc-600 font-medium">{idx + 1}</span>
                         </div>
                       </td>
                       <td className="py-3 px-3">
@@ -189,16 +189,16 @@ export default function FormDownloadPage() {
                       <td className="py-3 px-3">
                         <button
                           onClick={() => alert(`Downloading: ${item.fileName}`)}
-                          className="px-3 py-1.5 bg-zinc-800 hover:bg-emerald-950/60 hover:text-emerald-400 text-zinc-300 text-xs font-semibold rounded-md border border-zinc-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="px-3 py-1.5 bg-zinc-800 hover:bg-emerald-950/60 hover:text-zinc-500 text-zinc-300 text-xs font-semibold rounded-md border border-zinc-700 flex items-center gap-1.5 transition-colors cursor-pointer"
                         >
-                          <FileDown className="w-3.5 h-3.5 text-emerald-400" /> Download
+                          <FileDown className="w-3.5 h-3.5 text-zinc-500" /> Download
                         </button>
                       </td>
                       <td className="py-3 px-3 relative">
                         <div className="relative inline-block text-left">
                           <button
                             onClick={() => setOpenDropdownId(openDropdownId === item.id ? null : item.id)}
-                            className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-emerald-500 hover:text-emerald-400 cursor-pointer"
+                            className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-zinc-600 hover:text-zinc-500 cursor-pointer"
                           >
                             SELECT <ChevronDown className="w-3 h-3" />
                           </button>
@@ -225,7 +225,7 @@ export default function FormDownloadPage() {
             <span>Showing 1 to {filtered.length} of {filtered.length} entries</span>
             <div className="flex items-center gap-1">
               <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">←</button>
-              <button className="px-2 py-1 bg-emerald-600 text-white rounded">1</button>
+              <button className="px-2 py-1 bg-zinc-800 text-white rounded">1</button>
               <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">→</button>
             </div>
           </div>

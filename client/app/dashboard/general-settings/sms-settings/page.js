@@ -24,7 +24,7 @@ export default function SmsSettings() {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
-                                activeTab === tab ? 'bg-emerald-600 text-white' : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800'
+                                activeTab === tab ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800'
                             }`}
                         >
                             {tab}
@@ -37,7 +37,7 @@ export default function SmsSettings() {
                         <div>
                             <label className="block text-sm text-zinc-400 mb-2">SELECT A SMS SERVICE *</label>
                             <select 
-                                className="w-full p-2.5 rounded-md bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                className="w-full p-2.5 rounded-md bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                                 value={service}
                                 onChange={(e) => setService(e.target.value)}
                             >
@@ -50,14 +50,14 @@ export default function SmsSettings() {
                             <label className="block text-sm text-zinc-400 mb-2">RECIVER NUMBER</label>
                             <input 
                                 type="text" 
-                                className="w-full p-2.5 rounded-md bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                className="w-full p-2.5 rounded-md bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                                 placeholder="Enter Number"
                                 value={number}
                                 onChange={(e) => setNumber(e.target.value)}
                             />
                         </div>
                         <div>
-                            <button className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-md transition-colors">
+                            <button className="px-6 py-2 bg-zinc-800 hover:bg-zinc-800 text-white text-sm font-medium rounded-md transition-colors">
                                 SEND TEST SMS
                             </button>
                         </div>

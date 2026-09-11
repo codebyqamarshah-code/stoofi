@@ -25,14 +25,14 @@ export default function PayrollReport() {
             <input 
               type="text" 
               placeholder="e.g. 01/01/2026 - 01/31/2026"
-              className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
             />
           </div>
           <button 
             onClick={handleSearch}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded transition-colors text-sm font-medium h-[38px]"
+            className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-800 text-white px-6 py-2 rounded transition-colors text-sm font-medium h-[38px]"
           >
             <Search className="w-4 h-4" />
             SEARCH

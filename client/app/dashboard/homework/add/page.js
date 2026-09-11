@@ -93,11 +93,11 @@ export default function AddHomeworkPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Add Homework</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Homework</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Add Homework</span>
+          <span className="text-zinc-600">Add Homework</span>
         </div>
       </div>
 
@@ -140,7 +140,7 @@ export default function AddHomeworkPage() {
               <Input 
                 type="date" name="homeworkDate" 
                 value={formData.homeworkDate} onChange={handleChange}
-                className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white" 
+                className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white" 
               />
             </div>
 
@@ -149,7 +149,7 @@ export default function AddHomeworkPage() {
               <Input 
                 type="date" name="submissionDate" 
                 value={formData.submissionDate} onChange={handleChange}
-                className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white" 
+                className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white" 
               />
             </div>
 
@@ -158,7 +158,7 @@ export default function AddHomeworkPage() {
               <Input 
                 type="number" name="marks" 
                 value={formData.marks} onChange={handleChange}
-                className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-white" 
+                className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white" 
               />
             </div>
 
@@ -168,7 +168,7 @@ export default function AddHomeworkPage() {
                 <input type="file" ref={fileInputRef} className="hidden" id="hw-file" />
                 <Label htmlFor="hw-file" className="flex items-center justify-between h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 cursor-pointer">
                   <span className="truncate">{fileInputRef.current?.files[0]?.name || 'Attach File'}</span>
-                  <div className="bg-emerald-600 text-white px-3 py-1 -mr-2 rounded text-xs font-semibold">BROWSE</div>
+                  <div className="bg-zinc-800 text-white px-3 py-1 -mr-2 rounded text-xs font-semibold">BROWSE</div>
                 </Label>
               </div>
             </div>
@@ -178,13 +178,13 @@ export default function AddHomeworkPage() {
               <textarea 
                 name="description" 
                 value={formData.description} onChange={handleChange}
-                className="flex min-h-[120px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500" 
+                className="flex min-h-[120px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600" 
               />
             </div>
           </div>
 
           <div className="flex justify-center pt-4">
-            <Button disabled={submitting} type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold min-w-[200px]">
+            <Button disabled={submitting} type="submit" className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold min-w-[200px]">
               {submitting ? 'SAVING...' : 'SAVE HOMEWORK'}
             </Button>
           </div>

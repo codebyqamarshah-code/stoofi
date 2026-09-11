@@ -128,11 +128,11 @@ export default function GuidePage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-100 font-poppins selection:bg-emerald-500 selection:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-100 font-poppins selection:bg-zinc-600 selection:text-white transition-colors duration-300">
       <header className="bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800 py-4 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
-            <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center group-hover:bg-emerald-50 dark:group-hover:bg-emerald-950/50 transition-colors">
+          <Link href="/" className="flex items-center gap-3 group text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-emerald-400 transition-colors">
+            <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center group-hover:bg-zinc-100 dark:group-hover:bg-emerald-950/50 transition-colors">
               <ArrowLeft size={18} />
             </div>
             <span className="font-bold text-sm hidden sm:block">Back to Home</span>
@@ -140,7 +140,7 @@ export default function GuidePage() {
           <div className="flex items-center gap-4">
             <ThemeToggle />
             <Link href="/login">
-              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-full px-6">Login to ERP</Button>
+              <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-bold rounded-full px-6">Login to ERP</Button>
             </Link>
           </div>
         </div>
@@ -148,7 +148,7 @@ export default function GuidePage() {
 
       <div className="max-w-7xl mx-auto px-6 py-12 lg:py-20">
         <div className="text-center mb-16 max-w-3xl mx-auto">
-          <span className="inline-block py-1.5 px-4 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-4">
+          <span className="inline-block py-1.5 px-4 rounded-full bg-zinc-200 dark:bg-emerald-900/30 text-zinc-800 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-4">
             Comprehensive User Guide
           </span>
           <h1 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-white mb-6">
@@ -170,13 +170,13 @@ export default function GuidePage() {
                 onClick={() => setActiveTab(key)}
                 className={`flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${
                   isActive
-                    ? "bg-emerald-600 text-white shadow-xl shadow-emerald-600/20 scale-105"
-                    : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400"
+                    ? "bg-zinc-800 text-white shadow-xl shadow-zinc-800/20 scale-105"
+                    : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-600 hover:text-zinc-800 dark:hover:text-emerald-400"
                 }`}
               >
                 <Icon size={24} className={isActive ? "text-white" : ""} />
                 <div className="text-left">
-                  <div className={`text-[10px] uppercase tracking-wider mb-0.5 ${isActive ? "text-emerald-100" : "text-zinc-400"}`}>
+                  <div className={`text-[10px] uppercase tracking-wider mb-0.5 ${isActive ? "text-zinc-200" : "text-zinc-400"}`}>
                     {guide.badge}
                   </div>
                   <div className="text-sm">{guide.title}</div>
@@ -192,7 +192,7 @@ export default function GuidePage() {
             
             <div className="md:w-1/3">
               <div className="sticky top-28">
-                <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-6">
+                <div className="w-16 h-16 rounded-2xl bg-zinc-200 dark:bg-emerald-900/40 flex items-center justify-center text-zinc-800 dark:text-emerald-400 mb-6">
                   {(() => {
                     const ActiveIcon = guides[activeTab].icon;
                     return <ActiveIcon size={32} />;
@@ -207,19 +207,19 @@ export default function GuidePage() {
                 
                 <div className="bg-zinc-50 dark:bg-zinc-950 rounded-2xl p-6 border border-zinc-200 dark:border-zinc-800">
                   <h4 className="font-bold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
-                    <PlayCircle size={18} className="text-emerald-500" /> Quick Tips
+                    <PlayCircle size={18} className="text-zinc-600" /> Quick Tips
                   </h4>
                   <ul className="space-y-3">
                     <li className="flex gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                      <CheckCircle2 size={16} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <CheckCircle2 size={16} className="text-zinc-600 shrink-0 mt-0.5" />
                       Keep your login credentials secure.
                     </li>
                     <li className="flex gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                      <CheckCircle2 size={16} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <CheckCircle2 size={16} className="text-zinc-600 shrink-0 mt-0.5" />
                       Use the search bar to find records quickly.
                     </li>
                     <li className="flex gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                      <CheckCircle2 size={16} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <CheckCircle2 size={16} className="text-zinc-600 shrink-0 mt-0.5" />
                       Contact Super Admin for permission issues.
                     </li>
                   </ul>
@@ -237,11 +237,11 @@ export default function GuidePage() {
                     )}
                     
                     {/* Number / Icon Badge */}
-                    <div className="absolute left-0 md:left-2 top-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white dark:bg-zinc-900 border-2 border-emerald-500 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm z-10">
+                    <div className="absolute left-0 md:left-2 top-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white dark:bg-zinc-900 border-2 border-zinc-600 flex items-center justify-center text-zinc-800 dark:text-emerald-400 shadow-sm z-10">
                       <section.icon size={16} />
                     </div>
 
-                    <div className="bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl p-6 hover:border-emerald-500/30 transition-colors">
+                    <div className="bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl p-6 hover:border-zinc-600/30 transition-colors">
                       <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-3">
                         {section.title}
                       </h3>
@@ -256,7 +256,7 @@ export default function GuidePage() {
               <div className="mt-12 pt-10 border-t border-zinc-200 dark:border-zinc-800 text-center">
                 <h4 className="font-bold text-zinc-900 dark:text-white mb-4">Ready to put this into action?</h4>
                 <Link href="/login">
-                  <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-full px-8 h-12 shadow-lg shadow-emerald-600/20">
+                  <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-bold rounded-full px-8 h-12 shadow-lg shadow-zinc-800/20">
                     Open {guides[activeTab].title}
                   </Button>
                 </Link>

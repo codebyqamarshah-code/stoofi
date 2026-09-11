@@ -48,30 +48,30 @@ export default function ComingSoonPage() {
       </div>
 
       <div className="mb-8">
-        <img src="/stoofi light.png" alt="Stoofi" className="h-20 w-auto object-contain dark:hidden" />
+        <img src="/logo dark(2).png" alt="Stoofi" className="h-20 w-auto object-contain dark:hidden" />
         <img src="/stoofi dark.png" alt="Stoofi" className="h-20 w-auto object-contain hidden dark:block" />
       </div>
 
       <div className="relative w-24 h-24 mb-8 flex items-center justify-center">
         <div className="absolute inset-0 border-[3px] border-zinc-200 dark:border-zinc-800 rounded-full"></div>
-        <div className="absolute inset-0 border-[3px] border-[#009966] dark:border-emerald-500 rounded-full border-t-transparent animate-spin"></div>
-        <Clock size={36} className="text-[#009966] dark:text-emerald-500" />
+        <div className="absolute inset-0 border-[3px] border-zinc-950 dark:border-emerald-500 rounded-full border-t-transparent animate-spin"></div>
+        <Clock size={36} className="text-zinc-950 dark:text-emerald-500" />
       </div>
 
       <h1 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-white mb-4">
-        Dashboard <span className="text-[#009966]">Under Construction</span>
+        Dashboard <span className="text-zinc-950">Under Construction</span>
       </h1>
 
-      <div className="inline-flex items-center gap-2 bg-[#009966]/10 border border-[#009966]/30 rounded-full px-5 py-2 mb-6">
+      <div className="inline-flex items-center gap-2 bg-zinc-950/10 border border-zinc-950/30 rounded-full px-5 py-2 mb-6">
         {user?.avatar ? (
           <img src={user.avatar} alt="Avatar" className="w-7 h-7 rounded-full object-cover" />
         ) : (
-          <div className="w-7 h-7 rounded-full bg-[#009966] flex items-center justify-center text-white text-xs font-bold">
+          <div className="w-7 h-7 rounded-full bg-zinc-950 flex items-center justify-center text-white text-xs font-bold">
             {userName.charAt(0).toUpperCase()}
           </div>
         )}
-        <span className="text-sm font-bold text-[#009966] dark:text-emerald-400">{userName}</span>
-        <span className="text-xs bg-[#009966] text-white rounded-full px-2 py-0.5 font-bold">{displayRole}</span>
+        <span className="text-sm font-bold text-zinc-950 dark:text-emerald-400">{userName}</span>
+        <span className="text-xs bg-zinc-950 text-white rounded-full px-2 py-0.5 font-bold">{displayRole}</span>
       </div>
 
       <p className="text-zinc-600 dark:text-zinc-400 text-base max-w-md mb-4 leading-relaxed">
@@ -80,7 +80,7 @@ export default function ComingSoonPage() {
       </p>
 
       <p className="text-zinc-400 dark:text-zinc-600 text-sm">
-        Coming Soon &mdash; <span className="font-bold text-[#009966]">Stoofi ERP Team</span>
+        Coming Soon &mdash; <span className="font-bold text-zinc-950">Stoofi ERP Team</span>
       </p>
 
     </div>

@@ -57,7 +57,7 @@ export default function ContactMessagePage() {
         <ChevronRight className="w-3 h-3" />
         <span>Frontend CMS</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">Contact Message</span>
+        <span className="text-zinc-500">Contact Message</span>
       </div>
 
       <h1 className="text-xl font-bold text-white">Contact Message</h1>
@@ -78,7 +78,7 @@ export default function ContactMessagePage() {
             </div>
             <div className="flex gap-1">
               {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                <button key={i} className="p-1 text-zinc-400 hover:text-emerald-400">
+                <button key={i} className="p-1 text-zinc-400 hover:text-zinc-500">
                   <Icon className="w-4 h-4" />
                 </button>
               ))}
@@ -115,7 +115,7 @@ export default function ContactMessagePage() {
                       <div className="relative inline-block text-left">
                         <button
                           onClick={() => setOpenDropdownId(openDropdownId === item.id ? null : item.id)}
-                          className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-emerald-500 hover:text-emerald-400 cursor-pointer"
+                          className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-zinc-600 hover:text-zinc-500 cursor-pointer"
                         >
                           SELECT <ChevronDown className="w-3 h-3" />
                         </button>
@@ -123,7 +123,7 @@ export default function ContactMessagePage() {
                           <div className="absolute right-0 mt-1 w-32 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-20 py-1">
                             <button
                               onClick={() => { setSelectedMessage(item); setOpenDropdownId(null); }}
-                              className="w-full text-left px-3 py-1.5 text-xs text-zinc-300 hover:bg-emerald-950/40 hover:text-emerald-400 flex items-center gap-2"
+                              className="w-full text-left px-3 py-1.5 text-xs text-zinc-300 hover:bg-emerald-950/40 hover:text-zinc-500 flex items-center gap-2"
                             >
                               <Eye className="w-3.5 h-3.5" /> View
                             </button>
@@ -163,7 +163,7 @@ export default function ContactMessagePage() {
             </div>
             <div className="space-y-2 text-sm">
               <p><span className="text-zinc-400 font-semibold">From:</span> <span className="text-white">{selectedMessage.name}</span> ({selectedMessage.email})</p>
-              <p><span className="text-zinc-400 font-semibold">Subject:</span> <span className="text-emerald-400">{selectedMessage.subject}</span></p>
+              <p><span className="text-zinc-400 font-semibold">Subject:</span> <span className="text-zinc-500">{selectedMessage.subject}</span></p>
               <div className="mt-3 p-3 bg-zinc-800/60 rounded-lg text-zinc-300 leading-relaxed border border-zinc-700/50">
                 {selectedMessage.message}
               </div>
@@ -171,7 +171,7 @@ export default function ContactMessagePage() {
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => setSelectedMessage(null)}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-lg"
+                className="bg-zinc-800 hover:bg-zinc-800 text-white text-xs font-semibold px-4 py-2 rounded-lg"
               >
                 Close
               </button>

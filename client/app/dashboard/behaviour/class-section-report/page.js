@@ -21,9 +21,9 @@ export default function ClassSectionReportPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Class Section Wise Rank Report</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link><ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/behaviour/incidents" className="hover:text-emerald-400 transition-colors">Behaviour Records</Link><ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Class Section Report</span>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link><ChevronRight className="h-4 w-4 mx-1" />
+          <Link href="/dashboard/behaviour/incidents" className="hover:text-zinc-500 transition-colors">Behaviour Records</Link><ChevronRight className="h-4 w-4 mx-1" />
+          <span className="text-zinc-600">Class Section Report</span>
         </div>
       </div>
 
@@ -34,7 +34,7 @@ export default function ClassSectionReportPage() {
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
               <Input placeholder="SEARCH" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-xs font-semibold uppercase" />
+                className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase" />
             </div>
             <div className="flex items-center border border-zinc-800 rounded-md bg-zinc-900">
               {[FileText, Download, FileText, Download, Printer, MoreVertical].map((Icon, i) => (

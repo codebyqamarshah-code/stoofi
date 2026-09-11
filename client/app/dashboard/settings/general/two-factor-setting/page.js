@@ -33,11 +33,11 @@ export default function TwoFactorPage() {
             <label className="text-sm font-medium text-zinc-300 md:col-span-1 pt-2">TWO FACTOR OTP</label>
             <div className="md:col-span-2 flex gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="otp" value="enable" checked={otp === 'enable'} onChange={() => setOtp('enable')} className="w-4 h-4 text-emerald-600 bg-zinc-900 border-zinc-800 focus:ring-emerald-500 focus:ring-offset-zinc-900" />
+                <input type="radio" name="otp" value="enable" checked={otp === 'enable'} onChange={() => setOtp('enable')} className="w-4 h-4 text-zinc-800 bg-zinc-900 border-zinc-800 focus:ring-zinc-600 focus:ring-offset-zinc-900" />
                 <span>Enable</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="otp" value="disable" checked={otp === 'disable'} onChange={() => setOtp('disable')} className="w-4 h-4 text-emerald-600 bg-zinc-900 border-zinc-800 focus:ring-emerald-500 focus:ring-offset-zinc-900" />
+                <input type="radio" name="otp" value="disable" checked={otp === 'disable'} onChange={() => setOtp('disable')} className="w-4 h-4 text-zinc-800 bg-zinc-900 border-zinc-800 focus:ring-zinc-600 focus:ring-offset-zinc-900" />
                 <span>Disable</span>
               </label>
             </div>
@@ -47,11 +47,11 @@ export default function TwoFactorPage() {
             <label className="text-sm font-medium text-zinc-300 md:col-span-1 pt-2">SEND CODE VIA</label>
             <div className="md:col-span-2 flex gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="sendCodeVia" value="sms" checked={sendCodeVia === 'sms'} onChange={() => setSendCodeVia('sms')} className="w-4 h-4 text-emerald-600 bg-zinc-900 border-zinc-800 focus:ring-emerald-500 focus:ring-offset-zinc-900" />
+                <input type="radio" name="sendCodeVia" value="sms" checked={sendCodeVia === 'sms'} onChange={() => setSendCodeVia('sms')} className="w-4 h-4 text-zinc-800 bg-zinc-900 border-zinc-800 focus:ring-zinc-600 focus:ring-offset-zinc-900" />
                 <span>SMS</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="sendCodeVia" value="email" checked={sendCodeVia === 'email'} onChange={() => setSendCodeVia('email')} className="w-4 h-4 text-emerald-600 bg-zinc-900 border-zinc-800 focus:ring-emerald-500 focus:ring-offset-zinc-900" />
+                <input type="radio" name="sendCodeVia" value="email" checked={sendCodeVia === 'email'} onChange={() => setSendCodeVia('email')} className="w-4 h-4 text-zinc-800 bg-zinc-900 border-zinc-800 focus:ring-zinc-600 focus:ring-offset-zinc-900" />
                 <span>Email</span>
               </label>
             </div>
@@ -62,7 +62,7 @@ export default function TwoFactorPage() {
             <div className="md:col-span-2 flex flex-wrap gap-4">
               {Object.keys(applicableFor).map((key) => (
                 <label key={key} className="flex items-center gap-2 cursor-pointer capitalize">
-                  <input type="checkbox" checked={applicableFor[key]} onChange={() => handleCheckbox(key)} className="w-4 h-4 rounded text-emerald-600 bg-zinc-900 border-zinc-800 focus:ring-emerald-500 focus:ring-offset-zinc-900" />
+                  <input type="checkbox" checked={applicableFor[key]} onChange={() => handleCheckbox(key)} className="w-4 h-4 rounded text-zinc-800 bg-zinc-900 border-zinc-800 focus:ring-zinc-600 focus:ring-offset-zinc-900" />
                   <span>{key}</span>
                 </label>
               ))}
@@ -72,12 +72,12 @@ export default function TwoFactorPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
             <label className="text-sm font-medium text-zinc-300 md:col-span-1">CODE LIFETIME (SECOND)</label>
             <div className="md:col-span-2">
-              <input type="text" value={lifetime} onChange={(e) => setLifetime(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500" />
+              <input type="text" value={lifetime} onChange={(e) => setLifetime(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600 focus:border-zinc-600" />
             </div>
           </div>
 
           <div className="flex justify-center pt-4">
-            <button className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-8 rounded transition-colors">
+            <button className="bg-zinc-800 hover:bg-zinc-800 text-white font-medium py-2 px-8 rounded transition-colors">
               UPDATE
             </button>
           </div>

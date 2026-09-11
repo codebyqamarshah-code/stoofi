@@ -59,11 +59,11 @@ export default function CategoryListPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Course Category</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>LMS</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Course Category</span>
+          <span className="text-zinc-600">Course Category</span>
         </div>
       </div>
 
@@ -81,7 +81,7 @@ export default function CategoryListPage() {
                   placeholder="Name" 
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" 
                   required
                 />
               </div>
@@ -92,7 +92,7 @@ export default function CategoryListPage() {
                   placeholder="Description"
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  className="flex min-h-[70px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 resize-y"
+                  className="flex min-h-[70px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 resize-y"
                 />
               </div>
 
@@ -101,7 +101,7 @@ export default function CategoryListPage() {
                 <select 
                   value={formData.parent}
                   onChange={(e) => setFormData({...formData, parent: e.target.value})}
-                  className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                  className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
                 >
                   <option value="">Parent Category</option>
                   {categories.map(c => (
@@ -117,7 +117,7 @@ export default function CategoryListPage() {
                   placeholder="Position Order" 
                   value={formData.position}
                   onChange={(e) => setFormData({...formData, position: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" 
                 />
               </div>
 
@@ -126,7 +126,7 @@ export default function CategoryListPage() {
                 <select 
                   value={formData.status}
                   onChange={(e) => setFormData({...formData, status: e.target.value})}
-                  className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                  className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
                 >
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
@@ -136,7 +136,7 @@ export default function CategoryListPage() {
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Icon</Label>
                 <div className="flex items-center gap-2">
-                  <Input type="text" placeholder="BROWSE IMAGE FILE" readOnly className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-xs" />
+                  <Input type="text" placeholder="BROWSE IMAGE FILE" readOnly className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs" />
                   <Button type="button" variant="secondary" className="bg-zinc-800 hover:bg-zinc-700 text-white shrink-0 text-xs font-semibold">BROWSE</Button>
                 </div>
                 <p className="text-[10px] text-zinc-500">Recommended size 200px x 200px</p>
@@ -145,14 +145,14 @@ export default function CategoryListPage() {
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Thumbnail Image</Label>
                 <div className="flex items-center gap-2">
-                  <Input type="text" placeholder="BROWSE FILE" readOnly className="bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-xs" />
+                  <Input type="text" placeholder="BROWSE FILE" readOnly className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs" />
                   <Button type="button" variant="secondary" className="bg-zinc-800 hover:bg-zinc-700 text-white shrink-0 text-xs font-semibold">BROWSE</Button>
                 </div>
                 <p className="text-[10px] text-zinc-500">Recommended size 1140px x 300px</p>
               </div>
 
               <div className="pt-2">
-                <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">SAVE CATEGORY</Button>
+                <Button type="submit" className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">SAVE CATEGORY</Button>
               </div>
             </form>
           </div>
@@ -170,7 +170,7 @@ export default function CategoryListPage() {
                     placeholder="SEARCH" 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 w-[160px] bg-zinc-900 border-zinc-800 focus-visible:ring-emerald-500 text-xs font-semibold uppercase" 
+                    className="pl-9 w-[160px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase" 
                   />
                 </div>
                 <div className="flex items-center border border-zinc-800 rounded-md bg-zinc-900">

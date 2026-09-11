@@ -41,14 +41,14 @@ export default function NewsCommentsPage() {
         <ChevronRight className="w-3 h-3" />
         <span>Frontend CMS</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-emerald-400">News Comment List</span>
+        <span className="text-zinc-500">News Comment List</span>
       </div>
 
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-white">News Comment List</h1>
         <button
           onClick={handleReset}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors shadow-lg cursor-pointer"
+          className="bg-zinc-800 hover:bg-zinc-800 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors shadow-lg cursor-pointer"
         >
           <RotateCcw className="w-3.5 h-3.5" /> RESET DATATABLE DATA
         </button>
@@ -70,7 +70,7 @@ export default function NewsCommentsPage() {
             </div>
             <div className="flex gap-1">
               {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                <button key={i} className="p-1 text-zinc-400 hover:text-emerald-400">
+                <button key={i} className="p-1 text-zinc-400 hover:text-zinc-500">
                   <Icon className="w-4 h-4" />
                 </button>
               ))}
@@ -99,7 +99,7 @@ export default function NewsCommentsPage() {
               ) : (
                 filtered.map((item, idx) => (
                   <tr key={item.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
-                    <td className="py-3 px-3 text-emerald-500 font-medium">{idx + 1}</td>
+                    <td className="py-3 px-3 text-zinc-600 font-medium">{idx + 1}</td>
                     <td className="py-3 px-3 text-zinc-200 font-medium">{item.author}</td>
                     <td className="py-3 px-3 text-zinc-400">{item.comment}</td>
                     <td className="py-3 px-3 text-zinc-300">{item.inResponseTo}</td>

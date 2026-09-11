@@ -17,7 +17,7 @@ export default function ManageCurrency() {
       <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden shadow-sm">
         <div className="px-6 py-4 border-b border-zinc-800 flex justify-between items-center">
           <h2 className="text-lg font-medium">Currency List</h2>
-          <button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded text-sm transition-colors">
+          <button className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-800 text-white px-4 py-2 rounded text-sm transition-colors">
             <Plus className="w-4 h-4" />
             ADD
           </button>
@@ -34,7 +34,7 @@ export default function ManageCurrency() {
                 <button className="p-2 border border-zinc-800 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="Columns"><Columns className="w-4 h-4" /></button>
              </div>
              <div>
-                <input type="text" placeholder="Search..." className="bg-zinc-900 border border-zinc-800 rounded-md px-3 py-1.5 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
+                <input type="text" placeholder="Search..." className="bg-zinc-900 border border-zinc-800 rounded-md px-3 py-1.5 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600" />
              </div>
           </div>
           
@@ -58,7 +58,7 @@ export default function ManageCurrency() {
                     <td className="px-4 py-3 text-zinc-300">{index + 1}</td>
                     <td className="px-4 py-3 text-zinc-100 flex items-center gap-2">
                       {currency.name}
-                      {currency.active && <span className="bg-emerald-500/10 text-emerald-500 text-[10px] px-2 py-0.5 rounded border border-emerald-500/20">ACTIVE</span>}
+                      {currency.active && <span className="bg-zinc-600/10 text-zinc-600 text-[10px] px-2 py-0.5 rounded border border-zinc-600/20">ACTIVE</span>}
                     </td>
                     <td className="px-4 py-3 text-zinc-300">{currency.code}</td>
                     <td className="px-4 py-3 text-zinc-300">{currency.symbol}</td>

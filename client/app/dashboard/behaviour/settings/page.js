@@ -27,10 +27,10 @@ export default function BehaviourSettingsPage() {
       <div
         onClick={() => onChange(value)}
         className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${
-          current === value ? 'border-emerald-500' : 'border-zinc-600 group-hover:border-zinc-400'
+          current === value ? 'border-zinc-600' : 'border-zinc-600 group-hover:border-zinc-400'
         }`}
       >
-        {current === value && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
+        {current === value && <div className="w-2 h-2 rounded-full bg-zinc-600" />}
       </div>
       <span className="text-sm text-zinc-400 group-hover:text-zinc-200 transition-colors select-none">{label}</span>
     </label>
@@ -41,11 +41,11 @@ export default function BehaviourSettingsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Setting</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/behaviour/incidents" className="hover:text-emerald-400 transition-colors">Behaviour Records</Link>
+          <Link href="/dashboard/behaviour/incidents" className="hover:text-zinc-500 transition-colors">Behaviour Records</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Setting</span>
+          <span className="text-zinc-600">Setting</span>
         </div>
       </div>
 
@@ -77,8 +77,8 @@ export default function BehaviourSettingsPage() {
               onClick={handleCommentSave}
               className={`font-semibold transition-all duration-300 ${
                 commentSaved
-                  ? 'bg-emerald-600 hover:bg-emerald-600 text-white'
-                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                  ? 'bg-zinc-800 hover:bg-zinc-800 text-white'
+                  : 'bg-zinc-800 hover:bg-zinc-800 text-white'
               }`}
             >
               {commentSaved ? (
@@ -115,8 +115,8 @@ export default function BehaviourSettingsPage() {
               onClick={handleViewSave}
               className={`font-semibold transition-all duration-300 ${
                 viewSaved
-                  ? 'bg-emerald-600 hover:bg-emerald-600 text-white'
-                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                  ? 'bg-zinc-800 hover:bg-zinc-800 text-white'
+                  : 'bg-zinc-800 hover:bg-zinc-800 text-white'
               }`}
             >
               {viewSaved ? (

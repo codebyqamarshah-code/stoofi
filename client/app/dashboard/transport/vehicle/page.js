@@ -71,11 +71,11 @@ export default function VehiclePage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-white">Vehicle</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Transport</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-emerald-500">Vehicle</span>
+          <span className="text-zinc-600">Vehicle</span>
         </div>
       </div>
 
@@ -90,7 +90,7 @@ export default function VehiclePage() {
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Vehicle No <span className="text-rose-500">*</span></Label>
                 <Input 
                   value={formData.vehicleNo} onChange={(e) => setFormData({...formData, vehicleNo: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
                 />
               </div>
               <div className="space-y-1.5">
@@ -98,31 +98,31 @@ export default function VehiclePage() {
                 <Input 
                   type="number"
                   value={formData.capacity} onChange={(e) => setFormData({...formData, capacity: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
                 />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Driver Name</Label>
                 <Input 
                   value={formData.driverName} onChange={(e) => setFormData({...formData, driverName: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
                 />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Driver License</Label>
                 <Input 
                   value={formData.driverLicense} onChange={(e) => setFormData({...formData, driverLicense: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
                 />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Contact</Label>
                 <Input 
                   value={formData.contact} onChange={(e) => setFormData({...formData, contact: e.target.value})}
-                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-emerald-500" 
+                  className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
                 />
               </div>
-              <Button disabled={submitting} type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+              <Button disabled={submitting} type="submit" className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                 {submitting ? 'SAVING...' : 'SAVE VEHICLE'}
               </Button>
             </form>
@@ -138,7 +138,7 @@ export default function VehiclePage() {
                 <Input 
                   placeholder="SEARCH" 
                   value={search} onChange={(e) => setSearch(e.target.value)}
-                  className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-emerald-500"
+                  className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-zinc-600"
                 />
               </div>
             </div>
@@ -164,7 +164,7 @@ export default function VehiclePage() {
                   ) : (
                     filtered.map((item, idx) => (
                       <tr key={item._id} className="hover:bg-zinc-900/50 transition-colors">
-                        <td className="px-4 py-3 text-emerald-500 font-medium">+{idx + 1}</td>
+                        <td className="px-4 py-3 text-zinc-600 font-medium">+{idx + 1}</td>
                         <td className="px-4 py-3 text-zinc-300">{item.vehicleNo}</td>
                         <td className="px-4 py-3 text-zinc-400">{item.capacity || '-'}</td>
                         <td className="px-4 py-3 text-zinc-400">{item.driverName || '-'}</td>

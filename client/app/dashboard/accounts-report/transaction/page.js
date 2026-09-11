@@ -25,7 +25,7 @@ export default function TransactionReport() {
             <input 
               type="text" 
               placeholder="Select Date Range"
-              className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
               value={formData.dateRange}
               onChange={(e) => setFormData({...formData, dateRange: e.target.value})}
             />
@@ -33,7 +33,7 @@ export default function TransactionReport() {
           <div>
             <label className="block text-sm text-zinc-400 mb-1">TYPE *</label>
             <select 
-              className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
               value={formData.type}
               onChange={(e) => setFormData({...formData, type: e.target.value})}
             >
@@ -45,7 +45,7 @@ export default function TransactionReport() {
           <div>
             <label className="block text-sm text-zinc-400 mb-1">PAYMENT METHOD *</label>
             <select 
-              className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
               value={formData.paymentMethod}
               onChange={(e) => setFormData({...formData, paymentMethod: e.target.value})}
             >
@@ -59,7 +59,7 @@ export default function TransactionReport() {
         <div className="flex justify-end">
           <button 
             onClick={handleSearch}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded transition-colors text-sm font-medium"
+            className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-800 text-white px-6 py-2 rounded transition-colors text-sm font-medium"
           >
             <Search className="w-4 h-4" />
             SEARCH
