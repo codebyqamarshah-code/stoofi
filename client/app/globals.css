@@ -133,8 +133,8 @@ a.bg-black:hover {
 :root:not(.dark) h4.text-white,
 :root:not(.dark) p.text-white,
 :root:not(.dark) label.text-white,
-:root:not(.dark) span.text-white:not(button *, .badge *, [class*="bg-emerald"] *, [class*="bg-[#009966]"] *, [class*="bg-rose"] *, [class*="bg-amber"] *),
-:root:not(.dark) div.text-white:not(button *, .badge *, [class*="bg-emerald"] *, [class*="bg-[#009966]"] *, [class*="bg-rose"] *, [class*="bg-amber"] *) {
+:root:not(.dark) span.text-white:not(button *, .badge *, [class*="bg-black"] *, [class*="bg-zinc-950"] *, [class*="bg-zinc-900"] *, [class*="bg-zinc-800"] *, [class*="bg-emerald"] *, [class*="bg-[#009966]"] *, [class*="bg-rose"] *, [class*="bg-amber"] *),
+:root:not(.dark) div.text-white:not(button *, .badge *, [class*="bg-black"] *, [class*="bg-zinc-950"] *, [class*="bg-zinc-900"] *, [class*="bg-zinc-800"] *, [class*="bg-emerald"] *, [class*="bg-[#009966]"] *, [class*="bg-rose"] *, [class*="bg-amber"] *) {
   color: #09090b !important;
 }
 
@@ -185,14 +185,31 @@ optgroup,
   color: #09090b !important;
 }
 
-/* Form input elements in light mode: ensure dark crisp text */
-:root:not(.dark) input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
-:root:not(.dark) textarea {
+/* Form input elements in light mode: white bg, dark text, soft border */
+input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+textarea {
+  background-color: #ffffff !important;
   color: #09090b !important;
+  border-color: #e4e4e7 !important;
 }
-:root:not(.dark) input::placeholder,
-:root:not(.dark) textarea::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: #71717a !important;
+}
+input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]):focus,
+textarea:focus {
+  border-color: #09090b !important;
+  outline: none !important;
+  box-shadow: 0 0 0 1px #09090b !important;
+}
+
+/* Dark badges: keep white text on black pill backgrounds */
+span[class*="bg-zinc-950"],
+span[class*="bg-zinc-900"],
+span[class*="bg-black"],
+.badge-dark {
+  background-color: #09090b !important;
+  color: #ffffff !important;
 }
 
 
