@@ -87,7 +87,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-2xl bg-white dark:bg-white rounded-2xl p-8 sm:p-10 border border-zinc-200 dark:border-zinc-200 shadow-xl">
         
         <div className="flex justify-center mb-6">
-           <img src="/logo dark(2).png" alt="Stoofi PRO" className="h-20 w-auto object-contain" />
+           <img src="/stoofi light.png" alt="Stoofi PRO" className="h-14 w-auto object-contain" />
         </div>
 
         <div className="text-center mb-8">

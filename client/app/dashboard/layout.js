@@ -170,7 +170,7 @@ export default function DashboardLayout({ children }) {
           
           {/* Center Mascot Logo */}
           <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center p-2">
-            <img src="/logo dark(2).png" alt="Loading" className="w-full h-full object-contain" />
+            <img src="/stoofi light.png" alt="Loading" className="w-full h-full object-contain" />
           </div>
         </div>
         <div className="text-zinc-950 dark:text-zinc-900 font-bold tracking-[0.3em] text-xs sm:text-sm animate-pulse">
@@ -215,7 +215,7 @@ export default function DashboardLayout({ children }) {
         {/* Brand Header */}
         <div className="flex h-[70px] items-center justify-between border-b border-zinc-200 dark:border-zinc-200 px-5 shrink-0 bg-white dark:bg-white">
           <Link href="/dashboard" className="flex items-center cursor-pointer">
-            <img src="/logo dark(2).png" alt="Stoofi PRO" className="h-10 sm:h-11 max-w-[155px] w-auto object-contain transform hover:scale-105 transition-transform duration-300" />
+            <img src="/stoofi light.png" alt="Stoofi PRO" className="h-10 sm:h-11 max-w-[155px] w-auto object-contain transform hover:scale-105 transition-transform duration-300" />
           </Link>
           <Button
             variant="ghost"

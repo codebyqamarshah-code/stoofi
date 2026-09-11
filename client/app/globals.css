@@ -53,14 +53,66 @@
   --custom-emerald-500: #09090b;
 }
 
-/* LIGHT MODE: Ensure dark card containers (bg-zinc-950, bg-zinc-900) become clean white */
-:root:not(.dark) .bg-zinc-950,
-:root:not(.dark) .bg-zinc-900 {
+/* LIGHT MODE: Ensure card containers become clean white, but NEVER buttons or links */
+:root:not(.dark) div.bg-zinc-950,
+:root:not(.dark) div.bg-zinc-900,
+:root:not(.dark) section.bg-zinc-950,
+:root:not(.dark) section.bg-zinc-900,
+:root:not(.dark) aside.bg-zinc-950,
+:root:not(.dark) header.bg-zinc-950 {
   background-color: #ffffff !important;
 }
-:root:not(.dark) .bg-zinc-900\/50,
-:root:not(.dark) .bg-zinc-950\/50 {
+:root:not(.dark) div.bg-zinc-900\/50,
+:root:not(.dark) div.bg-zinc-950\/50,
+:root:not(.dark) thead.bg-zinc-900\/50 {
   background-color: #f8fafc !important;
+}
+
+/* Ensure all dark buttons stay solid black with clear white text */
+button.bg-zinc-950,
+button.bg-zinc-900,
+button.bg-zinc-800,
+button.bg-black,
+a.bg-zinc-950,
+a.bg-zinc-900,
+a.bg-zinc-800,
+a.bg-black {
+  background-color: #09090b !important;
+  color: #ffffff !important;
+}
+button.bg-zinc-950:hover,
+button.bg-zinc-900:hover,
+button.bg-zinc-800:hover,
+button.bg-black:hover,
+a.bg-zinc-950:hover,
+a.bg-zinc-900:hover,
+a.bg-zinc-800:hover,
+a.bg-black:hover {
+  background-color: #27272a !important;
+  color: #ffffff !important;
+}
+
+/* LIGHT MODE: Elegant soft hover for table rows instead of dark gray block */
+:root:not(.dark) tr:hover,
+:root:not(.dark) tr.hover\:bg-zinc-900\/50:hover,
+:root:not(.dark) tr.hover\:bg-zinc-900:hover,
+:root:not(.dark) tr.hover\:bg-zinc-800\/50:hover,
+:root:not(.dark) .hover\:bg-zinc-900\/50:hover,
+:root:not(.dark) .hover\:bg-zinc-900\/40:hover {
+  background-color: #f4f4f5 !important; /* Soft, clean zinc-100 hover */
+}
+:root:not(.dark) tr:hover td {
+  color: #09090b !important;
+}
+:root:not(.dark) tr:hover td span:not([class*="bg-"]),
+:root:not(.dark) tr:hover td div:not([class*="bg-"]) {
+  color: #09090b !important;
+}
+
+/* Ensure table body text has high-contrast crisp readability in light mode */
+:root:not(.dark) table td.text-zinc-300,
+:root:not(.dark) table td.text-zinc-400 {
+  color: #27272a !important;
 }
 
 /* LIGHT MODE: Remove all black borders and black divider lines - make them soft emerald */

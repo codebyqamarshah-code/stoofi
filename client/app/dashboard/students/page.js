@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { ChevronRight, Search, Download, Printer, FileText, Plus, Edit, Trash2, X, Save } from 'lucide-react';
+import { ChevronRight, Search, Download, Printer, FileText, Plus, Edit, Trash2, X, Save, Upload, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +10,7 @@ import Link from 'next/link';
 import api from '@/services/api';
 import { mockStudents } from '@/services/mockData';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
+import StudentImportModal from '@/components/StudentImportModal';
 
 const FALLBACK_CLASSES = [
   { _id: 'c-nursery', name: 'Nursery' },
@@ -67,6 +68,9 @@ export default function StudentListPage() {
   const [editModal, setEditModal] = useState(false);
   const [editStudent, setEditStudent] = useState(null);
   const [editLoading, setEditLoading] = useState(false);
+
+  // Import modal state
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -417,13 +421,25 @@ export default function StudentListPage() {
       </div>
 
       <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
+        <div className="p-4 border-b border-zinc-800 flex justify-between items-center flex-wrap gap-2">
           <h2 className="text-lg font-semibold text-white">Select Criteria</h2>
-          <Link href="/dashboard/students/add">
-            <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2">
-              <Plus className="h-4 w-4" /> ADD STUDENT
+          <div className="flex items-center gap-2">
+            <Button 
+              type="button"
+              onClick={() => setIsImportModalOpen(true)}
+              className="bg-zinc-100 hover:bg-zinc-200 text-zinc-900 border border-zinc-300 font-bold flex items-center gap-2 cursor-pointer text-xs h-9 px-3.5 shadow-xs"
+            >
+              <Upload className="h-4 w-4 text-zinc-900" /> IMPORT STUDENTS
             </Button>
-          </Link>
+            <Link href="/dashboard/students/add">
+              <Button 
+                type="button"
+                className="bg-black hover:bg-zinc-800 text-white font-bold flex items-center gap-2 cursor-pointer text-xs h-9 px-4 shadow-sm"
+              >
+                <Plus className="h-4 w-4 text-white" /> ADD STUDENT
+              </Button>
+            </Link>
+          </div>
         </div>
         <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="space-y-1.5">
@@ -474,8 +490,23 @@ export default function StudentListPage() {
               className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white" 
             />
           </div>
-          <div className="flex items-end justify-end">
-            <Button onClick={handleSearch} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2">
+          <div className="flex items-end justify-end gap-2">
+            <Button 
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setClassFilter('');
+                setSectionFilter('');
+                setNameFilter('');
+                setRollFilter('');
+                setQuickSearch('');
+                setAppliedFilters({ academicYear, classFilter: '', sectionFilter: '', nameFilter: '', rollFilter: '' });
+              }}
+              className="border-zinc-700 bg-zinc-900 text-zinc-300 hover:text-white hover:bg-zinc-800 cursor-pointer text-xs flex items-center gap-1.5"
+            >
+              <RotateCcw className="h-3.5 w-3.5" /> RESET
+            </Button>
+            <Button onClick={handleSearch} className="bg-zinc-800 hover:bg-zinc-700 text-white font-semibold flex items-center gap-2 cursor-pointer text-xs">
               <Search className="h-4 w-4" /> SEARCH
             </Button>
           </div>
@@ -498,13 +529,16 @@ export default function StudentListPage() {
             </div>
             
             <div className="flex items-center gap-2">
-              <Button onClick={() => exportToCSV(exportData, 'Student_List')} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:text-white" title="Download CSV">
+              <Button onClick={() => exportToCSV(exportData, 'Stoofi_Students')} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:text-white cursor-pointer" title="Download CSV">
                 <Download className="h-4 w-4" />
               </Button>
-              <Button onClick={() => exportToExcel(exportData, 'Student_List')} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:text-white text-zinc-600" title="Export Excel">
+              <Button onClick={() => exportToExcel(exportData, 'Stoofi_Students', 'Students')} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:text-white text-zinc-300 cursor-pointer" title="Export Excel (.xlsx)">
                 <FileText className="h-4 w-4" />
               </Button>
-              <Button onClick={() => printData('Student List', exportData)} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:text-white text-rose-500" title="Print">
+              <Button onClick={() => exportToPDF(exportData, 'Stoofi_Students', 'Student Directory Report')} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:text-white text-zinc-300 cursor-pointer" title="Export PDF">
+                <Download className="h-4 w-4 text-zinc-400" />
+              </Button>
+              <Button onClick={() => printData('Student List Report', exportData)} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 hover:text-white text-zinc-300 cursor-pointer" title="Print Official Records">
                 <Printer className="h-4 w-4" />
               </Button>
             </div>
@@ -513,20 +547,20 @@ export default function StudentListPage() {
         
         <div className="flex-1 overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
+            <thead className="text-xs text-zinc-700 uppercase bg-zinc-100/80 border-b border-zinc-200">
               <tr>
-                <th className="px-4 py-3 font-semibold">Admission No</th>
-                <th className="px-4 py-3 font-semibold">Name</th>
-                <th className="px-4 py-3 font-semibold">Father Name</th>
-                <th className="px-4 py-3 font-semibold">Date Of Birth</th>
-                <th className="px-4 py-3 font-semibold">Class(Section)</th>
-                <th className="px-4 py-3 font-semibold">Gender</th>
-                <th className="px-4 py-3 font-semibold">Type</th>
-                <th className="px-4 py-3 font-semibold">Phone</th>
-                <th className="px-4 py-3 font-semibold text-right">Actions</th>
+                <th className="px-4 py-3 font-bold">Admission No</th>
+                <th className="px-4 py-3 font-bold">Name</th>
+                <th className="px-4 py-3 font-bold">Father Name</th>
+                <th className="px-4 py-3 font-bold">Date Of Birth</th>
+                <th className="px-4 py-3 font-bold">Class(Section)</th>
+                <th className="px-4 py-3 font-bold">Gender</th>
+                <th className="px-4 py-3 font-bold">Type</th>
+                <th className="px-4 py-3 font-bold">Phone</th>
+                <th className="px-4 py-3 font-bold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800">
+            <tbody className="divide-y divide-zinc-200">
               {loading ? (
                 <tr>
                   <td colSpan="9" className="px-4 py-8 text-center text-zinc-500">Loading...</td>
@@ -537,32 +571,32 @@ export default function StudentListPage() {
                 </tr>
               ) : (
                 filteredStudents.map((student) => (
-                  <tr key={student._id} className="hover:bg-zinc-900/50 transition-colors">
-                    <td className="px-4 py-3 text-zinc-300">{student.admissionNo || '-'}</td>
+                  <tr key={student._id} className="hover:bg-zinc-100/70 transition-colors border-b border-zinc-200">
+                    <td className="px-4 py-3 font-semibold text-zinc-900">{student.admissionNo || '-'}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-zinc-800 overflow-hidden border border-zinc-700">
+                        <div className="h-8 w-8 rounded-full bg-zinc-900 text-white overflow-hidden border border-zinc-300 flex items-center justify-center">
                           {student.photo ? (
                             <img src={`http://localhost:5000/${student.photo}`} alt={student.firstName} className="h-full w-full object-cover" />
                           ) : (
-                            <div className="h-full w-full flex items-center justify-center text-xs text-zinc-500 uppercase">{student.firstName?.charAt(0)}</div>
+                            <div className="h-full w-full flex items-center justify-center text-xs font-bold text-white uppercase">{student.firstName?.charAt(0)}</div>
                           )}
                         </div>
-                        <span className="font-medium text-zinc-600 hover:text-zinc-500 cursor-pointer">{student.firstName} {student.lastName}</span>
+                        <span className="font-semibold text-zinc-900 hover:underline cursor-pointer">{student.firstName} {student.lastName}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-zinc-300">{student.fatherName || '-'}</td>
-                    <td className="px-4 py-3 text-zinc-300">{student.dob || '-'}</td>
-                    <td className="px-4 py-3 text-zinc-300">{student.className}({student.section})</td>
-                    <td className="px-4 py-3 text-zinc-300">{student.gender || '-'}</td>
-                    <td className="px-4 py-3 text-zinc-300">Regular</td>
-                    <td className="px-4 py-3 text-zinc-300">{student.phone || '-'}</td>
+                    <td className="px-4 py-3 text-zinc-800">{student.fatherName || '-'}</td>
+                    <td className="px-4 py-3 text-zinc-800">{student.dob || '-'}</td>
+                    <td className="px-4 py-3 text-zinc-800 font-medium">{student.className}({student.section})</td>
+                    <td className="px-4 py-3 text-zinc-800">{student.gender || '-'}</td>
+                    <td className="px-4 py-3 text-zinc-800">Regular</td>
+                    <td className="px-4 py-3 text-zinc-800">{student.phone || '-'}</td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button onClick={() => openEdit(student)} variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-500 hover:bg-zinc-600/10" title="Edit Student">
+                        <Button onClick={() => openEdit(student)} variant="ghost" size="icon" className="h-8 w-8 text-zinc-700 hover:text-zinc-950 hover:bg-zinc-200 cursor-pointer" title="Edit Student">
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button onClick={() => handleDelete(student._id)} variant="ghost" size="icon" className="h-8 w-8 text-rose-500 hover:text-rose-400 hover:bg-rose-500/10" title="Delete Student">
+                        <Button onClick={() => handleDelete(student._id)} variant="ghost" size="icon" className="h-8 w-8 text-rose-600 hover:text-rose-700 hover:bg-rose-50 cursor-pointer" title="Delete Student">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -573,18 +607,28 @@ export default function StudentListPage() {
             </tbody>
           </table>
         </div>
-        <div className="p-4 border-t border-zinc-800 flex items-center justify-between text-xs text-zinc-500">
+        <div className="p-4 border-t border-zinc-200 flex items-center justify-between text-xs text-zinc-600 font-medium">
           <div>Showing 1 to {filteredStudents.length} of {filteredStudents.length} entries</div>
           <div className="flex items-center gap-1">
-            <Button variant="outline" size="sm" className="h-7 w-7 p-0 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white" disabled>
+            <Button variant="outline" size="sm" className="h-7 w-7 p-0 border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100 cursor-pointer" disabled>
               <ChevronRight className="h-4 w-4 rotate-180" />
             </Button>
-            <Button variant="outline" size="sm" className="h-7 w-7 p-0 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white" disabled>
+            <Button variant="outline" size="sm" className="h-7 w-7 p-0 border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100 cursor-pointer" disabled>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </div>
+
+      {/* Bulk Student Import Modal */}
+      <StudentImportModal 
+        isOpen={isImportModalOpen} 
+        onClose={() => setIsImportModalOpen(false)} 
+        onSuccess={(updatedList) => {
+          setStudents(updatedList);
+        }}
+        availableClasses={classes}
+      />
     </div>
   );
 }

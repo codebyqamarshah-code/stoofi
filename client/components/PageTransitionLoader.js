@@ -33,8 +33,8 @@ export default function PageTransitionLoader() {
           <div className="absolute inset-0 border-[3px] border-zinc-200 dark:border-zinc-200 rounded-full" />
           <div className="absolute inset-0 border-[3px] border-zinc-950 dark:border-zinc-200 rounded-full border-t-transparent animate-spin" />
           <div className="absolute inset-1 border-[2px] border-dashed border-zinc-300 dark:border-zinc-200 rounded-full animate-spin" style={{animationDirection:'reverse', animationDuration:'3s'}} />
-          <div className="w-14 h-14 flex items-center justify-center rounded-full overflow-hidden bg-white shadow">
-            <img src="/logo dark(2).png" alt="Stoofi" className="w-full h-full object-contain p-1" />
+          <div className="w-16 h-16 flex items-center justify-center rounded-full overflow-hidden bg-white shadow p-2">
+            <img src="/stoofi light.png" alt="Stoofi" className="w-full h-full object-contain" />
           </div>
         </div>
         <div className="flex flex-col items-center gap-2">

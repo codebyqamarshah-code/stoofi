@@ -95,7 +95,7 @@ export default function LoginPage() {
         
         {/* Logo */}
           <div className="flex justify-center mb-6">
-           <img src="/logo dark(2).png" alt="Stoofi PRO" className="h-12 w-auto object-contain" />
+           <img src="/stoofi light.png" alt="Stoofi PRO" className="h-12 w-auto object-contain" />
           </div>
 
         {/* Title */}

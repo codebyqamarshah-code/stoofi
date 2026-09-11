@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import api from '@/services/api';
 import { useRouter } from 'next/navigation';
+import StudentImportModal from '@/components/StudentImportModal';
 
 const FALLBACK_CLASSES = [
   { _id: 'c-nursery', name: 'Nursery', sections: ['A', 'B'] },
@@ -48,6 +49,7 @@ export default function AddStudentPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('PERSONAL INFO');
   const [submitting, setSubmitting] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
@@ -219,11 +221,17 @@ export default function AddStudentPage() {
       </div>
 
       <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
+        <div className="p-4 border-b border-zinc-800 flex justify-between items-center flex-wrap gap-2">
           <h2 className="text-lg font-semibold text-white">Add Student</h2>
-          <Button type="button" className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2 text-xs">
-            <Plus className="h-4 w-4" /> IMPORT STUDENT
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button 
+              type="button" 
+              onClick={() => setIsImportModalOpen(true)}
+              className="bg-zinc-100 hover:bg-zinc-200 text-zinc-900 border border-zinc-300 font-bold flex items-center gap-2 cursor-pointer text-xs h-9 px-3.5 shadow-xs"
+            >
+              <Upload className="h-4 w-4 text-zinc-900" /> IMPORT STUDENT
+            </Button>
+          </div>
         </div>
 
         <form onSubmit={handleSave}>
@@ -507,14 +515,23 @@ export default function AddStudentPage() {
               </div>
             )}
 
-            <div className="mt-8 flex justify-end sm:hidden">
-              <Button disabled={submitting} type="submit" className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold w-full">
+            <div className="mt-8 flex justify-end">
+              <Button disabled={submitting} type="submit" className="bg-black hover:bg-zinc-800 text-white font-bold px-8 py-2.5 cursor-pointer shadow-sm">
                 {submitting ? 'SAVING...' : 'SAVE STUDENT'}
               </Button>
             </div>
           </div>
         </form>
       </div>
+
+      <StudentImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onSuccess={() => {
+          router.push('/dashboard/students');
+        }}
+        availableClasses={classes}
+      />
     </div>
   );
 }

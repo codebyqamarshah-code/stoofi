@@ -48,7 +48,7 @@ export default function ComingSoonPage() {
       </div>
 
       <div className="mb-8">
-        <img src="/logo dark(2).png" alt="Stoofi" className="h-20 w-auto object-contain" />
+        <img src="/stoofi light.png" alt="Stoofi" className="h-16 w-auto object-contain" />
       </div>
 
       <div className="relative w-24 h-24 mb-8 flex items-center justify-center">
