@@ -86,7 +86,8 @@ export default function CalendarPage() {
               </div>
               <button
                 onClick={() => setShowModal(true)}
-                className="px-4 py-2 bg-zinc-950 hover:bg-zinc-800 text-white rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm"
+                className="px-4 py-2 bg-zinc-950 hover:bg-zinc-800 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm"
+                style={{ color: '#ffffff' }}
               >
                 <Plus className="h-4 w-4" /> Add Event
               </button>
@@ -129,7 +130,7 @@ export default function CalendarPage() {
                     </div>
                     <div className="space-y-0.5 overflow-hidden">
                       {dayEvents.slice(0, 1).map(ev => (
-                        <div key={ev.id} className="text-[10px] font-semibold text-white px-1.5 py-0.5 rounded truncate bg-zinc-800">
+                        <div key={ev.id} className={`text-[10px] font-bold px-1.5 py-0.5 rounded truncate ${ev.color || 'bg-zinc-800'}`} style={{ color: '#ffffff' }}>
                           {ev.title}
                         </div>
                       ))}
@@ -231,7 +232,7 @@ export default function CalendarPage() {
               </div>
               <div className="flex justify-end gap-2 pt-3">
                 <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-700 rounded-lg text-xs font-semibold">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-zinc-950 hover:bg-zinc-800 text-white rounded-lg text-xs font-bold uppercase tracking-wider">Save Event</button>
+                <button type="submit" className="px-4 py-2 bg-zinc-950 hover:bg-zinc-800 rounded-lg text-xs font-bold uppercase tracking-wider" style={{ color: '#ffffff' }}>Save Event</button>
               </div>
             </form>
           </div>

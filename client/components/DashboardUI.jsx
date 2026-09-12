@@ -590,11 +590,13 @@ export default function DashboardUI({ user }) {
           setEvents(parsed);
           
           // Trigger home page pop-up after a few seconds if events exist
-          const upcoming = parsed.filter(e => new Date(e.date) >= new Date().setHours(0,0,0,0));
-          if (upcoming.length > 0) {
-            // Sort by closest date
-            upcoming.sort((a,b) => new Date(a.date) - new Date(b.date));
-            setPopupEventData(upcoming[0]);
+          if (parsed.length > 0) {
+            // Pick the event closest to today
+            const today = new Date();
+            const closest = parsed.reduce((a, b) => {
+              return Math.abs(new Date(a.date) - today) < Math.abs(new Date(b.date) - today) ? a : b;
+            });
+            setPopupEventData(closest);
             
             // Pop up after 3 seconds
             const timer = setTimeout(() => {
@@ -1313,9 +1315,8 @@ export default function DashboardUI({ user }) {
                 <p className="text-xs text-zinc-500 dark:text-zinc-600">No upcoming events or holidays scheduled.</p>
               </div>
             ) : (
-              events
-                .filter(e => new Date(e.date) >= new Date().setHours(0,0,0,0))
-                .sort((a,b) => new Date(a.date) - new Date(b.date))
+              [...events]
+                .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort newest date first
                 .map((ev, i) => (
                 <div key={ev._id || i} className="flex items-start gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-200 bg-white hover:bg-zinc-50 transition-colors">
                   <div className="flex flex-col items-center justify-center h-10 w-10 shrink-0 rounded-md bg-zinc-100 border border-zinc-200">

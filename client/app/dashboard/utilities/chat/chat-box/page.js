@@ -200,25 +200,25 @@ export default function WhatsAppChat() {
     };
 
     return (
-        <div className="flex h-full min-h-[calc(100vh-6rem)] bg-zinc-950 text-zinc-100 p-4 gap-4">
+        <div className="flex h-full min-h-[calc(100vh-6rem)] bg-zinc-50 text-zinc-950 p-4 gap-4">
             {/* Left Column: Chat List */}
-            <div className="w-80 bg-zinc-900 border border-zinc-800 rounded-lg flex flex-col overflow-hidden shadow-sm">
-                <div className="p-4 border-b border-zinc-800 flex flex-col gap-4">
+            <div className="w-80 bg-white border border-zinc-200 rounded-lg flex flex-col overflow-hidden shadow-sm">
+                <div className="p-4 border-b border-zinc-200 flex flex-col gap-4">
                     <div className="flex justify-between items-center">
                         <h2 className="text-xl font-semibold tracking-tight">WhatsApp</h2>
                         <button 
                             onClick={() => setShowAddModal(true)}
-                            className="bg-zinc-800 hover:bg-zinc-600 text-white p-1.5 px-3 rounded-md flex items-center gap-1.5 text-sm font-medium transition-colors"
+                            className="bg-zinc-900 hover:bg-zinc-600 text-white p-1.5 px-3 rounded-md flex items-center gap-1.5 text-sm font-medium transition-colors"
                         >
                             <Plus size={16} /> NEW CHAT
                         </button>
                     </div>
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={16} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
                         <input 
                             type="text" 
                             placeholder="Search contacts..." 
-                            className="w-full bg-zinc-950 border border-zinc-800 rounded-md py-2 pl-9 pr-4 text-sm text-zinc-100 focus:outline-none focus:border-zinc-600 transition-colors"
+                            className="w-full bg-zinc-50 border border-zinc-200 rounded-md py-2 pl-9 pr-4 text-sm text-zinc-950 focus:outline-none focus:border-zinc-600 transition-colors"
                         />
                     </div>
                 </div>
@@ -231,23 +231,23 @@ export default function WhatsAppChat() {
                             <div 
                                 key={contact._id} 
                                 onClick={() => handleContactClick(contact)}
-                                className={`group p-4 border-b border-zinc-800/50 cursor-pointer hover:bg-zinc-800/50 transition-colors flex justify-between items-center ${activeChat?._id === contact._id ? 'bg-zinc-800/80 border-l-4 border-l-zinc-600' : 'border-l-4 border-l-transparent'}`}
+                                className={`group p-4 border-b border-zinc-200/50 cursor-pointer hover:bg-zinc-100 transition-colors flex justify-between items-center ${activeChat?._id === contact._id ? 'bg-zinc-100 border-l-4 border-l-zinc-900' : 'border-l-4 border-l-transparent'}`}
                             >
                                 <div>
                                     <div className="font-medium text-sm">{contact.name}</div>
-                                    <div className="text-xs text-zinc-400 mt-1">{contact.phone}</div>
+                                    <div className="text-xs text-zinc-500 mt-1">{contact.phone}</div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="flex opacity-0 group-hover:opacity-100 transition-opacity gap-1">
                                         <button 
                                             onClick={(e) => openEditModal(contact, e)}
-                                            className="p-1.5 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-700/50 rounded-md transition-colors"
+                                            className="p-1.5 text-zinc-500 hover:text-zinc-600 hover:bg-zinc-700/50 rounded-md transition-colors"
                                         >
                                             <Edit size={14} />
                                         </button>
                                         <button 
                                             onClick={(e) => handleDeleteContact(contact._id, e)}
-                                            className="p-1.5 text-zinc-400 hover:text-red-400 hover:bg-zinc-700/50 rounded-md transition-colors"
+                                            className="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-zinc-700/50 rounded-md transition-colors"
                                         >
                                             <Trash2 size={14} />
                                         </button>
@@ -265,11 +265,11 @@ export default function WhatsAppChat() {
             </div>
 
             {/* Right Column: Chat Window */}
-            <div className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg flex flex-col overflow-hidden relative shadow-sm">
+            <div className="flex-1 bg-white border border-zinc-200 rounded-lg flex flex-col overflow-hidden relative shadow-sm">
                 {!activeChat ? (
                     <div className="flex-1 flex items-center justify-center text-zinc-500">
                         <div className="flex flex-col items-center gap-4">
-                            <div className="w-16 h-16 rounded-full bg-zinc-800/50 flex items-center justify-center">
+                            <div className="w-16 h-16 rounded-full bg-zinc-100 flex items-center justify-center">
                                 <Phone size={32} className="text-zinc-600" />
                             </div>
                             <p className="text-base font-medium">Select a contact to start messaging</p>
@@ -278,18 +278,18 @@ export default function WhatsAppChat() {
                 ) : (
                     <>
                         {/* Chat Header */}
-                        <div className="h-16 border-b border-zinc-800 flex items-center justify-between px-6 bg-zinc-900/80">
+                        <div className="h-16 border-b border-zinc-200 flex items-center justify-between px-6 bg-white/80">
                             <div>
                                 <h3 className="font-semibold text-base">{activeChat.name}</h3>
-                                <p className="text-xs text-zinc-400 mt-0.5">{activeChat.phone}</p>
+                                <p className="text-xs text-zinc-500 mt-0.5">{activeChat.phone}</p>
                             </div>
-                            <button className="text-zinc-400 hover:text-zinc-100 transition-colors p-2 rounded-md hover:bg-zinc-800">
+                            <button className="text-zinc-500 hover:text-zinc-950 transition-colors p-2 rounded-md hover:bg-zinc-900">
                                 <MoreVertical size={18} />
                             </button>
                         </div>
 
                         {/* Messages Area */}
-                        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-zinc-950/50">
+                        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-zinc-50/50">
                             {(activeChat.messages || []).map((msg, idx) => {
                                 const isAdmin = msg.sender === 'admin';
                                 return (
@@ -297,7 +297,7 @@ export default function WhatsAppChat() {
                                         {isAdmin && (
                                             <button 
                                                 onClick={() => handleDeleteMessage(msg._id)}
-                                                className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-500 hover:text-red-400 hover:bg-zinc-800 rounded-md transition-all"
+                                                className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-500 hover:text-red-400 hover:bg-zinc-900 rounded-md transition-all"
                                                 title="Delete Message"
                                             >
                                                 <Trash2 size={14} />
@@ -305,8 +305,8 @@ export default function WhatsAppChat() {
                                         )}
                                         <div className={`max-w-[75%] px-4 py-2 text-sm shadow-sm ${
                                             isAdmin 
-                                                ? 'bg-zinc-800 text-white rounded-2xl rounded-br-sm' 
-                                                : 'bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-2xl rounded-bl-sm'
+                                                ? 'bg-zinc-900 text-white rounded-2xl rounded-br-sm' 
+                                                : 'bg-white border border-zinc-200 text-zinc-900 rounded-2xl rounded-bl-sm'
                                         }`}>
                                             <div className="flex items-end gap-2">
                                                 <span className="break-words">{msg.text}</span>
@@ -320,7 +320,7 @@ export default function WhatsAppChat() {
                                         {!isAdmin && (
                                             <button 
                                                 onClick={() => handleDeleteMessage(msg._id)}
-                                                className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-500 hover:text-red-400 hover:bg-zinc-800 rounded-md transition-all"
+                                                className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-500 hover:text-red-400 hover:bg-zinc-900 rounded-md transition-all"
                                                 title="Delete Message"
                                             >
                                                 <Trash2 size={14} />
@@ -333,16 +333,16 @@ export default function WhatsAppChat() {
                         </div>
 
                         {/* Input Area */}
-                        <div className="p-4 border-t border-zinc-800 bg-zinc-900">
-                            <div className="border border-zinc-700 rounded-xl bg-zinc-950 flex flex-col overflow-visible relative focus-within:border-zinc-600 transition-colors shadow-sm">
+                        <div className="p-4 border-t border-zinc-200 bg-white">
+                            <div className="border border-zinc-700 rounded-xl bg-zinc-50 flex flex-col overflow-visible relative focus-within:border-zinc-600 transition-colors shadow-sm">
                                 {/* Cosmetic Toolbar */}
-                                <div className="flex items-center gap-2 p-2 px-3 border-b border-zinc-800 text-zinc-400 bg-zinc-900/50 rounded-t-xl">
-                                    <button className="hover:text-zinc-100 hover:bg-zinc-800 p-1.5 rounded transition-colors"><Bold size={14} /></button>
-                                    <button className="hover:text-zinc-100 hover:bg-zinc-800 p-1.5 rounded transition-colors"><Italic size={14} /></button>
-                                    <button className="hover:text-zinc-100 hover:bg-zinc-800 p-1.5 rounded transition-colors"><Underline size={14} /></button>
+                                <div className="flex items-center gap-2 p-2 px-3 border-b border-zinc-200 text-zinc-500 bg-white/50 rounded-t-xl">
+                                    <button className="hover:text-zinc-950 hover:bg-zinc-900 p-1.5 rounded transition-colors"><Bold size={14} /></button>
+                                    <button className="hover:text-zinc-950 hover:bg-zinc-900 p-1.5 rounded transition-colors"><Italic size={14} /></button>
+                                    <button className="hover:text-zinc-950 hover:bg-zinc-900 p-1.5 rounded transition-colors"><Underline size={14} /></button>
                                     <div className="w-px h-4 bg-zinc-700 mx-1"></div>
-                                    <button className="hover:text-zinc-100 hover:bg-zinc-800 p-1.5 rounded transition-colors"><Link2 size={14} /></button>
-                                    <button className="hover:text-zinc-100 hover:bg-zinc-800 p-1.5 rounded transition-colors"><List size={14} /></button>
+                                    <button className="hover:text-zinc-950 hover:bg-zinc-900 p-1.5 rounded transition-colors"><Link2 size={14} /></button>
+                                    <button className="hover:text-zinc-950 hover:bg-zinc-900 p-1.5 rounded transition-colors"><List size={14} /></button>
                                 </div>
                                 
                                 <textarea
@@ -355,10 +355,10 @@ export default function WhatsAppChat() {
                                         }
                                     }}
                                     placeholder="Type your message..."
-                                    className="w-full bg-transparent p-4 text-sm text-zinc-100 focus:outline-none resize-none min-h-[80px]"
+                                    className="w-full bg-transparent p-4 text-sm text-zinc-950 focus:outline-none resize-none min-h-[80px]"
                                 />
                                 
-                                <div className="flex items-center justify-between p-2 px-3 bg-zinc-900/30 rounded-b-xl">
+                                <div className="flex items-center justify-between p-2 px-3 bg-white/30 rounded-b-xl">
                                     <div className="flex items-center gap-1">
                                         <input 
                                             type="file" 
@@ -367,7 +367,7 @@ export default function WhatsAppChat() {
                                         />
                                         <button 
                                             onClick={() => fileInputRef.current?.click()}
-                                            className="p-2 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-800/50 rounded-lg transition-colors"
+                                            className="p-2 text-zinc-500 hover:text-zinc-600 hover:bg-zinc-100 rounded-lg transition-colors"
                                             title="Attach File"
                                         >
                                             <Paperclip size={18} />
@@ -376,14 +376,14 @@ export default function WhatsAppChat() {
                                         <div className="relative">
                                             <button 
                                                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                                                className={`p-2 hover:bg-zinc-800/50 rounded-lg transition-colors ${showEmojiPicker ? 'text-zinc-600' : 'text-zinc-400 hover:text-zinc-600'}`}
+                                                className={`p-2 hover:bg-zinc-100 rounded-lg transition-colors ${showEmojiPicker ? 'text-zinc-600' : 'text-zinc-500 hover:text-zinc-600'}`}
                                                 title="Add Emoji"
                                             >
                                                 <Smile size={18} />
                                             </button>
                                             
                                             {showEmojiPicker && (
-                                                <div className="absolute bottom-full left-0 mb-3 bg-zinc-800 border border-zinc-700 p-3 rounded-xl shadow-xl grid grid-cols-5 gap-2 z-10 w-56">
+                                                <div className="absolute bottom-full left-0 mb-3 bg-zinc-900 border border-zinc-700 p-3 rounded-xl shadow-xl grid grid-cols-5 gap-2 z-10 w-56">
                                                     {EMOJIS.map(emoji => (
                                                         <button 
                                                             key={emoji}
@@ -401,7 +401,7 @@ export default function WhatsAppChat() {
                                     <button 
                                         onClick={handleSendMessage}
                                         disabled={!messageText.trim()}
-                                        className="bg-zinc-800 hover:bg-zinc-600 disabled:bg-zinc-800 disabled:text-zinc-500 text-white p-2 px-4 rounded-lg transition-all flex items-center gap-2 text-sm font-medium shadow-sm"
+                                        className="bg-zinc-900 hover:bg-zinc-600 disabled:bg-zinc-900 disabled:text-zinc-500 text-white p-2 px-4 rounded-lg transition-all flex items-center gap-2 text-sm font-medium shadow-sm"
                                     >
                                         Send <Send size={14} />
                                     </button>
@@ -415,12 +415,12 @@ export default function WhatsAppChat() {
             {/* Add Contact Modal */}
             {showAddModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md shadow-2xl p-6">
+                    <div className="bg-white border border-zinc-200 rounded-2xl w-full max-w-md shadow-2xl p-6">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-lg font-semibold tracking-tight">New Contact</h3>
                             <button 
                                 onClick={() => setShowAddModal(false)}
-                                className="text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 p-1.5 rounded-md transition-colors"
+                                className="text-zinc-500 hover:text-zinc-950 hover:bg-zinc-900 p-1.5 rounded-md transition-colors"
                             >
                                 <X size={18} />
                             </button>
@@ -428,24 +428,24 @@ export default function WhatsAppChat() {
                         
                         <form onSubmit={handleAddContact} className="flex flex-col gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-zinc-400 mb-1.5">Name</label>
+                                <label className="block text-sm font-medium text-zinc-500 mb-1.5">Name</label>
                                 <input 
                                     type="text"
                                     value={newContact.name}
                                     onChange={e => setNewContact({...newContact, name: e.target.value})}
                                     required
-                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-sm text-zinc-100 focus:outline-none focus:border-zinc-600 transition-colors"
+                                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-3 text-sm text-zinc-950 focus:outline-none focus:border-zinc-600 transition-colors"
                                     placeholder="e.g. John Doe"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-zinc-400 mb-1.5">WhatsApp Number</label>
+                                <label className="block text-sm font-medium text-zinc-500 mb-1.5">WhatsApp Number</label>
                                 <input 
                                     type="text"
                                     value={newContact.phone}
                                     onChange={e => setNewContact({...newContact, phone: e.target.value})}
                                     required
-                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-sm text-zinc-100 focus:outline-none focus:border-zinc-600 transition-colors"
+                                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-3 text-sm text-zinc-950 focus:outline-none focus:border-zinc-600 transition-colors"
                                     placeholder="e.g. +923000000000"
                                 />
                             </div>
@@ -454,13 +454,13 @@ export default function WhatsAppChat() {
                                 <button 
                                     type="button"
                                     onClick={() => setShowAddModal(false)}
-                                    className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-300 hover:bg-zinc-800 transition-colors"
+                                    className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 hover:bg-zinc-900 transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button 
                                     type="submit"
-                                    className="px-5 py-2 bg-zinc-800 hover:bg-zinc-600 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
+                                    className="px-5 py-2 bg-zinc-900 hover:bg-zinc-600 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
                                 >
                                     Save Contact
                                 </button>
@@ -473,12 +473,12 @@ export default function WhatsAppChat() {
             {/* Edit Contact Modal */}
             {showEditModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md shadow-2xl p-6">
+                    <div className="bg-white border border-zinc-200 rounded-2xl w-full max-w-md shadow-2xl p-6">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-lg font-semibold tracking-tight">Edit Contact</h3>
                             <button 
                                 onClick={() => setShowEditModal(false)}
-                                className="text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 p-1.5 rounded-md transition-colors"
+                                className="text-zinc-500 hover:text-zinc-950 hover:bg-zinc-900 p-1.5 rounded-md transition-colors"
                             >
                                 <X size={18} />
                             </button>
@@ -486,24 +486,24 @@ export default function WhatsAppChat() {
                         
                         <form onSubmit={handleUpdateContact} className="flex flex-col gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-zinc-400 mb-1.5">Name</label>
+                                <label className="block text-sm font-medium text-zinc-500 mb-1.5">Name</label>
                                 <input 
                                     type="text"
                                     value={editContact.name}
                                     onChange={e => setEditContact({...editContact, name: e.target.value})}
                                     required
-                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-sm text-zinc-100 focus:outline-none focus:border-zinc-600 transition-colors"
+                                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-3 text-sm text-zinc-950 focus:outline-none focus:border-zinc-600 transition-colors"
                                     placeholder="e.g. John Doe"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-zinc-400 mb-1.5">WhatsApp Number</label>
+                                <label className="block text-sm font-medium text-zinc-500 mb-1.5">WhatsApp Number</label>
                                 <input 
                                     type="text"
                                     value={editContact.phone}
                                     onChange={e => setEditContact({...editContact, phone: e.target.value})}
                                     required
-                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-sm text-zinc-100 focus:outline-none focus:border-zinc-600 transition-colors"
+                                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-3 text-sm text-zinc-950 focus:outline-none focus:border-zinc-600 transition-colors"
                                     placeholder="e.g. +923000000000"
                                 />
                             </div>
@@ -512,13 +512,13 @@ export default function WhatsAppChat() {
                                 <button 
                                     type="button"
                                     onClick={() => setShowEditModal(false)}
-                                    className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-300 hover:bg-zinc-800 transition-colors"
+                                    className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 hover:bg-zinc-900 transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button 
                                     type="submit"
-                                    className="px-5 py-2 bg-zinc-800 hover:bg-zinc-600 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
+                                    className="px-5 py-2 bg-zinc-900 hover:bg-zinc-600 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
                                 >
                                     Update Contact
                                 </button>
