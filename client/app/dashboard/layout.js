@@ -83,7 +83,12 @@ export default function DashboardLayout({ children }) {
   const [studentSearchStr, setStudentSearchStr] = useState('');
   const [session, setSession] = useState('2026 [Jan-Dec]');
   const [isSessionDropdownOpen, setIsSessionDropdownOpen] = useState(false);
-  const [lang, setLang] = useState('EN');
+  const [lang, setLang] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('stoofi_lang') || 'EN';
+    }
+    return 'EN';
+  });
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
@@ -193,12 +198,63 @@ export default function DashboardLayout({ children }) {
   const changeLanguage = (langCode) => {
     setLang(langCode);
     setIsLangDropdownOpen(false);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('stoofi_lang', langCode);
-      let googleLang = 'en';
-      if (langCode === 'UR') googleLang = 'ur';
-      if (langCode === 'AR') googleLang = 'ar';
-      document.cookie = `googtrans=/en/${googleLang}; path=/`;
+    if (typeof window === 'undefined') return;
+
+    localStorage.setItem('stoofi_lang', langCode);
+
+    const googleLangMap = { EN: 'en', UR: 'ur', AR: 'ar' };
+    const targetLang = googleLangMap[langCode] || 'en';
+
+    // Method 1: Use doGTranslate (standard Google Translate widget API)
+    if (typeof window.doGTranslate === 'function') {
+      window.doGTranslate(`en|${targetLang}`);
+      return;
+    }
+
+    // Method 2: Find Google Translate select element and trigger change
+    const tryTriggerGT = () => {
+      const gtFrame = document.querySelector('.goog-te-combo') ||
+                      document.querySelector('select.goog-te-combo') ||
+                      document.querySelector('iframe.goog-te-menu-frame');
+
+      if (gtFrame && gtFrame.tagName === 'SELECT') {
+        gtFrame.value = targetLang;
+        gtFrame.dispatchEvent(new Event('change', { bubbles: true }));
+        return true;
+      }
+
+      // Try inside iframe
+      try {
+        const iframes = document.querySelectorAll('iframe');
+        for (const iframe of iframes) {
+          const sel = iframe.contentDocument?.querySelector('.goog-te-combo');
+          if (sel) {
+            sel.value = targetLang;
+            sel.dispatchEvent(new Event('change', { bubbles: true }));
+            return true;
+          }
+        }
+      } catch (_) {}
+
+      return false;
+    };
+
+    // Try immediately, then retry after GT loads
+    if (!tryTriggerGT()) {
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        if (tryTriggerGT() || attempts > 20) {
+          clearInterval(interval);
+        }
+      }, 300);
+    }
+
+    // Method 3: Fallback — set cookie and reload only if EN (reset)
+    if (langCode === 'EN') {
+      // Clear translation
+      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=' + window.location.hostname;
       window.location.reload();
     }
   };

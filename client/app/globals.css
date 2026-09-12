@@ -203,11 +203,15 @@ textarea:focus {
   box-shadow: 0 0 0 1px #09090b !important;
 }
 
-/* Dark badges: keep white text on black pill backgrounds */
+/* Dark badges/pills: always keep white text on dark backgrounds */
 span[class*="bg-zinc-950"],
 span[class*="bg-zinc-900"],
+span[class*="bg-zinc-800"],
 span[class*="bg-black"],
-.badge-dark {
+.badge-dark,
+span[style*="background-color: rgb(9, 9, 11)"],
+span[style*="background-color:#09090b"],
+span[style*="backgroundColor:#09090b"] {
   background-color: #09090b !important;
   color: #ffffff !important;
 }

@@ -427,7 +427,7 @@ export default function SidebarManagerPage() {
             </div>
             <div>
               <h1 className="text-xl font-black text-zinc-900 tracking-tight flex items-center gap-2">
-                Sidebar Manager <span className="text-[10px] font-bold uppercase bg-zinc-900 text-white px-2 py-0.5 rounded-full">Live Builder</span>
+                Sidebar Manager <span style={{backgroundColor:'#09090b', color:'#ffffff'}} className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full">Live Builder</span>
               </h1>
               <div className="flex items-center text-xs text-zinc-400 mt-0.5">
                 <Link href="/dashboard" className="hover:text-zinc-700 transition-colors">

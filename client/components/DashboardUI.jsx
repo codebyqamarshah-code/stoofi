@@ -15,6 +15,14 @@ import {
   Edit,
   Trash2,
   CloudSun, 
+  Cloud,
+  CloudRain,
+  CloudSnow,
+  CloudLightning,
+  Sun,
+  Wind,
+  Droplets,
+  Thermometer,
   CheckCircle2, 
   Circle,
   ChevronLeft,
@@ -65,15 +73,19 @@ export default function DashboardUI({ user }) {
   // Live Weather State for Lahore, Pakistan
   const [weather, setWeather] = useState({
     city: 'Lahore, Pakistan',
-    temp: 36,
-    condition: 'Clear Sky',
+    temp: '--',
+    feelsLike: '--',
+    condition: 'Loading...',
+    humidity: '--',
+    wind: '--',
+    icon: 'sun',
     hourly: [
-      { time: 'NOW', temp: '36°' },
-      { time: '14:00', temp: '36°' },
-      { time: '15:00', temp: '36°' },
-      { time: '16:00', temp: '36°' },
+      { time: 'NOW', temp: '--°' },
+      { time: '--:00', temp: '--°' },
+      { time: '--:00', temp: '--°' },
+      { time: '--:00', temp: '--°' },
     ],
-    loading: false
+    loading: true
   });
 
   // Live Backend Stats & Data State (Clean initial 0s until loaded from MongoDB)
@@ -161,6 +173,13 @@ export default function DashboardUI({ user }) {
   const [newTodoText, setNewTodoText] = useState('');
   const [isAddingTodo, setIsAddingTodo] = useState(false);
 
+  // Calendar Events State
+  const [events, setEvents] = useState([]);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [eventForm, setEventForm] = useState({ title: '', audience: 'All' });
+  const [showEventPopup, setShowEventPopup] = useState(false);
+  const [popupEventData, setPopupEventData] = useState(null);
+
   // 1. Calculate Real Dynamic Greeting & Live Clock
   useEffect(() => {
     const updateTimeAndGreeting = () => {
@@ -178,42 +197,67 @@ export default function DashboardUI({ user }) {
     return () => clearInterval(interval);
   }, []);
 
-  // 2. Fetch Real Weather for Lahore from Open-Meteo
+  // 2. Fetch Real Weather for Lahore from Open-Meteo (free, no API key)
   useEffect(() => {
     const fetchLahoreWeather = async () => {
       try {
-        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=31.5204&longitude=74.3587&current=temperature_2m,weather_code&hourly=temperature_2m&timezone=Asia%2FKarachi');
+        const res = await fetch(
+          'https://api.open-meteo.com/v1/forecast' +
+          '?latitude=31.5204&longitude=74.3587' +
+          '&current=temperature_2m,apparent_temperature,weather_code,relative_humidity_2m,wind_speed_10m' +
+          '&hourly=temperature_2m' +
+          '&timezone=Asia%2FKarachi'
+        );
         if (res.ok) {
           const data = await res.json();
-          const currentTemp = Math.round(data.current?.temperature_2m ?? 36);
-          const weatherCode = data.current?.weather_code ?? 0;
+          const currentTemp   = Math.round(data.current?.temperature_2m ?? 36);
+          const feelsLike     = Math.round(data.current?.apparent_temperature ?? currentTemp);
+          const humidity      = Math.round(data.current?.relative_humidity_2m ?? 50);
+          const wind          = Math.round(data.current?.wind_speed_10m ?? 10);
+          const weatherCode   = data.current?.weather_code ?? 0;
 
+          // Map WMO weather code → condition text + icon key
           let conditionText = 'Clear Sky';
-          if (weatherCode === 1 || weatherCode === 2) conditionText = 'Mainly Clear';
-          else if (weatherCode === 3) conditionText = 'Overcast';
-          else if (weatherCode >= 45 && weatherCode <= 48) conditionText = 'Hazy';
-          else if (weatherCode >= 51 && weatherCode <= 67) conditionText = 'Rainy';
-          else if (weatherCode >= 80) conditionText = 'Showers';
+          let iconKey = 'sun';
+
+          if (weatherCode === 0) { conditionText = 'Clear Sky'; iconKey = 'sun'; }
+          else if (weatherCode === 1) { conditionText = 'Mainly Clear'; iconKey = 'sun'; }
+          else if (weatherCode === 2) { conditionText = 'Partly Cloudy'; iconKey = 'cloudsun'; }
+          else if (weatherCode === 3) { conditionText = 'Overcast'; iconKey = 'cloud'; }
+          else if (weatherCode >= 45 && weatherCode <= 48) { conditionText = 'Foggy / Hazy'; iconKey = 'cloud'; }
+          else if (weatherCode >= 51 && weatherCode <= 57) { conditionText = 'Light Drizzle'; iconKey = 'rain'; }
+          else if (weatherCode >= 61 && weatherCode <= 67) { conditionText = 'Rainy'; iconKey = 'rain'; }
+          else if (weatherCode >= 71 && weatherCode <= 77) { conditionText = 'Snowy'; iconKey = 'snow'; }
+          else if (weatherCode >= 80 && weatherCode <= 82) { conditionText = 'Rain Showers'; iconKey = 'rain'; }
+          else if (weatherCode >= 95) { conditionText = 'Thunderstorm'; iconKey = 'lightning'; }
 
           const currentHour = new Date().getHours();
           const hourlyTemps = data.hourly?.temperature_2m || [];
+
+          const fmtHour = (h) => `${String(h % 24).padStart(2, '0')}:00`;
+
           const nextHours = [
-            { time: 'NOW', temp: `${currentTemp}°` },
-            { time: `${(currentHour + 1) % 24}:00`, temp: `${Math.round(hourlyTemps[(currentHour + 1) % 24] || currentTemp)}°` },
-            { time: `${(currentHour + 2) % 24}:00`, temp: `${Math.round(hourlyTemps[(currentHour + 2) % 24] || currentTemp)}°` },
-            { time: `${(currentHour + 3) % 24}:00`, temp: `${Math.round(hourlyTemps[(currentHour + 3) % 24] || currentTemp)}°` },
+            { time: 'NOW',               temp: `${currentTemp}°` },
+            { time: fmtHour(currentHour + 1), temp: `${Math.round(hourlyTemps[(currentHour + 1) % 24] ?? currentTemp)}°` },
+            { time: fmtHour(currentHour + 2), temp: `${Math.round(hourlyTemps[(currentHour + 2) % 24] ?? currentTemp)}°` },
+            { time: fmtHour(currentHour + 3), temp: `${Math.round(hourlyTemps[(currentHour + 3) % 24] ?? currentTemp)}°` },
           ];
 
           setWeather({
             city: 'Lahore, Pakistan',
             temp: currentTemp,
+            feelsLike,
             condition: conditionText,
+            humidity,
+            wind,
+            icon: iconKey,
             hourly: nextHours,
-            loading: false
+            loading: false,
           });
         }
       } catch (err) {
         console.error('Weather error:', err);
+        setWeather(prev => ({ ...prev, condition: 'Clear Sky', temp: 34, loading: false }));
       }
     };
 
@@ -537,6 +581,55 @@ export default function DashboardUI({ user }) {
   };
 
   // 6. TO-DO ACTIONS
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const storedEvents = localStorage.getItem('dashboard_events');
+        if (storedEvents) {
+          const parsed = JSON.parse(storedEvents);
+          setEvents(parsed);
+          
+          // Trigger home page pop-up after a few seconds if events exist
+          const upcoming = parsed.filter(e => new Date(e.date) >= new Date().setHours(0,0,0,0));
+          if (upcoming.length > 0) {
+            // Sort by closest date
+            upcoming.sort((a,b) => new Date(a.date) - new Date(b.date));
+            setPopupEventData(upcoming[0]);
+            
+            // Pop up after 3 seconds
+            const timer = setTimeout(() => {
+              setShowEventPopup(true);
+            }, 3000);
+            return () => clearTimeout(timer);
+          }
+        }
+      } catch (_) {}
+    }
+  }, []);
+
+  const handleAddEvent = (e) => {
+    e.preventDefault();
+    if (!eventForm.title || !selectedDate) return;
+
+    const newEvent = {
+      _id: 'evt_' + Date.now(),
+      title: eventForm.title,
+      date: selectedDate.toISOString(),
+      audience: eventForm.audience,
+      createdAt: new Date().toISOString()
+    };
+
+    const updatedEvents = [...events, newEvent];
+    setEvents(updatedEvents);
+    
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('dashboard_events', JSON.stringify(updatedEvents));
+    }
+    
+    setEventForm({ title: '', audience: 'All' });
+    setIsEventModalOpen(false);
+  };
+
   const handleAddTodo = async (e) => {
     e.preventDefault();
     if (!newTodoText.trim()) return;
@@ -694,7 +787,7 @@ export default function DashboardUI({ user }) {
               <h1 className="text-3xl font-extrabold text-zinc-950 dark:text-zinc-900 tracking-tight">
                 Super Admin Dashboard
               </h1>
-              <span className="bg-zinc-950 text-white font-bold text-xs uppercase px-2.5 py-1 rounded-full tracking-wider shadow-xs">
+              <span style={{backgroundColor:'#09090b', color:'#ffffff'}} className="font-bold text-xs uppercase px-2.5 py-1 rounded-full tracking-wider shadow-xs">
                 SUPER ADMIN
               </span>
             </div>
@@ -708,35 +801,62 @@ export default function DashboardUI({ user }) {
             </div>
           </div>
 
-          {/* Real Weather Widget for Lahore */}
-          <div className="bg-white dark:bg-white/80 border border-zinc-300/80 dark:border-zinc-200 rounded-2xl p-3.5 flex items-center gap-6 shadow-xs relative overflow-hidden">
-            <div className="absolute top-2 right-2 flex items-center gap-1">
+          {/* Real-Time Weather Widget — Lahore, Pakistan */}
+          <div className="bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col gap-3 shadow-sm relative overflow-hidden min-w-[280px]">
+            {/* LIVE indicator */}
+            <div className="absolute top-2.5 right-3 flex items-center gap-1.5">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-zinc-950 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-zinc-950"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-zinc-900 opacity-60" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-zinc-900" />
               </span>
-              <span className="text-[9px] font-bold text-zinc-950 uppercase tracking-wider">LIVE</span>
+              <span className="text-[9px] font-black text-zinc-900 uppercase tracking-widest">LIVE</span>
             </div>
-            
-            <div className="flex items-center gap-3 border-r border-zinc-200 dark:border-zinc-200 pr-4 mt-1">
-              <CloudSun className="h-8 w-8 text-zinc-950 dark:text-zinc-900" />
+
+            {/* Top row: icon + temp + condition */}
+            <div className="flex items-center gap-3 pr-12">
+              {/* Dynamic weather icon */}
+              <div className="h-12 w-12 rounded-xl bg-zinc-100 flex items-center justify-center shrink-0">
+                {weather.icon === 'sun'       && <Sun       className="h-7 w-7 text-zinc-800" />}
+                {weather.icon === 'cloudsun'  && <CloudSun  className="h-7 w-7 text-zinc-700" />}
+                {weather.icon === 'cloud'     && <Cloud     className="h-7 w-7 text-zinc-600" />}
+                {weather.icon === 'rain'      && <CloudRain className="h-7 w-7 text-zinc-700" />}
+                {weather.icon === 'snow'      && <CloudSnow className="h-7 w-7 text-zinc-600" />}
+                {weather.icon === 'lightning' && <CloudLightning className="h-7 w-7 text-zinc-800" />}
+                {!weather.icon                && <CloudSun  className="h-7 w-7 text-zinc-700" />}
+              </div>
               <div>
-                <div className="text-[11px] font-bold text-zinc-950 dark:text-zinc-900 flex items-center gap-1">
-                  <span>{weather.city}</span>
-                </div>
-                <div className="text-xl font-extrabold text-zinc-950 dark:text-zinc-900 flex items-baseline gap-1.5">
-                  {weather.temp}°C 
-                  <span className="text-[11px] font-semibold text-zinc-950 dark:text-zinc-600">
-                    {weather.condition}
+                <div className="text-[11px] font-bold text-zinc-500 leading-none mb-1">{weather.city}</div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-black text-zinc-900 leading-none">
+                    {weather.loading ? '--' : `${weather.temp}°C`}
                   </span>
+                  <span className="text-xs font-semibold text-zinc-500">{weather.condition}</span>
                 </div>
               </div>
             </div>
-            <div className="hidden sm:flex items-center gap-3 text-center text-[10px]">
+
+            {/* Middle: meta info row */}
+            <div className="flex items-center gap-4 text-[11px] text-zinc-500 border-t border-zinc-100 pt-2.5">
+              <span className="flex items-center gap-1 font-semibold">
+                <Thermometer className="h-3.5 w-3.5" />
+                Feels {weather.loading ? '--' : `${weather.feelsLike}°`}
+              </span>
+              <span className="flex items-center gap-1 font-semibold">
+                <Droplets className="h-3.5 w-3.5" />
+                {weather.loading ? '--' : `${weather.humidity}%`}
+              </span>
+              <span className="flex items-center gap-1 font-semibold">
+                <Wind className="h-3.5 w-3.5" />
+                {weather.loading ? '--' : `${weather.wind} km/h`}
+              </span>
+            </div>
+
+            {/* Bottom: hourly forecast */}
+            <div className="flex items-center gap-1 border-t border-zinc-100 pt-2.5">
               {weather.hourly.map((h, idx) => (
-                <div key={idx} className="px-1">
-                  <div className="text-zinc-950/80 dark:text-zinc-600 font-semibold">{h.time}</div>
-                  <div className="font-extrabold text-zinc-950 dark:text-zinc-800 mt-0.5">{h.temp}</div>
+                <div key={idx} className={`flex-1 text-center rounded-lg py-1.5 ${idx === 0 ? 'bg-zinc-900' : 'bg-zinc-50'}`}>
+                  <div className={`text-[9px] font-bold uppercase tracking-wider ${idx === 0 ? 'text-zinc-400' : 'text-zinc-400'}`}>{h.time}</div>
+                  <div className={`text-xs font-black mt-0.5 ${idx === 0 ? 'text-white' : 'text-zinc-800'}`}>{h.temp}</div>
                 </div>
               ))}
             </div>
@@ -1177,18 +1297,40 @@ export default function DashboardUI({ user }) {
         </Card>
 
         {/* Upcoming Events & Holidays */}
-        <Card className="bg-white dark:bg-zinc-50 border border-zinc-300/80 dark:border-zinc-200 shadow-xs">
+        <Card className="bg-white dark:bg-zinc-50 border border-zinc-300/80 dark:border-zinc-200 shadow-xs flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-200">
             <div className="flex items-center gap-2">
               <CalendarIcon className="h-4 w-4 text-zinc-600" />
               <CardTitle className="text-sm font-semibold text-zinc-950 dark:text-zinc-800 font-bold">Upcoming Events & Holidays</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center h-[340px] text-center p-6">
-            <div className="h-12 w-12 rounded-full bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 flex items-center justify-center text-zinc-600 mb-3">
-              <CalendarDays className="h-6 w-6" />
-            </div>
-            <p className="text-xs text-zinc-500 dark:text-zinc-600">No upcoming events or holidays scheduled.</p>
+          <CardContent className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2 h-[340px]">
+            {events.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <div className="h-12 w-12 rounded-full bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 flex items-center justify-center text-zinc-600 mb-3">
+                  <CalendarDays className="h-6 w-6" />
+                </div>
+                <p className="text-xs text-zinc-500 dark:text-zinc-600">No upcoming events or holidays scheduled.</p>
+              </div>
+            ) : (
+              events
+                .filter(e => new Date(e.date) >= new Date().setHours(0,0,0,0))
+                .sort((a,b) => new Date(a.date) - new Date(b.date))
+                .map((ev, i) => (
+                <div key={ev._id || i} className="flex items-start gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-200 bg-white hover:bg-zinc-50 transition-colors">
+                  <div className="flex flex-col items-center justify-center h-10 w-10 shrink-0 rounded-md bg-zinc-100 border border-zinc-200">
+                    <span className="text-[10px] font-bold text-zinc-500 uppercase leading-none">{new Date(ev.date).toLocaleString('default', { month: 'short' })}</span>
+                    <span className="text-sm font-black text-zinc-900 leading-none mt-1">{new Date(ev.date).getDate()}</span>
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-zinc-900">{ev.title}</h4>
+                    <span className="text-[10px] font-medium text-zinc-500 uppercase bg-zinc-100 px-1.5 py-0.5 rounded mt-1 inline-block">
+                      For: {ev.audience}
+                    </span>
+                  </div>
+                </div>
+              ))
+            )}
           </CardContent>
         </Card>
       </div>
@@ -1259,28 +1401,48 @@ export default function DashboardUI({ user }) {
               <span>SAT</span>
             </div>
             <div className="grid grid-cols-7 gap-1 pt-2">
-              {calendarGrid.map((item, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => item.isCurrentMonth && setSelectedDate(item.date)}
-                  className={`min-h-[58px] p-2 rounded-lg border flex flex-col justify-between cursor-pointer transition-all ${
-                    item.isSelected
-                      ? 'bg-zinc-800/30 border-zinc-600 text-zinc-950 dark:text-zinc-800 font-bold font-bold shadow-[0_0_10px_rgba(16,185,129,0.2)]'
-                      : item.isToday
-                      ? 'bg-zinc-100 border-zinc-600/60 text-zinc-950 dark:text-zinc-800 font-bold font-bold'
-                      : item.isCurrentMonth
-                      ? 'bg-white dark:bg-white/60 border-zinc-200 dark:border-zinc-200/60 text-zinc-700 dark:text-zinc-700 hover:border-zinc-300 dark:border-zinc-200 hover:bg-zinc-100 dark:bg-zinc-50'
-                      : 'bg-white dark:bg-white/20 border-transparent text-zinc-700 pointer-events-none'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs">{item.day}</span>
-                    {item.isToday && (
-                      <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" />
-                    )}
+              {calendarGrid.map((item, idx) => {
+                // Check if this date has any events
+                const hasEvent = events.some(e => {
+                  const ed = new Date(e.date);
+                  return ed.getDate() === item.date.getDate() && 
+                         ed.getMonth() === item.date.getMonth() && 
+                         ed.getFullYear() === item.date.getFullYear();
+                });
+
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => {
+                      if (item.isCurrentMonth) {
+                        setSelectedDate(item.date);
+                        setIsEventModalOpen(true);
+                      }
+                    }}
+                    className={`min-h-[58px] p-2 rounded-lg border flex flex-col justify-between cursor-pointer transition-all ${
+                      item.isSelected
+                        ? 'bg-zinc-800/30 border-zinc-600 text-zinc-950 dark:text-zinc-800 font-bold font-bold shadow-[0_0_10px_rgba(16,185,129,0.2)]'
+                        : item.isToday
+                        ? 'bg-zinc-100 border-zinc-600/60 text-zinc-950 dark:text-zinc-800 font-bold font-bold'
+                        : item.isCurrentMonth
+                        ? 'bg-white dark:bg-white/60 border-zinc-200 dark:border-zinc-200/60 text-zinc-700 dark:text-zinc-700 hover:border-zinc-300 dark:border-zinc-200 hover:bg-zinc-100 dark:bg-zinc-50'
+                        : 'bg-white dark:bg-white/20 border-transparent text-zinc-700 pointer-events-none'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs">{item.day}</span>
+                      <div className="flex items-center gap-1">
+                        {hasEvent && (
+                          <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                        )}
+                        {item.isToday && (
+                          <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" />
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
@@ -1759,12 +1921,90 @@ export default function DashboardUI({ user }) {
         </DialogContent>
       </Dialog>
 
+      {/* EVENT MODAL 1: Create Event (From Calendar) */}
+      <Dialog open={isEventModalOpen} onOpenChange={setIsEventModalOpen}>
+        <DialogContent className="bg-white border border-zinc-200 shadow-xl text-zinc-900 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold flex items-center gap-2">
+              <CalendarDays className="h-5 w-5 text-zinc-600" />
+              Add Event or Holiday
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleAddEvent} className="space-y-4 py-2">
+            <div>
+              <label className="text-xs font-semibold text-zinc-700 block mb-1">Date Selected</label>
+              <div className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-sm font-bold text-zinc-500">
+                {selectedDate ? selectedDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : ''}
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-zinc-700 block mb-1">Event Title *</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Sports Day, Eid Holidays"
+                value={eventForm.title}
+                onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
+                className="w-full bg-white border border-zinc-200 rounded-lg px-3 py-2 text-sm focus:border-zinc-900 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-zinc-700 block mb-1">For Whom? *</label>
+              <select
+                value={eventForm.audience}
+                onChange={(e) => setEventForm({ ...eventForm, audience: e.target.value })}
+                className="w-full bg-white border border-zinc-200 rounded-lg px-3 py-2 text-sm focus:border-zinc-900 focus:outline-none"
+              >
+                <option value="All">All (School Closed / Mega Event)</option>
+                <option value="Students">Students Only</option>
+                <option value="Teachers">Teachers / Staff Only</option>
+              </select>
+            </div>
+            <DialogFooter className="pt-2">
+              <Button type="button" variant="ghost" onClick={() => setIsEventModalOpen(false)}>Cancel</Button>
+              <Button type="submit" className="bg-zinc-900 text-white hover:bg-zinc-800">Save Event</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* EVENT MODAL 2: Homepage Announcement Pop-up */}
+      <Dialog open={showEventPopup} onOpenChange={setShowEventPopup}>
+        <DialogContent className="bg-white border border-zinc-200 shadow-2xl p-0 overflow-hidden sm:max-w-md">
+          {popupEventData && (
+            <div className="relative">
+              <div className="absolute top-0 left-0 w-full h-32 bg-zinc-900 flex items-center justify-center">
+                <CalendarDays className="h-12 w-12 text-white/50" />
+              </div>
+              <div className="pt-32 p-6 flex flex-col items-center text-center">
+                <div className="absolute top-24 h-16 w-16 bg-white rounded-2xl shadow-sm border border-zinc-100 flex flex-col items-center justify-center rotate-3 transform -translate-y-1">
+                  <span className="text-[10px] font-bold text-zinc-500 uppercase">{new Date(popupEventData.date).toLocaleString('default', { month: 'short' })}</span>
+                  <span className="text-2xl font-black text-zinc-900 leading-none">{new Date(popupEventData.date).getDate()}</span>
+                </div>
+                <h2 className="text-xl font-black text-zinc-900 mt-4">{popupEventData.title}</h2>
+                <div className="text-sm font-semibold text-zinc-500 mt-1">
+                  {new Date(popupEventData.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                </div>
+                <span className="mt-3 bg-zinc-100 text-zinc-600 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-zinc-200">
+                  For: {popupEventData.audience}
+                </span>
+                
+                <Button 
+                  onClick={() => setShowEventPopup(false)} 
+                  className="w-full mt-6 bg-zinc-900 text-white hover:bg-zinc-800 font-bold"
+                >
+                  Got it!
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Footer Branding */}
-      <div className="text-center text-xs text-zinc-600 pt-8 pb-4 border-t border-zinc-900">
-        Copyright ├é┬⌐ {year} All rights reserved | This application is made with Stoofi ERP
+      <div className="text-center text-xs text-zinc-500 pt-8 pb-4 border-t border-zinc-100 mt-8">
+        Copyright © {year} All rights reserved | This application is made with Stoofi ERP
       </div>
     </div>
   );
 }
-
-

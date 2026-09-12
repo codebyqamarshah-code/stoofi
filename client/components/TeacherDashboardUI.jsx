@@ -694,7 +694,7 @@ export default function DashboardUI({ user }) {
               <h1 className="text-3xl font-extrabold text-zinc-950 dark:text-zinc-900 tracking-tight">
                 {user?.fullName || user?.username || 'Teacher'}
               </h1>
-              <span className="bg-zinc-950 text-white font-bold text-xs uppercase px-2.5 py-1 rounded-full tracking-wider shadow-xs">
+              <span style={{backgroundColor:'#09090b', color:'#ffffff'}} className="font-bold text-xs uppercase px-2.5 py-1 rounded-full tracking-wider shadow-xs">
                 TEACHER
               </span>
             </div>
