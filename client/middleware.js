@@ -2,22 +2,15 @@ import { NextResponse } from 'next/server';
 
 export function middleware(request) {
   const token = request.cookies.get('token')?.value;
+  const pathname = request.nextUrl.pathname;
 
   // Protect /dashboard and all its sub-routes
-  if (request.nextUrl.pathname.startsWith('/dashboard')) {
+  if (pathname === '/dashboard' || pathname.startsWith('/dashboard/')) {
     if (!token) {
-      // Not logged in, redirect to login with a message
+      // Not logged in — redirect to login page
       const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('error', 'Please login or register first to access the dashboard.');
+      loginUrl.searchParams.set('error', 'Access denied. Please login first to enter the dashboard.');
       return NextResponse.redirect(loginUrl);
-    }
-  }
-
-  // Redirect to dashboard if logged in and trying to access /login
-  if (request.nextUrl.pathname === '/login') {
-    if (token) {
-      const dashboardUrl = new URL('/dashboard', request.url);
-      return NextResponse.redirect(dashboardUrl);
     }
   }
 
@@ -25,5 +18,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/login'],
+  matcher: ['/dashboard', '/dashboard/:path*'],
 };

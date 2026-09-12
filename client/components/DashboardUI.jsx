@@ -589,21 +589,7 @@ export default function DashboardUI({ user }) {
           const parsed = JSON.parse(storedEvents);
           setEvents(parsed);
           
-          // Trigger home page pop-up after a few seconds if events exist
-          if (parsed.length > 0) {
-            // Pick the event closest to today
-            const today = new Date();
-            const closest = parsed.reduce((a, b) => {
-              return Math.abs(new Date(a.date) - today) < Math.abs(new Date(b.date) - today) ? a : b;
-            });
-            setPopupEventData(closest);
-            
-            // Pop up after 3 seconds
-            const timer = setTimeout(() => {
-              setShowEventPopup(true);
-            }, 3000);
-            return () => clearTimeout(timer);
-          }
+          
         }
       } catch (_) {}
     }
@@ -1969,38 +1955,7 @@ export default function DashboardUI({ user }) {
         </DialogContent>
       </Dialog>
 
-      {/* EVENT MODAL 2: Homepage Announcement Pop-up */}
-      <Dialog open={showEventPopup} onOpenChange={setShowEventPopup}>
-        <DialogContent className="bg-white border border-zinc-200 shadow-2xl p-0 overflow-hidden sm:max-w-md">
-          {popupEventData && (
-            <div className="relative">
-              <div className="absolute top-0 left-0 w-full h-32 bg-zinc-900 flex items-center justify-center">
-                <CalendarDays className="h-12 w-12 text-white/50" />
-              </div>
-              <div className="pt-32 p-6 flex flex-col items-center text-center">
-                <div className="absolute top-24 h-16 w-16 bg-white rounded-2xl shadow-sm border border-zinc-100 flex flex-col items-center justify-center rotate-3 transform -translate-y-1">
-                  <span className="text-[10px] font-bold text-zinc-500 uppercase">{new Date(popupEventData.date).toLocaleString('default', { month: 'short' })}</span>
-                  <span className="text-2xl font-black text-zinc-900 leading-none">{new Date(popupEventData.date).getDate()}</span>
-                </div>
-                <h2 className="text-xl font-black text-zinc-900 mt-4">{popupEventData.title}</h2>
-                <div className="text-sm font-semibold text-zinc-500 mt-1">
-                  {new Date(popupEventData.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                </div>
-                <span className="mt-3 bg-zinc-100 text-zinc-600 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-zinc-200">
-                  For: {popupEventData.audience}
-                </span>
-                
-                <Button 
-                  onClick={() => setShowEventPopup(false)} 
-                  className="w-full mt-6 bg-zinc-900 text-white hover:bg-zinc-800 font-bold"
-                >
-                  Got it!
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      
 
       {/* Footer Branding */}
       <div className="text-center text-xs text-zinc-500 pt-8 pb-4 border-t border-zinc-100 mt-8">

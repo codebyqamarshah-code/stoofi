@@ -129,15 +129,30 @@ export default function DashboardLayout({ children }) {
 
   useEffect(() => {
     setMounted(true);
+
+    // Check for token in localStorage or cookie
+    const hasToken =
+      (typeof window !== 'undefined' && (
+        localStorage.getItem('token') ||
+        localStorage.getItem('auth-storage')
+      )) ||
+      document.cookie.includes('token=');
+
+    if (!hasToken) {
+      // No token found — force redirect to login immediately
+      router.replace('/login?error=Access+denied.+Please+login+first.');
+      return;
+    }
+
     checkAuth();
 
-    // Safety timeout: if still loading after 3s, force proceed (avoids infinite spinner)
+    // Safety timeout: if still loading after 3s, force proceed
     const timer = setTimeout(() => {
-      const hasToken =
+      const stillHasToken =
         localStorage.getItem('token') ||
         localStorage.getItem('auth-storage');
-      if (!hasToken) {
-        router.push('/login');
+      if (!stillHasToken) {
+        router.replace('/login?error=Session+expired.+Please+login+again.');
       }
     }, 3000);
     return () => clearTimeout(timer);
@@ -147,11 +162,11 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     if (mounted && !isLoading && !isAuthenticated && !user) {
       const hasStoredToken =
-        localStorage.getItem('token') || 
+        localStorage.getItem('token') ||
         localStorage.getItem('auth-storage') ||
         document.cookie.includes('token=');
       if (!hasStoredToken) {
-        router.push('/login');
+        router.replace('/login?error=Access+denied.+Please+login+first.');
       }
     }
   }, [mounted, isAuthenticated, isLoading, user, router]);

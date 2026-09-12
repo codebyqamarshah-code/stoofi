@@ -25,6 +25,35 @@ export default function LandingPage() {
   const [noticeSearch, setNoticeSearch] = useState("");
   const [selectedNoticeTab, setSelectedNoticeTab] = useState("All");
 
+  // Today Event Popup state
+  const [todayEvent, setTodayEvent] = useState(null);
+  const [showTodayEventModal, setShowTodayEventModal] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const storedEvents = localStorage.getItem('dashboard_events');
+        if (storedEvents) {
+          const parsed = JSON.parse(storedEvents);
+          const todayStr = new Date().toDateString();
+          
+          const todaysEvent = parsed.find(ev => {
+            if (!ev.date) return false;
+            return new Date(ev.date).toDateString() === todayStr;
+          });
+
+          if (todaysEvent) {
+            setTodayEvent(todaysEvent);
+            const timer = setTimeout(() => {
+              setShowTodayEventModal(true);
+            }, 2000);
+            return () => clearTimeout(timer);
+          }
+        }
+      } catch (_) {}
+    }
+  }, []);
+
   const t = translations[lang] || translations['EN'];
 
   const changeLanguage = (langCode) => {
@@ -801,6 +830,68 @@ export default function LandingPage() {
                   Close
                 </Button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TODAY'S EVENT POPUP MODAL */}
+      {showTodayEventModal && todayEvent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-zinc-200 text-zinc-900 relative">
+            {/* Close button */}
+            <button
+              onClick={() => setShowTodayEventModal(false)}
+              className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-800 flex items-center justify-center transition-colors shadow-sm"
+              title="Close"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Header banner */}
+            <div className="h-28 bg-zinc-900 flex items-center justify-center relative">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-300 bg-white/10 px-3.5 py-1 rounded-full border border-white/10">
+                Today's Event & Announcement
+              </span>
+            </div>
+
+            {/* Content Body with date badge */}
+            <div className="p-6 pt-0 flex flex-col items-center text-center">
+              {/* Date Badge - centered & overlapping top banner cleanly */}
+              <div className="-mt-10 mb-4 w-20 h-20 bg-white rounded-2xl shadow-lg border border-zinc-200 flex flex-col items-center justify-center">
+                <span className="text-xs font-bold text-rose-600 uppercase tracking-wider">
+                  {new Date(todayEvent.date).toLocaleString('default', { month: 'short' })}
+                </span>
+                <span className="text-3xl font-black text-zinc-900 leading-none mt-0.5">
+                  {new Date(todayEvent.date).getDate()}
+                </span>
+              </div>
+
+              {/* Event Title */}
+              <h2 className="text-2xl font-black text-zinc-900 tracking-tight mb-1.5 px-2">
+                {todayEvent.title}
+              </h2>
+
+              <p className="text-xs font-bold text-zinc-500 mb-3">
+                {new Date(todayEvent.date).toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </p>
+
+              <span className="inline-block bg-zinc-100 text-zinc-800 text-[11px] font-bold uppercase tracking-wider px-3.5 py-1 rounded-full border border-zinc-200 mb-6">
+                Target Audience: {todayEvent.audience || 'All'}
+              </span>
+
+              <Button
+                onClick={() => setShowTodayEventModal(false)}
+                className="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-bold py-3.5 rounded-2xl shadow-md transition-all text-sm"
+                style={{ color: '#ffffff' }}
+              >
+                Got it!
+              </Button>
             </div>
           </div>
         </div>
