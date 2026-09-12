@@ -20,6 +20,7 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [urlError, setUrlError] = useState('');
 
   const {
     register,
@@ -33,6 +34,11 @@ export default function LoginPage() {
 
   useEffect(() => {
     setMounted(true);
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const err = params.get('error');
+      if (err) setUrlError(err);
+    }
     // Removed auto-redirect logic so the user stays on the login page
     // until they actively submit the form or click a role button.
   }, []);
@@ -105,9 +111,9 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {error && (
+          {(error || urlError) && (
             <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 text-sm border border-red-100 dark:border-red-900 text-center">
-              {error}
+              {error || urlError}
             </div>
           )}
 
