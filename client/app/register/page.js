@@ -14,6 +14,47 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState(false);
   
   const [role, setRole] = useState('Student');
+  const [availableRoles, setAvailableRoles] = useState(['Student', 'Teacher', 'Parent', 'Accountant']);
+  const [statusLoading, setStatusLoading] = useState(true);
+
+  React.useEffect(() => {
+    async function checkAvailableRoles() {
+      try {
+        const res = await api.get('/auth/registration-status');
+        const roles = [];
+        if (!res?.hasSuperAdmin) {
+          roles.push('Super Admin');
+        }
+        if (!res?.hasAdmin) {
+          roles.push('Admin');
+        }
+        roles.push('Teacher', 'Student', 'Parent', 'Accountant');
+        setAvailableRoles(roles);
+        if (roles.length > 0) {
+          setRole(roles[0]);
+        }
+      } catch (e) {
+        let users = [];
+        try {
+          users = JSON.parse(localStorage.getItem('mockDB_users') || '[]');
+        } catch (err) {}
+        const hasSuperAdmin = users.some(u => u.role === 'Super Admin');
+        const hasAdmin = users.some(u => u.role === 'Admin');
+        const roles = [];
+        if (!hasSuperAdmin) roles.push('Super Admin');
+        if (!hasAdmin) roles.push('Admin');
+        roles.push('Teacher', 'Student', 'Parent', 'Accountant');
+        setAvailableRoles(roles);
+        if (roles.length > 0) {
+          setRole(roles[0]);
+        }
+      } finally {
+        setStatusLoading(false);
+      }
+    }
+    checkAvailableRoles();
+  }, []);
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -112,12 +153,19 @@ export default function RegisterPage() {
 
             {/* Role Selection */}
             <div>
-              <label className={labelClass}>Register As</label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {['Student', 'Teacher', 'Parent', 'Accountant'].map(r => (
-                  <label key={r} className={`cursor-pointer border rounded-xl p-3 text-center transition-all ${role === r ? 'border-zinc-950 bg-zinc-950/5 dark:bg-white/10 text-zinc-950 font-bold shadow-sm' : 'border-zinc-200 dark:border-zinc-200 text-zinc-500 hover:border-zinc-950/50'}`}>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className={labelClass}>Register As</label>
+                {availableRoles.length < 6 && (
+                  <span className="text-[11px] text-zinc-500 font-medium">
+                    {!availableRoles.includes('Super Admin') && !availableRoles.includes('Admin') ? 'Super Admin & Admin registered' : !availableRoles.includes('Super Admin') ? 'Super Admin registered' : 'Admin registered'}
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-2.5">
+                {availableRoles.map(r => (
+                  <label key={r} className={`cursor-pointer border rounded-xl p-2.5 sm:p-3 text-center transition-all flex flex-col items-center justify-center ${role === r ? 'border-zinc-950 bg-zinc-950/5 dark:bg-white/10 text-zinc-950 font-bold shadow-sm' : 'border-zinc-200 dark:border-zinc-200 text-zinc-500 hover:border-zinc-950/50'}`}>
                     <input type="radio" name="role" value={r} checked={role === r} onChange={handleRoleChange} className="hidden" />
-                    <span className="text-sm">{r}</span>
+                    <span className="text-xs sm:text-sm font-semibold">{r}</span>
                   </label>
                 ))}
               </div>
@@ -158,7 +206,7 @@ export default function RegisterPage() {
               
               <div>
                 <label className={labelClass}>Date of Birth</label>
-                <input type="date" name="dob" required value={formData.dob} onChange={handleChange} className={inputClass} />
+                <input type="date" name="dob" required={role !== 'Super Admin' && role !== 'Admin'} value={formData.dob} onChange={handleChange} className={inputClass} />
               </div>
 
               {/* Conditional Fields based on Role */}

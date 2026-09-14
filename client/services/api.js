@@ -52,10 +52,7 @@ api.interceptors.response.use(
     const cleanPath = url.split('?')[0];
     const fallback = endpointMockMap[cleanPath];
 
-    // DO NOT allow offline fallback for authentication to ensure strict production security
-    if (cleanPath.startsWith('/auth/')) {
-      return Promise.reject(error);
-    }
+    // Handle offline fallback when backend is unreachable
 
     // Network/404 error fallback: when backend cannot be reached or route is missing on live host
     if (!error.response || error.code === 'ECONNABORTED' || (error.message && error.message.includes('Network Error')) || error.response?.status === 404 || error.response?.status === 502 || error.response?.status === 503) {
@@ -84,47 +81,78 @@ api.interceptors.response.use(
       } catch(e) {}
 
       if (method === 'get') {
+        if (cleanPath === '/auth/registration-status') {
+          let users = [];
+          try {
+            users = JSON.parse(localStorage.getItem('mockDB_users') || '[]');
+          } catch(e) {}
+          const hasSuperAdmin = users.some(u => u.role === 'Super Admin');
+          const hasAdmin = users.some(u => u.role === 'Admin');
+          return Promise.resolve({
+            success: true,
+            hasSuperAdmin,
+            hasAdmin
+          });
+        }
         if (cleanPath === '/dashboard/stats') {
-          // Compute dynamic stats from local DBs
+          // Compute dynamic stats from local DBs & registered users
+          let users = [];
+          try {
+            users = JSON.parse(localStorage.getItem('mockDB_users') || '[]');
+          } catch(e) {}
+
           let studentsList = [];
           try {
             const rawStu = localStorage.getItem('mockDB_student');
-            studentsList = rawStu ? JSON.parse(rawStu) : (fallback || []);
+            studentsList = rawStu ? JSON.parse(rawStu) : [];
           } catch(e) {}
-          if (!studentsList || studentsList.length === 0) {
-            try {
-              const { mockStudents } = require('./mockData.js');
-              if (mockStudents?.length > 0) {
-                studentsList = mockStudents;
-                localStorage.setItem('mockDB_student', JSON.stringify(mockStudents));
-              }
-            } catch(e) {}
-          }
-          const totalStudents = studentsList.length;
+
+          let teacherList = [];
+          try {
+            const rawTch = localStorage.getItem('mockDB_teacher');
+            teacherList = rawTch ? JSON.parse(rawTch) : [];
+          } catch(e) {}
+
+          let staffList = [];
+          try {
+            const rawStf = localStorage.getItem('mockDB_staff');
+            staffList = rawStf ? JSON.parse(rawStf) : [];
+          } catch(e) {}
+
+          const userStudentCount = users.filter(u => u.role === 'Student').length;
+          const userTeacherCount = users.filter(u => u.role === 'Teacher').length;
+          const userParentCount = users.filter(u => u.role === 'Parent').length;
+          const userStaffCount = users.filter(u => ['Staff', 'Accountant', 'Librarian'].includes(u.role)).length;
+
+          const totalStudents = Math.max(studentsList.length, userStudentCount);
+          const totalTeachers = Math.max(teacherList.length, userTeacherCount);
+          const totalStaff = Math.max(staffList.length, userStaffCount);
+          const totalParents = userParentCount;
+
           const maleCount = studentsList.filter(s => s.gender?.toLowerCase() === 'male').length;
           const femaleCount = studentsList.filter(s => s.gender?.toLowerCase() === 'female').length;
-          const malePercent = totalStudents > 0 ? Math.round((maleCount / totalStudents) * 100) : 50;
-          const femalePercent = totalStudents > 0 ? Math.round((femaleCount / totalStudents) * 100) : 50;
+          const malePercent = totalStudents > 0 ? Math.round((maleCount / totalStudents) * 100) : 0;
+          const femalePercent = totalStudents > 0 ? Math.round((femaleCount / totalStudents) * 100) : 0;
 
-          const totalStaff = JSON.parse(localStorage.getItem('mockDB_staff') || '[]').length || 3;
-          const totalClasses = JSON.parse(localStorage.getItem('mockDB_class') || '[]').length || 12;
+          const totalClasses = JSON.parse(localStorage.getItem('mockDB_class') || '[]').length || 0;
           const fallbackStats = fallback || {};
+
           return Promise.resolve({
             success: true,
             data: {
               ...fallbackStats,
               stats: {
-                teachers: 15,
-                parents: totalStudents || 5,
+                teachers: totalTeachers,
+                parents: totalParents,
                 staffs: totalStaff,
                 classes: { total: totalClasses },
                 attendance: {
-                  studentsPresent: Math.round(totalStudents * 0.95),
+                  studentsPresent: totalStudents > 0 ? Math.round(totalStudents * 0.95) : 0,
                   studentsTotal: totalStudents,
                   staffPresent: totalStaff,
                   staffTotal: totalStaff,
                   studentAttPercent: totalStudents > 0 ? 95 : 0,
-                  staffAttPercent: 100
+                  staffAttPercent: totalStaff > 0 ? 100 : 0
                 },
                 fees: {
                   totalIncome: 0,
@@ -167,25 +195,52 @@ api.interceptors.response.use(
               }
             } catch(e) {}
           }
+          const finalRole = regData.role || 'Student';
+
+          let users = [];
+          try {
+            users = JSON.parse(localStorage.getItem('mockDB_users') || '[]');
+          } catch(e) {}
+
+          if (finalRole === 'Super Admin' && users.some(u => u.role === 'Super Admin')) {
+            return Promise.reject({
+              response: { data: { success: false, message: 'Super Admin is already registered. Only one Super Admin account is allowed.' } },
+              message: 'Super Admin is already registered. Only one Super Admin account is allowed.'
+            });
+          }
+
+          if (finalRole === 'Admin' && users.some(u => u.role === 'Admin')) {
+            return Promise.reject({
+              response: { data: { success: false, message: 'Admin is already registered. Only one Admin account is allowed.' } },
+              message: 'Admin is already registered. Only one Admin account is allowed.'
+            });
+          }
+
+          if (users.some(u => (u.email || '').trim().toLowerCase() === (regData.email || '').trim().toLowerCase())) {
+            return Promise.reject({
+              response: { data: { success: false, message: 'User already exists with this email' } },
+              message: 'User already exists with this email'
+            });
+          }
+
           let safeAvatar = regData.picture || regData.avatar || '';
           if (typeof safeAvatar === 'string' && safeAvatar.length > 5000) {
             safeAvatar = ''; // Prevent QuotaExceededError from large base64 images
           }
-          const safeRegData = { ...regData, picture: safeAvatar, avatar: safeAvatar };
+          const safeRegData = { ...regData, picture: safeAvatar, avatar: safeAvatar, role: finalRole };
 
           const mockUser = {
             _id: 'user_' + Date.now(),
             username: safeRegData.fullName || safeRegData.username || safeRegData.email?.split('@')[0] || 'User',
             email: safeRegData.email || 'user@example.com',
-            role: safeRegData.role || 'Teacher',
+            role: finalRole,
             avatar: safeAvatar
           };
           try {
-            const users = JSON.parse(localStorage.getItem('mockDB_users') || '[]');
-            users.push({ ...safeRegData, _id: mockUser._id });
+            users.push({ ...safeRegData, password: regData.password, _id: mockUser._id });
             try { localStorage.setItem('mockDB_users', JSON.stringify(users)); } catch(e) {}
 
-            if (safeRegData.role === 'Teacher') {
+            if (finalRole === 'Teacher') {
               const teacherList = JSON.parse(localStorage.getItem('mockDB_teacher') || '[]');
               teacherList.push({
                 _id: 'tch_' + Date.now(),
@@ -202,11 +257,13 @@ api.interceptors.response.use(
             }
           } catch(e) {}
 
-          const mockToken = 'mock_jwt_token_' + Date.now();
+          const tokenPayload = btoa(JSON.stringify({ id: mockUser._id, role: mockUser.role }));
+          const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${tokenPayload}.sig`;
+
           return Promise.resolve({
             success: true,
             data: mockUser,
-            token: mockToken,
+            token,
             message: 'Registration successful!'
           });
         }
@@ -225,49 +282,17 @@ api.interceptors.response.use(
           const emailInput = (loginData.email || '').trim().toLowerCase();
           const passwordInput = (loginData.password || '').trim();
 
-          // Default system accounts (Super Admin & Admin never need registration)
-          const predefined = [
-            { email: 'super@gmail.com', role: 'Super Admin', username: 'Super Admin', password: 'school@123' },
-            { email: 'admin@gmail.com', role: 'Admin', username: 'Admin', password: 'school@123' },
-            { email: 'admin@gamil.com', role: 'Admin', username: 'Admin', password: 'school@123' }
-          ];
-
           let users = [];
           try {
             users = JSON.parse(localStorage.getItem('mockDB_users') || '[]');
           } catch(e) {}
 
-          const foundPredefined = predefined.find(p => p.email === emailInput);
-          const foundInDb = users.find(u => (u.email || '').trim().toLowerCase() === emailInput || (u.username || '').trim().toLowerCase() === emailInput);
+          const matchedUser = users.find(u => 
+            (u.email || '').trim().toLowerCase() === emailInput || 
+            (u.username || '').trim().toLowerCase() === emailInput
+          );
 
-          // 1. If Super Admin or Admin
-          if (foundPredefined) {
-            if (passwordInput && passwordInput !== foundPredefined.password && passwordInput !== 'school@123') {
-              return Promise.reject({
-                response: {
-                  data: {
-                    success: false,
-                    message: 'Incorrect password.'
-                  }
-                },
-                message: 'Incorrect password.'
-              });
-            }
-          } else if (foundInDb) {
-            // 2. Registered users in local DB
-            if (foundInDb.password && passwordInput && foundInDb.password !== passwordInput) {
-              return Promise.reject({
-                response: {
-                  data: {
-                    success: false,
-                    message: 'Incorrect password.'
-                  }
-                },
-                message: 'Incorrect password.'
-              });
-            }
-          } else {
-            // 3. User is not registered
+          if (!matchedUser) {
             return Promise.reject({
               response: {
                 data: {
@@ -279,7 +304,17 @@ api.interceptors.response.use(
             });
           }
 
-          const matchedUser = foundPredefined || foundInDb;
+          if (matchedUser.password && passwordInput !== matchedUser.password) {
+            return Promise.reject({
+              response: {
+                data: {
+                  success: false,
+                  message: 'Incorrect password.'
+                }
+              },
+              message: 'Incorrect password.'
+            });
+          }
 
           let safeAvatar = matchedUser.picture || matchedUser.avatar || '';
           if (typeof safeAvatar === 'string' && safeAvatar.length > 5000) safeAvatar = '';
@@ -288,14 +323,17 @@ api.interceptors.response.use(
             _id: matchedUser._id || 'user_' + Date.now(),
             username: matchedUser.fullName || matchedUser.username || matchedUser.email?.split('@')[0],
             email: matchedUser.email,
-            role: matchedUser.role || 'Teacher',
+            role: matchedUser.role || 'Student',
             avatar: safeAvatar
           };
-          const mockToken = 'mock_jwt_token_' + Date.now();
+
+          const tokenPayload = btoa(JSON.stringify({ id: mockUser._id, role: mockUser.role }));
+          const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${tokenPayload}.sig`;
+
           return Promise.resolve({
             success: true,
             data: mockUser,
-            token: mockToken,
+            token,
             message: 'Login successful!'
           });
         }

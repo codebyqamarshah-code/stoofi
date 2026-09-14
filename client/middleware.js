@@ -23,14 +23,14 @@ export function middleware(request) {
   if (pathname === '/dashboard' || pathname.startsWith('/dashboard/')) {
     const isInvalidToken = !token || token.startsWith('mock_');
     if (isInvalidToken) {
-      return NextResponse.redirect(new URL('/unauthorized', request.url));
+      return NextResponse.rewrite(new URL('/404', request.url));
     }
 
     const role = decodeJwtRole(token);
 
-    // If role is missing in token, it means it's an old token. Force re-login for strict security.
+    // If role is missing in token, it means it's an old token. Force 404 and delete token.
     if (!role) {
-      const response = NextResponse.redirect(new URL('/unauthorized', request.url));
+      const response = NextResponse.rewrite(new URL('/404', request.url));
       response.cookies.delete('token');
       return response;
     }

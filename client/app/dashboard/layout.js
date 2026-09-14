@@ -145,8 +145,8 @@ export default function DashboardLayout({ children }) {
     const hasRealToken = storedToken && !isMockToken;
 
     if (!hasRealToken) {
-      // No valid token — redirect to unauthorized immediately
-      router.replace('/unauthorized');
+      // No valid token — redirect to 404 immediately
+      router.replace('/404');
       return;
     }
 
@@ -156,7 +156,7 @@ export default function DashboardLayout({ children }) {
     const timer = setTimeout(() => {
       const stillToken = localStorage.getItem('token');
       if (!stillToken || stillToken.startsWith('mock_')) {
-        router.replace('/unauthorized');
+        router.replace('/404');
       }
     }, 3000);
     return () => clearTimeout(timer);
@@ -169,7 +169,7 @@ export default function DashboardLayout({ children }) {
         const storedToken = localStorage.getItem('token');
         const isMock = typeof storedToken === 'string' && storedToken.startsWith('mock_');
         if (!storedToken || isMock) {
-          router.replace('/unauthorized');
+          router.replace('/404');
         }
       } else {
         // Enforce RBAC on client side
@@ -205,6 +205,19 @@ export default function DashboardLayout({ children }) {
     localStorage.getItem('auth-storage')
   );
 
+
+  // If mounted and definitely no session or token, immediately render 404 page
+  if (mounted && !hasStoredSession && !user && !isAuthenticated) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white text-zinc-900 p-6">
+        <h1 className="text-6xl font-black mb-4">404</h1>
+        <p className="text-lg text-zinc-600 mb-6">Page Not Found</p>
+        <Link href="/" className="px-6 py-2.5 rounded-xl bg-zinc-900 text-white font-bold text-sm hover:bg-zinc-800 transition-colors">
+          Go to Home
+        </Link>
+      </div>
+    );
+  }
 
   // After mounting, if we still don't have a session, we also show it while checking auth.
   if (!mounted || (!hasStoredSession && (isLoading && !user)) || isInitialAppLoading) {
