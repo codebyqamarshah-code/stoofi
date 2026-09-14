@@ -43,7 +43,6 @@ export const useAuth = create(
               error: null
             });
             Cookies.set('token', finalToken, { expires: 7 });
-            Cookies.set('userRole', finalUser.role || role, { expires: 7 });
             if (typeof window !== 'undefined') {
               localStorage.setItem('token', finalToken);
             }
@@ -59,7 +58,6 @@ export const useAuth = create(
       logout: async () => {
         set({ user: null, token: null, isAuthenticated: false });
         Cookies.remove('token');
-        Cookies.remove('userRole');
         if (typeof window !== 'undefined') {
           localStorage.removeItem('token');
           localStorage.removeItem('auth-storage');
