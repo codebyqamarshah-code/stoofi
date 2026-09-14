@@ -130,29 +130,33 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     setMounted(true);
 
-    // Check for token in localStorage or cookie
-    const hasToken =
-      (typeof window !== 'undefined' && (
-        localStorage.getItem('token') ||
-        localStorage.getItem('auth-storage')
-      )) ||
-      document.cookie.includes('token=');
+    // Check for a REAL token (not a mock/fake token)
+    const storedToken =
+      localStorage.getItem('token') ||
+      (() => {
+        try {
+          const raw = localStorage.getItem('auth-storage');
+          if (raw) return JSON.parse(raw)?.state?.token || '';
+        } catch (e) {}
+        return '';
+      })();
 
-    if (!hasToken) {
-      // No token found — force redirect to login immediately
-      router.replace('/login?error=Access+denied.+Please+login+first.');
+    const isMockToken = typeof storedToken === 'string' && storedToken.startsWith('mock_');
+    const hasRealToken = storedToken && !isMockToken;
+
+    if (!hasRealToken) {
+      // No valid token — redirect to unauthorized immediately
+      router.replace('/unauthorized');
       return;
     }
 
     checkAuth();
 
-    // Safety timeout: if still loading after 3s, force proceed
+    // Safety timeout: if still loading after 3s, force check
     const timer = setTimeout(() => {
-      const stillHasToken =
-        localStorage.getItem('token') ||
-        localStorage.getItem('auth-storage');
-      if (!stillHasToken) {
-        router.replace('/login?error=Session+expired.+Please+login+again.');
+      const stillToken = localStorage.getItem('token');
+      if (!stillToken || stillToken.startsWith('mock_')) {
+        router.replace('/unauthorized');
       }
     }, 3000);
     return () => clearTimeout(timer);
@@ -161,12 +165,10 @@ export default function DashboardLayout({ children }) {
 
   useEffect(() => {
     if (mounted && !isLoading && !isAuthenticated && !user) {
-      const hasStoredToken =
-        localStorage.getItem('token') ||
-        localStorage.getItem('auth-storage') ||
-        document.cookie.includes('token=');
-      if (!hasStoredToken) {
-        router.replace('/login?error=Access+denied.+Please+login+first.');
+      const storedToken = localStorage.getItem('token');
+      const isMock = typeof storedToken === 'string' && storedToken.startsWith('mock_');
+      if (!storedToken || isMock) {
+        router.replace('/unauthorized');
       }
     }
   }, [mounted, isAuthenticated, isLoading, user, router]);

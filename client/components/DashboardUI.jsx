@@ -843,8 +843,8 @@ export default function DashboardUI({ user }) {
             <div className="flex items-center gap-1 border-t border-zinc-100 pt-2.5">
               {weather.hourly.map((h, idx) => (
                 <div key={idx} className={`flex-1 text-center rounded-lg py-1.5 ${idx === 0 ? 'bg-zinc-900' : 'bg-zinc-50'}`}>
-                  <div className={`text-[9px] font-bold uppercase tracking-wider ${idx === 0 ? 'text-zinc-400' : 'text-zinc-400'}`}>{h.time}</div>
-                  <div className={`text-xs font-black mt-0.5 ${idx === 0 ? 'text-white' : 'text-zinc-800'}`}>{h.temp}</div>
+                  <div className="text-[9px] font-bold uppercase tracking-wider" style={{ color: idx === 0 ? "#d4d4d8" : "#71717a" }}>{h.time}</div>
+                  <div className="text-xs font-black mt-0.5" style={{ color: idx === 0 ? "#ffffff" : "#18181b" }}>{h.temp}</div>
                 </div>
               ))}
             </div>
