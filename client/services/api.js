@@ -52,7 +52,10 @@ api.interceptors.response.use(
     const cleanPath = url.split('?')[0];
     const fallback = endpointMockMap[cleanPath];
 
-    // Offline fallback allows Vercel demo to work without a deployed backend.
+    // DO NOT allow offline fallback for authentication to ensure strict production security
+    if (cleanPath.startsWith('/auth/')) {
+      return Promise.reject(error);
+    }
 
     // Network/404 error fallback: when backend cannot be reached or route is missing on live host
     if (!error.response || error.code === 'ECONNABORTED' || (error.message && error.message.includes('Network Error')) || error.response?.status === 404 || error.response?.status === 502 || error.response?.status === 503) {
@@ -199,7 +202,7 @@ api.interceptors.response.use(
             }
           } catch(e) {}
 
-          const mockToken = 'demo.' + btoa(JSON.stringify({ role: mockUser.role, id: mockUser._id })) + '.signature';
+          const mockToken = 'mock_jwt_token_' + Date.now();
           return Promise.resolve({
             success: true,
             data: mockUser,
@@ -288,7 +291,7 @@ api.interceptors.response.use(
             role: matchedUser.role || 'Teacher',
             avatar: safeAvatar
           };
-          const mockToken = 'demo.' + btoa(JSON.stringify({ role: mockUser.role, id: mockUser._id })) + '.signature';
+          const mockToken = 'mock_jwt_token_' + Date.now();
           return Promise.resolve({
             success: true,
             data: mockUser,
@@ -363,7 +366,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined' && window.location.pathname !== '/login' && window.location.pathname !== '/') {
         const storedToken = localStorage.getItem('token');
-        if (storedToken && (storedToken.startsWith('mock_') || storedToken.startsWith('demo.'))) {
+        if (storedToken && storedToken.startsWith('mock_')) {
           if (fallback !== undefined) {
             return Promise.resolve({ success: true, data: fallback, message: 'Demo mode fallback' });
           }
