@@ -73,8 +73,8 @@ export default function LoginPage() {
   };
 
   const demoRoles = [
-    { id: "superadmin", label: "SUPER ADMIN", email: "super@gmail.com", pass: "school@123" },
-    { id: "admin", label: "ADMIN", email: "admin@gmail.com", pass: "school@123" },
+    { id: "superadmin", label: "SUPER ADMIN", email: "super@gmail.com", pass: "school" },
+    { id: "admin", label: "ADMIN", email: "admin@gmail.com", pass: "school" },
     { id: "teacher", label: "TEACHER", email: "teacher@gmail.com", pass: "123456" },
     { id: "parents", label: "PARENTS", email: "parent@gmail.com", pass: "123456" },
     { id: "accountant", label: "ACCOUNTANT", email: "accountant@gmail.com", pass: "123456" },

@@ -144,24 +144,24 @@ exports.login = async (req, res, next) => {
     // Auto-create/seed default Super Admin or Admin if logging in for the first time without registration
     if (!user) {
       if (cleanEmail === 'super@gmail.com') {
-        if (password !== 'school@123') {
+        if (password !== 'school') {
           return res.status(401).json({ success: false, message: 'Incorrect password.' });
         }
         user = await User.create({
           username: 'superadmin',
           email: 'super@gmail.com',
-          password: 'school@123',
+          password: 'school',
           role: 'Super Admin',
           status: 'Active'
         });
       } else if (cleanEmail === 'admin@gmail.com' || cleanEmail === 'admin@gamil.com') {
-        if (password !== 'school@123') {
+        if (password !== 'school') {
           return res.status(401).json({ success: false, message: 'Incorrect password.' });
         }
         user = await User.create({
           username: 'admin',
           email: 'admin@gmail.com',
-          password: 'school@123',
+          password: 'school',
           role: 'Admin',
           status: 'Active'
         });
@@ -169,14 +169,20 @@ exports.login = async (req, res, next) => {
         return res.status(401).json({ success: false, message: 'User not found. Please register first.' });
       }
     } else {
-      // Check if password matches (allow school@123 for Super Admin / Admin)
-      if ((cleanEmail === 'super@gmail.com' || cleanEmail === 'admin@gmail.com' || cleanEmail === 'admin@gamil.com') && password === 'school@123') {
-        // Password valid for system accounts
-      } else {
-        const isMatch = await user.comparePassword(password);
-        if (!isMatch) {
-          return res.status(401).json({ success: false, message: 'Incorrect password.' });
-        }
+      let isMatch = await user.comparePassword(password);
+      
+      // Auto-migrate legacy password to new fixed password for admins
+      if (!isMatch && password === 'school' && (cleanEmail === 'super@gmail.com' || cleanEmail === 'admin@gmail.com')) {
+         const isLegacyMatch = await user.comparePassword('school@123');
+         if (isLegacyMatch) {
+            user.password = 'school';
+            await user.save();
+            isMatch = true;
+         }
+      }
+
+      if (!isMatch) {
+        return res.status(401).json({ success: false, message: 'Incorrect password.' });
       }
     }
 
