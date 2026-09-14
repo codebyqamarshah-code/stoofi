@@ -16,15 +16,6 @@ exports.protect = async (req, res, next) => {
     return res.status(401).json({ success: false, message: 'Not authorized to access this route' });
   }
 
-  // Fast handling for mock / development tokens
-  if (token && (token.startsWith('mock_') || token === 'mock_jwt_token_super_admin_2026')) {
-    const adminUser = await User.findOne({ email: 'admin@gmail.com' }) || await User.findOne({ role: 'Super Admin' }) || await User.findOne();
-    if (adminUser) {
-      req.user = adminUser;
-      return next();
-    }
-  }
-
   try {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -41,13 +32,6 @@ exports.protect = async (req, res, next) => {
 
     next();
   } catch (err) {
-    if (token) {
-      const fallbackUser = await User.findOne({ email: 'admin@gmail.com' }) || await User.findOne({ role: 'Super Admin' }) || await User.findOne();
-      if (fallbackUser) {
-        req.user = fallbackUser;
-        return next();
-      }
-    }
     return res.status(401).json({ success: false, message: 'Not authorized to access this route' });
   }
 };

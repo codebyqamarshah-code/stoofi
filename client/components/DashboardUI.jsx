@@ -942,7 +942,7 @@ export default function DashboardUI({ user }) {
           <Button
             variant="outline"
             size="sm"
-            className="h-9 rounded-full border border-zinc-300/90 dark:border-zinc-200 bg-white dark:bg-white/50 text-xs font-bold text-zinc-950 dark:text-zinc-700 hover:bg-zinc-100 hover:border-zinc-950 hover:text-zinc-800 dark:hover:bg-zinc-200 dark:hover:text-zinc-950 cursor-pointer shadow-xs"
+            className="h-9 rounded-full border border-zinc-300/90 dark:border-zinc-200 bg-white dark:bg-white/50 text-xs font-bold text-zinc-950 dark:text-zinc-700 hover:bg-emerald-50 hover:border-emerald-400 hover:text-emerald-700 dark:hover:bg-emerald-100 dark:hover:text-emerald-900 cursor-pointer shadow-xs"
             onClick={() => router.push('/dashboard/students/add')}
           >
             <UserPlus className="h-3.5 w-3.5 text-zinc-950 dark:text-zinc-900" /> Student Admission
@@ -951,7 +951,7 @@ export default function DashboardUI({ user }) {
           <Button
             variant="outline"
             size="sm"
-            className="h-9 rounded-full border border-zinc-300/90 dark:border-zinc-200 bg-white dark:bg-white/50 text-xs font-bold text-zinc-950 dark:text-zinc-700 hover:bg-zinc-100 hover:border-zinc-950 hover:text-zinc-800 dark:hover:bg-zinc-200 dark:hover:text-zinc-950 cursor-pointer shadow-xs"
+            className="h-9 rounded-full border border-zinc-300/90 dark:border-zinc-200 bg-white dark:bg-white/50 text-xs font-bold text-zinc-950 dark:text-zinc-700 hover:bg-emerald-50 hover:border-emerald-400 hover:text-emerald-700 dark:hover:bg-emerald-100 dark:hover:text-emerald-900 cursor-pointer shadow-xs"
             onClick={() => router.push('/dashboard/fees/invoice')}
           >
             <CreditCard className="h-3.5 w-3.5 text-zinc-950 dark:text-zinc-900" /> Collect Fees
@@ -960,7 +960,7 @@ export default function DashboardUI({ user }) {
           <Button
             variant="outline"
             size="sm"
-            className="h-9 rounded-full border border-zinc-300/90 dark:border-zinc-200 bg-white dark:bg-white/50 text-xs font-bold text-zinc-950 dark:text-zinc-700 hover:bg-zinc-100 hover:border-zinc-950 hover:text-zinc-800 dark:hover:bg-zinc-200 dark:hover:text-zinc-950 cursor-pointer shadow-xs"
+            className="h-9 rounded-full border border-zinc-300/90 dark:border-zinc-200 bg-white dark:bg-white/50 text-xs font-bold text-zinc-950 dark:text-zinc-700 hover:bg-emerald-50 hover:border-emerald-400 hover:text-emerald-700 dark:hover:bg-emerald-100 dark:hover:text-emerald-900 cursor-pointer shadow-xs"
             onClick={() => router.push('/dashboard/students/attendance')}
           >
             <CheckSquare className="h-3.5 w-3.5 text-zinc-950 dark:text-zinc-900" /> Attendance
@@ -969,7 +969,7 @@ export default function DashboardUI({ user }) {
           <Button
             variant="outline"
             size="sm"
-            className="h-9 rounded-full border border-zinc-300/90 dark:border-zinc-200 bg-white dark:bg-white/50 text-xs font-bold text-zinc-950 dark:text-zinc-700 hover:bg-zinc-100 hover:border-zinc-950 hover:text-zinc-800 dark:hover:bg-zinc-200 dark:hover:text-zinc-950 cursor-pointer shadow-xs"
+            className="h-9 rounded-full border border-zinc-300/90 dark:border-zinc-200 bg-white dark:bg-white/50 text-xs font-bold text-zinc-950 dark:text-zinc-700 hover:bg-emerald-50 hover:border-emerald-400 hover:text-emerald-700 dark:hover:bg-emerald-100 dark:hover:text-emerald-900 cursor-pointer shadow-xs"
             onClick={handleOpenCreateNotice}
           >
             <Bell className="h-3.5 w-3.5 text-zinc-950 dark:text-zinc-900" /> Add Notice
@@ -978,7 +978,7 @@ export default function DashboardUI({ user }) {
           <Button
             variant="outline"
             size="sm"
-            className="h-9 rounded-full border border-zinc-300/90 dark:border-zinc-200 bg-white dark:bg-white/50 text-xs font-bold text-zinc-950 dark:text-zinc-700 hover:bg-zinc-100 hover:border-zinc-950 hover:text-zinc-800 dark:hover:bg-zinc-200 dark:hover:text-zinc-950 cursor-pointer shadow-xs"
+            className="h-9 rounded-full border border-zinc-300/90 dark:border-zinc-200 bg-white dark:bg-white/50 text-xs font-bold text-zinc-950 dark:text-zinc-700 hover:bg-emerald-50 hover:border-emerald-400 hover:text-emerald-700 dark:hover:bg-emerald-100 dark:hover:text-emerald-900 cursor-pointer shadow-xs"
             onClick={() => setIsExpenseModalOpen(true)}
           >
             <Receipt className="h-3.5 w-3.5 text-zinc-950 dark:text-zinc-900" /> Add Expense
@@ -1203,7 +1203,7 @@ export default function DashboardUI({ user }) {
               <Button 
                 size="sm" 
                 onClick={handleOpenCreateNotice}
-                className="h-7 px-2.5 bg-zinc-950 hover:bg-zinc-800 text-white font-bold text-xs rounded-md flex items-center gap-1"
+                className="h-7 px-2.5 bg-zinc-950 hover:bg-emerald-600 text-white font-bold text-xs rounded-md flex items-center gap-1"
               >
                 <Plus className="h-3.5 w-3.5" /> Add Notice
               </Button>
@@ -1508,7 +1508,7 @@ export default function DashboardUI({ user }) {
                     autoFocus
                     className="flex-1 bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-lg px-3 py-1.5 text-xs text-zinc-950 dark:text-zinc-800 font-bold placeholder-zinc-500 focus:outline-none focus:border-zinc-600"
                   />
-                  <Button size="sm" type="submit" className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold text-xs h-8 px-3">
+                  <Button size="sm" type="submit" className="bg-zinc-950 hover:bg-emerald-600 text-white font-bold text-xs h-8 px-3">
                     Add
                   </Button>
                 </form>
@@ -1626,7 +1626,7 @@ export default function DashboardUI({ user }) {
 
             <DialogFooter className="pt-2">
               <Button type="button" variant="ghost" onClick={() => setIsAdmissionModalOpen(false)} className="text-zinc-600 dark:text-zinc-600">Cancel</Button>
-              <Button type="submit" className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold">Save Student</Button>
+              <Button type="submit" className="bg-zinc-950 hover:bg-emerald-600 text-white font-bold">Save Student</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -1690,7 +1690,7 @@ export default function DashboardUI({ user }) {
             </div>
             <DialogFooter className="pt-2">
               <Button type="button" variant="ghost" onClick={() => setIsFeeModalOpen(false)} className="text-zinc-600 dark:text-zinc-600">Cancel</Button>
-              <Button type="submit" className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold">Record Payment</Button>
+              <Button type="submit" className="bg-zinc-950 hover:bg-emerald-600 text-white font-bold">Record Payment</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -1744,7 +1744,7 @@ export default function DashboardUI({ user }) {
             </div>
             <DialogFooter className="pt-2">
               <Button type="button" variant="ghost" onClick={() => setIsAttendanceModalOpen(false)} className="text-zinc-600 dark:text-zinc-600">Cancel</Button>
-              <Button type="submit" className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold">Submit Attendance</Button>
+              <Button type="submit" className="bg-zinc-950 hover:bg-emerald-600 text-white font-bold">Submit Attendance</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -1864,7 +1864,7 @@ export default function DashboardUI({ user }) {
             </div>
             <DialogFooter className="pt-2">
               <Button type="button" variant="ghost" onClick={() => setIsNoticeModalOpen(false)} className="text-zinc-600 dark:text-zinc-600">Cancel</Button>
-              <Button type="submit" className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold flex items-center gap-1.5">
+              <Button type="submit" className="bg-zinc-950 hover:bg-emerald-600 text-white font-bold flex items-center gap-1.5">
                 <Send className="h-4 w-4" />
                 {editingNotice ? 'Update Notice' : 'Publish Notice'}
               </Button>
@@ -1949,7 +1949,7 @@ export default function DashboardUI({ user }) {
             </div>
             <DialogFooter className="pt-2">
               <Button type="button" variant="ghost" onClick={() => setIsEventModalOpen(false)}>Cancel</Button>
-              <Button type="submit" className="bg-zinc-900 text-white hover:bg-zinc-800">Save Event</Button>
+              <Button type="submit" className="bg-zinc-900 text-white hover:bg-emerald-600">Save Event</Button>
             </DialogFooter>
           </form>
         </DialogContent>

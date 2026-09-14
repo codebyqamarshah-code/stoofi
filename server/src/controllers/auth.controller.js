@@ -5,8 +5,8 @@ const Staff = require('../models/Staff');
 const jwt = require('jsonwebtoken');
 
 // Helper to generate tokens
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+const generateToken = (user) => {
+  return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
     expiresIn: '1d',
   });
 };
@@ -102,7 +102,7 @@ exports.register = async (req, res, next) => {
     }
 
     // Generate token
-    const token = generateToken(user._id);
+    const token = generateToken(user);
 
     res.status(201).json({
       success: true,
@@ -190,7 +190,7 @@ exports.login = async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     // Generate token
-    const token = generateToken(user._id);
+    const token = generateToken(user);
 
     // Set cookie
     res.cookie('token', token, {

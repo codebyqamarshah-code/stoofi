@@ -164,14 +164,40 @@ export default function DashboardLayout({ children }) {
   }, []);
 
   useEffect(() => {
-    if (mounted && !isLoading && !isAuthenticated && !user) {
-      const storedToken = localStorage.getItem('token');
-      const isMock = typeof storedToken === 'string' && storedToken.startsWith('mock_');
-      if (!storedToken || isMock) {
-        router.replace('/unauthorized');
+    if (mounted && !isLoading) {
+      if (!isAuthenticated || !user) {
+        const storedToken = localStorage.getItem('token');
+        const isMock = typeof storedToken === 'string' && storedToken.startsWith('mock_');
+        if (!storedToken || isMock) {
+          router.replace('/unauthorized');
+        }
+      } else {
+        // Enforce RBAC on client side
+        const role = user.role;
+        const p = pathname;
+        
+        const isAdminRoute = p === '/dashboard/admin' || p.startsWith('/dashboard/admin/');
+        const isTeacherRoute = p === '/dashboard/teacher' || p.startsWith('/dashboard/teacher/');
+        const isStudentRoute = p === '/dashboard/student' || p.startsWith('/dashboard/student/');
+        const isParentRoute = p === '/dashboard/parent' || p.startsWith('/dashboard/parent/');
+        const isAccountantRoute = p === '/dashboard/accountant' || p.startsWith('/dashboard/accountant/');
+        
+        const isSuperAdminRoute = !isAdminRoute && !isTeacherRoute && !isStudentRoute && !isParentRoute && !isAccountantRoute;
+        
+        let allowed = true;
+        if (role === 'Super Admin' && !isSuperAdminRoute) allowed = false;
+        else if (role === 'Admin' && !isAdminRoute) allowed = false;
+        else if (role === 'Teacher' && !isTeacherRoute) allowed = false;
+        else if (role === 'Student' && !isStudentRoute) allowed = false;
+        else if (role === 'Parent' && !isParentRoute) allowed = false;
+        else if (role === 'Accountant' && !isAccountantRoute) allowed = false;
+        
+        if (!allowed) {
+          router.replace('/404');
+        }
       }
     }
-  }, [mounted, isAuthenticated, isLoading, user, router]);
+  }, [mounted, isAuthenticated, isLoading, user, router, pathname]);
 
   // Check if we have a stored token (trust persisted state immediately)
   const hasStoredSession = typeof window !== 'undefined' && Boolean(
@@ -327,7 +353,7 @@ export default function DashboardLayout({ children }) {
                             className={`w-full flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold cursor-pointer transition-all duration-200 group ${
                               isOpen 
                                 ? 'bg-zinc-100/70 dark:bg-zinc-100 text-zinc-950 dark:text-zinc-900 border border-zinc-300 dark:border-zinc-200 font-bold' 
-                                : 'text-zinc-950 dark:text-zinc-600 hover:bg-zinc-100/70 dark:hover:bg-zinc-100/80 hover:text-zinc-800 dark:hover:text-zinc-950'
+                                : 'text-zinc-950 dark:text-zinc-600 hover:bg-emerald-50 dark:hover:bg-emerald-50/50 hover:text-emerald-700 dark:hover:text-emerald-700'
                             }`}
                           >
                             <div className="flex items-center space-x-3">
@@ -365,7 +391,7 @@ export default function DashboardLayout({ children }) {
                                   className={`block rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer transition-colors ${
                                     pathname === sub.href
                                       ? 'text-zinc-800 dark:text-zinc-900 bg-zinc-200/70 dark:bg-zinc-100 font-bold border border-zinc-300/80 dark:border-zinc-200'
-                                      : 'text-zinc-950 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-950 hover:bg-zinc-100/60 dark:hover:bg-zinc-100/60'
+                                      : 'text-zinc-950 dark:text-zinc-600 hover:text-emerald-700 dark:hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-50/50'
                                   }`}
                                 >
                                   {sub.name}
@@ -395,7 +421,7 @@ export default function DashboardLayout({ children }) {
                         className={`flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold cursor-pointer transition-all duration-200 group ${
                           isItemActive
                             ? 'border border-zinc-950 dark:border-zinc-200 bg-white dark:bg-zinc-100 text-zinc-950 dark:text-zinc-900 font-bold shadow-xs'
-                            : 'text-zinc-950 dark:text-zinc-600 hover:bg-zinc-100/70 dark:hover:bg-zinc-100/80 hover:text-zinc-800 dark:hover:text-zinc-950 border border-transparent'
+                            : 'text-zinc-950 dark:text-zinc-600 hover:bg-emerald-50 dark:hover:bg-emerald-50/50 hover:text-emerald-700 dark:hover:text-emerald-700 border border-transparent'
                         }`}
                       >
                         <div className="flex items-center space-x-3">
