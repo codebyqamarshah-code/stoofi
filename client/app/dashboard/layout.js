@@ -155,8 +155,8 @@ export default function DashboardLayout({ children }) {
     // Safety timeout: if still loading after 3s, force check
     const timer = setTimeout(() => {
       const stillToken = localStorage.getItem('token');
-      if (!stillToken || stillToken.startsWith('mock_')) {
-        router.replace('/unauthorized');
+      if (!stillToken) {
+        router.replace('/404');
       }
     }, 3000);
     return () => clearTimeout(timer);
@@ -167,9 +167,8 @@ export default function DashboardLayout({ children }) {
     if (mounted && !isLoading) {
       if (!isAuthenticated || !user) {
         const storedToken = localStorage.getItem('token');
-        const isMock = typeof storedToken === 'string' && storedToken.startsWith('mock_');
-        if (!storedToken || isMock) {
-          router.replace('/unauthorized');
+        if (!storedToken) {
+          router.replace('/404');
         }
       } else {
         // Enforce RBAC on client side

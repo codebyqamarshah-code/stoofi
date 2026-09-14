@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 
 function decodeJwtRole(token) {
   if (!token) return null;
+  // If it's a mock token, we cannot decode the role from it.
+  if (token.startsWith('mock_')) return null;
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return null;
@@ -17,21 +19,27 @@ function decodeJwtRole(token) {
 
 export function middleware(request) {
   const token = request.cookies.get('token')?.value;
+  let role = request.cookies.get('userRole')?.value;
+  
+  // Fallback to JWT decode if userRole cookie is somehow missing but a real token exists
+  if (!role && token) {
+    role = decodeJwtRole(token);
+  }
+
   const pathname = request.nextUrl.pathname;
 
   // Protect /dashboard and all sub-routes
   if (pathname === '/dashboard' || pathname.startsWith('/dashboard/')) {
-    const isInvalidToken = !token || token.startsWith('mock_');
-    if (isInvalidToken) {
-      return NextResponse.redirect(new URL('/unauthorized', request.url));
+    // If no token exists at all, user is completely unauthenticated. Show 404 Not Found.
+    if (!token) {
+      return NextResponse.rewrite(new URL('/404', request.url));
     }
 
-    const role = decodeJwtRole(token);
-
-    // If role is missing in token, it means it's an old token. Force re-login for strict security.
+    // If role is missing, force re-login for strict security.
     if (!role) {
-      const response = NextResponse.redirect(new URL('/unauthorized', request.url));
+      const response = NextResponse.rewrite(new URL('/404', request.url));
       response.cookies.delete('token');
+      response.cookies.delete('userRole');
       return response;
     }
 
@@ -61,10 +69,9 @@ export function middleware(request) {
     }
   }
 
-  // If already logged in (has real token), route them properly if they hit /login
+  // If already logged in, route them properly if they hit /login
   if (pathname === '/login') {
-    if (token && !token.startsWith('mock_')) {
-      const role = decodeJwtRole(token);
+    if (token) {
       if (role === 'Admin') return NextResponse.redirect(new URL('/dashboard/admin', request.url));
       if (role === 'Teacher') return NextResponse.redirect(new URL('/dashboard/teacher', request.url));
       if (role === 'Student') return NextResponse.redirect(new URL('/dashboard/student', request.url));
