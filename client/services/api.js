@@ -81,7 +81,22 @@ api.interceptors.response.use(
       } catch(e) {}
 
       if (method === 'get') {
+        if (cleanPath === '/auth/me' || cleanPath === '/me') {
+          try {
+            const token = localStorage.getItem('token');
+            const nextRes = await fetch('/api/auth/me', {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const resData = await nextRes.json();
+            if (resData.success) return Promise.resolve(resData);
+          } catch(e) {}
+        }
         if (cleanPath === '/auth/registration-status') {
+          try {
+            const nextRes = await fetch('/api/auth/registration-status');
+            const resData = await nextRes.json();
+            if (resData.success) return Promise.resolve(resData);
+          } catch(e) {}
           let users = [];
           try {
             users = JSON.parse(localStorage.getItem('mockDB_users') || '[]');
@@ -200,73 +215,25 @@ api.interceptors.response.use(
         }
 
         if (cleanPath === '/auth/login' || cleanPath === '/login') {
-          let loginData = {};
-          if (error.config.data) {
-            try {
-              if (typeof error.config.data === 'string') {
-                loginData = JSON.parse(error.config.data);
-              } else {
-                loginData = error.config.data;
-              }
-            } catch(e) {}
-          }
-          const emailInput = (loginData.email || '').trim().toLowerCase();
-          const passwordInput = (loginData.password || '').trim();
-
-          let users = [];
-          try {
-            users = JSON.parse(localStorage.getItem('mockDB_users') || '[]');
-          } catch(e) {}
-
-          const matchedUser = users.find(u => 
-            (u.email || '').trim().toLowerCase() === emailInput || 
-            (u.username || '').trim().toLowerCase() === emailInput
-          );
-
-          if (!matchedUser) {
-            return Promise.reject({
-              response: {
-                data: {
-                  success: false,
-                  message: 'User not found. Please register first.'
-                }
-              },
-              message: 'User not found. Please register first.'
-            });
-          }
-
-          if (matchedUser.password && passwordInput !== matchedUser.password) {
-            return Promise.reject({
-              response: {
-                data: {
-                  success: false,
-                  message: 'Incorrect password.'
-                }
-              },
-              message: 'Incorrect password.'
-            });
-          }
-
-          let safeAvatar = matchedUser.picture || matchedUser.avatar || '';
-          if (typeof safeAvatar === 'string' && safeAvatar.length > 5000) safeAvatar = '';
-
-          const mockUser = {
-            _id: matchedUser._id || 'user_' + Date.now(),
-            username: matchedUser.fullName || matchedUser.username || matchedUser.email?.split('@')[0],
-            email: matchedUser.email,
-            role: matchedUser.role || 'Student',
-            avatar: safeAvatar
-          };
-
-          const tokenPayload = btoa(JSON.stringify({ id: mockUser._id, role: mockUser.role }));
-          const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${tokenPayload}.sig`;
-
-          return Promise.resolve({
-            success: true,
-            data: mockUser,
-            token,
-            message: 'Login successful!'
-          });
+           try {
+             let loginData = error.config?.data;
+             if (typeof loginData === 'string') loginData = JSON.parse(loginData);
+             const nextRes = await fetch('/api/auth/login', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify(loginData || {})
+             });
+             const resData = await nextRes.json();
+             if (!nextRes.ok || !resData.success) {
+               return Promise.reject({
+                 response: { data: { success: false, message: resData.message || 'Login failed.' } },
+                 message: resData.message || 'Login failed.'
+               });
+             }
+             return Promise.resolve(resData);
+           } catch (e) {
+             return Promise.reject(new Error(e.message || 'Backend server is unreachable.'));
+           }
         }
 
         let newData = {};
