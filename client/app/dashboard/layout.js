@@ -92,7 +92,6 @@ export default function DashboardLayout({ children }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
-  const [isInitialAppLoading, setIsInitialAppLoading] = useState(true);
 
   // Close menus when clicking outside
   useEffect(() => {
@@ -105,14 +104,6 @@ export default function DashboardLayout({ children }) {
     };
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
-
-  // Artificial Global Loader
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsInitialAppLoading(false);
-    }, 1500);
-    return () => clearTimeout(timer);
   }, []);
 
   const handleGlobalSearch = (e) => {
@@ -154,7 +145,7 @@ export default function DashboardLayout({ children }) {
   }, [mounted, isAuthenticated, isLoading, user, router, pathname]);
 
   // Loading state
-  if (!mounted || isInitialAppLoading || (isLoading && !user && !isAuthenticated)) {
+  if (!mounted || (isLoading && !user && !isAuthenticated)) {
     return (
       <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-zinc-50 dark:bg-white transition-colors duration-300">
         <div className="relative flex items-center justify-center w-32 h-32 mb-6">
