@@ -1,81 +1,145 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { 
-  BookOpen, 
-  Award, 
-  Monitor, 
-  Users, 
-  BookMarked, 
-  ListTodo, 
-  CalendarCheck, 
-  DollarSign, 
-  Star,
-  Clock,
-  ChevronLeft,
-  ChevronRight,
-  Sun,
-  MapPin,
-  CloudSun
+  BookOpen, Award, Monitor, Users, BookMarked, ListTodo,
+  CalendarCheck, DollarSign, Star, Clock, ChevronLeft,
+  ChevronRight, Sun, MapPin, Cloud, CloudRain, CloudSnow,
+  Wind, Droplets, Thermometer
 } from 'lucide-react';
+
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'GOOD MORNING';
+  if (h < 17) return 'GOOD AFTERNOON';
+  return 'GOOD EVENING';
+}
+
+function formatDate() {
+  return new Date().toLocaleDateString('en-US', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+  });
+}
+
+function getWeatherIcon(code) {
+  if (code === 0) return <Sun className="w-8 h-8 text-amber-400" />;
+  if (code <= 3) return <Cloud className="w-8 h-8 text-zinc-300" />;
+  if (code <= 67) return <CloudRain className="w-8 h-8 text-blue-300" />;
+  if (code <= 77) return <CloudSnow className="w-8 h-8 text-sky-200" />;
+  return <Wind className="w-8 h-8 text-zinc-300" />;
+}
+
+function getWeatherDesc(code) {
+  if (code === 0) return 'Clear Sky';
+  if (code <= 3) return 'Partly Cloudy';
+  if (code <= 48) return 'Foggy';
+  if (code <= 67) return 'Rainy';
+  if (code <= 77) return 'Snowy';
+  return 'Thunderstorm';
+}
 
 export default function StudentDashboardPage() {
   const { user } = useAuth();
-  const studentName = user?.fullName || user?.name || user?.username || 'Emily Johnson';
+  const studentName = user?.fullName || user?.name || user?.username || 'Student';
   const admissionNo = user?.admissionNo || 'ADM-2026-001';
-  const [currentCalendarMonth, setCurrentCalendarMonth] = useState('September 2026');
 
-  // Days in September 2026 (1 to 30)
-  const daysInMonth = Array.from({ length: 30 }, (_, i) => i + 1);
+  // Weather state
+  const [weather, setWeather] = useState(null);
+
+  useEffect(() => {
+    // Open-Meteo free API — no key needed — Lahore coords
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=31.5497&longitude=74.3436&current_weather=true&hourly=relativehumidity_2m&timezone=Asia%2FKarachi')
+      .then(r => r.json())
+      .then(d => {
+        if (d?.current_weather) {
+          setWeather({
+            temp: Math.round(d.current_weather.temperature),
+            code: d.current_weather.weathercode,
+            wind: Math.round(d.current_weather.windspeed),
+          });
+        }
+      })
+      .catch(() => setWeather({ temp: 33, code: 0, wind: 12 }));
+  }, []);
+
+  // Calendar
+  const today = new Date();
+  const [calYear, setCalYear] = useState(today.getFullYear());
+  const [calMonth, setCalMonth] = useState(today.getMonth()); // 0-indexed
+  const monthName = new Date(calYear, calMonth, 1).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const prevMonthDays = new Date(calYear, calMonth, 0).getDate();
+
+  const prevMonth = () => {
+    if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); }
+    else setCalMonth(m => m - 1);
+  };
+  const nextMonth = () => {
+    if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1); }
+    else setCalMonth(m => m + 1);
+  };
+  const goToday = () => { setCalMonth(today.getMonth()); setCalYear(today.getFullYear()); };
+
+  const statCards = [
+    { label: 'TOTAL SUBJECT', value: '0', icon: BookOpen, href: '/dashboard/student/subjects' },
+    { label: 'TOTAL EXAM', value: '0', icon: Award, href: '/dashboard/student/examinations/schedule' },
+    { label: 'TOTAL ONLINE EXAM', value: '0', icon: Monitor, href: '/dashboard/student/online-exam/active' },
+    { label: 'TOTAL TEACHERS', value: '0', icon: Users, href: '/dashboard/student/teachers' },
+    { label: 'TOTAL ISSUED BOOK', value: '0', icon: BookMarked, href: '/dashboard/student/library/issued' },
+    { label: 'PENDING HOMEWORK', value: '0', icon: ListTodo, href: '/dashboard/student/homework' },
+    { label: 'ATTENDANCE THIS MONTH', value: '0', icon: CalendarCheck, href: '/dashboard/student/attendance' },
+    { label: 'TOTAL DUE FEES', value: '$0', icon: DollarSign, href: '/dashboard/student/fees' },
+    { label: 'BEHAVIOUR POINTS', value: '0', icon: Star, href: '/dashboard/student' },
+  ];
 
   return (
     <div className="space-y-6 pb-12">
-      
-      {/* 1. TOP HEADER BANNER (Purple Gradient Theme) */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-900 p-6 sm:p-8 text-white shadow-xl">
-        <div className="absolute right-0 top-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-white/10 blur-3xl pointer-events-none"></div>
-        <div className="absolute left-1/3 bottom-0 -mb-16 h-48 w-48 rounded-full bg-purple-500/20 blur-2xl pointer-events-none"></div>
+
+      {/* ── TOP HEADER BANNER (zinc/white theme) ── */}
+      <div className="relative overflow-hidden rounded-3xl bg-zinc-900 p-6 sm:p-8 text-white shadow-xl">
+        {/* decorative blobs */}
+        <div className="absolute right-0 top-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-white/5 blur-3xl pointer-events-none" />
+        <div className="absolute left-1/3 bottom-0 -mb-16 h-48 w-48 rounded-full bg-white/5 blur-2xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6">
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider rounded-full bg-white/20 backdrop-blur-md text-white border border-white/20">
-                GOOD EVENING
+              <span className="px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider rounded-full bg-white/15 border border-white/20">
+                {getGreeting()}
               </span>
-              <span className="px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider rounded-full bg-purple-500/40 text-purple-100 border border-purple-400/30">
+              <span className="px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider rounded-full bg-zinc-700 text-zinc-200 border border-zinc-600">
                 STUDENT
               </span>
             </div>
-            
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white">
+
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white capitalize">
               {studentName}
             </h1>
 
-            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-purple-100/90">
+            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-zinc-300">
               <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-lg border border-white/10">
                 <span>Admission No:</span>
                 <span className="font-bold text-white">{admissionNo}</span>
               </div>
               <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-lg border border-white/10">
                 <Clock className="w-3.5 h-3.5" />
-                <span>Monday, 14 September 2026</span>
+                <span>{formatDate()}</span>
               </div>
             </div>
 
-            {/* Quick action buttons */}
+            {/* Quick Links */}
             <div className="pt-2 flex flex-wrap gap-2">
               {[
                 { name: 'Class Routine', href: '/dashboard/student/class-routine' },
                 { name: 'Homework', href: '/dashboard/student/homework' },
                 { name: 'Attendance', href: '/dashboard/student/attendance' },
-                { name: 'Exam Schedule', href: '/dashboard/student/examinations/schedule' }
+                { name: 'Exam Schedule', href: '/dashboard/student/examinations/schedule' },
               ].map((act, idx) => (
                 <Link key={idx} href={act.href}>
-                  <button 
-                    className="px-3.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-xs font-bold transition-all backdrop-blur-sm cursor-pointer"
-                  >
+                  <button className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-bold transition-all backdrop-blur-sm cursor-pointer">
                     {act.name}
                   </button>
                 </Link>
@@ -83,87 +147,84 @@ export default function StudentDashboardPage() {
             </div>
           </div>
 
-          {/* Weather Widget */}
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 sm:p-5 flex items-center gap-4 text-white min-w-[260px] self-stretch xl:self-auto justify-between">
-            <div>
-              <div className="flex items-center gap-1 text-xs font-semibold opacity-80">
+          {/* Live Weather Widget */}
+          <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-4 sm:p-5 flex items-center gap-5 text-white min-w-[240px]">
+            <div className="flex-1">
+              <div className="flex items-center gap-1 text-xs font-semibold opacity-75 mb-1">
                 <MapPin className="w-3.5 h-3.5" />
                 <span>Lahore, Pakistan</span>
               </div>
-              <div className="text-3xl font-black mt-1">33°C</div>
-              <div className="text-[11px] opacity-75 mt-0.5">Clear Sky</div>
+              <div className="text-4xl font-black">
+                {weather ? `${weather.temp}°C` : '...'}
+              </div>
+              <div className="text-[11px] opacity-70 mt-0.5">
+                {weather ? getWeatherDesc(weather.code) : 'Loading...'}
+              </div>
+              {weather && (
+                <div className="flex items-center gap-1 text-[10px] opacity-60 mt-1">
+                  <Wind className="w-3 h-3" />
+                  <span>{weather.wind} km/h</span>
+                </div>
+              )}
             </div>
-            <div className="p-3 bg-white/15 rounded-2xl">
-              <Sun className="w-8 h-8 text-amber-300 animate-spin-slow" />
+            <div className="p-3 bg-white/10 rounded-2xl">
+              {weather ? getWeatherIcon(weather.code) : <Sun className="w-8 h-8 text-amber-300" />}
             </div>
           </div>
         </div>
       </div>
 
-      {/* 2. STAT CARDS GRID (9 Cards) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'TOTAL SUBJECT', value: '0', icon: BookOpen, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-950/40' },
-          { label: 'TOTAL EXAM', value: '0', icon: Award, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/40' },
-          { label: 'TOTAL ONLINE EXAM', value: '0', icon: Monitor, color: 'text-pink-600', bg: 'bg-pink-50 dark:bg-pink-950/40' },
-          { label: 'TOTAL TEACHERS', value: '0', icon: Users, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950/40' },
-          { label: 'TOTAL ISSUED BOOK', value: '0', icon: BookMarked, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-950/40' },
-          { label: 'TOTAL PENDING HOMEWORK', value: '0', icon: ListTodo, color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-950/40' },
-          { label: 'TOTAL ATTENDANCE IN CURRENT MONTH', value: '0', icon: CalendarCheck, color: 'text-rose-600', bg: 'bg-rose-50 dark:bg-rose-950/40' },
-          { label: 'TOTAL DUE FEES', value: '$0', icon: DollarSign, color: 'text-teal-600', bg: 'bg-teal-50 dark:bg-teal-950/40' },
-          { label: 'TOTAL BEHAVIOUR POINT', value: '0', icon: Star, color: 'text-violet-600', bg: 'bg-violet-50 dark:bg-violet-950/40' },
-        ].map((card, idx) => {
+      {/* ── STAT CARDS ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        {statCards.map((card, idx) => {
           const IconComp = card.icon;
           return (
-            <div key={idx} className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all flex items-center gap-4">
-              <div className={`p-3 rounded-2xl ${card.bg} ${card.color}`}>
-                <IconComp className="w-6 h-6" />
+            <Link key={idx} href={card.href}>
+              <div className="bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-4 cursor-pointer group">
+                <div className="p-3 rounded-2xl bg-zinc-100 group-hover:bg-zinc-900 transition-colors">
+                  <IconComp className="w-5 h-5 text-zinc-700 group-hover:text-white transition-colors" />
+                </div>
+                <div>
+                  <div className="text-2xl font-black text-zinc-900">{card.value}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 leading-tight">{card.label}</div>
+                </div>
               </div>
-              <div>
-                <div className="text-2xl font-black text-zinc-900 dark:text-zinc-900">{card.value}</div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">{card.label}</div>
-              </div>
-            </div>
+            </Link>
           );
         })}
       </div>
 
-      {/* 3. CLASS ROUTINE SECTION */}
-      <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-2xl p-6 shadow-sm space-y-4">
-        <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900">Class Routine</h2>
+      {/* ── CLASS ROUTINE ── */}
+      <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-bold text-zinc-900">Class Routine</h2>
+          <Link href="/dashboard/student/class-routine" className="text-xs font-semibold text-zinc-500 hover:text-zinc-900 transition-colors">View All →</Link>
+        </div>
         <div className="p-8 text-center border-2 border-dashed border-zinc-200 rounded-xl bg-zinc-50/50">
-          <Clock className="w-8 h-8 text-zinc-400 mx-auto mb-2 opacity-50" />
-          <p className="text-sm font-semibold text-zinc-600">No Routine Schedule Available</p>
+          <Clock className="w-8 h-8 text-zinc-300 mx-auto mb-2" />
+          <p className="text-sm font-semibold text-zinc-500">No Routine Schedule Available</p>
           <p className="text-xs text-zinc-400 mt-1">Your class routine will appear here once assigned by the administrator.</p>
         </div>
       </div>
 
-      {/* 4. MONTHLY ATTENDANCE REPORT (SEPTEMBER) */}
-      <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-2xl p-6 shadow-sm space-y-4">
+      {/* ── MONTHLY ATTENDANCE ── */}
+      <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-100 pb-3">
-          <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900">Monthly Attendance Report (September)</h2>
+          <h2 className="text-base font-bold text-zinc-900">Monthly Attendance Report</h2>
           <div className="flex items-center gap-3 text-xs font-semibold text-zinc-600">
             <span>Present: <strong className="text-emerald-600">P (0)</strong></span>
             <span>Late: <strong className="text-amber-600">L (0)</strong></span>
             <span>Absent: <strong className="text-rose-600">A (0)</strong></span>
-            <span>Half Days: <strong className="text-purple-600">F (0)</strong></span>
+            <span>Half: <strong className="text-zinc-500">F (0)</strong></span>
             <span>Holiday: <strong className="text-blue-600">H (0)</strong></span>
           </div>
         </div>
-
-        {/* Days Table Grid */}
         <div className="overflow-x-auto">
-          <table className="w-full text-center text-xs border border-zinc-200">
+          <table className="w-full text-center text-xs border border-zinc-200 rounded-xl overflow-hidden">
             <thead className="bg-zinc-50 text-zinc-600 font-bold border-b border-zinc-200">
               <tr>
-                <th className="py-2 px-1 border-r">P</th>
-                <th className="py-2 px-1 border-r">L</th>
-                <th className="py-2 px-1 border-r">A</th>
-                <th className="py-2 px-1 border-r">F</th>
-                <th className="py-2 px-1 border-r">H</th>
-                <th className="py-2 px-1 border-r">%</th>
-                {daysInMonth.map(d => (
-                  <th key={d} className="py-2 px-1 border-r min-w-[28px]">{d}</th>
+                {['P','L','A','F','H','%',...Array.from({length: daysInMonth},(_,i)=>i+1)].map((h,i) => (
+                  <th key={i} className="py-2 px-1 border-r border-zinc-200 min-w-[28px]">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -172,11 +233,11 @@ export default function StudentDashboardPage() {
                 <td className="py-2.5 px-1 border-r font-bold text-emerald-600">0</td>
                 <td className="py-2.5 px-1 border-r font-bold text-amber-600">0</td>
                 <td className="py-2.5 px-1 border-r font-bold text-rose-600">0</td>
-                <td className="py-2.5 px-1 border-r font-bold text-purple-600">0</td>
+                <td className="py-2.5 px-1 border-r font-bold text-zinc-500">0</td>
                 <td className="py-2.5 px-1 border-r font-bold text-blue-600">0</td>
                 <td className="py-2.5 px-1 border-r font-bold text-zinc-900">100%</td>
-                {daysInMonth.map(d => (
-                  <td key={d} className="py-2.5 px-1 border-r text-zinc-400 font-medium">-</td>
+                {Array.from({length: daysInMonth}).map((_,i) => (
+                  <td key={i} className="py-2.5 px-1 border-r text-zinc-300 font-medium">-</td>
                 ))}
               </tr>
             </tbody>
@@ -184,200 +245,111 @@ export default function StudentDashboardPage() {
         </div>
       </div>
 
-      {/* 5. MONTHLY SUBJECT ATTENDANCE REPORT (SEPTEMBER) */}
-      <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-2xl p-6 shadow-sm space-y-4">
-        <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900">Monthly Subject Attendance Report (September)</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-center text-xs border border-zinc-200">
-            <thead className="bg-zinc-50 text-zinc-600 font-bold border-b border-zinc-200">
-              <tr>
-                <th className="py-2 px-2 border-r text-left">Subject Name</th>
-                <th className="py-2 px-2 border-r">Admission No</th>
-                <th className="py-2 px-1 border-r">P</th>
-                <th className="py-2 px-1 border-r">L</th>
-                <th className="py-2 px-1 border-r">A</th>
-                <th className="py-2 px-1 border-r">F</th>
-                <th className="py-2 px-1 border-r">H</th>
-                <th className="py-2 px-1 border-r">%</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td colSpan={8} className="py-6 text-center text-zinc-400 font-medium">
-                  No Subject Attendance Data Recorded
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* 6. FEES & EXAM ROUTINE (TWO COLUMNS) */}
+      {/* ── FEES & EXAM ROUTINE ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Fees */}
-        <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-2xl p-6 shadow-sm space-y-4">
-          <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900">Fees</h2>
+        <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-bold text-zinc-900">Fees</h2>
+            <Link href="/dashboard/student/fees" className="text-xs font-semibold text-zinc-500 hover:text-zinc-900">View →</Link>
+          </div>
           <div className="p-6 text-center border-2 border-dashed border-zinc-200 rounded-xl bg-zinc-50/50">
-            <p className="text-sm font-semibold text-zinc-600">No Due Fees Found</p>
-            <p className="text-xs text-zinc-400 mt-1">All your tuition and fee dues are cleared.</p>
+            <p className="text-sm font-semibold text-zinc-500">No Due Fees Found</p>
+            <p className="text-xs text-zinc-400 mt-1">All your fee dues are cleared.</p>
           </div>
         </div>
-
-        {/* Exam Routine */}
-        <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-2xl p-6 shadow-sm space-y-4">
-          <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900">Exam Routine</h2>
+        <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-bold text-zinc-900">Exam Routine</h2>
+            <Link href="/dashboard/student/examinations/schedule" className="text-xs font-semibold text-zinc-500 hover:text-zinc-900">View →</Link>
+          </div>
           <div className="p-6 text-center border-2 border-dashed border-zinc-200 rounded-xl bg-zinc-50/50">
-            <p className="text-sm font-semibold text-zinc-600">No Exam Routine Published</p>
+            <p className="text-sm font-semibold text-zinc-500">No Exam Routine Published</p>
             <p className="text-xs text-zinc-400 mt-1">Upcoming test schedules will appear here.</p>
           </div>
         </div>
       </div>
 
-      {/* 7. TEACHERS LIST & LEAVE TYPES */}
+      {/* ── TEACHERS & LEAVE ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Teachers List */}
-        <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-2xl p-6 shadow-sm space-y-4">
-          <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900">Teachers List</h2>
+        <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm space-y-4">
+          <h2 className="text-base font-bold text-zinc-900">Teachers List</h2>
           <div className="p-6 text-center border-2 border-dashed border-zinc-200 rounded-xl bg-zinc-50/50">
-            <p className="text-sm font-semibold text-zinc-600">No Assigned Teachers Found</p>
+            <p className="text-sm font-semibold text-zinc-500">No Assigned Teachers Found</p>
           </div>
         </div>
-
-        {/* Leave Types */}
-        <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-2xl p-6 shadow-sm space-y-4">
-          <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900">Leave Types</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
-              <thead className="bg-zinc-50 text-zinc-600 font-bold border-b border-zinc-200">
-                <tr>
-                  <th className="py-2.5 px-3">TYPE</th>
-                  <th className="py-2.5 px-3">REMAINING DAYS</th>
-                  <th className="py-2.5 px-3">EXTRA TAKEN</th>
-                  <th className="py-2.5 px-3">LEAVE TAKEN</th>
-                  <th className="py-2.5 px-3">LEAVE DAYS</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-100">
-                {[
-                  { type: 'Casual Leave', rem: 12, extra: 0, taken: 0, total: 12 },
-                  { type: 'Sick Leave', rem: 10, extra: 0, taken: 0, total: 10 }
-                ].map((l, i) => (
-                  <tr key={i} className="hover:bg-zinc-50">
-                    <td className="py-2.5 px-3 font-semibold text-zinc-900">{l.type}</td>
-                    <td className="py-2.5 px-3 text-emerald-600 font-bold">{l.rem}</td>
-                    <td className="py-2.5 px-3 text-zinc-500">{l.extra}</td>
-                    <td className="py-2.5 px-3 text-zinc-500">{l.taken}</td>
-                    <td className="py-2.5 px-3 text-zinc-700 font-bold">{l.total}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      {/* 8. COMPLAINT LIST */}
-      <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-2xl p-6 shadow-sm space-y-4">
-        <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900">Complaint List</h2>
-        <div className="overflow-x-auto">
+        <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm space-y-4">
+          <h2 className="text-base font-bold text-zinc-900">Leave Types</h2>
           <table className="w-full text-xs text-left">
             <thead className="bg-zinc-50 text-zinc-600 font-bold border-b border-zinc-200">
               <tr>
-                <th className="py-2.5 px-3">SL</th>
-                <th className="py-2.5 px-3">COMPLAINT BY</th>
-                <th className="py-2.5 px-3">COMPLAINT TYPE</th>
-                <th className="py-2.5 px-3">SOURCE</th>
-                <th className="py-2.5 px-3">PHONE</th>
-                <th className="py-2.5 px-3">DATE</th>
+                {['TYPE','REMAINING','EXTRA','TAKEN','TOTAL'].map(h => (
+                  <th key={h} className="py-2.5 px-3">{h}</th>
+                ))}
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td colSpan={6} className="py-6 text-center text-zinc-400 font-medium">
-                  No Complaints Found
-                </td>
-              </tr>
+            <tbody className="divide-y divide-zinc-100">
+              {[{type:'Casual Leave',rem:12,extra:0,taken:0,total:12},{type:'Sick Leave',rem:10,extra:0,taken:0,total:10}].map((l,i) => (
+                <tr key={i} className="hover:bg-zinc-50">
+                  <td className="py-2.5 px-3 font-semibold text-zinc-900">{l.type}</td>
+                  <td className="py-2.5 px-3 text-emerald-600 font-bold">{l.rem}</td>
+                  <td className="py-2.5 px-3 text-zinc-500">{l.extra}</td>
+                  <td className="py-2.5 px-3 text-zinc-500">{l.taken}</td>
+                  <td className="py-2.5 px-3 text-zinc-900 font-bold">{l.total}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* 9. FULL CALENDAR WIDGET */}
-      <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-2xl p-6 shadow-sm space-y-6">
+      {/* ── FULL CALENDAR ── */}
+      <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-100 pb-4">
           <div className="flex items-center gap-2">
-            <button className="p-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 text-zinc-700">
+            <button onClick={prevMonth} className="p-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 text-zinc-700">
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <button className="p-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 text-zinc-700">
+            <button onClick={nextMonth} className="p-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 text-zinc-700">
               <ChevronRight className="w-4 h-4" />
             </button>
-            <button className="px-3 py-1 rounded-lg bg-indigo-600 text-white font-bold text-xs">
-              Today
-            </button>
-            <span className="text-lg font-black text-zinc-900 ml-2">{currentCalendarMonth}</span>
+            <button onClick={goToday} className="px-3 py-1 rounded-lg bg-zinc-900 text-white font-bold text-xs">Today</button>
+            <span className="text-lg font-black text-zinc-900 ml-2">{monthName}</span>
           </div>
-
           <div className="flex items-center gap-1 bg-zinc-100 p-1 rounded-xl">
             {['Month', 'Week', 'Day', 'List'].map((mode, i) => (
-              <button 
-                key={i} 
-                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${i === 0 ? 'bg-indigo-600 text-white shadow-sm' : 'text-zinc-600 hover:text-zinc-900'}`}
-              >
+              <button key={i} className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${i === 0 ? 'bg-zinc-900 text-white shadow-sm' : 'text-zinc-600 hover:text-zinc-900'}`}>
                 {mode}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Calendar Grid Header */}
         <div className="grid grid-cols-7 gap-1 text-center text-xs font-extrabold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-100">
-          <div>SUN</div>
-          <div>MON</div>
-          <div>TUE</div>
-          <div>WED</div>
-          <div>THU</div>
-          <div>FRI</div>
-          <div>SAT</div>
+          {['SUN','MON','TUE','WED','THU','FRI','SAT'].map(d => <div key={d}>{d}</div>)}
         </div>
 
-        {/* Calendar Days Grid */}
-        <div className="grid grid-cols-7 gap-2 min-h-[360px]">
-          {/* Previous month trailing days */}
-          <div className="p-2 border border-zinc-100 rounded-xl bg-zinc-50/40 text-xs font-semibold text-zinc-300">30</div>
-          <div className="p-2 border border-zinc-100 rounded-xl bg-zinc-50/40 text-xs font-semibold text-zinc-300">31</div>
-          
-          {/* Active days */}
-          <div className="p-2 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700">1</div>
-          <div className="p-2 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700">
-            <span>2</span>
-            <div className="mt-2 p-1 text-[10px] font-bold rounded bg-rose-700 text-white truncate">Event-assad</div>
-          </div>
-          <div className="p-2 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700">3</div>
-          <div className="p-2 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700">
-            <span>4</span>
-            <div className="mt-2 p-1 text-[10px] font-bold rounded bg-cyan-500 text-white truncate">Notice Board-Test</div>
-          </div>
-          <div className="p-2 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700">5</div>
-          <div className="p-2 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700">6</div>
-          <div className="p-2 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700">7</div>
-          <div className="p-2 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700">
-            <span>8</span>
-            <div className="mt-2 p-1 text-[10px] font-bold rounded bg-cyan-400 text-white truncate">Notice Board-T-+-Notice</div>
-          </div>
-          <div className="p-2 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700">9</div>
-          <div className="p-2 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700">10</div>
-          <div className="p-2 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700">11</div>
-          <div className="p-2 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700">12</div>
-          <div className="p-2 border border-purple-500 bg-purple-600 text-white rounded-xl text-xs font-bold shadow-md">
-            <span>14</span>
-            <div className="mt-1 text-[10px] font-semibold opacity-90">Today</div>
-          </div>
-          {Array.from({ length: 16 }, (_, i) => 15 + i).map(day => (
-            <div key={day} className="p-2 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700">
-              {day}
+        <div className="grid grid-cols-7 gap-1.5">
+          {/* Trailing days from previous month */}
+          {Array.from({length: firstDay}, (_,i) => (
+            <div key={`prev-${i}`} className="p-2 border border-zinc-100 rounded-xl bg-zinc-50/30 text-xs font-semibold text-zinc-300 min-h-[44px]">
+              {prevMonthDays - firstDay + i + 1}
             </div>
           ))}
+          {/* Current month days */}
+          {Array.from({length: daysInMonth}, (_,i) => {
+            const day = i + 1;
+            const isToday = day === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear();
+            return (
+              <div key={day} className={`p-2 border rounded-xl text-xs font-bold min-h-[44px] transition-all ${
+                isToday
+                  ? 'border-zinc-900 bg-zinc-900 text-white shadow-md'
+                  : 'border-zinc-200 text-zinc-700 hover:bg-zinc-50'
+              }`}>
+                <span>{day}</span>
+                {isToday && <div className="mt-1 text-[9px] font-semibold opacity-75">Today</div>}
+              </div>
+            );
+          })}
         </div>
       </div>
 
