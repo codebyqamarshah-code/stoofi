@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
@@ -123,26 +123,44 @@ export default function DashboardLayout({ children }) {
     checkAuth();
   }, []);
 
-  useEffect(() => {
-    if (mounted && !isLoading) {
-      const storedToken =
-        (typeof window !== 'undefined' && (
-          sessionStorage.getItem('token') ||
-          localStorage.getItem('token') ||
-          (() => {
-            try {
-              const raw = sessionStorage.getItem('auth-storage') || localStorage.getItem('auth-storage');
-              if (raw) return JSON.parse(raw)?.state?.token || '';
-            } catch (e) {}
-            return '';
-          })()
-        )) || '';
+  // Guard ref so we only ever redirect once — prevents the 1-second bounce loop
+  const redirectedRef = useRef(false);
 
-      if (!storedToken && !user && !isAuthenticated) {
-        router.replace('/login');
-      }
+  useEffect(() => {
+    // Only run after mount and after auth has finished loading
+    if (!mounted || isLoading) return;
+    // If already redirected, don't fire again
+    if (redirectedRef.current) return;
+
+    const storedToken =
+      (typeof window !== 'undefined' && (
+        sessionStorage.getItem('token') ||
+        localStorage.getItem('token') ||
+        (() => {
+          try {
+            const raw = sessionStorage.getItem('auth-storage') || localStorage.getItem('auth-storage');
+            if (raw) return JSON.parse(raw)?.state?.token || '';
+          } catch (e) {}
+          return '';
+        })() ||
+        (() => {
+          try {
+            const match = document.cookie.match(new RegExp('(^| )token=([^;]+)'));
+            return match ? match[2] : '';
+          } catch (e) {}
+          return '';
+        })()
+      )) || '';
+
+    if (!storedToken && !user && !isAuthenticated) {
+      redirectedRef.current = true;
+      router.replace('/login');
     }
-  }, [mounted, isAuthenticated, isLoading, user, router, pathname]);
+    // NOTE: `pathname` is intentionally NOT in the deps array.
+    // Adding it would re-run this check on every internal navigation,
+    // causing a race condition where Zustand's brief re-hydration
+    // shows isAuthenticated=false and triggers a spurious /login redirect.
+  }, [mounted, isAuthenticated, isLoading, user, router]);
 
   // Loading state
   if (!mounted || (isLoading && !user && !isAuthenticated)) {
