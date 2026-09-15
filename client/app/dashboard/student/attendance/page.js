@@ -1,7 +1,14 @@
 'use client';
-import EmptyPage from '@/components/EmptyPage';
-import { CheckSquare } from 'lucide-react';
+import StudentDataTable from '@/components/student/StudentDataTable';
 
-export default function StudentAttendancePage() {
-  return <EmptyPage title="Student Attendance" description="Detailed monthly and subject-wise attendance logs." icon={CheckSquare} />;
+export default function Page() {
+  return (
+    <StudentDataTable 
+      title="Attendance Record"
+      breadcrumb={['Attendance']}
+      columns={['Date', 'Status', 'Remarks']}
+      showClassFilter={True}
+      data={[]} 
+    />
+  );
 }

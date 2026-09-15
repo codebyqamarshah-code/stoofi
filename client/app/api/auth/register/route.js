@@ -24,7 +24,13 @@ export async function POST(req) {
       studentClass,
       section,
       cnic,
-      picture
+      picture,
+      // Teacher specific
+      assignedClass,
+      assignedSection,
+      teacherSubjects,
+      // Student specific
+      studentSubjects
     } = body;
 
     if (!email || !password) {
@@ -113,7 +119,8 @@ export async function POST(req) {
         academicYear: `${new Date().getFullYear()} [Jan-Dec]`,
         admissionNo: 'ADM-' + Date.now(),
         gender: 'Male',
-        studentPhoto: picture || ''
+        studentPhoto: picture || '',
+        subjects: Array.isArray(studentSubjects) ? studentSubjects : []
       });
       referenceId = student._id;
     } else if (finalRole === 'Teacher') {
@@ -126,7 +133,10 @@ export async function POST(req) {
         joiningDate: joiningDate || Date.now(),
         cnic: cnic || '',
         avatar: picture || '',
-        gender: 'Male'
+        gender: 'Male',
+        assignedClass: assignedClass || '',
+        assignedSection: assignedSection || '',
+        subjects: Array.isArray(teacherSubjects) ? teacherSubjects : []
       });
       referenceId = teacher._id;
     } else if (roleModel === 'Staff') {

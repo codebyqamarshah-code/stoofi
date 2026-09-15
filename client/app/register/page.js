@@ -69,8 +69,16 @@ export default function RegisterPage() {
     studentClass: '',
     section: '',
     cnic: '',
-    picture: null
+    picture: null,
+    // Teacher fields
+    assignedClass: '',
+    assignedSection: '',
+    teacherSubjects: [],
+    // Student fields
+    studentSubjects: []
   });
+
+  const [subjectInput, setSubjectInput] = useState(''); // for adding subjects one by one
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -88,8 +96,29 @@ export default function RegisterPage() {
       joiningDate: '',
       address: '',
       fatherName: '',
-      dob: ''
+      dob: '',
+      assignedClass: '',
+      assignedSection: '',
+      teacherSubjects: [],
+      studentSubjects: []
     }));
+    setSubjectInput('');
+  };
+
+  const addSubject = () => {
+    const trimmed = subjectInput.trim();
+    if (!trimmed) return;
+    const field = role === 'Teacher' ? 'teacherSubjects' : 'studentSubjects';
+    setFormData(prev => ({
+      ...prev,
+      [field]: prev[field].includes(trimmed) ? prev[field] : [...prev[field], trimmed]
+    }));
+    setSubjectInput('');
+  };
+
+  const removeSubject = (subj) => {
+    const field = role === 'Teacher' ? 'teacherSubjects' : 'studentSubjects';
+    setFormData(prev => ({ ...prev, [field]: prev[field].filter(s => s !== subj) }));
   };
 
   const onSubmit = async (e) => {
@@ -310,6 +339,63 @@ export default function RegisterPage() {
                     </select>
                   </div>
                 </>
+              )}
+
+              {/* Teacher — Assigned Class & Section */}
+              {role === 'Teacher' && (
+                <>
+                  <div>
+                    <label className={labelClass}>Assigned Class</label>
+                    <select name="assignedClass" required value={formData.assignedClass} onChange={handleChange} className={inputClass}>
+                      <option value="">Select Class</option>
+                      {['1','2','3','4','5','6','7','8','9','10'].map(c => <option key={c} value={c}>Class {c}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Assigned Section</label>
+                    <select name="assignedSection" required value={formData.assignedSection} onChange={handleChange} className={inputClass}>
+                      <option value="">Select Section</option>
+                      {['A','B','C','D'].map(s => <option key={s} value={s}>Section {s}</option>)}
+                    </select>
+                  </div>
+                </>
+              )}
+
+              {/* Subjects (for both Teacher and Student) */}
+              {(role === 'Teacher' || role === 'Student') && (
+                <div className="sm:col-span-2">
+                  <label className={labelClass}>
+                    {role === 'Teacher' ? 'Subjects You Teach' : 'Subjects Enrolled In'}
+                  </label>
+                  <div className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={subjectInput}
+                      onChange={e => setSubjectInput(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSubject(); } }}
+                      className={inputClass}
+                      placeholder="e.g. Mathematics, Science, English..."
+                    />
+                    <button
+                      type="button"
+                      onClick={addSubject}
+                      className="px-4 py-2 bg-zinc-900 text-white text-sm font-bold rounded-xl hover:bg-zinc-700 transition-all whitespace-nowrap"
+                    >
+                      + Add
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {(role === 'Teacher' ? formData.teacherSubjects : formData.studentSubjects).map((subj, i) => (
+                      <span key={i} className="flex items-center gap-1 px-3 py-1 bg-zinc-100 border border-zinc-200 text-zinc-800 text-xs font-bold rounded-full">
+                        {subj}
+                        <button type="button" onClick={() => removeSubject(subj)} className="ml-1 text-zinc-400 hover:text-red-500 font-black text-base leading-none">×</button>
+                      </span>
+                    ))}
+                    {(role === 'Teacher' ? formData.teacherSubjects : formData.studentSubjects).length === 0 && (
+                      <span className="text-xs text-zinc-400 italic">No subjects added yet. Type and press + Add.</span>
+                    )}
+                  </div>
+                </div>
               )}
 
               {/* Photo Upload */}

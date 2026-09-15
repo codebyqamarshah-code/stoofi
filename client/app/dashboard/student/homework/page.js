@@ -1,7 +1,14 @@
 'use client';
-import EmptyPage from '@/components/EmptyPage';
-import { ListTodo } from 'lucide-react';
+import StudentDataTable from '@/components/student/StudentDataTable';
 
-export default function StudentHomeworkPage() {
-  return <EmptyPage title="Homework List" description="Track your assigned homework, submission deadlines, and evaluation feedback." icon={ListTodo} />;
+export default function Page() {
+  return (
+    <StudentDataTable 
+      title="Pending Homework"
+      breadcrumb={['Homework']}
+      columns={['Subject', 'Topic', 'Deadline', 'Status']}
+      showClassFilter={True}
+      data={[]} 
+    />
+  );
 }

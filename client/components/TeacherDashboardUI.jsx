@@ -706,6 +706,26 @@ export default function DashboardUI({ user }) {
                 <CalendarDays className="h-4 w-4 text-zinc-950 dark:text-zinc-600" /> {formattedToday}
               </span>
             </div>
+            {/* Assigned Class / Section Badge */}
+            {(user?.assignedClass || user?.assignedSection) && (
+              <div className="flex flex-wrap gap-2 mt-1">
+                {user?.assignedClass && (
+                  <span className="px-3 py-1 bg-zinc-900 text-white text-xs font-bold rounded-full">
+                    📚 Class {user.assignedClass}
+                  </span>
+                )}
+                {user?.assignedSection && (
+                  <span className="px-3 py-1 bg-zinc-700 text-white text-xs font-bold rounded-full">
+                    🔖 Section {user.assignedSection}
+                  </span>
+                )}
+                {user?.subjects?.length > 0 && (
+                  <span className="px-3 py-1 bg-zinc-500 text-white text-xs font-bold rounded-full">
+                    ✏️ {user.subjects.length} Subject{user.subjects.length > 1 ? 's' : ''}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Real Weather Widget for Lahore */}

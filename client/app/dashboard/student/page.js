@@ -85,7 +85,7 @@ export default function StudentDashboardPage() {
   const goToday = () => { setCalMonth(today.getMonth()); setCalYear(today.getFullYear()); };
 
   const statCards = [
-    { label: 'TOTAL SUBJECT', value: '0', icon: BookOpen, href: '/dashboard/student/subjects' },
+    { label: 'TOTAL SUBJECT', value: user?.subjects?.length || '0', icon: BookOpen, href: '/dashboard/student/subjects' },
     { label: 'TOTAL EXAM', value: '0', icon: Award, href: '/dashboard/student/examinations/schedule' },
     { label: 'TOTAL ONLINE EXAM', value: '0', icon: Monitor, href: '/dashboard/student/online-exam/active' },
     { label: 'TOTAL TEACHERS', value: '0', icon: Users, href: '/dashboard/student/teachers' },

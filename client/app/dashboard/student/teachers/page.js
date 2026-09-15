@@ -1,7 +1,14 @@
 'use client';
-import EmptyPage from '@/components/EmptyPage';
-import { Users } from 'lucide-react';
+import StudentDataTable from '@/components/student/StudentDataTable';
 
-export default function StudentTeachersPage() {
-  return <EmptyPage title="Assigned Teachers" description="View contact and department details of your class teachers." icon={Users} />;
+export default function Page() {
+  return (
+    <StudentDataTable 
+      title="Teachers Directory"
+      breadcrumb={['Teachers']}
+      columns={['Teacher Name', 'Department', 'Phone', 'Email']}
+      showClassFilter={True}
+      data={[]} 
+    />
+  );
 }

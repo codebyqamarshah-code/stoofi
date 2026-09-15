@@ -85,7 +85,8 @@ const studentSchema = new mongoose.Schema({
   permanentAddress: { type: String },
   academicYear: { type: String, default: '2026 [Jan-Dec]' },
   studentPhoto: { type: String },
-  status: { type: String, default: 'Active' }
+  status: { type: String, default: 'Active' },
+  subjects: [{ type: String }]
 }, { timestamps: true });
 
 export const Student = mongoose.models.Student || mongoose.model('Student', studentSchema);
@@ -116,7 +117,12 @@ const teacherSchema = new mongoose.Schema({
   joiningDate: { type: Date, default: Date.now },
   cnic: { type: String },
   avatar: { type: String },
-  gender: { type: String, default: 'Male' }
+  gender: { type: String, default: 'Male' },
+  // Class assignment
+  assignedClass: { type: String, default: '' },
+  assignedSection: { type: String, default: '' },
+  subjects: [{ type: String }]
 }, { timestamps: true });
 
 export const Teacher = mongoose.models.Teacher || mongoose.model('Teacher', teacherSchema);
+

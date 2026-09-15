@@ -60,6 +60,35 @@ export async function POST(req) {
       { expiresIn: '1d' }
     );
 
+    // Fetch role-specific profile data
+    let profileData = {};
+    try {
+      if (user.role === 'Teacher' && user.referenceId) {
+        const { Teacher } = await import('@/lib/models');
+        const teacher = await Teacher.findById(user.referenceId);
+        if (teacher) {
+          profileData = {
+            assignedClass: teacher.assignedClass || '',
+            assignedSection: teacher.assignedSection || '',
+            subjects: teacher.subjects || []
+          };
+        }
+      } else if (user.role === 'Student' && user.referenceId) {
+        const { Student } = await import('@/lib/models');
+        const student = await Student.findById(user.referenceId);
+        if (student) {
+          profileData = {
+            className: student.className || '',
+            section: student.section || '',
+            admissionNo: student.admissionNo || '',
+            subjects: student.subjects || []
+          };
+        }
+      }
+    } catch (profileErr) {
+      console.error('Profile fetch error:', profileErr);
+    }
+
     const response = NextResponse.json({
       success: true,
       message: 'Login successful!',
@@ -70,7 +99,9 @@ export async function POST(req) {
         username: user.username,
         email: user.email,
         role: user.role,
-        avatar: user.avatar || ''
+        avatar: user.avatar || '',
+        referenceId: user.referenceId || null,
+        ...profileData
       },
       token
     }, { status: 200 });
