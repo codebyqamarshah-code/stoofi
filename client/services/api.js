@@ -10,26 +10,30 @@ const api = axios.create({
   },
 });
 
-// Attach Auth Token from localStorage & dynamic baseURL for production/live
+// Attach Auth Token from sessionStorage/localStorage & dynamic baseURL for production/live
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
     if (!process.env.NEXT_PUBLIC_API_URL && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
       config.baseURL = window.location.origin + '/api';
     }
 
-    try {
-      const raw = localStorage.getItem('auth-storage');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        const token = parsed?.state?.token;
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-          return config;
+    let token = sessionStorage.getItem('token') || localStorage.getItem('token');
+    
+    if (!token) {
+      try {
+        const raw = sessionStorage.getItem('auth-storage') || localStorage.getItem('auth-storage');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          token = parsed?.state?.token;
         }
-      }
-    } catch (_) {}
+      } catch (_) {}
+    }
 
-    const token = localStorage.getItem('token');
+    if (!token) {
+      const match = document.cookie.match(new RegExp('(^| )token=([^;]+)'));
+      if (match) token = match[2];
+    }
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -295,15 +299,18 @@ api.interceptors.response.use(
     // 401 Unauthorized handling
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined' && window.location.pathname !== '/login' && window.location.pathname !== '/') {
-        const storedToken = localStorage.getItem('token');
+        const storedToken = sessionStorage.getItem('token') || localStorage.getItem('token');
         if (storedToken && storedToken.startsWith('mock_')) {
           if (fallback !== undefined) {
             return Promise.resolve({ success: true, data: fallback, message: 'Demo mode fallback' });
           }
           return Promise.resolve({ success: true, data: [], message: 'Demo mode fallback' });
         }
+        sessionStorage.removeItem('auth-storage');
+        sessionStorage.removeItem('token');
         localStorage.removeItem('auth-storage');
         localStorage.removeItem('token');
+        document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         window.location.href = '/login';
         return new Promise(() => {});
       }
