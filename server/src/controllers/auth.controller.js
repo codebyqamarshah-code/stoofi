@@ -50,16 +50,15 @@ exports.register = async (req, res, next) => {
       }
     }
 
-    // Determine the role model based on the role
     let roleModel = undefined;
     if (finalRole === 'Student') roleModel = 'Student';
     else if (finalRole === 'Teacher') roleModel = 'Teacher';
     else if (finalRole === 'Parent') roleModel = 'Parent';
-    else if (['Accountant', 'Librarian', 'Staff'].includes(finalRole)) roleModel = 'Staff';
+    else if (['Accountant', 'Librarian', 'Staff', 'Super Admin', 'Admin'].includes(finalRole)) roleModel = 'Staff';
 
     // Create user
     const user = await User.create({
-      username: username || (fullName || '').split(' ')[0] || email.split('@')[0],
+      username: username || `${(fullName || '').split(' ')[0]}_${Date.now().toString().slice(-4)}` || email.split('@')[0],
       email,
       password,
       role: finalRole,
