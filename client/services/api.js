@@ -47,7 +47,7 @@ api.interceptors.response.use(
   (response) => {
     return response.data;
   },
-  (error) => {
+  async (error) => {
     const url = error.config?.url || '';
     const cleanPath = url.split('?')[0];
     const fallback = endpointMockMap[cleanPath];
@@ -181,7 +181,22 @@ api.interceptors.response.use(
 
       if (method === 'post') {
         if (cleanPath === '/auth/register' || cleanPath === '/register') {
-           return Promise.reject(new Error('Backend server is unreachable. Registration requires a live MongoDB connection. Please ensure your backend server is running and NEXT_PUBLIC_API_URL is correct.'));
+           try {
+             let payload = error.config?.data;
+             if (typeof payload === 'string') payload = JSON.parse(payload);
+             const nextRes = await fetch('/api/auth/register', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify(payload || {})
+             });
+             const resData = await nextRes.json();
+             if (!nextRes.ok || !resData.success) {
+               return Promise.reject(new Error(resData.message || 'Registration failed.'));
+             }
+             return Promise.resolve(resData);
+           } catch (e) {
+             return Promise.reject(new Error(e.message || 'Backend server is unreachable.'));
+           }
         }
 
         if (cleanPath === '/auth/login' || cleanPath === '/login') {
