@@ -11,6 +11,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [success, setSuccess] = useState(false);
   
   const [role, setRole] = useState('Student');
@@ -96,19 +97,36 @@ export default function RegisterPage() {
     setLoading(true);
     setError(null);
 
+    setFieldErrors({});
+    let errors = {};
+
     // Password validation
     if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long.");
-      setLoading(false);
-      return;
+      errors.password = "Password must be at least 8 characters long.";
     }
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(formData.password)) {
-      setError("Password must contain at least one special character.");
-      setLoading(false);
-      return;
+      errors.password = "Password must contain at least one special character.";
     }
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
+      errors.confirmPassword = "Passwords do not match.";
+    }
+
+    // Teacher Age Validation
+    if (role === 'Teacher' && formData.dob) {
+      const birthDate = new Date(formData.dob);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      if (age < 20) {
+        errors.dob = "Teacher must be at least 20 years old.";
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       setLoading(false);
       return;
     }
@@ -119,9 +137,14 @@ export default function RegisterPage() {
         ...formData
       };
       
-      // Auto-set DOB to current date for Super Admin & Admin if empty
-      if ((role === 'Super Admin' || role === 'Admin') && !payload.dob) {
+      // Auto-set DOB to current date for staff roles if empty
+      if (!payload.dob) {
         payload.dob = new Date().toISOString().split('T')[0];
+      }
+      
+      // Auto-set Joining Date if empty
+      if (!payload.joiningDate) {
+        payload.joiningDate = new Date().toISOString().split('T')[0];
       }
 
       const res = await api.post('/auth/register', payload);
@@ -214,38 +237,60 @@ export default function RegisterPage() {
 
               <div>
                 <label className={labelClass}>Password</label>
-                <input type="password" name="password" required minLength="8" value={formData.password} onChange={handleChange} className={inputClass} placeholder="••••••••" />
+                <input type="password" name="password" required value={formData.password} onChange={handleChange} className={`${inputClass} ${fieldErrors.password ? 'border-red-500 focus:ring-red-500' : ''}`} placeholder="••••••••" />
+                {fieldErrors.password && <span className="text-red-500 text-[11px] font-bold mt-1.5 block">{fieldErrors.password}</span>}
               </div>
 
               <div>
                 <label className={labelClass}>Confirm Password</label>
-                <input type="password" name="confirmPassword" required minLength="8" value={formData.confirmPassword} onChange={handleChange} className={inputClass} placeholder="••••••••" />
+                <input type="password" name="confirmPassword" required value={formData.confirmPassword} onChange={handleChange} className={`${inputClass} ${fieldErrors.confirmPassword ? 'border-red-500 focus:ring-red-500' : ''}`} placeholder="••••••••" />
+                {fieldErrors.confirmPassword && <span className="text-red-500 text-[11px] font-bold mt-1.5 block">{fieldErrors.confirmPassword}</span>}
               </div>
               
-              <div className={role !== 'Super Admin' && role !== 'Admin' ? '' : 'sm:col-span-2'}>
+              <div className="sm:col-span-2">
                 <label className={labelClass}>Phone Number</label>
                 <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className={inputClass} placeholder="+1234567890" />
               </div>
 
               {/* Conditional Fields based on Role */}
               
-              {role !== 'Super Admin' && role !== 'Admin' && (
-                <>
-                  <div className="sm:col-span-2">
-                    <label className={labelClass}>Address</label>
-                    <input type="text" name="address" value={formData.address} onChange={handleChange} className={inputClass} placeholder="Full Address" />
-                  </div>
+              {/* Address (For Everyone) */}
+              <div className="sm:col-span-2">
+                <label className={labelClass}>Address</label>
+                <input type="text" name="address" value={formData.address} onChange={handleChange} className={inputClass} placeholder="Full Address" />
+              </div>
 
-                  <div>
-                    <label className={labelClass}>Father's Name</label>
-                    <input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className={inputClass} placeholder="Father's Name" />
-                  </div>
-                  
-                  <div>
-                    <label className={labelClass}>Date of Birth</label>
-                    <input type="date" name="dob" required value={formData.dob} onChange={handleChange} className={inputClass} />
-                  </div>
-                </>
+              {/* CNIC (For everyone except Student) */}
+              {role !== 'Student' && (
+                <div>
+                  <label className={labelClass}>CNIC</label>
+                  <input type="text" name="cnic" required value={formData.cnic} onChange={handleChange} className={inputClass} placeholder="12345-1234567-1" />
+                </div>
+              )}
+
+              {/* Joining Date (For everyone except Student and Parent) */}
+              {(role !== 'Student' && role !== 'Parent') && (
+                <div>
+                  <label className={labelClass}>Joining Date</label>
+                  <input type="date" name="joiningDate" required value={formData.joiningDate} onChange={handleChange} className={inputClass} />
+                </div>
+              )}
+
+              {/* Father Name (Only for Student) */}
+              {role === 'Student' && (
+                <div>
+                  <label className={labelClass}>Father's Name</label>
+                  <input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className={inputClass} placeholder="Father's Name" />
+                </div>
+              )}
+              
+              {/* DOB (For Student, Teacher, Parent) */}
+              {(role === 'Student' || role === 'Teacher' || role === 'Parent') && (
+                <div>
+                  <label className={labelClass}>Date of Birth</label>
+                  <input type="date" name="dob" required value={formData.dob} onChange={handleChange} className={`${inputClass} ${fieldErrors.dob ? 'border-red-500 focus:ring-red-500' : ''}`} />
+                  {fieldErrors.dob && <span className="text-red-500 text-[11px] font-bold mt-1.5 block">{fieldErrors.dob}</span>}
+                </div>
               )}
               
               {role === 'Student' && (
@@ -264,21 +309,6 @@ export default function RegisterPage() {
                       {['A','B','C','D'].map(s => <option key={s} value={s}>Section {s}</option>)}
                     </select>
                   </div>
-                </>
-              )}
-
-              {(role === 'Teacher' || role === 'Accountant' || role === 'Parent' || role === 'Staff') && (
-                <>
-                  <div>
-                    <label className={labelClass}>CNIC</label>
-                    <input type="text" name="cnic" required value={formData.cnic} onChange={handleChange} className={inputClass} placeholder="12345-1234567-1" />
-                  </div>
-                  {(role !== 'Parent') && (
-                    <div>
-                      <label className={labelClass}>Joining Date</label>
-                      <input type="date" name="joiningDate" required value={formData.joiningDate} onChange={handleChange} className={inputClass} />
-                    </div>
-                  )}
                 </>
               )}
 

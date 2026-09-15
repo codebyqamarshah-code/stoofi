@@ -127,11 +127,11 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
         // Validate if this is actually student data (must have at least name or admission number)
         const firstRow = data[0];
         const hasValidColumns = Object.keys(firstRow).some(key => 
-          /name|student|admission|roll|class|grade/i.test(key)
+          /name|student|admission|roll|class|grade|dob|age/i.test(key)
         );
 
         if (!hasValidColumns) {
-          setErrorMsg('Invalid file format. Student data not found in file. Please use the standard template.');
+          setErrorMsg('Invalid file format. The uploaded file contains random or unrecognized data. Please ensure the file contains valid student records and use the standard template provided.');
           setParsedStudents([]);
           setFile(null);
           setParsing(false);
@@ -188,24 +188,34 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
         }).filter(Boolean); // Remove nulls
 
         if (mapped.length === 0) {
-           setErrorMsg('No valid student rows found in the file.');
+           setErrorMsg('No valid student rows found in the file. Please check your data.');
            setParsedStudents([]);
            setFile(null);
            setParsing(false);
            return;
         }
 
+        if (mapped.length > 50) {
+           setErrorMsg(`Maximum limit exceeded. You can only import up to 50 students at a time. The uploaded file contains ${mapped.length} students.`);
+           setParsedStudents([]);
+           setFile(null);
+           setParsing(false);
+           if (fileInputRef.current) fileInputRef.current.value = '';
+           return;
+        }
+
         setParsedStudents(mapped);
       } catch (err) {
         console.error('File parsing error:', err);
-        setErrorMsg('Failed to parse file. Please upload a valid .xlsx, .xls or .csv file.');
+        setErrorMsg('Failed to parse file. Please upload a valid .xlsx, .xls or .csv file containing student data.');
       } finally {
-        setParsing(false);
+        // Simulate a slight parsing delay for professional UX
+        setTimeout(() => setParsing(false), 800);
       }
     };
 
     reader.onerror = () => {
-      setErrorMsg('Error reading file.');
+      setErrorMsg('Error reading file. Please try again.');
       setParsing(false);
     };
 
@@ -220,13 +230,18 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
       return;
     }
 
+    if (parsedStudents.length > 50) {
+      setErrorMsg('Maximum limit exceeded. You can only import up to 50 students at a time.');
+      return;
+    }
+
     setImporting(true);
     setImportProgress(0);
     setErrorMsg('');
 
     try {
-      // Simulate proper professional progress
-      for (let i = 1; i <= 100; i += 10) {
+      // Simulate proper professional progress for realistic processing time
+      for (let i = 1; i <= 100; i += 5) {
         setImportProgress(i);
         await new Promise(resolve => setTimeout(resolve, 150));
       }
