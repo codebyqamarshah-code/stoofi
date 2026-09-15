@@ -52,17 +52,14 @@ export default function LoginPage() {
       const isAdmin = cleanEmail === 'admin@gmail.com' || cleanEmail === 'admin@gamil.com' || res.user?.role === 'Admin';
       const isTeacher = res.user?.role === 'Teacher';
 
-      if (isSuperAdmin) {
+      if (isSuperAdmin || isAdmin) {
         window.location.href = '/dashboard';
-      } else if (isAdmin) {
-        window.location.href = '/dashboard/admin';
       } else if (isTeacher) {
         window.location.href = '/dashboard/teacher';
       } else if (res.user?.role === 'Student') {
         window.location.href = '/dashboard/student';
       } else {
-        // Parents, Accountants — dashboard under construction
-        window.location.href = '/coming-soon';
+        window.location.href = '/dashboard';
       }
     }
   };

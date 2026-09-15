@@ -45,18 +45,16 @@ export function middleware(request) {
     // Super Admin routes are everything else that isn't explicitly claimed by another role
     const isSuperAdminRoute = !isAdminRoute && !isTeacherRoute && !isStudentRoute && !isParentRoute && !isAccountantRoute;
 
-    // Enforce Silos (Redirect to /404 if unauthorized)
-    if (role === 'Super Admin' && !isSuperAdminRoute) {
-      return NextResponse.rewrite(new URL('/404', request.url));
-    } else if (role === 'Admin' && !isAdminRoute) {
-      return NextResponse.rewrite(new URL('/404', request.url));
+    // Super Admin and Admin have full access to all dashboard routes
+    if (role === 'Super Admin' || role === 'Admin') {
+      // Allowed access to all dashboard routes
     } else if (role === 'Teacher' && !isTeacherRoute) {
       return NextResponse.rewrite(new URL('/404', request.url));
     } else if (role === 'Student' && !isStudentRoute) {
       return NextResponse.rewrite(new URL('/404', request.url));
-    } else if (role === 'Parent' && !isParentRoute) {
+    } else if (role === 'Parent' && !isParentRoute && pathname !== '/dashboard') {
       return NextResponse.rewrite(new URL('/404', request.url));
-    } else if (role === 'Accountant' && !isAccountantRoute) {
+    } else if (role === 'Accountant' && !isAccountantRoute && pathname !== '/dashboard') {
       return NextResponse.rewrite(new URL('/404', request.url));
     }
   }
@@ -65,12 +63,9 @@ export function middleware(request) {
   if (pathname === '/login') {
     if (token && !token.startsWith('mock_')) {
       const role = decodeJwtRole(token);
-      if (role === 'Admin') return NextResponse.redirect(new URL('/dashboard/admin', request.url));
+      if (role === 'Admin' || role === 'Super Admin') return NextResponse.redirect(new URL('/dashboard', request.url));
       if (role === 'Teacher') return NextResponse.redirect(new URL('/dashboard/teacher', request.url));
       if (role === 'Student') return NextResponse.redirect(new URL('/dashboard/student', request.url));
-      if (role === 'Parent') return NextResponse.redirect(new URL('/dashboard/parent', request.url));
-      if (role === 'Accountant') return NextResponse.redirect(new URL('/dashboard/accountant', request.url));
-      if (role === 'Super Admin') return NextResponse.redirect(new URL('/dashboard', request.url));
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
   }
