@@ -1005,9 +1005,7 @@ export const STUDENT_MENU_STRUCTURE = [
     visible: true,
     items: [
       { id: 'st-dash', name: 'Dashboard', href: '/dashboard/student', iconName: 'LayoutDashboard', visible: true },
-      { id: 'st-profile', name: 'My Profile', href: '/dashboard/student/profile', iconName: 'User', visible: true },
-      { id: 'st-fees', name: 'Fees', href: '/dashboard/student/fees', iconName: 'DollarSign', visible: true },
-      { id: 'st-routine', name: 'Class Routine', href: '/dashboard/student/class-routine', iconName: 'CalendarDays', visible: true },
+      { id: 'st-profile', name: 'Student Info', href: '/dashboard/student/profile', iconName: 'User', visible: true },
       {
         id: 'st-lms',
         name: 'LMS',
@@ -1015,9 +1013,11 @@ export const STUDENT_MENU_STRUCTURE = [
         hasSubmenu: true,
         visible: true,
         subItems: [
-          { id: 'st-lms-courses', name: 'Courses', href: '/dashboard/student/lms/courses', visible: true },
-          { id: 'st-lms-quizzes', name: 'Quizzes', href: '/dashboard/student/lms/quizzes', visible: true },
-          { id: 'st-lms-materials', name: 'Course Materials', href: '/dashboard/student/lms/materials', visible: true },
+          { id: 'st-lms-course', name: 'Course', href: '/dashboard/student/lms/course', visible: true },
+          { id: 'st-lms-my-course', name: 'My Course', href: '/dashboard/student/lms/my-course', visible: true },
+          { id: 'st-lms-purchase', name: 'Purchase History', href: '/dashboard/student/lms/purchase-history', visible: true },
+          { id: 'st-lms-quiz', name: 'My Quiz', href: '/dashboard/student/lms/my-quiz', visible: true },
+          { id: 'st-lms-cert', name: 'My Certificates', href: '/dashboard/student/lms/my-certificates', visible: true },
         ]
       },
       {
@@ -1027,13 +1027,22 @@ export const STUDENT_MENU_STRUCTURE = [
         hasSubmenu: true,
         visible: true,
         subItems: [
-          { id: 'st-lp-plan', name: 'Lesson Plan', href: '/dashboard/student/lesson-plan', visible: true },
-          { id: 'st-lp-overview', name: 'Overview', href: '/dashboard/student/lesson-plan/overview', visible: true },
+          { id: 'st-lp-plan', name: 'Lesson Plan', href: '/dashboard/student/lesson-plan/plan', visible: true },
+          { id: 'st-lp-overview', name: 'Lesson Plan Overview', href: '/dashboard/student/lesson-plan/overview', visible: true },
         ]
       },
-      { id: 'st-homework', name: 'Homework List', href: '/dashboard/student/homework', iconName: 'ListTodo', visible: true },
-      { id: 'st-study-mat', name: 'Study Material', href: '/dashboard/student/study-material', iconName: 'FolderOpen', visible: true },
-      { id: 'st-attendance', name: 'Attendance', href: '/dashboard/student/attendance', iconName: 'CheckSquare', visible: true },
+      {
+        id: 'st-study',
+        name: 'Study Material',
+        iconName: 'FolderOpen',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'st-study-assign', name: 'Assignment', href: '/dashboard/student/study-material/assignment', visible: true },
+          { id: 'st-study-syllabus', name: 'Syllabus', href: '/dashboard/student/study-material/syllabus', visible: true },
+          { id: 'st-study-downloads', name: 'Others Download', href: '/dashboard/student/study-material/others-download', visible: true },
+        ]
+      },
       {
         id: 'st-leave',
         name: 'Leave',
@@ -1042,7 +1051,7 @@ export const STUDENT_MENU_STRUCTURE = [
         visible: true,
         subItems: [
           { id: 'st-leave-apply', name: 'Apply Leave', href: '/dashboard/student/leave/apply', visible: true },
-          { id: 'st-leave-hist', name: 'Leave History', href: '/dashboard/student/leave/history', visible: true },
+          { id: 'st-leave-pending', name: 'Pending Leave Request', href: '/dashboard/student/leave/pending', visible: true },
         ]
       },
       {
@@ -1052,10 +1061,11 @@ export const STUDENT_MENU_STRUCTURE = [
         hasSubmenu: true,
         visible: true,
         subItems: [
-          { id: 'st-chat-main', name: 'Messages', href: '/dashboard/student/chat', visible: true },
+          { id: 'st-chat-box', name: 'Chat Box', href: '/dashboard/student/chat/chat-box', visible: true },
+          { id: 'st-chat-inv', name: 'Invitation', href: '/dashboard/student/chat/invitation', visible: true },
+          { id: 'st-chat-blocked', name: 'Blocked User', href: '/dashboard/student/chat/blocked-user', visible: true },
         ]
       },
-      { id: 'st-calendar', name: 'Calendar', href: '/dashboard/student/calendar', iconName: 'CalendarDays', visible: true },
       {
         id: 'st-exam',
         name: 'Examinations',
@@ -1063,12 +1073,10 @@ export const STUDENT_MENU_STRUCTURE = [
         hasSubmenu: true,
         visible: true,
         subItems: [
+          { id: 'st-exam-res', name: 'Result', href: '/dashboard/student/examinations/result', visible: true },
           { id: 'st-exam-sched', name: 'Exam Schedule', href: '/dashboard/student/examinations/schedule', visible: true },
-          { id: 'st-exam-res', name: 'Exam Result', href: '/dashboard/student/examinations/result', visible: true },
-          { id: 'st-exam-marks', name: 'Marks Sheet', href: '/dashboard/student/examinations/marks-sheet', visible: true },
         ]
       },
-      { id: 'st-subjects', name: 'Subjects', href: '/dashboard/student/subjects', iconName: 'BookOpen', visible: true },
       {
         id: 'st-online-exam',
         name: 'Online Exam',
@@ -1076,12 +1084,10 @@ export const STUDENT_MENU_STRUCTURE = [
         hasSubmenu: true,
         visible: true,
         subItems: [
-          { id: 'st-oe-active', name: 'Take Online Exam', href: '/dashboard/student/online-exam/active', visible: true },
-          { id: 'st-oe-res', name: 'Exam Result', href: '/dashboard/student/online-exam/result', visible: true },
+          { id: 'st-oe-active', name: 'Active Exams', href: '/dashboard/student/online-exam/active', visible: true },
+          { id: 'st-oe-res', name: 'View Result', href: '/dashboard/student/online-exam/view-result', visible: true },
         ]
       },
-      { id: 'st-teacher', name: 'Teacher', href: '/dashboard/student/teachers', iconName: 'Users', visible: true },
-      { id: 'st-transport', name: 'Transport', href: '/dashboard/student/transport', iconName: 'Building', visible: true },
       {
         id: 'st-library',
         name: 'Library',
@@ -1089,11 +1095,10 @@ export const STUDENT_MENU_STRUCTURE = [
         hasSubmenu: true,
         visible: true,
         subItems: [
-          { id: 'st-lib-books', name: 'Book List', href: '/dashboard/student/library/books', visible: true },
-          { id: 'st-lib-issued', name: 'Issued Books', href: '/dashboard/student/library/issued', visible: true },
+          { id: 'st-lib-books', name: 'Book List', href: '/dashboard/student/library/book-list', visible: true },
+          { id: 'st-lib-issued', name: 'Book Issue', href: '/dashboard/student/library/book-issue', visible: true },
         ]
       },
-      { id: 'st-dormitory', name: 'Dormitory', href: '/dashboard/student/dormitory', iconName: 'Building', visible: true },
       {
         id: 'st-virtual-class',
         name: 'Virtual Class',
@@ -1102,15 +1107,14 @@ export const STUDENT_MENU_STRUCTURE = [
         hasSubmenu: true,
         visible: true,
         subItems: [
-          { id: 'st-vc-cls', name: 'Virtual Class', href: '/dashboard/student/virtual-class', visible: true },
-          { id: 'st-vc-meet', name: 'Virtual Meeting', href: '/dashboard/student/virtual-meeting', visible: true },
+          { id: 'st-vc-cls', name: 'Virtual Class', href: '/dashboard/student/virtual-class/virtual-class', visible: true },
         ]
       }
     ]
   }
 ];
 
-export const STORAGE_KEY = 'stoofi_custom_sidebar_v5';
+export const STORAGE_KEY = 'stoofi_custom_sidebar_v6';
 
 export function getStoredSidebar(role = 'Super Admin') {
   let defaultForRole = DEFAULT_MENU_STRUCTURE;
