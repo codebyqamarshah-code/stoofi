@@ -60,7 +60,7 @@ export async function POST(req) {
       { expiresIn: '1d' }
     );
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: 'Login successful!',
       data: {
@@ -72,6 +72,14 @@ export async function POST(req) {
       },
       token
     }, { status: 200 });
+
+    response.cookies.set('token', token, {
+      path: '/',
+      maxAge: 86400,
+      sameSite: 'lax'
+    });
+
+    return response;
 
   } catch (error) {
     console.error('Next.js API Login Error:', error);

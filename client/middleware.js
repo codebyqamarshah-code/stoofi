@@ -28,44 +28,37 @@ export function middleware(request) {
 
     const role = decodeJwtRole(token);
 
-    // If role is missing in token, it means it's an old token. Force redirect and delete token.
+    // If role is missing in token, redirect to login
     if (!role) {
       const response = NextResponse.redirect(new URL('/login', request.url));
       response.cookies.delete('token');
       return response;
     }
 
-    // Role-based Access Rules
-    const isAdminRoute = pathname === '/dashboard/admin' || pathname.startsWith('/dashboard/admin/');
-    const isTeacherRoute = pathname === '/dashboard/teacher' || pathname.startsWith('/dashboard/teacher/');
-    const isStudentRoute = pathname === '/dashboard/student' || pathname.startsWith('/dashboard/student/');
-    const isParentRoute = pathname === '/dashboard/parent' || pathname.startsWith('/dashboard/parent/');
-    const isAccountantRoute = pathname === '/dashboard/accountant' || pathname.startsWith('/dashboard/accountant/');
+    const roleNorm = (role || '').trim().toLowerCase();
 
-    // Super Admin routes are everything else that isn't explicitly claimed by another role
-    const isSuperAdminRoute = !isAdminRoute && !isTeacherRoute && !isStudentRoute && !isParentRoute && !isAccountantRoute;
-
-    // Super Admin and Admin have full access to all dashboard routes
-    if (role === 'Super Admin' || role === 'Admin') {
-      // Allowed access to all dashboard routes
-    } else if (role === 'Teacher' && !isTeacherRoute) {
-      return NextResponse.rewrite(new URL('/404', request.url));
-    } else if (role === 'Student' && !isStudentRoute) {
-      return NextResponse.rewrite(new URL('/404', request.url));
-    } else if (role === 'Parent' && !isParentRoute && pathname !== '/dashboard') {
-      return NextResponse.rewrite(new URL('/404', request.url));
-    } else if (role === 'Accountant' && !isAccountantRoute && pathname !== '/dashboard') {
-      return NextResponse.rewrite(new URL('/404', request.url));
+    // Student specific redirect if accessing other silos
+    if (roleNorm === 'student' && pathname.startsWith('/dashboard/teacher')) {
+      return NextResponse.redirect(new URL('/dashboard/student', request.url));
     }
+
+    // Teacher specific redirect if accessing other silos
+    if (roleNorm === 'teacher' && pathname.startsWith('/dashboard/student')) {
+      return NextResponse.redirect(new URL('/dashboard/teacher', request.url));
+    }
+
+    // Super Admin, Admin, Staff, etc. have complete access to all /dashboard routes
+    return NextResponse.next();
   }
 
   // If already logged in (has real token), route them properly if they hit /login
   if (pathname === '/login') {
     if (token && !token.startsWith('mock_')) {
       const role = decodeJwtRole(token);
-      if (role === 'Admin' || role === 'Super Admin') return NextResponse.redirect(new URL('/dashboard', request.url));
-      if (role === 'Teacher') return NextResponse.redirect(new URL('/dashboard/teacher', request.url));
-      if (role === 'Student') return NextResponse.redirect(new URL('/dashboard/student', request.url));
+      const roleNorm = (role || '').trim().toLowerCase();
+      
+      if (roleNorm === 'teacher') return NextResponse.redirect(new URL('/dashboard/teacher', request.url));
+      if (roleNorm === 'student') return NextResponse.redirect(new URL('/dashboard/student', request.url));
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
   }

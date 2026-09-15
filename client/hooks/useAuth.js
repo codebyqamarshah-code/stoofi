@@ -43,7 +43,7 @@ export const useAuth = create(
               error: null
             });
             // Use session cookie (no expires attribute) so it clears on browser close
-            Cookies.set('token', finalToken);
+            Cookies.set('token', finalToken, { path: '/', expires: 7 });
             if (typeof window !== 'undefined') {
               sessionStorage.setItem('token', finalToken);
               localStorage.setItem('recent_user', JSON.stringify({
