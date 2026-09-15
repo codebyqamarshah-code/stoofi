@@ -88,15 +88,63 @@ export default function StudentDashboardPage() {
     { label: 'TOTAL EXAM', value: '0', icon: Award, href: '/dashboard/student/examinations/schedule' },
     { label: 'TOTAL ONLINE EXAM', value: '0', icon: Monitor, href: '/dashboard/student/online-exam/active' },
     { label: 'TOTAL TEACHERS', value: '0', icon: Users, href: '/dashboard/student/teachers' },
-    { label: 'TOTAL ISSUED BOOK', value: '0', icon: BookMarked, href: '/dashboard/student/library/issued' },
+    { label: 'TOTAL ISSUED BOOK', value: '0', icon: BookMarked, href: '/dashboard/student/library/book-issue' },
     { label: 'PENDING HOMEWORK', value: '0', icon: ListTodo, href: '/dashboard/student/homework' },
     { label: 'ATTENDANCE THIS MONTH', value: '0', icon: CalendarCheck, href: '/dashboard/student/attendance' },
     { label: 'TOTAL DUE FEES', value: '$0', icon: DollarSign, href: '/dashboard/student/fees' },
     { label: 'BEHAVIOUR POINTS', value: '0', icon: Star, href: '/dashboard/student' },
   ];
 
+  // Dummy dynamic events coming from Admin (Simulated)
+  const [events, setEvents] = useState([
+    { date: 15, title: 'Math Test', type: 'exam', color: 'bg-rose-600' },
+    { date: 22, title: 'Sports Day Notice', type: 'notice', color: 'bg-indigo-600' }
+  ]);
+  const [showEventPopup, setShowEventPopup] = useState(false);
+  const [latestEvent, setLatestEvent] = useState(null);
+
+  useEffect(() => {
+    // Show popup after 3 seconds for the latest event
+    if (events.length > 0) {
+      const timer = setTimeout(() => {
+        setLatestEvent(events[0]); // Pick first as latest
+        setShowEventPopup(true);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [events]);
+
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-6 pb-12 relative">
+
+      {/* Event Popup Modal */}
+      {showEventPopup && latestEvent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-300">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-sm w-full relative border-t-8 border-indigo-600">
+            <button 
+              onClick={() => setShowEventPopup(false)}
+              className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-900 transition-colors"
+            >
+              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CalendarCheck className="w-8 h-8" />
+              </div>
+              <h2 className="text-xl font-black text-zinc-900 mb-2">New Event Assigned!</h2>
+              <p className="text-sm font-medium text-zinc-600 mb-6">
+                Admin has scheduled a new <strong className="text-indigo-600">{latestEvent.title}</strong> for day {latestEvent.date} of this month. Please check your calendar.
+              </p>
+              <button 
+                onClick={() => setShowEventPopup(false)}
+                className="w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-xl transition-all"
+              >
+                Got It
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── TOP HEADER BANNER (zinc/white theme) ── */}
       <div className="relative overflow-hidden rounded-3xl bg-zinc-900 p-6 sm:p-8 text-white shadow-xl">
@@ -339,14 +387,22 @@ export default function StudentDashboardPage() {
           {Array.from({length: daysInMonth}, (_,i) => {
             const day = i + 1;
             const isToday = day === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear();
+            const dayEvent = events.find(e => e.date === day);
+            
             return (
-              <div key={day} className={`p-2 border rounded-xl text-xs font-bold min-h-[44px] transition-all ${
+              <div key={day} className={`p-2 border rounded-xl text-xs font-bold min-h-[60px] transition-all relative ${
                 isToday
                   ? 'border-zinc-900 bg-zinc-900 text-white shadow-md'
                   : 'border-zinc-200 text-zinc-700 hover:bg-zinc-50'
               }`}>
                 <span>{day}</span>
                 {isToday && <div className="mt-1 text-[9px] font-semibold opacity-75">Today</div>}
+                
+                {dayEvent && (
+                  <div className={`mt-2 p-1 text-[9px] font-bold rounded text-white truncate ${dayEvent.color}`}>
+                    {dayEvent.title}
+                  </div>
+                )}
               </div>
             );
           })}
