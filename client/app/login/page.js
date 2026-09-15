@@ -58,8 +58,10 @@ export default function LoginPage() {
         window.location.href = '/dashboard/admin';
       } else if (isTeacher) {
         window.location.href = '/dashboard/teacher';
+      } else if (res.user?.role === 'Student') {
+        window.location.href = '/dashboard/student';
       } else {
-        // Students, Parents, Accountants — dashboard under construction
+        // Parents, Accountants — dashboard under construction
         window.location.href = '/coming-soon';
       }
     }

@@ -1,23 +1,30 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { translations } from "@/utils/translations";
+import { useAuth } from "@/hooks/useAuth";
 import {
   CheckCircle2, Monitor, Users, GraduationCap, Calculator,
   ShieldCheck, Menu, X, Star, ArrowRight, Zap, BarChart3,
   Bell, BookOpen, CreditCard, Clock, Globe, Phone, Mail, MapPin,
-  Settings2, UserPlus, FileSpreadsheet, Award, HelpCircle, ChevronDown, Search
+  Settings2, UserPlus, FileSpreadsheet, Award, HelpCircle, ChevronDown, Search,
+  LogOut, LayoutDashboard, User
 } from "lucide-react";
 
 export default function LandingPage() {
+  const { user, isAuthenticated, logout, checkAuth } = useAuth();
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeStepTab, setActiveStepTab] = useState("admin");
   const [openFaq, setOpenFaq] = useState(0);
   const [lang, setLang] = useState("EN");
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileRef = useRef(null);
 
   // Notices state
   const [publicNotices, setPublicNotices] = useState([]);
@@ -135,9 +142,18 @@ export default function LandingPage() {
       if (langDropdownRef.current && !langDropdownRef.current.contains(e.target)) {
         setIsLangDropdownOpen(false);
       }
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setIsProfileOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Check auth on mount to restore session
+  useEffect(() => {
+    checkAuth();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -299,10 +315,60 @@ export default function LandingPage() {
             </div>
 
             <ThemeToggle />
-            <Link href="/login" className="text-sm font-bold text-zinc-900 dark:text-zinc-900 hover:text-zinc-800 dark:hover:text-zinc-950 px-3">{t.nav.login}</Link>
-            <Link href="/login">
-              <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-bold rounded-full px-6">{t.nav.getStarted}</Button>
-            </Link>
+            {isAuthenticated && user ? (
+              <div className="relative" ref={profileRef}>
+                <button
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-200 border border-zinc-200 dark:border-zinc-300 rounded-full py-1 px-3 transition-colors"
+                >
+                  <div className="w-7 h-7 bg-zinc-800 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                    {user?.name ? user.name.charAt(0).toUpperCase() : <User size={14} color="#ffffff" />}
+                  </div>
+                  <span className="text-sm font-bold text-zinc-800 dark:text-zinc-900 capitalize">{user?.role}</span>
+                  <ChevronDown size={14} className={`text-zinc-600 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {isProfileOpen && (
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-zinc-200 rounded-xl shadow-xl py-2 z-50">
+                    <div className="px-4 py-2 border-b border-zinc-100 mb-1">
+                      <p className="text-sm font-bold text-zinc-900 truncate">{user?.name || user?.email}</p>
+                      <p className="text-xs text-zinc-500 capitalize">{user?.role}</p>
+                    </div>
+                    <Link 
+                      href={
+                        user?.role === 'Super Admin' ? '/dashboard' : 
+                        user?.role === 'Admin' ? '/dashboard/admin' : 
+                        user?.role === 'Student' ? '/dashboard/student' : 
+                        user?.role === 'Teacher' ? '/dashboard/teacher' : 
+                        '/coming-soon'
+                      }
+                      className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900"
+                    >
+                      <LayoutDashboard size={16} />
+                      Dashboard
+                    </Link>
+                    <button 
+                      onClick={() => {
+                        logout();
+                        setIsProfileOpen(false);
+                        router.push('/');
+                      }}
+                      className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+                    >
+                      <LogOut size={16} />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link href="/login" className="text-sm font-bold text-zinc-900 dark:text-zinc-900 hover:text-zinc-800 dark:hover:text-zinc-950 px-3">{t.nav.login}</Link>
+                <Link href="/login">
+                  <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-bold rounded-full px-6" style={{ color: '#ffffff' }}>{t.nav.getStarted}</Button>
+                </Link>
+              </>
+            )}
           </div>
           <div className="md:hidden flex items-center gap-3">
             {/* Mobile Language Button */}
@@ -346,7 +412,50 @@ export default function LandingPage() {
             <Link href="#about" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-zinc-700 dark:text-zinc-700 py-1.5">Portals</Link>
             <Link href="#features" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-zinc-700 dark:text-zinc-700 py-1.5">Features</Link>
             <Link href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-zinc-700 dark:text-zinc-700 py-1.5">Pricing</Link>
-            <Link href="/login" onClick={() => setMobileMenuOpen(false)}><Button className="w-full bg-zinc-800 hover:bg-zinc-800 text-white mt-2">Login / Try Free</Button></Link>
+            {isAuthenticated && user ? (
+              <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-zinc-100">
+                <div className="flex items-center gap-3 px-2 py-1">
+                  <div className="w-8 h-8 bg-zinc-800 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                    {user?.name ? user.name.charAt(0).toUpperCase() : <User size={16} color="#ffffff" />}
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-zinc-900">{user?.name || user?.email}</p>
+                    <p className="text-xs text-zinc-500 capitalize">{user?.role}</p>
+                  </div>
+                </div>
+                <Link 
+                  href={
+                    user?.role === 'Super Admin' ? '/dashboard' : 
+                    user?.role === 'Admin' ? '/dashboard/admin' : 
+                    user?.role === 'Student' ? '/dashboard/student' : 
+                    user?.role === 'Teacher' ? '/dashboard/teacher' : 
+                    '/coming-soon'
+                  }
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Button className="w-full bg-zinc-100 hover:bg-zinc-200 text-zinc-900 justify-start gap-2">
+                    <LayoutDashboard size={16} />
+                    Go to Dashboard
+                  </Button>
+                </Link>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    logout();
+                    setMobileMenuOpen(false);
+                    router.push('/');
+                  }}
+                  className="w-full text-red-600 border-red-200 hover:bg-red-50 justify-start gap-2"
+                >
+                  <LogOut size={16} />
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                <Button className="w-full bg-zinc-800 hover:bg-zinc-800 text-white mt-2" style={{ color: '#ffffff' }}>Login / Try Free</Button>
+              </Link>
+            )}
           </div>
         )}
       </header>

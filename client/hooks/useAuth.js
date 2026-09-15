@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import api from '../services/api';
 import Cookies from 'js-cookie';
 
@@ -42,9 +42,10 @@ export const useAuth = create(
               isLoading: false,
               error: null
             });
-            Cookies.set('token', finalToken, { expires: 7 });
+            // Use session cookie (no expires attribute) so it clears on browser close
+            Cookies.set('token', finalToken);
             if (typeof window !== 'undefined') {
-              localStorage.setItem('token', finalToken);
+              sessionStorage.setItem('token', finalToken);
             }
             return { success: true, user: finalUser };
           }
@@ -59,6 +60,9 @@ export const useAuth = create(
         set({ user: null, token: null, isAuthenticated: false });
         Cookies.remove('token');
         if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('token');
+          sessionStorage.removeItem('auth-storage');
+          // Fallback clean up just in case
           localStorage.removeItem('token');
           localStorage.removeItem('auth-storage');
         }
@@ -71,11 +75,11 @@ export const useAuth = create(
 
         if (typeof window !== 'undefined') {
           if (!token) {
-            token = localStorage.getItem('token') || Cookies.get('token');
+            token = sessionStorage.getItem('token') || Cookies.get('token');
           }
           if (!user) {
             try {
-              const raw = localStorage.getItem('auth-storage');
+              const raw = sessionStorage.getItem('auth-storage');
               if (raw) {
                 const parsed = JSON.parse(raw);
                 if (parsed?.state?.user) user = parsed.state.user;
@@ -115,6 +119,7 @@ export const useAuth = create(
     }),
     {
       name: 'auth-storage',
+      storage: createJSONStorage(() => sessionStorage), // Use sessionStorage for zustand persist
       partialize: (state) => {
         let safeUser = state.user;
         if (safeUser) {

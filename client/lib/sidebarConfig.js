@@ -998,12 +998,124 @@ export const TEACHER_MENU_STRUCTURE = [
   },
 ];
 
-export const STORAGE_KEY = 'stoofi_custom_sidebar_v5';
+export const STUDENT_MENU_STRUCTURE = [
+  {
+    id: 'grp-student-main',
+    groupTitle: 'STUDENT PORTAL',
+    visible: true,
+    items: [
+      { id: 'st-dash', name: 'Dashboard', href: '/dashboard/student', iconName: 'LayoutDashboard', visible: true },
+      { id: 'st-profile', name: 'My Profile', href: '/dashboard/student/profile', iconName: 'User', visible: true },
+      { id: 'st-fees', name: 'Fees', href: '/dashboard/student/fees', iconName: 'DollarSign', visible: true },
+      { id: 'st-routine', name: 'Class Routine', href: '/dashboard/student/class-routine', iconName: 'CalendarDays', visible: true },
+      {
+        id: 'st-lms',
+        name: 'LMS',
+        iconName: 'GraduationCap',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'st-lms-courses', name: 'Courses', href: '/dashboard/student/lms/courses', visible: true },
+          { id: 'st-lms-quizzes', name: 'Quizzes', href: '/dashboard/student/lms/quizzes', visible: true },
+          { id: 'st-lms-materials', name: 'Course Materials', href: '/dashboard/student/lms/materials', visible: true },
+        ]
+      },
+      {
+        id: 'st-lesson',
+        name: 'Lesson Plan',
+        iconName: 'BookMarked',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'st-lp-plan', name: 'Lesson Plan', href: '/dashboard/student/lesson-plan', visible: true },
+          { id: 'st-lp-overview', name: 'Overview', href: '/dashboard/student/lesson-plan/overview', visible: true },
+        ]
+      },
+      { id: 'st-homework', name: 'Homework List', href: '/dashboard/student/homework', iconName: 'ListTodo', visible: true },
+      { id: 'st-study-mat', name: 'Study Material', href: '/dashboard/student/study-material', iconName: 'FolderOpen', visible: true },
+      { id: 'st-attendance', name: 'Attendance', href: '/dashboard/student/attendance', iconName: 'CheckSquare', visible: true },
+      {
+        id: 'st-leave',
+        name: 'Leave',
+        iconName: 'FileSpreadsheet',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'st-leave-apply', name: 'Apply Leave', href: '/dashboard/student/leave/apply', visible: true },
+          { id: 'st-leave-hist', name: 'Leave History', href: '/dashboard/student/leave/history', visible: true },
+        ]
+      },
+      {
+        id: 'st-chat',
+        name: 'Chat',
+        iconName: 'MessageSquare',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'st-chat-main', name: 'Messages', href: '/dashboard/student/chat', visible: true },
+        ]
+      },
+      { id: 'st-calendar', name: 'Calendar', href: '/dashboard/student/calendar', iconName: 'CalendarDays', visible: true },
+      {
+        id: 'st-exam',
+        name: 'Examinations',
+        iconName: 'Award',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'st-exam-sched', name: 'Exam Schedule', href: '/dashboard/student/examinations/schedule', visible: true },
+          { id: 'st-exam-res', name: 'Exam Result', href: '/dashboard/student/examinations/result', visible: true },
+          { id: 'st-exam-marks', name: 'Marks Sheet', href: '/dashboard/student/examinations/marks-sheet', visible: true },
+        ]
+      },
+      { id: 'st-subjects', name: 'Subjects', href: '/dashboard/student/subjects', iconName: 'BookOpen', visible: true },
+      {
+        id: 'st-online-exam',
+        name: 'Online Exam',
+        iconName: 'Monitor',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'st-oe-active', name: 'Take Online Exam', href: '/dashboard/student/online-exam/active', visible: true },
+          { id: 'st-oe-res', name: 'Exam Result', href: '/dashboard/student/online-exam/result', visible: true },
+        ]
+      },
+      { id: 'st-teacher', name: 'Teacher', href: '/dashboard/student/teachers', iconName: 'Users', visible: true },
+      { id: 'st-transport', name: 'Transport', href: '/dashboard/student/transport', iconName: 'Building', visible: true },
+      {
+        id: 'st-library',
+        name: 'Library',
+        iconName: 'BookOpen',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'st-lib-books', name: 'Book List', href: '/dashboard/student/library/books', visible: true },
+          { id: 'st-lib-issued', name: 'Issued Books', href: '/dashboard/student/library/issued', visible: true },
+        ]
+      },
+      { id: 'st-dormitory', name: 'Dormitory', href: '/dashboard/student/dormitory', iconName: 'Building', visible: true },
+      {
+        id: 'st-virtual-class',
+        name: 'Virtual Class',
+        iconName: 'Video',
+        badge: 'ADDON',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'st-vc-cls', name: 'Virtual Class', href: '/dashboard/student/virtual-class', visible: true },
+          { id: 'st-vc-meet', name: 'Virtual Meeting', href: '/dashboard/student/virtual-meeting', visible: true },
+        ]
+      }
+    ]
+  }
+];
 
+export const STORAGE_KEY = 'stoofi_custom_sidebar_v5';
 
 export function getStoredSidebar(role = 'Super Admin') {
   if (typeof window === 'undefined') {
-    return role === 'Teacher' ? TEACHER_MENU_STRUCTURE : DEFAULT_MENU_STRUCTURE;
+    if (role === 'Student') return STUDENT_MENU_STRUCTURE;
+    return DEFAULT_MENU_STRUCTURE;
   }
   try {
     const raw = localStorage.getItem(`${STORAGE_KEY}_${role}`);
@@ -1013,15 +1125,14 @@ export function getStoredSidebar(role = 'Super Admin') {
   } catch (e) {
     console.error('Failed to parse sidebar data:', e);
   }
-  return role === 'Teacher' ? TEACHER_MENU_STRUCTURE : DEFAULT_MENU_STRUCTURE;
+  if (role === 'Student') return STUDENT_MENU_STRUCTURE;
+  return DEFAULT_MENU_STRUCTURE;
 }
-
 
 export function saveStoredSidebar(menuData, role = 'Super Admin') {
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(`${STORAGE_KEY}_${role}`, JSON.stringify(menuData));
-    // Dispatch custom event for real-time live sync across components
     window.dispatchEvent(new CustomEvent('stoofi_sidebar_updated', { detail: { role, menuData } }));
   } catch (e) {
     console.error('Failed to save sidebar data:', e);
@@ -1029,7 +1140,7 @@ export function saveStoredSidebar(menuData, role = 'Super Admin') {
 }
 
 export function resetStoredSidebar(role = 'Super Admin') {
-  const defaultMenu = role === 'Teacher' ? TEACHER_MENU_STRUCTURE : DEFAULT_MENU_STRUCTURE;
+  const defaultMenu = role === 'Student' ? STUDENT_MENU_STRUCTURE : DEFAULT_MENU_STRUCTURE;
   if (typeof window === 'undefined') return defaultMenu;
   try {
     localStorage.removeItem(`${STORAGE_KEY}_${role}`);

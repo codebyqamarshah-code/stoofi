@@ -23,13 +23,37 @@ exports.register = async (req, res, next) => {
     // Check if user exists
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({ success: false, message: 'User already exists' });
+      return res.status(400).json({ success: false, message: 'User already exists with this email' });
+    }
+
+    const finalRole = role || 'Student';
+
+    // Enforce single Super Admin constraint
+    if (finalRole === 'Super Admin') {
+      const existingSuperAdmin = await User.findOne({ role: 'Super Admin' });
+      if (existingSuperAdmin) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Super Admin is already registered. Only one Super Admin account is allowed.' 
+        });
+      }
+    }
+
+    // Enforce single Admin constraint
+    if (finalRole === 'Admin') {
+      const existingAdmin = await User.findOne({ role: 'Admin' });
+      if (existingAdmin) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Admin is already registered. Only one Admin account is allowed.' 
+        });
+      }
     }
 
     // Determine the role model based on the role
-    let roleModel = 'Student';
-    const finalRole = role || 'Student';
-    if (finalRole === 'Teacher') roleModel = 'Teacher';
+    let roleModel = undefined;
+    if (finalRole === 'Student') roleModel = 'Student';
+    else if (finalRole === 'Teacher') roleModel = 'Teacher';
     else if (finalRole === 'Parent') roleModel = 'Parent';
     else if (['Accountant', 'Librarian', 'Staff'].includes(finalRole)) roleModel = 'Staff';
 
@@ -39,7 +63,8 @@ exports.register = async (req, res, next) => {
       email,
       password,
       role: finalRole,
-      roleModel,
+      ...(roleModel ? { roleModel } : {}),
+      status: 'Active',
       avatar: picture || ''
     });
 
@@ -121,6 +146,20 @@ exports.register = async (req, res, next) => {
   }
 };
 
+exports.getRegistrationStatus = async (req, res, next) => {
+  try {
+    const hasSuperAdmin = await User.exists({ role: 'Super Admin' });
+    const hasAdmin = await User.exists({ role: 'Admin' });
+    res.status(200).json({
+      success: true,
+      hasSuperAdmin: Boolean(hasSuperAdmin),
+      hasAdmin: Boolean(hasAdmin)
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -141,49 +180,13 @@ exports.login = async (req, res, next) => {
       ]
     }).select('+password');
     
-    // Auto-create/seed default Super Admin or Admin if logging in for the first time without registration
     if (!user) {
-      if (cleanEmail === 'super@gmail.com') {
-        if (password !== 'school') {
-          return res.status(401).json({ success: false, message: 'Incorrect password.' });
-        }
-        user = await User.create({
-          username: 'superadmin',
-          email: 'super@gmail.com',
-          password: 'school',
-          role: 'Super Admin',
-          status: 'Active'
-        });
-      } else if (cleanEmail === 'admin@gmail.com' || cleanEmail === 'admin@gamil.com') {
-        if (password !== 'school') {
-          return res.status(401).json({ success: false, message: 'Incorrect password.' });
-        }
-        user = await User.create({
-          username: 'admin',
-          email: 'admin@gmail.com',
-          password: 'school',
-          role: 'Admin',
-          status: 'Active'
-        });
-      } else {
-        return res.status(401).json({ success: false, message: 'User not found. Please register first.' });
-      }
-    } else {
-      let isMatch = await user.comparePassword(password);
-      
-      // Auto-migrate legacy password to new fixed password for admins
-      if (!isMatch && password === 'school' && (cleanEmail === 'super@gmail.com' || cleanEmail === 'admin@gmail.com')) {
-         const isLegacyMatch = await user.comparePassword('school@123');
-         if (isLegacyMatch) {
-            user.password = 'school';
-            await user.save();
-            isMatch = true;
-         }
-      }
+      return res.status(401).json({ success: false, message: 'Invalid credentials. Please check your email or register first.' });
+    }
 
-      if (!isMatch) {
-        return res.status(401).json({ success: false, message: 'Incorrect password.' });
-      }
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Incorrect password.' });
     }
 
     // Check if user is active
