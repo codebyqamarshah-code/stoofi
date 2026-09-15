@@ -4,9 +4,9 @@ import StudentDataTable from '@/components/student/StudentDataTable';
 export default function Page() {
   return (
     <StudentDataTable 
-      title="Apply Leave"
-      breadcrumb={['Leave', 'Apply Leave']}
-      columns={['Leave Type', 'From', 'To', 'Reason', 'Status', 'Action']}
+      title="Pending Leave Request"
+      breadcrumb={['Leave', 'Pending Leave Request']}
+      columns={['Leave Type', 'Apply Date', 'Status']}
       showClassFilter={False}
       data={[]} 
     />

@@ -1,7 +1,14 @@
 'use client';
-import EmptyPage from '@/components/EmptyPage';
-import { Award } from 'lucide-react';
+import StudentDataTable from '@/components/student/StudentDataTable';
 
-export default function StudentExamSchedulePage() {
-  return <EmptyPage title="Exam Schedule" description="Terminal and mid-term exam dates, timing, and room numbers." icon={Award} />;
+export default function Page() {
+  return (
+    <StudentDataTable 
+      title="Exam Schedule"
+      breadcrumb={['Examinations', 'Exam Schedule']}
+      columns={['Exam Name', 'Subject', 'Date', 'Time', 'Room']}
+      showClassFilter={True}
+      data={[]} 
+    />
+  );
 }

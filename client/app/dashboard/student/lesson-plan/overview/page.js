@@ -1,7 +1,14 @@
 'use client';
-import EmptyPage from '@/components/EmptyPage';
-import { BookMarked } from 'lucide-react';
+import StudentDataTable from '@/components/student/StudentDataTable';
 
-export default function StudentLessonPlanOverviewPage() {
-  return <EmptyPage title="Lesson Plan Overview" description="Curriculum progress and term-wise completion status." icon={BookMarked} />;
+export default function Page() {
+  return (
+    <StudentDataTable 
+      title="Lesson Plan Overview"
+      breadcrumb={['Lesson Plan', 'Overview']}
+      columns={['Subject', 'Completed Topics', 'Pending Topics', 'Progress']}
+      showClassFilter={True}
+      data={[]} 
+    />
+  );
 }

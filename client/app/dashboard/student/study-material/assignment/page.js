@@ -4,9 +4,9 @@ import StudentDataTable from '@/components/student/StudentDataTable';
 export default function Page() {
   return (
     <StudentDataTable 
-      title="Active Online Exams"
-      breadcrumb={['Online Exam', 'Active Exams']}
-      columns={['Exam Title', 'Subject', 'Duration', 'End Date', 'Action']}
+      title="Assignment List"
+      breadcrumb={['Study Material', 'Assignment']}
+      columns={['Title', 'Subject', 'Deadline', 'Status', 'Action']}
       showClassFilter={True}
       data={[]} 
     />

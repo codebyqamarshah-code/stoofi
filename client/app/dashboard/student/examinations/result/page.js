@@ -1,7 +1,14 @@
 'use client';
-import EmptyPage from '@/components/EmptyPage';
-import { Award } from 'lucide-react';
+import StudentDataTable from '@/components/student/StudentDataTable';
 
-export default function StudentExamResultPage() {
-  return <EmptyPage title="Exam Result" description="View published examination marks and GPA standings." icon={Award} />;
+export default function Page() {
+  return (
+    <StudentDataTable 
+      title="Exam Results"
+      breadcrumb={['Examinations', 'Result']}
+      columns={['Exam', 'Subject', 'Marks Obtained', 'Grade']}
+      showClassFilter={True}
+      data={[]} 
+    />
+  );
 }
