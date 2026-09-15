@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import api from '@/services/api';
 import { 
   BookOpen, Award, Monitor, Users, BookMarked, ListTodo,
   CalendarCheck, DollarSign, Star, Clock, ChevronLeft,
@@ -102,9 +103,54 @@ export default function StudentDashboardPage() {
   ]);
   const [showEventPopup, setShowEventPopup] = useState(false);
   const [latestEvent, setLatestEvent] = useState(null);
+  
+  // LIVE LEAVE DATA
+  const [leaveData, setLeaveData] = useState([]);
 
   useEffect(() => {
-    // Show popup after 3 seconds for the latest event
+    // 1. Fetch live leave data from the backend
+    const fetchLeaves = async () => {
+      try {
+        const [typesRes, leavesRes] = await Promise.all([
+          api.get('/leave-type').catch(() => ({ data: [] })),
+          api.get('/leave').catch(() => ({ data: [] }))
+        ]);
+        
+        let types = typesRes.data?.data || typesRes.data || [];
+        let leaves = leavesRes.data?.data || leavesRes.data || [];
+        
+        if (Array.isArray(types)) {
+          const processed = types.map(t => {
+            const maxDays = t.maxDays || 0;
+            // Calculate taken days
+            const myLeaves = Array.isArray(leaves) ? leaves.filter(l => l.leaveTypeId === t._id && l.status === 'Approved') : [];
+            let taken = 0;
+            myLeaves.forEach(l => {
+               const start = new Date(l.fromDate);
+               const end = new Date(l.toDate);
+               const diff = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+               taken += (diff > 0 ? diff : 0);
+            });
+            return {
+              id: t._id,
+              type: t.name,
+              rem: Math.max(0, maxDays - taken),
+              extra: Math.max(0, taken - maxDays),
+              taken: taken,
+              total: maxDays
+            };
+          });
+          setLeaveData(processed);
+        }
+      } catch (err) {
+        console.error("Failed to fetch live leave data", err);
+      }
+    };
+    if (user) {
+      fetchLeaves();
+    }
+
+    // 2. Show popup after 3 seconds for the latest event
     if (events.length > 0) {
       const timer = setTimeout(() => {
         setLatestEvent(events[0]); // Pick first as latest
@@ -336,7 +382,7 @@ export default function StudentDashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {[{type:'Casual Leave',rem:12,extra:0,taken:0,total:12},{type:'Sick Leave',rem:10,extra:0,taken:0,total:10}].map((l,i) => (
+              {leaveData.length > 0 ? leaveData.map((l, i) => (
                 <tr key={i} className="hover:bg-zinc-50">
                   <td className="py-2.5 px-3 font-semibold text-zinc-900">{l.type}</td>
                   <td className="py-2.5 px-3 text-emerald-600 font-bold">{l.rem}</td>
@@ -344,7 +390,13 @@ export default function StudentDashboardPage() {
                   <td className="py-2.5 px-3 text-zinc-500">{l.taken}</td>
                   <td className="py-2.5 px-3 text-zinc-900 font-bold">{l.total}</td>
                 </tr>
-              ))}
+              )) : (
+                <tr>
+                  <td colSpan={5} className="py-6 text-center text-zinc-400 font-medium">
+                    No Leave Types configured by Admin.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
