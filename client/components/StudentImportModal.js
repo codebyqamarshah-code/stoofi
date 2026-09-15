@@ -124,6 +124,21 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
           return;
         }
 
+        // Validate if this is actually student data (must have at least name or admission number)
+        const firstRow = data[0];
+        const hasValidColumns = Object.keys(firstRow).some(key => 
+          /name|student|admission|roll|class|grade/i.test(key)
+        );
+
+        if (!hasValidColumns) {
+          setErrorMsg('Invalid file format. Student data not found in file. Please use the standard template.');
+          setParsedStudents([]);
+          setFile(null);
+          setParsing(false);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+          return;
+        }
+
         // Map columns intelligently
         const currentYear = new Date().getFullYear();
         let existingLocal = [];
@@ -134,19 +149,23 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
         let nextSeq = existingLocal.length + 1;
 
         const mapped = data.map((row, idx) => {
-          const firstName = getVal(row, ['firstName', 'first name', 'firstname', 'student name', 'name', 'first']) || `Student_${idx + 1}`;
+          const firstName = getVal(row, ['firstName', 'first name', 'firstname', 'student name', 'name', 'first']) || '';
           const lastName = getVal(row, ['lastName', 'last name', 'lastname', 'surname', 'last']) || '';
           const admissionNo = getVal(row, ['admissionNo', 'admission no', 'admission number', 'adm no', 'registration no', 'reg no']) ||
             `ADM-${currentYear}-${String(nextSeq + idx).padStart(3, '0')}`;
-          const rollNo = getVal(row, ['rollNo', 'roll no', 'roll number', 'roll']) || String(100 + nextSeq + idx);
-          const className = getVal(row, ['className', 'class', 'grade', 'standard']) || defaultClass || 'Class 1';
-          const section = getVal(row, ['section', 'sec']) || defaultSection || 'A';
-          const gender = getVal(row, ['gender', 'sex']) || 'Male';
-          const dob = getVal(row, ['dob', 'date of birth', 'birth date', 'birthday']) || '2016-01-01';
-          const fatherName = getVal(row, ['fatherName', 'father name', 'father', 'guardian name', 'parent']) || '-';
-          const phone = getVal(row, ['phone', 'mobile', 'cell', 'father phone', 'contact']) || '-';
-          const address = getVal(row, ['currentAddress', 'address', 'residential address', 'permanent address']) || '-';
+          const rollNo = getVal(row, ['rollNo', 'roll no', 'roll number', 'roll']) || '';
+          const className = getVal(row, ['className', 'class', 'grade', 'standard']) || defaultClass || '';
+          const section = getVal(row, ['section', 'sec']) || defaultSection || '';
+          const gender = getVal(row, ['gender', 'sex']) || '';
+          const dob = getVal(row, ['dob', 'date of birth', 'birth date', 'birthday', 'age']) || '';
+          const fatherName = getVal(row, ['fatherName', 'father name', 'father', 'guardian name', 'parent']) || '';
+          const phone = getVal(row, ['phone', 'mobile', 'cell', 'father phone', 'contact']) || '';
+          const address = getVal(row, ['currentAddress', 'address', 'residential address', 'permanent address']) || '';
           const academicYear = getVal(row, ['academicYear', 'academic year', 'session', 'year']) || defaultAcademicYear;
+          const religion = getVal(row, ['religion']) || '';
+
+          // Skip completely empty rows
+          if (!firstName && !lastName && !getVal(row, ['admissionNo', 'admission no'])) return null;
 
           return {
             _id: 'stu-' + Date.now() + '-' + idx,
@@ -163,9 +182,18 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
             currentAddress: address,
             permanentAddress: address,
             academicYear,
+            religion,
             status: 'Active'
           };
-        });
+        }).filter(Boolean); // Remove nulls
+
+        if (mapped.length === 0) {
+           setErrorMsg('No valid student rows found in the file.');
+           setParsedStudents([]);
+           setFile(null);
+           setParsing(false);
+           return;
+        }
 
         setParsedStudents(mapped);
       } catch (err) {
@@ -184,6 +212,8 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
     reader.readAsBinaryString(fileToParse);
   };
 
+  const [importProgress, setImportProgress] = useState(0);
+
   const handleConfirmImport = async () => {
     if (!parsedStudents || parsedStudents.length === 0) {
       setErrorMsg('No students found to import.');
@@ -191,9 +221,16 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
     }
 
     setImporting(true);
+    setImportProgress(0);
     setErrorMsg('');
 
     try {
+      // Simulate proper professional progress
+      for (let i = 1; i <= 100; i += 10) {
+        setImportProgress(i);
+        await new Promise(resolve => setTimeout(resolve, 150));
+      }
+
       // 1. Sync to LocalStorage (Instant local persistence)
       let currentMock = [];
       try {
@@ -224,18 +261,20 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
         duplicatesSkipped: parsedStudents.length - newItems.length
       });
 
+      setImportProgress(100);
+
       if (onSuccess) {
         onSuccess(merged);
       }
 
       setTimeout(() => {
         onClose();
-      }, 1400);
+        handleReset();
+      }, 2000);
 
     } catch (err) {
       console.error('Import error:', err);
       setErrorMsg('An error occurred during import: ' + err.message);
-    } finally {
       setImporting(false);
     }
   };
@@ -245,6 +284,8 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
     setParsedStudents([]);
     setErrorMsg('');
     setImportStats(null);
+    setImporting(false);
+    setImportProgress(0);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -398,6 +439,22 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
             </div>
           )}
 
+          {/* Import Progress Bar */}
+          {importing && !importStats && (
+            <div className="space-y-2 p-4 rounded-xl border border-zinc-200 bg-zinc-50">
+              <div className="flex justify-between text-xs font-semibold text-zinc-900">
+                <span>Processing {parsedStudents.length} records...</span>
+                <span>{importProgress}%</span>
+              </div>
+              <div className="h-2 w-full bg-zinc-200 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-zinc-900 transition-all duration-300 ease-out"
+                  style={{ width: `${importProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Error Message */}
           {errorMsg && (
             <div className="p-4 rounded-xl border border-red-200 bg-red-50 flex items-start gap-3 text-red-700">
@@ -414,6 +471,7 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
             variant="outline" 
             onClick={onClose}
             className="border-zinc-300 text-zinc-700 hover:bg-zinc-200 cursor-pointer text-xs"
+            disabled={importing}
           >
             Cancel
           </Button>
@@ -422,12 +480,12 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
             type="button"
             disabled={!file || parsedStudents.length === 0 || importing || parsing}
             onClick={handleConfirmImport}
-            className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold px-6 text-xs cursor-pointer flex items-center gap-2"
+            className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold px-6 text-xs cursor-pointer flex items-center gap-2 transition-all"
           >
             {importing ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Importing Records...
+                Importing... {importProgress}%
               </>
             ) : (
               <>

@@ -46,6 +46,13 @@ export const useAuth = create(
             Cookies.set('token', finalToken);
             if (typeof window !== 'undefined') {
               sessionStorage.setItem('token', finalToken);
+              localStorage.setItem('recent_user', JSON.stringify({
+                name: finalUser.name,
+                email: finalUser.email,
+                role: finalUser.role,
+                picture: finalUser.picture,
+                avatar: finalUser.avatar
+              }));
             }
             return { success: true, user: finalUser };
           }
@@ -65,6 +72,7 @@ export const useAuth = create(
           // Fallback clean up just in case
           localStorage.removeItem('token');
           localStorage.removeItem('auth-storage');
+          // We intentionally do NOT remove recent_user so they see their profile next time
         }
         try { await api.get('/auth/logout'); } catch(e){}
       },

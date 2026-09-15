@@ -23,14 +23,14 @@ export function middleware(request) {
   if (pathname === '/dashboard' || pathname.startsWith('/dashboard/')) {
     const isInvalidToken = !token || token.startsWith('mock_');
     if (isInvalidToken) {
-      return NextResponse.rewrite(new URL('/404', request.url));
+      return NextResponse.redirect(new URL('/login', request.url));
     }
 
     const role = decodeJwtRole(token);
 
-    // If role is missing in token, it means it's an old token. Force 404 and delete token.
+    // If role is missing in token, it means it's an old token. Force redirect and delete token.
     if (!role) {
-      const response = NextResponse.rewrite(new URL('/404', request.url));
+      const response = NextResponse.redirect(new URL('/login', request.url));
       response.cookies.delete('token');
       return response;
     }
@@ -45,7 +45,7 @@ export function middleware(request) {
     // Super Admin routes are everything else that isn't explicitly claimed by another role
     const isSuperAdminRoute = !isAdminRoute && !isTeacherRoute && !isStudentRoute && !isParentRoute && !isAccountantRoute;
 
-    // Enforce Silos (Rewrite to /404 if unauthorized to show Not Found as requested)
+    // Enforce Silos (Redirect to /404 if unauthorized)
     if (role === 'Super Admin' && !isSuperAdminRoute) {
       return NextResponse.rewrite(new URL('/404', request.url));
     } else if (role === 'Admin' && !isAdminRoute) {

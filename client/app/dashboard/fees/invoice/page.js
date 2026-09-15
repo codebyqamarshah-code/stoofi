@@ -725,7 +725,7 @@ export default function FeesInvoicePage() {
             {/* Header / Brand */}
             <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
               <div className="flex items-center gap-3">
-                <img src="/stoofi light.png" alt="Stoofi PRO" className="h-9 w-auto object-contain" />
+                <img src="/stoofi light.png" alt="Stoofi PRO" className="h-12 w-auto object-contain" />
                 <div>
                   <h3 className="text-lg font-black text-zinc-900 tracking-tight">STOOFI SCHOOL ERP</h3>
                   <p className="text-[10px] text-zinc-500">Official Student Fees Receipt Voucher</p>

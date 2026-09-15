@@ -59,6 +59,7 @@ export default function RegisterPage() {
     fullName: '',
     email: '',
     password: '',
+    confirmPassword: '',
     phone: '',
     address: '',
     fatherName: '',
@@ -83,7 +84,10 @@ export default function RegisterPage() {
       studentClass: '',
       section: '',
       cnic: '',
-      joiningDate: ''
+      joiningDate: '',
+      address: '',
+      fatherName: '',
+      dob: ''
     }));
   };
 
@@ -91,11 +95,35 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // Password validation
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      setLoading(false);
+      return;
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(formData.password)) {
+      setError("Password must contain at least one special character.");
+      setLoading(false);
+      return;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const payload = {
         role,
         ...formData
       };
+      
+      // Auto-set DOB to current date for Super Admin & Admin if empty
+      if ((role === 'Super Admin' || role === 'Admin') && !payload.dob) {
+        payload.dob = new Date().toISOString().split('T')[0];
+      }
+
       const res = await api.post('/auth/register', payload);
       if (res && res.success) {
         setSuccess(true);
@@ -186,30 +214,39 @@ export default function RegisterPage() {
 
               <div>
                 <label className={labelClass}>Password</label>
-                <input type="password" name="password" required minLength="6" value={formData.password} onChange={handleChange} className={inputClass} placeholder="••••••••" />
+                <input type="password" name="password" required minLength="8" value={formData.password} onChange={handleChange} className={inputClass} placeholder="••••••••" />
+              </div>
+
+              <div>
+                <label className={labelClass}>Confirm Password</label>
+                <input type="password" name="confirmPassword" required minLength="8" value={formData.confirmPassword} onChange={handleChange} className={inputClass} placeholder="••••••••" />
               </div>
               
-              <div>
+              <div className={role !== 'Super Admin' && role !== 'Admin' ? '' : 'sm:col-span-2'}>
                 <label className={labelClass}>Phone Number</label>
                 <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className={inputClass} placeholder="+1234567890" />
               </div>
 
-              <div className="sm:col-span-2">
-                <label className={labelClass}>Address</label>
-                <input type="text" name="address" value={formData.address} onChange={handleChange} className={inputClass} placeholder="Full Address" />
-              </div>
-
-              <div>
-                <label className={labelClass}>Father's Name</label>
-                <input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className={inputClass} placeholder="Father's Name" />
-              </div>
-              
-              <div>
-                <label className={labelClass}>Date of Birth</label>
-                <input type="date" name="dob" required={role !== 'Super Admin' && role !== 'Admin'} value={formData.dob} onChange={handleChange} className={inputClass} />
-              </div>
-
               {/* Conditional Fields based on Role */}
+              
+              {role !== 'Super Admin' && role !== 'Admin' && (
+                <>
+                  <div className="sm:col-span-2">
+                    <label className={labelClass}>Address</label>
+                    <input type="text" name="address" value={formData.address} onChange={handleChange} className={inputClass} placeholder="Full Address" />
+                  </div>
+
+                  <div>
+                    <label className={labelClass}>Father's Name</label>
+                    <input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className={inputClass} placeholder="Father's Name" />
+                  </div>
+                  
+                  <div>
+                    <label className={labelClass}>Date of Birth</label>
+                    <input type="date" name="dob" required value={formData.dob} onChange={handleChange} className={inputClass} />
+                  </div>
+                </>
+              )}
               
               {role === 'Student' && (
                 <>
@@ -230,16 +267,18 @@ export default function RegisterPage() {
                 </>
               )}
 
-              {(role === 'Teacher' || role === 'Accountant' || role === 'Staff') && (
+              {(role === 'Teacher' || role === 'Accountant' || role === 'Parent' || role === 'Staff') && (
                 <>
                   <div>
                     <label className={labelClass}>CNIC</label>
                     <input type="text" name="cnic" required value={formData.cnic} onChange={handleChange} className={inputClass} placeholder="12345-1234567-1" />
                   </div>
-                  <div>
-                    <label className={labelClass}>Joining Date</label>
-                    <input type="date" name="joiningDate" required value={formData.joiningDate} onChange={handleChange} className={inputClass} />
-                  </div>
+                  {(role !== 'Parent') && (
+                    <div>
+                      <label className={labelClass}>Joining Date</label>
+                      <input type="date" name="joiningDate" required value={formData.joiningDate} onChange={handleChange} className={inputClass} />
+                    </div>
+                  )}
                 </>
               )}
 

@@ -154,9 +154,9 @@ export default function DashboardLayout({ children }) {
 
     // Safety timeout: if still loading after 3s, force check
     const timer = setTimeout(() => {
-      const stillToken = localStorage.getItem('token');
+      const stillToken = sessionStorage.getItem('token');
       if (!stillToken || stillToken.startsWith('mock_')) {
-        router.replace('/404');
+        router.replace('/login');
       }
     }, 3000);
     return () => clearTimeout(timer);
@@ -166,10 +166,10 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     if (mounted && !isLoading) {
       if (!isAuthenticated || !user) {
-        const storedToken = localStorage.getItem('token');
+        const storedToken = sessionStorage.getItem('token');
         const isMock = typeof storedToken === 'string' && storedToken.startsWith('mock_');
         if (!storedToken || isMock) {
-          router.replace('/404');
+          router.replace('/login');
         }
       } else {
         // Enforce RBAC on client side
@@ -243,7 +243,7 @@ export default function DashboardLayout({ children }) {
 
   const handleLogout = () => {
     logout();
-    router.push('/login');
+    window.location.href = '/';
   };
 
   const toggleSubmenu = (menuName) => {
@@ -327,7 +327,7 @@ export default function DashboardLayout({ children }) {
         {/* Brand Header */}
         <div className="flex h-[70px] items-center justify-between border-b border-zinc-200 dark:border-zinc-200 px-5 shrink-0 bg-white dark:bg-white">
           <Link href="/dashboard" className="flex items-center cursor-pointer">
-            <img src="/stoofi light.png" alt="Stoofi PRO" className="h-10 sm:h-11 max-w-[155px] w-auto object-contain transform hover:scale-105 transition-transform duration-300" />
+            <img src="/stoofi light.png" alt="Stoofi PRO" className="h-12 sm:h-14 max-w-[200px] w-auto object-contain transform hover:scale-105 transition-transform duration-300" />
           </Link>
           <Button
             variant="ghost"
