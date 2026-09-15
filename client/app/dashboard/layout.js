@@ -129,98 +129,32 @@ export default function DashboardLayout({ children }) {
 
   useEffect(() => {
     setMounted(true);
-
-    // Check for a REAL token (not a mock/fake token)
-    const storedToken =
-      localStorage.getItem('token') ||
-      (() => {
-        try {
-          const raw = localStorage.getItem('auth-storage');
-          if (raw) return JSON.parse(raw)?.state?.token || '';
-        } catch (e) {}
-        return '';
-      })();
-
-    const isMockToken = typeof storedToken === 'string' && storedToken.startsWith('mock_');
-    const hasRealToken = storedToken && !isMockToken;
-
-    if (!hasRealToken) {
-      // No valid token — redirect to 404 immediately
-      router.replace('/404');
-      return;
-    }
-
     checkAuth();
-
-    // Safety timeout: if still loading after 3s, force check
-    const timer = setTimeout(() => {
-      const stillToken = sessionStorage.getItem('token');
-      if (!stillToken || stillToken.startsWith('mock_')) {
-        router.replace('/login');
-      }
-    }, 3000);
-    return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (mounted && !isLoading) {
-      if (!isAuthenticated || !user) {
-        const storedToken = sessionStorage.getItem('token');
-        const isMock = typeof storedToken === 'string' && storedToken.startsWith('mock_');
-        if (!storedToken || isMock) {
-          router.replace('/login');
-        }
-      } else {
-        // Enforce RBAC on client side
-        const role = user.role;
-        const p = pathname;
-        
-        const isAdminRoute = p === '/dashboard/admin' || p.startsWith('/dashboard/admin/');
-        const isTeacherRoute = p === '/dashboard/teacher' || p.startsWith('/dashboard/teacher/');
-        const isStudentRoute = p === '/dashboard/student' || p.startsWith('/dashboard/student/');
-        const isParentRoute = p === '/dashboard/parent' || p.startsWith('/dashboard/parent/');
-        const isAccountantRoute = p === '/dashboard/accountant' || p.startsWith('/dashboard/accountant/');
-        
-        const isSuperAdminRoute = !isAdminRoute && !isTeacherRoute && !isStudentRoute && !isParentRoute && !isAccountantRoute;
-        
-        let allowed = true;
-        if (role === 'Super Admin' && !isSuperAdminRoute) allowed = false;
-        else if (role === 'Admin' && !isAdminRoute) allowed = false;
-        else if (role === 'Teacher' && !isTeacherRoute) allowed = false;
-        else if (role === 'Student' && !isStudentRoute) allowed = false;
-        else if (role === 'Parent' && !isParentRoute) allowed = false;
-        else if (role === 'Accountant' && !isAccountantRoute) allowed = false;
-        
-        if (!allowed) {
-          router.replace('/404');
-        }
+      const storedToken =
+        (typeof window !== 'undefined' && (
+          sessionStorage.getItem('token') ||
+          localStorage.getItem('token') ||
+          (() => {
+            try {
+              const raw = sessionStorage.getItem('auth-storage') || localStorage.getItem('auth-storage');
+              if (raw) return JSON.parse(raw)?.state?.token || '';
+            } catch (e) {}
+            return '';
+          })()
+        )) || '';
+
+      if (!storedToken && !user && !isAuthenticated) {
+        router.replace('/login');
       }
     }
   }, [mounted, isAuthenticated, isLoading, user, router, pathname]);
 
-  // Check if we have a stored token (trust persisted state immediately)
-  const hasStoredSession = typeof window !== 'undefined' && Boolean(
-    localStorage.getItem('token') ||
-    localStorage.getItem('auth-storage')
-  );
-
-
-  // If mounted and definitely no session or token, immediately render 404 page
-  if (mounted && !hasStoredSession && !user && !isAuthenticated) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white text-zinc-900 p-6">
-        <h1 className="text-6xl font-black mb-4">404</h1>
-        <p className="text-lg text-zinc-600 mb-6">Page Not Found</p>
-        <Link href="/" className="px-6 py-2.5 rounded-xl bg-zinc-900 text-white font-bold text-sm hover:bg-zinc-800 transition-colors">
-          Go to Home
-        </Link>
-      </div>
-    );
-  }
-
-  // After mounting, if we still don't have a session, we also show it while checking auth.
-  if (!mounted || (!hasStoredSession && (isLoading && !user)) || isInitialAppLoading) {
+  // Loading state
+  if (!mounted || isInitialAppLoading || (isLoading && !user && !isAuthenticated)) {
     return (
       <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-zinc-50 dark:bg-white transition-colors duration-300">
         <div className="relative flex items-center justify-center w-32 h-32 mb-6">
