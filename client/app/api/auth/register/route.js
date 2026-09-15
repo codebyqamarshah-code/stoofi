@@ -82,8 +82,11 @@ export async function POST(req) {
     const lastName = nameParts.slice(1).join(' ') || '';
     const uniqueUsername = username || `${firstName}_${Date.now().toString().slice(-4)}`;
 
+    const resolvedFullName = fullName ? fullName.trim() : (username || `${firstName} ${lastName}`).trim();
+
     // Create User Document
     const user = await User.create({
+      fullName: resolvedFullName,
       username: uniqueUsername,
       email: cleanEmail,
       password,
@@ -156,6 +159,8 @@ export async function POST(req) {
       message: 'Registration successful!',
       data: {
         _id: user._id,
+        fullName: user.fullName || user.username,
+        name: user.fullName || user.username,
         username: user.username,
         email: user.email,
         role: user.role,

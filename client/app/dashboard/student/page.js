@@ -23,7 +23,7 @@ import {
 
 export default function StudentDashboardPage() {
   const { user } = useAuth();
-  const studentName = user?.username || user?.fullName || 'Emily Johnson';
+  const studentName = user?.fullName || user?.name || user?.username || 'Emily Johnson';
   const admissionNo = user?.admissionNo || 'ADM-2026-001';
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState('September 2026');
 

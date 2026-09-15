@@ -56,8 +56,11 @@ exports.register = async (req, res, next) => {
     else if (finalRole === 'Parent') roleModel = 'Parent';
     else if (['Accountant', 'Librarian', 'Staff', 'Super Admin', 'Admin'].includes(finalRole)) roleModel = 'Staff';
 
+    const resolvedFullName = fullName ? fullName.trim() : (username || email.split('@')[0]);
+
     // Create user
     const user = await User.create({
+      fullName: resolvedFullName,
       username: username || `${(fullName || '').split(' ')[0]}_${Date.now().toString().slice(-4)}` || email.split('@')[0],
       email,
       password,
@@ -132,6 +135,8 @@ exports.register = async (req, res, next) => {
       success: true,
       data: {
         _id: user._id,
+        fullName: user.fullName || user.username,
+        name: user.fullName || user.username,
         username: user.username,
         email: user.email,
         role: user.role,
@@ -212,6 +217,8 @@ exports.login = async (req, res, next) => {
       success: true,
       data: {
         _id: user._id,
+        fullName: user.fullName || user.username,
+        name: user.fullName || user.username,
         username: user.username,
         email: user.email,
         role: user.role,

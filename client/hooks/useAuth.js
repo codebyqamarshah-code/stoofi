@@ -47,7 +47,8 @@ export const useAuth = create(
             if (typeof window !== 'undefined') {
               sessionStorage.setItem('token', finalToken);
               localStorage.setItem('recent_user', JSON.stringify({
-                name: finalUser.name,
+                name: finalUser.fullName || finalUser.name || finalUser.username,
+                fullName: finalUser.fullName || finalUser.name || finalUser.username,
                 email: finalUser.email,
                 role: finalUser.role,
                 picture: finalUser.picture,
@@ -129,13 +130,7 @@ export const useAuth = create(
       name: 'auth-storage',
       storage: createJSONStorage(() => sessionStorage), // Use sessionStorage for zustand persist
       partialize: (state) => {
-        let safeUser = state.user;
-        if (safeUser) {
-          safeUser = { ...safeUser };
-          if (safeUser.avatar && safeUser.avatar.length > 5000) safeUser.avatar = '';
-          if (safeUser.picture && safeUser.picture.length > 5000) safeUser.picture = '';
-        }
-        return { user: safeUser, token: state.token, isAuthenticated: state.isAuthenticated };
+        return { user: state.user, token: state.token, isAuthenticated: state.isAuthenticated };
       },
     }
   )

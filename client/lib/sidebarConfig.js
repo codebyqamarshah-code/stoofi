@@ -1113,20 +1113,30 @@ export const STUDENT_MENU_STRUCTURE = [
 export const STORAGE_KEY = 'stoofi_custom_sidebar_v5';
 
 export function getStoredSidebar(role = 'Super Admin') {
+  let defaultForRole = DEFAULT_MENU_STRUCTURE;
+  if (role === 'Student') defaultForRole = STUDENT_MENU_STRUCTURE;
+  else if (role === 'Teacher') defaultForRole = TEACHER_MENU_STRUCTURE;
+
   if (typeof window === 'undefined') {
-    if (role === 'Student') return STUDENT_MENU_STRUCTURE;
-    return DEFAULT_MENU_STRUCTURE;
+    return defaultForRole;
   }
   try {
     const raw = localStorage.getItem(`${STORAGE_KEY}_${role}`);
     if (raw) {
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      if (role === 'Teacher' && Array.isArray(parsed)) {
+        const hasAdminGroups = parsed.some(g => ['grp-accounts', 'grp-settings', 'grp-report'].includes(g.id));
+        if (hasAdminGroups) {
+          localStorage.removeItem(`${STORAGE_KEY}_${role}`);
+          return TEACHER_MENU_STRUCTURE;
+        }
+      }
+      return parsed;
     }
   } catch (e) {
     console.error('Failed to parse sidebar data:', e);
   }
-  if (role === 'Student') return STUDENT_MENU_STRUCTURE;
-  return DEFAULT_MENU_STRUCTURE;
+  return defaultForRole;
 }
 
 export function saveStoredSidebar(menuData, role = 'Super Admin') {
@@ -1140,7 +1150,10 @@ export function saveStoredSidebar(menuData, role = 'Super Admin') {
 }
 
 export function resetStoredSidebar(role = 'Super Admin') {
-  const defaultMenu = role === 'Student' ? STUDENT_MENU_STRUCTURE : DEFAULT_MENU_STRUCTURE;
+  let defaultMenu = DEFAULT_MENU_STRUCTURE;
+  if (role === 'Student') defaultMenu = STUDENT_MENU_STRUCTURE;
+  else if (role === 'Teacher') defaultMenu = TEACHER_MENU_STRUCTURE;
+
   if (typeof window === 'undefined') return defaultMenu;
   try {
     localStorage.removeItem(`${STORAGE_KEY}_${role}`);

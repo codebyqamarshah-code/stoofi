@@ -3,7 +3,7 @@ import { endpointMockMap } from './mockData.js';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
-  timeout: 30000,
+  timeout: 8000,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -251,9 +251,6 @@ api.interceptors.response.use(
           } catch(e) {}
         }
         newData._id = 'mock_' + Date.now();
-        if (typeof newData.avatar === 'string' && newData.avatar.length > 5000) newData.avatar = '';
-        if (typeof newData.picture === 'string' && newData.picture.length > 5000) newData.picture = '';
-        if (typeof newData.image === 'string' && newData.image.length > 5000) newData.image = '';
         records.push(newData);
         try { localStorage.setItem(lsKey, JSON.stringify(records)); } catch(e) {}
         return Promise.resolve({ success: true, data: newData, message: 'Saved to local DB successfully!' });
@@ -274,9 +271,6 @@ api.interceptors.response.use(
              }
            } catch(e) {}
         }
-        if (typeof updateData.avatar === 'string' && updateData.avatar.length > 5000) updateData.avatar = '';
-        if (typeof updateData.picture === 'string' && updateData.picture.length > 5000) updateData.picture = '';
-        if (typeof updateData.image === 'string' && updateData.image.length > 5000) updateData.image = '';
         if (recordId) {
           records = records.map(r => r._id === recordId ? { ...r, ...updateData } : r);
         }

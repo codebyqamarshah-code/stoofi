@@ -54,7 +54,7 @@ export default function DashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [menuStructure, setMenuStructure] = useState(DEFAULT_MENU_STRUCTURE);
+  const [menuStructure, setMenuStructure] = useState(() => getStoredSidebar(user?.role || 'Super Admin'));
   
   // Accordion state: only one menu dropdown open at a time for smooth UX
   const [openSubmenu, setOpenSubmenu] = useState(null);
@@ -351,12 +351,8 @@ export default function DashboardLayout({ children }) {
                     }
 
                     const isDashItem = item.id === 'item-dash' || item.name === 'Dashboard';
-                    const targetHref = isDashItem
-                      ? (user?.role === 'Admin' || user?.email === 'admin@gmail.com' ? '/dashboard/admin' : '/dashboard')
-                      : item.href;
-                    const isItemActive = isDashItem
-                      ? (pathname === '/dashboard' || pathname === '/dashboard/admin')
-                      : pathname === item.href;
+                    const targetHref = item.href || '/dashboard';
+                    const isItemActive = pathname === targetHref;
 
                     return (
                       <Link
@@ -530,9 +526,11 @@ export default function DashboardLayout({ children }) {
               const isAdmUser = user?.role === 'Admin' || user?.email === 'admin@gmail.com';
               const isSuperUser = user?.role === 'Super Admin' || user?.email === 'super@gmail.com';
 
-              const displayUsername = (isAdmRoute || isAdmUser) && !isSuperUser
-                ? 'Admin'
-                : (user?.username || (isAdmRoute ? 'Admin' : 'Super Admin'));
+              const displayUsername = user?.fullName || user?.name || (
+                (isAdmRoute || isAdmUser) && !isSuperUser
+                  ? 'Admin'
+                  : (user?.username || (isAdmRoute ? 'Admin' : 'Super Admin'))
+              );
 
               const displayRole = (isAdmRoute || isAdmUser) && !isSuperUser
                 ? 'ADMIN'
@@ -543,14 +541,16 @@ export default function DashboardLayout({ children }) {
                 ? (user?.email || 'admin@gmail.com')
                 : (user?.email || 'super@gmail.com');
 
+              const userAvatar = user?.avatar || user?.picture;
+
               return (
                 <div className="relative flex items-center space-x-3 border-l border-zinc-200 dark:border-zinc-200 pl-3">
                   <div 
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                     className="h-8 w-8 rounded-full bg-zinc-200 dark:bg-zinc-100 border border-zinc-400 dark:border-zinc-200 flex items-center justify-center text-zinc-950 dark:text-zinc-900 font-bold text-xs cursor-pointer hover:bg-zinc-300/60 transition-colors overflow-hidden"
                   >
-                    {user?.avatar ? (
-                      <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
+                    {userAvatar ? (
+                      <img src={userAvatar} alt="Profile" className="w-full h-full object-cover" />
                     ) : (
                       displayInitial
                     )}

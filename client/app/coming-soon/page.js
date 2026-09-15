@@ -23,7 +23,7 @@ export default function ComingSoonPage() {
   if (!mounted) return null;
 
   const roleName = user?.role || 'User';
-  const userName = user?.username || user?.fullName || 'User';
+  const userName = user?.fullName || user?.name || user?.username || 'User';
 
   const roleMessages = {
     'Student': 'Student',
