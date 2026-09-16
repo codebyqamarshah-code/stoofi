@@ -7,7 +7,7 @@ export default function Page() {
       title="Syllabus List"
       breadcrumb={['Study Material', 'Syllabus']}
       columns={['Class', 'Subject', 'Title', 'Action']}
-      showClassFilter={True}
+      showClassFilter={true}
       data={[]} 
     />
   );

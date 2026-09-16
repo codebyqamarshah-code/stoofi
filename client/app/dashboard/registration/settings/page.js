@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState } from 'react';
 import Link from 'next/link';
 
@@ -144,7 +144,7 @@ export default function RegistrationSettingsPage() {
         </div>
 
         <div className="flex justify-center mt-6 border-b border-gray-200 pb-8">
-          <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-8 py-2.5 rounded flex items-center justify-center gap-2 shadow-sm">✓ SAVE</button>
+          <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-8 py-2.5 rounded flex items-center justify-center gap-2 shadow-sm">? SAVE</button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 mt-8">

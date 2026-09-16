@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useRef } from 'react';
 import { Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns } from 'lucide-react';
 import Link from 'next/link';
@@ -101,7 +101,7 @@ export default function JitsiVirtualMeetingPage() {
           </div>
 
           <div className="flex justify-center mt-4">
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-6 py-2.5 rounded flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm">✓ SAVE</button>
+            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-6 py-2.5 rounded flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm">? SAVE</button>
           </div>
         </div>
 
@@ -128,12 +128,12 @@ export default function JitsiVirtualMeetingPage() {
             <table className="w-full text-sm text-left border-t border-gray-200">
               <thead>
                 <tr className="border-b border-gray-200 text-indigo-600">
-                  <th className="py-3 px-3 font-medium text-xs">↓ #</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Meeting Id</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Topic</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Date | Time</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Duration</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Start Join Before</th>
+                  <th className="py-3 px-3 font-medium text-xs">? #</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Meeting Id</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Topic</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Date | Time</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Duration</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Start Join Before</th>
                 </tr>
               </thead>
               <tbody>
@@ -147,8 +147,8 @@ export default function JitsiVirtualMeetingPage() {
           <div className="flex items-center justify-between mt-4 text-xs text-gray-500">
             <span>Showing 0 to 0 of 0 entries</span>
             <div className="flex items-center gap-1">
-              <button className="px-2 py-1 text-gray-500 hover:text-gray-700">←</button>
-              <button className="px-2 py-1 text-gray-500 hover:text-gray-700">→</button>
+              <button className="px-2 py-1 text-gray-500 hover:text-gray-700">?</button>
+              <button className="px-2 py-1 text-gray-500 hover:text-gray-700">?</button>
             </div>
           </div>
         </div>

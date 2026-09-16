@@ -7,7 +7,7 @@ export default function Page() {
       title="Virtual Class List"
       breadcrumb={['Virtual Class', 'Virtual Class']}
       columns={['Topic', 'Teacher', 'Date', 'Time', 'Meeting Link']}
-      showClassFilter={True}
+      showClassFilter={true}
       data={[]} 
     />
   );

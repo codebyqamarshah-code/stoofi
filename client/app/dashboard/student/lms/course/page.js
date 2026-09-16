@@ -7,7 +7,7 @@ export default function Page() {
       title="Course List"
       breadcrumb={['LMS', 'Course']}
       columns={['SL', 'Course Name', 'Instructor', 'Price']}
-      showClassFilter={True}
+      showClassFilter={true}
       data={[]} 
     />
   );

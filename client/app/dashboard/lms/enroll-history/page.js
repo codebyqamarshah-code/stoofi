@@ -8,11 +8,26 @@ import { ChevronRight, Search, Download, Printer, FileText, MoreVertical, Plus }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
 export default function EnrollHistoryPage() {
   const [logs, setLogs] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({ course: '', student: '', paidAmount: '', instructor: '', details: '', paymentMethod: 'Cash' });
   useEffect(() => { fetchRecords(); }, []);
   const fetchRecords = async () => { try { const res = await api.get('/lms-enroll-history'); if(res.success) setLogs(res.data); } catch(e){} };
+
+  const handleEnroll = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.post('/lms-enroll-history', { ...formData, purchaseDate: new Date().toISOString(), freeCourse: formData.paidAmount === '0' ? 'Yes' : 'No' });
+      if (res.success) {
+        setIsModalOpen(false);
+        setFormData({ course: '', student: '', paidAmount: '', instructor: '', details: '', paymentMethod: 'Cash' });
+        fetchRecords();
+      }
+    } catch(e) {}
+  };
 
   return (
     <div className="space-y-6">
@@ -31,7 +46,7 @@ export default function EnrollHistoryPage() {
       <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-5">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-base font-semibold text-white">Select Criteria</h2>
-          <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold h-9 text-xs">
+          <Button onClick={() => setIsModalOpen(true)} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold h-9 text-xs">
             <Plus className="h-3.5 w-3.5 mr-1" /> NEW ENROLL
           </Button>
         </div>
@@ -152,6 +167,40 @@ export default function EnrollHistoryPage() {
           </div>
         </div>
       </div>
+
+      {/* New Enroll Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="bg-zinc-950 border border-zinc-800 text-zinc-100 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold text-white flex items-center gap-2">
+              <Plus className="h-5 w-5" />
+              New Enroll
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEnroll} className="space-y-4 py-2">
+            <div>
+              <Label className="text-xs font-semibold text-zinc-400">Course Name *</Label>
+              <Input required value={formData.course} onChange={e => setFormData({...formData, course: e.target.value})} className="bg-zinc-900 border-zinc-800 text-white mt-1" />
+            </div>
+            <div>
+              <Label className="text-xs font-semibold text-zinc-400">Student Name *</Label>
+              <Input required value={formData.student} onChange={e => setFormData({...formData, student: e.target.value})} className="bg-zinc-900 border-zinc-800 text-white mt-1" />
+            </div>
+            <div>
+              <Label className="text-xs font-semibold text-zinc-400">Instructor Name *</Label>
+              <Input required value={formData.instructor} onChange={e => setFormData({...formData, instructor: e.target.value})} className="bg-zinc-900 border-zinc-800 text-white mt-1" />
+            </div>
+            <div>
+              <Label className="text-xs font-semibold text-zinc-400">Paid Amount *</Label>
+              <Input type="number" required value={formData.paidAmount} onChange={e => setFormData({...formData, paidAmount: e.target.value})} className="bg-zinc-900 border-zinc-800 text-white mt-1" />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)} className="border-zinc-700 text-zinc-300">Cancel</Button>
+              <Button type="submit" className="bg-white text-black hover:bg-zinc-200">Enroll Student</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

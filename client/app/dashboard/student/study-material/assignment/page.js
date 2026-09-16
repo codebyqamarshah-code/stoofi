@@ -7,7 +7,7 @@ export default function Page() {
       title="Assignment List"
       breadcrumb={['Study Material', 'Assignment']}
       columns={['Title', 'Subject', 'Deadline', 'Status', 'Action']}
-      showClassFilter={True}
+      showClassFilter={true}
       data={[]} 
     />
   );

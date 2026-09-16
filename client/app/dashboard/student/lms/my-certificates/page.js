@@ -7,7 +7,7 @@ export default function Page() {
       title="My Certificates"
       breadcrumb={['LMS', 'My Certificates']}
       columns={['Certificate Name', 'Course', 'Date Issued', 'Action']}
-      showClassFilter={False}
+      showClassFilter={false}
       data={[]} 
     />
   );

@@ -97,16 +97,17 @@ app.use('/api/bank-account', require('./routes/bank-account.routes'));
 app.use('/api/student-attendance', require('./routes/student-attendance.routes'));
 
 app.use('/api/payroll', require('./routes/payroll.routes'));
-
 app.use('/api/leave-type', require('./routes/leave-type.routes'));
-
+app.use('/api/leave', require('./routes/leave.routes'));
 app.use('/api/role', require('./routes/role.routes'));
-
 app.use('/api/question-bank', require('./routes/question-bank.routes'));
-
 app.use('/api/teacher-evaluation', require('./routes/teacher-evaluation.routes'));
+app.use('/api/book', require('./routes/book.routes'));
+app.use('/api/dormitory-room', require('./routes/dormitory-room.routes'));
+app.use('/api/dormitory', require('./routes/dormitory.routes'));
+app.use('/api/lms-course', require('./routes/lms-course.routes'));
 
-// Basic route
+// Global error handler
 app.get('/', (req, res) => {
   res.send('School Management ERP API is running');
 });

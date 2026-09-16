@@ -7,7 +7,7 @@ export default function Page() {
       title="Teachers Directory"
       breadcrumb={['Teachers']}
       columns={['Teacher Name', 'Department', 'Phone', 'Email']}
-      showClassFilter={True}
+      showClassFilter={true}
       data={[]} 
     />
   );

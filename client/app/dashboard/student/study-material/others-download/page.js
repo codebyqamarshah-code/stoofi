@@ -7,7 +7,7 @@ export default function Page() {
       title="Others Download"
       breadcrumb={['Study Material', 'Others Download']}
       columns={['Title', 'Description', 'Date', 'Action']}
-      showClassFilter={False}
+      showClassFilter={false}
       data={[]} 
     />
   );

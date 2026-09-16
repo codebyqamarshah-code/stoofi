@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useRef } from 'react';
 import { ChevronRight, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
@@ -44,7 +44,7 @@ export default function ExamSignatureSettingsPage() {
             </div>
           </div>
 
-          <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-6 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors mt-4">✓ SAVE</button>
+          <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-6 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors mt-4">? SAVE</button>
         </div>
 
         <div className="xl:col-span-2 bg-zinc-900 border border-zinc-800 rounded-xl p-6">
@@ -67,11 +67,11 @@ export default function ExamSignatureSettingsPage() {
             <table className="w-full text-sm text-left">
               <thead>
                 <tr className="border-b border-zinc-800 text-zinc-400">
-                  <th className="py-3 px-3 font-medium text-xs">↓ SL</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Name</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Designation</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Signature</th>
-                  <th className="py-3 px-3 font-medium text-xs text-center">↓ Action</th>
+                  <th className="py-3 px-3 font-medium text-xs">? SL</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Name</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Designation</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Signature</th>
+                  <th className="py-3 px-3 font-medium text-xs text-center">? Action</th>
                 </tr>
               </thead>
               <tbody>

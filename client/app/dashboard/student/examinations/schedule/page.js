@@ -7,7 +7,7 @@ export default function Page() {
       title="Exam Schedule"
       breadcrumb={['Examinations', 'Exam Schedule']}
       columns={['Exam Name', 'Subject', 'Date', 'Time', 'Room']}
-      showClassFilter={True}
+      showClassFilter={true}
       data={[]} 
     />
   );

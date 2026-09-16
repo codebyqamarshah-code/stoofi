@@ -7,7 +7,7 @@ export default function Page() {
       title="Chat Invitations"
       breadcrumb={['Chat', 'Invitation']}
       columns={['User', 'Role', 'Status', 'Action']}
-      showClassFilter={False}
+      showClassFilter={false}
       data={[]} 
     />
   );

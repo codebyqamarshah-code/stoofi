@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState } from 'react';
 import Link from 'next/link';
 
@@ -38,7 +38,7 @@ export default function GmeetSettingsPage() {
 
           <div className="mt-8">
             <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-6 py-2 rounded flex items-center justify-center gap-2 shadow-sm">
-              ✓ UPDATE
+              ? UPDATE
             </button>
           </div>
         </div>

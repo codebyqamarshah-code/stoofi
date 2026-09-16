@@ -22,6 +22,11 @@ const notificationSchema = new mongoose.Schema({
     type: String,
     enum: ['Super Admin', 'Admin', 'Teacher', 'Student', 'All'],
     default: 'Super Admin'
+  },
+  recipientId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
   }
 }, { timestamps: true });
 

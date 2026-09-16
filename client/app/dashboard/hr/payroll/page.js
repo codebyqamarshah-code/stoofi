@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, ChevronDown, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, Eye, Zap } from 'lucide-react';
@@ -135,7 +135,7 @@ export default function PayrollPage() {
       {searched && (
         <div className="bg-zinc-950 border border-zinc-800 rounded-xl shadow-md">
           <div className="p-4 border-b border-zinc-800 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-base font-bold text-white">Payroll List � {month} {year}</h2>
+            <h2 className="text-base font-bold text-white">Payroll List ? {month} {year}</h2>
             <div className="flex items-center gap-1">
               <button onClick={handleCopy} title="Copy" className="p-1.5 rounded border border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"><Copy className="h-3.5 w-3.5" /></button>
               <button onClick={handleCSV} title="Excel" className="p-1.5 rounded border border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"><FileSpreadsheet className="h-3.5 w-3.5" /></button>

@@ -7,7 +7,7 @@ export default function Page() {
       title="Fees Invoice"
       breadcrumb={['Fees', 'Fees Invoice']}
       columns={['SL', 'Student', 'Class(Section)', 'Amount', 'Waiver', 'Fine', 'Paid', 'Balance', 'Status', 'Date']}
-      showClassFilter={True}
+      showClassFilter={true}
       data={[]} 
     />
   );

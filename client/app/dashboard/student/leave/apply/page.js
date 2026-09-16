@@ -7,7 +7,7 @@ export default function Page() {
       title="Apply Leave"
       breadcrumb={['Leave', 'Apply Leave']}
       columns={['Leave Type', 'From', 'To', 'Reason', 'Status', 'Action']}
-      showClassFilter={False}
+      showClassFilter={false}
       data={[]} 
     />
   );

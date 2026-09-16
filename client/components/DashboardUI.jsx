@@ -387,6 +387,8 @@ export default function DashboardUI({ user }) {
       } catch (_) {}
     }
     fetchDashboardStats();
+    const interval = setInterval(fetchDashboardStats, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   // 4. QUICK ACTION SUBMISSION HANDLERS

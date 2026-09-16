@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useRef } from 'react';
 import { Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns } from 'lucide-react';
 import Link from 'next/link';
@@ -125,7 +125,7 @@ export default function BBBVirtualClassPage() {
           </div>
 
           <div className="flex justify-center mt-6">
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-8 py-2.5 rounded flex items-center justify-center gap-2 shadow-sm">✓ SAVE</button>
+            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-8 py-2.5 rounded flex items-center justify-center gap-2 shadow-sm">? SAVE</button>
           </div>
         </div>
 
@@ -151,12 +151,12 @@ export default function BBBVirtualClassPage() {
             <table className="w-full text-sm text-left border-t border-gray-200">
               <thead>
                 <tr className="border-b border-gray-200 text-indigo-600">
-                  <th className="py-3 px-3 font-medium text-xs">↓ #</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Class</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Class (Section)</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Meeting Id</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Password</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Topic</th>
+                  <th className="py-3 px-3 font-medium text-xs">? #</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Class</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Class (Section)</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Meeting Id</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Password</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Topic</th>
                 </tr>
               </thead>
               <tbody>

@@ -95,16 +95,17 @@ exports.getDashboardStats = async (req, res, next) => {
 
     allExpenses.forEach(e => {
       const eDate = new Date(e.date || e.createdAt);
-      if (eDate.getMonth() === currentMonth && eDate.getFullYear() === currentYear) {
-        const day = eDate.getDate();
-        if (day <= 3) monthlyBreakdown[0].expense += e.amount;
-        else if (day <= 7) monthlyBreakdown[1].expense += e.amount;
-        else if (day <= 12) monthlyBreakdown[2].expense += e.amount;
-        else if (day <= 17) monthlyBreakdown[3].expense += e.amount;
-        else if (day <= 22) monthlyBreakdown[4].expense += e.amount;
-        else if (day <= 27) monthlyBreakdown[5].expense += e.amount;
-        else monthlyBreakdown[6].expense += e.amount;
-      }
+        if (eDate.getMonth() === currentMonth && eDate.getFullYear() === currentYear) {
+          const day = eDate.getDate();
+          const amt = e.amount || 0;
+          if (day <= 3) monthlyBreakdown[0].expense += amt;
+          else if (day <= 7) monthlyBreakdown[1].expense += amt;
+          else if (day <= 12) monthlyBreakdown[2].expense += amt;
+          else if (day <= 17) monthlyBreakdown[3].expense += amt;
+          else if (day <= 22) monthlyBreakdown[4].expense += amt;
+          else if (day <= 27) monthlyBreakdown[5].expense += amt;
+          else monthlyBreakdown[6].expense += amt;
+        }
     });
 
     // Yearly trajectory data
@@ -121,7 +122,7 @@ exports.getDashboardStats = async (req, res, next) => {
     allExpenses.forEach(e => {
       const eDate = new Date(e.date || e.createdAt);
       if (eDate.getFullYear() === currentYear) {
-        yearlyTrajectory[eDate.getMonth()].expense += e.amount;
+        yearlyTrajectory[eDate.getMonth()].expense += (e.amount || 0);
       }
     });
 

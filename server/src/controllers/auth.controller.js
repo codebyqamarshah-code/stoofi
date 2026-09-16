@@ -130,6 +130,9 @@ exports.register = async (req, res, next) => {
     }
 
     await Notification.create({ title: 'New Registration', message: `${finalRole} ${resolvedFullName} just registered.`, type: 'Registration', audience: 'Super Admin' });
+    if (finalRole === 'Student') {
+      await Notification.create({ title: 'New Student Enrolled', message: `Student ${resolvedFullName} has registered.`, type: 'Registration', audience: 'Teacher' });
+    }
 
     // Generate token
     const token = generateToken(user);

@@ -49,13 +49,14 @@ export default function StudentDashboardPage() {
   useEffect(() => {
     if (user?.referenceId) {
       // We know /api/student/:id works now!
-      fetch(process.env.NEXT_PUBLIC_API_URL + '/api/student/' + user.referenceId, {
+      fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000") + '/api/student/' + user.referenceId, {
         headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
       })
       .then(r => r.json())
       .then(d => {
         if (d.success && d.data) {
           setAdmissionNo(d.data.admissionNo || 'N/A');
+          setStudentDetails(d.data);
         } else {
           setAdmissionNo('ADM-' + String(user._id).slice(-5).toUpperCase());
         }
@@ -104,25 +105,21 @@ export default function StudentDashboardPage() {
   };
   const goToday = () => { setCalMonth(today.getMonth()); setCalYear(today.getFullYear()); };
 
+  const [studentDetails, setStudentDetails] = useState(null);
+
   const statCards = [
-    { label: 'TOTAL SUBJECT', value: user?.subjects?.length || '0', icon: BookOpen, href: '/dashboard/student/subjects' },
-    { label: 'TOTAL EXAM', value: '0', icon: Award, href: '/dashboard/student/examinations/schedule' },
-    { label: 'TOTAL ONLINE EXAM', value: '0', icon: Monitor, href: '/dashboard/student/online-exam/active' },
-    { label: 'TOTAL TEACHERS', value: '0', icon: Users, href: '/dashboard/student/teachers' },
-    { label: 'TOTAL ISSUED BOOK', value: '0', icon: BookMarked, href: '/dashboard/student/library/book-issue' },
-    { label: 'PENDING HOMEWORK', value: '0', icon: ListTodo, href: '/dashboard/student/homework' },
-    { label: 'ATTENDANCE THIS MONTH', value: '0', icon: CalendarCheck, href: '/dashboard/student/attendance' },
-    { label: 'TOTAL DUE FEES', value: '$0', icon: DollarSign, href: '/dashboard/student/fees' },
-    { label: 'BEHAVIOUR POINTS', value: '0', icon: Star, href: '/dashboard/student' },
+    { label: 'TOTAL SUBJECT', value: studentDetails?.subjects?.length || user?.subjects?.length || '0', icon: BookOpen, href: '/dashboard/student/subjects' },
+    { label: 'TOTAL EXAM', value: studentDetails?.exams?.length || '0', icon: Award, href: '/dashboard/student/examinations/schedule' },
+    { label: 'TOTAL ONLINE EXAM', value: studentDetails?.onlineExams?.length || '0', icon: Monitor, href: '/dashboard/student/online-exam/active' },
+    { label: 'TOTAL TEACHERS', value: studentDetails?.teachers?.length || '0', icon: Users, href: '/dashboard/student/teachers' },
+    { label: 'TOTAL ISSUED BOOK', value: studentDetails?.issuedBooks?.length || '0', icon: BookMarked, href: '/dashboard/student/library/book-issue' },
+    { label: 'PENDING HOMEWORK', value: studentDetails?.pendingHomeworks?.length || '0', icon: ListTodo, href: '/dashboard/student/homework' },
+    { label: 'ATTENDANCE THIS MONTH', value: studentDetails?.attendanceCount || '0', icon: CalendarCheck, href: '/dashboard/student/attendance' },
+    { label: 'TOTAL DUE FEES', value: '$' + (studentDetails?.dueFees || '0'), icon: DollarSign, href: '/dashboard/student/fees' },
+    { label: 'BEHAVIOUR POINTS', value: studentDetails?.behaviourPoints || '0', icon: Star, href: '/dashboard/student' },
   ];
 
-  // Dummy dynamic events coming from Admin (Simulated)
-  const [events, setEvents] = useState([
-    { date: 15, title: 'Math Test', type: 'exam', color: 'bg-rose-600' },
-    { date: 22, title: 'Sports Day Notice', type: 'notice', color: 'bg-indigo-600' }
-  ]);
-  const [showEventPopup, setShowEventPopup] = useState(false);
-  const [latestEvent, setLatestEvent] = useState(null);
+  const [events, setEvents] = useState([]);
   
   // LIVE LEAVE DATA
   const [leaveData, setLeaveData] = useState([]);
@@ -169,48 +166,10 @@ export default function StudentDashboardPage() {
     if (user) {
       fetchLeaves();
     }
-
-    // 2. Show popup after 3 seconds for the latest event
-    if (events.length > 0) {
-      const timer = setTimeout(() => {
-        setLatestEvent(events[0]); // Pick first as latest
-        setShowEventPopup(true);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
   }, [events]);
 
   return (
     <div className="space-y-6 pb-12 relative">
-
-      {/* Event Popup Modal */}
-      {showEventPopup && latestEvent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-300">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-sm w-full relative border-t-8 border-indigo-600">
-            <button 
-              onClick={() => setShowEventPopup(false)}
-              className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-900 transition-colors"
-            >
-              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CalendarCheck className="w-8 h-8" />
-              </div>
-              <h2 className="text-xl font-black text-zinc-900 mb-2">New Event Assigned!</h2>
-              <p className="text-sm font-medium text-zinc-600 mb-6">
-                Admin has scheduled a new <strong className="text-indigo-600">{latestEvent.title}</strong> for day {latestEvent.date} of this month. Please check your calendar.
-              </p>
-              <button 
-                onClick={() => setShowEventPopup(false)}
-                className="w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-xl transition-all"
-              >
-                Got It
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── TOP HEADER BANNER (zinc/white theme) ── */}
       <div className="relative overflow-hidden rounded-3xl bg-zinc-900 p-6 sm:p-8 text-white shadow-xl">

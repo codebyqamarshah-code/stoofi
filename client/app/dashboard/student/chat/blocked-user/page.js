@@ -7,7 +7,7 @@ export default function Page() {
       title="Blocked Users"
       breadcrumb={['Chat', 'Blocked User']}
       columns={['User', 'Role', 'Date Blocked', 'Action']}
-      showClassFilter={False}
+      showClassFilter={false}
       data={[]} 
     />
   );

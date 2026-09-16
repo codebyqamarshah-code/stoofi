@@ -7,7 +7,7 @@ export default function Page() {
       title="Issued Books"
       breadcrumb={['Library', 'Book Issue']}
       columns={['Book Title', 'Issue Date', 'Return Date', 'Status']}
-      showClassFilter={False}
+      showClassFilter={false}
       data={[]} 
     />
   );

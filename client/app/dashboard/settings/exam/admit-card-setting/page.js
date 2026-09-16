@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useRef } from 'react';
 import Link from 'next/link';
 
@@ -100,14 +100,14 @@ export default function AdmitCardSettingPage() {
                 <button className="italic px-2 hover:bg-gray-200 rounded">I</button>
                 <button className="underline px-2 hover:bg-gray-200 rounded">U</button>
                 <div className="w-px h-4 bg-gray-300"></div>
-                <button className="px-2 hover:bg-gray-200 rounded text-sm">Inter ▾</button>
-                <button className="px-2 hover:bg-gray-200 rounded text-sm">A ▾</button>
+                <button className="px-2 hover:bg-gray-200 rounded text-sm">Inter ?</button>
+                <button className="px-2 hover:bg-gray-200 rounded text-sm">A ?</button>
                 <div className="w-px h-4 bg-gray-300"></div>
-                <button className="px-2 hover:bg-gray-200 rounded">≡</button>
+                <button className="px-2 hover:bg-gray-200 rounded">=</button>
                 <button className="px-2 hover:bg-gray-200 rounded">equiv</button>
                 <div className="w-px h-4 bg-gray-300"></div>
-                <button className="px-2 hover:bg-gray-200 rounded">🔗</button>
-                <button className="px-2 hover:bg-gray-200 rounded">📷</button>
+                <button className="px-2 hover:bg-gray-200 rounded">??</button>
+                <button className="px-2 hover:bg-gray-200 rounded">??</button>
                 <button className="px-2 hover:bg-gray-200 rounded">&lt;/&gt;</button>
               </div>
               <textarea rows={8} value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-white text-gray-700 text-sm p-4 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
@@ -115,7 +115,7 @@ export default function AdmitCardSettingPage() {
           </div>
 
           <div className="flex justify-center mt-8">
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-8 py-2.5 rounded flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm">✓ UPDATE</button>
+            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-8 py-2.5 rounded flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm">? UPDATE</button>
           </div>
         </div>
       </div>

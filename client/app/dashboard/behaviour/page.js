@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import EmptyPage from '@/components/EmptyPage';
 import { Shield } from 'lucide-react';
 export default function Page() {

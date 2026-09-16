@@ -7,7 +7,7 @@ export default function Page() {
       title="Active Online Exams"
       breadcrumb={['Online Exam', 'Active Exams']}
       columns={['Exam Title', 'Subject', 'Duration', 'End Date', 'Action']}
-      showClassFilter={True}
+      showClassFilter={true}
       data={[]} 
     />
   );

@@ -7,7 +7,7 @@ export default function Page() {
       title="Attendance Record"
       breadcrumb={['Attendance']}
       columns={['Date', 'Status', 'Remarks']}
-      showClassFilter={True}
+      showClassFilter={true}
       data={[]} 
     />
   );

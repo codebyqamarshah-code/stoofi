@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useRef } from 'react';
 import { Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, Plus } from 'lucide-react';
 import Link from 'next/link';
@@ -121,7 +121,7 @@ export default function JitsiVirtualClassPage() {
           </div>
 
           <div className="flex justify-center mt-4">
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-6 py-2.5 rounded flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm">✓ SAVE</button>
+            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-6 py-2.5 rounded flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm">? SAVE</button>
           </div>
         </div>
 
@@ -147,12 +147,12 @@ export default function JitsiVirtualClassPage() {
             <table className="w-full text-sm text-left border-t border-gray-200">
               <thead>
                 <tr className="border-b border-gray-200 text-indigo-600">
-                  <th className="py-3 px-3 font-medium text-xs">↓ #</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Class</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Class (Section)</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Meeting Id</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Topic</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Date | Time</th>
+                  <th className="py-3 px-3 font-medium text-xs">? #</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Class</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Class (Section)</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Meeting Id</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Topic</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Date | Time</th>
                 </tr>
               </thead>
               <tbody>
@@ -176,9 +176,9 @@ export default function JitsiVirtualClassPage() {
           <div className="flex items-center justify-between mt-4 text-xs text-gray-500">
             <span>Showing 1 to 1 of 1 entries</span>
             <div className="flex items-center gap-1">
-              <button className="px-2 py-1 text-gray-500 hover:text-gray-700">←</button>
+              <button className="px-2 py-1 text-gray-500 hover:text-gray-700">?</button>
               <button className="px-2 py-1 bg-indigo-600 text-white rounded">1</button>
-              <button className="px-2 py-1 text-gray-500 hover:text-gray-700">→</button>
+              <button className="px-2 py-1 text-gray-500 hover:text-gray-700">?</button>
             </div>
           </div>
         </div>

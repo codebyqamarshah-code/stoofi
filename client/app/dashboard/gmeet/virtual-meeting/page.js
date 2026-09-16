@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useRef } from 'react';
 import { Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns } from 'lucide-react';
 import Link from 'next/link';
@@ -97,7 +97,7 @@ export default function GmeetVirtualMeetingPage() {
           </div>
 
           <div className="flex justify-center mt-6">
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-8 py-2.5 rounded flex items-center justify-center gap-2 shadow-sm">✓ SAVE MEETING</button>
+            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-8 py-2.5 rounded flex items-center justify-center gap-2 shadow-sm">? SAVE MEETING</button>
           </div>
         </div>
 
@@ -123,13 +123,13 @@ export default function GmeetVirtualMeetingPage() {
             <table className="w-full text-sm text-left border-t border-gray-200">
               <thead>
                 <tr className="border-b border-gray-200 text-indigo-600">
-                  <th className="py-3 px-3 font-medium text-xs">↓ #</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Topic</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Date</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Time</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Duration</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Start/Join Before</th>
-                  <th className="py-3 px-3 font-medium text-xs">↓ Start/Join</th>
+                  <th className="py-3 px-3 font-medium text-xs">? #</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Topic</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Date</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Time</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Duration</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Start/Join Before</th>
+                  <th className="py-3 px-3 font-medium text-xs">? Start/Join</th>
                 </tr>
               </thead>
               <tbody>

@@ -7,7 +7,7 @@ export default function Page() {
       title="Lesson Plan Overview"
       breadcrumb={['Lesson Plan', 'Overview']}
       columns={['Subject', 'Completed Topics', 'Pending Topics', 'Progress']}
-      showClassFilter={True}
+      showClassFilter={true}
       data={[]} 
     />
   );

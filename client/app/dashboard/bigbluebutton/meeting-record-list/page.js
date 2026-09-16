@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState } from 'react';
 import { Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns } from 'lucide-react';
 import Link from 'next/link';
@@ -41,12 +41,12 @@ export default function BBBMeetingRecordListPage() {
           <table className="w-full text-sm text-left border-t border-gray-200">
             <thead>
               <tr className="border-b border-gray-200 text-indigo-600">
-                <th className="py-3 px-3 font-medium text-xs">↓ #</th>
-                <th className="py-3 px-3 font-medium text-xs">↓ Meeting Id</th>
-                <th className="py-3 px-3 font-medium text-xs">↓ Topic</th>
-                <th className="py-3 px-3 font-medium text-xs">↓ Date | Time</th>
-                <th className="py-3 px-3 font-medium text-xs">↓ Total Participants</th>
-                <th className="py-3 px-3 font-medium text-xs">↓ URL</th>
+                <th className="py-3 px-3 font-medium text-xs">? #</th>
+                <th className="py-3 px-3 font-medium text-xs">? Meeting Id</th>
+                <th className="py-3 px-3 font-medium text-xs">? Topic</th>
+                <th className="py-3 px-3 font-medium text-xs">? Date | Time</th>
+                <th className="py-3 px-3 font-medium text-xs">? Total Participants</th>
+                <th className="py-3 px-3 font-medium text-xs">? URL</th>
               </tr>
             </thead>
             <tbody>
@@ -60,8 +60,8 @@ export default function BBBMeetingRecordListPage() {
         <div className="flex items-center justify-between mt-4 text-xs text-gray-500">
           <span>Showing 0 to 0 of 0 entries</span>
           <div className="flex items-center gap-1">
-            <button className="px-2 py-1 text-gray-500 hover:text-gray-700">←</button>
-            <button className="px-2 py-1 text-gray-500 hover:text-gray-700">→</button>
+            <button className="px-2 py-1 text-gray-500 hover:text-gray-700">?</button>
+            <button className="px-2 py-1 text-gray-500 hover:text-gray-700">?</button>
           </div>
         </div>
       </div>

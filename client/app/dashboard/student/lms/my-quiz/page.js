@@ -7,7 +7,7 @@ export default function Page() {
       title="My Quiz"
       breadcrumb={['LMS', 'My Quiz']}
       columns={['Quiz Name', 'Course', 'Score', 'Status']}
-      showClassFilter={False}
+      showClassFilter={false}
       data={[]} 
     />
   );

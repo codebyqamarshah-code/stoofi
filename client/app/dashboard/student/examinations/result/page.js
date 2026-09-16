@@ -7,7 +7,7 @@ export default function Page() {
       title="Exam Results"
       breadcrumb={['Examinations', 'Result']}
       columns={['Exam', 'Subject', 'Marks Obtained', 'Grade']}
-      showClassFilter={True}
+      showClassFilter={true}
       data={[]} 
     />
   );

@@ -70,7 +70,7 @@ export default function DashboardLayout({ children }) {
     if (user) {
       const fetchNotices = async () => {
         try {
-          const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/api/dashboard/notices', {
+          const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000") + '/api/dashboard/notices', {
             headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
           });
           const result = await res.json();
@@ -99,7 +99,7 @@ export default function DashboardLayout({ children }) {
     if (user?.role === 'Super Admin' || user?.role === 'Admin') {
       const fetchLiveUpdates = async () => {
         try {
-          const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/api/dashboard/live-updates', {
+          const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000") + '/api/dashboard/live-updates', {
             headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
           });
           const result = await res.json();

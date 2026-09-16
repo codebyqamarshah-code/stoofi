@@ -7,7 +7,7 @@ export default function Page() {
       title="Pending Leave Request"
       breadcrumb={['Leave', 'Pending Leave Request']}
       columns={['Leave Type', 'Apply Date', 'Status']}
-      showClassFilter={False}
+      showClassFilter={false}
       data={[]} 
     />
   );
