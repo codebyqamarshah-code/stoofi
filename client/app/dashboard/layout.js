@@ -59,6 +59,68 @@ export default function DashboardLayout({ children }) {
   // Accordion state: only one menu dropdown open at a time for smooth UX
   const [openSubmenu, setOpenSubmenu] = useState(null);
 
+  const [liveNotifications, setLiveNotifications] = useState([]);
+  const [activeStudentsCount, setActiveStudentsCount] = useState(0);
+  const [hasUnreadNotif, setHasUnreadNotif] = useState(false);
+
+  const [showNoticePopup, setShowNoticePopup] = useState(false);
+  const [latestNotice, setLatestNotice] = useState(null);
+
+  useEffect(() => {
+    if (user) {
+      const fetchNotices = async () => {
+        try {
+          const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/api/dashboard/notices', {
+            headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+          });
+          const result = await res.json();
+          if (result.success && result.data && result.data.length > 0) {
+            // Filter by audience
+            const validNotices = result.data.filter(n => n.audience === 'All' || n.audience === user.role);
+            if (validNotices.length > 0) {
+              const notice = validNotices[0];
+              // check if already seen this session
+              const seen = sessionStorage.getItem('seenNotice_' + notice._id);
+              if (!seen) {
+                setLatestNotice(notice);
+                setShowNoticePopup(true);
+                sessionStorage.setItem('seenNotice_' + notice._id, 'true');
+              }
+            }
+          }
+        } catch(e) {}
+      };
+      fetchNotices();
+    }
+  }, [user]);
+
+
+  useEffect(() => {
+    if (user?.role === 'Super Admin' || user?.role === 'Admin') {
+      const fetchLiveUpdates = async () => {
+        try {
+          const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/api/dashboard/live-updates', {
+            headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+          });
+          const result = await res.json();
+          if (result.success) {
+            setLiveNotifications(result.data.notifications);
+            setActiveStudentsCount(result.data.activeStudents);
+            if (result.data.notifications.length > 0) {
+              setHasUnreadNotif(true);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to fetch live updates', error);
+        }
+      };
+      fetchLiveUpdates();
+      const interval = setInterval(fetchLiveUpdates, 15000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+
+
   // Sync sidebar configuration from localStorage and event listener
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -204,58 +266,15 @@ export default function DashboardLayout({ children }) {
     const googleLangMap = { EN: 'en', UR: 'ur', AR: 'ar' };
     const targetLang = googleLangMap[langCode] || 'en';
 
-    // Method 1: Use doGTranslate (standard Google Translate widget API)
-    if (typeof window.doGTranslate === 'function') {
-      window.doGTranslate(`en|${targetLang}`);
-      return;
-    }
-
-    // Method 2: Find Google Translate select element and trigger change
-    const tryTriggerGT = () => {
-      const gtFrame = document.querySelector('.goog-te-combo') ||
-                      document.querySelector('select.goog-te-combo') ||
-                      document.querySelector('iframe.goog-te-menu-frame');
-
-      if (gtFrame && gtFrame.tagName === 'SELECT') {
-        gtFrame.value = targetLang;
-        gtFrame.dispatchEvent(new Event('change', { bubbles: true }));
-        return true;
-      }
-
-      // Try inside iframe
-      try {
-        const iframes = document.querySelectorAll('iframe');
-        for (const iframe of iframes) {
-          const sel = iframe.contentDocument?.querySelector('.goog-te-combo');
-          if (sel) {
-            sel.value = targetLang;
-            sel.dispatchEvent(new Event('change', { bubbles: true }));
-            return true;
-          }
-        }
-      } catch (_) {}
-
-      return false;
-    };
-
-    // Try immediately, then retry after GT loads
-    if (!tryTriggerGT()) {
-      let attempts = 0;
-      const interval = setInterval(() => {
-        attempts++;
-        if (tryTriggerGT() || attempts > 20) {
-          clearInterval(interval);
-        }
-      }, 300);
-    }
-
-    // Method 3: Fallback — set cookie and reload only if EN (reset)
     if (langCode === 'EN') {
-      // Clear translation
       document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
       document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=' + window.location.hostname;
-      window.location.reload();
+    } else {
+      document.cookie = `googtrans=/en/${targetLang}; path=/`;
+      document.cookie = `googtrans=/en/${targetLang}; path=/; domain=${window.location.hostname}`;
     }
+    
+    window.location.reload();
   };
 
   return (
@@ -496,7 +515,15 @@ export default function DashboardLayout({ children }) {
               )}
             </div>
             
+            
+            {(user?.role === 'Super Admin' || user?.role === 'Admin') && (
+              <div className="hidden sm:flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full cursor-default" title="Active Students (Logged in last 10 mins)">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="text-xs font-bold text-emerald-800">{activeStudentsCount} Active</span>
+              </div>
+            )}
             <ThemeToggle />
+
 
             {/* Notifications Dropdown */}
             <div className="relative">
@@ -513,20 +540,21 @@ export default function DashboardLayout({ children }) {
                 <div className="absolute top-full right-0 mt-2 w-64 bg-white dark:bg-zinc-50 border border-zinc-300 dark:border-zinc-200 rounded-lg shadow-xl overflow-hidden">
                   <div className="p-3 border-b border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white flex justify-between items-center">
                     <span className="text-xs font-bold text-zinc-900 dark:text-zinc-900">Notifications</span>
-                    <span className="text-[10px] text-zinc-950 cursor-pointer hover:underline">Mark all read</span>
+                    <span onClick={() => setHasUnreadNotif(false)} className="text-[10px] text-zinc-950 cursor-pointer hover:underline">Mark all read</span>
                   </div>
                   <div className="max-h-64 overflow-y-auto custom-scrollbar p-2 space-y-1">
-                    <div className="p-2 bg-zinc-100/50 dark:bg-zinc-100 rounded-md border border-zinc-300 dark:border-zinc-200 cursor-pointer hover:bg-zinc-200/50">
-                      <div className="text-xs font-semibold text-zinc-900 dark:text-zinc-800">New Admission</div>
-                      <div className="text-[10px] text-zinc-950 dark:text-zinc-600">John Doe just enrolled in Class 10.</div>
-                    </div>
-                    <div className="p-2 rounded-md cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-100/50">
-                      <div className="text-xs font-semibold text-zinc-900 dark:text-zinc-800">Fee Received</div>
-                      <div className="text-[10px] text-zinc-950 dark:text-zinc-600">$450 received from Jane Smith.</div>
+                      {liveNotifications.length > 0 ? liveNotifications.map(notif => (
+                        <div key={notif._id} className="p-2 bg-zinc-100/50 dark:bg-zinc-100 rounded-md border border-zinc-300 dark:border-zinc-200 cursor-pointer hover:bg-zinc-200/50">
+                          <div className="text-xs font-semibold text-zinc-900 dark:text-zinc-800">{notif.title}</div>
+                          <div className="text-[10px] text-zinc-950 dark:text-zinc-600">{notif.message}</div>
+                          <div className="text-[8px] text-zinc-500 mt-1">{new Date(notif.createdAt).toLocaleTimeString()}</div>
+                        </div>
+                      )) : (
+                        <div className="p-4 text-center text-xs text-zinc-500">No new notifications</div>
+                      )}
                     </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
 
             {/* Profile Dropdown */}

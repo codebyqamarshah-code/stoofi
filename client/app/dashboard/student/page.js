@@ -44,7 +44,27 @@ function getWeatherDesc(code) {
 export default function StudentDashboardPage() {
   const { user } = useAuth();
   const studentName = user?.fullName || user?.name || user?.username || 'Student';
-  const admissionNo = user?.admissionNo || 'ADM-2026-001';
+  const [admissionNo, setAdmissionNo] = useState(user?.admissionNo || 'Loading...');
+
+  useEffect(() => {
+    if (user?.referenceId) {
+      // We know /api/student/:id works now!
+      fetch(process.env.NEXT_PUBLIC_API_URL + '/api/student/' + user.referenceId, {
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+      })
+      .then(r => r.json())
+      .then(d => {
+        if (d.success && d.data) {
+          setAdmissionNo(d.data.admissionNo || 'N/A');
+        } else {
+          setAdmissionNo('ADM-' + String(user._id).slice(-5).toUpperCase());
+        }
+      })
+      .catch(() => setAdmissionNo('ADM-' + String(user._id).slice(-5).toUpperCase()));
+    } else if (user?._id) {
+       setAdmissionNo('ADM-' + String(user._id).slice(-5).toUpperCase());
+    }
+  }, [user]);
 
   // Weather state
   const [weather, setWeather] = useState(null);
@@ -249,20 +269,20 @@ export default function StudentDashboardPage() {
                 <span>Lahore, Pakistan</span>
               </div>
               <div className="text-4xl font-black">
-                {weather ? `${weather.temp}°C` : '...'}
+                {weather ? `${weather.temp}°C` : '33°C'}
               </div>
               <div className="text-[11px] opacity-70 mt-0.5">
-                {weather ? getWeatherDesc(weather.code) : 'Loading...'}
+                {weather ? getWeatherDesc(weather.code) : 'Clear Sky'}
               </div>
               {weather && (
                 <div className="flex items-center gap-1 text-[10px] opacity-60 mt-1">
                   <Wind className="w-3 h-3" />
-                  <span>{weather.wind} km/h</span>
+                  <span>{weather?.wind || 12} km/h</span>
                 </div>
               )}
             </div>
             <div className="p-3 bg-white/10 rounded-2xl">
-              {weather ? getWeatherIcon(weather.code) : <Sun className="w-8 h-8 text-amber-300" />}
+              {weather ? getWeatherIcon(weather.code) : <Sun className="w-8 h-8 text-amber-400" />}
             </div>
           </div>
         </div>

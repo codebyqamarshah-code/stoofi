@@ -2,13 +2,20 @@
 
 import Link from 'next/link';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ChevronRight, Search, Download, Printer, FileText, MoreVertical, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SearchableSelect } from '@/components/ui/searchable-select';
+import { useAuth } from '@/hooks/useAuth';
+import api from '@/services/api';
 
 export default function LessonPage() {
+  const { user } = useAuth();
+  const [classesList, setClassesList] = useState([]);
+  const [subjectsList, setSubjectsList] = useState([]);
+  
   const [lessons, setLessons] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -17,6 +24,23 @@ export default function LessonPage() {
 
   const [formData, setFormData] = useState({ class: '', subject: '' });
   const [titles, setTitles] = useState([{ id: Date.now(), value: '' }]);
+
+  useEffect(() => {
+    if (user) {
+      if (user.role === 'Teacher') {
+        if (user.assignedClass) setClassesList([{ label: user.assignedClass, value: user.assignedClass }]);
+        if (user.subjects) setSubjectsList(user.subjects.map(s => ({ label: s.name, value: s.name })));
+      } else {
+        api.get('/class').then(r => r.success && setClassesList(r.data.map(c => ({ label: c.name, value: c.name })))).catch(()=>{});
+        api.get('/subject').then(r => r.success && setSubjectsList(r.data.map(s => ({ label: s.name, value: s.name })))).catch(()=>{});
+      }
+    }
+  }, [user]);
+
+  const handleSelectChange = (name, value) => {
+    const finalValue = value?.target ? value.target.value : value;
+    setFormData(prev => ({ ...prev, [name]: finalValue }));
+  };
 
   const addTitleRow = () => {
     setTitles([...titles, { id: Date.now(), value: '' }]);
@@ -88,29 +112,23 @@ export default function LessonPage() {
             <form className="p-4 space-y-4" onSubmit={handleSave}>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Class <span className="text-rose-500">*</span></Label>
-                <select 
-                  value={formData.class}
-                  onChange={(e) => setFormData({...formData, class: e.target.value})}
-                  className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
-                  required
-                >
-                  <option value="">Select Class</option>
-                  <option value="Class 1">Class 1</option>
-                  <option value="Class 2">Class 2</option>
-                </select>
+                <SearchableSelect 
+                  name="class" 
+                  value={formData.class} 
+                  onChange={(v) => handleSelectChange('class', v)}
+                  placeholder="Select Class *"
+                  options={classesList}
+                />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Subject <span className="text-rose-500">*</span></Label>
-                <select 
-                  value={formData.subject}
-                  onChange={(e) => setFormData({...formData, subject: e.target.value})}
-                  className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
-                  required
-                >
-                  <option value="">Select Subject</option>
-                  <option value="Mathematics">Mathematics</option>
-                  <option value="English">English</option>
-                </select>
+                <SearchableSelect 
+                  name="subject" 
+                  value={formData.subject} 
+                  onChange={(v) => handleSelectChange('subject', v)}
+                  placeholder="Select Subject *"
+                  options={subjectsList}
+                />
               </div>
 
               {titles.map((t, index) => (
@@ -171,24 +189,24 @@ export default function LessonPage() {
             
             {/* Table Filters */}
             <div className="p-4 border-b border-zinc-800 bg-zinc-900/30 flex flex-col sm:flex-row gap-4">
-               <select 
-                  value={classFilter}
-                  onChange={(e) => setClassFilter(e.target.value)}
-                  className="flex h-9 w-full sm:w-[200px] rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
-                >
-                  <option value="">All Classes</option>
-                  <option value="Class 1">Class 1</option>
-                  <option value="Class 2">Class 2</option>
-                </select>
-                <select 
-                  value={subjectFilter}
-                  onChange={(e) => setSubjectFilter(e.target.value)}
-                  className="flex h-9 w-full sm:w-[200px] rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
-                >
-                  <option value="">All Subjects</option>
-                  <option value="Mathematics">Mathematics</option>
-                  <option value="English">English</option>
-                </select>
+               <div className="w-full sm:w-[200px]">
+                 <SearchableSelect 
+                   name="classFilter" 
+                   value={classFilter} 
+                   onChange={(v) => setClassFilter(v?.target ? v.target.value : v)}
+                   placeholder="All Classes"
+                   options={[{ label: 'All Classes', value: '' }, ...classesList]}
+                 />
+               </div>
+               <div className="w-full sm:w-[200px]">
+                 <SearchableSelect 
+                   name="subjectFilter" 
+                   value={subjectFilter} 
+                   onChange={(v) => setSubjectFilter(v?.target ? v.target.value : v)}
+                   placeholder="All Subjects"
+                   options={[{ label: 'All Subjects', value: '' }, ...subjectsList]}
+                 />
+               </div>
             </div>
 
             <div className="overflow-x-auto">

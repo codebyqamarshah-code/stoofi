@@ -11,7 +11,8 @@ const {
   deleteNotice,
   createTodo, 
   toggleTodo, 
-  deleteTodo 
+  deleteTodo,
+  getLiveUpdates 
 } = require('../controllers/dashboard.controller');
 const { protect } = require('../middleware/auth.middleware');
 
@@ -20,6 +21,7 @@ const router = express.Router();
 router.use(protect);
 
 router.get('/stats', getDashboardStats);
+router.get('/live-updates', getLiveUpdates);
 
 // Quick Action routes
 router.post('/admission', quickStudentAdmission);

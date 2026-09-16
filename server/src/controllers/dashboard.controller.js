@@ -1,6 +1,8 @@
 const Student = require('../models/Student');
 const Teacher = require('../models/Teacher');
 const Staff = require('../models/Staff');
+const Notification = require('../models/Notification');
+const User = require('../models/User');
 const Notice = require('../models/Notice');
 const Todo = require('../models/Todo');
 const Expense = require('../models/Expense');
@@ -389,6 +391,29 @@ exports.deleteTodo = async (req, res, next) => {
     }
 
     res.status(200).json({ success: true, message: 'Todo deleted' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// =====================
+// LIVE UPDATES
+// =====================
+exports.getLiveUpdates = async (req, res, next) => {
+  try {
+    // Active students (logged in within last 10 minutes)
+    const tenMinsAgo = new Date(Date.now() - 10 * 60 * 1000);
+    const activeStudents = await User.countDocuments({ role: 'Student', lastLogin: { $gte: tenMinsAgo } });
+
+    // Recent Notifications for Super Admin
+    const notifications = await Notification.find({ audience: { $in: ['Super Admin', 'All'] } })
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    // Active teachers (logged in within last 10 minutes)
+    const activeTeachers = await User.countDocuments({ role: 'Teacher', lastLogin: { $gte: tenMinsAgo } });
+
+    res.status(200).json({ success: true, data: { activeStudents, activeTeachers, notifications } });
   } catch (error) {
     next(error);
   }

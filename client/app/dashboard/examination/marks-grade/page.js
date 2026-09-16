@@ -62,7 +62,7 @@ export default function MarksGradePage() {
   };
 
   const filtered = grades.filter(g => 
-    g.name.toLowerCase().includes(search.toLowerCase())
+    (g?.name || '').toLowerCase().includes((search || '').toLowerCase())
   );
 
   return (

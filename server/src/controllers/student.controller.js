@@ -9,6 +9,19 @@ exports.getAll = async (req, res) => {
   }
 };
 
+
+exports.getById = async (req, res, next) => {
+  try {
+    const student = await Student.findById(req.params.id);
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student not found' });
+    }
+    res.status(200).json({ success: true, data: student });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.create = async (req, res) => {
   try {
     const dataObj = { ...req.body };

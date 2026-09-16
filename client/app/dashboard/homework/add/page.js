@@ -25,6 +25,7 @@ export default function AddHomeworkPage() {
     description: ''
   });
   const fileInputRef = useRef(null);
+  const [fileName, setFileName] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -51,7 +52,8 @@ export default function AddHomeworkPage() {
   };
 
   const handleSelectChange = (name, value) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const finalValue = value?.target ? value.target.value : value;
+    setFormData(prev => ({ ...prev, [name]: finalValue }));
   };
 
   const handleSubmit = async (e) => {
@@ -80,6 +82,7 @@ export default function AddHomeworkPage() {
           submissionDate: new Date().toISOString().split('T')[0]
         });
         if (fileInputRef.current) fileInputRef.current.value = '';
+        setFileName('');
       }
     } catch (err) {
       alert(err.message);
@@ -165,9 +168,15 @@ export default function AddHomeworkPage() {
             <div className="space-y-1.5 lg:col-span-3">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Attach File</Label>
               <div className="relative">
-                <input type="file" ref={fileInputRef} className="hidden" id="hw-file" />
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  className="hidden" 
+                  id="hw-file" 
+                  onChange={(e) => setFileName(e.target.files[0]?.name || '')}
+                />
                 <Label htmlFor="hw-file" className="flex items-center justify-between h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 cursor-pointer">
-                  <span className="truncate">{fileInputRef.current?.files[0]?.name || 'Attach File'}</span>
+                  <span className="truncate">{fileName || 'Attach File'}</span>
                   <div className="bg-zinc-800 text-white px-3 py-1 -mr-2 rounded text-xs font-semibold">BROWSE</div>
                 </Label>
               </div>

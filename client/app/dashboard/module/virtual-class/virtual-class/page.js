@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   ChevronRight, 
@@ -17,6 +17,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
+import api from '@/services/api';
 
 export default function VirtualClassMainPage() {
   const [records, setRecords] = useState([
@@ -66,9 +67,29 @@ export default function VirtualClassMainPage() {
   const [search, setSearch] = useState('');
   const [filterClass, setFilterClass] = useState('All');
 
-  const classes = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'];
-  const sections = ['A', 'B', 'C', 'D'];
-  const teachers = ['Mudassir Bajwa', 'Fatima Zahra', 'Muhammad Ali', 'Ahmed Khan', 'Ayesha Noor', 'Dr. Bilal Siddiqui'];
+  const [classes, setClasses] = useState([]);
+  const [sections, setSections] = useState([]);
+  const [teachers, setTeachers] = useState([]);
+
+  useEffect(() => {
+    api.get('/class').then(res => {
+      if (res.success) {
+        setClasses(res.data.map(c => c.name));
+        // Simple way to extract unique sections from all classes
+        const allSections = new Set();
+        res.data.forEach(c => {
+           if (c.sections) c.sections.forEach(s => allSections.add(s));
+        });
+        setSections(Array.from(allSections));
+      }
+    }).catch(console.error);
+
+    api.get('/teacher').then(res => {
+      if (res.success) {
+        setTeachers(res.data.map(t => `${t.firstName} ${t.lastName}`));
+      }
+    }).catch(console.error);
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();

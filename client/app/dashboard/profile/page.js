@@ -166,11 +166,11 @@ export default function ProfilePage() {
           <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-lg shadow-sm overflow-hidden relative">
             <div className="h-24 bg-zinc-950"></div>
             <div className="flex justify-center -mt-12 mb-2 relative group">
-              <div className="h-24 w-24 bg-zinc-200 rounded-md border-4 border-white dark:border-zinc-950 overflow-hidden relative shadow-sm">
+              <div className="h-24 w-24 bg-zinc-100 rounded-md border-4 border-white dark:border-zinc-950 overflow-hidden relative shadow-sm flex items-center justify-center">
                 <img 
                   src={avatarPreview} 
                   alt="Profile" 
-                  className="w-full h-full object-cover" 
+                  className="w-full h-full object-contain" 
                   onError={(e) => { e.target.src = 'https://ui-avatars.com/api/?name='+user.username+'&background=random'; }} 
                 />
                 {isEditing && (

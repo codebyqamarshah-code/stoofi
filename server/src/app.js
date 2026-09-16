@@ -26,6 +26,7 @@ app.use('/api/dashboard', require('./routes/dashboard.routes'));
 app.use('/api/admission-query', require('./routes/admissionQuery.routes'));
 app.use('/api/generate-certificate', require('./routes/certificate.routes'));
 app.use('/api/student', require('./routes/student.routes'));
+app.use('/api/teacher', require('./routes/teacher.routes'));
 app.use('/api/class', require('./routes/class.routes'));
 app.use('/api/section', require('./routes/section.routes'));
 app.use('/api/classroom', require('./routes/classroom.routes'));

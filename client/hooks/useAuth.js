@@ -104,13 +104,14 @@ export const useAuth = create(
         }
 
         let resolvedUser = user;
-        if (!resolvedUser) {
-          // No user data found — don't assume any role, force re-login
-          set({ user: null, token: null, isAuthenticated: false, isLoading: false });
-          return;
+        
+        // If we have a user in state, set it immediately for fast UI response
+        if (resolvedUser) {
+          set({ isAuthenticated: true, user: resolvedUser, token, isLoading: false });
+        } else {
+          // We have a token but no user, set loading state to true while we fetch
+          set({ isAuthenticated: false, token, isLoading: true });
         }
-
-        set({ isAuthenticated: true, user: resolvedUser, token, isLoading: false });
 
         if (typeof token === 'string' && token.startsWith('mock_')) {
           return;
@@ -122,7 +123,12 @@ export const useAuth = create(
              set({ isAuthenticated: true, user: res.data, isLoading: false });
            }
         } catch (error) {
-           set({ isAuthenticated: true, isLoading: false });
+           // If /auth/me fails and we don't have a user, token is likely invalid
+           if (!resolvedUser) {
+             set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+           } else {
+             set({ isAuthenticated: true, isLoading: false });
+           }
         }
       },
     }),

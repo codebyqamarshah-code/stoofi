@@ -746,7 +746,7 @@ export default function AdminDashboardUI({ user }) {
         {/* 3 Banner Mini Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6">
           {/* Students Card */}
-          <div className="bg-white dark:bg-white/60 border border-zinc-300/80 dark:border-zinc-200/80 rounded-2xl p-4 flex items-center justify-between hover:border-zinc-950/60 transition-colors shadow-xs">
+          <div onClick={() => router.push('/dashboard/students')} className="bg-white dark:bg-white/60 border border-zinc-300/80 dark:border-zinc-200/80 rounded-2xl p-4 flex items-center justify-between hover:border-zinc-950/60 transition-colors shadow-xs cursor-pointer">
             <div>
               <div className="text-xs uppercase font-extrabold text-zinc-950 dark:text-zinc-900 tracking-wider flex items-center gap-1">
                 STUDENTS <ChevronRight className="h-3.5 w-3.5 text-zinc-950 dark:text-zinc-900" />
@@ -785,7 +785,7 @@ export default function AdminDashboardUI({ user }) {
           </div>
 
           {/* Attendance Card */}
-          <div className="bg-white dark:bg-white/60 border border-zinc-300/80 dark:border-zinc-200/80 rounded-2xl p-4 flex items-center justify-between hover:border-zinc-950/60 transition-colors shadow-xs">
+          <div onClick={() => router.push('/dashboard/students/attendance')} className="bg-white dark:bg-white/60 border border-zinc-300/80 dark:border-zinc-200/80 rounded-2xl p-4 flex items-center justify-between hover:border-zinc-950/60 transition-colors shadow-xs cursor-pointer">
             <div>
               <div className="text-xs uppercase font-extrabold text-zinc-950 dark:text-zinc-900 tracking-wider flex items-center gap-1">
                 TODAY'S ATTENDANCE <ChevronRight className="h-3.5 w-3.5 text-zinc-950 dark:text-zinc-900" />
@@ -807,7 +807,7 @@ export default function AdminDashboardUI({ user }) {
           </div>
 
           {/* Fees Collection Card */}
-          <div className="bg-white dark:bg-white/60 border border-zinc-300/80 dark:border-zinc-200/80 rounded-2xl p-4 flex items-center justify-between hover:border-zinc-950/60 transition-colors shadow-xs">
+          <div onClick={() => router.push('/dashboard/fees/collection')} className="bg-white dark:bg-white/60 border border-zinc-300/80 dark:border-zinc-200/80 rounded-2xl p-4 flex items-center justify-between hover:border-zinc-950/60 transition-colors shadow-xs cursor-pointer">
             <div>
               <div className="text-xs uppercase font-extrabold text-zinc-950 dark:text-zinc-900 tracking-wider flex items-center gap-1">
                 FEES COLLECTION <ChevronRight className="h-3.5 w-3.5 text-zinc-950 dark:text-zinc-900" />

@@ -181,7 +181,7 @@ export default function StaffDirectoryPage() {
                       </button>
                       {openDropdown === item._id && (
                         <div className="absolute left-0 top-full mt-1 z-50 bg-zinc-900 border border-zinc-700 rounded-md shadow-2xl min-w-[140px]" onClick={e => e.stopPropagation()}>
-                          <Link href={`/dashboard/hr/add-staff?id=${item._id}`} className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors">
+                          <Link href={`/dashboard/hr/staff-directory/${item._id}`} className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors">
                             <Eye className="h-3.5 w-3.5 text-zinc-500" /> View / Edit
                           </Link>
                           <button onClick={() => handleDelete(item._id)} className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-zinc-300 hover:bg-rose-500/10 hover:text-rose-400 transition-colors">
@@ -192,7 +192,7 @@ export default function StaffDirectoryPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3 text-zinc-500 font-semibold cursor-pointer hover:text-zinc-400">
-                    <Link href={`/dashboard/hr/add-staff?id=${item._id}`}>{item.firstName} {item.lastName}</Link>
+                    <Link href={`/dashboard/hr/staff-directory/${item._id}`}>{item.firstName} {item.lastName}</Link>
                   </td>
                   <td className="px-4 py-3 text-zinc-300 capitalize">{item.role || '-'}</td>
                   <td className="px-4 py-3 text-zinc-500">{getName(departments, item.departmentId)}</td>

@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 const Student = require('../models/Student');
 const Teacher = require('../models/Teacher');
 const Staff = require('../models/Staff');
@@ -128,6 +129,8 @@ exports.register = async (req, res, next) => {
       await user.save();
     }
 
+    await Notification.create({ title: 'New Registration', message: `${finalRole} ${resolvedFullName} just registered.`, type: 'Registration', audience: 'Super Admin' });
+
     // Generate token
     const token = generateToken(user);
 
@@ -201,6 +204,8 @@ exports.login = async (req, res, next) => {
     // Update last login
     user.lastLogin = Date.now();
     await user.save({ validateBeforeSave: false });
+
+    await Notification.create({ title: 'User Login', message: `${user.fullName || user.username} just logged in.`, type: 'Login', audience: 'Super Admin' });
 
     // Generate token
     const token = generateToken(user);

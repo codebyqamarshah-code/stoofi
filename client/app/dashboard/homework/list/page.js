@@ -42,12 +42,14 @@ export default function HomeworkListPage() {
       </div>
 
       <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-white">Select Criteria</h2>
-          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold flex items-center gap-2">
-            <Plus className="h-4 w-4" /> ADD HOMEWORK
-          </Button>
-        </div>
+          <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
+            <h2 className="text-lg font-semibold text-white">Select Criteria</h2>
+            <Link href="/dashboard/homework/add">
+              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold flex items-center gap-2">
+                <Plus className="h-4 w-4" /> ADD HOMEWORK
+              </Button>
+            </Link>
+          </div>
         <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Class <span className="text-rose-500">*</span></Label>
