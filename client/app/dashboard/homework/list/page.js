@@ -28,6 +28,13 @@ export default function HomeworkListPage() {
     } catch(e){}
   };
 
+  const filteredRecords = records.filter(r => {
+    return (!formData.class || r.className === formData.class) &&
+           (!formData.subject || r.subject === formData.subject) &&
+           (!formData.section || r.section === formData.section) &&
+           (!search || r.subject?.toLowerCase().includes(search.toLowerCase()) || r.className?.toLowerCase().includes(search.toLowerCase()));
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -72,11 +79,6 @@ export default function HomeworkListPage() {
               {(classes.find(c => c.name === formData.class)?.sections || []).map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
-          <div className="md:col-span-3 flex justify-end">
-            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold flex items-center gap-2">
-              <Search className="h-4 w-4" /> SEARCH
-            </Button>
-          </div>
         </div>
       </div>
 
@@ -103,9 +105,22 @@ export default function HomeworkListPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800">
-              {records.length === 0 ? (
+              {filteredRecords.length === 0 ? (
                 <tr><td colSpan="8" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-              ) : null}
+              ) : (
+                filteredRecords.map((r, i) => (
+                  <tr key={r._id || i} className="hover:bg-zinc-900/50">
+                    <td className="px-4 py-3 text-zinc-300">{i + 1}</td>
+                    <td className="px-4 py-3 text-zinc-300">{r.className}</td>
+                    <td className="px-4 py-3 text-zinc-300">{r.section}</td>
+                    <td className="px-4 py-3 text-zinc-300">{r.subject}</td>
+                    <td className="px-4 py-3 text-zinc-300">{r.marks}</td>
+                    <td className="px-4 py-3 text-zinc-300">{r.homeworkDate ? new Date(r.homeworkDate).toLocaleDateString() : '-'}</td>
+                    <td className="px-4 py-3 text-zinc-300">{r.submissionDate ? new Date(r.submissionDate).toLocaleDateString() : '-'}</td>
+                    <td className="px-4 py-3 text-zinc-300">-</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

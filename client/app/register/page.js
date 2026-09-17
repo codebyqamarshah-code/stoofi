@@ -56,6 +56,18 @@ export default function RegisterPage() {
     checkAvailableRoles();
   }, []);
 
+  const [classes, setClasses] = useState([]);
+  
+  React.useEffect(() => {
+    async function fetchClasses() {
+      try {
+        const res = await api.get('/class');
+        if (res.success) setClasses(res.data);
+      } catch (err) {}
+    }
+    fetchClasses();
+  }, []);
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -328,14 +340,14 @@ export default function RegisterPage() {
                     <label className={labelClass}>Class</label>
                     <select name="studentClass" required value={formData.studentClass} onChange={handleChange} className={inputClass}>
                       <option value="">Select Class</option>
-                      {['1','2','3','4','5','6','7','8','9','10'].map(c => <option key={c} value={c}>Class {c}</option>)}
+                      {classes.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className={labelClass}>Section</label>
                     <select name="section" required value={formData.section} onChange={handleChange} className={inputClass}>
                       <option value="">Select Section</option>
-                      {['A','B','C','D'].map(s => <option key={s} value={s}>Section {s}</option>)}
+                      {(classes.find(c => c.name === formData.studentClass)?.sections || []).map(s => <option key={s} value={s}>Section {s}</option>)}
                     </select>
                   </div>
                 </>
@@ -348,14 +360,14 @@ export default function RegisterPage() {
                     <label className={labelClass}>Assigned Class</label>
                     <select name="assignedClass" required value={formData.assignedClass} onChange={handleChange} className={inputClass}>
                       <option value="">Select Class</option>
-                      {['1','2','3','4','5','6','7','8','9','10'].map(c => <option key={c} value={c}>Class {c}</option>)}
+                      {classes.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className={labelClass}>Assigned Section</label>
                     <select name="assignedSection" required value={formData.assignedSection} onChange={handleChange} className={inputClass}>
                       <option value="">Select Section</option>
-                      {['A','B','C','D'].map(s => <option key={s} value={s}>Section {s}</option>)}
+                      {(classes.find(c => c.name === formData.assignedClass)?.sections || []).map(s => <option key={s} value={s}>Section {s}</option>)}
                     </select>
                   </div>
                 </>

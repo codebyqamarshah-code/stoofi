@@ -137,6 +137,12 @@ exports.register = async (req, res, next) => {
     // Generate token
     const token = generateToken(user);
 
+    let additionalData = {};
+    if (finalRole === 'Student' && referenceId) {
+      additionalData.className = studentClass || '1';
+      additionalData.section = section || 'A';
+    }
+
     res.status(201).json({
       success: true,
       data: {
@@ -146,7 +152,8 @@ exports.register = async (req, res, next) => {
         username: user.username,
         email: user.email,
         role: user.role,
-        avatar: user.avatar
+        avatar: user.avatar,
+        ...additionalData
       },
       token
     });
@@ -221,6 +228,15 @@ exports.login = async (req, res, next) => {
       maxAge: 24 * 60 * 60 * 1000 // 1 day
     });
 
+    let additionalData = {};
+    if (user.role === 'Student') {
+      const studentData = await Student.findOne({ user: user._id });
+      if (studentData) {
+        additionalData.className = studentData.className;
+        additionalData.section = studentData.section;
+      }
+    }
+
     res.status(200).json({
       success: true,
       data: {
@@ -230,7 +246,8 @@ exports.login = async (req, res, next) => {
         username: user.username,
         email: user.email,
         role: user.role,
-        avatar: user.avatar
+        avatar: user.avatar,
+        ...additionalData
       },
       token
     });
@@ -249,7 +266,14 @@ exports.logout = (req, res) => {
 
 exports.getMe = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user.id).lean();
+    if (user && user.role === 'Student') {
+      const studentData = await Student.findOne({ user: user._id });
+      if (studentData) {
+        user.className = studentData.className;
+        user.section = studentData.section;
+      }
+    }
     res.status(200).json({
       success: true,
       data: user

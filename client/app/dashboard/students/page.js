@@ -10,7 +10,9 @@ import Link from 'next/link';
 import api from '@/services/api';
 import { mockStudents } from '@/services/mockData';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
-import StudentImportModal from '@/components/StudentImportModal';
+import dynamic from 'next/dynamic';
+
+const StudentImportModal = dynamic(() => import('@/components/StudentImportModal'), { ssr: false });
 
 const FALLBACK_CLASSES = [
   { _id: 'c-nursery', name: 'Nursery' },
