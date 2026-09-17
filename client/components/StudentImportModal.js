@@ -58,6 +58,7 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
   const [defaultClass, setDefaultClass] = useState('');
   const [defaultSection, setDefaultSection] = useState('A');
   const [defaultAcademicYear, setDefaultAcademicYear] = useState('2026 [Jan-Dec]');
+  const [importProgress, setImportProgress] = useState(0);
 
   const fileInputRef = useRef(null);
 
@@ -221,8 +222,6 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
 
     reader.readAsBinaryString(fileToParse);
   };
-
-  const [importProgress, setImportProgress] = useState(0);
 
   const handleConfirmImport = async () => {
     if (!parsedStudents || parsedStudents.length === 0) {

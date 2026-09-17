@@ -35,16 +35,8 @@ export default function RegisterPage() {
           setRole(roles[0]);
         }
       } catch (e) {
-        let users = [];
-        try {
-          users = JSON.parse(localStorage.getItem('mockDB_users') || '[]');
-        } catch (err) {}
-        const hasSuperAdmin = users.some(u => u.role === 'Super Admin');
-        const hasAdmin = users.some(u => u.role === 'Admin');
-        const roles = [];
-        if (!hasSuperAdmin) roles.push('Super Admin');
-        if (!hasAdmin) roles.push('Admin');
-        roles.push('Teacher', 'Student', 'Parent', 'Accountant');
+        // If API fails, default to only standard roles to prevent unauthorized Super Admin creation
+        const roles = ['Teacher', 'Student', 'Parent', 'Accountant'];
         setAvailableRoles(roles);
         if (roles.length > 0) {
           setRole(roles[0]);
@@ -320,8 +312,8 @@ export default function RegisterPage() {
               {/* Father Name (Only for Student) */}
               {role === 'Student' && (
                 <div>
-                  <label className={labelClass}>Father's Name</label>
-                  <input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className={inputClass} placeholder="Father's Name" />
+                  <label className={labelClass}>Father&apos;s Name</label>
+                  <input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className={inputClass} placeholder="Father&apos;s Name" />
                 </div>
               )}
               

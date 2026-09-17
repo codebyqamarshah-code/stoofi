@@ -245,7 +245,7 @@ export default function VirtualClassSettingsPage() {
                 />
                 <div>
                   <div className="text-xs font-bold text-zinc-800 dark:text-zinc-800 uppercase">Join Before Host</div>
-                  <div className="text-[11px] text-zinc-500">Allow students to enter prior to teacher's arrival.</div>
+                  <div className="text-[11px] text-zinc-500">Allow students to enter prior to teacher&apos;s arrival.</div>
                 </div>
               </label>
             </div>

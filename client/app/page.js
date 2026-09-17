@@ -837,7 +837,7 @@ export default function LandingPage() {
             {testimonials.map((t, i) => (
               <div key={i} className="p-8 bg-white dark:bg-zinc-50 rounded-2xl border border-zinc-200 dark:border-zinc-200">
                 <div className="flex gap-1 mb-5">{Array.from({length: t.stars}).map((_, j) => <Star key={j} size={16} className="fill-amber-400 text-amber-400" />)}</div>
-                <p className="text-zinc-700 dark:text-zinc-700 text-sm leading-relaxed mb-6 italic">"{t.text}"</p>
+                <p className="text-zinc-700 dark:text-zinc-700 text-sm leading-relaxed mb-6 italic">&quot;{t.text}&quot;</p>
                 <div>
                   <p className="font-bold text-zinc-900 dark:text-zinc-900 text-sm">{t.name}</p>
                   <p className="text-xs text-zinc-500 mt-0.5">{t.role}</p>
@@ -999,7 +999,7 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* TODAY'S EVENT POPUP MODAL */}
+      {/* Today&apos;s Event POPUP MODAL */}
       {showTodayEventModal && todayEvent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-zinc-200 text-zinc-900 relative">
@@ -1015,7 +1015,7 @@ export default function LandingPage() {
             {/* Header banner */}
             <div className="h-28 bg-zinc-900 flex items-center justify-center relative">
               <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-300 bg-white/10 px-3.5 py-1 rounded-full border border-white/10">
-                Today's Event & Announcement
+                Today&apos;s Event & Announcement
               </span>
             </div>
 

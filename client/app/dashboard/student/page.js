@@ -166,7 +166,7 @@ export default function StudentDashboardPage() {
     if (user) {
       fetchLeaves();
     }
-  }, [events]);
+  }, [events, user]);
 
   return (
     <div className="space-y-6 pb-12 relative">

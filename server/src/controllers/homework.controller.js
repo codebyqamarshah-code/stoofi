@@ -1,5 +1,20 @@
 const Model = require("../models/Homework");
-exports.getAll = async(req,res) => { try{ res.json({success:true, data: await Model.find().sort({createdAt:-1})}) } catch(e){ res.status(500).json({success:false, message:e.message}) } };
+const Student = require("../models/Student");
+
+exports.getAll = async(req,res) => { 
+  try { 
+    let filter = {};
+    if (req.user.role === 'Student') {
+      const studentRecord = await Student.findById(req.user.referenceId);
+      if (studentRecord) {
+        filter = { className: studentRecord.className, section: studentRecord.section };
+      } else {
+        return res.json({ success: true, data: [] }); // No record, no homework
+      }
+    }
+    res.json({success:true, data: await Model.find(filter).sort({createdAt:-1})}) 
+  } catch(e){ res.status(500).json({success:false, message:e.message}) } 
+};
 exports.create = async(req,res) => { 
   try{ 
     const dataObj = { ...req.body };

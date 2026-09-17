@@ -100,7 +100,7 @@ export default function GenerateCertificatePage() {
           </div>
           <div className="p-12 flex flex-col items-center justify-center text-zinc-500">
             <FileText className="h-12 w-12 mb-4 text-zinc-700" />
-            <p>No students found in {formData.class} {formData.section && `(Section ${formData.section})`} for generating "{formData.certificate}".</p>
+            <p>No students found in {formData.class} {formData.section && `(Section ${formData.section})`} for generating &quot;{formData.certificate}&quot;.</p>
             <p className="text-sm mt-1">Please ensure students are enrolled in this class.</p>
           </div>
         </div>

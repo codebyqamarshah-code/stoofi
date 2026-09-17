@@ -96,7 +96,7 @@ export default function GenerateIdCardPage() {
           </div>
           <div className="p-12 flex flex-col items-center justify-center text-zinc-500">
             <FileText className="h-12 w-12 mb-4 text-zinc-700" />
-            <p>No {formData.role} records found for generating "{formData.idCard}".</p>
+            <p>No {formData.role} records found for generating &quot;{formData.idCard}&quot;.</p>
             <p className="text-sm mt-1">Please ensure {formData.role}s are added in the system first.</p>
           </div>
         </div>
