@@ -30,6 +30,20 @@ exports.protect = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Account is inactive' });
     }
 
+    if (req.user.role === 'Student' && req.user.subscription?.endDate) {
+      if (new Date() > new Date(req.user.subscription.endDate)) {
+        const allowedRoutes = ['/api/auth/me', '/api/payment', '/api/auth/logout'];
+        const isAllowed = allowedRoutes.some(route => req.originalUrl.startsWith(route));
+        if (!isAllowed) {
+          return res.status(403).json({ 
+            success: false, 
+            message: 'Your subscription has expired. Please upgrade your plan to continue.', 
+            subscriptionExpired: true 
+          });
+        }
+      }
+    }
+
     next();
   } catch (err) {
     return res.status(401).json({ success: false, message: 'Not authorized to access this route' });

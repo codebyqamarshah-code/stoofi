@@ -119,6 +119,7 @@ app.use('/api/book', require('./routes/book.routes'));
 app.use('/api/dormitory-room', require('./routes/dormitory-room.routes'));
 app.use('/api/dormitory', require('./routes/dormitory.routes'));
 app.use('/api/lms-course', require('./routes/lms-course.routes'));
+app.use('/api/payment', require('./routes/payment.routes'));
 
 // Global error handler
 app.get('/', (req, res) => {

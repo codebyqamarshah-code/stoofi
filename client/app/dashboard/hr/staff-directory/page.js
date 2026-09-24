@@ -18,27 +18,41 @@ export default function StaffDirectoryPage() {
   const [filterName, setFilterName] = useState('');
   const [quickSearch, setQuickSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [openDropdown, setOpenDropdown] = useState(null);
 
   const fetchAll = async () => {
     try {
       const [stRes, desRes, depRes] = await Promise.all([
-        api.get('/staff'), api.get('/designation'), api.get('/department')
+        api.get('/staff', { params: { page, limit: ITEMS_PER_PAGE, search: quickSearch || filterName, role: filterRole } }), 
+        api.get('/designation'), 
+        api.get('/department')
       ]);
-      if (stRes.success) setRecords(stRes.data);
+      if (stRes.success) {
+        setRecords(stRes.data);
+        if (stRes.pagination) {
+          setTotalPages(stRes.pagination.totalPages || 1);
+          setTotalRecords(stRes.pagination.total || 0);
+        }
+      }
       if (desRes.success) setDesignations(desRes.data);
       if (depRes.success) setDepartments(depRes.data);
     } catch (e) { console.error(e); } finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => { fetchAll(); }, [page]);
   useEffect(() => {
     const h = () => setOpenDropdown(null);
     document.addEventListener('click', h);
     return () => document.removeEventListener('click', h);
   }, []);
 
-  const handleSearch = () => { setSearched(true); setPage(1); };
+  const handleSearch = () => { 
+    setSearched(true); 
+    setPage(1); 
+    fetchAll();
+  };
 
   const handleDelete = async (id) => {
     setOpenDropdown(null);
@@ -55,18 +69,9 @@ export default function StaffDirectoryPage() {
 
   const getName = (arr, id) => arr.find(x => x._id === id)?.name || '-';
 
-  const filtered = records.filter(r => {
-    const nameMatch = !filterName || `${r.firstName} ${r.lastName}`.toLowerCase().includes(filterName.toLowerCase());
-    const roleMatch = !filterRole || r.role === filterRole;
-    const idMatch = !filterStaffId || String(r.staffNo || r._id).includes(filterStaffId);
-    const qMatch = !quickSearch || `${r.firstName} ${r.lastName} ${r.email} ${r.role}`.toLowerCase().includes(quickSearch.toLowerCase());
-    return nameMatch && roleMatch && idMatch && qMatch;
-  });
+  const displayRecords = records;
 
-  const displayRecords = searched ? filtered : records.filter(r => !quickSearch || `${r.firstName} ${r.lastName} ${r.email}`.toLowerCase().includes(quickSearch.toLowerCase()));
-
-  const totalPages = Math.max(1, Math.ceil(displayRecords.length / ITEMS_PER_PAGE));
-  const paginated = displayRecords.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const paginated = displayRecords;
 
   const handleCopy = () => navigator.clipboard.writeText(displayRecords.map(r => `${r.firstName} ${r.lastName} | ${r.role} | ${r.email}`).join('\n')).then(() => alert('Copied!'));
   const handleCSV = () => {
@@ -214,7 +219,7 @@ export default function StaffDirectoryPage() {
         </div>
 
         <div className="px-4 py-3 border-t border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs text-zinc-500">
-          <span>Showing {displayRecords.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1} to {Math.min(page * ITEMS_PER_PAGE, displayRecords.length)} of {displayRecords.length} entries</span>
+          <span>Showing {totalRecords === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1} to {Math.min(page * ITEMS_PER_PAGE, totalRecords)} of {totalRecords} entries</span>
           <div className="flex items-center gap-1">
             <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-2 py-1 rounded border border-zinc-700 disabled:opacity-40 hover:bg-zinc-800 text-zinc-400 transition-colors">←</button>
             {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map(p => (

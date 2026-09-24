@@ -71,45 +71,41 @@ export default function StudentListPage() {
   const [editStudent, setEditStudent] = useState(null);
   const [editLoading, setEditLoading] = useState(false);
 
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+
   // Import modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
       const [stuRes, classRes, secRes] = await Promise.all([
-        api.get('/student').catch(() => null),
+        api.get('/student', { 
+          params: { 
+            page, 
+            limit, 
+            search: quickSearch, 
+            className: appliedFilters.classFilter, 
+            section: appliedFilters.sectionFilter 
+          } 
+        }).catch(() => null),
         api.get('/class').catch(() => null),
         api.get('/section').catch(() => null)
       ]);
       
-      let list = [];
-      if (Array.isArray(stuRes?.data)) list = stuRes.data;
-      else if (Array.isArray(stuRes?.students)) list = stuRes.students;
-      else if (Array.isArray(stuRes)) list = stuRes;
-
-      // Read from localStorage mockDB_student
-      let localStudents = [];
-      try {
-        const raw = localStorage.getItem('mockDB_student');
-        if (raw) localStudents = JSON.parse(raw);
-      } catch (_) {}
-
-      let finalList = [];
-      if (list.length > 0) {
-        // Merge any new locally added students with API list
-        const idSet = new Set(list.map(s => s._id || s.admissionNo));
-        const extraLocal = localStudents.filter(s => !idSet.has(s._id || s.admissionNo));
-        finalList = [...extraLocal, ...list];
-      } else if (localStudents.length > 0) {
-        finalList = localStudents;
+      if (stuRes?.success) {
+        setStudents(stuRes.data || []);
+        if (stuRes.pagination) {
+          setTotalPages(stuRes.pagination.totalPages || 1);
+          setTotalRecords(stuRes.pagination.total || 0);
+        }
       } else {
-        finalList = mockStudents;
-        try {
-          localStorage.setItem('mockDB_student', JSON.stringify(mockStudents));
-        } catch (_) {}
+        setStudents([]);
       }
-
-      setStudents(finalList);
 
       if (classRes?.success && Array.isArray(classRes.data) && classRes.data.length > 0) {
         setClasses(classRes.data);
@@ -123,14 +119,7 @@ export default function StudentListPage() {
       }
     } catch (error) {
       console.error(error);
-      let localStudents = [];
-      try {
-        const raw = localStorage.getItem('mockDB_student');
-        if (raw) localStudents = JSON.parse(raw);
-      } catch (_) {}
-      setStudents(localStudents.length > 0 ? localStudents : mockStudents);
-      setClasses(FALLBACK_CLASSES);
-      setSections(FALLBACK_SECTIONS);
+      setStudents([]);
     } finally {
       setLoading(false);
     }
@@ -141,28 +130,27 @@ export default function StudentListPage() {
     const handleFocus = () => fetchData();
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
-  }, []);
+  }, [page, limit, appliedFilters]);
+
+  // We should also trigger fetch when quickSearch changes, but let's debounce or trigger on 'Enter'.
+  // Currently handleSearch updates appliedFilters, so we can also rely on it.
+  // Actually, quickSearch is used directly in fetch but not in appliedFilters. 
+  // We'll update handleSearch to trigger a fetch.
 
   const handleSearch = () => {
+    setPage(1); // Reset to page 1 on search
     setAppliedFilters({ academicYear, classFilter, sectionFilter, nameFilter, rollFilter });
+    fetchData(); // Force fetch immediately
   };
 
   const handleDelete = async (id) => {
     if(confirm('Are you sure you want to delete this student?')) {
-      // 1. Instant Live UI Update
-      setStudents(prev => prev.filter(s => s._id !== id));
-      
-      // 2. Instant Local Storage Update
-      try {
-        const local = JSON.parse(localStorage.getItem('mockDB_student') || '[]');
-        localStorage.setItem('mockDB_student', JSON.stringify(local.filter(s => s._id !== id)));
-      } catch (_) {}
-
-      // 3. API Update (for live backend)
       try {
         await api.delete(`/student/${id}`);
+        setStudents(prev => prev.filter(s => s._id !== id));
       } catch (error) {
-        console.warn('API delete note:', error.message);
+        console.error('API delete error:', error.message);
+        alert('Failed to delete student.');
       }
     }
   };
@@ -190,44 +178,19 @@ export default function StudentListPage() {
     }
     setEditLoading(true);
     
-    // 1. Instant Live UI Update
-    setStudents(prev => prev.map(s => s._id === editStudent._id ? { ...s, ...editStudent } : s));
-    
-    // 2. Instant Local Storage Update
-    try {
-      const local = JSON.parse(localStorage.getItem('mockDB_student') || '[]');
-      localStorage.setItem('mockDB_student', JSON.stringify(local.map(s => s._id === editStudent._id ? { ...s, ...editStudent } : s)));
-    } catch (_) {}
-
-    closeEdit();
-
-    // 3. API Update (for live backend)
     try {
       await api.put(`/student/${editStudent._id}`, editStudent);
+      setStudents(prev => prev.map(s => s._id === editStudent._id ? { ...s, ...editStudent } : s));
+      closeEdit();
     } catch (error) {
-      console.warn('API update note:', error.message);
+      console.error('API update error:', error.message);
+      alert('Failed to update student.');
     } finally {
       setEditLoading(false);
     }
   };
 
-  const filteredStudents = useMemo(() => {
-    return students.filter(s => {
-      if (quickSearch && 
-          !(s.firstName + ' ' + s.lastName).toLowerCase().includes(quickSearch.toLowerCase()) && 
-          !s.admissionNo?.includes(quickSearch)) {
-        return false;
-      }
-      const fullName = `${s.firstName || ''} ${s.lastName || ''}`.toLowerCase();
-      if (appliedFilters.nameFilter && !fullName.includes(appliedFilters.nameFilter.toLowerCase())) return false;
-      if (appliedFilters.rollFilter && s.rollNo !== appliedFilters.rollFilter && s.admissionNo !== appliedFilters.rollFilter) return false;
-      if (appliedFilters.classFilter && s.className !== appliedFilters.classFilter) return false;
-      if (appliedFilters.sectionFilter && s.section !== appliedFilters.sectionFilter) return false;
-      return true;
-    });
-  }, [students, quickSearch, appliedFilters]);
-
-  const exportData = filteredStudents.map(s => ({
+  const exportData = students.map(s => ({
     'Admission No': s.admissionNo,
     Name: `${s.firstName} ${s.lastName}`,
     'Father Name': s.fatherName,
@@ -567,12 +530,12 @@ export default function StudentListPage() {
                 <tr>
                   <td colSpan="9" className="px-4 py-8 text-center text-zinc-500">Loading...</td>
                 </tr>
-              ) : filteredStudents.length === 0 ? (
+              ) : students.length === 0 ? (
                 <tr>
                   <td colSpan="9" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td>
                 </tr>
               ) : (
-                filteredStudents.map((student) => (
+                students.map((student) => (
                   <tr key={student._id} className="hover:bg-zinc-100/70 transition-colors border-b border-zinc-200">
                     <td className="px-4 py-3 font-semibold text-zinc-900">{student.admissionNo || '-'}</td>
                     <td className="px-4 py-3">
@@ -642,12 +605,27 @@ export default function StudentListPage() {
           </table>
         </div>
         <div className="p-4 border-t border-zinc-200 flex items-center justify-between text-xs text-zinc-600 font-medium">
-          <div>Showing 1 to {filteredStudents.length} of {filteredStudents.length} entries</div>
+          <div>Showing {(page - 1) * limit + 1} to {Math.min(page * limit, totalRecords)} of {totalRecords} entries</div>
           <div className="flex items-center gap-1">
-            <Button variant="outline" size="sm" className="h-7 w-7 p-0 border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100 cursor-pointer" disabled>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="h-7 w-7 p-0 border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100 cursor-pointer" 
+              disabled={page <= 1}
+              onClick={() => setPage(p => p - 1)}
+            >
               <ChevronRight className="h-4 w-4 rotate-180" />
             </Button>
-            <Button variant="outline" size="sm" className="h-7 w-7 p-0 border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100 cursor-pointer" disabled>
+            <div className="flex items-center justify-center h-7 px-2 border border-zinc-200 bg-zinc-50 rounded text-zinc-700 font-bold">
+              {page} / {totalPages}
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="h-7 w-7 p-0 border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100 cursor-pointer" 
+              disabled={page >= totalPages}
+              onClick={() => setPage(p => p + 1)}
+            >
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>

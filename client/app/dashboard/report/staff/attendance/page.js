@@ -6,16 +6,27 @@ import { ChevronRight, Search, Download, Printer, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import api from '@/services/api';
 
 export default function StaffAttendanceReportPage() {
   const [search, setSearch] = useState('');
-  const [classFilter, setClassFilter] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     setLoading(true);
-    setTimeout(() => setLoading(false), 300);
+    try {
+      const res = await api.get(`/staff-attendance/report?role=${roleFilter}&search=${search}`);
+      if (res.success) {
+        setRecords(res.data);
+      }
+    } catch (e) {
+      console.error(e);
+      setRecords([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,14 +51,14 @@ export default function StaffAttendanceReportPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Class / Group</Label>
+            <Label className="text-xs font-semibold text-zinc-400 uppercase">Role</Label>
             <select 
-              value={classFilter} 
-              onChange={(e) => setClassFilter(e.target.value)}
+              value={roleFilter} 
+              onChange={(e) => setRoleFilter(e.target.value)}
               className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-zinc-600"
             >
-              <option value="">All Classes</option>
-              {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
+              <option value="">All Roles</option>
+              {['Teacher', 'Admin', 'Staff', 'Accountant', 'Driver', 'Super Admin'].map(c => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
@@ -82,7 +93,24 @@ export default function StaffAttendanceReportPage() {
                 <tr><td colSpan="8" className="px-4 py-8 text-center text-zinc-500">Loading...</td></tr>
               ) : records.length === 0 ? (
                 <tr><td colSpan="8" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-              ) : null}
+              ) : records.map((r, i) => (
+                <tr key={r._id} className="hover:bg-zinc-900/30 transition-colors">
+                  <td className="px-4 py-3 text-zinc-400">{i + 1}</td>
+                  <td className="px-4 py-3 text-zinc-300">{r.staffNo}</td>
+                  <td className="px-4 py-3 font-medium text-white">{r.name}</td>
+                  <td className="px-4 py-3 text-zinc-300 capitalize">{r.department}</td>
+                  <td className="px-4 py-3 text-zinc-300 capitalize">{r.role}</td>
+                  <td className="px-4 py-3">
+                    <span className="bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded text-xs">{r.present}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="bg-rose-500/10 text-rose-400 px-2 py-1 rounded text-xs">{r.absent}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="font-semibold text-zinc-300">{r.percentage}%</span>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

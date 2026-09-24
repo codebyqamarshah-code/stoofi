@@ -48,6 +48,12 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String // To store base64 profile picture
+  },
+  subscription: {
+    plan: { type: String, enum: ['Free Trial', 'Premium', 'None'], default: 'None' },
+    status: { type: String, enum: ['Active', 'Expired'], default: 'Active' },
+    startDate: { type: Date },
+    endDate: { type: Date }
   }
 }, { timestamps: true });
 

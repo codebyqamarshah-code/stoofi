@@ -59,8 +59,7 @@ exports.register = async (req, res, next) => {
 
     const resolvedFullName = fullName ? fullName.trim() : (username || email.split('@')[0]);
 
-    // Create user
-    const user = await User.create({
+    const userPayload = {
       fullName: resolvedFullName,
       username: username || `${(fullName || '').split(' ')[0]}_${Date.now().toString().slice(-4)}` || email.split('@')[0],
       email,
@@ -69,7 +68,18 @@ exports.register = async (req, res, next) => {
       ...(roleModel ? { roleModel } : {}),
       status: 'Active',
       avatar: picture || ''
-    });
+    };
+
+    if (finalRole === 'Student') {
+      userPayload.subscription = {
+        plan: 'Free Trial',
+        status: 'Active',
+        startDate: new Date(),
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      };
+    }
+
+    const user = await User.create(userPayload);
 
     let referenceId = null;
 

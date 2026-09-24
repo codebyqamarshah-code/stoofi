@@ -56,6 +56,16 @@ export default function DashboardLayout({ children }) {
   const [mounted, setMounted] = useState(false);
   const [menuStructure, setMenuStructure] = useState(() => getStoredSidebar(user?.role || 'Super Admin'));
   
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      if (user.role === 'Student' && user.subscription?.endDate) {
+        if (new Date() > new Date(user.subscription.endDate)) {
+          router.push('/subscription-expired');
+        }
+      }
+    }
+  }, [user, isLoading, isAuthenticated, router]);
+
   // Accordion state: only one menu dropdown open at a time for smooth UX
   const [openSubmenu, setOpenSubmenu] = useState(null);
 

@@ -6,6 +6,7 @@ import { ChevronRight, Search, Download, Printer, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import api from '@/services/api';
 
 export default function PaymentReportPage() {
   const [search, setSearch] = useState('');
@@ -13,9 +14,21 @@ export default function PaymentReportPage() {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     setLoading(true);
-    setTimeout(() => setLoading(false), 300);
+    try {
+      const res = await api.get(`/fees-invoice?search=${search}&limit=1000`);
+      if (res.success) {
+        // filter for Paid or Partial (where paid amount > 0)
+        const payments = res.data.filter(r => r.status === 'Paid' || r.status === 'Partial' || (r.paid && r.paid > 0));
+        setRecords(payments);
+      }
+    } catch (e) {
+      console.error(e);
+      setRecords([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -82,7 +95,23 @@ export default function PaymentReportPage() {
                 <tr><td colSpan="7" className="px-4 py-8 text-center text-zinc-500">Loading...</td></tr>
               ) : records.length === 0 ? (
                 <tr><td colSpan="7" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-              ) : null}
+              ) : records.map((r, i) => (
+                <tr key={r._id} className="hover:bg-zinc-900/30 transition-colors">
+                  <td className="px-4 py-3 text-zinc-400">{i + 1}</td>
+                  <td className="px-4 py-3 text-zinc-300">{r.invoiceNo || '-'}</td>
+                  <td className="px-4 py-3 font-medium text-white">{r.student}</td>
+                  <td className="px-4 py-3 text-zinc-300">{r.feeType || '-'}</td>
+                  <td className="px-4 py-3 text-zinc-300">
+                    <span className="bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded text-xs">{r.paymentMethod || 'Cash'}</span>
+                  </td>
+                  <td className="px-4 py-3 font-semibold text-emerald-400">
+                    ${Number(r.paid || 0).toLocaleString()}
+                  </td>
+                  <td className="px-4 py-3 text-zinc-400 text-xs">
+                    {r.date ? new Date(r.date).toLocaleDateString() : '-'}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

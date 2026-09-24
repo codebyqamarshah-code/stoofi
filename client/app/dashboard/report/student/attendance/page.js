@@ -6,6 +6,7 @@ import { ChevronRight, Search, Download, Printer, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import api from '@/services/api';
 
 export default function StudentAttendanceReportPage() {
   const [search, setSearch] = useState('');
@@ -13,9 +14,19 @@ export default function StudentAttendanceReportPage() {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     setLoading(true);
-    setTimeout(() => setLoading(false), 300);
+    try {
+      const res = await api.get(`/student-attendance/report?className=${classFilter}&search=${search}`);
+      if (res.success) {
+        setRecords(res.data);
+      }
+    } catch (e) {
+      console.error(e);
+      setRecords([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -82,7 +93,26 @@ export default function StudentAttendanceReportPage() {
                 <tr><td colSpan="7" className="px-4 py-8 text-center text-zinc-500">Loading...</td></tr>
               ) : records.length === 0 ? (
                 <tr><td colSpan="7" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-              ) : null}
+              ) : records.map((r, i) => (
+                <tr key={r._id} className="hover:bg-zinc-900/30 transition-colors">
+                  <td className="px-4 py-3 text-zinc-400">{i + 1}</td>
+                  <td className="px-4 py-3 text-zinc-300">{r.admissionNo}</td>
+                  <td className="px-4 py-3 font-medium text-white">{r.name}</td>
+                  <td className="px-4 py-3 text-zinc-300">{r.className}</td>
+                  <td className="px-4 py-3 text-zinc-300">{r.section}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      <span className="bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded">P: {r.present}</span>
+                      <span className="bg-rose-500/10 text-rose-400 px-2 py-1 rounded">A: {r.absent}</span>
+                      <span className="bg-amber-500/10 text-amber-400 px-2 py-1 rounded">L: {r.late}</span>
+                      <span className="bg-blue-500/10 text-blue-400 px-2 py-1 rounded">H: {r.halfDay}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="font-semibold text-zinc-300">{r.percentage}%</span>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

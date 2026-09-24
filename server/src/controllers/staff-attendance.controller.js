@@ -1,4 +1,4 @@
-﻿const Attendance = require('../models/Attendance');
+const Attendance = require('../models/Attendance');
 const Staff = require('../models/Staff');
 
 exports.getAttendance = async (req, res) => {
@@ -68,6 +68,60 @@ exports.saveAttendance = async (req, res) => {
     }
     
     res.status(200).json({ success: true, message: 'Staff attendance saved successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getAttendanceReport = async (req, res) => {
+  try {
+    const { role, search } = req.query;
+    
+    // Build staff query
+    const staffQuery = {};
+    if (role) staffQuery.role = role;
+    if (search) {
+      staffQuery.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { staffNo: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    const staffs = await Staff.find(staffQuery);
+    const staffIds = staffs.map(s => s._id);
+
+    const attendanceRecords = await Attendance.find({
+      userType: 'Staff',
+      recordId: { $in: staffIds }
+    });
+
+    const data = staffs.map(staff => {
+      const staffRecords = attendanceRecords.filter(r => r.recordId.toString() === staff._id.toString());
+      const totalDays = staffRecords.length;
+      const presentDays = staffRecords.filter(r => r.status === 'Present').length;
+      const absentDays = staffRecords.filter(r => r.status === 'Absent').length;
+      const lateDays = staffRecords.filter(r => r.status === 'Late').length;
+      const halfDays = staffRecords.filter(r => r.status === 'Half Day').length;
+      
+      const percentage = totalDays > 0 ? ((presentDays + lateDays + halfDays) / totalDays) * 100 : 0;
+
+      return {
+        _id: staff._id,
+        staffNo: staff.staffNo || staff._id.toString().slice(-6),
+        name: `${staff.firstName} ${staff.lastName}`,
+        role: staff.role || '-',
+        department: staff.department || '-',
+        present: presentDays,
+        absent: absentDays,
+        late: lateDays,
+        halfDay: halfDays,
+        total: totalDays,
+        percentage: percentage.toFixed(2)
+      };
+    });
+
+    res.status(200).json({ success: true, data });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

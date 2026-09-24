@@ -2,8 +2,45 @@ const Student = require('../models/Student');
 
 exports.getAll = async (req, res) => {
   try {
-    const data = await Student.find().sort({ createdAt: -1 });
-    res.status(200).json({ success: true, data });
+    const { page = 1, limit = 10, search = '', className, section } = req.query;
+    
+    // Build query object
+    const query = {};
+    if (search) {
+      query.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { admissionNo: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } }
+      ];
+    }
+    if (className) query.className = className;
+    if (section) query.section = section;
+
+    // Convert page/limit to numbers
+    const pageNumber = parseInt(page, 10) || 1;
+    const limitNumber = parseInt(limit, 10) || 10;
+    const skip = (pageNumber - 1) * limitNumber;
+
+    // Execute query with pagination
+    const data = await Student.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNumber);
+
+    // Get total count for pagination
+    const total = await Student.countDocuments(query);
+
+    res.status(200).json({ 
+      success: true, 
+      data,
+      pagination: {
+        total,
+        page: pageNumber,
+        limit: limitNumber,
+        totalPages: Math.ceil(total / limitNumber)
+      }
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

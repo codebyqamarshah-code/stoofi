@@ -1,4 +1,4 @@
-﻿const Attendance = require('../models/Attendance');
+const Attendance = require('../models/Attendance');
 const Student = require('../models/Student');
 
 exports.getAttendance = async (req, res) => {
@@ -70,6 +70,60 @@ exports.saveAttendance = async (req, res) => {
     }
     
     res.status(200).json({ success: true, message: 'Attendance saved successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getAttendanceReport = async (req, res) => {
+  try {
+    const { className, search } = req.query;
+    
+    // Build student query
+    const studentQuery = {};
+    if (className) studentQuery.className = className;
+    if (search) {
+      studentQuery.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { admissionNo: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    const students = await Student.find(studentQuery);
+    const studentIds = students.map(s => s._id);
+
+    const attendanceRecords = await Attendance.find({
+      userType: 'Student',
+      recordId: { $in: studentIds }
+    });
+
+    const data = students.map(student => {
+      const studentRecords = attendanceRecords.filter(r => r.recordId.toString() === student._id.toString());
+      const totalDays = studentRecords.length;
+      const presentDays = studentRecords.filter(r => r.status === 'Present').length;
+      const absentDays = studentRecords.filter(r => r.status === 'Absent').length;
+      const lateDays = studentRecords.filter(r => r.status === 'Late').length;
+      const halfDays = studentRecords.filter(r => r.status === 'Half Day').length;
+      
+      const percentage = totalDays > 0 ? ((presentDays + lateDays + halfDays) / totalDays) * 100 : 0;
+
+      return {
+        _id: student._id,
+        admissionNo: student.admissionNo,
+        name: `${student.firstName} ${student.lastName}`,
+        className: student.className,
+        section: student.section,
+        present: presentDays,
+        absent: absentDays,
+        late: lateDays,
+        halfDay: halfDays,
+        total: totalDays,
+        percentage: percentage.toFixed(2)
+      };
+    });
+
+    res.status(200).json({ success: true, data });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

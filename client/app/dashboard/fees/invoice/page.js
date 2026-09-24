@@ -24,6 +24,10 @@ export default function FeesInvoicePage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
 
   // Students list for auto-fill in Invoice Builder
   const [studentsList, setStudentsList] = useState([]);
@@ -38,7 +42,7 @@ export default function FeesInvoicePage() {
   const [formData, setFormData] = useState({
     student: '',
     admissionNo: '',
-    className: 'Class 10 (A)',
+    className: '',
     feeType: 'Tuition Fee 2026',
     amount: 15000,
     waiver: 0,
@@ -49,52 +53,41 @@ export default function FeesInvoicePage() {
     note: ''
   });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const fetchData = async () => {
     try {
-      // 1. Fetch Students
-      let localStudents = [];
-      try {
-        const raw = localStorage.getItem('mockDB_student');
-        if (raw) localStudents = JSON.parse(raw);
-      } catch (_) {}
-      const allStudents = localStudents.length > 0 ? localStudents : mockStudents;
-      setStudentsList(allStudents);
-
-      // 2. Fetch Invoices
-      const res = await api.get('/fees-invoice').catch(() => null);
-      let list = [];
-      if (Array.isArray(res?.data)) list = res.data;
-      else if (Array.isArray(res)) list = res;
-
-      let localInvoices = [];
-      try {
-        const raw = localStorage.getItem('mockDB_fees-invoice');
-        if (raw) localInvoices = JSON.parse(raw);
-      } catch (_) {}
-
-      let finalList = [];
-      if (list.length > 0) {
-        finalList = list;
-      } else if (localInvoices.length > 0) {
-        finalList = localInvoices;
-      } else {
-        finalList = mockFeesInvoices;
-        try {
-          localStorage.setItem('mockDB_fees-invoice', JSON.stringify(mockFeesInvoices));
-        } catch (_) {}
+      setLoading(true);
+      const [invRes, stuRes] = await Promise.all([
+        api.get('/fees-invoice', { params: { page, limit: 10, search, status: statusFilter } }),
+        api.get('/student')
+      ]);
+      
+      if (stuRes.success) {
+        setStudentsList(stuRes.data);
       }
 
-      setRecords(finalList);
+      if (invRes.success) {
+        setRecords(invRes.data);
+        if (invRes.pagination) {
+          setTotalPages(invRes.pagination.totalPages || 1);
+          setTotalRecords(invRes.pagination.total || 0);
+        }
+      }
     } catch (e) {
       console.error('Invoice fetch error:', e);
-      setRecords(mockFeesInvoices);
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [page, statusFilter]);
+
+  // Handle Search Trigger
+  const handleSearchSubmit = (e) => {
+    if (e) e.preventDefault();
+    setPage(1);
+    fetchData();
   };
 
   // Open Builder for creating a new invoice
@@ -102,7 +95,7 @@ export default function FeesInvoicePage() {
     setEditingInvoice(null);
     const firstStudent = studentsList[0];
     setFormData({
-      student: firstStudent ? `${firstStudent.firstName} ${firstStudent.lastName}` : 'Muhammad Ali',
+      student: firstStudent ? `${firstStudent.firstName} ${firstStudent.lastName}` : '',
       admissionNo: firstStudent?.admissionNo || 'ADM-2026-001',
       className: firstStudent ? `${firstStudent.className} (${firstStudent.section})` : 'Class 10 (A)',
       feeType: 'Tuition Fee 2026',
@@ -188,53 +181,35 @@ export default function FeesInvoicePage() {
       paid: Number(formData.paid),
       balance: computedBalance,
       status: computedStatus,
-      invoiceNo: editingInvoice?.invoiceNo || ('INV-2026-' + String(records.length + 1).padStart(3, '0')),
-      _id: editingInvoice?._id || ('inv_' + Date.now())
+      invoiceNo: editingInvoice?.invoiceNo || ('INV-2026-' + String(totalRecords + 1).padStart(3, '0')),
     };
-
-    let updatedList = [];
-    if (editingInvoice) {
-      updatedList = records.map(r => r._id === editingInvoice._id ? payload : r);
-    } else {
-      updatedList = [payload, ...records];
-    }
-
-    // 1. Instant Live State Update
-    setRecords(updatedList);
-
-    // 2. Local Storage Persistence
-    try {
-      localStorage.setItem('mockDB_fees-invoice', JSON.stringify(updatedList));
-    } catch (_) {}
 
     setIsBuilderOpen(false);
 
-    // 3. API Call
     try {
       if (editingInvoice) {
         await api.put(`/fees-invoice/${editingInvoice._id}`, payload);
+        alert('Invoice updated successfully!');
       } else {
         await api.post('/fees-invoice', payload);
+        alert('Invoice created successfully!');
       }
+      fetchData();
     } catch (err) {
-      console.warn('API save note:', err.message);
+      console.error('API save failed:', err.message);
+      alert('Failed to save invoice.');
     }
-
-    alert(editingInvoice ? 'Invoice updated successfully!' : 'Invoice created successfully!');
   };
 
   // Delete Invoice
   const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this invoice?')) {
-      const filtered = records.filter(r => r._id !== id);
-      setRecords(filtered);
-      try {
-        localStorage.setItem('mockDB_fees-invoice', JSON.stringify(filtered));
-      } catch (_) {}
       try {
         await api.delete(`/fees-invoice/${id}`);
+        fetchData();
       } catch (err) {
-        console.warn('API delete note:', err.message);
+        console.error('API delete failed:', err.message);
+        alert('Failed to delete invoice.');
       }
     }
   };
@@ -244,20 +219,6 @@ export default function FeesInvoicePage() {
     setSelectedReceipt(inv);
     setIsReceiptOpen(true);
   };
-
-  // Filtered Records
-  const filteredRecords = useMemo(() => {
-    return records.filter(r => {
-      const matchSearch = search === '' ||
-        r.student?.toLowerCase().includes(search.toLowerCase()) ||
-        r.invoiceNo?.toLowerCase().includes(search.toLowerCase()) ||
-        r.admissionNo?.toLowerCase().includes(search.toLowerCase()) ||
-        r.className?.toLowerCase().includes(search.toLowerCase());
-      
-      const matchStatus = statusFilter === 'ALL' || r.status === statusFilter;
-      return matchSearch && matchStatus;
-    });
-  }, [records, search, statusFilter]);
 
   // Overall Financial Stats
   const stats = useMemo(() => {
@@ -269,7 +230,7 @@ export default function FeesInvoicePage() {
   }, [records]);
 
   // Export dataset
-  const exportData = filteredRecords.map(r => ({
+  const exportData = records.map(r => ({
     'Invoice No': r.invoiceNo || '-',
     'Student Name': r.student,
     'Admission No': r.admissionNo || '-',
@@ -424,14 +385,14 @@ export default function FeesInvoicePage() {
                 <tr>
                   <td colSpan="12" className="px-4 py-8 text-center text-zinc-500">Loading invoices...</td>
                 </tr>
-              ) : filteredRecords.length === 0 ? (
+              ) : records.length === 0 ? (
                 <tr>
                   <td colSpan="12" className="px-4 py-8 text-center text-zinc-500">
                     No Invoices Available. Click &quot;Create Invoice&quot; to issue a new voucher.
                   </td>
                 </tr>
               ) : (
-                filteredRecords.map((r, i) => (
+                records.map((r, i) => (
                   <tr key={r._id} className="hover:bg-zinc-900/50 transition-colors">
                     <td className="px-4 py-3 text-zinc-500 font-medium text-xs">#{i + 1}</td>
                     <td className="px-4 py-3 font-semibold text-zinc-200 text-xs tracking-wider">{r.invoiceNo || `INV-${100 + i}`}</td>
@@ -504,10 +465,12 @@ export default function FeesInvoicePage() {
         </div>
 
         {/* Table Footer */}
-        <div className="p-4 border-t border-zinc-800 flex items-center justify-between text-xs text-zinc-500">
-          <div>Showing 1 to {filteredRecords.length} of {filteredRecords.length} invoices</div>
-          <div className="flex items-center gap-1">
-            <span className="text-zinc-400 font-medium">Stoofi ERP Automated Billing Engine</span>
+        <div className="p-4 border-t border-zinc-800 flex flex-wrap items-center justify-between text-xs text-zinc-500">
+          <div>Showing {totalRecords === 0 ? 0 : (page - 1) * 10 + 1} to {Math.min(page * 10, totalRecords)} of {totalRecords} invoices</div>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1.5 rounded border border-zinc-700 hover:bg-zinc-800 disabled:opacity-40 transition-colors">Previous</button>
+            <div className="text-zinc-400 font-medium px-2">Page {page} of {totalPages}</div>
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-3 py-1.5 rounded border border-zinc-700 hover:bg-zinc-800 disabled:opacity-40 transition-colors">Next</button>
           </div>
         </div>
       </div>
