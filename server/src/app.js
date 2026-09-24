@@ -32,6 +32,9 @@ connectDB();
 
 // Serve static files (uploads)
 app.use(express.static('public'));
+if (process.env.VERCEL === '1' || process.env.VERCEL_ENV) {
+  app.use('/uploads', express.static('/tmp/uploads'));
+}
 
 // Routes
 app.use('/api/auth', require('./routes/auth.routes'));
