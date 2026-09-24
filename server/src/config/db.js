@@ -1,8 +1,9 @@
-﻿const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI);
+    const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
+    const conn = await mongoose.connect(uri);
     console.log(`\n======================================================`);
     console.log(`✅ MongoDB Successfully Connected!`);
     console.log(`📡 Database Name: ${conn.connection.name} (Sara data isi mai jayega)`);
