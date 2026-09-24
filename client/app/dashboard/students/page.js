@@ -79,31 +79,38 @@ export default function StudentListPage() {
   // Import modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = async (overrideFilters) => {
     setLoading(true);
+    const active = overrideFilters || appliedFilters;
     try {
+      const params = { page, limit };
+      if (quickSearch && quickSearch.trim()) params.search = quickSearch.trim();
+      if (active.classFilter && active.classFilter !== 'All Classes') params.className = active.classFilter;
+      if (active.sectionFilter && active.sectionFilter !== 'All Sections') params.section = active.sectionFilter;
+      if (active.nameFilter && active.nameFilter.trim()) params.name = active.nameFilter.trim();
+      if (active.rollFilter && active.rollFilter.trim()) params.rollNo = active.rollFilter.trim();
+
       const [stuRes, classRes, secRes] = await Promise.all([
-        api.get('/student', { 
-          params: { 
-            page, 
-            limit, 
-            search: quickSearch, 
-            className: appliedFilters.classFilter, 
-            section: appliedFilters.sectionFilter 
-          } 
-        }).catch(() => null),
+        api.get('/student', { params }).catch(err => {
+          console.error('Fetch students error:', err);
+          return null;
+        }),
         api.get('/class').catch(() => null),
         api.get('/section').catch(() => null)
       ]);
       
-      if (stuRes?.success) {
-        setStudents(stuRes.data || []);
-        if (stuRes.pagination) {
-          setTotalPages(stuRes.pagination.totalPages || 1);
-          setTotalRecords(stuRes.pagination.total || 0);
-        }
+      let list = [];
+      if (Array.isArray(stuRes?.data)) list = stuRes.data;
+      else if (Array.isArray(stuRes?.students)) list = stuRes.students;
+      else if (Array.isArray(stuRes)) list = stuRes;
+
+      setStudents(list);
+      if (stuRes?.pagination) {
+        setTotalPages(stuRes.pagination.totalPages || 1);
+        setTotalRecords(stuRes.pagination.total || list.length);
       } else {
-        setStudents([]);
+        setTotalRecords(list.length);
+        setTotalPages(Math.ceil(list.length / limit) || 1);
       }
 
       if (classRes?.success && Array.isArray(classRes.data) && classRes.data.length > 0) {
@@ -117,7 +124,7 @@ export default function StudentListPage() {
         setSections(FALLBACK_SECTIONS);
       }
     } catch (error) {
-      console.error(error);
+      console.error('Student fetch error:', error);
       setStudents([]);
     } finally {
       setLoading(false);
@@ -129,17 +136,26 @@ export default function StudentListPage() {
     const handleFocus = () => fetchData();
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
-  }, [page, limit, appliedFilters]);
-
-  // We should also trigger fetch when quickSearch changes, but let's debounce or trigger on 'Enter'.
-  // Currently handleSearch updates appliedFilters, so we can also rely on it.
-  // Actually, quickSearch is used directly in fetch but not in appliedFilters. 
-  // We'll update handleSearch to trigger a fetch.
+  }, [page, limit, appliedFilters, quickSearch]);
 
   const handleSearch = () => {
-    setPage(1); // Reset to page 1 on search
-    setAppliedFilters({ academicYear, classFilter, sectionFilter, nameFilter, rollFilter });
-    fetchData(); // Force fetch immediately
+    setPage(1);
+    const newFilters = { academicYear, classFilter, sectionFilter, nameFilter, rollFilter };
+    setAppliedFilters(newFilters);
+    fetchData(newFilters);
+  };
+
+  const handleReset = () => {
+    setAcademicYear('2026 [Jan-Dec]');
+    setClassFilter('');
+    setSectionFilter('');
+    setNameFilter('');
+    setRollFilter('');
+    setQuickSearch('');
+    setPage(1);
+    const emptyFilters = { academicYear: '2026 [Jan-Dec]', classFilter: '', sectionFilter: '', nameFilter: '', rollFilter: '' };
+    setAppliedFilters(emptyFilters);
+    fetchData(emptyFilters);
   };
 
   const handleDelete = async (id) => {
@@ -458,14 +474,7 @@ export default function StudentListPage() {
             <Button 
               type="button"
               variant="outline"
-              onClick={() => {
-                setClassFilter('');
-                setSectionFilter('');
-                setNameFilter('');
-                setRollFilter('');
-                setQuickSearch('');
-                setAppliedFilters({ academicYear, classFilter: '', sectionFilter: '', nameFilter: '', rollFilter: '' });
-              }}
+              onClick={handleReset}
               className="border-zinc-700 bg-zinc-900 text-zinc-300 hover:text-white hover:bg-zinc-800 cursor-pointer text-xs flex items-center gap-1.5"
             >
               <RotateCcw className="h-3.5 w-3.5" /> RESET
@@ -540,8 +549,12 @@ export default function StudentListPage() {
                     <td className="px-4 py-3">
                       <Link href={`/dashboard/students/${student._id}`} className="flex items-center gap-3 group">
                         <div className="h-8 w-8 rounded-full bg-zinc-900 text-white overflow-hidden border border-zinc-300 flex items-center justify-center shrink-0">
-                          {student.photo ? (
-                            <img src={`http://localhost:5000/${student.photo}`} alt={student.firstName} className="h-full w-full object-cover" />
+                          {student.photo || student.studentPhoto ? (
+                            <img 
+                              src={(student.photo || student.studentPhoto).startsWith('http') || (student.photo || student.studentPhoto).startsWith('data:') ? (student.photo || student.studentPhoto) : `${process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || ''}/${student.photo || student.studentPhoto}`} 
+                              alt={student.firstName} 
+                              className="h-full w-full object-cover" 
+                            />
                           ) : (
                             <div className="h-full w-full flex items-center justify-center text-xs font-bold text-white uppercase">{student.firstName?.charAt(0)}</div>
                           )}

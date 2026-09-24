@@ -2,24 +2,42 @@ const Student = require('../models/Student');
 
 exports.getAll = async (req, res) => {
   try {
-    const { page = 1, limit = 10, search = '', className, section } = req.query;
+    const { page = 1, limit = 50, search = '', className, section, rollNo, name } = req.query;
     
     // Build query object
     const query = {};
-    if (search) {
+    if (search && search.trim()) {
+      const s = search.trim();
       query.$or = [
-        { firstName: { $regex: search, $options: 'i' } },
-        { lastName: { $regex: search, $options: 'i' } },
-        { admissionNo: { $regex: search, $options: 'i' } },
-        { phone: { $regex: search, $options: 'i' } }
+        { firstName: { $regex: s, $options: 'i' } },
+        { lastName: { $regex: s, $options: 'i' } },
+        { admissionNo: { $regex: s, $options: 'i' } },
+        { phone: { $regex: s, $options: 'i' } },
+        { rollNo: { $regex: s, $options: 'i' } }
       ];
     }
-    if (className) query.className = className;
-    if (section) query.section = section;
+    if (name && name.trim()) {
+      const n = name.trim();
+      query.$or = [
+        { firstName: { $regex: n, $options: 'i' } },
+        { lastName: { $regex: n, $options: 'i' } }
+      ];
+    }
+    if (className && className !== 'All Classes' && className !== 'All' && className.trim()) {
+      const c = className.replace(/^Class\s+/i, '').trim();
+      query.className = { $regex: `^(${className}|${c})$`, $options: 'i' };
+    }
+    if (section && section !== 'All Sections' && section !== 'All' && section.trim()) {
+      const sec = section.replace(/^Section\s+/i, '').trim();
+      query.section = { $regex: `^(${section}|${sec})$`, $options: 'i' };
+    }
+    if (rollNo && rollNo.trim()) {
+      query.rollNo = { $regex: rollNo.trim(), $options: 'i' };
+    }
 
     // Convert page/limit to numbers
     const pageNumber = parseInt(page, 10) || 1;
-    const limitNumber = parseInt(limit, 10) || 10;
+    const limitNumber = parseInt(limit, 10) || 50;
     const skip = (pageNumber - 1) * limitNumber;
 
     // Execute query with pagination
@@ -38,7 +56,7 @@ exports.getAll = async (req, res) => {
         total,
         page: pageNumber,
         limit: limitNumber,
-        totalPages: Math.ceil(total / limitNumber)
+        totalPages: Math.ceil(total / limitNumber) || 1
       }
     });
   } catch (error) {
