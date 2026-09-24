@@ -7,3 +7,5 @@ app.listen(PORT, () => {
   console.log(`\n🚀 BACKEND WAS CONNECTED!`);
   console.log(`🌐 Server is running on port ${PORT}\n`);
 });
+
+module.exports = app;
