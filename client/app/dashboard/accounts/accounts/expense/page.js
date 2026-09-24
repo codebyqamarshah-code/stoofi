@@ -38,7 +38,7 @@ export default function ExpensePage() {
 
   const handleEdit = (item) => {
     setFormData(item);
-    setEditId(item.id);
+    setEditId(item._id || item.id);
   };
 
   const handleDelete = async (id) => {
