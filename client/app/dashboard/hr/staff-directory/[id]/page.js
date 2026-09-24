@@ -14,8 +14,13 @@ import api from '@/services/api';
 import { exportToExcel } from '@/lib/exportUtils';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
-const getPhotoUrl = (staff) =>
-  staff?.photo ? `http://localhost:5000/${staff.photo}` : null;
+const getPhotoUrl = (staff) => {
+  if (!staff?.photo && !staff?.staffPhoto) return null;
+  const p = staff.photo || staff.staffPhoto;
+  if (p.startsWith('data:') || p.startsWith('http')) return p;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || '';
+  return `${baseUrl}${p.startsWith('/') ? '' : '/'}${p}`;
+};
 
 const getInitials = (staff) => {
   const f = staff?.firstName?.charAt(0) || '';
@@ -67,28 +72,20 @@ export default function StaffProfilePage() {
 
   useEffect(() => {
     const load = async () => {
-      // 1. Try API
       try {
-        const res = await api.get(`/teacher/${id}`).catch(() => null);
-        const s = res?.data || (res?._id ? res : null);
-        if (s) { setStaff(s); return; }
-      } catch (_) {}
-
-      // 2. Try localStorage
-      try {
-        const raw = localStorage.getItem('mockDB_staff');
-        if (raw) {
-          const list = JSON.parse(raw);
-          const found = list.find((s) => s._id === id || s.admissionNo === id);
-          if (found) { setStaff(found); return; }
+        let res = await api.get(`/staff/${id}`).catch(() => null);
+        if (!res?.data && !res?._id) {
+          res = await api.get(`/teacher/${id}`).catch(() => null);
         }
-      } catch (_) {}
-
-      // 3. Mock fallback
-      const found = mockStaffs.find((s) => s._id === id || s.admissionNo === id);
-      if (found) setStaff(found);
+        const s = res?.data || (res?._id ? res : null);
+        if (s) setStaff(s);
+      } catch (err) {
+        console.error('Failed to load staff:', err);
+      } finally {
+        setLoading(false);
+      }
     };
-    load().finally(() => setLoading(false));
+    load();
   }, [id]);
 
   // ── Export to Excel ──

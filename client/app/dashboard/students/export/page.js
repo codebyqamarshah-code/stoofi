@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import api from '@/services/api';
-import { mockStudents } from '@/services/mockData';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 import StudentImportModal from '@/components/StudentImportModal';
 
@@ -78,24 +77,7 @@ export default function StudentExportPage() {
       else if (Array.isArray(stuRes?.students)) list = stuRes.students;
       else if (Array.isArray(stuRes)) list = stuRes;
 
-      let localStudents = [];
-      try {
-        const raw = localStorage.getItem('mockDB_student');
-        if (raw) localStudents = JSON.parse(raw);
-      } catch (_) {}
-
-      let finalList = [];
-      if (list.length > 0) {
-        const idSet = new Set(list.map(s => s._id || s.admissionNo));
-        const extraLocal = localStudents.filter(s => !idSet.has(s._id || s.admissionNo));
-        finalList = [...extraLocal, ...list];
-      } else if (localStudents.length > 0) {
-        finalList = localStudents;
-      } else {
-        finalList = mockStudents;
-      }
-
-      setStudents(finalList);
+      setStudents(list);
 
       if (classRes?.success && Array.isArray(classRes.data) && classRes.data.length > 0) {
         setClasses(classRes.data);
@@ -105,12 +87,7 @@ export default function StudentExportPage() {
       }
     } catch (err) {
       console.error(err);
-      let localStudents = [];
-      try {
-        const raw = localStorage.getItem('mockDB_student');
-        if (raw) localStudents = JSON.parse(raw);
-      } catch (_) {}
-      setStudents(localStudents.length > 0 ? localStudents : mockStudents);
+      setStudents([]);
     } finally {
       setLoading(false);
     }

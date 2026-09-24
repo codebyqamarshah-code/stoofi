@@ -230,28 +230,7 @@ export default function DashboardUI({ user }) {
       if (res && res.success) {
         let liveStats = res?.data?.stats;
         
-        // If local DB has students, compute live student count dynamically
-        try {
-          const raw = localStorage.getItem('mockDB_student');
-          if (raw) {
-            const list = JSON.parse(raw);
-            if (list.length > 0) {
-              const male = list.filter(s => s.gender?.toLowerCase() === 'male').length;
-              const female = list.filter(s => s.gender?.toLowerCase() === 'female').length;
-              const total = list.length;
-              liveStats = {
-                ...(liveStats || {}),
-                students: {
-                  total,
-                  male,
-                  female,
-                  malePercent: total > 0 ? Math.round((male / total) * 100) : 50,
-                  femalePercent: total > 0 ? Math.round((female / total) * 100) : 50
-                }
-              };
-            }
-          }
-        } catch (_) {}
+        
 
         setDashboardData(prev => ({
           ...prev,

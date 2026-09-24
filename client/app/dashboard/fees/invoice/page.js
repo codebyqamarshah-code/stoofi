@@ -3,7 +3,6 @@ import Link from 'next/link';
 import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronRight, Search, Plus, Edit, Trash2, Printer, Download, FileText, CheckCircle2, AlertCircle, Clock, X, Eye } from 'lucide-react';
 import api from '@/services/api';
-import { mockFeesInvoices, mockStudents } from '@/services/mockData';
 import { exportToCSV, exportToExcel, printData } from '@/lib/exportUtils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

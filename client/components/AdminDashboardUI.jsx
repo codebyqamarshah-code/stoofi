@@ -228,62 +228,15 @@ export default function AdminDashboardUI({ user }) {
     try {
       const res = await api.get('/dashboard/stats');
       if (res && res.success) {
-        let liveStats = res?.data?.stats;
-        
-        // If local DB has students, compute live student count dynamically
-        try {
-          const raw = localStorage.getItem('mockDB_student');
-          if (raw) {
-            const list = JSON.parse(raw);
-            if (list.length > 0) {
-              const male = list.filter(s => s.gender?.toLowerCase() === 'male').length;
-              const female = list.filter(s => s.gender?.toLowerCase() === 'female').length;
-              const total = list.length;
-              liveStats = {
-                ...(liveStats || {}),
-                students: {
-                  total,
-                  male,
-                  female,
-                  malePercent: total > 0 ? Math.round((male / total) * 100) : 50,
-                  femalePercent: total > 0 ? Math.round((female / total) * 100) : 50
-                }
-              };
-            }
-          }
-        } catch (_) {}
-
         setDashboardData(prev => ({
           ...prev,
           ...(res?.data || {}),
-          stats: liveStats || res?.data?.stats || prev.stats,
+          stats: res?.data?.stats || prev.stats,
           charts: res?.data?.charts || prev.charts
         }));
         
-        let localSaved = [];
-        if (typeof window !== 'undefined') {
-          try {
-            const raw = localStorage.getItem('dashboard_notices');
-            if (raw) localSaved = JSON.parse(raw);
-          } catch (_) {}
-        }
-        
         const serverNotices = Array.isArray(res.data?.notices) ? res.data.notices : [];
-        if (serverNotices.length > 0) {
-          // Merge unique by title & id
-          const combined = [...serverNotices];
-          localSaved.forEach(localItem => {
-            if (!combined.some(s => s._id === localItem._id || s.title === localItem.title)) {
-              combined.push(localItem);
-            }
-          });
-          setNoticesList(combined);
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('dashboard_notices', JSON.stringify(combined));
-          }
-        } else if (localSaved.length > 0) {
-          setNoticesList(localSaved);
-        }
+        setNoticesList(serverNotices);
         
         // Merge Todos with local persisted storage
         let localTodos = [];

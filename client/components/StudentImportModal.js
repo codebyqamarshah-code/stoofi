@@ -142,18 +142,13 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
 
         // Map columns intelligently
         const currentYear = new Date().getFullYear();
-        let existingLocal = [];
-        try {
-          existingLocal = JSON.parse(localStorage.getItem('mockDB_student') || '[]');
-        } catch (_) {}
-
-        let nextSeq = existingLocal.length + 1;
+        const randSeed = Math.floor(Math.random() * 800) + 100;
 
         const mapped = data.map((row, idx) => {
           const firstName = getVal(row, ['firstName', 'first name', 'firstname', 'student name', 'name', 'first']) || '';
           const lastName = getVal(row, ['lastName', 'last name', 'lastname', 'surname', 'last']) || '';
           const admissionNo = getVal(row, ['admissionNo', 'admission no', 'admission number', 'adm no', 'registration no', 'reg no']) ||
-            `ADM-${currentYear}-${String(nextSeq + idx).padStart(3, '0')}`;
+            `ADM-${currentYear}-${String(randSeed + idx).padStart(3, '0')}`;
           const rollNo = getVal(row, ['rollNo', 'roll no', 'roll number', 'roll']) || '';
           const className = getVal(row, ['className', 'class', 'grade', 'standard']) || defaultClass || '';
           const section = getVal(row, ['section', 'sec']) || defaultSection || '';
@@ -239,53 +234,28 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
     setErrorMsg('');
 
     try {
-      // Simulate proper professional progress for realistic processing time
-      for (let i = 1; i <= 100; i += 5) {
-        setImportProgress(i);
-        await new Promise(resolve => setTimeout(resolve, 150));
-      }
-
-      // 1. Sync to LocalStorage (Instant local persistence)
-      let currentMock = [];
-      try {
-        currentMock = JSON.parse(localStorage.getItem('mockDB_student') || '[]');
-      } catch (_) {}
-
-      // Avoid duplicates based on admissionNo
-      const existingAdmissions = new Set(currentMock.map(s => (s.admissionNo || '').toLowerCase().trim()));
-      const newItems = parsedStudents.filter(s => !existingAdmissions.has(s.admissionNo.toLowerCase().trim()));
-      
-      const merged = [...newItems, ...currentMock];
-      localStorage.setItem('mockDB_student', JSON.stringify(merged));
-
-      // 2. Sync to Backend API (Online persistence)
-      let apiSuccessCount = 0;
-      try {
-        const res = await api.post('/student/bulk', { students: parsedStudents });
-        if (res?.success) {
-          apiSuccessCount = res.count || parsedStudents.length;
-        }
-      } catch (apiErr) {
-        console.warn('Backend bulk import note (will use local persistence):', apiErr.message);
-      }
-
-      setImportStats({
-        totalParsed: parsedStudents.length,
-        addedCount: newItems.length,
-        duplicatesSkipped: parsedStudents.length - newItems.length
-      });
-
+      setImportProgress(20);
+      const res = await api.post('/student/bulk', { students: parsedStudents });
       setImportProgress(100);
 
-      if (onSuccess) {
-        onSuccess(merged);
+      if (res && res.success !== false) {
+        setImportStats({
+          totalParsed: parsedStudents.length,
+          addedCount: res.count || parsedStudents.length,
+          duplicatesSkipped: 0
+        });
+
+        if (onSuccess) {
+          onSuccess(res.data || parsedStudents);
+        }
+
+        setTimeout(() => {
+          onClose();
+          handleReset();
+        }, 2000);
+      } else {
+        throw new Error(res?.message || 'Bulk import failed');
       }
-
-      setTimeout(() => {
-        onClose();
-        handleReset();
-      }, 2000);
-
     } catch (err) {
       console.error('Import error:', err);
       setErrorMsg('An error occurred during import: ' + err.message);

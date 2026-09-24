@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import Link from 'next/link';
 import api from '@/services/api';
-import { mockStudents } from '@/services/mockData';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 import dynamic from 'next/dynamic';
 

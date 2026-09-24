@@ -10,12 +10,16 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import api from '@/services/api';
-import { mockStudents } from '@/services/mockData';
 import { exportToExcel } from '@/lib/exportUtils';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
-const getPhotoUrl = (student) =>
-  student?.photo ? `http://localhost:5000/${student.photo}` : null;
+const getPhotoUrl = (student) => {
+  if (!student?.photo && !student?.studentPhoto) return null;
+  const p = student.photo || student.studentPhoto;
+  if (p.startsWith('data:') || p.startsWith('http')) return p;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || '';
+  return `${baseUrl}${p.startsWith('/') ? '' : '/'}${p}`;
+};
 
 const getInitials = (student) => {
   const f = student?.firstName?.charAt(0) || '';
@@ -67,28 +71,19 @@ export default function StudentProfilePage() {
 
   useEffect(() => {
     const load = async () => {
-      // 1. Try API
       try {
-        const res = await api.get(`/student/${id}`).catch(() => null);
+        const res = await api.get(`/student/${id}`);
         const s = res?.data || (res?._id ? res : null);
-        if (s) { setStudent(s); return; }
-      } catch (_) {}
-
-      // 2. Try localStorage
-      try {
-        const raw = localStorage.getItem('mockDB_student');
-        if (raw) {
-          const list = JSON.parse(raw);
-          const found = list.find((s) => s._id === id || s.admissionNo === id);
-          if (found) { setStudent(found); return; }
+        if (s) {
+          setStudent(s);
         }
-      } catch (_) {}
-
-      // 3. Mock fallback
-      const found = mockStudents.find((s) => s._id === id || s.admissionNo === id);
-      if (found) setStudent(found);
+      } catch (err) {
+        console.error('Failed to load student:', err);
+      } finally {
+        setLoading(false);
+      }
     };
-    load().finally(() => setLoading(false));
+    load();
   }, [id]);
 
   // ── Export to Excel ──

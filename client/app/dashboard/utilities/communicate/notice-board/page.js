@@ -42,46 +42,11 @@ export default function NoticeBoardPage() {
 
   const audiences = ['All', 'Students', 'Teachers', 'Parents', 'Staff'];
 
-  // Sync with localStorage and Backend API
-  useEffect(() => {
-    let localSaved = [];
-    if (typeof window !== 'undefined') {
-      try {
-        const raw = localStorage.getItem('dashboard_notices');
-        if (raw) localSaved = JSON.parse(raw);
-      } catch (_) {}
-    }
-
-    const fetchNotices = async () => {
-      try {
-        const res = await api.get('/dashboard/notices');
-        if (res && res.success && Array.isArray(res.data)) {
-          const combined = [...res.data];
-          localSaved.forEach(localItem => {
-            if (!combined.some(s => s._id === localItem._id || s.title === localItem.title)) {
-              combined.push(localItem);
-            }
-          });
-          const mapped = combined.map(n => ({
-            id: n._id,
-            title: n.title,
-            description: n.description,
-            noticeTo: n.noticeTo || n.audience || 'All',
-            noticeDate: n.noticeDate || n.date || n.createdAt?.split('T')[0] || new Date().toISOString().split('T')[0],
-            publishDate: n.createdAt?.split('T')[0] || new Date().toISOString().split('T')[0],
-            createdBy: n.createdBy || 'Admin',
-            status: 'Active'
-          }));
-          setRecords(mapped);
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('dashboard_notices', JSON.stringify(combined));
-          }
-          return;
-        }
-      } catch (err) {}
-      
-      if (localSaved.length > 0) {
-        setRecords(localSaved.map(n => ({
+  const fetchNotices = async () => {
+    try {
+      const res = await api.get('/dashboard/notices');
+      if (res && res.success && Array.isArray(res.data)) {
+        const mapped = res.data.map(n => ({
           id: n._id,
           title: n.title,
           description: n.description,
@@ -90,29 +55,17 @@ export default function NoticeBoardPage() {
           publishDate: n.createdAt?.split('T')[0] || new Date().toISOString().split('T')[0],
           createdBy: n.createdBy || 'Admin',
           status: 'Active'
-        })));
+        }));
+        setRecords(mapped);
       }
-    };
-    fetchNotices();
-  }, []);
-
-  const saveToGlobal = (updatedRecords) => {
-    if (typeof window !== 'undefined') {
-      const globalFormat = updatedRecords.map(r => ({
-        _id: r.id,
-        title: r.title,
-        description: r.description,
-        noticeTo: r.noticeTo,
-        audience: r.noticeTo,
-        date: r.noticeDate,
-        noticeDate: r.noticeDate,
-        published: true,
-        createdBy: r.createdBy,
-        createdAt: new Date().toISOString()
-      }));
-      localStorage.setItem('dashboard_notices', JSON.stringify(globalFormat));
+    } catch (err) {
+      console.error('Fetch notices error:', err);
     }
   };
+
+  useEffect(() => {
+    fetchNotices();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -121,47 +74,28 @@ export default function NoticeBoardPage() {
       return;
     }
 
-    if (editId) {
-      const updatedList = records.map(r => r.id === editId ? { ...r, ...form } : r);
-      setRecords(updatedList);
-      saveToGlobal(updatedList);
-      setSuccessMsg('Notice updated successfully!');
-      
-      try {
+    try {
+      if (editId) {
         await api.put(`/dashboard/notices/${editId}`, {
           title: form.title,
           description: form.description,
           audience: form.noticeTo,
           date: form.noticeDate
         });
-      } catch (err) {}
-      
-      setEditId(null);
-    } else {
-      const tempId = 'notice_' + Date.now();
-      const newRecord = {
-        id: tempId,
-        ...form,
-        createdBy: 'Admin'
-      };
-      const updatedList = [newRecord, ...records];
-      setRecords(updatedList);
-      saveToGlobal(updatedList);
-      setSuccessMsg('Notice added and published successfully!');
-
-      try {
-        const res = await api.post('/dashboard/notices', {
+        setSuccessMsg('Notice updated successfully!');
+        setEditId(null);
+      } else {
+        await api.post('/dashboard/notices', {
           title: form.title,
           description: form.description,
           audience: form.noticeTo,
           date: form.noticeDate
         });
-        if (res && res.data && res.data._id) {
-          const syncedList = updatedList.map(r => r.id === tempId ? { ...r, id: res.data._id } : r);
-          setRecords(syncedList);
-          saveToGlobal(syncedList);
-        }
-      } catch (err) {}
+        setSuccessMsg('Notice added and published successfully!');
+      }
+      fetchNotices();
+    } catch (err) {
+      alert(err.message || 'Error saving notice');
     }
 
     setForm({
@@ -191,19 +125,15 @@ export default function NoticeBoardPage() {
 
   const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this notice?')) {
-      const updatedList = records.filter(r => r.id !== id);
-      setRecords(updatedList);
-      saveToGlobal(updatedList);
-      
-      if (editId === id) {
-        cancelEdit();
-      }
-      setSuccessMsg('Notice deleted successfully.');
-      setTimeout(() => setSuccessMsg(''), 3000);
-
       try {
         await api.delete(`/dashboard/notices/${id}`);
-      } catch (err) {}
+        setSuccessMsg('Notice deleted successfully.');
+        setTimeout(() => setSuccessMsg(''), 3000);
+        if (editId === id) cancelEdit();
+        fetchNotices();
+      } catch (err) {
+        alert(err.message || 'Error deleting notice');
+      }
     }
   };
 
