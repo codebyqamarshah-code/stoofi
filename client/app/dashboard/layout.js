@@ -69,6 +69,37 @@ export default function DashboardLayout({ children }) {
   // Accordion state: only one menu dropdown open at a time for smooth UX
   const [openSubmenu, setOpenSubmenu] = useState(null);
 
+  // Auto-expand the active submenu on load and when pathname changes
+  useEffect(() => {
+    if (menuStructure && pathname) {
+      let activeGroupName = null;
+      for (const group of menuStructure) {
+        if (group.items) {
+          for (const item of group.items) {
+            if (item.hasSubmenu && item.subItems) {
+              const isActive = item.subItems.some(sub => pathname === sub.href || pathname.startsWith(sub.href + '/'));
+              if (isActive) {
+                activeGroupName = item.name;
+                break;
+              }
+            } else {
+              const targetHref = item.href || '/dashboard';
+              if (pathname === targetHref || (targetHref !== '/dashboard' && pathname.startsWith(targetHref + '/'))) {
+                activeGroupName = null; 
+                break;
+              }
+            }
+          }
+        }
+        if (activeGroupName) break;
+      }
+      
+      if (activeGroupName && openSubmenu !== activeGroupName) {
+        setOpenSubmenu(activeGroupName);
+      }
+    }
+  }, [pathname, menuStructure]);
+
   const [liveNotifications, setLiveNotifications] = useState([]);
   const [activeStudentsCount, setActiveStudentsCount] = useState(0);
   const [hasUnreadNotif, setHasUnreadNotif] = useState(false);
@@ -337,12 +368,12 @@ export default function DashboardLayout({ children }) {
                             onClick={() => toggleSubmenu(item.name)}
                             className={`w-full flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold cursor-pointer transition-all duration-200 group ${
                               isOpen 
-                                ? 'bg-zinc-100/70 dark:bg-zinc-100 text-zinc-950 dark:text-zinc-900 border border-zinc-300 dark:border-zinc-200 font-bold' 
+                                ? 'bg-emerald-100 dark:bg-emerald-100 text-emerald-800 dark:text-emerald-900 border border-emerald-300 dark:border-emerald-300 font-bold' 
                                 : 'text-zinc-950 dark:text-zinc-600 hover:bg-emerald-50 dark:hover:bg-emerald-50/50 hover:text-emerald-700 dark:hover:text-emerald-700'
                             }`}
                           >
                             <div className="flex items-center space-x-3">
-                              <IconComponent className={`h-4 w-4 transition-colors ${isOpen ? 'text-zinc-950 dark:text-zinc-900' : 'text-zinc-950 dark:text-zinc-600 group-hover:text-zinc-800 dark:group-hover:text-zinc-950'}`} />
+                              <IconComponent className={`h-4 w-4 transition-colors ${isOpen ? 'text-emerald-700 dark:text-emerald-800' : 'text-zinc-950 dark:text-zinc-600 group-hover:text-emerald-600 dark:group-hover:text-emerald-700'}`} />
                               <span>{item.name}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
@@ -366,22 +397,26 @@ export default function DashboardLayout({ children }) {
                             }`}
                           >
                             <div className="pl-7 pr-2 py-1 space-y-0.5 border-l border-zinc-200 dark:border-zinc-200 ml-5 my-1">
-                              {visibleSubItems.map((sub, sIdx) => (
-                                <Link
-                                  key={sub.id || sIdx}
-                                  href={sub.href}
-                                  prefetch={true}
-                                  onMouseEnter={() => router.prefetch(sub.href)}
-                                  onClick={() => setSidebarOpen(false)}
-                                  className={`block rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer transition-colors ${
-                                    pathname === sub.href
-                                      ? 'text-zinc-800 dark:text-zinc-900 bg-zinc-200/70 dark:bg-zinc-100 font-bold border border-zinc-300/80 dark:border-zinc-200'
-                                      : 'text-zinc-950 dark:text-zinc-600 hover:text-emerald-700 dark:hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-50/50'
-                                  }`}
-                                >
-                                  {sub.name}
-                                </Link>
-                              ))}
+                              {visibleSubItems.map((sub, sIdx) => {
+                                const SubIcon = (sub.iconName && ICON_MAP[sub.iconName]) || null;
+                                return (
+                                  <Link
+                                    key={sub.id || sIdx}
+                                    href={sub.href}
+                                    prefetch={true}
+                                    onMouseEnter={() => router.prefetch(sub.href)}
+                                    onClick={() => setSidebarOpen(false)}
+                                    className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer transition-colors ${
+                                      pathname === sub.href
+                                        ? 'text-emerald-800 dark:text-emerald-900 bg-emerald-100 dark:bg-emerald-100 font-bold border border-emerald-300 dark:border-emerald-300'
+                                        : 'text-zinc-950 dark:text-zinc-600 hover:text-emerald-700 dark:hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-50/50'
+                                    }`}
+                                  >
+                                    {SubIcon && <SubIcon className={`h-3.5 w-3.5 shrink-0 ${pathname === sub.href ? 'text-emerald-600' : 'text-zinc-500'}`} />}
+                                    <span>{sub.name}</span>
+                                  </Link>
+                                );
+                              })}
                             </div>
                           </div>
                         </div>
@@ -401,12 +436,12 @@ export default function DashboardLayout({ children }) {
                         onClick={() => setSidebarOpen(false)}
                         className={`flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold cursor-pointer transition-all duration-200 group ${
                           isItemActive
-                            ? 'border border-zinc-950 dark:border-zinc-200 bg-white dark:bg-zinc-100 text-zinc-950 dark:text-zinc-900 font-bold shadow-xs'
+                            ? 'border border-emerald-300 dark:border-emerald-300 bg-emerald-100 dark:bg-emerald-100 text-emerald-800 dark:text-emerald-900 font-bold shadow-xs'
                             : 'text-zinc-950 dark:text-zinc-600 hover:bg-emerald-50 dark:hover:bg-emerald-50/50 hover:text-emerald-700 dark:hover:text-emerald-700 border border-transparent'
                         }`}
                       >
                         <div className="flex items-center space-x-3">
-                          <IconComponent className={`h-4 w-4 transition-colors ${isItemActive ? 'text-zinc-950 dark:text-zinc-900' : 'text-zinc-950 dark:text-zinc-600 group-hover:text-zinc-800 dark:group-hover:text-zinc-950'}`} />
+                          <IconComponent className={`h-4 w-4 transition-colors ${isItemActive ? 'text-emerald-700 dark:text-emerald-800' : 'text-zinc-950 dark:text-zinc-600 group-hover:text-emerald-600 dark:group-hover:text-emerald-700'}`} />
                           <span>{item.name}</span>
                         </div>
                         {item.badge && (

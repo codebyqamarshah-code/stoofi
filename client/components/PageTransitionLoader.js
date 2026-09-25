@@ -7,32 +7,41 @@ function PageTransitionLoaderContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const prevPathRef = useRef(pathname);
-  const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+  const [isFading, setIsFading] = useState(false);
+  const timeoutRef = useRef(null);
 
-  // Trigger on route changes
+  const showLoader = (duration = 750) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setIsFading(false);
+    setIsVisible(true);
+
+    timeoutRef.current = setTimeout(() => {
+      setIsFading(true);
+      setTimeout(() => {
+        setIsVisible(false);
+        setIsFading(false);
+      }, 250);
+    }, duration);
+  };
+
+  // Initial full page load / reload
+  useEffect(() => {
+    showLoader(800);
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  // Trigger on every page route change (page shift)
   useEffect(() => {
     if (prevPathRef.current !== pathname) {
       prevPathRef.current = pathname;
-      setLoading(true);
-      setProgress(40);
-      const timer1 = setTimeout(() => setProgress(85), 100);
-      const timer2 = setTimeout(() => {
-        setProgress(100);
-        setTimeout(() => {
-          setLoading(false);
-          setProgress(0);
-        }, 200);
-      }, 350);
-
-      return () => {
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-      };
+      showLoader(700);
     }
   }, [pathname, searchParams]);
 
-  // Intercept client link clicks for instant visual response
+  // Intercept internal link clicks for instant visual feedback on page shift
   useEffect(() => {
     const handleLinkClick = (e) => {
       const target = e.target.closest('a');
@@ -46,9 +55,7 @@ function PageTransitionLoaderContent() {
         try {
           const url = new URL(target.href);
           if (url.pathname !== window.location.pathname || url.search !== window.location.search) {
-            setLoading(true);
-            setProgress(35);
-            setTimeout(() => setProgress(75), 150);
+            showLoader(900);
           }
         } catch (err) {}
       }
@@ -58,26 +65,50 @@ function PageTransitionLoaderContent() {
     return () => document.removeEventListener('click', handleLinkClick);
   }, []);
 
-  if (!loading && progress === 0) return null;
+  if (!isVisible) return null;
 
   return (
-    <>
-      {/* Top Animated Progress Bar */}
-      <div className="fixed top-0 left-0 right-0 z-[999999] h-1.5 bg-zinc-900/40 overflow-hidden pointer-events-none">
-        <div 
-          className="h-full bg-gradient-to-r from-indigo-500 via-sky-400 to-emerald-400 shadow-[0_0_15px_rgba(99,102,241,1)] transition-all duration-300 ease-out"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
+    <div 
+      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-white/80 backdrop-blur-md transition-opacity duration-300 ${
+        isFading ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      }`}
+    >
+      {/* Top Thin Gradient Bar */}
+      <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-600 animate-pulse" />
 
-      {/* Floating Corner Badge Indicator */}
-      <div className="fixed top-4 right-4 z-[999999] pointer-events-none animate-in fade-in zoom-in duration-200">
-        <div className="flex items-center gap-2.5 bg-zinc-900/95 text-white border border-indigo-500/40 px-3.5 py-2 rounded-full shadow-2xl backdrop-blur-md">
-          <div className="h-3.5 w-3.5 rounded-full border-2 border-indigo-400 border-t-transparent animate-spin" />
-          <span className="text-xs font-semibold tracking-wide">Loading...</span>
+      {/* Center Animated Logo Container */}
+      <div className="relative flex flex-col items-center justify-center">
+        {/* Outer subtle spinning ring */}
+        <div className="absolute h-28 w-28 rounded-full border-2 border-dashed border-emerald-500/60 animate-spin" style={{ animationDuration: '4s' }} />
+        
+        {/* Glowing pulse aura */}
+        <div className="absolute h-24 w-24 rounded-full bg-emerald-500/15 animate-ping" style={{ animationDuration: '2s' }} />
+
+        {/* Center Card with Logo */}
+        <div className="relative h-20 w-20 rounded-2xl bg-white shadow-2xl border border-zinc-200/80 p-2.5 flex items-center justify-center transform transition-transform duration-300 hover:scale-105">
+          <img 
+            src="/loader.png" 
+            alt="Stoofi Logo" 
+            className="h-full w-full object-contain animate-pulse"
+            onError={(e) => {
+              e.currentTarget.src = '/stoofi light.png';
+            }}
+          />
+        </div>
+
+        {/* Animated Loading Text */}
+        <div className="mt-5 flex flex-col items-center">
+          <div className="flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-bounce" style={{ animationDelay: '0ms' }} />
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-bounce" style={{ animationDelay: '150ms' }} />
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-bounce" style={{ animationDelay: '300ms' }} />
+          </div>
+          <span className="text-xs font-extrabold text-zinc-900 tracking-wider uppercase mt-2">
+            Loading...
+          </span>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

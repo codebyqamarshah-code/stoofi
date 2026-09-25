@@ -263,42 +263,42 @@ export default function FeesInvoicePage() {
 
       {/* 4 Financial Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-zinc-950 border border-zinc-800/80 rounded-xl p-4 flex items-center justify-between">
+        <div className="bg-white border border-zinc-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
           <div>
-            <div className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">Total Invoices</div>
-            <div className="text-2xl font-extrabold text-white mt-1">{stats.totalInvoices}</div>
+            <div className="text-xs text-zinc-500 font-semibold uppercase tracking-wider">Total Invoices</div>
+            <div className="text-2xl font-extrabold text-black mt-1">{stats.totalInvoices}</div>
           </div>
-          <div className="h-10 w-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+          <div className="h-10 w-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
             <FileText className="h-5 w-5" />
           </div>
         </div>
 
-        <div className="bg-zinc-950 border border-zinc-800/80 rounded-xl p-4 flex items-center justify-between">
+        <div className="bg-white border border-zinc-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
           <div>
-            <div className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">Total Amount</div>
-            <div className="text-2xl font-extrabold text-white mt-1">${stats.totalAmount.toLocaleString()}</div>
+            <div className="text-xs text-zinc-500 font-semibold uppercase tracking-wider">Total Amount</div>
+            <div className="text-2xl font-extrabold text-black mt-1">${stats.totalAmount.toLocaleString()}</div>
           </div>
-          <div className="h-10 w-10 rounded-lg bg-zinc-600/10 border border-zinc-600/20 flex items-center justify-center text-zinc-500">
+          <div className="h-10 w-10 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
             <CheckCircle2 className="h-5 w-5" />
           </div>
         </div>
 
-        <div className="bg-zinc-950 border border-zinc-800/80 rounded-xl p-4 flex items-center justify-between">
+        <div className="bg-white border border-zinc-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
           <div>
-            <div className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">Collected Fees</div>
-            <div className="text-2xl font-extrabold text-zinc-500 mt-1">${stats.totalPaid.toLocaleString()}</div>
+            <div className="text-xs text-zinc-500 font-semibold uppercase tracking-wider">Collected Fees</div>
+            <div className="text-2xl font-extrabold text-black mt-1">${stats.totalPaid.toLocaleString()}</div>
           </div>
-          <div className="h-10 w-10 rounded-lg bg-zinc-600/10 border border-zinc-600/20 flex items-center justify-center text-zinc-500">
+          <div className="h-10 w-10 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
             <Download className="h-5 w-5" />
           </div>
         </div>
 
-        <div className="bg-zinc-950 border border-zinc-800/80 rounded-xl p-4 flex items-center justify-between">
+        <div className="bg-white border border-zinc-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
           <div>
-            <div className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">Pending Balance</div>
-            <div className="text-2xl font-extrabold text-rose-400 mt-1">${stats.totalBalance.toLocaleString()}</div>
+            <div className="text-xs text-zinc-500 font-semibold uppercase tracking-wider">Pending Balance</div>
+            <div className="text-2xl font-extrabold text-rose-600 mt-1">${stats.totalBalance.toLocaleString()}</div>
           </div>
-          <div className="h-10 w-10 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+          <div className="h-10 w-10 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600">
             <AlertCircle className="h-5 w-5" />
           </div>
         </div>

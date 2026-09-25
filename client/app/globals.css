@@ -38,9 +38,9 @@
   --custom-zinc-900: #18181b;
   --custom-zinc-800: #27272a;
   --custom-zinc-700: #3f3f46;
-  --custom-zinc-600: #52525b;
-  --custom-zinc-500: #71717a;
-  --custom-zinc-400: #a1a1aa;
+  --custom-zinc-600: #27272a;
+  --custom-zinc-500: #3f3f46;
+  --custom-zinc-400: #52525b;
   --custom-zinc-300: #d4d4d8;
   --custom-zinc-200: #e4e4e7;
   --custom-zinc-100: #f4f4f5;
@@ -92,20 +92,39 @@ a.bg-black:hover {
   color: #ffffff !important;
 }
 
-/* LIGHT MODE: Elegant soft hover for table rows instead of dark gray block */
-:root:not(.dark) tr:hover,
-:root:not(.dark) tr.hover\:bg-zinc-900\/50:hover,
-:root:not(.dark) tr.hover\:bg-zinc-900:hover,
-:root:not(.dark) tr.hover\:bg-zinc-800\/50:hover,
-:root:not(.dark) .hover\:bg-zinc-900\/50:hover,
-:root:not(.dark) .hover\:bg-zinc-900\/40:hover {
-  background-color: #f4f4f5 !important; /* Soft, clean zinc-100 hover */
+/* LIGHT MODE: Universal Soft & Clean Hover (No dark gray or black hover blocking text) */
+:root tr:hover,
+:root tbody tr:hover,
+:root tr[class*="hover:bg-"]:hover,
+:root tbody tr[class*="hover:bg-"]:hover,
+:root .hover\:bg-zinc-900\/50:hover,
+:root .hover\:bg-zinc-900:hover,
+:root .hover\:bg-zinc-800\/50:hover,
+:root .hover\:bg-zinc-800:hover,
+:root .hover\:bg-zinc-950:hover,
+:root tr[class*="hover:bg-zinc-9"]:hover,
+:root tr[class*="hover:bg-zinc-8"]:hover {
+  background-color: #f4f4f5 !important; /* Soft clean hover */
 }
-:root:not(.dark) tr:hover td {
+
+:root tr:hover td,
+:root tr:hover td * {
+  color: inherit;
+}
+
+:root tr:hover td span:not([class*="bg-"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-amber"]):not([class*="text-blue"]):not([class*="text-indigo"]),
+:root tr:hover td div:not([class*="bg-"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-amber"]):not([class*="text-blue"]):not([class*="text-indigo"]) {
   color: #09090b !important;
 }
-:root:not(.dark) tr:hover td span:not([class*="bg-"]),
-:root:not(.dark) tr:hover td div:not([class*="bg-"]) {
+
+/* Fix ghost/outline icon buttons on hover - soft gray instead of dark black square */
+button[class*="hover:bg-zinc-800"]:not(.bg-zinc-800):not(.bg-zinc-950):not(.bg-black):hover,
+button[class*="hover:bg-zinc-900"]:not(.bg-zinc-900):not(.bg-zinc-950):not(.bg-black):hover,
+button[class*="hover:bg-zinc-950"]:not(.bg-zinc-950):not(.bg-black):hover,
+a[class*="hover:bg-zinc-800"]:not(.bg-zinc-800):not(.bg-zinc-950):not(.bg-black):hover,
+a[class*="hover:bg-zinc-900"]:not(.bg-zinc-900):not(.bg-zinc-950):not(.bg-black):hover,
+a[class*="hover:bg-zinc-950"]:not(.bg-zinc-950):not(.bg-black):hover {
+  background-color: #f4f4f5 !important;
   color: #09090b !important;
 }
 
