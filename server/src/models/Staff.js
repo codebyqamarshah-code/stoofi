@@ -1,17 +1,44 @@
 const mongoose = require('mongoose');
 
 const schema = new mongoose.Schema({
-
+  staffNo: { type: String },
+  role: { type: String, default: 'Teacher' },
   firstName: { type: String, required: true },
-  lastName: String,
-  email: String,
-  phone: String,
-  designationId: String,
-  departmentId: String,
-  joinDate: Date,
-  salary: Number,
-  status: { type: String, default: 'active' }
-
+  lastName: { type: String },
+  fatherName: { type: String },
+  email: { type: String },
+  phone: { type: String },
+  mobile: { type: String },
+  emergencyMobile: { type: String },
+  gender: { type: String },
+  dateOfBirth: { type: String },
+  dob: { type: String },
+  dateOfJoining: { type: String },
+  maritalStatus: { type: String },
+  currentAddress: { type: String },
+  permanentAddress: { type: String },
+  qualifications: { type: String },
+  experience: { type: String },
+  departmentId: { type: String },
+  department: { type: String },
+  designationId: { type: String },
+  designation: { type: String },
+  basicSalary: { type: Number },
+  salary: { type: Number },
+  allowances: { type: Number },
+  deductions: { type: Number },
+  bankName: { type: String },
+  accountNo: { type: String },
+  accountName: { type: String },
+  branchName: { type: String },
+  ifscCode: { type: String },
+  photo: { type: String },
+  staffPhoto: { type: String },
+  facebook: { type: String },
+  twitter: { type: String },
+  linkedin: { type: String },
+  instagram: { type: String },
+  status: { type: String, default: 'Active' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Staff', schema);

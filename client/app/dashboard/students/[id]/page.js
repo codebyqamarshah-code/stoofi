@@ -7,6 +7,7 @@ import {
   ChevronRight, User, Phone, Mail, MapPin, Calendar, BookOpen,
   GraduationCap, Users, FileText, Download, Printer, ArrowLeft,
   BadgeCheck, Home, Heart, Briefcase, Hash, Clock, Shield,
+  Activity, AlertCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import api from '@/services/api';
@@ -99,25 +100,27 @@ export default function StudentProfilePage() {
       'Mother Name':        student.motherName || '—',
       'Date of Birth':      student.dob || '—',
       'Gender':             student.gender || '—',
-      'Religion':           student.religion || '—',
+      'Religion':           student.religion || 'Islam',
       'Blood Group':        student.bloodGroup || '—',
-      'Nationality':        student.nationality || '—',
+      'Nationality':        student.nationality || 'Pakistani',
       'Class':              student.className || '—',
       'Section':            student.section || '—',
       'Academic Year':      student.academicYear || '2026 [Jan-Dec]',
       'Type':               student.type || 'Regular',
       'Phone':              student.phone || '—',
       'Email':              student.email || '—',
-      'Address':            student.address || '—',
+      'Address':            student.address || student.currentAddress || '—',
+      'Permanent Address':  student.permanentAddress || '—',
       'City':               student.city || '—',
       'Father Occupation':  student.fatherOccupation || '—',
       'Father Phone':       student.fatherPhone || '—',
       'Mother Phone':       student.motherPhone || '—',
       'Emergency Contact':  student.emergencyContact || '—',
-      'Joining Date':       student.joiningDate || '—',
-      'Previous School':    student.previousSchool || '—',
-      'CNIC / B-Form':      student.cnic || '—',
-      'Remarks':            student.remarks || '—',
+      'Joining Date':       student.joiningDate || student.admissionDate || '—',
+      'Previous School':    student.previousSchool || student.previousSchoolName || '—',
+      'CNIC / B-Form':      student.cnic || student.bForm || '—',
+      'Medical History':    student.medicalHistory || '—',
+      'Remarks':            student.remarks || student.otherInfo || '—',
     };
     exportToExcel(
       [row],
@@ -134,6 +137,11 @@ export default function StudentProfilePage() {
     if (!win) { alert('Pop-up blocked. Please allow pop-ups.'); return; }
     const now = new Date().toLocaleString();
     const yr  = new Date().getFullYear();
+    const address = student.address || student.currentAddress || '—';
+    const prevSchool = student.previousSchool || student.previousSchoolName || '—';
+    const cnicVal = student.cnic || student.bForm || '—';
+    const joining = student.joiningDate || student.admissionDate || '—';
+
     win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Student Profile - ${fullName}</title>
 <style>@page{size:A4;margin:12mm 15mm}*{box-sizing:border-box;-webkit-print-color-adjust:exact!important}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#09090b;background:#fff;margin:0;padding:20px;font-size:11px}
@@ -170,17 +178,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
 <div class="grid2">
   <div class="row"><span class="lbl">Date of Birth</span><span class="val">${student.dob||'—'}</span></div>
   <div class="row"><span class="lbl">Gender</span><span class="val">${student.gender||'—'}</span></div>
-  <div class="row"><span class="lbl">Religion</span><span class="val">${student.religion||'—'}</span></div>
+  <div class="row"><span class="lbl">Religion</span><span class="val">${student.religion||'Islam'}</span></div>
   <div class="row"><span class="lbl">Blood Group</span><span class="val">${student.bloodGroup||'—'}</span></div>
-  <div class="row"><span class="lbl">Nationality</span><span class="val">${student.nationality||'—'}</span></div>
-  <div class="row"><span class="lbl">CNIC / B-Form</span><span class="val">${student.cnic||'—'}</span></div>
+  <div class="row"><span class="lbl">Nationality</span><span class="val">${student.nationality||'Pakistani'}</span></div>
+  <div class="row"><span class="lbl">CNIC / B-Form</span><span class="val">${cnicVal}</span></div>
 </div>
 <div class="section-title">Contact Information</div>
 <div class="grid2">
   <div class="row"><span class="lbl">Phone</span><span class="val">${student.phone||'—'}</span></div>
   <div class="row"><span class="lbl">Email</span><span class="val">${student.email||'—'}</span></div>
   <div class="row"><span class="lbl">City</span><span class="val">${student.city||'—'}</span></div>
-  <div class="row"><span class="lbl">Address</span><span class="val">${student.address||'—'}</span></div>
+  <div class="row"><span class="lbl">Address</span><span class="val">${address}</span></div>
 </div>
 <div class="section-title">Academic Information</div>
 <div class="grid2">
@@ -190,8 +198,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
   <div class="row"><span class="lbl">Admission No</span><span class="val">${student.admissionNo||'—'}</span></div>
   <div class="row"><span class="lbl">Academic Year</span><span class="val">${student.academicYear||'2026 [Jan-Dec]'}</span></div>
   <div class="row"><span class="lbl">Student Type</span><span class="val">${student.type||'Regular'}</span></div>
-  <div class="row"><span class="lbl">Joining Date</span><span class="val">${student.joiningDate||'—'}</span></div>
-  <div class="row"><span class="lbl">Previous School</span><span class="val">${student.previousSchool||'—'}</span></div>
+  <div class="row"><span class="lbl">Joining Date</span><span class="val">${joining}</span></div>
+  <div class="row"><span class="lbl">Previous School</span><span class="val">${prevSchool}</span></div>
 </div>
 <div class="section-title">Parent / Guardian Information</div>
 <div class="grid2">
@@ -233,7 +241,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
         <h2 className="text-xl font-bold text-zinc-900">Student Not Found</h2>
         <p className="text-sm text-zinc-500">No student record found for ID: {id}</p>
         <Link href="/dashboard/students">
-          <Button className="bg-zinc-900 hover:bg-zinc-800 text-white">
+          <Button className="bg-zinc-900 hover:bg-zinc-800 text-white cursor-pointer">
             <ArrowLeft className="h-4 w-4 mr-2" /> Back to Student List
           </Button>
         </Link>
@@ -243,6 +251,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
 
   const fullName = `${student.firstName || ''} ${student.lastName || ''}`.trim();
   const photoUrl = getPhotoUrl(student);
+  const address = student.address || student.currentAddress || student.permanentAddress;
+  const prevSchool = student.previousSchool || student.previousSchoolName;
+  const cnicVal = student.cnic || student.bForm;
+  const joining = student.joiningDate || student.admissionDate;
+  const remarksVal = student.remarks || student.otherInfo;
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
@@ -335,15 +348,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
             <InfoRow icon={Calendar}   label="Date of Birth" value={fmtDate(student.dob)} highlight />
             <InfoRow icon={User}       label="Gender"        value={student.gender} />
             <InfoRow icon={Heart}      label="Blood Group"   value={student.bloodGroup} />
-            <InfoRow icon={BookOpen}   label="Religion"      value={student.religion} />
-            <InfoRow icon={Shield}     label="Nationality"   value={student.nationality} />
-            <InfoRow icon={FileText}   label="CNIC / B-Form" value={student.cnic} />
+            <InfoRow icon={BookOpen}   label="Religion"      value={student.religion || 'Islam'} />
+            <InfoRow icon={Shield}     label="Nationality"   value={student.nationality || 'Pakistani'} />
+            <InfoRow icon={FileText}   label="CNIC / B-Form" value={cnicVal} />
           </SectionCard>
 
           <SectionCard title="Contact Information" icon={Phone}>
             <InfoRow icon={Phone}  label="Phone"   value={student.phone} highlight />
             <InfoRow icon={Mail}   label="Email"   value={student.email} />
-            <InfoRow icon={MapPin} label="Address" value={student.address} />
+            <InfoRow icon={MapPin} label="Address" value={address} />
             <InfoRow icon={Home}   label="City"    value={student.city} />
           </SectionCard>
         </div>
@@ -357,8 +370,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
             <InfoRow icon={Hash}      label="Admission No"  value={student.admissionNo} />
             <InfoRow icon={Calendar}  label="Academic Year" value={student.academicYear || '2026 [Jan-Dec]'} />
             <InfoRow icon={Shield}    label="Student Type"  value={student.type || 'Regular'} />
-            <InfoRow icon={Clock}     label="Joining Date"  value={fmtDate(student.joiningDate)} />
-            <InfoRow icon={BookOpen}  label="Prev. School"  value={student.previousSchool} />
+            <InfoRow icon={Clock}     label="Joining Date"  value={fmtDate(joining)} />
+            <InfoRow icon={BookOpen}  label="Prev. School"  value={prevSchool} />
           </SectionCard>
         </div>
 
@@ -373,9 +386,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
             <InfoRow icon={Phone}     label="Emergency Contact" value={student.emergencyContact} />
           </SectionCard>
 
-          <SectionCard title="Documents & Remarks" icon={FileText}>
-            <InfoRow icon={FileText} label="TC No"   value={student.tcNo} />
-            <InfoRow icon={FileText} label="Remarks" value={student.remarks} />
+          <SectionCard title="Health & Documents" icon={FileText}>
+            <InfoRow icon={Activity} label="Medical / Allergies" value={student.medicalHistory} />
+            <InfoRow icon={FileText} label="TC No"               value={student.tcNo} />
+            <InfoRow icon={AlertCircle} label="Remarks"          value={remarksVal} />
           </SectionCard>
         </div>
 

@@ -10,22 +10,16 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: false,
   outputFileTracingRoot: path.join(__dirname, '../'),
+  productionBrowserSourceMaps: false,
   eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {
     ignoreBuildErrors: true,
   },
-  webpack: (config) => {
-    return config;
-  },
   experimental: {
-    optimizePackageImports: [
-      'lucide-react',
-      'recharts',
-      'date-fns',
-      'framer-motion'
-    ]
+    cpus: 1,
+    workerThreads: false,
   }
 };
 

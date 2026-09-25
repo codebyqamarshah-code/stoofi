@@ -573,10 +573,8 @@ export default function DashboardLayout({ children }) {
               const isAdmUser = user?.role === 'Admin' || user?.email === 'admin@gmail.com';
               const isSuperUser = user?.role === 'Super Admin' || user?.email === 'super@gmail.com';
 
-              const displayUsername = user?.fullName || user?.name || (
-                (isAdmRoute || isAdmUser) && !isSuperUser
-                  ? 'Admin'
-                  : (user?.username || (isAdmRoute ? 'Admin' : 'Super Admin'))
+              const displayUsername = user?.fullName || user?.firstName || user?.name || (
+                isSuperUser ? 'Super Admin' : (isAdmUser ? 'Admin' : (user?.username || 'User'))
               );
 
               const displayRole = (isAdmRoute || isAdmUser) && !isSuperUser

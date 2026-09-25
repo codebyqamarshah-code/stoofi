@@ -5,8 +5,17 @@ exports.getAttendance = async (req, res) => {
   try {
     const { class: className, section, date } = req.query;
     
-    // First find all students in this class and section
-    const students = await Student.find({ className, section });
+    // First find all students in this class and section with flexible matching
+    const studentQuery = {};
+    if (className) {
+      const cleanClass = className.replace(/^Class\s*/i, '').trim();
+      studentQuery.className = { $regex: new RegExp(`^(Class\\s*)?${cleanClass}$`, 'i') };
+    }
+    if (section) {
+      const cleanSec = section.replace(/^Section\s*/i, '').trim();
+      studentQuery.section = { $regex: new RegExp(`^(Section\\s*)?${cleanSec}$`, 'i') };
+    }
+    const students = await Student.find(studentQuery);
     
     // Then find attendance records for this date
     const targetDate = new Date(date);

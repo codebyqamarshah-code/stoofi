@@ -6,6 +6,7 @@ import { CrudForm } from "@/components/ui/CrudForm";
 import { ImageUpload } from "@/components/ui/ImageUpload";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useRouter } from "next/navigation";
 
 const TODAY = new Date().toISOString().split('T')[0];
 
@@ -16,11 +17,23 @@ const TABS = [
   { id: 'social', label: 'SOCIAL LINKS', icon: Share2 }
 ];
 
+const ROLES = [
+  'Teacher',
+  'Staff',
+  'Admin',
+  'Accountant',
+  'Super Admin',
+  'Driver',
+  'Librarian',
+  'Receptionist',
+  'Other'
+];
+
 const EMPTY = {
-  staffNo: '', role: '', departmentId: '', designationId: '',
+  staffNo: '', role: 'Teacher', departmentId: '', designationId: '',
   firstName: '', lastName: '', fatherName: '', email: '', 
-  gender: '', dateOfBirth: '', dateOfJoining: TODAY,
-  mobile: '', maritalStatus: '', emergencyMobile: '', 
+  gender: 'Male', dateOfBirth: '', dateOfJoining: TODAY,
+  mobile: '', maritalStatus: 'Single', emergencyMobile: '', 
   currentAddress: '', permanentAddress: '', qualifications: '', experience: '',
   basicSalary: '', allowances: '', deductions: '',
   bankName: '', accountNo: '', accountName: '', branchName: '', ifscCode: '',
@@ -28,6 +41,7 @@ const EMPTY = {
 };
 
 export default function AddStaffPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('basic');
   const [formData, setFormData] = useState(EMPTY);
   const [designations, setDesignations] = useState([]);
@@ -37,14 +51,14 @@ export default function AddStaffPage() {
   useEffect(() => {
     Promise.all([api.get('/designation'), api.get('/department'), api.get('/staff')])
       .then(([d, dep, st]) => {
-        if (d.success) setDesignations(d.data);
-        if (dep.success) setDepartments(dep.data);
-        if (st.success) {
+        if (d?.success) setDesignations(d.data || []);
+        if (dep?.success) setDepartments(dep.data || []);
+        if (st?.success && Array.isArray(st.data)) {
           const nos = st.data.map(s => Number(s.staffNo)).filter(Boolean);
           const nextNo = nos.length ? String(Math.max(...nos) + 1) : '1';
           setFormData(f => ({ ...f, staffNo: nextNo }));
         }
-      });
+      }).catch(err => console.error(err));
   }, []);
 
   const handleChange = (e) => {
@@ -56,7 +70,9 @@ export default function AddStaffPage() {
     try {
       const data = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
-        if (value) data.append(key, value);
+        if (value !== undefined && value !== null && value !== '') {
+          data.append(key, value);
+        }
       });
       if (photo) {
         data.append('photo', photo);
@@ -66,14 +82,15 @@ export default function AddStaffPage() {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
-      if (res.success) {
+      if (res?.success) {
         alert("Staff member saved successfully!");
-        setFormData(EMPTY);
-        setPhoto(null);
+        router.push('/dashboard/hr/staff-directory');
+      } else {
+        alert(res?.message || "Failed to save staff record.");
       }
     } catch (e) {
-      alert("Error saving staff: " + e.message);
-      throw e; // for CrudForm to catch
+      alert("Error saving staff: " + (e.message || 'Unknown error'));
+      throw e;
     }
   };
 
@@ -109,62 +126,104 @@ export default function AddStaffPage() {
         <div className="xl:col-span-3">
           <CrudForm title="Staff Member Information" buttonText="Save Staff Record" onSubmit={handleSubmit}>
             {/* BASIC INFO */}
-            <div className={activeTab === 'basic' ? 'block' : 'hidden'}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className={activeTab === 'basic' ? 'block space-y-6' : 'hidden'}>
+              <div>
                 <ImageUpload label="Staff Photo" onUpload={(file) => setPhoto(file)} />
               </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>Staff ID / Number *</Label>
                   <Input required name="staffNo" value={formData.staffNo} onChange={handleChange} />
                 </div>
                 <div className="space-y-2">
+                  <Label>Role *</Label>
+                  <select name="role" value={formData.role} onChange={handleChange} className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-600 font-medium">
+                    {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-2">
                   <Label>Department</Label>
-                  <select name="departmentId" value={formData.departmentId} onChange={handleChange} className="flex h-9 w-full rounded-md border border-zinc-200 dark:border-zinc-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-600">
+                  <select name="departmentId" value={formData.departmentId} onChange={handleChange} className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-600">
                     <option value="">Select Department</option>
                     {departments.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
                   </select>
                 </div>
                 <div className="space-y-2">
                   <Label>Designation</Label>
-                  <select name="designationId" value={formData.designationId} onChange={handleChange} className="flex h-9 w-full rounded-md border border-zinc-200 dark:border-zinc-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-600">
+                  <select name="designationId" value={formData.designationId} onChange={handleChange} className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-600">
                     <option value="">Select Designation</option>
                     {designations.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
                   </select>
                 </div>
-                <div className="space-y-2"><Label>First Name *</Label><Input required name="firstName" value={formData.firstName} onChange={handleChange} /></div>
-                <div className="space-y-2"><Label>Last Name</Label><Input name="lastName" value={formData.lastName} onChange={handleChange} /></div>
-                <div className="space-y-2"><Label>Email</Label><Input type="email" name="email" value={formData.email} onChange={handleChange} /></div>
-                <div className="space-y-2"><Label>Mobile</Label><Input name="mobile" value={formData.mobile} onChange={handleChange} /></div>
+                <div className="space-y-2"><Label>First Name *</Label><Input required name="firstName" value={formData.firstName} onChange={handleChange} placeholder="e.g. Ali" /></div>
+                <div className="space-y-2"><Label>Last Name</Label><Input name="lastName" value={formData.lastName} onChange={handleChange} placeholder="e.g. Khan" /></div>
+                <div className="space-y-2"><Label>Father Name</Label><Input name="fatherName" value={formData.fatherName} onChange={handleChange} placeholder="Father Name" /></div>
+                <div className="space-y-2">
+                  <Label>Gender</Label>
+                  <select name="gender" value={formData.gender} onChange={handleChange} className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm shadow-sm">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div className="space-y-2"><Label>Date of Birth</Label><Input type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} /></div>
                 <div className="space-y-2"><Label>Date of Joining</Label><Input type="date" name="dateOfJoining" value={formData.dateOfJoining} onChange={handleChange} /></div>
+                <div className="space-y-2"><Label>Mobile / Phone *</Label><Input required name="mobile" value={formData.mobile} onChange={handleChange} placeholder="0300-1234567" /></div>
+                <div className="space-y-2"><Label>Emergency Mobile</Label><Input name="emergencyMobile" value={formData.emergencyMobile} onChange={handleChange} placeholder="Emergency Contact No" /></div>
+                <div className="space-y-2"><Label>Email</Label><Input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="staff@stoofi.com" /></div>
+                <div className="space-y-2">
+                  <Label>Marital Status</Label>
+                  <select name="maritalStatus" value={formData.maritalStatus} onChange={handleChange} className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm shadow-sm">
+                    <option value="Single">Single</option>
+                    <option value="Married">Married</option>
+                    <option value="Widowed">Widowed</option>
+                    <option value="Divorced">Divorced</option>
+                  </select>
+                </div>
+                <div className="space-y-2"><Label>Qualifications</Label><Input name="qualifications" value={formData.qualifications} onChange={handleChange} placeholder="e.g. M.Sc Mathematics, B.Ed" /></div>
+                <div className="space-y-2"><Label>Experience</Label><Input name="experience" value={formData.experience} onChange={handleChange} placeholder="e.g. 5 Years" /></div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <div className="space-y-2">
+                  <Label>Current Address</Label>
+                  <textarea name="currentAddress" value={formData.currentAddress} onChange={handleChange} className="w-full h-20 rounded-md border border-zinc-200 p-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-zinc-600 resize-none" placeholder="Current residential address..." />
+                </div>
+                <div className="space-y-2">
+                  <Label>Permanent Address</Label>
+                  <textarea name="permanentAddress" value={formData.permanentAddress} onChange={handleChange} className="w-full h-20 rounded-md border border-zinc-200 p-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-zinc-600 resize-none" placeholder="Permanent home address..." />
+                </div>
               </div>
             </div>
 
             {/* PAYROLL */}
             <div className={activeTab === 'payroll' ? 'block' : 'hidden'}>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2"><Label>Basic Salary</Label><Input type="number" name="basicSalary" value={formData.basicSalary} onChange={handleChange} /></div>
-                <div className="space-y-2"><Label>Allowances</Label><Input type="number" name="allowances" value={formData.allowances} onChange={handleChange} /></div>
-                <div className="space-y-2"><Label>Deductions</Label><Input type="number" name="deductions" value={formData.deductions} onChange={handleChange} /></div>
+                <div className="space-y-2"><Label>Basic Salary (PKR)</Label><Input type="number" name="basicSalary" value={formData.basicSalary} onChange={handleChange} placeholder="50000" /></div>
+                <div className="space-y-2"><Label>Allowances (PKR)</Label><Input type="number" name="allowances" value={formData.allowances} onChange={handleChange} placeholder="5000" /></div>
+                <div className="space-y-2"><Label>Deductions (PKR)</Label><Input type="number" name="deductions" value={formData.deductions} onChange={handleChange} placeholder="1000" /></div>
               </div>
             </div>
 
             {/* BANK */}
             <div className={activeTab === 'bank' ? 'block' : 'hidden'}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2"><Label>Bank Name</Label><Input name="bankName" value={formData.bankName} onChange={handleChange} /></div>
-                <div className="space-y-2"><Label>Account Name</Label><Input name="accountName" value={formData.accountName} onChange={handleChange} /></div>
-                <div className="space-y-2"><Label>Account Number</Label><Input name="accountNo" value={formData.accountNo} onChange={handleChange} /></div>
-                <div className="space-y-2"><Label>Branch / IFSC</Label><Input name="ifscCode" value={formData.ifscCode} onChange={handleChange} /></div>
+                <div className="space-y-2"><Label>Bank Name</Label><Input name="bankName" value={formData.bankName} onChange={handleChange} placeholder="Meezan Bank / HBL" /></div>
+                <div className="space-y-2"><Label>Account Title / Name</Label><Input name="accountName" value={formData.accountName} onChange={handleChange} placeholder="Ali Khan" /></div>
+                <div className="space-y-2"><Label>Account Number / IBAN</Label><Input name="accountNo" value={formData.accountNo} onChange={handleChange} placeholder="PK00MEZN000123456789" /></div>
+                <div className="space-y-2"><Label>Branch Name / Code</Label><Input name="branchName" value={formData.branchName} onChange={handleChange} placeholder="Main Branch" /></div>
+                <div className="space-y-2"><Label>IFSC / Swift Code</Label><Input name="ifscCode" value={formData.ifscCode} onChange={handleChange} placeholder="MEZNPKKA" /></div>
               </div>
             </div>
 
             {/* SOCIAL */}
             <div className={activeTab === 'social' ? 'block' : 'hidden'}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2"><Label>Facebook URL</Label><Input name="facebook" value={formData.facebook} onChange={handleChange} /></div>
-                <div className="space-y-2"><Label>LinkedIn URL</Label><Input name="linkedin" value={formData.linkedin} onChange={handleChange} /></div>
-                <div className="space-y-2"><Label>Twitter URL</Label><Input name="twitter" value={formData.twitter} onChange={handleChange} /></div>
+                <div className="space-y-2"><Label>Facebook URL</Label><Input name="facebook" value={formData.facebook} onChange={handleChange} placeholder="https://facebook.com/..." /></div>
+                <div className="space-y-2"><Label>LinkedIn URL</Label><Input name="linkedin" value={formData.linkedin} onChange={handleChange} placeholder="https://linkedin.com/in/..." /></div>
+                <div className="space-y-2"><Label>Twitter URL</Label><Input name="twitter" value={formData.twitter} onChange={handleChange} placeholder="https://twitter.com/..." /></div>
+                <div className="space-y-2"><Label>Instagram URL</Label><Input name="instagram" value={formData.instagram} onChange={handleChange} placeholder="https://instagram.com/..." /></div>
               </div>
             </div>
           </CrudForm>

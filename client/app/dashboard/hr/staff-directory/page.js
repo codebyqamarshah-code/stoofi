@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronRight, ChevronDown, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, Plus, Eye, Pencil, Trash2 } from 'lucide-react';
 import api from '@/services/api';
 
-const ROLES = ['admin', 'teacher', 'staff', 'accountant', 'super admin', 'driver'];
+const ROLES = ['Teacher', 'Staff', 'Admin', 'Accountant', 'Super Admin', 'Driver', 'Librarian', 'Receptionist', 'Other'];
 const ITEMS_PER_PAGE = 10;
 
 export default function StaffDirectoryPage() {
@@ -25,7 +25,15 @@ export default function StaffDirectoryPage() {
   const fetchAll = async () => {
     try {
       const [stRes, desRes, depRes] = await Promise.all([
-        api.get('/staff', { params: { page, limit: ITEMS_PER_PAGE, search: quickSearch || filterName, role: filterRole } }), 
+        api.get('/staff', { 
+          params: { 
+            page, 
+            limit: ITEMS_PER_PAGE, 
+            search: quickSearch || filterName, 
+            role: filterRole,
+            staffNo: filterStaffId 
+          } 
+        }), 
         api.get('/designation'), 
         api.get('/department')
       ]);

@@ -2,7 +2,7 @@ const Staff = require('../models/Staff');
 
 exports.getAll = async (req, res) => {
   try {
-    const { page = 1, limit = 10, search = '', role } = req.query;
+    const { page = 1, limit = 50, search = '', role, staffNo } = req.query;
     
     // Build query
     const query = {};
@@ -11,15 +11,20 @@ exports.getAll = async (req, res) => {
         { firstName: { $regex: search, $options: 'i' } },
         { lastName: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },
-        { phone: { $regex: search, $options: 'i' } }
+        { phone: { $regex: search, $options: 'i' } },
+        { mobile: { $regex: search, $options: 'i' } },
+        { staffNo: { $regex: search, $options: 'i' } }
       ];
     }
-    if (role) {
-      query.role = role;
+    if (staffNo) {
+      query.staffNo = { $regex: staffNo.trim(), $options: 'i' };
+    }
+    if (role && role !== 'All' && role !== 'all') {
+      query.role = { $regex: new RegExp(`^${role.trim()}$`, 'i') };
     }
 
     const pageNumber = parseInt(page, 10) || 1;
-    const limitNumber = parseInt(limit, 10) || 10;
+    const limitNumber = parseInt(limit, 10) || 50;
     const skip = (pageNumber - 1) * limitNumber;
 
     const data = await Staff.find(query)
@@ -44,9 +49,26 @@ exports.getAll = async (req, res) => {
   }
 };
 
+exports.getById = async (req, res) => {
+  try {
+    const data = await Staff.findById(req.params.id);
+    if (!data) return res.status(404).json({ success: false, message: 'Staff not found' });
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 exports.create = async (req, res) => {
   try {
-    const data = await Staff.create(req.body);
+    const body = { ...req.body };
+    if (req.file) {
+      body.photo = `/uploads/${req.file.filename}`;
+    }
+    if (!body.role) {
+      body.role = 'Teacher';
+    }
+    const data = await Staff.create(body);
     res.status(201).json({ success: true, data });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -55,7 +77,11 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const data = await Staff.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const body = { ...req.body };
+    if (req.file) {
+      body.photo = `/uploads/${req.file.filename}`;
+    }
+    const data = await Staff.findByIdAndUpdate(req.params.id, body, { new: true });
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
     res.status(200).json({ success: true, data });
   } catch (error) {

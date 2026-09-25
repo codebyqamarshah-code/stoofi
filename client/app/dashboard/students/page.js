@@ -520,7 +520,7 @@ export default function StudentListPage() {
         
         <div className="flex-1 overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-xs text-zinc-700 uppercase bg-zinc-100/80 border-b border-zinc-200">
+            <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
               <tr>
                 <th className="px-4 py-3 font-bold">Admission No</th>
                 <th className="px-4 py-3 font-bold">Name</th>
@@ -533,7 +533,7 @@ export default function StudentListPage() {
                 <th className="px-4 py-3 font-bold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-200">
+            <tbody className="divide-y divide-zinc-800">
               {loading ? (
                 <tr>
                   <td colSpan="9" className="px-4 py-8 text-center text-zinc-500">Loading...</td>
@@ -544,11 +544,11 @@ export default function StudentListPage() {
                 </tr>
               ) : (
                 students.map((student) => (
-                  <tr key={student._id} className="hover:bg-zinc-100/70 transition-colors border-b border-zinc-200">
-                    <td className="px-4 py-3 font-semibold text-zinc-900">{student.admissionNo || '-'}</td>
+                  <tr key={student._id} className="hover:bg-zinc-900/50 transition-colors border-b border-zinc-800">
+                    <td className="px-4 py-3 font-semibold text-zinc-300">{student.admissionNo || '-'}</td>
                     <td className="px-4 py-3">
                       <Link href={`/dashboard/students/${student._id}`} className="flex items-center gap-3 group">
-                        <div className="h-8 w-8 rounded-full bg-zinc-900 text-white overflow-hidden border border-zinc-300 flex items-center justify-center shrink-0">
+                        <div className="h-8 w-8 rounded-full bg-zinc-800 text-white overflow-hidden border border-zinc-700 flex items-center justify-center shrink-0">
                           {student.photo || student.studentPhoto ? (
                             <img 
                               src={(student.photo || student.studentPhoto).startsWith('http') || (student.photo || student.studentPhoto).startsWith('data:') ? (student.photo || student.studentPhoto) : `${process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || ''}/${student.photo || student.studentPhoto}`} 
@@ -559,19 +559,19 @@ export default function StudentListPage() {
                             <div className="h-full w-full flex items-center justify-center text-xs font-bold text-white uppercase">{student.firstName?.charAt(0)}</div>
                           )}
                         </div>
-                        <span className="font-semibold text-zinc-900 group-hover:underline cursor-pointer">{student.firstName} {student.lastName}</span>
+                        <span className="font-semibold text-zinc-200 group-hover:text-white cursor-pointer">{student.firstName} {student.lastName}</span>
                       </Link>
                     </td>
-                    <td className="px-4 py-3 text-zinc-800">{student.fatherName || '-'}</td>
-                    <td className="px-4 py-3 text-zinc-800">{student.dob || '-'}</td>
-                    <td className="px-4 py-3 text-zinc-800 font-medium">{student.className}({student.section})</td>
-                    <td className="px-4 py-3 text-zinc-800">{student.gender || '-'}</td>
-                    <td className="px-4 py-3 text-zinc-800">Regular</td>
-                    <td className="px-4 py-3 text-zinc-800">{student.phone || '-'}</td>
+                    <td className="px-4 py-3 text-zinc-400">{student.fatherName || '-'}</td>
+                    <td className="px-4 py-3 text-zinc-400">{student.dob || '-'}</td>
+                    <td className="px-4 py-3 text-zinc-300 font-medium">{student.className}({student.section})</td>
+                    <td className="px-4 py-3 text-zinc-400">{student.gender || '-'}</td>
+                    <td className="px-4 py-3 text-zinc-400">Regular</td>
+                    <td className="px-4 py-3 text-zinc-400">{student.phone || '-'}</td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Link href={`/dashboard/students/${student._id}`}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-200 cursor-pointer" title="View Profile">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer" title="View Profile">
                             <FileText className="h-4 w-4" />
                           </Button>
                         </Link>

@@ -3,13 +3,18 @@ const mongoose = require('mongoose');
 const schema = new mongoose.Schema({
   // Personal Info
   academicYear: { type: String, required: true },
-  classId: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' }, // we can use string for now to avoid breaking
+  classId: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' },
   className: { type: String, required: true },
   section: { type: String, required: true },
   admissionNo: { type: String, required: true, unique: true },
   admissionDate: { type: String },
+  joiningDate: { type: String },
   rollNo: { type: String },
+  type: { type: String, default: 'Regular' },
   phone: { type: String },
+  email: { type: String },
+  city: { type: String },
+  address: { type: String },
   currentAddress: { type: String },
   permanentAddress: { type: String },
   
@@ -19,13 +24,22 @@ const schema = new mongoose.Schema({
   dob: { type: String, required: true },
   religion: { type: String },
   caste: { type: String },
+  bloodGroup: { type: String },
+  nationality: { type: String, default: 'Pakistani' },
+  cnic: { type: String },
+  bForm: { type: String },
   studentPhoto: { type: String },
+  photo: { type: String },
   medicalHistory: { type: String },
+  emergencyContact: { type: String },
+  tcNo: { type: String },
+  remarks: { type: String },
 
   // Parents Info
   fatherName: { type: String },
   fatherPhone: { type: String },
   fatherOccupation: { type: String },
+  fatherCnic: { type: String },
   motherName: { type: String },
   motherPhone: { type: String },
   motherOccupation: { type: String },
@@ -39,6 +53,7 @@ const schema = new mongoose.Schema({
   document2: { type: String },
 
   // Previous School
+  previousSchool: { type: String },
   previousSchoolName: { type: String },
   previousSchoolAddress: { type: String },
 
