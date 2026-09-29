@@ -418,6 +418,15 @@ export default function LoginPage() {
           </button>
         </form>
 
+        <div className="mt-6 text-center">
+          <p className="text-sm text-zinc-500 dark:text-zinc-500 font-medium">
+            Don't have an account?{' '}
+            <Link href="/register" className="font-bold text-emerald-600 hover:text-emerald-500 transition-colors">
+              Register here
+            </Link>
+          </p>
+        </div>
+
         <div className="mt-10">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
