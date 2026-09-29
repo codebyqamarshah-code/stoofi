@@ -192,14 +192,14 @@ const [formData, setFormData] = useState({
           const sortedClasses = classRes.data.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
           setClasses(sortedClasses);
         } else {
-          setClasses(FALLBACK_CLASSES);
+          setClasses([]);
         }
         
         const secRes = await api.get('/section');
         if (secRes?.success && Array.isArray(secRes.data) && secRes.data.length > 0) {
           setSections(secRes.data);
         } else {
-          setSections(FALLBACK_SECTIONS);
+          setSections([]);
         }
 
         // Auto-generate next admission number
@@ -210,8 +210,8 @@ const [formData, setFormData] = useState({
         }
       } catch (err) {
         console.error(err);
-        setClasses(FALLBACK_CLASSES);
-        setSections(FALLBACK_SECTIONS);
+        setClasses([]);
+        setSections([]);
       }
     };
     fetchData();
@@ -686,16 +686,10 @@ const [formData, setFormData] = useState({
                         <Label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase">Institute Address</Label>
                         <Input name="previousSchoolAddress" value={formData.previousSchoolAddress} onChange={handleInputChange} placeholder="City, Campus address" className="bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-800 focus-visible:ring-emerald-500" />
                       </div>
-                      
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-zinc-400 uppercase">Previous School Address</Label>
-                      <Input name="previousSchoolAddress" value={formData.previousSchoolAddress} onChange={handleInputChange} placeholder="City, Campus address" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Other Info */}
             {activeTab === 'OTHER INFO' && (
