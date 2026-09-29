@@ -46,6 +46,9 @@ import {
 } from 'lucide-react';
 import { DEFAULT_MENU_STRUCTURE, ICON_MAP, getStoredSidebar } from '@/lib/sidebarConfig';
 import { Button } from '@/components/ui/button';
+import { searchRoutes } from '@/lib/searchConfig';
+import { isRouteAllowed } from '@/lib/routeProtection';
+
 
 export default function DashboardLayout({ children }) {
   const { isAuthenticated, isLoading, checkAuth, logout, user } = useAuth();
@@ -109,45 +112,73 @@ export default function DashboardLayout({ children }) {
 
   useEffect(() => {
     if (user) {
-      const fetchNotices = async () => {
+      const fetchNoticesAndEvents = async () => {
         try {
-          const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000") + '/api/dashboard/notices', {
-            headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-          });
-          const result = await res.json();
-          if (result.success && result.data && result.data.length > 0) {
-            // Filter by audience
-            const validNotices = result.data.filter(n => n.audience === 'All' || n.audience === user.role);
-            if (validNotices.length > 0) {
-              const notice = validNotices[0];
-              // check if already seen this session
-              const seen = sessionStorage.getItem('seenNotice_' + notice._id);
-              if (!seen) {
-                setLatestNotice(notice);
-                setShowNoticePopup(true);
-                sessionStorage.setItem('seenNotice_' + notice._id, 'true');
-              }
+          const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+          const token = localStorage.getItem('token');
+          const headers = { 'Authorization': 'Bearer ' + token };
+
+          // Fetch notices and events in parallel
+          const [noticeRes, eventRes] = await Promise.allSettled([
+            fetch(API + '/api/dashboard/notices', { headers }),
+            fetch(API + '/api/dashboard/events', { headers })
+          ]);
+
+          let combined = [];
+
+          if (noticeRes.status === 'fulfilled') {
+            const result = await noticeRes.value.json();
+            if (result.success && result.data) {
+              const filtered = result.data.filter(n => n.audience === 'All' || n.audience === user.role);
+              combined = [...combined, ...filtered.map(n => ({ ...n, _popupType: 'Notice' }))];
+            }
+          }
+
+          if (eventRes.status === 'fulfilled') {
+            const result = await eventRes.value.json();
+            if (result.success && result.data) {
+              const filtered = result.data.filter(e => e.eventFor === 'All' || e.eventFor === user.role);
+              combined = [...combined, ...filtered.map(e => ({ ...e, _popupType: 'Event', audience: e.eventFor, date: e.startDate }))];
+            }
+          }
+
+          // Sort by newest
+          combined.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+          // Show first unseen item
+          for (const item of combined) {
+            const seenKey = 'seenPopup_' + item._id;
+            const seen = sessionStorage.getItem(seenKey);
+            if (!seen) {
+              setLatestNotice(item);
+              setShowNoticePopup(true);
+              sessionStorage.setItem(seenKey, 'true');
+              break;
             }
           }
         } catch(e) {}
       };
-      fetchNotices();
+      fetchNoticesAndEvents();
     }
   }, [user]);
 
 
   useEffect(() => {
-    if (user?.role === 'Super Admin' || user?.role === 'Admin') {
+    if (user) {
       const fetchLiveUpdates = async () => {
         try {
+          let token = '';
+          if (typeof window !== 'undefined') {
+            token = sessionStorage.getItem('token') || localStorage.getItem('token') || '';
+          }
           const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000") + '/api/dashboard/live-updates', {
-            headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+            headers: { 'Authorization': 'Bearer ' + token }
           });
           const result = await res.json();
           if (result.success) {
-            setLiveNotifications(result.data.notifications);
-            setActiveStudentsCount(result.data.activeStudents);
-            if (result.data.notifications.length > 0) {
+            setLiveNotifications(result.data.notifications || []);
+            setActiveStudentsCount(result.data.activeStudents || 0);
+            if ((result.data.notifications || []).length > 0) {
               setHasUnreadNotif(true);
             }
           }
@@ -156,10 +187,11 @@ export default function DashboardLayout({ children }) {
         }
       };
       fetchLiveUpdates();
-      const interval = setInterval(fetchLiveUpdates, 15000);
+      const interval = setInterval(fetchLiveUpdates, 30000);
       return () => clearInterval(interval);
     }
   }, [user]);
+
 
 
   // Sync sidebar configuration from localStorage and event listener
@@ -211,15 +243,34 @@ export default function DashboardLayout({ children }) {
 
   const handleGlobalSearch = (e) => {
     if (e.key === 'Enter' && globalSearchStr) {
-      router.push(`/dashboard/students?search=${encodeURIComponent(globalSearchStr)}`);
+      if (!user) return;
+      const results = searchRoutes(globalSearchStr, user.role);
+      if (results && results.length > 0) {
+        // Navigate to the top result
+        router.push(results[0].route);
+        setGlobalSearchStr(''); // clear after search
+      } else {
+        alert('No relevant result found for your role.');
+      }
     }
   };
   
   const handleStudentSearch = (e) => {
-    if (e.key === 'Enter' && studentSearchStr) {
-      router.push(`/dashboard/students?search=${encodeURIComponent(studentSearchStr)}`);
+    if (e.key === 'Enter' && studentSearchStr && user) {
+      // Only Admin/Super Admin can search manage-students page
+      if (user.role === 'Super Admin' || user.role === 'Admin') {
+        router.push(`/dashboard/students?search=${encodeURIComponent(studentSearchStr)}`);
+      } else {
+        // For other roles, use the role-aware search
+        const results = searchRoutes(studentSearchStr, user.role);
+        if (results && results.length > 0) {
+          router.push(results[0].route);
+          setStudentSearchStr('');
+        }
+      }
     }
   };
+
 
   useEffect(() => {
     setMounted(true);
@@ -259,11 +310,23 @@ export default function DashboardLayout({ children }) {
       redirectedRef.current = true;
       router.replace('/login');
     }
-    // NOTE: `pathname` is intentionally NOT in the deps array.
-    // Adding it would re-run this check on every internal navigation,
-    // causing a race condition where Zustand's brief re-hydration
-    // shows isAuthenticated=false and triggers a spurious /login redirect.
   }, [mounted, isAuthenticated, isLoading, user, router]);
+
+  // Route protection check based on role
+  useEffect(() => {
+    if (!isLoading && user && mounted) {
+      if (!isRouteAllowed(user.role, pathname)) {
+        // Redirect to default dashboard for their role
+        if (user.role === 'Student') {
+          router.replace('/dashboard/student');
+        } else if (user.role === 'Teacher') {
+          router.replace('/dashboard/teacher');
+        } else {
+          router.replace('/dashboard');
+        }
+      }
+    }
+  }, [pathname, user, isLoading, mounted, router]);
 
   // Loading state
   if (!mounted || (isLoading && !user && !isAuthenticated)) {
@@ -679,6 +742,59 @@ export default function DashboardLayout({ children }) {
           {children}
         </main>
       </div>
+
+      {/* Popup Modal for Notice / Event */}
+      {showNoticePopup && latestNotice && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-300 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform animate-in zoom-in-95 duration-300">
+            <div className={`flex items-center justify-between px-5 py-4 ${latestNotice._popupType === 'Event' ? 'bg-gradient-to-r from-indigo-500 to-purple-600' : 'bg-gradient-to-r from-emerald-500 to-teal-600'}`}>
+              <div className="flex items-center gap-2 text-white">
+                {latestNotice._popupType === 'Event' ? (
+                  <CalendarDays className="h-5 w-5 animate-bounce" />
+                ) : (
+                  <Bell className="h-5 w-5 animate-bounce" />
+                )}
+                <h3 className="font-bold text-sm tracking-wide">
+                  {latestNotice._popupType === 'Event' ? '🎉 New Event Announced' : '📢 New Notice'}
+                </h3>
+              </div>
+              <button 
+                onClick={() => setShowNoticePopup(false)}
+                className="text-white/80 hover:text-white transition-colors cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <h4 className="text-lg font-bold text-zinc-900 mb-2">{latestNotice.title}</h4>
+              <div className="flex items-center gap-2 text-[10px] font-bold uppercase text-zinc-500 mb-4">
+                <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200">For: {latestNotice.audience || latestNotice.noticeTo || latestNotice.eventFor}</span>
+                <span>•</span>
+                <span>{latestNotice.date ? new Date(latestNotice.date).toLocaleDateString() : latestNotice.startDate}</span>
+              </div>
+              <p className="text-sm text-zinc-700 leading-relaxed max-h-40 overflow-y-auto custom-scrollbar font-medium whitespace-pre-wrap">
+                {latestNotice.description}
+              </p>
+              
+              {latestNotice.location && (
+                <div className="mt-4 flex items-center gap-2 text-xs text-zinc-600 bg-zinc-100 p-2 rounded-lg border border-zinc-200">
+                  <span className="font-bold text-zinc-900">Location:</span> {latestNotice.location}
+                </div>
+              )}
+            </div>
+            
+            <div className="px-6 py-4 bg-zinc-50 border-t border-zinc-200 flex justify-end">
+              <Button 
+                onClick={() => setShowNoticePopup(false)}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm cursor-pointer"
+              >
+                Got it
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

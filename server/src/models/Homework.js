@@ -8,7 +8,8 @@ const schema = new mongoose.Schema({
   submissionDate: { type: Date, required: true },
   marks: { type: Number, required: true },
   file: { type: String },
-  description: { type: String, required: true }
+  description: { type: String, required: true },
+  completedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Homework', schema);

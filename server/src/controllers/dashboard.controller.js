@@ -4,6 +4,7 @@ const Staff = require('../models/Staff');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
 const Notice = require('../models/Notice');
+const Event = require('../models/Event');
 const Todo = require('../models/Todo');
 const Expense = require('../models/Expense');
 const FeePayment = require('../models/FeePayment');
@@ -282,7 +283,15 @@ exports.quickAddExpense = async (req, res, next) => {
 exports.getNotices = async (req, res, next) => {
   try {
     const notices = await Notice.find().sort({ createdAt: -1 });
-    res.status(200).json({ success: true, data: notices });
+    const events = await Event.find().sort({ createdAt: -1 });
+    
+    // Merge them into one array for the dashboard popup
+    const combined = [
+        ...notices.map(n => ({ ...n.toObject(), type: 'Notice' })),
+        ...events.map(e => ({ ...e.toObject(), type: 'Event', date: e.startDate }))
+    ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    res.status(200).json({ success: true, data: combined });
   } catch (error) {
     next(error);
   }
@@ -402,19 +411,69 @@ exports.deleteTodo = async (req, res, next) => {
 // =====================
 exports.getLiveUpdates = async (req, res, next) => {
   try {
-    // Active students (logged in within last 10 minutes)
     const tenMinsAgo = new Date(Date.now() - 10 * 60 * 1000);
+    const userRole = req.user?.role || 'Super Admin';
+
+    // Active counts (only meaningful for admins)
     const activeStudents = await User.countDocuments({ role: 'Student', lastLogin: { $gte: tenMinsAgo } });
-
-    // Recent Notifications for Super Admin
-    const notifications = await Notification.find({ audience: { $in: ['Super Admin', 'All'] } })
-      .sort({ createdAt: -1 })
-      .limit(10);
-
-    // Active teachers (logged in within last 10 minutes)
     const activeTeachers = await User.countDocuments({ role: 'Teacher', lastLogin: { $gte: tenMinsAgo } });
 
+    // Role-aware notifications: user sees their role's notifications + All
+    const audienceFilter = { $in: [userRole, 'All'] };
+    const notifications = await Notification.find({ audience: audienceFilter })
+      .sort({ createdAt: -1 })
+      .limit(15);
+
     res.status(200).json({ success: true, data: { activeStudents, activeTeachers, notifications } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
+// EVENT CONTROLLERS
+// =====================
+exports.getEvents = async (req, res, next) => {
+  try {
+    const events = await Event.find().sort({ createdAt: -1 });
+    res.status(200).json({ success: true, data: events });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.createEvent = async (req, res, next) => {
+  try {
+    const event = await Event.create({
+      ...req.body,
+      createdBy: req.user._id
+    });
+    res.status(201).json({ success: true, data: event });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateEvent = async (req, res, next) => {
+  try {
+    const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!event) {
+      return res.status(404).json({ success: false, message: 'Event not found' });
+    }
+    res.status(200).json({ success: true, data: event });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteEvent = async (req, res, next) => {
+  try {
+    const event = await Event.findByIdAndDelete(req.params.id);
+    if (!event) {
+      return res.status(404).json({ success: false, message: 'Event not found' });
+    }
+    res.status(200).json({ success: true, data: {} });
   } catch (error) {
     next(error);
   }

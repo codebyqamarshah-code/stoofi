@@ -9,6 +9,10 @@ const {
   createNotice,
   updateNotice,
   deleteNotice,
+  getEvents,
+  createEvent,
+  updateEvent,
+  deleteEvent,
   createTodo, 
   toggleTodo, 
   deleteTodo,
@@ -34,6 +38,12 @@ router.get('/notices', getNotices);
 router.post('/notices', createNotice);
 router.put('/notices/:id', updateNotice);
 router.delete('/notices/:id', deleteNotice);
+
+// Event routes
+router.get('/events', getEvents);
+router.post('/events', createEvent);
+router.put('/events/:id', updateEvent);
+router.delete('/events/:id', deleteEvent);
 
 // ToDo routes
 router.post('/todos', createTodo);

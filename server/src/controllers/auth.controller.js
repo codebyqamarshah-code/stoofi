@@ -277,17 +277,32 @@ exports.logout = (req, res) => {
 exports.getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).lean();
-    if (user && user.role === 'Student') {
-      const studentData = await Student.findOne({ user: user._id });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    
+    if (user.role === 'Student' && user.referenceId) {
+      // Correct lookup — Student._id == User.referenceId
+      const studentData = await Student.findById(user.referenceId).lean();
       if (studentData) {
         user.className = studentData.className;
         user.section = studentData.section;
+        user.rollNo = studentData.rollNo;
+        user.admissionNo = studentData.admissionNo;
+        user.gender = studentData.gender;
       }
     }
-    res.status(200).json({
-      success: true,
-      data: user
-    });
+
+    if (user.role === 'Teacher' && user.referenceId) {
+      const Teacher = require('../models/Teacher');
+      const teacherData = await Teacher.findById(user.referenceId).lean();
+      if (teacherData) {
+        user.subject = teacherData.subject;
+        user.gender = teacherData.gender;
+      }
+    }
+    
+    res.status(200).json({ success: true, data: user });
   } catch (error) {
     next(error);
   }

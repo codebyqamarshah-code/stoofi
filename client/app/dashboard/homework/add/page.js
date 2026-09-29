@@ -87,8 +87,22 @@ export default function AddHomeworkPage() {
 
   const handleSelectChange = (name, value) => {
     const finalValue = value?.target ? value.target.value : value;
-    setFormData(prev => ({ ...prev, [name]: finalValue }));
+    setFormData(prev => {
+      const nextData = { ...prev, [name]: finalValue };
+      if (name === 'className') {
+        nextData.section = ''; // reset section when class changes
+      }
+      return nextData;
+    });
   };
+
+  // Derive dynamic sections based on selected class
+  const activeClass = classes.find(c => c.name === formData.className);
+  // If the class from the DB has sections, use them. Otherwise fallback to the global sections list (or empty).
+  const dynamicSections = activeClass?.sections?.length > 0 
+    ? activeClass.sections.map(s => ({ _id: s, name: s })) 
+    : sections;
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
