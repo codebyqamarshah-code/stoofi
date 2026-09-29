@@ -14,6 +14,7 @@ import api from '@/services/api';
 
 export default function AdmissionQueryPage() {
   const [queries, setQueries] = useState([]);
+  const [setupSources, setSetupSources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -21,6 +22,11 @@ export default function AdmissionQueryPage() {
     try {
       setLoading(true);
       const res = await api.get('/admission-query');
+      const setupRes = await api.get('/setup').catch(() => null);
+      if (setupRes?.success) {
+        const src = setupRes.data.filter(s => s.type === 'Source');
+        if(src.length > 0) setSetupSources(src);
+      }
       if (res.success) {
         setQueries(res.data);
       }
@@ -37,11 +43,11 @@ export default function AdmissionQueryPage() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [filters, setFilters] = useState({ dateFrom: '', dateTo: '', source: '', status: '' });
-  const [activeFilters, setActiveFilters] = useState({ dateFrom: '', dateTo: '', source: '', status: '' });
+  const [filters, setFilters] = useState({ queryDate: '', source: '', status: '' });
+  const [activeFilters, setActiveFilters] = useState({ queryDate: '', source: '', status: '' });
   
   const [formData, setFormData] = useState({
-    name: '', phone: '', source: '', queryDate: '', lastFollowUpDate: '', nextFollowUpDate: '', status: 'Active'
+    name: '', phone: '', source: '', queryDate: '', lastFollowUpDate: '', nextFollowUpDate: '', status: 'Interested', notes: ''
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -56,7 +62,7 @@ export default function AdmissionQueryPage() {
       } else {
         await api.post('/admission-query', formData);
       }
-      setFormData({ name: '', phone: '', source: '', queryDate: '', lastFollowUpDate: '', nextFollowUpDate: '', status: 'Active' });
+      setFormData({ name: '', phone: '', source: '', queryDate: '', lastFollowUpDate: '', nextFollowUpDate: '', status: 'Interested', notes: '' });
       setShowForm(false);
       setEditingId(null);
       fetchQueries();
@@ -76,7 +82,7 @@ export default function AdmissionQueryPage() {
       queryDate: query.queryDate ? query.queryDate.substring(0, 10) : '',
       lastFollowUpDate: query.lastFollowUpDate ? query.lastFollowUpDate.substring(0, 10) : '',
       nextFollowUpDate: query.nextFollowUpDate ? query.nextFollowUpDate.substring(0, 10) : '',
-      status: query.status || 'Active'
+      status: query.status || 'Interested'
     });
     setShowForm(true);
   };
@@ -108,7 +114,7 @@ export default function AdmissionQueryPage() {
       'Query Date': q.queryDate ? q.queryDate.substring(0, 10) : '-',
       'Last Follow Up': q.lastFollowUpDate ? q.lastFollowUpDate.substring(0, 10) : '-',
       'Next Follow Up': q.nextFollowUpDate ? q.nextFollowUpDate.substring(0, 10) : '-',
-      'Status': q.status || 'Active'
+      'Status': q.status || 'Interested'
     }));
 
     const headers = ['Name', 'Phone', 'Source', 'Query Date', 'Last Follow Up', 'Next Follow Up', 'Status'];
@@ -135,10 +141,8 @@ export default function AdmissionQueryPage() {
       // Criteria search
       const matchSource = !activeFilters.source || q.source === activeFilters.source;
       const matchStatus = !activeFilters.status || q.status === activeFilters.status;
-      const matchDateFrom = !activeFilters.dateFrom || (q.queryDate && q.queryDate >= activeFilters.dateFrom);
-      const matchDateTo = !activeFilters.dateTo || (q.queryDate && q.queryDate <= activeFilters.dateTo);
-      
-      return matchSearch && matchSource && matchStatus && matchDateFrom && matchDateTo;
+      const matchQueryDate = !activeFilters.queryDate || (q.queryDate && q.queryDate.startsWith(activeFilters.queryDate));
+        return matchSearch && matchSource && matchStatus && matchQueryDate;
     }), [queries, searchQuery, activeFilters]
   );
 
@@ -159,7 +163,7 @@ export default function AdmissionQueryPage() {
         <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden mb-6">
           <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
             <h2 className="text-lg font-semibold text-white">{editingId ? 'Edit' : 'Add'} Admission Query</h2>
-            <Button variant="ghost" size="sm" onClick={() => {setShowForm(false); setEditingId(null); setFormData({ name: '', phone: '', source: '', queryDate: '', lastFollowUpDate: '', nextFollowUpDate: '', status: 'Active' });}} className="text-zinc-400">Cancel</Button>
+            <Button variant="ghost" size="sm" onClick={() => {setShowForm(false); setEditingId(null); setFormData({ name: '', phone: '', source: '', queryDate: '', lastFollowUpDate: '', nextFollowUpDate: '', status: 'Interested', notes: '' });}} className="text-zinc-400">Cancel</Button>
           </div>
           
           <form className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" onSubmit={handleSave}>
@@ -175,19 +179,17 @@ export default function AdmissionQueryPage() {
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Source</Label>
               <select value={formData.source} onChange={e => setFormData({...formData, source: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white">
                 <option value="">Select Source</option>
-                <option value="Front Office">Front Office</option>
-                <option value="Advertisement">Advertisement</option>
-                <option value="Online">Online</option>
+                {setupSources.length > 0 ? setupSources.map(s => <option key={s._id} value={s.name}>{s.name}</option>) : ['Building Advertisment', 'Digital Marketing', 'Print Media', 'SMS', 'Friend', 'Family', 'Other'].map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Status</Label>
               <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white">
-                <option value="Active">Active</option>
-                <option value="Passive">Passive</option>
-                <option value="Dead">Dead</option>
-                <option value="Won">Won</option>
-                <option value="Lost">Lost</option>
+                <option value="Interested">Interested</option>
+                  <option value="Not Interested">Not Interested</option>
+                  <option value="Follow-up Later">Follow-up Later</option>
+                  <option value="Lost">Lost</option>
+                  <option value="Invalid Query">Invalid Query</option>
               </select>
             </div>
             <div className="space-y-1.5">
@@ -202,7 +204,17 @@ export default function AdmissionQueryPage() {
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Next Follow Up Date</Label>
               <Input type="date" value={formData.nextFollowUpDate} onChange={e => setFormData({...formData, nextFollowUpDate: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 [color-scheme:dark]" />
             </div>
-            <div className="lg:col-span-4 flex justify-end mt-2">
+            <div className="space-y-1.5 lg:col-span-4">
+                <Label className="text-xs font-semibold text-zinc-400 uppercase">Query Details / Note</Label>
+                <textarea 
+                  value={formData.notes} 
+                  onChange={e => setFormData({...formData, notes: e.target.value})} 
+                  placeholder="Enter any notes related to this query..." 
+                  rows={3}
+                  className="flex w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white resize-none" 
+                />
+              </div>
+              <div className="lg:col-span-4 flex justify-end mt-2">
               <Button type="submit" className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
                 {editingId ? 'UPDATE' : 'SAVE'} QUERY
               </Button>
@@ -220,7 +232,7 @@ export default function AdmissionQueryPage() {
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Date From</Label>
               <Input type="date" value={filters.dateFrom} onChange={e => setFilters({...filters, dateFrom: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 [color-scheme:dark]" />
@@ -233,20 +245,18 @@ export default function AdmissionQueryPage() {
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Source</Label>
               <select value={filters.source} onChange={e => setFilters({...filters, source: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white">
                 <option value="">Select Source</option>
-                <option value="Front Office">Front Office</option>
-                <option value="Advertisement">Advertisement</option>
-                <option value="Online">Online</option>
+                {setupSources.length > 0 ? setupSources.map(s => <option key={s._id} value={s.name}>{s.name}</option>) : ['Building Advertisment', 'Digital Marketing', 'Print Media', 'SMS', 'Friend', 'Family', 'Other'].map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-400 uppercase">Status</Label>
               <select value={filters.status} onChange={e => setFilters({...filters, status: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white">
                 <option value="">Select Status</option>
-                <option value="Active">Active</option>
-                <option value="Passive">Passive</option>
-                <option value="Dead">Dead</option>
-                <option value="Won">Won</option>
-                <option value="Lost">Lost</option>
+                <option value="Interested">Interested</option>
+                  <option value="Not Interested">Not Interested</option>
+                  <option value="Follow-up Later">Follow-up Later</option>
+                  <option value="Lost">Lost</option>
+                  <option value="Invalid Query">Invalid Query</option>
               </select>
             </div>
           </div>
@@ -306,7 +316,7 @@ export default function AdmissionQueryPage() {
                     <td className="px-4 py-3 text-zinc-300">{q.phone || '-'}</td>
                     <td className="px-4 py-3 text-zinc-300">{q.source || '-'}</td>
                     <td className="px-4 py-3 text-zinc-300">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${q.status === 'Active' ? 'bg-zinc-600/10 text-zinc-600 border border-zinc-600/20' : q.status === 'Won' ? 'bg-zinc-600/10 text-zinc-600 border border-zinc-600/20' : 'bg-rose-500/10 text-rose-500 border border-rose-500/20'}`}>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${q.status === 'Interested' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : q.status === 'Follow-up Later' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' : 'bg-rose-500/10 text-rose-500 border border-rose-500/20'}`}>
                         {q.status}
                       </span>
                     </td>

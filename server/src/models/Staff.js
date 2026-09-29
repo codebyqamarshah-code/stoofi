@@ -18,6 +18,8 @@ const schema = new mongoose.Schema({
   cnic: { type: String },
   cnicFront: { type: String },
   cnicBack: { type: String },
+  qualificationLevel: { type: String },
+  qualificationDocument: { type: String },
   document1: { type: String },
   currentAddress: { type: String },
   permanentAddress: { type: String },

@@ -5,6 +5,7 @@ import api from "@/services/api";
 import { CrudForm } from "@/components/ui/CrudForm";
 import { ImageUpload } from "@/components/ui/ImageUpload";
 import { Input } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 
@@ -16,6 +17,22 @@ const TABS = [
   { id: 'bank', label: 'BANK INFO DETAILS', icon: Building },
   { id: 'social', label: 'SOCIAL LINKS', icon: Share2 },
   { id: 'document', label: 'DOCUMENT INFO', icon: FileText }
+];
+
+
+const QUALIFICATION_LEVELS = [
+  { label: 'Primary', value: 'Primary' },
+  { label: 'Middle', value: 'Middle' },
+  { label: 'Matric', value: 'Matric' },
+  { label: 'Intermediate', value: 'Intermediate' },
+  { label: 'Graduation', value: 'Graduation' },
+  { label: 'Two Year Diploma', value: 'Two Year Diploma' },
+  { label: 'One Year Diploma', value: 'One Year Diploma' },
+  { label: 'IT Courses', value: 'IT Courses' },
+  { label: 'Other Courses', value: 'Other Courses' },
+  { label: 'Master', value: 'Master' },
+  { label: 'M Phill', value: 'M Phill' },
+  { label: 'PHD', value: 'PHD' }
 ];
 
 const ROLES = [
@@ -39,7 +56,7 @@ const EMPTY = {
   basicSalary: '', allowances: '', deductions: '',
   bankName: '', accountNo: '', accountName: '', branchName: '', ifscCode: '',
   facebook: '', twitter: '', linkedin: '', instagram: '',
-  cnic: '', cnicFront: null, cnicBack: null, document1: null,
+  cnic: '', cnicFront: null, cnicBack: null, document1: null, qualificationLevel: '', qualificationDocument: null,
 };
 
 export default function AddStaffPage() {

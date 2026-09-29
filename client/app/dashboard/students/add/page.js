@@ -36,6 +36,22 @@ const FALLBACK_SECTIONS = [
   { _id: 's-d', name: 'D' },
 ];
 
+
+const QUALIFICATION_LEVELS = [
+  { label: 'Primary', value: 'Primary' },
+  { label: 'Middle', value: 'Middle' },
+  { label: 'Matric', value: 'Matric' },
+  { label: 'Intermediate', value: 'Intermediate' },
+  { label: 'Graduation', value: 'Graduation' },
+  { label: 'Two Year Diploma', value: 'Two Year Diploma' },
+  { label: 'One Year Diploma', value: 'One Year Diploma' },
+  { label: 'IT Courses', value: 'IT Courses' },
+  { label: 'Other Courses', value: 'Other Courses' },
+  { label: 'Master', value: 'Master' },
+  { label: 'M Phill', value: 'M Phill' },
+  { label: 'PHD', value: 'PHD' }
+];
+
 const ACADEMIC_YEARS = [
   { label: '2027', value: '2027' },
   { label: '2026', value: '2026' },
@@ -71,7 +87,7 @@ export default function AddStudentPage() {
   const [selectedPhotoName, setSelectedPhotoName] = useState('');
   const fileInputRef = useRef(null);
 
-  const [docFiles, setDocFiles] = useState({ cnicFront: null, cnicBack: null, document1: null });
+  const [docFiles, setDocFiles] = useState({ cnicFront: null, cnicBack: null, document1: null, qualificationDocument: null, previousSchoolDocument: null });
   const [formData, setFormData] = useState({
     academicYear: '2026 [Jan-Dec]',
     className: '',
@@ -215,6 +231,8 @@ export default function AddStudentPage() {
       if (docFiles.cnicFront) dataToSubmit.append('cnicFront', docFiles.cnicFront);
       if (docFiles.cnicBack) dataToSubmit.append('cnicBack', docFiles.cnicBack);
       if (docFiles.document1) dataToSubmit.append('document1', docFiles.document1);
+      if (docFiles.qualificationDocument) dataToSubmit.append('qualificationDocument', docFiles.qualificationDocument);
+      if (docFiles.previousSchoolDocument) dataToSubmit.append('previousSchoolDocument', docFiles.previousSchoolDocument);
       
       if (fileInputRef.current?.files[0]) {
         dataToSubmit.append('file', fileInputRef.current.files[0]);
@@ -567,6 +585,20 @@ export default function AddStudentPage() {
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">CNIC / B-Form Back (Original)</Label>
                       <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'cnicBack')} className="bg-zinc-900 border-zinc-800 text-zinc-300 file:bg-zinc-800 file:text-white file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-zinc-700 cursor-pointer" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-zinc-400 uppercase">Previous Qualification</Label>
+                      <SearchableSelect 
+                        name="qualificationLevel" 
+                        value={formData.qualificationLevel || ''} 
+                        onChange={handleInputChange} 
+                        placeholder="Select Qualification"
+                        options={QUALIFICATION_LEVELS} 
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-zinc-400 uppercase">Qualification Certificate (Original)</Label>
+                      <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'qualificationDocument')} className="bg-zinc-900 border-zinc-800 text-zinc-300 file:bg-zinc-800 file:text-white file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-zinc-700 cursor-pointer" />
                     </div>
                   </div>
                 </div>

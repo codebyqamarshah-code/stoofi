@@ -1,3 +1,4 @@
+const Notification = require('../models/Notification');
 const Student = require('../models/Student');
 
 exports.getAll = async (req, res) => {
@@ -96,7 +97,28 @@ exports.create = async (req, res) => {
         else dataObj[f.fieldname] = '/uploads/' + f.filename;
       });
     }
-    const data = await Student.create(dataObj);
+        const data = await Student.create(dataObj);
+    
+    // Create Notification for Super Admin and Admin
+    try {
+        await Notification.create([
+            {
+                title: 'New Student Registration',
+                message: `New student ${data.firstName || ''} ${data.lastName || ''} (Adm No: ${data.admissionNo}) has just registered/been added.`,
+                type: 'Registration',
+                audience: 'Super Admin'
+            },
+            {
+                title: 'New Student Registration',
+                message: `New student ${data.firstName || ''} ${data.lastName || ''} (Adm No: ${data.admissionNo}) has just registered/been added.`,
+                type: 'Registration',
+                audience: 'Admin'
+            }
+        ]);
+    } catch(notifErr) {
+        console.log('Notification error:', notifErr);
+    }
+    
     res.status(201).json({ success: true, data });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

@@ -53,9 +53,14 @@ const schema = new mongoose.Schema({
   document2: { type: String },
   cnicFront: { type: String },
   cnicBack: { type: String },
+  qualificationLevel: { type: String },
+  qualificationDocument: { type: String },
 
   // Previous School
   previousSchool: { type: String },
+  previousInstituteType: { type: String },
+  previousClassCovered: { type: String },
+  previousSchoolDocument: { type: String },
   previousSchoolName: { type: String },
   previousSchoolAddress: { type: String },
 

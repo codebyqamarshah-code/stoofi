@@ -11,7 +11,7 @@ function PageTransitionLoaderContent() {
   const [isFading, setIsFading] = useState(false);
   const timeoutRef = useRef(null);
 
-  const showLoader = (duration = 750) => {
+  const showLoader = (duration = 1000) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setIsFading(false);
     setIsVisible(true);
@@ -21,27 +21,24 @@ function PageTransitionLoaderContent() {
       setTimeout(() => {
         setIsVisible(false);
         setIsFading(false);
-      }, 250);
+      }, 400); // 400ms fade transition
     }, duration);
   };
 
-  // Initial full page load / reload
   useEffect(() => {
-    showLoader(800);
+    showLoader(1200);
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, []);
 
-  // Trigger on every page route change (page shift)
   useEffect(() => {
     if (prevPathRef.current !== pathname) {
       prevPathRef.current = pathname;
-      showLoader(700);
+      showLoader(1000);
     }
   }, [pathname, searchParams]);
 
-  // Intercept internal link clicks for instant visual feedback on page shift
   useEffect(() => {
     const handleLinkClick = (e) => {
       const target = e.target.closest('a');
@@ -55,7 +52,7 @@ function PageTransitionLoaderContent() {
         try {
           const url = new URL(target.href);
           if (url.pathname !== window.location.pathname || url.search !== window.location.search) {
-            showLoader(900);
+            showLoader(1000);
           }
         } catch (err) {}
       }
@@ -69,44 +66,45 @@ function PageTransitionLoaderContent() {
 
   return (
     <div 
-      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-white/80 backdrop-blur-md transition-opacity duration-300 ${
-        isFading ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-white/60 dark:bg-black/60 backdrop-blur-xl transition-all duration-500 ${
+        isFading ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100'
       }`}
     >
-      {/* Top Thin Gradient Bar */}
-      <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-600 animate-pulse" />
-
       {/* Center Animated Logo Container */}
       <div className="relative flex flex-col items-center justify-center">
-        {/* Outer subtle spinning ring */}
-        <div className="absolute h-28 w-28 rounded-full border-2 border-dashed border-emerald-500/60 animate-spin" style={{ animationDuration: '4s' }} />
         
-        {/* Glowing pulse aura */}
-        <div className="absolute h-24 w-24 rounded-full bg-emerald-500/15 animate-ping" style={{ animationDuration: '2s' }} />
+        {/* Glow Aura */}
+        <div className="absolute inset-0 rounded-full bg-emerald-500/20 blur-3xl animate-pulse" style={{ width: '200px', height: '200px', transform: 'translate(-50%, -50%)', top: '50%', left: '50%' }} />
 
-        {/* Center Card with Logo */}
-        <div className="relative h-20 w-20 rounded-2xl bg-white shadow-2xl border border-zinc-200/80 p-2.5 flex items-center justify-center transform transition-transform duration-300 hover:scale-105">
+        {/* Swirl Spinners matching eSkooly Pro style but tailored for Stoofi */}
+        <div className="absolute rounded-full border-y-2 border-emerald-500/80 animate-spin" style={{ width: '150px', height: '150px', animationDuration: '2s' }} />
+        <div className="absolute rounded-full border-x-2 border-indigo-500/80 animate-spin" style={{ width: '130px', height: '130px', animationDuration: '3s', animationDirection: 'reverse' }} />
+
+        {/* Stoofi Logo */}
+        <div className="relative h-24 w-auto flex items-center justify-center p-2 z-10 drop-shadow-2xl">
           <img 
-            src="/loader.png" 
-            alt="Stoofi Logo" 
-            className="h-full w-full object-contain animate-pulse"
+            src="/stoofi light.png" 
+            alt="Stoofi Loader" 
+            className="h-full object-contain animate-pulse"
             onError={(e) => {
-              e.currentTarget.src = '/stoofi light.png';
+              // Fallback just in case
+              e.currentTarget.src = '/logo.png';
             }}
           />
         </div>
 
-        {/* Animated Loading Text */}
-        <div className="mt-5 flex flex-col items-center">
-          <div className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-bounce" style={{ animationDelay: '0ms' }} />
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-bounce" style={{ animationDelay: '150ms' }} />
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-bounce" style={{ animationDelay: '300ms' }} />
-          </div>
-          <span className="text-xs font-extrabold text-zinc-900 tracking-wider uppercase mt-2">
-            Loading...
+        {/* Professional Loading Text */}
+        <div className="mt-12 flex flex-col items-center z-10">
+          <span className="text-sm font-bold text-zinc-800 dark:text-zinc-200 tracking-[0.2em] uppercase">
+            Loading
           </span>
+          <div className="flex gap-1.5 mt-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+          </div>
         </div>
+
       </div>
     </div>
   );
