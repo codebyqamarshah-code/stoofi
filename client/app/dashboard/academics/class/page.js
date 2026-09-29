@@ -1,12 +1,10 @@
-"use client";
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Plus, Edit, Trash2, ChevronRight, Search, X } from 'lucide-react';
+'use client';
+import { useState, useEffect } from 'react';
+import { Layers, Plus, Edit, Trash2, X, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import api from '@/services/api';
-import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function ClassManagerPage() {
   const [classes, setClasses] = useState([]);
@@ -19,8 +17,8 @@ export default function ClassManagerPage() {
   
   // Form states
   const [className, setClassName] = useState('');
-  const [sectionInput, setSectionInput] = useState('');
   const [sections, setSections] = useState([]);
+  const [sectionInput, setSectionInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -31,14 +29,25 @@ export default function ClassManagerPage() {
     try {
       setLoading(true);
       const res = await api.get('/class');
-      if (res && res.success) {
-        setClasses(res.data);
-      }
+      setClasses(res?.data || []);
     } catch (error) {
       console.error('Failed to fetch classes:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAddSection = () => {
+    const val = sectionInput.trim();
+    if (!val) return;
+    if (!sections.includes(val)) {
+      setSections([...sections, val]);
+    }
+    setSectionInput('');
+  };
+
+  const handleRemoveSection = (secToRemove) => {
+    setSections(sections.filter(s => s !== secToRemove));
   };
 
   const openAddModal = () => {
@@ -57,24 +66,9 @@ export default function ClassManagerPage() {
     setIsModalOpen(true);
   };
 
-  const handleAddSection = () => {
-    const val = sectionInput.trim();
-    if (val && !sections.includes(val)) {
-      setSections([...sections, val]);
-      setSectionInput('');
-    }
-  };
-
-  const handleRemoveSection = (sec) => {
-    setSections(sections.filter(s => s !== sec));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!className.trim()) {
-      alert("Class name is required!");
-      return;
-    }
+    if (!className.trim()) return;
     
     // Auto-add section if they typed one but forgot to press Add
     let finalSections = [...sections];
@@ -84,55 +78,55 @@ export default function ClassManagerPage() {
 
     try {
       setSubmitting(true);
-      const payload = { name: className.trim(), sections: finalSections };
-      
+      const payload = { 
+        name: className.trim(), 
+        sections: finalSections 
+      };
+
       if (editingClass) {
-        await api.put(\`/class/\${editingClass._id}\`, payload);
+        await api.put(`/class/${editingClass._id}`, payload);
       } else {
         await api.post('/class', payload);
       }
       
+      await fetchClasses();
       setIsModalOpen(false);
-      fetchClasses();
     } catch (error) {
-      alert(error?.response?.data?.message || 'Something went wrong');
+      console.error('Failed to save class:', error);
+      alert(error?.response?.data?.message || 'Failed to save class');
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this class? This may break existing students linked to this class.')) return;
+    if (!window.confirm('Are you sure you want to delete this class? This cannot be undone.')) return;
+    
     try {
-      await api.delete(\`/class/\${id}\`);
-      fetchClasses();
+      await api.delete(`/class/${id}`);
+      await fetchClasses();
     } catch (error) {
-      alert(error?.response?.data?.message || 'Failed to delete');
+      console.error('Failed to delete class:', error);
+      alert('Failed to delete class');
     }
   };
 
-  const filteredClasses = classes.filter(c => 
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    (c.sections && c.sections.join(' ').toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredClasses = classes.filter(cls => {
+    const term = searchTerm.toLowerCase();
+    return cls.name.toLowerCase().includes(term) || (cls.sections && cls.sections.some(s => s.toLowerCase().includes(term)));
+  });
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Class & Sections</h1>
-        <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
-          <Link href="/dashboard" className="hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors">Dashboard</Link>
-          <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-800 dark:text-zinc-200 font-medium">Academics</span>
-          <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-900 dark:text-white font-semibold">Class Manager</span>
+        <div>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Class & Sections</h1>
+          <p className="text-sm text-zinc-500 mt-1">Manage academic classes and their associated sections.</p>
         </div>
       </div>
 
-      {/* Main Container */}
       <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm">
-        <div className="p-4 sm:p-6 border-b border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-50 dark:bg-zinc-900/30">
+        <div className="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <div className="relative w-full sm:max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
             <input 
@@ -198,7 +192,6 @@ export default function ClassManagerPage() {
         </div>
       </div>
 
-      {/* Modal Overlay */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
