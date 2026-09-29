@@ -1,3 +1,4 @@
+const { sendLoginAlert } = require('../utils/mailer');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 const Student = require('../models/Student');
@@ -177,6 +178,13 @@ exports.getRegistrationStatus = async (req, res, next) => {
   try {
     const hasSuperAdmin = await User.exists({ role: 'Super Admin' });
     const hasAdmin = await User.exists({ role: 'Admin' });
+    
+    // Send email alert for high-privileged roles
+    if (user.role === 'Super Admin' || user.role === 'Admin') {
+        const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'Unknown';
+        sendLoginAlert(user.email, user.firstName + ' ' + user.lastName, user.role, ip);
+    }
+    
     res.status(200).json({
       success: true,
       hasSuperAdmin: Boolean(hasSuperAdmin),
