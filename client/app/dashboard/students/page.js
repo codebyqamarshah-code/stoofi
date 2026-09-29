@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronRight, Search, Download, Printer, FileText, Plus, Edit, Trash2, X, Save, Upload, RotateCcw } from 'lucide-react';
@@ -39,11 +39,11 @@ const FALLBACK_SECTIONS = [
 ];
 
 const ACADEMIC_YEARS = [
-  { label: '2026 [Jan-Dec]', value: '2026 [Jan-Dec]' },
-  { label: '2025 [Jan-Dec]', value: '2025 [Jan-Dec]' },
-  { label: '2024 [Jan-Dec]', value: '2024 [Jan-Dec]' },
-  { label: '2023 [Jan-Dec]', value: '2023 [Jan-Dec]' },
-  { label: '2027 [Jan-Dec]', value: '2027 [Jan-Dec]' },
+  { label: '2026', value: '2026' },
+  { label: '2025', value: '2025' },
+  { label: '2024', value: '2024' },
+  { label: '2023', value: '2023' },
+  { label: '2027', value: '2027' },
 ];
 
 export default function StudentListPage() {
@@ -55,14 +55,14 @@ export default function StudentListPage() {
   const [quickSearch, setQuickSearch] = useState('');
   
   // Filters
-  const [academicYear, setAcademicYear] = useState('2026 [Jan-Dec]');
+  const [academicYear, setAcademicYear] = useState('2026');
   const [classFilter, setClassFilter] = useState('');
   const [sectionFilter, setSectionFilter] = useState('');
   const [nameFilter, setNameFilter] = useState('');
   const [rollFilter, setRollFilter] = useState('');
 
   const [appliedFilters, setAppliedFilters] = useState({
-    academicYear: '2026 [Jan-Dec]', classFilter: '', sectionFilter: '', nameFilter: '', rollFilter: ''
+    academicYear: '2026', classFilter: '', sectionFilter: '', nameFilter: '', rollFilter: ''
   });
 
   // Edit modal state
@@ -146,14 +146,14 @@ export default function StudentListPage() {
   };
 
   const handleReset = () => {
-    setAcademicYear('2026 [Jan-Dec]');
+    setAcademicYear('2026');
     setClassFilter('');
     setSectionFilter('');
     setNameFilter('');
     setRollFilter('');
     setQuickSearch('');
     setPage(1);
-    const emptyFilters = { academicYear: '2026 [Jan-Dec]', classFilter: '', sectionFilter: '', nameFilter: '', rollFilter: '' };
+    const emptyFilters = { academicYear: '2026', classFilter: '', sectionFilter: '', nameFilter: '', rollFilter: '' };
     setAppliedFilters(emptyFilters);
     fetchData(emptyFilters);
   };

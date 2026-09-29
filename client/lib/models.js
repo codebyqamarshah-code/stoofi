@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+﻿import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 // User Schema
@@ -83,7 +83,7 @@ const studentSchema = new mongoose.Schema({
   phone: { type: String },
   currentAddress: { type: String },
   permanentAddress: { type: String },
-  academicYear: { type: String, default: '2026 [Jan-Dec]' },
+  academicYear: { type: String, default: '2026' },
   studentPhoto: { type: String },
   status: { type: String, default: 'Active' },
   subjects: [{ type: String }]

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import React, { useState, useRef } from 'react';
@@ -89,7 +89,7 @@ export default function AddStudentPage() {
 
   const [docFiles, setDocFiles] = useState({ cnicFront: null, cnicBack: null, document1: null, qualificationDocument: null, previousSchoolDocument: null });
   const [formData, setFormData] = useState({
-    academicYear: '2026 [Jan-Dec]',
+    academicYear: '2026',
     className: '',
     section: '',
     admissionNo: '',

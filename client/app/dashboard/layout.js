@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -216,7 +216,7 @@ export default function DashboardLayout({ children }) {
   // Navbar interactive states
   const [globalSearchStr, setGlobalSearchStr] = useState('');
   const [studentSearchStr, setStudentSearchStr] = useState('');
-  const [session, setSession] = useState('2026 [Jan-Dec]');
+  const [session, setSession] = useState('2026');
   const [isSessionDropdownOpen, setIsSessionDropdownOpen] = useState(false);
   const [lang, setLang] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -578,7 +578,7 @@ export default function DashboardLayout({ children }) {
               </div>
               {isSessionDropdownOpen && (
                 <div className="absolute top-full right-0 mt-1 w-32 bg-white dark:bg-zinc-50 border border-zinc-300 dark:border-zinc-200 rounded-lg shadow-xl overflow-hidden py-1">
-                  {['2026 [Jan-Dec]', '2025 [Jan-Dec]', '2024 [Jan-Dec]'].map((s) => (
+                  {['2026', '2025', '2024'].map((s) => (
                     <div 
                       key={s} 
                       onClick={() => { setSession(s); setIsSessionDropdownOpen(false); }}

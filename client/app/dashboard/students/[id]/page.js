@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
@@ -105,7 +105,7 @@ export default function StudentProfilePage() {
       'Nationality':        student.nationality || 'Pakistani',
       'Class':              student.className || '—',
       'Section':            student.section || '—',
-      'Academic Year':      student.academicYear || '2026 [Jan-Dec]',
+      'Academic Year':      student.academicYear || '2026',
       'Type':               student.type || 'Regular',
       'Phone':              student.phone || '—',
       'Email':              student.email || '—',
@@ -196,7 +196,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
   <div class="row"><span class="lbl">Section</span><span class="val">${student.section||'—'}</span></div>
   <div class="row"><span class="lbl">Roll No</span><span class="val">${student.rollNo||'—'}</span></div>
   <div class="row"><span class="lbl">Admission No</span><span class="val">${student.admissionNo||'—'}</span></div>
-  <div class="row"><span class="lbl">Academic Year</span><span class="val">${student.academicYear||'2026 [Jan-Dec]'}</span></div>
+  <div class="row"><span class="lbl">Academic Year</span><span class="val">${student.academicYear||'2026'}</span></div>
   <div class="row"><span class="lbl">Student Type</span><span class="val">${student.type||'Regular'}</span></div>
   <div class="row"><span class="lbl">Joining Date</span><span class="val">${joining}</span></div>
   <div class="row"><span class="lbl">Previous School</span><span class="val">${prevSchool}</span></div>
@@ -368,7 +368,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
             <InfoRow icon={Users}     label="Section"       value={student.section} />
             <InfoRow icon={Hash}      label="Roll No"       value={student.rollNo} />
             <InfoRow icon={Hash}      label="Admission No"  value={student.admissionNo} />
-            <InfoRow icon={Calendar}  label="Academic Year" value={student.academicYear || '2026 [Jan-Dec]'} />
+            <InfoRow icon={Calendar}  label="Academic Year" value={student.academicYear || '2026'} />
             <InfoRow icon={Shield}    label="Student Type"  value={student.type || 'Regular'} />
             <InfoRow icon={Clock}     label="Joining Date"  value={fmtDate(joining)} />
             <InfoRow icon={BookOpen}  label="Prev. School"  value={prevSchool} />

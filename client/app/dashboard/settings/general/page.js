@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -20,7 +20,7 @@ export default function GeneralSettingsPage() {
     address: '',
     currency: 'PKR',
     currencySymbol: 'Rs.',
-    academicYear: '2026 [Jan-Dec]',
+    academicYear: '2026',
     sessionStartMonth: 'January',
     tagline: '',
     footerText: ''
@@ -40,7 +40,7 @@ export default function GeneralSettingsPage() {
             address: res.data.address || '',
             currency: res.data.currency || 'PKR',
             currencySymbol: res.data.currencySymbol || 'Rs.',
-            academicYear: res.data.academicYear || '2026 [Jan-Dec]',
+            academicYear: res.data.academicYear || '2026',
             sessionStartMonth: res.data.sessionStartMonth || 'January',
             tagline: res.data.tagline || '',
             footerText: res.data.footerText || ''
@@ -212,7 +212,7 @@ export default function GeneralSettingsPage() {
                 name="academicYear"
                 value={formData.academicYear}
                 onChange={handleChange}
-                placeholder="2026 [Jan-Dec]"
+                placeholder="2026"
                 className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-indigo-500"
               />
             </div>

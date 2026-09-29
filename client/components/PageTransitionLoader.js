@@ -65,49 +65,48 @@ function PageTransitionLoaderContent() {
   if (!isVisible) return null;
 
   return (
-    <div 
-      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-white/60 dark:bg-black/60 backdrop-blur-xl transition-all duration-500 ${
-        isFading ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100'
+    <div
+      className={`fixed inset-0 flex flex-col items-center justify-center bg-white/70 backdrop-blur-sm transition-opacity duration-400 ${
+        isFading ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
+      style={{ zIndex: 999999 }}
     >
-      {/* Center Animated Logo Container */}
-      <div className="relative flex flex-col items-center justify-center">
-        
-        {/* Glow Aura */}
-        <div className="absolute inset-0 rounded-full bg-emerald-500/20 blur-3xl animate-pulse" style={{ width: '200px', height: '200px', transform: 'translate(-50%, -50%)', top: '50%', left: '50%' }} />
-
-        {/* Swirl Spinners matching eSkooly Pro style but tailored for Stoofi */}
-        <div className="absolute rounded-full border-y-2 border-emerald-500/80 animate-spin" style={{ width: '150px', height: '150px', animationDuration: '2s' }} />
-        <div className="absolute rounded-full border-x-2 border-indigo-500/80 animate-spin" style={{ width: '130px', height: '130px', animationDuration: '3s', animationDirection: 'reverse' }} />
-
-        {/* Stoofi Logo */}
-        <div className="relative h-24 w-auto flex items-center justify-center p-2 z-10 drop-shadow-2xl">
-          <img 
-            src="/stoofi light.png" 
-            alt="Stoofi Loader" 
-            className="h-full object-contain animate-pulse"
-            onError={(e) => {
-              // Fallback just in case
-              e.currentTarget.src = '/logo.png';
-            }}
+      {/* Spinner rings around logo */}
+      <div className="relative flex items-center justify-center" style={{ width: 140, height: 140 }}>
+        {/* Outer spinning ring */}
+        <div
+          className="absolute rounded-full border-2 border-emerald-400 border-dashed animate-spin"
+          style={{ width: 140, height: 140, animationDuration: '3s' }}
+        />
+        {/* Inner spinning ring reverse */}
+        <div
+          className="absolute rounded-full border-2 border-indigo-400"
+          style={{ width: 108, height: 108, animationDuration: '2s', animation: 'spin 2s linear infinite reverse' }}
+        />
+        {/* Logo in center */}
+        <div className="relative flex items-center justify-center bg-white rounded-full shadow-lg" style={{ width: 80, height: 80 }}>
+          <img
+            src="/stoofi light.png"
+            alt="Stoofi"
+            className="object-contain"
+            style={{ width: 60, height: 60 }}
+            onError={(e) => { e.currentTarget.src = '/logo.png'; }}
           />
         </div>
+      </div>
 
-        {/* Professional Loading Text */}
-        <div className="mt-12 flex flex-col items-center z-10">
-          <span className="text-sm font-bold text-zinc-800 dark:text-zinc-200 tracking-[0.2em] uppercase">
-            Loading
-          </span>
-          <div className="flex gap-1.5 mt-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '300ms' }} />
-          </div>
+      {/* Loading text */}
+      <div className="mt-6 flex flex-col items-center gap-2">
+        <span className="text-xs font-bold text-zinc-700 tracking-[0.25em] uppercase">Loading</span>
+        <div className="flex gap-1.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+          <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '300ms' }} />
         </div>
-
       </div>
     </div>
   );
+
 }
 
 export default function PageTransitionLoader() {

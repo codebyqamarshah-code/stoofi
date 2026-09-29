@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
@@ -12,9 +12,9 @@ import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/export
 import StudentImportModal from '@/components/StudentImportModal';
 
 const ACADEMIC_YEARS = [
-  { label: '2026 [Jan-Dec]', value: '2026 [Jan-Dec]' },
-  { label: '2025 [Jan-Dec]', value: '2025 [Jan-Dec]' },
-  { label: '2024 [Jan-Dec]', value: '2024 [Jan-Dec]' },
+  { label: '2026', value: '2026' },
+  { label: '2025', value: '2025' },
+  { label: '2024', value: '2024' },
 ];
 
 const FALLBACK_CLASSES = [
@@ -49,7 +49,7 @@ export default function StudentExportPage() {
   const [loading, setLoading] = useState(true);
 
   // Filters
-  const [academicYear, setAcademicYear] = useState('2026 [Jan-Dec]');
+  const [academicYear, setAcademicYear] = useState('2026');
   const [classFilter, setClassFilter] = useState('');
   const [sectionFilter, setSectionFilter] = useState('');
   const [genderFilter, setGenderFilter] = useState('');
@@ -143,7 +143,7 @@ export default function StudentExportPage() {
         row['Current Address'] = s.currentAddress || s.address || '-';
       }
 
-      row['Academic Session'] = s.academicYear || '2026 [Jan-Dec]';
+      row['Academic Session'] = s.academicYear || '2026';
       return row;
     });
   }, [filteredStudents, includeParents, includeContact, includeAddress]);
@@ -169,7 +169,7 @@ export default function StudentExportPage() {
     setSectionFilter('');
     setGenderFilter('');
     setSearchQuery('');
-    setAcademicYear('2026 [Jan-Dec]');
+    setAcademicYear('2026');
   };
 
   return (
