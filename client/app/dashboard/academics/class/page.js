@@ -1,6 +1,8 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { Layers, Plus, Edit, Trash2, X, Search } from 'lucide-react';
+
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { ChevronRight, Plus, Search, Layers, Edit, Trash2, X, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,35 +22,31 @@ export default function ClassManagerPage() {
   const [sections, setSections] = useState([]);
   const [sectionInput, setSectionInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  
+  // Toast
+  const [toast, setToast] = useState(null);
 
-  useEffect(() => {
-    fetchClasses();
-  }, []);
+  const showToast = (msg, type = 'success') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const fetchClasses = async () => {
     try {
       setLoading(true);
       const res = await api.get('/class');
       setClasses(res?.data || []);
-    } catch (error) {
-      console.error('Failed to fetch classes:', error);
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to load classes', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddSection = () => {
-    const val = sectionInput.trim();
-    if (!val) return;
-    if (!sections.includes(val)) {
-      setSections([...sections, val]);
-    }
-    setSectionInput('');
-  };
-
-  const handleRemoveSection = (secToRemove) => {
-    setSections(sections.filter(s => s !== secToRemove));
-  };
+  useEffect(() => {
+    fetchClasses();
+  }, []);
 
   const openAddModal = () => {
     setEditingClass(null);
@@ -66,67 +64,129 @@ export default function ClassManagerPage() {
     setIsModalOpen(true);
   };
 
+  const handleAddSection = () => {
+    const val = sectionInput.trim();
+    if (!val) return;
+    
+    // Capitalize first letter of section usually
+    const formatted = val.charAt(0).toUpperCase() + val.slice(1);
+    
+    if (!sections.includes(formatted)) {
+      setSections([...sections, formatted]);
+    }
+    setSectionInput('');
+  };
+
+  const handleRemoveSection = (secToRemove) => {
+    setSections(sections.filter(s => s !== secToRemove));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!className.trim()) return;
     
     // Auto-add section if they typed one but forgot to press Add
     let finalSections = [...sections];
-    if (sectionInput.trim() && !finalSections.includes(sectionInput.trim())) {
-      finalSections.push(sectionInput.trim());
+    if (sectionInput.trim()) {
+      const formatted = sectionInput.trim().charAt(0).toUpperCase() + sectionInput.trim().slice(1);
+      if (!finalSections.includes(formatted)) {
+        finalSections.push(formatted);
+      }
     }
 
     try {
       setSubmitting(true);
-      const payload = { 
-        name: className.trim(), 
-        sections: finalSections 
+      const payload = {
+        name: className.trim(),
+        sections: finalSections
       };
 
       if (editingClass) {
         await api.put(`/class/${editingClass._id}`, payload);
+        showToast('Class updated successfully');
       } else {
         await api.post('/class', payload);
+        showToast('Class created successfully');
       }
       
-      await fetchClasses();
       setIsModalOpen(false);
-    } catch (error) {
-      console.error('Failed to save class:', error);
-      alert(error?.response?.data?.message || 'Failed to save class');
+      fetchClasses();
+    } catch (err) {
+      showToast(err?.response?.data?.message || 'Error saving class', 'error');
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this class? This cannot be undone.')) return;
-    
+    if (!confirm('Are you sure you want to delete this class? This will also affect students in this class.')) return;
     try {
       await api.delete(`/class/${id}`);
-      await fetchClasses();
-    } catch (error) {
-      console.error('Failed to delete class:', error);
-      alert('Failed to delete class');
+      showToast('Class deleted');
+      fetchClasses();
+    } catch (err) {
+      showToast(err?.response?.data?.message || 'Error deleting class', 'error');
     }
   };
 
-  const filteredClasses = classes.filter(cls => {
-    const term = searchTerm.toLowerCase();
-    return cls.name.toLowerCase().includes(term) || (cls.sections && cls.sections.some(s => s.toLowerCase().includes(term)));
-  });
+  const filteredClasses = classes.filter(c => 
+    c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (c.sections && c.sections.some(s => s.toLowerCase().includes(searchTerm.toLowerCase())))
+  );
 
   return (
     <div className="space-y-6">
+      
+      {toast && (
+        <div className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-4 rounded-xl shadow-2xl border text-sm font-semibold animate-in slide-in-from-top-2 duration-300 ${
+          toast.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-800'
+        }`}>
+          {toast.type === 'success' ? <CheckCircle className="h-5 w-5 text-emerald-600" /> : <AlertCircle className="h-5 w-5 text-rose-600" />}
+          {toast.msg}
+        </div>
+      )}
+
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Class & Sections</h1>
-          <p className="text-sm text-zinc-500 mt-1">Manage academic classes and their associated sections.</p>
+          <p className="text-sm text-zinc-500 mt-1">Manage all academic classes and their respective sections</p>
+        </div>
+        <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
+          <Link href="/dashboard" className="hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors">Dashboard</Link>
+          <ChevronRight className="h-4 w-4 mx-1" />
+          <Link href="/dashboard/academics" className="hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors">Academics</Link>
+          <ChevronRight className="h-4 w-4 mx-1" />
+          <span className="text-zinc-900 dark:text-white font-semibold">Class</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Total Classes</p>
+            <p className="text-3xl font-black text-emerald-600 mt-1">{classes.length}</p>
+          </div>
+          <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-500/10 rounded-full flex items-center justify-center">
+            <Layers className="w-6 h-6 text-emerald-500" />
+          </div>
+        </div>
+        <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Total Sections</p>
+            <p className="text-3xl font-black text-blue-600 mt-1">
+              {classes.reduce((acc, curr) => acc + (curr.sections ? curr.sections.length : 0), 0)}
+            </p>
+          </div>
+          <div className="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 rounded-full flex items-center justify-center">
+            <Layers className="w-6 h-6 text-blue-500" />
+          </div>
         </div>
       </div>
 
       <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm">
-        <div className="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        
+        <div className="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
           <div className="relative w-full sm:max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
             <input 
