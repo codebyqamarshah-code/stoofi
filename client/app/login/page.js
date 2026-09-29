@@ -427,30 +427,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <div className="mt-10">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-zinc-200 dark:border-zinc-200"></div>
-            </div>
-            <div className="relative flex justify-center text-xs uppercase font-bold tracking-widest">
-              <span className="bg-white dark:bg-zinc-50 px-4 text-zinc-400">Quick Login Demo</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2.5 mt-6">
-            {demoRoles.map((role) => (
-              <button
-                key={role.id}
-                onClick={() => handleRoleClick(role)}
-                disabled={isLocked}
-                className="py-2.5 px-3 rounded-lg border border-zinc-200 dark:border-zinc-200 bg-zinc-50 hover:bg-zinc-100 dark:bg-white dark:hover:bg-zinc-50 text-xs font-bold text-zinc-700 dark:text-zinc-800 transition-colors shadow-sm flex items-center justify-center disabled:opacity-40"
-              >
-                {role.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
       </div>
     </div>
   );
