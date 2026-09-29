@@ -140,9 +140,13 @@ exports.register = async (req, res, next) => {
       await user.save();
     }
 
-    await Notification.create({ title: 'New Registration', message: `${finalRole} ${resolvedFullName} just registered.`, type: 'Registration', audience: 'Super Admin' });
-    if (finalRole === 'Student') {
-      await Notification.create({ title: 'New Student Enrolled', message: `Student ${resolvedFullName} has registered.`, type: 'Registration', audience: 'Teacher' });
+    try {
+      await Notification.create({ title: 'New Registration', message: `${finalRole} ${resolvedFullName} just registered.`, type: 'Registration', audience: 'Super Admin' });
+      if (finalRole === 'Student') {
+        await Notification.create({ title: 'New Student Enrolled', message: `Student ${resolvedFullName} has registered.`, type: 'Registration', audience: 'Teacher' });
+      }
+    } catch (e) {
+      console.error('Notification creation error during register:', e);
     }
 
     // Generate token
@@ -179,12 +183,6 @@ exports.getRegistrationStatus = async (req, res, next) => {
     const hasSuperAdmin = await User.exists({ role: 'Super Admin' });
     const hasAdmin = await User.exists({ role: 'Admin' });
     
-    // Send email alert for high-privileged roles
-    if (user.role === 'Super Admin' || user.role === 'Admin') {
-        const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'Unknown';
-        sendLoginAlert(user.email, user.firstName + ' ' + user.lastName, user.role, ip);
-    }
-    
     res.status(200).json({
       success: true,
       hasSuperAdmin: Boolean(hasSuperAdmin),
@@ -213,6 +211,16 @@ exports.login = async (req, res, next) => {
     }).select('+password +emailOtp +otpExpires +loginAttempts +lockUntil');
     
     if (!user) {
+      // Send Security Alert to Super Admin for unrecognized login attempt
+      try {
+        await Notification.create({
+          title: 'Security Alert: Unknown Account Login Attempt',
+          message: `Unsuccessful login attempt using unregistered email/username: "${cleanEmail}".`,
+          type: 'System',
+          audience: 'Super Admin'
+        });
+      } catch (e) {}
+
       return res.status(401).json({ success: false, message: 'Invalid credentials. Please check your email or register first.' });
     }
 
@@ -230,22 +238,36 @@ exports.login = async (req, res, next) => {
     if (!isMatch) {
       user.loginAttempts = (user.loginAttempts || 0) + 1;
       
-      // Lock account after 5 failed attempts
-      if (user.loginAttempts >= 5) {
-        user.lockUntil = Date.now() + 15 * 60 * 1000; // Lock for 15 minutes
-        
-        // Notify Super Admin
+      // Notify Super Admin on EVERY failed attempt for security tracking
+      try {
+        const attemptsLeft = Math.max(0, 5 - user.loginAttempts);
+        const title = user.loginAttempts >= 5 ? 'Security Alert: Account Locked' : 'Security Alert: Incorrect Password Entered';
+        const message = user.loginAttempts >= 5
+          ? `Account ${user.email} has been locked for 15 minutes after 5 failed login attempts.`
+          : `Failed password attempt (${user.loginAttempts}/5) detected for account: ${user.email}.`;
+
         await Notification.create({
-          title: 'Security Alert: Brute Force Blocked',
-          message: `Multiple failed login attempts detected for account: ${user.email}. Account temporarily locked for 15 minutes.`,
+          title,
+          message,
           type: 'System',
           audience: 'Super Admin'
         });
+      } catch (notifErr) {
+        console.error('Failed to create login attempt notification:', notifErr);
+      }
+
+      // Lock account after 5 failed attempts
+      if (user.loginAttempts >= 5) {
+        user.lockUntil = Date.now() + 15 * 60 * 1000; // Lock for 15 minutes
       }
       
-      await user.save({ validateBeforeSave: false });
+      try {
+        await user.save({ validateBeforeSave: false });
+      } catch (saveErr) {
+        console.error('Error saving user login attempts:', saveErr);
+      }
       
-      const attemptsLeft = 5 - user.loginAttempts;
+      const attemptsLeft = Math.max(0, 5 - user.loginAttempts);
       const errorMsg = user.loginAttempts >= 5 
         ? 'Account locked due to too many failed attempts.' 
         : `Incorrect password. ${attemptsLeft} attempts remaining.`;
@@ -272,7 +294,11 @@ exports.login = async (req, res, next) => {
       user.otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
       await user.save({ validateBeforeSave: false });
       
-      await sendVerificationOTP(user.email, user.fullName || user.username, otpCode);
+      try {
+        await sendVerificationOTP(user.email, user.fullName || user.username, otpCode);
+      } catch (e) {
+        console.error('Error in sendVerificationOTP:', e);
+      }
       
       return res.status(200).json({ 
         success: true, 
@@ -295,7 +321,14 @@ exports.login = async (req, res, next) => {
     }
     // --- END OTP VERIFICATION FLOW ---
 
-    await Notification.create({ title: 'User Login', message: `${user.fullName || user.username} just logged in.`, type: 'Login', audience: 'Super Admin' });
+    try {
+      await Notification.create({ 
+        title: 'User Login', 
+        message: `${user.fullName || user.username} (${user.role}) successfully logged in.`, 
+        type: 'Login', 
+        audience: 'Super Admin' 
+      });
+    } catch (e) {}
 
     const token = generateToken(user);
 
@@ -317,8 +350,12 @@ exports.login = async (req, res, next) => {
 
     // Send email alert for high-privileged roles
     if (user.role === 'Super Admin' || user.role === 'Admin') {
+      try {
         const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'Unknown';
-        sendLoginAlert(user.email, user.firstName + ' ' + user.lastName, user.role, ip);
+        await sendLoginAlert(user.email, user.fullName || user.username, user.role, ip);
+      } catch (e) {
+        console.error('Login alert email error:', e);
+      }
     }
     
     res.status(200).json({
@@ -336,6 +373,7 @@ exports.login = async (req, res, next) => {
       token
     });
   } catch (error) {
+    console.error('Login Endpoint Exception:', error);
     next(error);
   }
 };
@@ -356,7 +394,6 @@ exports.getMe = async (req, res, next) => {
     }
     
     if (user.role === 'Student' && user.referenceId) {
-      // Correct lookup — Student._id == User.referenceId
       const studentData = await Student.findById(user.referenceId).lean();
       if (studentData) {
         user.className = studentData.className;
@@ -381,5 +418,3 @@ exports.getMe = async (req, res, next) => {
     next(error);
   }
 };
-
-
