@@ -53,6 +53,8 @@ const userSchema = new mongoose.Schema({
   emailOtp: { type: String },
   otpExpires: { type: Date },
   isEmailVerified: { type: Boolean, default: false },
+  loginAttempts: { type: Number, default: 0 },
+  lockUntil: { type: Date },
   subscription: {
     plan: { type: String, enum: ['Free Trial', 'Premium', 'None'], default: 'None' },
     status: { type: String, enum: ['Active', 'Expired'], default: 'Active' },
