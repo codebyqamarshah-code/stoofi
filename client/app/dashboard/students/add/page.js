@@ -79,6 +79,22 @@ const STUDENT_TYPES = [
   { label: 'Day Scholar', value: 'Day Scholar' }
 ];
 
+
+const DocumentPreview = ({ preview, error }) => {
+  if (error) return <p className="text-rose-500 text-xs mt-1 font-semibold">{error}</p>;
+  if (!preview) return null;
+  return (
+    <div className="mt-2 rounded-lg border border-zinc-200 dark:border-zinc-700 p-1 bg-white dark:bg-zinc-800 relative w-full h-32 overflow-hidden shadow-sm">
+      {preview.type === 'application/pdf' ? (
+        <iframe src={preview.url} className="w-full h-full rounded" />
+      ) : (
+        <img src={preview.url} alt="Document Preview" className="w-full h-full object-cover rounded" />
+      )}
+      <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">VERIFIED</div>
+    </div>
+  );
+};
+
 export default function AddStudentPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('PERSONAL INFO');
@@ -88,7 +104,38 @@ export default function AddStudentPage() {
   const fileInputRef = useRef(null);
 
   const [docFiles, setDocFiles] = useState({ cnicFront: null, cnicBack: null, document1: null, qualificationDocument: null, previousSchoolDocument: null });
-  const [formData, setFormData] = useState({
+  
+  const [docPreviews, setDocPreviews] = useState({ cnicFront: null, cnicBack: null, document1: null, qualificationDocument: null, previousSchoolDocument: null });
+  const [docErrors, setDocErrors] = useState({ cnicFront: '', cnicBack: '', document1: '', qualificationDocument: '', previousSchoolDocument: '' });
+  
+  const handleDocChange = (e, docType) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      // Validate real document (basic MIME and size)
+      const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf'];
+      if (!validTypes.includes(file.type)) {
+        setDocErrors(prev => ({...prev, [docType]: 'Fake or invalid document. Only JPG, PNG, or PDF allowed.'}));
+        setDocPreviews(prev => ({...prev, [docType]: null}));
+        setDocFiles(prev => ({...prev, [docType]: null}));
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        setDocErrors(prev => ({...prev, [docType]: 'File too large. Max 5MB allowed.'}));
+        setDocPreviews(prev => ({...prev, [docType]: null}));
+        setDocFiles(prev => ({...prev, [docType]: null}));
+        return;
+      }
+
+      setDocErrors(prev => ({...prev, [docType]: ''}));
+      setDocFiles(prev => ({...prev, [docType]: file}));
+      
+      // Create preview
+      const previewUrl = URL.createObjectURL(file);
+      setDocPreviews(prev => ({...prev, [docType]: { url: previewUrl, type: file.type }}));
+    }
+  };
+
+const [formData, setFormData] = useState({
     academicYear: '2026',
     className: '',
     section: '',
@@ -180,12 +227,6 @@ export default function AddStudentPage() {
     };
     fetchData();
   }, []);
-
-  const handleDocChange = (e, docType) => {
-    if(e.target.files && e.target.files[0]) {
-      setDocFiles(prev => ({...prev, [docType]: e.target.files[0]}));
-    }
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -282,17 +323,17 @@ export default function AddStudentPage() {
         <form onSubmit={handleSave}>
           <div className="p-4 sm:p-6">
             {/* Tabs */}
-            <div className="flex flex-wrap border-b border-zinc-800 mb-6 relative">
+            <div className="flex overflow-x-auto whitespace-nowrap border-b border-zinc-200 dark:border-zinc-800 mb-6 relative custom-scrollbar pb-1">
               {tabs.map(tab => (
                 <button
                   key={tab}
                   type="button"
                   onClick={() => setActiveTab(tab)}
                   className={`px-4 py-3 text-xs font-semibold transition-colors border-b-2 uppercase ${
-                    activeTab === tab
-                      ? 'border-zinc-400 text-white bg-zinc-900/80 font-bold'
-                      : 'border-transparent text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'
-                  }`}
+                      activeTab === tab
+                        ? 'border-emerald-500 text-emerald-600 dark:text-white bg-emerald-50 dark:bg-zinc-900/80 font-bold'
+                        : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-900/40'
+                    }`}
                 >
                   {tab}
                 </button>
@@ -573,6 +614,7 @@ export default function AddStudentPage() {
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">Transfer Certificate (TC) Scan (Original)</Label>
                       <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'document1')} className="bg-zinc-900 border-zinc-800 text-zinc-300 file:bg-zinc-800 file:text-white file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-zinc-700 cursor-pointer" />
+                        <DocumentPreview preview={docPreviews.document1} error={docErrors.document1} />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">Transfer Certificate (TC) Number</Label>
@@ -581,10 +623,12 @@ export default function AddStudentPage() {
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">CNIC / B-Form Front (Original)</Label>
                       <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'cnicFront')} className="bg-zinc-900 border-zinc-800 text-zinc-300 file:bg-zinc-800 file:text-white file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-zinc-700 cursor-pointer" />
+                        <DocumentPreview preview={docPreviews.cnicFront} error={docErrors.cnicFront} />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">CNIC / B-Form Back (Original)</Label>
                       <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'cnicBack')} className="bg-zinc-900 border-zinc-800 text-zinc-300 file:bg-zinc-800 file:text-white file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-zinc-700 cursor-pointer" />
+                        <DocumentPreview preview={docPreviews.cnicBack} error={docErrors.cnicBack} />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">Previous Qualification</Label>
@@ -599,6 +643,7 @@ export default function AddStudentPage() {
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">Qualification Certificate (Original)</Label>
                       <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'qualificationDocument')} className="bg-zinc-900 border-zinc-800 text-zinc-300 file:bg-zinc-800 file:text-white file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-zinc-700 cursor-pointer" />
+                        <DocumentPreview preview={docPreviews.qualificationDocument} error={docErrors.qualificationDocument} />
                     </div>
                   </div>
                 </div>
@@ -609,14 +654,50 @@ export default function AddStudentPage() {
             {activeTab === 'PREVIOUS SCHOOL INFORMATION' && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-sm font-bold text-white border-b border-zinc-800 pb-2 mb-4">PREVIOUS SCHOOL DETAILS</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-zinc-400 uppercase">Previous School Name</Label>
-                      <Input name="previousSchoolName" value={formData.previousSchoolName} onChange={(e) => {
-                        handleInputChange(e);
-                        setFormData(prev => ({ ...prev, previousSchool: e.target.value }));
-                      }} placeholder="e.g. Army Public School" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
+                  <h3 className="text-sm font-bold text-zinc-900 dark:text-white border-b border-zinc-200 dark:border-zinc-800 pb-2 mb-4">PREVIOUS SCHOOL DETAILS</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase">Qualification Covered</Label>
+                        <SearchableSelect 
+                          name="qualificationLevel" 
+                          value={formData.qualificationLevel || ''} 
+                          onChange={handleInputChange} 
+                          placeholder="Select Qualification (e.g., Matric)"
+                          options={QUALIFICATION_LEVELS} 
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase">Institute Type</Label>
+                        <SearchableSelect 
+                          name="instituteType" 
+                          value={formData.instituteType || ''} 
+                          onChange={handleInputChange} 
+                          placeholder="Select Institute Type"
+                          options={[
+                            { label: 'School', value: 'School' },
+                            { label: 'College', value: 'College' },
+                            { label: 'University', value: 'University' },
+                            { label: 'Institute', value: 'Institute' },
+                            { label: 'Academy', value: 'Academy' }
+                          ]} 
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase">Institute Name</Label>
+                        <Input name="previousSchoolName" value={formData.previousSchoolName} onChange={(e) => {
+                          handleInputChange(e);
+                          setFormData(prev => ({ ...prev, previousSchool: e.target.value }));
+                        }} placeholder="e.g. Army Public School" className="bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-800 focus-visible:ring-emerald-500" />
+                      </div>
+                      
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase">Institute Address</Label>
+                        <Input name="previousSchoolAddress" value={formData.previousSchoolAddress} onChange={handleInputChange} placeholder="City, Campus address" className="bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-800 focus-visible:ring-emerald-500" />
+                      </div>
+                      
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">Previous School Address</Label>
