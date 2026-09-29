@@ -85,8 +85,16 @@ exports.create = async (req, res) => {
       dataObj.admissionNo = 'ADM-' + new Date().getFullYear() + '-' + String(count + 1).padStart(3, '0');
     }
     // Just handle one file for now, or if multiple we'd iterate
+    // Handle single req.file or multiple req.files array
     if (req.file) {
-      dataObj.studentPhoto = '/uploads/' + req.file.filename;
+      if (req.file.fieldname === 'file') dataObj.studentPhoto = '/uploads/' + req.file.filename;
+      else dataObj[req.file.fieldname] = '/uploads/' + req.file.filename;
+    }
+    if (req.files && Array.isArray(req.files)) {
+      req.files.forEach(f => {
+        if (f.fieldname === 'file') dataObj.studentPhoto = '/uploads/' + f.filename;
+        else dataObj[f.fieldname] = '/uploads/' + f.filename;
+      });
     }
     const data = await Student.create(dataObj);
     res.status(201).json({ success: true, data });
@@ -97,7 +105,20 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const data = await Student.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const dataObj = { ...req.body };
+    // Handle single req.file or multiple req.files array
+    if (req.file) {
+      if (req.file.fieldname === 'file') dataObj.studentPhoto = '/uploads/' + req.file.filename;
+      else dataObj[req.file.fieldname] = '/uploads/' + req.file.filename;
+    }
+    if (req.files && Array.isArray(req.files)) {
+      req.files.forEach(f => {
+        if (f.fieldname === 'file') dataObj.studentPhoto = '/uploads/' + f.filename;
+        else dataObj[f.fieldname] = '/uploads/' + f.filename;
+      });
+    }
+
+    const data = await Student.findByIdAndUpdate(req.params.id, dataObj, { new: true });
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
     res.status(200).json({ success: true, data });
   } catch (error) {

@@ -49,8 +49,10 @@ const schema = new mongoose.Schema({
   guardianAddress: { type: String },
 
   // Documents
-  document1: { type: String },
+  document1: { type: String }, // Can be used for TC
   document2: { type: String },
+  cnicFront: { type: String },
+  cnicBack: { type: String },
 
   // Previous School
   previousSchool: { type: String },

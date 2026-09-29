@@ -8,7 +8,7 @@ const router = express.Router();
 router.use(protect);
 
 router.post('/bulk', authorize('Super Admin', 'Admin'), bulkCreate);
-router.route('/').get(getAll).post(authorize('Super Admin', 'Admin'), upload.single('file'), create);
-router.route('/:id').get(getById).put(authorize('Super Admin', 'Admin'), update).delete(authorize('Super Admin', 'Admin'), remove);
+router.route('/').get(getAll).post(authorize('Super Admin', 'Admin'), upload.any(), create);
+router.route('/:id').get(getById).put(authorize('Super Admin', 'Admin'), upload.any(), update).delete(authorize('Super Admin', 'Admin'), remove);
 
 module.exports = router;

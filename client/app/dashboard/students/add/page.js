@@ -37,11 +37,11 @@ const FALLBACK_SECTIONS = [
 ];
 
 const ACADEMIC_YEARS = [
-  { label: '2026 [Jan-Dec]', value: '2026 [Jan-Dec]' },
-  { label: '2025 [Jan-Dec]', value: '2025 [Jan-Dec]' },
-  { label: '2024 [Jan-Dec]', value: '2024 [Jan-Dec]' },
-  { label: '2023 [Jan-Dec]', value: '2023 [Jan-Dec]' },
-  { label: '2027 [Jan-Dec]', value: '2027 [Jan-Dec]' },
+  { label: '2027', value: '2027' },
+  { label: '2026', value: '2026' },
+  { label: '2025', value: '2025' },
+  { label: '2024', value: '2024' },
+  { label: '2023', value: '2023' },
 ];
 
 const BLOOD_GROUPS = [
@@ -71,6 +71,7 @@ export default function AddStudentPage() {
   const [selectedPhotoName, setSelectedPhotoName] = useState('');
   const fileInputRef = useRef(null);
 
+  const [docFiles, setDocFiles] = useState({ cnicFront: null, cnicBack: null, document1: null });
   const [formData, setFormData] = useState({
     academicYear: '2026 [Jan-Dec]',
     className: '',
@@ -136,7 +137,8 @@ export default function AddStudentPage() {
       try {
         const classRes = await api.get('/class');
         if (classRes?.success && Array.isArray(classRes.data) && classRes.data.length > 0) {
-          setClasses(classRes.data);
+          const sortedClasses = classRes.data.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+          setClasses(sortedClasses);
         } else {
           setClasses(FALLBACK_CLASSES);
         }
@@ -162,6 +164,12 @@ export default function AddStudentPage() {
     };
     fetchData();
   }, []);
+
+  const handleDocChange = (e, docType) => {
+    if(e.target.files && e.target.files[0]) {
+      setDocFiles(prev => ({...prev, [docType]: e.target.files[0]}));
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -203,6 +211,10 @@ export default function AddStudentPage() {
           dataToSubmit.append(key, formData[key]);
         }
       });
+      
+      if (docFiles.cnicFront) dataToSubmit.append('cnicFront', docFiles.cnicFront);
+      if (docFiles.cnicBack) dataToSubmit.append('cnicBack', docFiles.cnicBack);
+      if (docFiles.document1) dataToSubmit.append('document1', docFiles.document1);
       
       if (fileInputRef.current?.files[0]) {
         dataToSubmit.append('file', fileInputRef.current.files[0]);
@@ -293,7 +305,12 @@ export default function AddStudentPage() {
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <Label className="text-xs font-semibold text-zinc-400 uppercase">Class <span className="text-rose-500">*</span></Label>
+                        <div className="flex justify-between items-center">
+                          <Label className="text-xs font-semibold text-zinc-400 uppercase">Class <span className="text-rose-500">*</span></Label>
+                          <a href="/dashboard/class" className="text-xs font-bold text-emerald-500 hover:text-emerald-400 hover:underline flex items-center gap-1">
+                            + Add Class
+                          </a>
+                        </div>
                         <SearchableSelect 
                           name="className" 
                           value={formData.className} 
@@ -533,18 +550,25 @@ export default function AddStudentPage() {
             {activeTab === 'DOCUMENT INFO' && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-sm font-bold text-white border-b border-zinc-800 pb-2 mb-4">ACADEMIC CERTIFICATES & DOCUMENTS</h3>
+                  <h3 className="text-sm font-bold text-white border-b border-zinc-800 pb-2 mb-4">ORIGINAL DOCUMENTS UPLOAD</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-zinc-400 uppercase">Transfer Certificate (TC) Scan (Original)</Label>
+                      <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'document1')} className="bg-zinc-900 border-zinc-800 text-zinc-300 file:bg-zinc-800 file:text-white file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-zinc-700 cursor-pointer" />
+                    </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-zinc-400 uppercase">Transfer Certificate (TC) Number</Label>
                       <Input name="tcNo" value={formData.tcNo} onChange={handleInputChange} placeholder="e.g. TC-8921" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-zinc-400 uppercase">Remarks / Certificate Notes</Label>
-                      <Input name="remarks" value={formData.remarks} onChange={handleInputChange} placeholder="Original certificates submitted" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
+                      <Label className="text-xs font-semibold text-zinc-400 uppercase">CNIC / B-Form Front (Original)</Label>
+                      <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'cnicFront')} className="bg-zinc-900 border-zinc-800 text-zinc-300 file:bg-zinc-800 file:text-white file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-zinc-700 cursor-pointer" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-zinc-400 uppercase">CNIC / B-Form Back (Original)</Label>
+                      <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'cnicBack')} className="bg-zinc-900 border-zinc-800 text-zinc-300 file:bg-zinc-800 file:text-white file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-zinc-700 cursor-pointer" />
                     </div>
                   </div>
-                  <p className="text-xs text-zinc-500 mt-4">Note: Main student photograph can be attached via the Personal Info tab Browse button.</p>
                 </div>
               </div>
             )}

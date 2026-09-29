@@ -14,7 +14,8 @@ const TABS = [
   { id: 'basic', label: 'BASIC INFO', icon: User },
   { id: 'payroll', label: 'PAYROLL DETAILS', icon: CreditCard },
   { id: 'bank', label: 'BANK INFO DETAILS', icon: Building },
-  { id: 'social', label: 'SOCIAL LINKS', icon: Share2 }
+  { id: 'social', label: 'SOCIAL LINKS', icon: Share2 },
+  { id: 'document', label: 'DOCUMENT INFO', icon: FileText }
 ];
 
 const ROLES = [
@@ -38,6 +39,7 @@ const EMPTY = {
   basicSalary: '', allowances: '', deductions: '',
   bankName: '', accountNo: '', accountName: '', branchName: '', ifscCode: '',
   facebook: '', twitter: '', linkedin: '', instagram: '',
+  cnic: '', cnicFront: null, cnicBack: null, document1: null,
 };
 
 export default function AddStaffPage() {

@@ -10,6 +10,9 @@ const teacherSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   phone: { type: String },
   cnic: { type: String },
+  cnicFront: { type: String },
+  cnicBack: { type: String },
+  document1: { type: String }, // optional, for resumes or degree
   avatar: { type: String },
   gender: { type: String, enum: ['Male', 'Female', 'Other'], default: 'Male' },
   designation: { type: String, default: 'Senior Teacher' },

@@ -63,7 +63,14 @@ exports.create = async (req, res) => {
   try {
     const body = { ...req.body };
     if (req.file) {
-      body.photo = `/uploads/${req.file.filename}`;
+      if (req.file.fieldname === 'file' || req.file.fieldname === 'photo') body.photo = `/uploads/${req.file.filename}`;
+      else body[req.file.fieldname] = `/uploads/${req.file.filename}`;
+    }
+    if (req.files && Array.isArray(req.files)) {
+      req.files.forEach(f => {
+        if (f.fieldname === 'file' || f.fieldname === 'photo') body.photo = `/uploads/${f.filename}`;
+        else body[f.fieldname] = `/uploads/${f.filename}`;
+      });
     }
     if (!body.role) {
       body.role = 'Teacher';
@@ -79,7 +86,15 @@ exports.update = async (req, res) => {
   try {
     const body = { ...req.body };
     if (req.file) {
-      body.photo = `/uploads/${req.file.filename}`;
+      if (req.file.fieldname === 'file' || req.file.fieldname === 'photo') body.photo = `/uploads/${req.file.filename}`;
+      else body[req.file.fieldname] = `/uploads/${req.file.filename}`;
+    }
+    if (req.files && Array.isArray(req.files)) {
+      req.files.forEach(f => {
+        if (f.fieldname === 'file' || f.fieldname === 'photo') body.photo = `/uploads/${f.filename}`;
+        else body[f.fieldname] = `/uploads/${f.filename}`;
+      });
+    }
     }
     const data = await Staff.findByIdAndUpdate(req.params.id, body, { new: true });
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
