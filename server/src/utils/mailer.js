@@ -1,4 +1,4 @@
-const nodemailer = require('nodemailer');
+﻿const nodemailer = require('nodemailer');
 
 // Setup your SMTP config here. You can use Gmail or any other service.
 const transporter = nodemailer.createTransport({
@@ -39,5 +39,37 @@ exports.sendLoginAlert = async (userEmail, userName, role, ipAddress) => {
     }
   } catch (error) {
     console.error('Error sending login alert:', error);
+  }
+};
+
+exports.sendVerificationOTP = async (userEmail, userName, otpCode) => {
+  try {
+    const mailOptions = {
+      from: '"Stoofi Security" <security@stoofi.com>',
+      to: userEmail,
+      subject: 'Stoofi ERP - Login Verification Code',
+      html: 
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+          <h2 style="color: #059669;">Login Verification</h2>
+          <p>Hello <strong> + "" + </strong>,</p>
+          <p>Please use the following 6-digit verification code to complete your login:</p>
+          <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
+            <h1 style="color: #1f2937; letter-spacing: 5px; margin: 0;"> + "" + </h1>
+          </div>
+          <p>This code will expire in 10 minutes.</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin-top: 20px;" />
+          <p style="font-size: 12px; color: #777;">If you did not attempt to log in, please secure your account immediately.</p>
+        </div>
+      
+    };
+
+    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+      await transporter.sendMail(mailOptions);
+      console.log('OTP sent to ' + userEmail);
+    } else {
+      console.log('[MAIL MOCK] OTP for ' + userEmail + ' is: ' + otpCode);
+    }
+  } catch (error) {
+    console.error('Error sending OTP:', error);
   }
 };

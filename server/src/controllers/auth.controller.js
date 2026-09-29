@@ -1,4 +1,4 @@
-const { sendLoginAlert } = require('../utils/mailer');
+const { sendLoginAlert, sendVerificationOTP } = require('../utils/mailer');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 const Student = require('../models/Student');
@@ -197,23 +197,20 @@ exports.getRegistrationStatus = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, otp } = req.body;
 
-    // Validate email and password
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Please provide email and password' });
     }
 
-    // Clean and check email
     const cleanEmail = email.trim().toLowerCase();
 
-    // Check for user
     let user = await User.findOne({ 
       $or: [
         { email: cleanEmail },
         { username: cleanEmail }
       ]
-    }).select('+password');
+    }).select('+password +emailOtp +otpExpires');
     
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials. Please check your email or register first.' });
@@ -224,26 +221,50 @@ exports.login = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Incorrect password.' });
     }
 
-    // Check if user is active
     if (user.status !== 'Active') {
       return res.status(401).json({ success: false, message: 'Account is inactive' });
     }
 
-    // Update last login
-    user.lastLogin = Date.now();
-    await user.save({ validateBeforeSave: false });
+    // --- OTP VERIFICATION FLOW ---
+    if (!otp) {
+      // Step 1: Generate and Send OTP
+      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      user.emailOtp = otpCode;
+      user.otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+      await user.save({ validateBeforeSave: false });
+      
+      await sendVerificationOTP(user.email, user.fullName || user.username, otpCode);
+      
+      return res.status(200).json({ 
+        success: true, 
+        requireOtp: true, 
+        email: user.email, 
+        message: 'Verification code sent to your email.' 
+      });
+    } else {
+      // Step 2: Validate OTP
+      if (user.emailOtp !== otp || !user.otpExpires || user.otpExpires < new Date()) {
+        return res.status(400).json({ success: false, message: 'Invalid or expired verification code.' });
+      }
+      
+      // OTP is valid
+      user.emailOtp = undefined;
+      user.otpExpires = undefined;
+      user.isEmailVerified = true;
+      user.lastLogin = Date.now();
+      await user.save({ validateBeforeSave: false });
+    }
+    // --- END OTP VERIFICATION FLOW ---
 
     await Notification.create({ title: 'User Login', message: `${user.fullName || user.username} just logged in.`, type: 'Login', audience: 'Super Admin' });
 
-    // Generate token
     const token = generateToken(user);
 
-    // Set cookie
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 24 * 60 * 60 * 1000 // 1 day
+      maxAge: 24 * 60 * 60 * 1000
     });
 
     let additionalData = {};
@@ -255,6 +276,12 @@ exports.login = async (req, res, next) => {
       }
     }
 
+    // Send email alert for high-privileged roles
+    if (user.role === 'Super Admin' || user.role === 'Admin') {
+        const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'Unknown';
+        sendLoginAlert(user.email, user.firstName + ' ' + user.lastName, user.role, ip);
+    }
+    
     res.status(200).json({
       success: true,
       data: {

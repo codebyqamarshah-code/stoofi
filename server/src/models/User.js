@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+﻿const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
@@ -50,6 +50,9 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String // To store base64 profile picture
   },
+  emailOtp: { type: String },
+  otpExpires: { type: Date },
+  isEmailVerified: { type: Boolean, default: false },
   subscription: {
     plan: { type: String, enum: ['Free Trial', 'Premium', 'None'], default: 'None' },
     status: { type: String, enum: ['Active', 'Expired'], default: 'Active' },

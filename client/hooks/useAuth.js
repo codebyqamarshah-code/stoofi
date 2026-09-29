@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+﻿import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import api from '../services/api';
 import Cookies from 'js-cookie';
@@ -12,7 +12,7 @@ export const useAuth = create(
       isLoading: false,
       error: null,
 
-      login: async (email, password, remember = true, roleLabel = null) => {
+      login: async (email, password, remember = true, roleLabel = null, otp = null) => {
         set({ isLoading: true, error: null });
         const cleanEmail = email?.trim().toLowerCase() || 'super@gmail.com';
         
@@ -31,8 +31,8 @@ export const useAuth = create(
         const isAdmin = role === 'Admin' || cleanEmail === 'admin@gmail.com' || cleanEmail === 'admin@gamil.com';
 
         try {
-          const res = await api.post('/auth/login', { email: cleanEmail, password });
-          if (res && res.success) {
+          const res = await api.post('/auth/login', { email: cleanEmail, password, otp });
+          if (res && res.success) { if (res.requireOtp) { return { success: true, requireOtp: true }; }
             const finalUser = res.data;
             const finalToken = res.token;
             set({
