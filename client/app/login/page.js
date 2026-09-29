@@ -1,11 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Mail, Lock, Eye, EyeOff, ArrowLeft, ShieldCheck, KeyRound } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, ShieldCheck, KeyRound, ShieldAlert, Timer } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,12 @@ export default function LoginPage() {
   const [otpError, setOtpError] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
 
+  // Brute Force / Lockout State
+  const [attemptsLeft, setAttemptsLeft] = useState(null);   // null = no info yet
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockCountdown, setLockCountdown] = useState(0);    // seconds remaining
+  const countdownRef = useRef(null);
+
   const {
     register,
     setValue,
@@ -50,20 +56,67 @@ export default function LoginPage() {
     }
   }, []);
 
+  // Countdown timer for lockout
+  useEffect(() => {
+    if (lockCountdown > 0) {
+      countdownRef.current = setInterval(() => {
+        setLockCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(countdownRef.current);
+            setIsLocked(false);
+            setAttemptsLeft(5); // Reset after unlock
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(countdownRef.current);
+  }, [lockCountdown]);
+
+  const formatCountdown = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${String(s).padStart(2, '0')}`;
+  };
+
   const onSubmit = async (data) => {
+    if (isLocked) return;
+
     const cleanEmail = data.email?.trim().toLowerCase();
     const cleanPass = data.password?.trim();
-    
+
     setPendingEmail(cleanEmail);
     setPendingPass(cleanPass);
 
     const res = await login(cleanEmail, cleanPass, rememberMe);
+
     if (res?.success) {
+      setAttemptsLeft(null);
+      setIsLocked(false);
       if (res.requireOtp) {
         setShowOtpScreen(true);
         setOtpError("");
       } else {
         redirectUser(cleanEmail, res.user);
+      }
+    } else {
+      // Parse error for brute-force info
+      const msg = res?.message || error || "";
+
+      // "Incorrect password. X attempts remaining."
+      const attemptsMatch = msg.match(/(\d+) attempts? remaining/i);
+      if (attemptsMatch) {
+        setAttemptsLeft(parseInt(attemptsMatch[1]));
+      }
+
+      // "Account temporarily locked... Try again in X minutes."
+      const lockedMatch = msg.match(/Try again in (\d+) minutes?/i);
+      if (lockedMatch || msg.toLowerCase().includes('locked')) {
+        setIsLocked(true);
+        const minutes = lockedMatch ? parseInt(lockedMatch[1]) : 15;
+        setLockCountdown(minutes * 60);
+        setAttemptsLeft(0);
       }
     }
   };
@@ -73,13 +126,13 @@ export default function LoginPage() {
       setOtpError("Please enter a valid verification code");
       return;
     }
-    
+
     setIsVerifying(true);
     setOtpError("");
-    
+
     const res = await login(pendingEmail, pendingPass, rememberMe, null, otpCode);
     setIsVerifying(false);
-    
+
     if (res?.success && !res.requireOtp) {
       redirectUser(pendingEmail, res.user);
     } else {
@@ -121,6 +174,9 @@ export default function LoginPage() {
 
   const inputClass = "w-full pl-14 pr-4 py-3.5 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all font-medium border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white text-zinc-900 dark:text-zinc-900 placeholder-zinc-400 dark:placeholder-zinc-600";
 
+  // ────────────────────────────────────────────────
+  // OTP SCREEN
+  // ────────────────────────────────────────────────
   if (showOtpScreen) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-zinc-50 dark:bg-white transition-colors duration-300">
@@ -138,7 +194,7 @@ export default function LoginPage() {
           <p className="text-sm text-zinc-500 mb-8">
             We have sent a 6-digit verification code to <br/><span className="font-bold text-zinc-800">{pendingEmail}</span>
           </p>
-          
+
           <div className="mb-6 relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <KeyRound className="h-5 w-5 text-zinc-400" />
@@ -152,13 +208,13 @@ export default function LoginPage() {
               maxLength={6}
             />
           </div>
-          
+
           {otpError && (
             <div className="p-3 mb-6 rounded-lg bg-rose-50 text-rose-600 text-sm font-medium">
               {otpError}
             </div>
           )}
-          
+
           <Button
             onClick={handleVerifyOtp}
             disabled={isVerifying || otpCode.length < 5}
@@ -171,9 +227,66 @@ export default function LoginPage() {
     );
   }
 
+  // ────────────────────────────────────────────────
+  // ACCOUNT LOCKED SCREEN
+  // ────────────────────────────────────────────────
+  if (isLocked && lockCountdown > 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-zinc-50 transition-colors duration-300">
+        <div className="absolute top-6 right-6">
+          <ThemeToggle />
+        </div>
+        <div className="w-full max-w-[440px] bg-white rounded-2xl p-8 sm:p-10 border border-rose-200 shadow-xl text-center">
+          {/* Lock icon with pulsing ring */}
+          <div className="relative w-20 h-20 mx-auto mb-6">
+            <div className="absolute inset-0 bg-rose-100 rounded-full animate-ping opacity-30"></div>
+            <div className="relative w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center">
+              <ShieldAlert className="w-10 h-10 text-rose-600" />
+            </div>
+          </div>
+
+          <h2 className="text-2xl font-bold text-zinc-900 mb-2">Account Locked</h2>
+          <p className="text-sm text-zinc-500 mb-2">
+            Too many failed login attempts detected.
+          </p>
+          <p className="text-xs text-zinc-400 mb-8">
+            For security, your account has been temporarily locked. An alert has been sent to the administrator.
+          </p>
+
+          {/* Countdown Timer */}
+          <div className="bg-rose-50 border border-rose-100 rounded-2xl p-6 mb-8">
+            <div className="flex items-center justify-center gap-2 text-rose-500 text-xs font-bold uppercase tracking-wider mb-3">
+              <Timer className="w-4 h-4" />
+              <span>Unlocks In</span>
+            </div>
+            <div className="text-5xl font-black text-rose-600 tracking-tight tabular-nums">
+              {formatCountdown(lockCountdown)}
+            </div>
+            <p className="text-xs text-rose-400 mt-2">minutes : seconds</p>
+          </div>
+
+          {/* Progress bar */}
+          <div className="w-full bg-zinc-100 rounded-full h-1.5 mb-6 overflow-hidden">
+            <div
+              className="bg-rose-500 h-1.5 rounded-full transition-all duration-1000"
+              style={{ width: `${(lockCountdown / (15 * 60)) * 100}%` }}
+            />
+          </div>
+
+          <p className="text-xs text-zinc-400">
+            Need help? Contact your system administrator.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ────────────────────────────────────────────────
+  // MAIN LOGIN SCREEN
+  // ────────────────────────────────────────────────
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-zinc-50 dark:bg-white transition-colors duration-300">
-      
+
       {/* Top Controls */}
       <div className="absolute top-6 left-6 right-6 flex justify-between items-center">
         <Link href="/" className="flex items-center gap-2 text-zinc-800 dark:text-zinc-900 font-semibold hover:opacity-80 transition-opacity text-sm">
@@ -184,7 +297,7 @@ export default function LoginPage() {
 
       {/* Card */}
       <div className="w-full max-w-[440px] bg-white dark:bg-zinc-50 rounded-2xl p-8 sm:p-10 border border-zinc-100 dark:border-zinc-200">
-        
+
         {/* Header */}
         <div className="text-center mb-10">
           <img src="/logo.png" alt="Stoofi Logo" className="h-12 mx-auto mb-6 drop-shadow-sm" />
@@ -192,12 +305,39 @@ export default function LoginPage() {
           <p className="text-zinc-500 dark:text-zinc-500 mt-2 text-sm font-medium">Log in to your account</p>
         </div>
 
+        {/* Error Message */}
         {(error || urlError) && (
-          <div className="p-4 mb-6 rounded-xl bg-rose-50 dark:bg-rose-50 border border-rose-100 dark:border-rose-200 text-rose-600 dark:text-rose-600 text-sm font-medium flex items-start gap-3">
+          <div className="p-4 mb-4 rounded-xl bg-rose-50 dark:bg-rose-50 border border-rose-100 dark:border-rose-200 text-rose-600 dark:text-rose-600 text-sm font-medium flex items-start gap-3">
             <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span>{error || urlError}</span>
+          </div>
+        )}
+
+        {/* ── Attempts Warning Bar ── */}
+        {attemptsLeft !== null && attemptsLeft > 0 && attemptsLeft < 5 && (
+          <div className="mb-4 p-3 rounded-xl border border-amber-200 bg-amber-50 flex items-center gap-3">
+            <div className="flex-shrink-0 w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+              <ShieldAlert className="w-4 h-4 text-amber-600" />
+            </div>
+            <div className="flex-1">
+              <p className="text-xs font-bold text-amber-800">Security Warning</p>
+              <p className="text-xs text-amber-700">
+                {attemptsLeft === 1
+                  ? "⚠️ Last attempt! Account will lock after this."
+                  : `${attemptsLeft} attempt${attemptsLeft > 1 ? 's' : ''} remaining before account lockout.`}
+              </p>
+            </div>
+            {/* Visual attempt circles */}
+            <div className="flex gap-1">
+              {[...Array(5)].map((_, i) => (
+                <div
+                  key={i}
+                  className={`w-2 h-2 rounded-full transition-all ${i < (5 - attemptsLeft) ? 'bg-rose-500' : 'bg-zinc-200'}`}
+                />
+              ))}
+            </div>
           </div>
         )}
 
@@ -213,6 +353,7 @@ export default function LoginPage() {
                 type="text"
                 placeholder="Email Address or Username"
                 className={inputClass}
+                disabled={isLocked}
               />
             </div>
             {errors.email && <p className="text-rose-500 text-xs font-medium pl-1">{errors.email.message}</p>}
@@ -228,6 +369,7 @@ export default function LoginPage() {
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 className={inputClass}
+                disabled={isLocked}
               />
               <button
                 type="button"
@@ -264,7 +406,7 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || isLocked}
             className="w-full py-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-base shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2 mt-2"
           >
             {isLoading ? (
@@ -285,13 +427,14 @@ export default function LoginPage() {
               <span className="bg-white dark:bg-zinc-50 px-4 text-zinc-400">Quick Login Demo</span>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-2.5 mt-6">
             {demoRoles.map((role) => (
               <button
                 key={role.id}
                 onClick={() => handleRoleClick(role)}
-                className="py-2.5 px-3 rounded-lg border border-zinc-200 dark:border-zinc-200 bg-zinc-50 hover:bg-zinc-100 dark:bg-white dark:hover:bg-zinc-50 text-xs font-bold text-zinc-700 dark:text-zinc-800 transition-colors shadow-sm flex items-center justify-center"
+                disabled={isLocked}
+                className="py-2.5 px-3 rounded-lg border border-zinc-200 dark:border-zinc-200 bg-zinc-50 hover:bg-zinc-100 dark:bg-white dark:hover:bg-zinc-50 text-xs font-bold text-zinc-700 dark:text-zinc-800 transition-colors shadow-sm flex items-center justify-center disabled:opacity-40"
               >
                 {role.label}
               </button>

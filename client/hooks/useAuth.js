@@ -60,7 +60,7 @@ export const useAuth = create(
         } catch (error) {
           const errorMsg = error?.response?.data?.message || error?.message || 'User not found. Please register first.';
           set({ isLoading: false, error: errorMsg });
-          return { success: false, error: errorMsg };
+          return { success: false, error: errorMsg, message: errorMsg };
         }
       },
 
