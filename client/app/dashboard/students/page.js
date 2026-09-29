@@ -48,8 +48,22 @@ const ACADEMIC_YEARS = [
 
 export default function StudentListPage() {
   const [students, setStudents] = useState([]);
-  const [classes, setClasses] = useState(FALLBACK_CLASSES);
-  const [sections, setSections] = useState(FALLBACK_SECTIONS);
+  const [classes, setClasses] = useState([]);
+  useEffect(() => {
+    const fetchDynamicClasses = async () => {
+      try {
+        const res = await api.get('/class');
+        if (res && res.success) {
+          setClasses(res.data);
+        }
+      } catch (err) {
+        console.error('Failed to load classes', err);
+      }
+    };
+    fetchDynamicClasses();
+  }, []);
+
+  const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [quickSearch, setQuickSearch] = useState('');

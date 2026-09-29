@@ -11,31 +11,6 @@ import api from '@/services/api';
 import { useRouter } from 'next/navigation';
 import StudentImportModal from '@/components/StudentImportModal';
 
-const FALLBACK_CLASSES = [
-  { _id: 'c-nursery', name: 'Nursery', sections: ['A', 'B'] },
-  { _id: 'c-kg', name: 'KG', sections: ['A', 'B'] },
-  { _id: 'c-prep', name: 'Prep', sections: ['A', 'B'] },
-  { _id: 'c-1', name: 'Class 1', sections: ['A', 'B', 'C'] },
-  { _id: 'c-2', name: 'Class 2', sections: ['A', 'B', 'C'] },
-  { _id: 'c-3', name: 'Class 3', sections: ['A', 'B', 'C'] },
-  { _id: 'c-4', name: 'Class 4', sections: ['A', 'B', 'C'] },
-  { _id: 'c-5', name: 'Class 5', sections: ['A', 'B', 'C', 'D'] },
-  { _id: 'c-6', name: 'Class 6', sections: ['A', 'B', 'C', 'D'] },
-  { _id: 'c-7', name: 'Class 7', sections: ['A', 'B', 'C', 'D'] },
-  { _id: 'c-8', name: 'Class 8', sections: ['A', 'B', 'C', 'D'] },
-  { _id: 'c-9', name: 'Class 9', sections: ['A', 'B', 'C'] },
-  { _id: 'c-10', name: 'Class 10', sections: ['A', 'B', 'C'] },
-  { _id: 'c-olevel', name: 'O-Levels', sections: ['A', 'B'] },
-  { _id: 'c-alevel', name: 'A-Levels', sections: ['A', 'B'] },
-];
-
-const FALLBACK_SECTIONS = [
-  { _id: 's-a', name: 'A' },
-  { _id: 's-b', name: 'B' },
-  { _id: 's-c', name: 'C' },
-  { _id: 's-d', name: 'D' },
-];
-
 
 const QUALIFICATION_LEVELS = [
   { label: 'Primary', value: 'Primary' },
@@ -192,8 +167,22 @@ const [formData, setFormData] = useState({
     'OTHER INFO'
   ];
 
-  const [classes, setClasses] = useState(FALLBACK_CLASSES);
-  const [sections, setSections] = useState(FALLBACK_SECTIONS);
+  const [classes, setClasses] = useState([]);
+  useEffect(() => {
+    const fetchDynamicClasses = async () => {
+      try {
+        const res = await api.get('/class');
+        if (res && res.success) {
+          setClasses(res.data);
+        }
+      } catch (err) {
+        console.error('Failed to load classes', err);
+      }
+    };
+    fetchDynamicClasses();
+  }, []);
+
+  const [sections, setSections] = useState([]);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -247,10 +236,10 @@ const [formData, setFormData] = useState({
 
   const getFilteredSections = () => {
     const selectedClass = classes.find(c => c.name === formData.className);
-    if (selectedClass && selectedClass.sections && selectedClass.sections.length > 0) {
-      return selectedClass.sections.map(s => ({ label: s, value: s }));
-    }
-    return sections.map(s => ({ label: s.name, value: s.name }));
+      if (selectedClass && selectedClass.sections && selectedClass.sections.length > 0) {
+        return selectedClass.sections.map(s => ({ label: s, value: s }));
+      }
+      return [];
   };
 
   const handleSave = async (e) => {
