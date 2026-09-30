@@ -22,19 +22,19 @@ const calculateAge = (dobString) => {
 
 // Real data detection helpers
 const isFakeName = (str) => {
-  if (!str || str.trim().length < 2) return true;
+  if (!str || str.trim().length < 2) return false;
   const s = str.trim().toLowerCase();
-  const fakeWords = ['asdf', 'qwerty', 'test', 'admin', 'user', 'dummy', 'fake', '123', 'abc', 'xyz', 'sample', 'null', 'undefined'];
+  const fakeWords = ['asdfgh', 'qwerty', 'dummy', 'sample'];
   if (fakeWords.some(w => s.includes(w))) return true;
-  if (/^(.)\1+$/.test(s)) return true;
+  if (/^(.)\1{4,}$/.test(s)) return true;
   if (!/^[a-zA-Z\s'.]+$/.test(s)) return true;
   return false;
 };
 
 const isFakePhone = (phoneStr) => {
-  if (!phoneStr) return true;
+  if (!phoneStr) return false;
   const digits = phoneStr.replace(/\D/g, '');
-  if (digits.length < 11) return true;
+  if (digits.length < 10 || digits.length > 13) return true;
   const fakePatterns = [
     '03000000000', '03111111111', '03222222222', '03333333333', 
     '03444444444', '03555555555', '03666666666', '03777777777', 
@@ -47,7 +47,7 @@ const isFakePhone = (phoneStr) => {
 };
 
 const isFakeCnic = (cnicStr) => {
-  if (!cnicStr) return true;
+  if (!cnicStr) return false;
   const digits = cnicStr.replace(/\D/g, '');
   if (digits.length !== 13) return true;
   if (/^(\d)\1+$/.test(digits)) return true;

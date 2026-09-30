@@ -154,16 +154,47 @@ export default function RegisterPage() {
   };
 
   const isGibberish = (str) => {
-    if (!str || str.trim().length < 2) return true;
+    if (!str || str.trim().length < 2) return false;
     const s = str.trim().toLowerCase();
     const mashPatterns = [
-      'qwerty', 'asdf', 'zxcv', 'fghj', 'jkl;', 'dfgh', 'hjkl', 
-      'yusg', 'heriu', 'yukd', 'uhfur', 'bryu', 'iher', 'iuhf', 'jhyu'
+      'qwerty', 'asdfgh', 'zxcvbn', 'fghjkl'
     ];
     if (mashPatterns.some(p => s.includes(p))) return true;
-    if (/^(.)\1+$/.test(s)) return true;
-    if (/[bcdfghjklmnpqrstvwxyz]{5,}/.test(s)) return true;
-    if (s.length >= 4 && !/[aeiouy]/.test(s)) return true;
+    if (/^(.)\1{4,}$/.test(s)) return true;
+    if (/[bcdfghjklmnpqrstvwxyz]{7,}/.test(s)) return true;
+    return false;
+  };
+
+  const isFakeEmail = (emailStr) => {
+    if (!emailStr) return false;
+    const s = emailStr.trim().toLowerCase();
+    const fakeDomains = ['test.com', 'example.com', 'foo.com', 'bar.com', 'fake.com', 'dummy.com', 'temp.com'];
+    const parts = s.split('@');
+    if (parts.length === 2 && fakeDomains.includes(parts[1])) return true;
+    return false;
+  };
+
+  const isFakePhone = (phoneStr) => {
+    if (!phoneStr) return false;
+    const digits = phoneStr.replace(/\D/g, '');
+    if (digits.length < 10 || digits.length > 13) return true;
+    const fakePatterns = [
+      '03000000000', '03111111111', '03222222222', '03333333333', 
+      '03444444444', '03555555555', '03666666666', '03777777777', 
+      '03888888888', '03999999999', '03123456789', '03012345678',
+      '923000000000', '923111111111', '923123456789'
+    ];
+    if (fakePatterns.includes(digits)) return true;
+    if (/^(\d)\1+$/.test(digits)) return true;
+    return false;
+  };
+
+  const isFakeCnic = (cnicStr) => {
+    if (!cnicStr) return false;
+    const digits = cnicStr.replace(/\D/g, '');
+    if (digits.length !== 13) return true;
+    if (/^(\d)\1+$/.test(digits)) return true;
+    if (digits === '1234567890123' || digits === '0123456789012') return true;
     return false;
   };
 
@@ -226,7 +257,7 @@ export default function RegisterPage() {
 
     if (name === 'firstName') {
       if (!value.trim()) err = "First Name is required.";
-      else if (value.trim().length < 2 || isGibberish(value)) err = "Please enter a valid First Name in English. Random characters are not allowed.";
+      else if (value.trim().length < 2 || isGibberish(value)) err = "Please enter a valid First Name in English.";
     } else if (name === 'lastName') {
       if (value.trim() && isGibberish(value)) err = "Please enter a valid Last Name in English.";
     } else if (name === 'email') {
@@ -245,7 +276,7 @@ export default function RegisterPage() {
       }
     } else if (name === 'address') {
       if (!value.trim() || value.trim().length < 5) err = "Personal Address is required (minimum 5 characters).";
-      else if (isGibberish(value)) err = "Please enter a valid location/address in English. Random characters are not allowed.";
+      else if (isGibberish(value)) err = "Please enter a valid location/address in English.";
     } else if (name === 'password') {
       err = validatePasswordStrict(value);
     } else if (name === 'confirmPassword') {
@@ -255,10 +286,15 @@ export default function RegisterPage() {
       err = "School Name is required for Super Admin / Admin accounts.";
     }
 
-    setFieldErrors(prev => ({
-      ...prev,
-      [name]: err
-    }));
+    setFieldErrors(prev => {
+      const updated = { ...prev };
+      if (err) {
+        updated[name] = err;
+      } else {
+        delete updated[name];
+      }
+      return updated;
+    });
   };
 
   const handleChange = (e) => {
@@ -266,6 +302,13 @@ export default function RegisterPage() {
     const newForm = { ...formData, [name]: value };
     setFormData(newForm);
     validateSingleField(name, value, newForm);
+
+    if (name === 'password' && newForm.confirmPassword) {
+      validateSingleField('confirmPassword', newForm.confirmPassword, newForm);
+    }
+    if (name === 'dob' && newForm.cnic) {
+      validateSingleField('cnic', newForm.cnic, newForm);
+    }
   };
 
   const handleFileChange = async (e, fieldName) => {
@@ -705,15 +748,18 @@ export default function RegisterPage() {
 
           {/* Section: Address */}
           <div>
-            <label className={labelClass}>Personal Address / Location</label>
+            <label className={labelClass}>Personal Address / Location <span className="text-rose-500">*</span></label>
             <input
               type="text"
               name="address"
               value={formData.address}
               onChange={handleChange}
+              onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
               placeholder="e.g. House #12, Street 4, Lahore"
               className={inputClass}
+              required
             />
+            {fieldErrors.address && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.address}</p>}
           </div>
 
           {/* Section: Student Background */}
