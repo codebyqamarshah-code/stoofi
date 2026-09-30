@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import React, { useState, useRef } from 'react';
@@ -13,18 +13,18 @@ import StudentImportModal from '@/components/StudentImportModal';
 
 
 const QUALIFICATION_LEVELS = [
-  { label: 'Primary', value: 'Primary' },
-  { label: 'Middle', value: 'Middle' },
-  { label: 'Matric', value: 'Matric' },
-  { label: 'Intermediate', value: 'Intermediate' },
-  { label: 'Graduation', value: 'Graduation' },
-  { label: 'Two Year Diploma', value: 'Two Year Diploma' },
+  { label: 'Primary (Class 1-5)', value: 'Primary' },
+  { label: 'Middle (Class 6-8)', value: 'Middle' },
+  { label: 'Matriculation (SSC / O-Levels)', value: 'Matric' },
+  { label: 'Intermediate (HSSC / F.Sc / F.A / I.Com / A-Levels)', value: 'Intermediate' },
+  { label: 'Bachelors (BS / B.Sc / B.A / B.Com / B.Ed)', value: 'Graduation' },
+  { label: 'Masters (MS / M.Sc / M.A / M.Com / MBA)', value: 'Master' },
+  { label: 'MPhil / MS Research', value: 'M Phill' },
+  { label: 'PhD / Doctorate', value: 'PHD' },
+  { label: 'Two Year Diploma / DAE', value: 'Two Year Diploma' },
   { label: 'One Year Diploma', value: 'One Year Diploma' },
-  { label: 'IT Courses', value: 'IT Courses' },
-  { label: 'Other Courses', value: 'Other Courses' },
-  { label: 'Master', value: 'Master' },
-  { label: 'M Phill', value: 'M Phill' },
-  { label: 'PHD', value: 'PHD' }
+  { label: 'IT & Technical Certifications', value: 'IT Courses' },
+  { label: 'Other Courses', value: 'Other Courses' }
 ];
 
 const ACADEMIC_YEARS = [

@@ -6,6 +6,7 @@ import { ChevronRight, Search, Calendar as CalendarIcon, Save, Users } from 'luc
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import api from '@/services/api';
 
 const DEFAULT_CLASSES = [
@@ -31,8 +32,6 @@ const DEFAULT_SECTIONS = [
   { _id: 's-b', name: 'B' },
   { _id: 's-c', name: 'C' },
   { _id: 's-d', name: 'D' },
-  { _id: 's-sa', name: 'Section A' },
-  { _id: 's-sb', name: 'Section B' }
 ];
 
 export default function StudentAttendancePage() {
@@ -61,7 +60,6 @@ export default function StudentAttendancePage() {
       ]);
 
       if (cRes && cRes.success && Array.isArray(cRes.data) && cRes.data.length > 0) {
-        // Merge fetched classes with defaults if any
         const fetchedNames = new Set(cRes.data.map(c => c.name.toLowerCase()));
         const uniqueDefaults = DEFAULT_CLASSES.filter(c => !fetchedNames.has(c.name.toLowerCase()));
         setClasses([...cRes.data, ...uniqueDefaults]);
@@ -88,7 +86,7 @@ export default function StudentAttendancePage() {
     if (selected && selected.sections && selected.sections.length > 0) {
       return selected.sections;
     }
-    return ['A', 'B', 'C', 'D', 'Section A', 'Section B'];
+    return ['A', 'B', 'C', 'D'];
   };
 
   const handleSearch = async () => {
@@ -104,7 +102,6 @@ export default function StudentAttendancePage() {
         setStudents(res.data);
         setIsSearched(true);
       } else {
-        // Fallback: Check if students exist in this class/section via student API
         const stuRes = await api.get(`/student?className=${encodeURIComponent(formData.class)}&section=${encodeURIComponent(formData.section)}`).catch(() => null);
         if (stuRes && stuRes.success && Array.isArray(stuRes.data) && stuRes.data.length > 0) {
           const mapped = stuRes.data.map(st => ({
@@ -161,6 +158,17 @@ export default function StudentAttendancePage() {
     }
   };
 
+  const classOptions = classes.map(c => ({
+    label: c.name,
+    value: c.name
+  }));
+
+  const sectionOptions = getAvailableSections().map(s => {
+    const raw = s.startsWith('Section ') ? s.replace('Section ', '') : s;
+    const display = s.startsWith('Section ') ? s : `Section ${s}`;
+    return { label: display, value: raw };
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -178,39 +186,30 @@ export default function StudentAttendancePage() {
         </div>
       </div>
 
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-zinc-950 border border-zinc-800 rounded-xl shadow-sm">
         <div className="p-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/30">
           <h2 className="text-sm font-semibold text-zinc-200 uppercase tracking-wider">Select Criteria</h2>
         </div>
         <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          
           <div className="space-y-2">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Class <span className="text-rose-500">*</span></Label>
-            <select 
+            <SearchableSelect
+              options={classOptions}
               value={formData.class}
+              placeholder="-- Select Class * --"
               onChange={(e) => setFormData({ ...formData, class: e.target.value })}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-            >
-              <option value="">-- Select Class * --</option>
-              {classes.map(c => (
-                <option key={c._id || c.name} value={c.name}>{c.name}</option>
-              ))}
-            </select>
+            />
           </div>
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold text-zinc-400 uppercase">Section <span className="text-rose-500">*</span></Label>
-            <select 
+            <SearchableSelect
+              options={sectionOptions}
               value={formData.section}
+              placeholder="-- Select Section * --"
               onChange={(e) => setFormData({ ...formData, section: e.target.value })}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-            >
-              <option value="">-- Select Section * --</option>
-              {getAvailableSections().map((s, idx) => {
-                const raw = s.startsWith('Section ') ? s.replace('Section ', '') : s;
-                const display = s.startsWith('Section ') ? s : `Section ${s}`;
-                return <option key={`${s}-${idx}`} value={raw}>{display}</option>;
-              })}
-            </select>
+            />
           </div>
 
           <div className="space-y-2">
@@ -219,7 +218,7 @@ export default function StudentAttendancePage() {
               type="date"
               value={formData.attendanceDate} 
               onChange={(e) => setFormData({ ...formData, attendanceDate: e.target.value })}
-              className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-indigo-500" 
+              className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-indigo-500 h-10" 
             />
           </div>
           
