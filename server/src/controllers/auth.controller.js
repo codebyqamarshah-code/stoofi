@@ -151,8 +151,6 @@ exports.register = async (req, res, next) => {
       }
     }
 
-    const finalRole = role || 'Student';
-
     // Enforce single Super Admin constraint
     if (finalRole === 'Super Admin') {
       const existingSuperAdmin = await User.findOne({ role: 'Super Admin' });
