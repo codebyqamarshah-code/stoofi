@@ -31,8 +31,15 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
 
-// Connect to Database
-connectDB();
+// Connect to Database Middleware for Serverless execution
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error("DB Connection Error:", err);
+  }
+  next();
+});
 
 // Serve static files (uploads)
 app.use(express.static('public'));

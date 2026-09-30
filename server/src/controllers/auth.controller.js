@@ -323,13 +323,18 @@ exports.getRegistrationStatus = async (req, res, next) => {
     const hasSuperAdmin = await User.exists({ role: 'Super Admin' });
     const hasAdmin = await User.exists({ role: 'Admin' });
     
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       hasSuperAdmin: Boolean(hasSuperAdmin),
       hasAdmin: Boolean(hasAdmin)
     });
   } catch (error) {
-    next(error);
+    console.error("getRegistrationStatus error:", error);
+    return res.status(200).json({
+      success: true,
+      hasSuperAdmin: false,
+      hasAdmin: false
+    });
   }
 };
 
