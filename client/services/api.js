@@ -3,17 +3,12 @@ import axios from 'axios';
 const isProd = process.env.NODE_ENV === 'production';
 const envApiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-// If in production and no API URL is set, do not fallback to localhost.
-let baseURL = '';
-if (isProd) {
-  baseURL = envApiUrl || ''; // Will throw error in interceptor if empty
-} else {
-  baseURL = envApiUrl || 'http://localhost:5000/api';
-}
+// Base URL configuration - default to relative '/api' if NEXT_PUBLIC_API_URL is omitted in production
+let baseURL = envApiUrl || (isProd ? '/api' : 'http://localhost:5000/api');
 
 const api = axios.create({
   baseURL,
-  timeout: 8000,
+  timeout: 10000,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -21,11 +16,6 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  if (isProd && !envApiUrl) {
-    console.error('CRITICAL ERROR: NEXT_PUBLIC_API_URL is not set in production.');
-    return Promise.reject(new Error('CRITICAL CONFIGURATION ERROR: NEXT_PUBLIC_API_URL is missing. Please configure it in Vercel.'));
-  }
-
   if (typeof window !== 'undefined') {
     let token = sessionStorage.getItem('token') || localStorage.getItem('token');
     if (!token) {
@@ -58,7 +48,7 @@ api.interceptors.response.use(
     return response.data;
   },
   (error) => {
-    // 401 Unauthorized handling
+    // 401 Unauthorized handling for protected routes
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined' && window.location.pathname !== '/login' && window.location.pathname !== '/') {
         sessionStorage.removeItem('auth-storage');
@@ -71,7 +61,13 @@ api.interceptors.response.use(
       }
     }
 
-    const message = error.response?.data?.message || error.message || 'An unexpected error occurred';
+    let message = error.response?.data?.message || error.message || 'An unexpected error occurred';
+    
+    // Transform unhelpful technical network errors into professional user messages
+    if (message === 'Network Error' || error.code === 'ERR_NETWORK' || message.includes('ECONNREFUSED')) {
+      message = 'Unable to connect to server. Please check your internet connection or try again shortly.';
+    }
+
     const err = new Error(message);
     err.response = error.response;
     return Promise.reject(err);

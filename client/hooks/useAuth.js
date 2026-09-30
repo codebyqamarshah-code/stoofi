@@ -1,4 +1,4 @@
-﻿import { create } from 'zustand';
+import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import api from '../services/api';
 import Cookies from 'js-cookie';
@@ -58,7 +58,10 @@ export const useAuth = create(
             return { success: true, user: finalUser };
           }
         } catch (error) {
-          const errorMsg = error?.response?.data?.message || error?.message || 'User not found. Please register first.';
+          let errorMsg = error?.response?.data?.message || error?.message || 'Invalid credentials. Please check your details and try again.';
+          if (errorMsg === 'Network Error' || errorMsg.includes('Network Error') || errorMsg.includes('ECONNREFUSED')) {
+            errorMsg = 'Unable to connect to authentication server. Please check your connection or try again.';
+          }
           set({ isLoading: false, error: errorMsg });
           return { success: false, error: errorMsg, message: errorMsg };
         }
