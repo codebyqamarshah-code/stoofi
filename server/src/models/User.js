@@ -1,4 +1,4 @@
-﻿const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
@@ -52,6 +52,8 @@ const userSchema = new mongoose.Schema({
   },
   emailOtp: { type: String },
   otpExpires: { type: Date },
+  resetOtp: { type: String },
+  resetOtpExpires: { type: Date },
   isEmailVerified: { type: Boolean, default: false },
   loginAttempts: { type: Number, default: 0 },
   lockUntil: { type: Date },

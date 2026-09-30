@@ -1,4 +1,4 @@
-const { sendLoginAlert, sendVerificationOTP } = require('../utils/mailer');
+const { sendLoginAlert, sendVerificationOTP, sendResetPasswordOTP } = require('../utils/mailer');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 const Student = require('../models/Student');
@@ -414,6 +414,113 @@ exports.getMe = async (req, res, next) => {
     }
     
     res.status(200).json({ success: true, data: user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Please provide a valid email address.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ 
+      $or: [{ email: cleanEmail }, { username: cleanEmail }] 
+    });
+
+    if (!user) {
+      // Ambiguous response for security
+      return res.status(200).json({ 
+        success: true, 
+        message: 'If an account exists for this email, a verification code has been sent.' 
+      });
+    }
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    user.resetOtp = otpCode;
+    user.resetOtpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+    await user.save({ validateBeforeSave: false });
+
+    try {
+      await sendResetPasswordOTP(user.email, user.fullName || user.username, otpCode);
+    } catch (e) {
+      console.error('sendResetPasswordOTP error:', e);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Password reset code sent to your email.'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.verifyResetOtp = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      return res.status(400).json({ success: false, message: 'Email and OTP code are required.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ 
+      $or: [{ email: cleanEmail }, { username: cleanEmail }] 
+    }).select('+resetOtp +resetOtpExpires');
+
+    if (!user || user.resetOtp !== otp || !user.resetOtpExpires || user.resetOtpExpires < new Date()) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired verification code.' });
+    }
+
+    return res.status(200).json({ success: true, message: 'OTP verified successfully.' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ success: false, message: 'All fields are required.' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'New password must be at least 6 characters long.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ 
+      $or: [{ email: cleanEmail }, { username: cleanEmail }] 
+    }).select('+password +resetOtp +resetOtpExpires');
+
+    if (!user || user.resetOtp !== otp || !user.resetOtpExpires || user.resetOtpExpires < new Date()) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired session. Please request a new code.' });
+    }
+
+    user.password = newPassword;
+    user.resetOtp = undefined;
+    user.resetOtpExpires = undefined;
+    user.loginAttempts = 0;
+    user.lockUntil = undefined;
+    await user.save();
+
+    try {
+      await Notification.create({
+        title: 'Security Alert: Password Changed',
+        message: `Password was successfully reset for account: ${user.email}.`,
+        type: 'System',
+        audience: 'Super Admin'
+      });
+    } catch (e) {}
+
+    return res.status(200).json({
+      success: true,
+      message: 'Password reset successfully. You can now log in with your new password.'
+    });
   } catch (error) {
     next(error);
   }

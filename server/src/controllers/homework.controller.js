@@ -5,14 +5,32 @@ const Notification = require("../models/Notification");
 exports.getAll = async (req, res) => {
   try {
     let filter = {};
-    if (req.user.role === 'Student') {
-      const studentRecord = await Student.findById(req.user.referenceId);
-      if (studentRecord) {
-        filter = { className: studentRecord.className, section: studentRecord.section };
-      } else {
-        return res.json({ success: true, data: [] }); // No record, no homework
+    if (req.user && req.user.role === 'Student') {
+      // Lookup student record by referenceId OR by user._id
+      const studentRecord = await Student.findOne({
+        $or: [
+          ...(req.user.referenceId ? [{ _id: req.user.referenceId }] : []),
+          { user: req.user._id }
+        ]
+      });
+
+      if (studentRecord && studentRecord.className) {
+        const rawClass = studentRecord.className.toString().trim();
+        const rawSec = (studentRecord.section || '').toString().trim();
+
+        // Strip "Class" or "Section" prefixes for flexible regex matching
+        const classNum = rawClass.replace(/^class\s*/i, '');
+        const secLetter = rawSec.replace(/^section\s*/i, '');
+
+        filter = {
+          $and: [
+            { className: { $regex: new RegExp(`(${rawClass}|Class ${classNum}|${classNum})`, 'i') } },
+            ...(secLetter ? [{ section: { $regex: new RegExp(`(${rawSec}|Section ${secLetter}|${secLetter})`, 'i') } }] : [])
+          ]
+        };
       }
     }
+
     const homework = await Model.find(filter).sort({ createdAt: -1 });
     res.json({ success: true, data: homework });
   } catch (e) {
@@ -32,13 +50,12 @@ exports.create = async (req, res) => {
     try {
       await Notification.create({
         title: `New Homework: ${hw.subject}`,
-        message: `New homework assigned for Class ${hw.className}, Section ${hw.section}. Subject: ${hw.subject}. Deadline: ${hw.submissionDate ? new Date(hw.submissionDate).toLocaleDateString() : 'N/A'}`,
+        message: `New homework assigned for Class ${hw.className}, Section ${hw.section || 'All'}. Subject: ${hw.subject}. Deadline: ${hw.submissionDate ? new Date(hw.submissionDate).toLocaleDateString() : 'N/A'}`,
         type: 'System',
         audience: 'Student',
         isRead: false
       });
     } catch (notifErr) {
-      // Non-critical — don't fail the request if notification fails
       console.error('Notification creation failed:', notifErr.message);
     }
 

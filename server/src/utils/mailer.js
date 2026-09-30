@@ -71,3 +71,37 @@ exports.sendVerificationOTP = async (userEmail, userName, otpCode) => {
     console.error('Error sending OTP:', error);
   }
 };
+
+exports.sendResetPasswordOTP = async (userEmail, userName, otpCode) => {
+  try {
+    const mailOptions = {
+      from: '"Stoofi Security" <security@stoofi.com>',
+      to: userEmail,
+      subject: 'Stoofi ERP - Password Reset Code',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+          <h2 style="color: #dc2626;">Password Reset Request</h2>
+          <p>Hello <strong>${userName}</strong>,</p>
+          <p>We received a request to reset your password for your Stoofi ERP account.</p>
+          <p>Please use the following 6-digit verification code to reset your password:</p>
+          <div style="background-color: #fef2f2; border: 1px dashed #f87171; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
+            <h1 style="color: #dc2626; letter-spacing: 5px; margin: 0;">${otpCode}</h1>
+          </div>
+          <p>This code is valid for <strong>10 minutes</strong>.</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin-top: 20px;" />
+          <p style="font-size: 12px; color: #777;">If you did not request a password reset, please ignore this email or notify your system administrator.</p>
+          <p style="font-size: 12px; color: #777;">Thank you,<br/>Stoofi ERP Security Team</p>
+        </div>
+      `
+    };
+
+    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+      await transporter.sendMail(mailOptions);
+      console.log('Password reset OTP sent to ' + userEmail);
+    } else {
+      console.log('[MAIL MOCK] Password Reset OTP for ' + userEmail + ' is: ' + otpCode);
+    }
+  } catch (error) {
+    console.error('Error sending Password Reset OTP:', error);
+  }
+};
