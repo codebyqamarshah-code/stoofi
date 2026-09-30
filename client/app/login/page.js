@@ -30,6 +30,45 @@ export default function LoginPage() {
   const [pendingPass, setPendingPass] = useState("");
   const [otpError, setOtpError] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
+  const [otpTimer, setOtpTimer] = useState(60);
+  const [canResendOtp, setCanResendOtp] = useState(false);
+  const [resendingOtp, setResendingOtp] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState("");
+
+  useEffect(() => {
+    let timer;
+    if (showOtpScreen && otpTimer > 0) {
+      setCanResendOtp(false);
+      timer = setInterval(() => {
+        setOtpTimer(prev => prev - 1);
+      }, 1000);
+    } else if (showOtpScreen && otpTimer === 0) {
+      setCanResendOtp(true);
+    }
+    return () => clearInterval(timer);
+  }, [showOtpScreen, otpTimer]);
+
+  const handleResendOtpCode = async () => {
+    if (!pendingEmail || resendingOtp) return;
+    setResendingOtp(true);
+    setOtpError("");
+    setResendSuccess("");
+
+    try {
+      const res = await api.post("/auth/resend-otp", { email: pendingEmail });
+      if (res && res.success) {
+        setResendSuccess("A new 6-digit verification code has been sent.");
+        setOtpTimer(60);
+        setCanResendOtp(false);
+      } else {
+        setOtpError(res?.message || "Failed to resend code.");
+      }
+    } catch (e) {
+      setOtpError(e?.response?.data?.message || e?.message || "Failed to resend verification code.");
+    } finally {
+      setResendingOtp(false);
+    }
+  };
 
   // Brute Force / Lockout State
   const [attemptsLeft, setAttemptsLeft] = useState(null);   // null = no info yet
@@ -179,23 +218,23 @@ export default function LoginPage() {
   // ────────────────────────────────────────────────
   if (showOtpScreen) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-zinc-50 dark:bg-white transition-colors duration-300">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300">
         <div className="absolute top-6 left-6 right-6 flex justify-between items-center">
-          <button onClick={() => setShowOtpScreen(false)} className="flex items-center gap-2 text-zinc-800 font-semibold hover:opacity-80 transition-opacity text-sm">
+          <button onClick={() => setShowOtpScreen(false)} className="flex items-center gap-2 text-zinc-800 dark:text-zinc-200 font-semibold hover:opacity-80 transition-opacity text-sm">
             <ArrowLeft size={16} /> Back to Login
           </button>
           <ThemeToggle />
         </div>
-        <div className="w-full max-w-[440px] bg-white rounded-2xl p-8 sm:p-10 border border-zinc-200 shadow-xl text-center">
-          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <ShieldCheck className="w-8 h-8 text-emerald-600" />
+        <div className="w-full max-w-[440px] bg-white dark:bg-zinc-900 rounded-2xl p-8 sm:p-10 border border-zinc-200 dark:border-zinc-800 shadow-xl text-center">
+          <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <ShieldCheck className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <h2 className="text-2xl font-bold text-zinc-900 mb-2">2-Step Verification</h2>
-          <p className="text-sm text-zinc-500 mb-8">
-            We have sent a 6-digit verification code to <br/><span className="font-bold text-zinc-800">{pendingEmail}</span>
+          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">2-Step Verification</h2>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
+            We have sent a 6-digit verification code to <br/><span className="font-bold text-zinc-800 dark:text-zinc-200">{pendingEmail}</span>
           </p>
 
-          <div className="mb-6 relative">
+          <div className="mb-4 relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <KeyRound className="h-5 w-5 text-zinc-400" />
             </div>
@@ -203,24 +242,52 @@ export default function LoginPage() {
               type="text"
               placeholder="Enter 6-digit code"
               value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value)}
-              className={inputClass}
+              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+              className={`${inputClass} tracking-[6px] text-center font-bold text-lg`}
               maxLength={6}
+              autoFocus
             />
           </div>
 
+          {/* Timer Display */}
+          <div className="mb-6 flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 font-medium px-1">
+            <span className="flex items-center gap-1.5">
+              <Timer size={14} className={otpTimer > 0 ? "text-emerald-500 animate-pulse" : "text-rose-500"} />
+              {otpTimer > 0 ? (
+                <>Code expires in <span className="font-bold text-zinc-800 dark:text-zinc-200">00:{String(otpTimer).padStart(2, '0')}</span></>
+              ) : (
+                <span className="text-rose-500 font-bold">Code has expired</span>
+              )}
+            </span>
+
+            <button
+              type="button"
+              disabled={!canResendOtp || resendingOtp}
+              onClick={handleResendOtpCode}
+              className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline disabled:opacity-40 disabled:no-underline transition-all"
+            >
+              {resendingOtp ? "Resending..." : "Resend Code"}
+            </button>
+          </div>
+
           {otpError && (
-            <div className="p-3 mb-6 rounded-lg bg-rose-50 text-rose-600 text-sm font-medium">
+            <div className="p-3 mb-6 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-semibold">
               {otpError}
+            </div>
+          )}
+
+          {resendSuccess && (
+            <div className="p-3 mb-6 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
+              {resendSuccess}
             </div>
           )}
 
           <Button
             onClick={handleVerifyOtp}
-            disabled={isVerifying || otpCode.length < 5}
-            className="w-full py-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-70"
+            disabled={isVerifying || otpCode.length < 5 || otpTimer === 0}
+            className="w-full py-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base shadow-lg hover:shadow-xl transition-all disabled:opacity-70"
           >
-            {isVerifying ? "Verifying..." : "Verify & Login"}
+            {isVerifying ? "VERIFYING..." : "VERIFY & LOGIN"}
           </Button>
         </div>
       </div>

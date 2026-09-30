@@ -11,9 +11,13 @@ const schema = new mongoose.Schema({
   joiningDate: { type: String },
   rollNo: { type: String },
   type: { type: String, default: 'Regular' },
-  phone: { type: String   match: [/^(((\+92)|(0092))-{0,1}\d{3}-{0,1}\d{7}$|^\d{11}$|^\d{4}-\d{7}$|^\+\d{10,15})$/, 'Please enter a valid phone number']
+  phone: { 
+    type: String,
+    match: [/^((\+92)|(0092)|(0))?3[0-9]{9}$|^(\+?[1-9]\d{1,14})$/, 'Please enter a valid phone number (e.g. 03351234567 or +923351234567)']
   },
-  email: { type: String   match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Please enter a valid real email address']
+  email: { 
+    type: String,
+    match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Please enter a valid real email address']
   },
   city: { type: String },
   address: { type: String },
@@ -28,7 +32,10 @@ const schema = new mongoose.Schema({
   caste: { type: String },
   bloodGroup: { type: String },
   nationality: { type: String, default: 'Pakistani' },
-  cnic: { type: String },
+  cnic: { 
+    type: String,
+    match: [/^[0-9]{5}-[0-9]{7}-[0-9]{1}$|^[0-9]{13}$/, 'Please enter a valid CNIC number (e.g. 35202-1234567-1)']
+  },
   bForm: { type: String },
   studentPhoto: { type: String },
   photo: { type: String },
@@ -51,7 +58,7 @@ const schema = new mongoose.Schema({
   guardianAddress: { type: String },
 
   // Documents
-  document1: { type: String }, // Can be used for TC
+  document1: { type: String },
   document2: { type: String },
   cnicFront: { type: String },
   cnicBack: { type: String },

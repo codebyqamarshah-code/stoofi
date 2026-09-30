@@ -134,11 +134,17 @@ app.get('/', (req, res) => {
 app.use((err, req, res, next) => {
   console.error(err.stack);
   
+  if (req.headers.origin) {
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+  } else {
+    res.header('Access-Control-Allow-Origin', '*');
+  }
+  
   let customMessage = err.message || 'Server Error';
   
-  // Friendly error for MongoDB Connection failure
   if (err.message && err.message.includes('ECONNREFUSED')) {
-    customMessage = 'Database Connection Failed! Please start your MongoDB server or use a live MongoDB Atlas URI in your .env file.';
+    customMessage = 'Database Connection Failed! Please check database connectivity.';
   }
 
   res.status(err.status || 500).json({

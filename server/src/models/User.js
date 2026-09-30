@@ -47,6 +47,20 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['Student', 'Teacher', 'Parent', 'Staff']
   },
+  firstName: { type: String },
+  lastName: { type: String },
+  schoolName: { type: String },
+  schoolAddress: { type: String },
+  phone: { 
+    type: String,
+    match: [/^((\+92)|(0092)|(0))?3[0-9]{9}$|^(\+?[1-9]\d{1,14})$/, 'Please enter a valid phone number (e.g. 03351234567 or +923351234567)']
+  },
+  cnic: { 
+    type: String,
+    match: [/^[0-9]{5}-[0-9]{7}-[0-9]{1}$|^[0-9]{13}$/, 'Please enter a valid CNIC number (e.g. 35202-1234567-1)']
+  },
+  cnicFront: { type: String },
+  cnicBack: { type: String },
   avatar: {
     type: String // To store base64 profile picture
   },

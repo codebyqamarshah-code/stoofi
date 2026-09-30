@@ -17,8 +17,9 @@ exports.register = async (req, res, next) => {
   try {
     const { 
       username, email, password, role, 
-      fullName, address, fatherName, phone, 
+      fullName, firstName, lastName, address, fatherName, phone, 
       dob, joiningDate, studentClass, section, cnic,
+      schoolName, schoolAddress, cnicFront, cnicBack,
       picture
     } = req.body;
 
@@ -58,14 +59,24 @@ exports.register = async (req, res, next) => {
     else if (finalRole === 'Parent') roleModel = 'Parent';
     else if (['Accountant', 'Librarian', 'Staff', 'Super Admin', 'Admin'].includes(finalRole)) roleModel = 'Staff';
 
-    const resolvedFullName = fullName ? fullName.trim() : (username || email.split('@')[0]);
+    const computedFirstName = firstName || (fullName ? fullName.split(' ')[0] : 'User');
+    const computedLastName = lastName || (fullName ? fullName.split(' ').slice(1).join(' ') : '');
+    const resolvedFullName = fullName ? fullName.trim() : `${computedFirstName} ${computedLastName}`.trim();
 
     const userPayload = {
       fullName: resolvedFullName,
-      username: username || `${(fullName || '').split(' ')[0]}_${Date.now().toString().slice(-4)}` || email.split('@')[0],
+      firstName: computedFirstName,
+      lastName: computedLastName,
+      username: username || `${computedFirstName}_${Date.now().toString().slice(-4)}` || email.split('@')[0],
       email,
       password,
       role: finalRole,
+      phone: phone || '',
+      cnic: cnic || '',
+      schoolName: schoolName || '',
+      schoolAddress: schoolAddress || address || '',
+      cnicFront: cnicFront || '',
+      cnicBack: cnicBack || '',
       ...(roleModel ? { roleModel } : {}),
       status: 'Active',
       avatar: picture || ''
@@ -84,17 +95,12 @@ exports.register = async (req, res, next) => {
 
     let referenceId = null;
 
-    // Extract first and last name safely
-    const nameParts = (fullName || username || '').split(' ');
-    const firstName = nameParts[0] || 'User';
-    const lastName = nameParts.slice(1).join(' ') || '';
-
     // Create the associated record based on role
     if (finalRole === 'Student') {
       const student = await Student.create({
         user: user._id,
-        firstName,
-        lastName,
+        firstName: computedFirstName,
+        lastName: computedLastName,
         phone: phone || '',
         currentAddress: address || '',
         fatherName: fatherName || '',
@@ -110,8 +116,8 @@ exports.register = async (req, res, next) => {
     } else if (finalRole === 'Teacher') {
       const teacher = await Teacher.create({
         user: user._id,
-        firstName,
-        lastName,
+        firstName: computedFirstName,
+        lastName: computedLastName,
         email,
         phone: phone || '',
         joiningDate: joiningDate || Date.now(),
@@ -123,8 +129,8 @@ exports.register = async (req, res, next) => {
     } else if (roleModel === 'Staff') {
       const staff = await Staff.create({
         user: user._id,
-        firstName,
-        lastName,
+        firstName: computedFirstName,
+        lastName: computedLastName,
         email,
         phone: phone || '',
         role: finalRole,
@@ -292,10 +298,10 @@ exports.login = async (req, res, next) => {
 
     // --- OTP VERIFICATION FLOW ---
     if (!otp) {
-      // Step 1: Generate and Send OTP
+      // Step 1: Generate and Send OTP (Expires in 60 seconds / 1 minute)
       const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
       user.emailOtp = otpCode;
-      user.otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+      user.otpExpires = new Date(Date.now() + 60 * 1000); // 1 minute (60 seconds)
       await user.save({ validateBeforeSave: false });
       
       try {
@@ -308,12 +314,16 @@ exports.login = async (req, res, next) => {
         success: true, 
         requireOtp: true, 
         email: user.email, 
-        message: 'Verification code sent to your email.' 
+        message: 'A 6-digit verification code has been sent to your email.' 
       });
     } else {
       // Step 2: Validate OTP
-      if (user.emailOtp !== otp || !user.otpExpires || user.otpExpires < new Date()) {
-        return res.status(400).json({ success: false, message: 'Invalid or expired verification code.' });
+      if (user.emailOtp !== otp) {
+        return res.status(400).json({ success: false, message: 'Invalid verification code.' });
+      }
+      
+      if (!user.otpExpires || user.otpExpires < new Date()) {
+        return res.status(400).json({ success: false, message: 'This verification code has expired. Please request a new code.' });
       }
       
       // OTP is valid
@@ -445,7 +455,7 @@ exports.forgotPassword = async (req, res, next) => {
 
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     user.resetOtp = otpCode;
-    user.resetOtpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+    user.resetOtpExpires = new Date(Date.now() + 60 * 1000); // 1 minute (60 seconds)
     await user.save({ validateBeforeSave: false });
 
     try {
@@ -456,7 +466,43 @@ exports.forgotPassword = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Password reset code sent to your email.'
+      message: 'A 6-digit password reset code has been sent to your email.'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.resendOtp = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email address is required.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ 
+      $or: [{ email: cleanEmail }, { username: cleanEmail }] 
+    }).select('+emailOtp +otpExpires');
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User account not found.' });
+    }
+
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.emailOtp = newOtp;
+    user.otpExpires = new Date(Date.now() + 60 * 1000); // 1 minute (60 seconds)
+    await user.save({ validateBeforeSave: false });
+
+    try {
+      await sendVerificationOTP(user.email, user.fullName || user.username, newOtp);
+    } catch (e) {
+      console.error('sendVerificationOTP resend error:', e);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'A new 6-digit verification code has been sent to your email.'
     });
   } catch (error) {
     next(error);
@@ -475,8 +521,12 @@ exports.verifyResetOtp = async (req, res, next) => {
       $or: [{ email: cleanEmail }, { username: cleanEmail }] 
     }).select('+resetOtp +resetOtpExpires');
 
-    if (!user || user.resetOtp !== otp || !user.resetOtpExpires || user.resetOtpExpires < new Date()) {
-      return res.status(400).json({ success: false, message: 'Invalid or expired verification code.' });
+    if (!user || user.resetOtp !== otp) {
+      return res.status(400).json({ success: false, message: 'Invalid verification code.' });
+    }
+
+    if (!user.resetOtpExpires || user.resetOtpExpires < new Date()) {
+      return res.status(400).json({ success: false, message: 'This verification code has expired. Please request a new code.' });
     }
 
     return res.status(200).json({ success: true, message: 'OTP verified successfully.' });

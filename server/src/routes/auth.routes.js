@@ -7,7 +7,8 @@ const {
   getRegistrationStatus,
   forgotPassword,
   verifyResetOtp,
-  resetPassword
+  resetPassword,
+  resendOtp
 } = require('../controllers/auth.controller');
 const { protect } = require('../middleware/auth.middleware');
 
@@ -18,6 +19,7 @@ router.post('/register', register);
 router.post('/login', login);
 router.get('/logout', logout);
 router.get('/me', protect, getMe);
+router.post('/resend-otp', resendOtp);
 router.post('/forgot-password', forgotPassword);
 router.post('/verify-reset-otp', verifyResetOtp);
 router.post('/reset-password', resetPassword);

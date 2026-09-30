@@ -1,11 +1,55 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, UserPlus, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, UserPlus, Image as ImageIcon, FileCheck, Upload, Trash2, CheckCircle, ShieldAlert, Building, ShieldCheck } from 'lucide-react';
 import api from '@/services/api';
 import { ThemeToggle } from '@/components/ThemeToggle';
+
+// Helper for client-side image compression to prevent large payload network errors
+const compressImageToBase64 = (file, maxWidth = 800, quality = 0.75) => {
+  return new Promise((resolve, reject) => {
+    if (!file) return resolve('');
+    
+    // If it's a PDF, read as Data URL directly
+    if (file.type === 'application/pdf') {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = (err) => reject(err);
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(dataUrl);
+      };
+      img.onerror = () => resolve(event.target.result);
+    };
+    reader.onerror = (err) => reject(err);
+  });
+};
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -15,10 +59,10 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState(false);
   
   const [role, setRole] = useState('Student');
-  const [availableRoles, setAvailableRoles] = useState(['Student', 'Teacher', 'Parent', 'Accountant']);
+  const [availableRoles, setAvailableRoles] = useState(['Super Admin', 'Admin', 'Teacher', 'Student', 'Parent', 'Accountant']);
   const [statusLoading, setStatusLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function checkAvailableRoles() {
       try {
         const res = await api.get(`/auth/registration-status?t=${Date.now()}`);
@@ -49,7 +93,7 @@ export default function RegisterPage() {
 
   const [classes, setClasses] = useState([]);
   
-  React.useEffect(() => {
+  useEffect(() => {
     async function fetchClasses() {
       try {
         const res = await api.get('/class');
@@ -60,101 +104,99 @@ export default function RegisterPage() {
   }, []);
 
   const [formData, setFormData] = useState({
-    fullName: '',
+    firstName: '',
+    lastName: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: '',
     phone: '',
+    cnic: '',
+    schoolName: '',
+    schoolAddress: '',
     address: '',
     fatherName: '',
     dob: '',
-    joiningDate: '',
+    joiningDate: new Date().toISOString().split('T')[0],
     studentClass: '',
     section: '',
-    cnic: '',
-    picture: null,
-    // Teacher fields
-    assignedClass: '',
-    assignedSection: '',
-    teacherSubjects: [],
-    // Student fields
-    studentSubjects: []
+    picture: '',
+    cnicFront: '',
+    cnicBack: ''
   });
 
-  const [subjectInput, setSubjectInput] = useState(''); // for adding subjects one by one
+  // Previews & Documents state
+  const [previews, setPreviews] = useState({
+    picture: null,
+    cnicFront: null,
+    cnicBack: null
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleRoleChange = (e) => {
-    setRole(e.target.value);
-    // Reset specific fields when role changes
-    setFormData(prev => ({
-      ...prev,
-      studentClass: '',
-      section: '',
-      cnic: '',
-      joiningDate: '',
-      address: '',
-      fatherName: '',
-      dob: '',
-      assignedClass: '',
-      assignedSection: '',
-      teacherSubjects: [],
-      studentSubjects: []
-    }));
-    setSubjectInput('');
+  const handleFileChange = async (e, fieldName) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size exceeds 5MB limit. Please upload a smaller image.");
+      return;
+    }
+
+    try {
+      const compressedBase64 = await compressImageToBase64(file);
+      setFormData(prev => ({ ...prev, [fieldName]: compressedBase64 }));
+
+      // Create preview URL
+      const isImg = file.type.startsWith('image/');
+      setPreviews(prev => ({
+        ...prev,
+        [fieldName]: {
+          url: URL.createObjectURL(file),
+          name: file.name,
+          type: isImg ? 'image' : 'pdf'
+        }
+      }));
+    } catch (err) {
+      console.error("File processing error:", err);
+    }
   };
 
-  const addSubject = () => {
-    const trimmed = subjectInput.trim();
-    if (!trimmed) return;
-    const field = role === 'Teacher' ? 'teacherSubjects' : 'studentSubjects';
-    setFormData(prev => ({
-      ...prev,
-      [field]: prev[field].includes(trimmed) ? prev[field] : [...prev[field], trimmed]
-    }));
-    setSubjectInput('');
-  };
-
-  const removeSubject = (subj) => {
-    const field = role === 'Teacher' ? 'teacherSubjects' : 'studentSubjects';
-    setFormData(prev => ({ ...prev, [field]: prev[field].filter(s => s !== subj) }));
+  const removeFile = (fieldName) => {
+    setFormData(prev => ({ ...prev, [fieldName]: '' }));
+    setPreviews(prev => ({ ...prev, [fieldName]: null }));
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
     setFieldErrors({});
+
     let errors = {};
 
-    // Password validation
-    if (formData.password.length < 8) {
-      errors.password = "Password must be at least 8 characters long.";
+    if (!formData.firstName.trim()) {
+      errors.firstName = "First Name is required.";
     }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(formData.password)) {
-      errors.password = "Password must contain at least one special character.";
+
+    if (!formData.email.trim()) {
+      errors.email = "Email address is required.";
     }
+
+    if (formData.password.length < 6) {
+      errors.password = "Password must be at least 6 characters long.";
+    }
+
     if (formData.password !== formData.confirmPassword) {
       errors.confirmPassword = "Passwords do not match.";
     }
 
-    // Teacher Age Validation
-    if (role === 'Teacher' && formData.dob) {
-      const birthDate = new Date(formData.dob);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const m = today.getMonth() - birthDate.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-      if (age < 20) {
-        errors.dob = "Teacher must be at least 20 years old.";
-      }
+    if ((role === 'Super Admin' || role === 'Admin') && !formData.schoolName.trim()) {
+      errors.schoolName = "School Name is required for Super Admin / Admin accounts.";
     }
 
     if (Object.keys(errors).length > 0) {
@@ -164,290 +206,423 @@ export default function RegisterPage() {
     }
 
     try {
+      const resolvedFullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim();
+      const generatedUsername = formData.username.trim() || `${formData.firstName.trim().toLowerCase()}_${Date.now().toString().slice(-4)}`;
+
       const payload = {
         role,
-        ...formData
+        fullName: resolvedFullName,
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        username: generatedUsername,
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+        phone: formData.phone.trim(),
+        cnic: formData.cnic.trim(),
+        schoolName: formData.schoolName.trim(),
+        schoolAddress: formData.schoolAddress.trim() || formData.address.trim(),
+        address: formData.address.trim() || formData.schoolAddress.trim(),
+        joiningDate: formData.joiningDate || new Date().toISOString().split('T')[0],
+        picture: formData.picture,
+        cnicFront: formData.cnicFront,
+        cnicBack: formData.cnicBack,
+        studentClass: formData.studentClass,
+        section: formData.section
       };
-      
-      // Auto-set DOB to current date for staff roles if empty
-      if (!payload.dob) {
-        payload.dob = new Date().toISOString().split('T')[0];
-      }
-      
-      // Auto-set Joining Date if empty
-      if (!payload.joiningDate) {
-        payload.joiningDate = new Date().toISOString().split('T')[0];
-      }
 
       const res = await api.post('/auth/register', payload);
+
       if (res && res.success) {
         setSuccess(true);
-        // Add a slight delay then go to login
         setTimeout(() => {
           router.push('/login');
         }, 2000);
+      } else {
+        setError(res?.message || 'Registration failed. Please check your information.');
       }
     } catch (err) {
-      setError(err?.response?.data?.message || err?.message || 'Registration failed. Please try again.');
+      const errMsg = err?.response?.data?.message || err?.message || 'Registration failed. Please check your internet connection.';
+      setError(errMsg);
     } finally {
       setLoading(false);
     }
   };
 
-  const inputClass = "w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-950/20 focus:border-zinc-950 transition-all text-sm";
-  const labelClass = "block text-xs font-bold text-zinc-600 dark:text-zinc-600 mb-1.5 uppercase tracking-wide";
+  const inputClass = "w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm font-medium text-zinc-900 dark:text-white placeholder:text-zinc-400";
+  const labelClass = "block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5 uppercase tracking-wide";
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 py-12 bg-zinc-50 dark:bg-white transition-colors duration-300">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col justify-center items-center p-4 py-12 transition-colors duration-300">
       
-      {/* Top Controls */}
-      <div className="absolute top-6 left-6 right-6 flex justify-between items-center">
-        <Link href="/login" className="flex items-center gap-2 text-zinc-950 font-semibold hover:opacity-80 transition-opacity text-sm">
-          <ArrowLeft size={16} /> Back to Login
+      {/* Top Bar */}
+      <div className="w-full max-w-2xl flex justify-between items-center mb-6">
+        <Link href="/login" className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300 hover:text-emerald-600 font-bold transition-colors text-sm">
+          <ArrowLeft size={18} /> Back to Login
         </Link>
         <ThemeToggle />
       </div>
 
-      <div className="w-full max-w-2xl bg-white dark:bg-white rounded-2xl p-8 sm:p-10 border border-zinc-200 dark:border-zinc-200 shadow-xl">
+      <div className="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-2xl p-6 sm:p-10 border border-zinc-200 dark:border-zinc-800 shadow-xl">
         
-        <div className="flex justify-center mb-6">
-           <img src="/stoofi light.png" alt="Stoofi PRO" className="h-14 w-auto object-contain" />
-        </div>
-
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-900 mb-2">Create an Account</h1>
-          <p className="text-sm text-zinc-500">Join our ERP platform. Register below.</p>
+          <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-100 dark:border-emerald-500/20 shadow-sm">
+            <UserPlus size={28} />
+          </div>
+          <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight">Create an Account</h1>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 font-medium">
+            Join Stoofi School Management ERP platform. Select your role to begin.
+          </p>
         </div>
 
-        {success ? (
-          <div className="p-6 rounded-xl bg-zinc-100 dark:bg-zinc-100 text-zinc-800 dark:text-zinc-900 text-center border border-zinc-300 dark:border-zinc-200">
-            <UserPlus className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <h3 className="font-bold text-lg mb-1">Registration Successful!</h3>
-            <p className="text-sm opacity-80">You will be redirected to the login page shortly.</p>
+        {/* Global Error Banner */}
+        {error && (
+          <div className="mb-6 p-4 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 flex items-start gap-3 text-rose-700 dark:text-rose-400 text-xs font-semibold animate-in fade-in duration-200">
+            <ShieldAlert size={18} className="shrink-0 mt-0.5 text-rose-600" />
+            <span>{error}</span>
           </div>
-        ) : (
-          <form onSubmit={onSubmit} className="space-y-6">
-            
-            {error && (
-              <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 text-sm border border-red-100 dark:border-red-900 text-center">
-                {error}
-              </div>
-            )}
+        )}
 
-            {/* Role Selection */}
+        {/* Success Alert */}
+        {success && (
+          <div className="mb-6 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 flex items-start gap-3 text-emerald-800 dark:text-emerald-400 text-xs font-semibold animate-in fade-in duration-200">
+            <CheckCircle size={18} className="shrink-0 mt-0.5 text-emerald-600" />
+            <span>Registration successful! Redirecting to login page...</span>
+          </div>
+        )}
+
+        <form onSubmit={onSubmit} className="space-y-6">
+          
+          {/* Role Selection Tabs */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className={labelClass}>Register As <span className="text-rose-500">*</span></label>
+              {!availableRoles.includes('Super Admin') && (
+                <span className="text-[10px] text-zinc-400 font-semibold">Super Admin & Admin registered</span>
+              )}
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {['Super Admin', 'Admin', 'Teacher', 'Student', 'Parent', 'Accountant'].map((r) => {
+                const isAvailable = availableRoles.includes(r);
+                const isSelected = role === r;
+                return (
+                  <button
+                    key={r}
+                    type="button"
+                    disabled={!isAvailable}
+                    onClick={() => setRole(r)}
+                    className={`py-3 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                      isSelected
+                        ? 'bg-emerald-600 border-emerald-600 text-white shadow-md'
+                        : isAvailable
+                        ? 'bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                        : 'bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-400 opacity-40 cursor-not-allowed'
+                    }`}
+                  >
+                    {r}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Section: Name & Username */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className={labelClass}>Register As</label>
-                {availableRoles.length < 6 && (
-                  <span className="text-[11px] text-zinc-500 font-medium">
-                    {!availableRoles.includes('Super Admin') && !availableRoles.includes('Admin') ? 'Super Admin & Admin registered' : !availableRoles.includes('Super Admin') ? 'Super Admin registered' : 'Admin registered'}
-                  </span>
-                )}
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-2.5">
-                {availableRoles.map(r => (
-                  <label key={r} className={`cursor-pointer border rounded-xl p-2.5 sm:p-3 text-center transition-all flex flex-col items-center justify-center ${role === r ? 'border-zinc-950 bg-zinc-950/5 dark:bg-white/10 text-zinc-950 font-bold shadow-sm' : 'border-zinc-200 dark:border-zinc-200 text-zinc-500 hover:border-zinc-950/50'}`}>
-                    <input type="radio" name="role" value={r} checked={role === r} onChange={handleRoleChange} className="hidden" />
-                    <span className="text-xs sm:text-sm font-semibold">{r}</span>
-                  </label>
-                ))}
-              </div>
+              <label className={labelClass}>First Name <span className="text-rose-500">*</span></label>
+              <input
+                type="text"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                placeholder="e.g. Syed"
+                className={inputClass}
+                required
+              />
+              {fieldErrors.firstName && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.firstName}</p>}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              
-              {/* Common Fields */}
-              <div>
-                <label className={labelClass}>Full Name</label>
-                <input type="text" name="fullName" required value={formData.fullName} onChange={handleChange} className={inputClass} placeholder="John Doe" />
-              </div>
-              
-              <div>
-                <label className={labelClass}>Email Address</label>
-                <input type="email" name="email" required value={formData.email} onChange={handleChange} className={inputClass} placeholder="john@example.com" />
-              </div>
+            <div>
+              <label className={labelClass}>Last Name</label>
+              <input
+                type="text"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                placeholder="e.g. Qamar Shah"
+                className={inputClass}
+              />
+            </div>
+          </div>
 
-              <div>
-                <label className={labelClass}>Password</label>
-                <input type="password" name="password" required value={formData.password} onChange={handleChange} className={`${inputClass} ${fieldErrors.password ? 'border-red-500 focus:ring-red-500' : ''}`} placeholder="••••••••" />
-                {fieldErrors.password && <span className="text-red-500 text-[11px] font-bold mt-1.5 block">{fieldErrors.password}</span>}
-              </div>
+          {/* Section: Username & Email */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>Username (Optional)</label>
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                placeholder="e.g. qamar_shah"
+                className={inputClass}
+              />
+            </div>
 
-              <div>
-                <label className={labelClass}>Confirm Password</label>
-                <input type="password" name="confirmPassword" required value={formData.confirmPassword} onChange={handleChange} className={`${inputClass} ${fieldErrors.confirmPassword ? 'border-red-500 focus:ring-red-500' : ''}`} placeholder="••••••••" />
-                {fieldErrors.confirmPassword && <span className="text-red-500 text-[11px] font-bold mt-1.5 block">{fieldErrors.confirmPassword}</span>}
-              </div>
-              
-              <div className="sm:col-span-2">
-                <label className={labelClass}>Phone Number</label>
-                <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className={inputClass} placeholder="+1234567890" />
-              </div>
+            <div>
+              <label className={labelClass}>Email Address <span className="text-rose-500">*</span></label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="e.g. admin@school.com"
+                className={inputClass}
+                required
+              />
+              {fieldErrors.email && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.email}</p>}
+            </div>
+          </div>
 
-              {/* Conditional Fields based on Role */}
-              
-              {/* Address (For Everyone) */}
-              <div className="sm:col-span-2">
-                <label className={labelClass}>Address</label>
-                <input type="text" name="address" value={formData.address} onChange={handleChange} className={inputClass} placeholder="Full Address" />
+          {/* Section: School Info for Admin & Super Admin */}
+          {(role === 'Super Admin' || role === 'Admin') && (
+            <div className="p-4 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40 space-y-4">
+              <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
+                <Building size={16} /> Institution Information
               </div>
-
-              {/* CNIC (For everyone except Student) */}
-              {role !== 'Student' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>CNIC</label>
-                  <input type="text" name="cnic" required value={formData.cnic} onChange={handleChange} className={inputClass} placeholder="12345-1234567-1" />
+                  <label className={labelClass}>School / College Name <span className="text-rose-500">*</span></label>
+                  <input
+                    type="text"
+                    name="schoolName"
+                    value={formData.schoolName}
+                    onChange={handleChange}
+                    placeholder="e.g. Stoofi Grammar School"
+                    className={inputClass}
+                    required
+                  />
+                  {fieldErrors.schoolName && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.schoolName}</p>}
                 </div>
-              )}
-
-              {/* Joining Date (For everyone except Student and Parent) */}
-              {(role !== 'Student' && role !== 'Parent') && (
                 <div>
-                  <label className={labelClass}>Joining Date</label>
-                  <input type="date" name="joiningDate" required value={formData.joiningDate} onChange={handleChange} className={inputClass} />
-                </div>
-              )}
-
-              {/* Father Name (Only for Student) */}
-              {role === 'Student' && (
-                <div>
-                  <label className={labelClass}>Father&apos;s Name</label>
-                  <input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className={inputClass} placeholder="Father&apos;s Name" />
-                </div>
-              )}
-              
-              {/* DOB (For Student, Teacher, Parent) */}
-              {(role === 'Student' || role === 'Teacher' || role === 'Parent') && (
-                <div>
-                  <label className={labelClass}>Date of Birth</label>
-                  <input type="date" name="dob" required value={formData.dob} onChange={handleChange} className={`${inputClass} ${fieldErrors.dob ? 'border-red-500 focus:ring-red-500' : ''}`} />
-                  {fieldErrors.dob && <span className="text-red-500 text-[11px] font-bold mt-1.5 block">{fieldErrors.dob}</span>}
-                </div>
-              )}
-              
-              {role === 'Student' && (
-                <>
-                  <div>
-                    <label className={labelClass}>Class</label>
-                    <select name="studentClass" required value={formData.studentClass} onChange={handleChange} className={inputClass}>
-                      <option value="">Select Class</option>
-                      {classes.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className={labelClass}>Section</label>
-                    <select name="section" required value={formData.section} onChange={handleChange} className={inputClass}>
-                      <option value="">Select Section</option>
-                      {(classes.find(c => c.name === formData.studentClass)?.sections || []).map(s => <option key={s} value={s}>Section {s}</option>)}
-                    </select>
-                  </div>
-                </>
-              )}
-
-              {/* Teacher — Assigned Class & Section */}
-              {role === 'Teacher' && (
-                <>
-                  <div>
-                    <label className={labelClass}>Assigned Class</label>
-                    <select name="assignedClass" required value={formData.assignedClass} onChange={handleChange} className={inputClass}>
-                      <option value="">Select Class</option>
-                      {classes.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className={labelClass}>Assigned Section</label>
-                    <select name="assignedSection" required value={formData.assignedSection} onChange={handleChange} className={inputClass}>
-                      <option value="">Select Section</option>
-                      {(classes.find(c => c.name === formData.assignedClass)?.sections || []).map(s => <option key={s} value={s}>Section {s}</option>)}
-                    </select>
-                  </div>
-                </>
-              )}
-
-              {/* Subjects (for both Teacher and Student) */}
-              {(role === 'Teacher' || role === 'Student') && (
-                <div className="sm:col-span-2">
-                  <label className={labelClass}>
-                    {role === 'Teacher' ? 'Subjects You Teach' : 'Subjects Enrolled In'}
-                  </label>
-                  <div className="flex gap-2 mb-2">
-                    <input
-                      type="text"
-                      value={subjectInput}
-                      onChange={e => setSubjectInput(e.target.value)}
-                      onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSubject(); } }}
-                      className={inputClass}
-                      placeholder="e.g. Mathematics, Science, English..."
-                    />
-                    <button
-                      type="button"
-                      onClick={addSubject}
-                      className="px-4 py-2 bg-zinc-900 text-white text-sm font-bold rounded-xl hover:bg-zinc-700 transition-all whitespace-nowrap"
-                    >
-                      + Add
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {(role === 'Teacher' ? formData.teacherSubjects : formData.studentSubjects).map((subj, i) => (
-                      <span key={i} className="flex items-center gap-1 px-3 py-1 bg-zinc-100 border border-zinc-200 text-zinc-800 text-xs font-bold rounded-full">
-                        {subj}
-                        <button type="button" onClick={() => removeSubject(subj)} className="ml-1 text-zinc-400 hover:text-red-500 font-black text-base leading-none">×</button>
-                      </span>
-                    ))}
-                    {(role === 'Teacher' ? formData.teacherSubjects : formData.studentSubjects).length === 0 && (
-                      <span className="text-xs text-zinc-400 italic">No subjects added yet. Type and press + Add.</span>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Photo Upload */}
-              <div className="sm:col-span-2">
-                <label className={labelClass}>Profile Picture</label>
-                <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-200 rounded-xl p-4 flex flex-col items-center justify-center text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-100 transition-colors relative overflow-hidden group">
-                  {formData.picture ? (
-                    <div className="relative w-full flex flex-col items-center">
-                      <img src={formData.picture} alt="Preview" className="h-24 w-24 rounded-full object-cover border-4 border-zinc-950 shadow-sm mb-2" />
-                      <span className="text-xs text-red-500 font-bold cursor-pointer hover:underline relative z-10" onClick={(e) => { e.preventDefault(); setFormData(prev => ({...prev, picture: null}))}}>Remove Image</span>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center pointer-events-none">
-                      <ImageIcon size={24} className="mb-2 text-zinc-950" />
-                      <span className="text-sm font-medium text-zinc-700 dark:text-zinc-700">Click to upload picture</span>
-                      <span className="text-xs opacity-70 mt-1">PNG, JPG up to 2MB</span>
-                    </div>
-                  )}
-                  <input 
-                    type="file" 
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
-                    accept="image/*" 
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setFormData(prev => ({ ...prev, picture: reader.result }));
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }} 
+                  <label className={labelClass}>School Address / Location</label>
+                  <input
+                    type="text"
+                    name="schoolAddress"
+                    value={formData.schoolAddress}
+                    onChange={handleChange}
+                    placeholder="e.g. Campus 1, Gulberg, Lahore"
+                    className={inputClass}
                   />
                 </div>
               </div>
+            </div>
+          )}
 
+          {/* Section: Password & Confirm Password */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>Password <span className="text-rose-500">*</span></label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Minimum 6 characters"
+                className={inputClass}
+                required
+              />
+              {fieldErrors.password && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.password}</p>}
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-zinc-950 hover:bg-zinc-800 text-white py-4 rounded-xl font-bold tracking-wide transition-all shadow-md hover:shadow-lg disabled:opacity-70 mt-6 cursor-pointer disabled:cursor-not-allowed"
-            >
-              {loading ? 'REGISTERING...' : 'REGISTER NOW'}
-            </button>
+            <div>
+              <label className={labelClass}>Confirm Password <span className="text-rose-500">*</span></label>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Re-enter password"
+                className={inputClass}
+                required
+              />
+              {fieldErrors.confirmPassword && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.confirmPassword}</p>}
+            </div>
+          </div>
 
-          </form>
-        )}
-        
+          {/* Section: Phone, CNIC & Joining Date */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className={labelClass}>Phone Number</label>
+              <input
+                type="text"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="03351234567"
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>CNIC / National ID</label>
+              <input
+                type="text"
+                name="cnic"
+                value={formData.cnic}
+                onChange={handleChange}
+                placeholder="35202-1234567-1"
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>Joining Date</label>
+              <input
+                type="date"
+                name="joiningDate"
+                value={formData.joiningDate}
+                onChange={handleChange}
+                className={inputClass}
+              />
+            </div>
+          </div>
+
+          {/* Section: Address */}
+          <div>
+            <label className={labelClass}>Personal Address / Location</label>
+            <input
+              type="text"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              placeholder="e.g. House #12, Street 4, Lahore"
+              className={inputClass}
+            />
+          </div>
+
+          {/* LEGAL DOCUMENTS & PICTURE UPLOADS WITH LIVE PREVIEW */}
+          <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800 space-y-4">
+            <h3 className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider flex items-center gap-2">
+              <FileCheck size={16} className="text-emerald-500" /> Identity Documents & Profile Picture
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              
+              {/* Profile Picture */}
+              <div className="p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl space-y-2">
+                <label className={labelClass}>Profile Picture / Logo</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, 'picture')}
+                  className="hidden"
+                  id="picture-upload"
+                />
+                <label
+                  htmlFor="picture-upload"
+                  className="flex items-center justify-center gap-2 p-2.5 bg-white dark:bg-zinc-900 border border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg text-xs font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer hover:border-emerald-500 transition-colors"
+                >
+                  <Upload size={14} /> Choose Image
+                </label>
+
+                {previews.picture && (
+                  <div className="mt-2 p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg flex items-center gap-2">
+                    <img src={previews.picture.url} alt="Profile" className="w-10 h-10 rounded object-cover border border-emerald-500" />
+                    <div className="flex-1 overflow-hidden">
+                      <p className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                        <ShieldCheck size={12} /> Uploaded
+                      </p>
+                    </div>
+                    <button type="button" onClick={() => removeFile('picture')} className="text-rose-500 p-1 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* CNIC Front */}
+              <div className="p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl space-y-2">
+                <label className={labelClass}>CNIC Front Image</label>
+                <input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={(e) => handleFileChange(e, 'cnicFront')}
+                  className="hidden"
+                  id="cnic-front-upload"
+                />
+                <label
+                  htmlFor="cnic-front-upload"
+                  className="flex items-center justify-center gap-2 p-2.5 bg-white dark:bg-zinc-900 border border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg text-xs font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer hover:border-emerald-500 transition-colors"
+                >
+                  <Upload size={14} /> Front CNIC
+                </label>
+
+                {previews.cnicFront && (
+                  <div className="mt-2 p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg flex items-center gap-2">
+                    {previews.cnicFront.type === 'image' ? (
+                      <img src={previews.cnicFront.url} alt="CNIC Front" className="w-10 h-10 rounded object-cover border border-emerald-500" />
+                    ) : (
+                      <div className="w-10 h-10 bg-zinc-800 rounded flex items-center justify-center text-[10px] font-bold text-white">PDF</div>
+                    )}
+                    <div className="flex-1 overflow-hidden">
+                      <p className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                        <ShieldCheck size={12} /> VERIFIED
+                      </p>
+                    </div>
+                    <button type="button" onClick={() => removeFile('cnicFront')} className="text-rose-500 p-1 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* CNIC Back */}
+              <div className="p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl space-y-2">
+                <label className={labelClass}>CNIC Back Image</label>
+                <input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={(e) => handleFileChange(e, 'cnicBack')}
+                  className="hidden"
+                  id="cnic-back-upload"
+                />
+                <label
+                  htmlFor="cnic-back-upload"
+                  className="flex items-center justify-center gap-2 p-2.5 bg-white dark:bg-zinc-900 border border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg text-xs font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer hover:border-emerald-500 transition-colors"
+                >
+                  <Upload size={14} /> Back CNIC
+                </label>
+
+                {previews.cnicBack && (
+                  <div className="mt-2 p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg flex items-center gap-2">
+                    {previews.cnicBack.type === 'image' ? (
+                      <img src={previews.cnicBack.url} alt="CNIC Back" className="w-10 h-10 rounded object-cover border border-emerald-500" />
+                    ) : (
+                      <div className="w-10 h-10 bg-zinc-800 rounded flex items-center justify-center text-[10px] font-bold text-white">PDF</div>
+                    )}
+                    <div className="flex-1 overflow-hidden">
+                      <p className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                        <ShieldCheck size={12} /> VERIFIED
+                      </p>
+                    </div>
+                    <button type="button" onClick={() => removeFile('cnicBack')} className="text-rose-500 p-1 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-bold py-4 px-4 rounded-xl shadow-lg transition-all transform active:scale-[0.99] disabled:opacity-50 text-sm tracking-wide mt-6"
+          >
+            {loading ? "REGISTERING ACCOUNT..." : "REGISTER NOW"}
+          </button>
+        </form>
       </div>
     </div>
   );
