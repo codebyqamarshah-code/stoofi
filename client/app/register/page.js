@@ -427,6 +427,9 @@ export default function RegisterPage() {
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
       setLoading(false);
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
       return;
     }
 
@@ -455,10 +458,13 @@ export default function RegisterPage() {
         section: formData.section
       };
 
-      const res = await api.post('/auth/register', payload);
+      const res = await api.post('/auth/register', payload, { timeout: 25000 });
 
       if (res && res.success) {
         setSuccess(true);
+        if (typeof window !== 'undefined') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
         setTimeout(() => {
           router.push('/login');
         }, 2000);
@@ -471,6 +477,9 @@ export default function RegisterPage() {
         } else {
           setError(serverMsg);
         }
+        if (typeof window !== 'undefined') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
       }
     } catch (err) {
       const errMsg = err?.response?.data?.message || err?.message || 'Registration failed. Please check your information.';
@@ -480,6 +489,9 @@ export default function RegisterPage() {
         setError(null);
       } else {
         setError(errMsg);
+      }
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } finally {
       setLoading(false);
