@@ -21,7 +21,7 @@ export default function RegisterPage() {
   React.useEffect(() => {
     async function checkAvailableRoles() {
       try {
-        const res = await api.get('/auth/registration-status');
+        const res = await api.get(`/auth/registration-status?t=${Date.now()}`);
         const roles = [];
         if (!res?.hasSuperAdmin) {
           roles.push('Super Admin');
@@ -35,8 +35,7 @@ export default function RegisterPage() {
           setRole(roles[0]);
         }
       } catch (e) {
-        // If API fails, default to only standard roles to prevent unauthorized Super Admin creation
-        const roles = ['Teacher', 'Student', 'Parent', 'Accountant'];
+        const roles = ['Super Admin', 'Admin', 'Teacher', 'Student', 'Parent', 'Accountant'];
         setAvailableRoles(roles);
         if (roles.length > 0) {
           setRole(roles[0]);

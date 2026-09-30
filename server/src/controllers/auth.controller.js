@@ -180,6 +180,10 @@ exports.register = async (req, res, next) => {
 
 exports.getRegistrationStatus = async (req, res, next) => {
   try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
     const hasSuperAdmin = await User.exists({ role: 'Super Admin' });
     const hasAdmin = await User.exists({ role: 'Admin' });
     
