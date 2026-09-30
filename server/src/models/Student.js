@@ -72,6 +72,7 @@ const schema = new mongoose.Schema({
   previousSchoolDocument: { type: String },
   previousSchoolName: { type: String },
   previousSchoolAddress: { type: String },
+  characterCertificate: { type: String },
 
   // Custom Fields / Other Info
   otherInfo: { type: String }

@@ -6,9 +6,10 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, UserPlus, Image as ImageIcon, FileCheck, Upload, Trash2, CheckCircle, ShieldAlert, Building, ShieldCheck } from 'lucide-react';
 import api from '@/services/api';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { StoofiLogo } from '@/components/StoofiLogo';
 
 // Helper for client-side image compression to prevent large payload network errors
-const compressImageToBase64 = (file, maxWidth = 800, quality = 0.75) => {
+const compressImageToBase64 = (file, maxWidth = 600, quality = 0.6) => {
   return new Promise((resolve, reject) => {
     if (!file) return resolve('');
     
@@ -59,7 +60,7 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState(false);
   
   const [role, setRole] = useState('Student');
-  const [availableRoles, setAvailableRoles] = useState(['Super Admin', 'Admin', 'Teacher', 'Student', 'Parent', 'Accountant']);
+  const [availableRoles, setAvailableRoles] = useState(['Super Admin', 'Admin', 'Teacher', 'Student', 'Accountant']);
   const [statusLoading, setStatusLoading] = useState(true);
 
   useEffect(() => {
@@ -73,13 +74,13 @@ export default function RegisterPage() {
         if (!res?.hasAdmin) {
           roles.push('Admin');
         }
-        roles.push('Teacher', 'Student', 'Parent', 'Accountant');
+        roles.push('Teacher', 'Student', 'Accountant');
         setAvailableRoles(roles);
         if (roles.length > 0) {
           setRole(roles[0]);
         }
       } catch (e) {
-        const roles = ['Super Admin', 'Admin', 'Teacher', 'Student', 'Parent', 'Accountant'];
+        const roles = ['Super Admin', 'Admin', 'Teacher', 'Student', 'Accountant'];
         setAvailableRoles(roles);
         if (roles.length > 0) {
           setRole(roles[0]);
@@ -122,36 +123,165 @@ export default function RegisterPage() {
     section: '',
     picture: '',
     cnicFront: '',
-    cnicBack: ''
+    cnicBack: '',
+    previousSchool: '',
+    previousClassesTaught: '',
+    experienceYears: '',
+    characterCertificate: '',
+    experienceLetter: ''
   });
 
   // Previews & Documents state
   const [previews, setPreviews] = useState({
     picture: null,
     cnicFront: null,
-    cnicBack: null
+    cnicBack: null,
+    characterCertificate: null,
+    experienceLetter: null
   });
+
+  const calculateAge = (dobString) => {
+    if (!dobString) return null;
+    const birthDate = new Date(dobString);
+    if (isNaN(birthDate.getTime())) return null;
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  const isGibberish = (str) => {
+    if (!str || str.trim().length < 2) return true;
+    const s = str.trim().toLowerCase();
+    const mashPatterns = [
+      'qwerty', 'asdf', 'zxcv', 'fghj', 'jkl;', 'dfgh', 'hjkl', 
+      'yusg', 'heriu', 'yukd', 'uhfur', 'bryu', 'iher', 'iuhf', 'jhyu'
+    ];
+    if (mashPatterns.some(p => s.includes(p))) return true;
+    if (/^(.)\1+$/.test(s)) return true;
+    if (/[bcdfghjklmnpqrstvwxyz]{5,}/.test(s)) return true;
+    if (s.length >= 4 && !/[aeiouy]/.test(s)) return true;
+    return false;
+  };
+
+  const validatePasswordStrict = (password) => {
+    if (!password || password.length < 8) {
+      return "Password must be at least 8 characters long.";
+    }
+    if (!/[A-Z]/.test(password)) {
+      return "Password must contain at least 1 uppercase letter (A-Z).";
+    }
+    if (!/[a-z]/.test(password)) {
+      return "Password must contain at least 1 lowercase letter (a-z).";
+    }
+    if (!/[0-9]/.test(password)) {
+      return "Password must contain at least 1 number (0-9).";
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      return "Password must contain at least 1 special character (e.g. @, #, $, %, !).";
+    }
+    return "";
+  };
+
+  const mapServerErrorToFields = (msg) => {
+    const errs = {};
+    if (!msg) return errs;
+    const lower = msg.toLowerCase();
+
+    if (lower.includes('email')) {
+      errs.email = msg;
+    } else if (lower.includes('phone')) {
+      errs.phone = msg;
+    } else if (lower.includes('cnic front') || lower.includes('front document')) {
+      errs.cnicFront = msg;
+    } else if (lower.includes('cnic back') || lower.includes('back document')) {
+      errs.cnicBack = msg;
+    } else if (lower.includes('cnic')) {
+      errs.cnic = msg;
+    } else if (lower.includes('password')) {
+      errs.password = msg;
+    } else if (lower.includes('school')) {
+      errs.schoolName = msg;
+    } else if (lower.includes('username')) {
+      errs.username = msg;
+    } else if (lower.includes('address') || lower.includes('location')) {
+      errs.address = msg;
+    } else if (lower.includes('first name') || lower.includes('name')) {
+      errs.firstName = msg;
+    }
+    return errs;
+  };
+
+  const validateSingleField = (name, value, currentFormData = formData) => {
+    let err = "";
+    const phoneRegex = /^(\+92|92|0)?3[0-9]{9}$/;
+    const cnicRegex = /^[0-9]{5}-[0-9]{7}-[0-9]{1}$|^[0-9]{13}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const userAge = calculateAge(currentFormData.dob);
+    const isMinorStudent = role === 'Student' && userAge !== null && userAge < 18;
+
+    if (name === 'firstName') {
+      if (!value.trim()) err = "First Name is required.";
+      else if (value.trim().length < 2 || isGibberish(value)) err = "Please enter a valid First Name in English. Random characters are not allowed.";
+    } else if (name === 'lastName') {
+      if (value.trim() && isGibberish(value)) err = "Please enter a valid Last Name in English.";
+    } else if (name === 'email') {
+      if (!value.trim()) err = "Email address is required.";
+      else if (!emailRegex.test(value.trim()) || isFakeEmail(value)) err = "Enter a valid real email address (e.g. user@domain.com).";
+    } else if (name === 'phone') {
+      if (!value.trim()) {
+        err = "Phone Number is required.";
+      } else if (!phoneRegex.test(value.trim()) || isFakePhone(value)) {
+        err = "Please enter a valid 11-digit Pakistani phone number starting with 03 (e.g. 03351234567).";
+      }
+    } else if (name === 'cnic') {
+      if (!isMinorStudent) {
+        if (!value.trim()) err = "CNIC / National ID number is required.";
+        else if (!cnicRegex.test(value.trim()) || isFakeCnic(value)) err = "Please enter a valid 13-digit Pakistani CNIC number (e.g. 35202-1234567-1).";
+      }
+    } else if (name === 'address') {
+      if (!value.trim() || value.trim().length < 5) err = "Personal Address is required (minimum 5 characters).";
+      else if (isGibberish(value)) err = "Please enter a valid location/address in English. Random characters are not allowed.";
+    } else if (name === 'password') {
+      err = validatePasswordStrict(value);
+    } else if (name === 'confirmPassword') {
+      if (!value) err = "Please confirm your password.";
+      else if (value !== currentFormData.password) err = "Passwords do not match.";
+    } else if (name === 'schoolName' && (role === 'Super Admin' || role === 'Admin') && !value.trim()) {
+      err = "School Name is required for Super Admin / Admin accounts.";
+    }
+
+    setFieldErrors(prev => ({
+      ...prev,
+      [name]: err
+    }));
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const newForm = { ...formData, [name]: value };
+    setFormData(newForm);
+    validateSingleField(name, value, newForm);
   };
 
   const handleFileChange = async (e, fieldName) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert("File size exceeds 5MB limit. Please upload a smaller image.");
+      setFieldErrors(prev => ({ ...prev, [fieldName]: "File size exceeds 5MB limit. Please upload a smaller image." }));
       return;
     }
 
     try {
       const compressedBase64 = await compressImageToBase64(file);
       setFormData(prev => ({ ...prev, [fieldName]: compressedBase64 }));
+      setFieldErrors(prev => ({ ...prev, [fieldName]: "" }));
 
-      // Create preview URL
       const isImg = file.type.startsWith('image/');
       setPreviews(prev => ({
         ...prev,
@@ -169,6 +299,12 @@ export default function RegisterPage() {
   const removeFile = (fieldName) => {
     setFormData(prev => ({ ...prev, [fieldName]: '' }));
     setPreviews(prev => ({ ...prev, [fieldName]: null }));
+    const userAge = calculateAge(formData.dob);
+    const isMinorStudent = role === 'Student' && userAge !== null && userAge < 18;
+    setFieldErrors(prev => ({ 
+      ...prev, 
+      [fieldName]: (!isMinorStudent && fieldName.includes('cnic')) ? `${fieldName.includes('Front') ? 'CNIC Front' : 'CNIC Back'} document image is required.` : '' 
+    }));
   };
 
   const onSubmit = async (e) => {
@@ -179,24 +315,70 @@ export default function RegisterPage() {
 
     let errors = {};
 
+    const phoneRegex = /^(\+92|92|0)?3[0-9]{9}$/;
+    const cnicRegex = /^[0-9]{5}-[0-9]{7}-[0-9]{1}$|^[0-9]{13}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const userAge = calculateAge(formData.dob);
+    const isMinorStudent = role === 'Student' && userAge !== null && userAge < 18;
+
     if (!formData.firstName.trim()) {
       errors.firstName = "First Name is required.";
+    } else if (formData.firstName.trim().length < 2 || isGibberish(formData.firstName.trim())) {
+      errors.firstName = "Please enter a valid First Name in English. Random characters are not allowed.";
+    }
+
+    if (formData.lastName.trim() && isGibberish(formData.lastName.trim())) {
+      errors.lastName = "Please enter a valid Last Name in English.";
     }
 
     if (!formData.email.trim()) {
       errors.email = "Email address is required.";
+    } else if (!emailRegex.test(formData.email.trim()) || isFakeEmail(formData.email.trim())) {
+      errors.email = "Enter a valid real email address (e.g. user@domain.com).";
     }
 
-    if (formData.password.length < 6) {
-      errors.password = "Password must be at least 6 characters long.";
+    const passErr = validatePasswordStrict(formData.password);
+    if (passErr) {
+      errors.password = passErr;
     }
 
-    if (formData.password !== formData.confirmPassword) {
+    if (!formData.confirmPassword) {
+      errors.confirmPassword = "Please confirm your password.";
+    } else if (formData.password !== formData.confirmPassword) {
       errors.confirmPassword = "Passwords do not match.";
     }
 
     if ((role === 'Super Admin' || role === 'Admin') && !formData.schoolName.trim()) {
       errors.schoolName = "School Name is required for Super Admin / Admin accounts.";
+    }
+
+    if (!formData.phone.trim()) {
+      errors.phone = "Phone Number is required.";
+    } else if (!phoneRegex.test(formData.phone.trim()) || isFakePhone(formData.phone.trim())) {
+      errors.phone = "Please enter a valid 11-digit Pakistani phone number starting with 03 (e.g. 03351234567).";
+    }
+
+    if (!formData.address.trim() || formData.address.trim().length < 5) {
+      errors.address = "Personal Address is required (minimum 5 characters).";
+    } else if (isGibberish(formData.address.trim())) {
+      errors.address = "Please enter a valid location/address in English. Random characters are not allowed.";
+    }
+
+    if (!isMinorStudent) {
+      if (!formData.cnic.trim()) {
+        errors.cnic = "CNIC / National ID number is required.";
+      } else if (!cnicRegex.test(formData.cnic.trim()) || isFakeCnic(formData.cnic.trim())) {
+        errors.cnic = "Please enter a valid 13-digit Pakistani CNIC number (e.g. 35202-1234567-1).";
+      }
+
+      if (!formData.cnicFront) {
+        errors.cnicFront = "CNIC Front document image is required for verification.";
+      }
+
+      if (!formData.cnicBack) {
+        errors.cnicBack = "CNIC Back document image is required for verification.";
+      }
     }
 
     if (Object.keys(errors).length > 0) {
@@ -238,11 +420,24 @@ export default function RegisterPage() {
           router.push('/login');
         }, 2000);
       } else {
-        setError(res?.message || 'Registration failed. Please check your information.');
+        const serverMsg = res?.message || 'Registration failed. Please check your information.';
+        const mapped = mapServerErrorToFields(serverMsg);
+        if (Object.keys(mapped).length > 0) {
+          setFieldErrors(prev => ({ ...prev, ...mapped }));
+          setError(null);
+        } else {
+          setError(serverMsg);
+        }
       }
     } catch (err) {
-      const errMsg = err?.response?.data?.message || err?.message || 'Registration failed. Please check your internet connection.';
-      setError(errMsg);
+      const errMsg = err?.response?.data?.message || err?.message || 'Registration failed. Please check your information.';
+      const mapped = mapServerErrorToFields(errMsg);
+      if (Object.keys(mapped).length > 0) {
+        setFieldErrors(prev => ({ ...prev, ...mapped }));
+        setError(null);
+      } else {
+        setError(errMsg);
+      }
     } finally {
       setLoading(false);
     }
@@ -265,8 +460,8 @@ export default function RegisterPage() {
       <div className="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-2xl p-6 sm:p-10 border border-zinc-200 dark:border-zinc-800 shadow-xl">
         
         <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-100 dark:border-emerald-500/20 shadow-sm">
-            <UserPlus size={28} />
+          <div className="mb-6 flex justify-center">
+            <StoofiLogo size="lg" />
           </div>
           <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight">Create an Account</h1>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 font-medium">
@@ -334,6 +529,7 @@ export default function RegisterPage() {
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
+                onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
                 placeholder="e.g. Syed"
                 className={inputClass}
                 required
@@ -375,6 +571,7 @@ export default function RegisterPage() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
+                onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
                 placeholder="e.g. admin@school.com"
                 className={inputClass}
                 required
@@ -397,6 +594,7 @@ export default function RegisterPage() {
                     name="schoolName"
                     value={formData.schoolName}
                     onChange={handleChange}
+                    onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
                     placeholder="e.g. Stoofi Grammar School"
                     className={inputClass}
                     required
@@ -427,6 +625,7 @@ export default function RegisterPage() {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
+                onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
                 placeholder="Minimum 6 characters"
                 className={inputClass}
                 required
@@ -441,6 +640,7 @@ export default function RegisterPage() {
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
+                onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
                 placeholder="Re-enter password"
                 className={inputClass}
                 required
@@ -449,8 +649,29 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {/* Section: Phone, CNIC & Joining Date */}
+          {/* Section: Date of Birth, Phone & CNIC */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className={labelClass}>Date of Birth (DOB)</label>
+              <input
+                type="date"
+                name="dob"
+                value={formData.dob}
+                onChange={handleChange}
+                onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
+                className={inputClass}
+              />
+              {role === 'Student' && formData.dob && calculateAge(formData.dob) !== null && (
+                <p className={`text-[11px] font-semibold mt-1 flex items-center gap-1 ${
+                  calculateAge(formData.dob) < 18 ? 'text-blue-600 dark:text-blue-400' : 'text-emerald-600 dark:text-emerald-400'
+                }`}>
+                  {calculateAge(formData.dob) < 18 
+                    ? `ℹ️ Age: ${calculateAge(formData.dob)} yrs (Under 18 - CNIC document not required)`
+                    : `✓ Age: ${calculateAge(formData.dob)} yrs (18 or older - CNIC required)`}
+                </p>
+              )}
+            </div>
+
             <div>
               <label className={labelClass}>Phone Number</label>
               <input
@@ -458,32 +679,27 @@ export default function RegisterPage() {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
+                onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
                 placeholder="03351234567"
                 className={inputClass}
               />
+              {fieldErrors.phone && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.phone}</p>}
             </div>
 
             <div>
-              <label className={labelClass}>CNIC / National ID</label>
+              <label className={labelClass}>
+                CNIC / National ID {role === 'Student' && calculateAge(formData.dob) !== null && calculateAge(formData.dob) < 18 ? <span className="text-xs text-zinc-400 font-normal">(Optional)</span> : <span className="text-rose-500">*</span>}
+              </label>
               <input
                 type="text"
                 name="cnic"
                 value={formData.cnic}
                 onChange={handleChange}
+                onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
                 placeholder="35202-1234567-1"
                 className={inputClass}
               />
-            </div>
-
-            <div>
-              <label className={labelClass}>Joining Date</label>
-              <input
-                type="date"
-                name="joiningDate"
-                value={formData.joiningDate}
-                onChange={handleChange}
-                className={inputClass}
-              />
+              {fieldErrors.cnic && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.cnic}</p>}
             </div>
           </div>
 
@@ -500,13 +716,77 @@ export default function RegisterPage() {
             />
           </div>
 
+          {/* Section: Student Background */}
+          {role === 'Student' && (
+            <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/40 space-y-4">
+              <div className="flex items-center gap-2 text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider">
+                <Building size={16} /> Student Academic Background
+              </div>
+              <div>
+                <label className={labelClass}>Previous School / College Name</label>
+                <input
+                  type="text"
+                  name="previousSchool"
+                  value={formData.previousSchool}
+                  onChange={handleChange}
+                  placeholder="e.g. Government High School, Lahore"
+                  className={inputClass}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Section: Teacher Experience Background */}
+          {role === 'Teacher' && (
+            <div className="p-4 rounded-xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800/40 space-y-4">
+              <div className="flex items-center gap-2 text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider">
+                <Building size={16} /> Teaching Experience & History
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className={labelClass}>Previous School / College</label>
+                  <input
+                    type="text"
+                    name="previousSchool"
+                    value={formData.previousSchool}
+                    onChange={handleChange}
+                    placeholder="e.g. Army Public School"
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Classes / Subjects Taught</label>
+                  <input
+                    type="text"
+                    name="previousClassesTaught"
+                    value={formData.previousClassesTaught}
+                    onChange={handleChange}
+                    placeholder="e.g. Class 9th & 10th Math"
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Teaching Experience (Years)</label>
+                  <input
+                    type="text"
+                    name="experienceYears"
+                    value={formData.experienceYears}
+                    onChange={handleChange}
+                    placeholder="e.g. 3 Years"
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* LEGAL DOCUMENTS & PICTURE UPLOADS WITH LIVE PREVIEW */}
           <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800 space-y-4">
             <h3 className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider flex items-center gap-2">
-              <FileCheck size={16} className="text-emerald-500" /> Identity Documents & Profile Picture
+              <FileCheck size={16} className="text-emerald-500" /> Identity & Educational Documents
             </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               
               {/* Profile Picture */}
               <div className="p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl space-y-2">
@@ -542,7 +822,9 @@ export default function RegisterPage() {
 
               {/* CNIC Front */}
               <div className="p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl space-y-2">
-                <label className={labelClass}>CNIC Front Image</label>
+                <label className={labelClass}>
+                  CNIC Front Image {role === 'Student' && calculateAge(formData.dob) !== null && calculateAge(formData.dob) < 18 ? <span className="text-xs text-zinc-400 font-normal">(Optional for Under 18)</span> : <span className="text-rose-500">*</span>}
+                </label>
                 <input
                   type="file"
                   accept="image/*,application/pdf"
@@ -566,7 +848,7 @@ export default function RegisterPage() {
                     )}
                     <div className="flex-1 overflow-hidden">
                       <p className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
-                        <ShieldCheck size={12} /> VERIFIED
+                        <FileCheck size={12} /> ATTACHED
                       </p>
                     </div>
                     <button type="button" onClick={() => removeFile('cnicFront')} className="text-rose-500 p-1 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded">
@@ -574,11 +856,14 @@ export default function RegisterPage() {
                     </button>
                   </div>
                 )}
+                {fieldErrors.cnicFront && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.cnicFront}</p>}
               </div>
 
               {/* CNIC Back */}
               <div className="p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl space-y-2">
-                <label className={labelClass}>CNIC Back Image</label>
+                <label className={labelClass}>
+                  CNIC Back Image {role === 'Student' && calculateAge(formData.dob) !== null && calculateAge(formData.dob) < 18 ? <span className="text-xs text-zinc-400 font-normal">(Optional for Under 18)</span> : <span className="text-rose-500">*</span>}
+                </label>
                 <input
                   type="file"
                   accept="image/*,application/pdf"
@@ -602,7 +887,7 @@ export default function RegisterPage() {
                     )}
                     <div className="flex-1 overflow-hidden">
                       <p className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
-                        <ShieldCheck size={12} /> VERIFIED
+                        <FileCheck size={12} /> ATTACHED
                       </p>
                     </div>
                     <button type="button" onClick={() => removeFile('cnicBack')} className="text-rose-500 p-1 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded">
@@ -610,10 +895,84 @@ export default function RegisterPage() {
                     </button>
                   </div>
                 )}
+                {fieldErrors.cnicBack && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.cnicBack}</p>}
               </div>
 
-            </div>
-          </div>
+              {/* Student Character Certificate Upload */}
+              {role === 'Student' && (
+                <div className="p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl space-y-2">
+                  <label className={labelClass}>Character Certificate</label>
+                  <input
+                    type="file"
+                    accept="image/*,application/pdf"
+                    onChange={(e) => handleFileChange(e, 'characterCertificate')}
+                    className="hidden"
+                    id="character-cert-upload"
+                  />
+                  <label
+                    htmlFor="character-cert-upload"
+                    className="flex items-center justify-center gap-2 p-2.5 bg-white dark:bg-zinc-900 border border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg text-xs font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer hover:border-emerald-500 transition-colors"
+                  >
+                    <Upload size={14} /> Upload Certificate
+                  </label>
+
+                  {previews.characterCertificate && (
+                    <div className="mt-2 p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg flex items-center gap-2">
+                      {previews.characterCertificate.type === 'image' ? (
+                        <img src={previews.characterCertificate.url} alt="Certificate" className="w-10 h-10 rounded object-cover border border-emerald-500" />
+                      ) : (
+                        <div className="w-10 h-10 bg-zinc-800 rounded flex items-center justify-center text-[10px] font-bold text-white">PDF</div>
+                      )}
+                      <div className="flex-1 overflow-hidden">
+                        <p className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                          <FileCheck size={12} /> ATTACHED
+                        </p>
+                      </div>
+                      <button type="button" onClick={() => removeFile('characterCertificate')} className="text-rose-500 p-1 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Teacher Experience Letter Upload */}
+              {role === 'Teacher' && (
+                <div className="p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl space-y-2">
+                  <label className={labelClass}>Experience Letter</label>
+                  <input
+                    type="file"
+                    accept="image/*,application/pdf"
+                    onChange={(e) => handleFileChange(e, 'experienceLetter')}
+                    className="hidden"
+                    id="exp-letter-upload"
+                  />
+                  <label
+                    htmlFor="exp-letter-upload"
+                    className="flex items-center justify-center gap-2 p-2.5 bg-white dark:bg-zinc-900 border border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg text-xs font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer hover:border-emerald-500 transition-colors"
+                  >
+                    <Upload size={14} /> Experience Letter
+                  </label>
+
+                  {previews.experienceLetter && (
+                    <div className="mt-2 p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg flex items-center gap-2">
+                      {previews.experienceLetter.type === 'image' ? (
+                        <img src={previews.experienceLetter.url} alt="Experience Letter" className="w-10 h-10 rounded object-cover border border-emerald-500" />
+                      ) : (
+                        <div className="w-10 h-10 bg-zinc-800 rounded flex items-center justify-center text-[10px] font-bold text-white">PDF</div>
+                      )}
+                      <div className="flex-1 overflow-hidden">
+                        <p className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                          <FileCheck size={12} /> ATTACHED
+                        </p>
+                      </div>
+                      <button type="button" onClick={() => removeFile('experienceLetter')} className="text-rose-500 p-1 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
 
           <button
             type="submit"

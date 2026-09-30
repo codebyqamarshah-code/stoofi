@@ -20,6 +20,10 @@ const teacherSchema = new mongoose.Schema({
   designation: { type: String, default: 'Senior Teacher' },
   department: { type: String, default: 'Science' },
   qualification: { type: String },
+  previousSchool: { type: String },
+  previousClassesTaught: { type: String },
+  experienceYears: { type: String },
+  experienceLetter: { type: String },
   joiningDate: { type: Date, default: Date.now },
   status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' }
 }, { timestamps: true });

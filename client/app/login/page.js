@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, ShieldCheck, KeyRound, ShieldAlert, Timer } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { StoofiLogo } from "@/components/StoofiLogo";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -366,10 +367,12 @@ export default function LoginPage() {
       <div className="w-full max-w-[440px] bg-white dark:bg-zinc-50 rounded-2xl p-8 sm:p-10 border border-zinc-100 dark:border-zinc-200">
 
         {/* Header */}
-        <div className="text-center mb-10">
-          <img src="/logo.png" alt="Stoofi Logo" className="h-12 mx-auto mb-6 drop-shadow-sm" />
+        <div className="text-center mb-8">
+          <div className="mb-6 flex justify-center">
+            <StoofiLogo size="lg" />
+          </div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-900">Welcome Back</h1>
-          <p className="text-zinc-500 dark:text-zinc-500 mt-2 text-sm font-medium">Log in to your account</p>
+          <p className="text-zinc-500 dark:text-zinc-500 mt-1 text-sm font-medium">Log in to your account</p>
         </div>
 
         {/* Error Message */}

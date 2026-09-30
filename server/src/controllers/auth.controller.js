@@ -6,6 +6,55 @@ const Teacher = require('../models/Teacher');
 const Staff = require('../models/Staff');
 const jwt = require('jsonwebtoken');
 
+// Helper to calculate age from Date of Birth string
+const calculateAge = (dobString) => {
+  if (!dobString) return null;
+  const birthDate = new Date(dobString);
+  if (isNaN(birthDate.getTime())) return null;
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+};
+
+// Real data detection helpers
+const isFakeName = (str) => {
+  if (!str || str.trim().length < 2) return true;
+  const s = str.trim().toLowerCase();
+  const fakeWords = ['asdf', 'qwerty', 'test', 'admin', 'user', 'dummy', 'fake', '123', 'abc', 'xyz', 'sample', 'null', 'undefined'];
+  if (fakeWords.some(w => s.includes(w))) return true;
+  if (/^(.)\1+$/.test(s)) return true;
+  if (!/^[a-zA-Z\s'.]+$/.test(s)) return true;
+  return false;
+};
+
+const isFakePhone = (phoneStr) => {
+  if (!phoneStr) return true;
+  const digits = phoneStr.replace(/\D/g, '');
+  if (digits.length < 11) return true;
+  const fakePatterns = [
+    '03000000000', '03111111111', '03222222222', '03333333333', 
+    '03444444444', '03555555555', '03666666666', '03777777777', 
+    '03888888888', '03999999999', '03123456789', '03012345678',
+    '923000000000', '923111111111', '923123456789'
+  ];
+  if (fakePatterns.includes(digits)) return true;
+  if (/^(\d)\1+$/.test(digits)) return true;
+  return false;
+};
+
+const isFakeCnic = (cnicStr) => {
+  if (!cnicStr) return true;
+  const digits = cnicStr.replace(/\D/g, '');
+  if (digits.length !== 13) return true;
+  if (/^(\d)\1+$/.test(digits)) return true;
+  if (digits === '1234567890123' || digits === '0123456789012') return true;
+  return false;
+};
+
 // Helper to generate tokens
 const generateToken = (user) => {
   return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
@@ -20,13 +69,79 @@ exports.register = async (req, res, next) => {
       fullName, firstName, lastName, address, fatherName, phone, 
       dob, joiningDate, studentClass, section, cnic,
       schoolName, schoolAddress, cnicFront, cnicBack,
-      picture
+      picture, previousSchool, previousClassesTaught, experienceYears,
+      characterCertificate, experienceLetter
     } = req.body;
 
-    // Check if user exists
+    const finalRole = role || 'Student';
+    const userAge = calculateAge(dob);
+    const isMinorStudent = finalRole === 'Student' && userAge !== null && userAge < 18;
+
+    // Validate strict password rules
+    if (!password || password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password) || !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 8 characters long and include an uppercase letter, lowercase letter, number, and special character (e.g. @, #, $, %).'
+      });
+    }
+
+    // Validate real non-fake Name
+    const targetFirstName = firstName || (fullName ? fullName.split(' ')[0] : '');
+    if (isFakeName(targetFirstName)) {
+      return res.status(400).json({
+        success: false,
+        message: 'First Name appears to be invalid or contains random characters. Please enter a valid real name.'
+      });
+    }
+
+    // Validate required CNIC images for adults and non-minor roles
+    if (!isMinorStudent && (!cnicFront || !cnicBack)) {
+      return res.status(400).json({
+        success: false,
+        message: 'CNIC Front and Back document images are required for verification of applicants 18 years or older.'
+      });
+    }
+
+    // Validate Pakistani Phone & CNIC formats
+    const phoneRegex = /^(\+92|92|0)?3[0-9]{9}$/;
+    const cnicRegex = /^[0-9]{5}-[0-9]{7}-[0-9]{1}$|^[0-9]{13}$/;
+
+    if (phone) {
+      if (!phoneRegex.test(phone.trim()) || isFakePhone(phone.trim())) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid or dummy Pakistani phone number format (e.g. 03351234567). Please enter a real phone number.'
+        });
+      }
+    }
+
+    if (cnic) {
+      if (!cnicRegex.test(cnic.trim()) || isFakeCnic(cnic.trim())) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid or dummy 13-digit Pakistani CNIC format (e.g. 35202-1234567-1). Please enter a real CNIC number.'
+        });
+      }
+    }
+
+    // Check if user exists with email
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({ success: false, message: 'User already exists with this email' });
+      return res.status(400).json({ success: false, message: 'User already exists with this email address.' });
+    }
+
+    if (cnic) {
+      const cnicExists = await User.findOne({ cnic: cnic.trim() });
+      if (cnicExists) {
+        return res.status(400).json({ success: false, message: 'Another user is already registered with this CNIC number.' });
+      }
+    }
+
+    if (phone) {
+      const phoneExists = await User.findOne({ phone: phone.trim() });
+      if (phoneExists) {
+        return res.status(400).json({ success: false, message: 'Another user is already registered with this phone number.' });
+      }
     }
 
     const finalRole = role || 'Student';
@@ -110,7 +225,9 @@ exports.register = async (req, res, next) => {
         academicYear: new Date().getFullYear().toString(),
         admissionNo: 'ADM-' + Date.now(),
         gender: 'Male', // Default
-        studentPhoto: picture || ''
+        studentPhoto: picture || '',
+        previousSchool: previousSchool || '',
+        characterCertificate: characterCertificate || ''
       });
       referenceId = student._id;
     } else if (finalRole === 'Teacher') {
@@ -122,8 +239,14 @@ exports.register = async (req, res, next) => {
         phone: phone || '',
         joiningDate: joiningDate || Date.now(),
         cnic: cnic || '',
+        cnicFront: cnicFront || '',
+        cnicBack: cnicBack || '',
         avatar: picture || '',
-        gender: 'Male'
+        gender: 'Male',
+        previousSchool: previousSchool || '',
+        previousClassesTaught: previousClassesTaught || '',
+        experienceYears: experienceYears || '',
+        experienceLetter: experienceLetter || ''
       });
       referenceId = teacher._id;
     } else if (roleModel === 'Staff') {
@@ -574,6 +697,26 @@ exports.resetPassword = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message: 'Password reset successfully. You can now log in with your new password.'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.resetAllUsersData = async (req, res, next) => {
+  try {
+    // Delete all user accounts and role records to start 100% fresh from 0
+    await User.deleteMany({});
+    await Student.deleteMany({});
+    await Teacher.deleteMany({});
+    await Staff.deleteMany({});
+    try {
+      await Notification.deleteMany({});
+    } catch (e) {}
+
+    return res.status(200).json({
+      success: true,
+      message: 'All registered users, Super Admins, Admins, Teachers, Students, and Staff data have been successfully deleted. System reset to 0.'
     });
   } catch (error) {
     next(error);

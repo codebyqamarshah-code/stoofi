@@ -8,7 +8,8 @@ const {
   forgotPassword,
   verifyResetOtp,
   resetPassword,
-  resendOtp
+  resendOtp,
+  resetAllUsersData
 } = require('../controllers/auth.controller');
 const { protect } = require('../middleware/auth.middleware');
 
@@ -23,5 +24,6 @@ router.post('/resend-otp', resendOtp);
 router.post('/forgot-password', forgotPassword);
 router.post('/verify-reset-otp', verifyResetOtp);
 router.post('/reset-password', resetPassword);
+router.post('/reset-database', resetAllUsersData);
 
 module.exports = router;

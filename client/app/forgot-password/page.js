@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Mail, ArrowLeft, KeyRound, Lock, CheckCircle, ShieldAlert, Eye, EyeOff, Timer } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { StoofiLogo } from "@/components/StoofiLogo";
 import api from "@/services/api";
 
 export default function ForgotPasswordPage() {
@@ -170,8 +171,8 @@ export default function ForgotPasswordPage() {
         
         {/* Branding */}
         <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-100 dark:border-emerald-500/20 shadow-sm">
-            <KeyRound size={28} />
+          <div className="mb-6 flex justify-center">
+            <StoofiLogo size="lg" />
           </div>
           <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight">Forgot Password?</h1>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 font-medium">

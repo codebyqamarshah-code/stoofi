@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -635,34 +635,63 @@ export default function DashboardLayout({ children }) {
 
             {/* Notifications Dropdown */}
             <div className="relative">
-              <button 
-                onClick={() => setIsNotifOpen(!isNotifOpen)}
-                className="relative p-2 rounded-lg bg-zinc-100/40 dark:bg-zinc-50 border border-zinc-300/80 dark:border-zinc-200 text-zinc-950 dark:text-zinc-600 hover:text-zinc-800 hover:border-zinc-950 transition-colors cursor-pointer"
-              >
-                <Bell className="h-4 w-4" />
-                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-zinc-950 text-[10px] font-bold text-white flex items-center justify-center">
-                  2
-                </span>
-              </button>
-              {isNotifOpen && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white dark:bg-zinc-50 border border-zinc-300 dark:border-zinc-200 rounded-lg shadow-xl overflow-hidden">
-                  <div className="p-3 border-b border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white flex justify-between items-center">
-                    <span className="text-xs font-bold text-zinc-900 dark:text-zinc-900">Notifications</span>
-                    <span onClick={() => setHasUnreadNotif(false)} className="text-[10px] text-zinc-950 cursor-pointer hover:underline">Mark all read</span>
-                  </div>
-                  <div className="max-h-64 overflow-y-auto custom-scrollbar p-2 space-y-1">
-                      {liveNotifications.length > 0 ? liveNotifications.map(notif => (
-                        <div key={notif._id} className="p-2 bg-zinc-100/50 dark:bg-zinc-100 rounded-md border border-zinc-300 dark:border-zinc-200 cursor-pointer hover:bg-zinc-200/50">
-                          <div className="text-xs font-semibold text-zinc-900 dark:text-zinc-800">{notif.title}</div>
-                          <div className="text-[10px] text-zinc-950 dark:text-zinc-600">{notif.message}</div>
-                          <div className="text-[8px] text-zinc-500 mt-1">{new Date(notif.createdAt).toLocaleTimeString()}</div>
-                        </div>
-                      )) : (
-                        <div className="p-4 text-center text-xs text-zinc-500">No new notifications</div>
+              {(() => {
+                const unreadNotifs = liveNotifications.filter(n => !n.isRead && !n.read);
+                const unreadCount = unreadNotifs.length;
+
+                return (
+                  <>
+                    <button 
+                      onClick={() => {
+                        setIsNotifOpen(!isNotifOpen);
+                        if (!isNotifOpen) {
+                          setLiveNotifications(prev => prev.map(n => ({ ...n, isRead: true, read: true })));
+                          setHasUnreadNotif(false);
+                        }
+                      }}
+                      className="relative p-2 rounded-lg bg-zinc-100/40 dark:bg-zinc-50 border border-zinc-300/80 dark:border-zinc-200 text-zinc-950 dark:text-zinc-600 hover:text-zinc-800 hover:border-zinc-950 transition-colors cursor-pointer"
+                    >
+                      <Bell className="h-4 w-4" />
+                      {unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-rose-600 text-[10px] font-bold text-white flex items-center justify-center">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
                       )}
-                    </div>
-                  </div>
-                )}
+                    </button>
+                    {isNotifOpen && (
+                      <div className="absolute top-full right-0 mt-2 w-72 bg-white dark:bg-zinc-50 border border-zinc-300 dark:border-zinc-200 rounded-xl shadow-2xl overflow-hidden z-50">
+                        <div className="p-3 border-b border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white flex justify-between items-center">
+                          <span className="text-xs font-bold text-zinc-900 dark:text-zinc-900">Notifications</span>
+                          <span 
+                            onClick={() => {
+                              setLiveNotifications(prev => prev.map(n => ({ ...n, isRead: true, read: true })));
+                              setHasUnreadNotif(false);
+                            }} 
+                            className="text-[10px] text-emerald-600 font-bold cursor-pointer hover:underline"
+                          >
+                            Mark all read
+                          </span>
+                        </div>
+                        <div className="max-h-72 overflow-y-auto custom-scrollbar p-2 space-y-1.5">
+                          {liveNotifications.length > 0 ? liveNotifications.map(notif => (
+                            <div key={notif._id || notif.id || Math.random()} className="p-2.5 bg-zinc-50 dark:bg-zinc-100 rounded-lg border border-zinc-200 dark:border-zinc-200 cursor-pointer hover:bg-zinc-100 transition-colors">
+                              <div className="flex items-center justify-between gap-1">
+                                <span className="text-xs font-bold text-zinc-900 dark:text-zinc-900">{notif.title || 'System Notification'}</span>
+                                <span className="text-[9px] text-zinc-500 font-medium">{notif.createdAt ? new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'}</span>
+                              </div>
+                              <div className="text-[11px] text-zinc-600 dark:text-zinc-600 mt-0.5 leading-snug">{notif.message}</div>
+                            </div>
+                          )) : (
+                            <div className="p-6 text-center text-xs text-zinc-500 font-medium">
+                              No new notifications
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
 
             {/* Profile Dropdown */}
