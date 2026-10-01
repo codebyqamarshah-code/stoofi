@@ -95,7 +95,6 @@ exports.update = async (req, res) => {
         else body[f.fieldname] = `/uploads/${f.filename}`;
       });
     }
-    }
     const data = await Staff.findByIdAndUpdate(req.params.id, body, { new: true });
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
     res.status(200).json({ success: true, data });
