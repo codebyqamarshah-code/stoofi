@@ -26,16 +26,9 @@ export default function LandingPage() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
   const [mounted, setMounted] = useState(false);
-  const [recentUser, setRecentUser] = useState(null);
 
   useEffect(() => {
     setMounted(true);
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem('recent_user');
-        if (stored) setRecentUser(JSON.parse(stored));
-      } catch (e) {}
-    }
   }, []);
 
   // Notices state
@@ -377,26 +370,10 @@ export default function LandingPage() {
                   </div>
                 )}
               </div>
-            ) : recentUser ? (
-              <div className="relative">
-                <Link href="/login" className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-200 border border-zinc-200 dark:border-zinc-300 rounded-full py-1 px-3 transition-colors">
-                  {recentUser.avatar || recentUser.picture ? (
-                    <img src={recentUser.avatar || recentUser.picture} alt="Profile" className="w-7 h-7 rounded-full object-cover" />
-                  ) : (
-                    <div className="w-7 h-7 bg-zinc-800 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                      {recentUser.name ? recentUser.name.charAt(0).toUpperCase() : <User size={14} color="#ffffff" />}
-                    </div>
-                  )}
-                  <div className="flex flex-col items-start leading-none pr-1">
-                    <span className="text-xs font-bold text-zinc-800 dark:text-zinc-900 truncate max-w-[80px] capitalize">{recentUser.name || 'Login'}</span>
-                    <span className="text-[9px] text-zinc-500 font-medium">Click to login</span>
-                  </div>
-                </Link>
-              </div>
             ) : (
               <>
                 <Link href="/login" className="text-sm font-bold text-zinc-900 dark:text-zinc-900 hover:text-zinc-800 dark:hover:text-zinc-950 px-3">{t.nav.login}</Link>
-                <Link href="/login">
+                <Link href="/register">
                   <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-bold rounded-full px-6" style={{ color: '#ffffff' }}>{t.nav.getStarted}</Button>
                 </Link>
               </>
@@ -487,29 +464,15 @@ export default function LandingPage() {
                   Logout
                 </Button>
               </div>
-            ) : recentUser ? (
+            ) : (
               <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-zinc-100">
-                <div className="flex items-center gap-3 px-2 py-1">
-                  {recentUser.avatar || recentUser.picture ? (
-                    <img src={recentUser.avatar || recentUser.picture} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
-                  ) : (
-                    <div className="w-8 h-8 bg-zinc-800 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                      {recentUser.name ? recentUser.name.charAt(0).toUpperCase() : <User size={16} color="#ffffff" />}
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-sm font-bold text-zinc-900">{recentUser.name || recentUser.email}</p>
-                    <p className="text-xs text-zinc-500 capitalize">{recentUser.role}</p>
-                  </div>
-                </div>
                 <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full bg-zinc-800 hover:bg-zinc-800 text-white mt-2" style={{ color: '#ffffff' }}>Login to Continue</Button>
+                  <Button className="w-full bg-zinc-800 hover:bg-zinc-800 text-white mt-2" style={{ color: '#ffffff' }}>Login</Button>
+                </Link>
+                <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="outline" className="w-full mt-1 border-zinc-300 text-zinc-800">Register / Try Free</Button>
                 </Link>
               </div>
-            ) : (
-              <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                <Button className="w-full bg-zinc-800 hover:bg-zinc-800 text-white mt-2" style={{ color: '#ffffff' }}>Login / Try Free</Button>
-              </Link>
             )}
           </div>
         )}
