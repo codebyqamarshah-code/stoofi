@@ -6,7 +6,7 @@ export default function ZoomSettingsPage() {
   const [approval, setApproval] = useState('Automatically');
   const [autoRecord, setAutoRecord] = useState('None');
   const [audioOption, setAudioOption] = useState('Both');
-  const [packageType, setPackageType] = useState('Basic Free)');
+  const [packageType, setPackageType] = useState('Basic (Free)');
   
   const [accountId, setAccountId] = useState('');
   const [clientId, setClientId] = useState('GsF_U_fzQyuqQ7bMDWBL9A');
