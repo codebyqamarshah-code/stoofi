@@ -174,12 +174,16 @@ export default function StoofiAiFloating() {
           <button
             onClick={() => { setIsOpen(true); setIsMinimized(false); }}
             aria-label="Ask Stoofi AI"
-            className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 text-white shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 border-2 border-white/30 dark:border-zinc-800"
+            className="relative flex items-center justify-center w-14 h-14 rounded-full bg-white dark:bg-zinc-900 text-white shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 border-2 border-emerald-500/80 dark:border-emerald-500/50 p-2.5 overflow-hidden group/btn"
           >
-            <Sparkles className="w-7 h-7 animate-pulse text-white drop-shadow" />
-            <span className="absolute -top-1 -right-1 flex h-4 w-4">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-400 border-2 border-white"></span>
+            <img 
+              src="/logo.png" 
+              alt="Stoofi AI" 
+              className="w-full h-full object-contain drop-shadow-sm group-hover/btn:scale-110 transition-transform duration-300" 
+            />
+            <span className="absolute top-0 right-0 flex h-3.5 w-3.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white dark:border-zinc-900"></span>
             </span>
           </button>
 
@@ -202,8 +206,8 @@ export default function StoofiAiFloating() {
           {/* Header */}
           <div className="px-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white flex items-center justify-between shadow-sm select-none">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-xs flex items-center justify-center border border-white/30">
-                <Sparkles className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-white/40 p-1 shadow-xs shrink-0 overflow-hidden">
+                <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
@@ -260,8 +264,8 @@ export default function StoofiAiFloating() {
                     className={`flex gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     {msg.role === 'assistant' && (
-                      <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
-                        <Sparkles className="w-3.5 h-3.5" />
+                      <div className="w-7 h-7 rounded-full bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5 shadow-xs p-1 overflow-hidden">
+                        <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
                       </div>
                     )}
 

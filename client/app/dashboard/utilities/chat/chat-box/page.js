@@ -396,8 +396,8 @@ export default function StoofiAiPage() {
         {/* Chat Area Header */}
         <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-white dark:bg-zinc-950">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 text-white flex items-center justify-center shadow-md">
-              <Sparkles className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-2xl bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shadow-md p-1.5 overflow-hidden">
+              <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -434,8 +434,8 @@ export default function StoofiAiPage() {
                WELCOME & QUICK PROMPTS HERO
             ────────────────────────────────────────────────────────────── */
             <div className="h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center py-8 space-y-6">
-              <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 text-white flex items-center justify-center shadow-xl animate-bounce">
-                <Sparkles className="w-8 h-8" />
+              <div className="w-16 h-16 rounded-3xl bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shadow-xl p-2.5">
+                <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
               </div>
 
               <div className="space-y-2">
@@ -485,8 +485,8 @@ export default function StoofiAiPage() {
                 }`}
               >
                 {msg.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shrink-0 mt-1 shadow-sm">
-                    <Sparkles className="w-4 h-4" />
+                  <div className="w-8 h-8 rounded-2xl bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-1 shadow-sm p-1 overflow-hidden">
+                    <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
                   </div>
                 )}
 
@@ -540,8 +540,8 @@ export default function StoofiAiPage() {
           {/* Thinking / Typing State */}
           {isLoading && (
             <div className="flex gap-3.5 max-w-3xl mr-auto items-center">
-              <div className="w-8 h-8 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shrink-0 shadow-sm animate-spin">
-                <Sparkles className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-2xl bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 shadow-sm p-1 overflow-hidden animate-pulse">
+                <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
               </div>
               <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 flex items-center gap-2 shadow-xs">
                 <span className="flex gap-1 items-center">
