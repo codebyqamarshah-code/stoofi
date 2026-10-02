@@ -384,7 +384,7 @@ export default function StoofiAiPage() {
             </div>
           </div>
           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
-            OpenAI Active
+            Stoofi AI
           </span>
         </div>
       </div>
@@ -566,7 +566,7 @@ export default function StoofiAiPage() {
             <textarea
               ref={textareaRef}
               rows={1}
-              placeholder="Ask Stoofi AI (e.g. 'Show my homework', 'How many students in Class 10?', 'Open fees')..."
+              placeholder="Ask Stoofi AI anything..."
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -590,7 +590,7 @@ export default function StoofiAiPage() {
           </form>
 
           <p className="text-[11px] text-center text-zinc-400 dark:text-zinc-500">
-            Stoofi AI uses OpenAI and your role-authenticated school database. Press <kbd className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-mono text-[10px]">Enter</kbd> to send, <kbd className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-mono text-[10px]">Shift + Enter</kbd> for newline.
+            Press <kbd className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-mono text-[10px]">Enter</kbd> to send, <kbd className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-mono text-[10px]">Shift + Enter</kbd> for new line
           </p>
         </div>
       </div>

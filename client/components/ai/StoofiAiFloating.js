@@ -347,7 +347,7 @@ export default function StoofiAiFloating() {
                   <input
                     ref={inputRef}
                     type="text"
-                    placeholder="Ask anything about Stoofi or school..."
+                    placeholder="Ask Stoofi AI anything..."
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyDown={handleKeyDown}
