@@ -65,9 +65,11 @@ import {
   Trophy,
   ClipboardList,
   CalendarCheck,
+  Sparkles,
 } from 'lucide-react';
 
 export const ICON_MAP = {
+  Sparkles,
   LayoutDashboard,
   Users,
   BookOpen,
@@ -543,7 +545,7 @@ export const DEFAULT_MENU_STRUCTURE = [
         hasSubmenu: true,
         visible: true,
         subItems: [
-          { id: 'sub-chat-box', name: 'Chat Box', href: '/dashboard/utilities/chat/chat-box', iconName: 'MessageSquare', visible: true },
+          { id: 'sub-chat-box', name: 'Stoofi AI', href: '/dashboard/utilities/chat/chat-box', iconName: 'Sparkles', visible: true },
           { id: 'sub-chat-inv', name: 'Invitation', href: '/dashboard/utilities/chat/invitation', iconName: 'MailOpen', visible: true },
           { id: 'sub-chat-blocked', name: 'Blocked User', href: '/dashboard/utilities/chat/blocked-user', iconName: 'Lock', visible: true },
         ]

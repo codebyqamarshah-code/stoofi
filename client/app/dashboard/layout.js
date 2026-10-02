@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import PageTransitionLoader from '@/components/PageTransitionLoader';
+import StoofiAiFloating from '@/components/ai/StoofiAiFloating';
 import { 
   LayoutDashboard, 
   Users, 
@@ -824,6 +825,9 @@ export default function DashboardLayout({ children }) {
           </div>
         </div>
       )}
+
+      {/* Global Stoofi AI Floating Assistant */}
+      <StoofiAiFloating />
     </div>
   );
 }

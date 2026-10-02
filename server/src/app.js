@@ -50,6 +50,7 @@ if (process.env.VERCEL === '1' || process.env.VERCEL_ENV) {
 }
 
 // Routes
+app.use('/api/ai', require('./routes/ai.routes'));
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/dashboard', require('./routes/dashboard.routes'));
 app.use('/api/admission-query', require('./routes/admissionQuery.routes'));
