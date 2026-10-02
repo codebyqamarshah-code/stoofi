@@ -90,11 +90,11 @@ export default function LmsSettingsPage() {
         onClick={() => onChange('Enable')}
         className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer ${
           value === 'Enable' 
-            ? 'bg-indigo-600/20 border-indigo-500 text-indigo-400' 
-            : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
+            ? 'bg-indigo-50 dark:bg-indigo-600/20 border-indigo-500 text-indigo-400' 
+            : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white'
         }`}
       >
-        <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${value === 'Enable' ? 'border-indigo-400 bg-indigo-500' : 'border-zinc-600'}`}>
+        <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${value === 'Enable' ? 'border-indigo-400 bg-indigo-500' : 'border-zinc-300 dark:border-zinc-600'}`}>
           {value === 'Enable' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
         </div>
         <span>Enable</span>
@@ -105,11 +105,11 @@ export default function LmsSettingsPage() {
         onClick={() => onChange('Disable')}
         className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer ${
           value === 'Disable' 
-            ? 'bg-rose-600/20 border-rose-500 text-rose-400' 
-            : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
+            ? 'bg-rose-50 dark:bg-rose-600/20 border-rose-500 text-rose-400' 
+            : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white'
         }`}
       >
-        <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${value === 'Disable' ? 'border-rose-400 bg-rose-500' : 'border-zinc-600'}`}>
+        <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${value === 'Disable' ? 'border-rose-400 bg-rose-500' : 'border-zinc-300 dark:border-zinc-600'}`}>
           {value === 'Disable' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
         </div>
         <span>Disable</span>
@@ -122,15 +122,15 @@ export default function LmsSettingsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
             <Sliders className="h-6 w-6 text-indigo-400" />
             LMS Platform & Course Configuration
           </h1>
-          <p className="text-sm text-zinc-400 mt-1">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
             Manage commissions, video players, course permissions, reviews, and payment settings.
           </p>
         </div>
-        <div className="flex items-center text-sm text-zinc-400">
+        <div className="flex items-center text-sm text-zinc-600 dark:text-zinc-400">
           <Link href="/dashboard" className="hover:text-zinc-300 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>LMS</span>
@@ -147,30 +147,30 @@ export default function LmsSettingsPage() {
       )}
 
       {/* 1. Commission Settings */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden shadow-sm">
-        <div className="p-5 border-b border-zinc-800 bg-zinc-900/30 flex items-center gap-2">
+      <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm">
+        <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 flex items-center gap-2">
           <DollarSign className="h-4 w-4 text-emerald-400" />
-          <h2 className="text-sm font-semibold text-zinc-200 uppercase tracking-wider">Revenue & Commission Splits</h2>
+          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-900 dark:text-zinc-200 uppercase tracking-wider">Revenue & Commission Splits</h2>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-zinc-400 uppercase">Admin / Platform Commission (%)</Label>
+              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Admin / Platform Commission (%)</Label>
               <Input 
                 type="number"
                 value={settings.adminCommission}
                 onChange={(e) => setSettings({ ...settings, adminCommission: e.target.value })}
-                className="bg-zinc-900 border-zinc-800 text-white font-mono text-sm focus-visible:ring-indigo-500" 
+                className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white font-mono text-sm focus-visible:ring-indigo-500" 
               />
               <p className="text-[11px] text-zinc-500">Percentage retained by school administration.</p>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-zinc-400 uppercase">Instructor / Teacher Commission (%)</Label>
+              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Instructor / Teacher Commission (%)</Label>
               <Input 
                 type="number"
                 value={settings.teacherCommission}
                 onChange={(e) => setSettings({ ...settings, teacherCommission: e.target.value })}
-                className="bg-zinc-900 border-zinc-800 text-white font-mono text-sm focus-visible:ring-indigo-500" 
+                className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white font-mono text-sm focus-visible:ring-indigo-500" 
               />
               <p className="text-[11px] text-zinc-500">Percentage paid out to course teacher.</p>
             </div>
@@ -184,28 +184,28 @@ export default function LmsSettingsPage() {
       </div>
 
       {/* 2. Review & QA Setting */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden shadow-sm">
-        <div className="p-5 border-b border-zinc-800 bg-zinc-900/30 flex items-center gap-2">
+      <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm">
+        <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 flex items-center gap-2">
           <MessageSquare className="h-4 w-4 text-sky-400" />
-          <h2 className="text-sm font-semibold text-zinc-200 uppercase tracking-wider">Student Reviews & Q&A Discussion</h2>
+          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-900 dark:text-zinc-200 uppercase tracking-wider">Student Reviews & Q&A Discussion</h2>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800/80">
               <span className="text-xs font-semibold text-zinc-300 uppercase">Public Course Reviews</span>
               <RadioGroup 
                 value={settings.showReviewOption} 
                 onChange={(val) => setSettings({ ...settings, showReviewOption: val })} 
               />
             </div>
-            <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800/80">
               <span className="text-xs font-semibold text-zinc-300 uppercase">Instructor Ratings</span>
               <RadioGroup 
                 value={settings.showInstructorReview} 
                 onChange={(val) => setSettings({ ...settings, showInstructorReview: val })} 
               />
             </div>
-            <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80 md:col-span-2">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800/80 md:col-span-2">
               <span className="text-xs font-semibold text-zinc-300 uppercase">Live Q&A Forum Inside Lessons</span>
               <RadioGroup 
                 value={settings.showQaOption} 
@@ -222,21 +222,21 @@ export default function LmsSettingsPage() {
       </div>
 
       {/* 3. Checkout & Pay Later Settings */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden shadow-sm">
-        <div className="p-5 border-b border-zinc-800 bg-zinc-900/30 flex items-center gap-2">
+      <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm">
+        <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 flex items-center gap-2">
           <ShoppingCart className="h-4 w-4 text-amber-400" />
-          <h2 className="text-sm font-semibold text-zinc-200 uppercase tracking-wider">Checkout & Pay Later Options</h2>
+          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-900 dark:text-zinc-200 uppercase tracking-wider">Checkout & Pay Later Options</h2>
         </div>
         <div className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800/80">
               <span className="text-xs font-semibold text-zinc-300 uppercase">Direct LMS Checkout</span>
               <RadioGroup 
                 value={settings.lmsCheckout} 
                 onChange={(val) => setSettings({ ...settings, lmsCheckout: val })} 
               />
             </div>
-            <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800/80">
               <span className="text-xs font-semibold text-zinc-300 uppercase">Pay Later Option</span>
               <RadioGroup 
                 value={settings.payLater} 
@@ -244,20 +244,20 @@ export default function LmsSettingsPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-zinc-400 uppercase">Pay Later Grace Period (Days)</Label>
+              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Pay Later Grace Period (Days)</Label>
               <Input 
                 type="number"
                 value={settings.payLaterDueDay}
                 onChange={(e) => setSettings({ ...settings, payLaterDueDay: e.target.value })}
-                className="bg-zinc-900 border-zinc-800 text-white font-mono text-sm focus-visible:ring-indigo-500" 
+                className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white font-mono text-sm focus-visible:ring-indigo-500" 
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-zinc-400 uppercase">Pay Later Notice Message</Label>
+              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Pay Later Notice Message</Label>
               <Input 
                 value={settings.payLaterMessage}
                 onChange={(e) => setSettings({ ...settings, payLaterMessage: e.target.value })}
-                className="bg-zinc-900 border-zinc-800 text-white text-sm focus-visible:ring-indigo-500" 
+                className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white text-sm focus-visible:ring-indigo-500" 
               />
             </div>
           </div>
@@ -270,10 +270,10 @@ export default function LmsSettingsPage() {
       </div>
 
       {/* 4. Supported Video & Media Hosts */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden shadow-sm">
-        <div className="p-5 border-b border-zinc-800 bg-zinc-900/30 flex items-center gap-2">
+      <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm">
+        <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 flex items-center gap-2">
           <Server className="h-4 w-4 text-purple-400" />
-          <h2 className="text-sm font-semibold text-zinc-200 uppercase tracking-wider">Supported Video & Media Hosts</h2>
+          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-900 dark:text-zinc-200 uppercase tracking-wider">Supported Video & Media Hosts</h2>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
@@ -287,10 +287,10 @@ export default function LmsSettingsPage() {
                   className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs font-semibold transition-all cursor-pointer text-left ${
                     isChecked
                       ? 'bg-purple-600/20 border-purple-500/60 text-purple-300 shadow-xs'
-                      : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-white'
+                      : 'bg-white dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-700 hover:text-zinc-900 dark:text-white'
                   }`}
                 >
-                  <div className={`w-4 h-4 rounded flex items-center justify-center border ${isChecked ? 'bg-purple-600 border-purple-500 text-white' : 'border-zinc-600 bg-zinc-950'}`}>
+                  <div className={`w-4 h-4 rounded flex items-center justify-center border ${isChecked ? 'bg-purple-600 border-purple-500 text-white' : 'border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-950'}`}>
                     {isChecked && <Check className="h-3 w-3" />}
                   </div>
                   <span>{host}</span>
@@ -307,35 +307,35 @@ export default function LmsSettingsPage() {
       </div>
 
       {/* 5. General & Security Settings */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden shadow-sm">
-        <div className="p-5 border-b border-zinc-800 bg-zinc-900/30 flex items-center gap-2">
+      <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm">
+        <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 flex items-center gap-2">
           <Settings2 className="h-4 w-4 text-indigo-400" />
-          <h2 className="text-sm font-semibold text-zinc-200 uppercase tracking-wider">General LMS Rules & Player</h2>
+          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-900 dark:text-zinc-200 uppercase tracking-wider">General LMS Rules & Player</h2>
         </div>
         <div className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800/80">
               <span className="text-xs font-semibold text-zinc-300 uppercase">Auto Approve New Courses</span>
               <RadioGroup 
                 value={settings.autoApproveCourse} 
                 onChange={(val) => setSettings({ ...settings, autoApproveCourse: val })} 
               />
             </div>
-            <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800/80">
               <span className="text-xs font-semibold text-zinc-300 uppercase">Enable Video Seekbar</span>
               <RadioGroup 
                 value={settings.videoSeekBar} 
                 onChange={(val) => setSettings({ ...settings, videoSeekBar: val })} 
               />
             </div>
-            <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800/80">
               <span className="text-xs font-semibold text-zinc-300 uppercase">Show Enrolled Students Count</span>
               <RadioGroup 
                 value={settings.showInstructorEnrolled} 
                 onChange={(val) => setSettings({ ...settings, showInstructorEnrolled: val })} 
               />
             </div>
-            <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/80">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800/80">
               <span className="text-xs font-semibold text-zinc-300 uppercase">Lesson Manual Completion</span>
               <RadioGroup 
                 value={settings.lessonCompleteManually} 
@@ -354,3 +354,11 @@ export default function LmsSettingsPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+

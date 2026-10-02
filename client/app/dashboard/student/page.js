@@ -352,32 +352,34 @@ export default function StudentDashboardPage() {
         </div>
         <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm space-y-4">
           <h2 className="text-base font-bold text-zinc-900">Leave Types</h2>
-          <table className="w-full text-xs text-left">
-            <thead className="bg-zinc-50 text-zinc-600 font-bold border-b border-zinc-200">
-              <tr>
-                {['TYPE','REMAINING','EXTRA','TAKEN','TOTAL'].map(h => (
-                  <th key={h} className="py-2.5 px-3">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-100">
-              {leaveData.length > 0 ? leaveData.map((l, i) => (
-                <tr key={i} className="hover:bg-zinc-50">
-                  <td className="py-2.5 px-3 font-semibold text-zinc-900">{l.type}</td>
-                  <td className="py-2.5 px-3 text-emerald-600 font-bold">{l.rem}</td>
-                  <td className="py-2.5 px-3 text-zinc-500">{l.extra}</td>
-                  <td className="py-2.5 px-3 text-zinc-500">{l.taken}</td>
-                  <td className="py-2.5 px-3 text-zinc-900 font-bold">{l.total}</td>
-                </tr>
-              )) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left">
+              <thead className="bg-zinc-50 text-zinc-600 font-bold border-b border-zinc-200">
                 <tr>
-                  <td colSpan={5} className="py-6 text-center text-zinc-400 font-medium">
-                    No Leave Types configured by Admin.
-                  </td>
+                  {['TYPE','REMAINING','EXTRA','TAKEN','TOTAL'].map(h => (
+                    <th key={h} className="py-2.5 px-3">{h}</th>
+                  ))}
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-zinc-100">
+                {leaveData.length > 0 ? leaveData.map((l, i) => (
+                  <tr key={i} className="hover:bg-zinc-50">
+                    <td className="py-2.5 px-3 font-semibold text-zinc-900">{l.type}</td>
+                    <td className="py-2.5 px-3 text-emerald-600 font-bold">{l.rem}</td>
+                    <td className="py-2.5 px-3 text-zinc-500">{l.extra}</td>
+                    <td className="py-2.5 px-3 text-zinc-500">{l.taken}</td>
+                    <td className="py-2.5 px-3 text-zinc-900 font-bold">{l.total}</td>
+                  </tr>
+                )) : (
+                  <tr>
+                    <td colSpan={5} className="py-6 text-center text-zinc-400 font-medium">
+                      No Leave Types configured by Admin.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 

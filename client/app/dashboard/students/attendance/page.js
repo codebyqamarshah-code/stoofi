@@ -249,9 +249,9 @@ export default function StudentAttendancePage() {
             </div>
             {students.length > 0 && (
               <div className="flex gap-2 text-xs">
-                <Button size="sm" variant="outline" onClick={() => handleMarkAll('Present')} className="h-8 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10">Mark All Present</Button>
-                <Button size="sm" variant="outline" onClick={() => handleMarkAll('Absent')} className="h-8 border-rose-500/30 text-rose-400 hover:bg-rose-500/10">Mark All Absent</Button>
-                <Button size="sm" variant="outline" onClick={() => handleMarkAll('Late')} className="h-8 border-amber-500/30 text-amber-400 hover:bg-amber-500/10">Mark All Late</Button>
+                <Button size="sm" variant="outline" onClick={() => handleMarkAll('Present')} className="h-8 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10">Mark All Present</Button>
+                <Button size="sm" variant="outline" onClick={() => handleMarkAll('Absent')} className="h-8 border-rose-500/30 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10">Mark All Absent</Button>
+                <Button size="sm" variant="outline" onClick={() => handleMarkAll('Late')} className="h-8 border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10">Mark All Late</Button>
               </div>
             )}
           </div>
@@ -299,7 +299,7 @@ export default function StudentAttendancePage() {
                                 onChange={() => handleStatusChange(student.studentId, opt.label)}
                                 className={`h-3.5 w-3.5 cursor-pointer ${opt.color}`}
                               />
-                              <span className="text-zinc-300 text-xs">{opt.label}</span>
+                              <span className="text-zinc-700 dark:text-zinc-300 text-xs font-medium">{opt.label}</span>
                             </label>
                           ))}
                         </div>

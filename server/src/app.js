@@ -2,8 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
+const compression = require('compression');
 
 const app = express();
+app.use(compression());
 
 // Universal CORS Middleware for Vercel & Cross-Origin requests
 app.use((req, res, next) => {
@@ -53,6 +55,8 @@ app.use('/api/dashboard', require('./routes/dashboard.routes'));
 app.use('/api/admission-query', require('./routes/admissionQuery.routes'));
 app.use('/api/generate-certificate', require('./routes/certificate.routes'));
 app.use('/api/student', require('./routes/student.routes'));
+app.use('/api/student-group', require('./routes/studentGroup.routes'));
+app.use('/api/content', require('./routes/content.routes'));
 app.use('/api/teacher', require('./routes/teacher.routes'));
 app.use('/api/class', require('./routes/class.routes'));
 app.use('/api/section', require('./routes/section.routes'));

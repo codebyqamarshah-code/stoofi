@@ -6,3 +6,4 @@ import { Layers } from 'lucide-react';
 export default function Page() {
   return <EmptyPage title="Fees" description="Manage Fees settings and data here." icon={Layers} />;
 }
+

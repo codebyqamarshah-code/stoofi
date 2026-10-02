@@ -114,6 +114,7 @@ const [formData, setFormData] = useState({
     academicYear: '2026',
     className: '',
     section: '',
+    studentGroup: '',
     admissionNo: '',
     admissionDate: new Date().toISOString().split('T')[0],
     joiningDate: new Date().toISOString().split('T')[0],
@@ -183,6 +184,7 @@ const [formData, setFormData] = useState({
   }, []);
 
   const [sections, setSections] = useState([]);
+  const [groups, setGroups] = useState([]);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -200,6 +202,13 @@ const [formData, setFormData] = useState({
           setSections(secRes.data);
         } else {
           setSections([]);
+        }
+
+        const grpRes = await api.get('/student-group');
+        if (grpRes?.success && Array.isArray(grpRes.data) && grpRes.data.length > 0) {
+          setGroups(grpRes.data);
+        } else {
+          setGroups([]);
         }
 
         // Auto-generate next admission number
@@ -355,9 +364,9 @@ const [formData, setFormData] = useState({
                       <div className="space-y-1.5">
                         <div className="flex justify-between items-center">
                           <Label className="text-xs font-semibold text-zinc-400 uppercase">Class <span className="text-rose-500">*</span></Label>
-                          <a href="/dashboard/class" className="text-xs font-bold text-emerald-500 hover:text-emerald-400 hover:underline flex items-center gap-1">
+                          <Link href="/dashboard/class" className="text-xs font-bold text-emerald-500 hover:text-emerald-400 hover:underline flex items-center gap-1">
                             + Add Class
-                          </a>
+                          </Link>
                         </div>
                         <SearchableSelect 
                           name="className" 
@@ -375,6 +384,21 @@ const [formData, setFormData] = useState({
                           onChange={handleInputChange} 
                           placeholder={formData.className ? "Select Section *" : "Select Class first"}
                           options={getFilteredSections()} 
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between items-center">
+                          <Label className="text-xs font-semibold text-zinc-400 uppercase">Student Group</Label>
+                          <Link href="/dashboard/students/groups" className="text-xs font-bold text-emerald-500 hover:text-emerald-400 hover:underline flex items-center gap-1">
+                            + Add Group
+                          </Link>
+                        </div>
+                        <SearchableSelect 
+                          name="studentGroup" 
+                          value={formData.studentGroup} 
+                          onChange={handleInputChange} 
+                          placeholder="Select Group (Optional)"
+                          options={groups.map(g => ({ label: g.name, value: g._id }))} 
                         />
                       </div>
                       <div className="space-y-1.5">

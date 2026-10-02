@@ -21,6 +21,7 @@ exports.getAll = async (req, res) => {
     const skip = (pageNumber - 1) * limitNumber;
 
     const data = await Teacher.find(query)
+      .lean()
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNumber);

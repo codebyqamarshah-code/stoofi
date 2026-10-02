@@ -412,10 +412,10 @@ exports.login = async (req, res, next) => {
       
       const attemptsLeft = Math.max(0, 5 - user.loginAttempts);
       const errorMsg = user.loginAttempts >= 5 
-        ? 'Account locked due to too many failed attempts.' 
-        : `Incorrect password. ${attemptsLeft} attempts remaining.`;
+        ? 'Maximum attempts reached. Account locked.' 
+        : `Incorrect password`;
         
-      return res.status(401).json({ success: false, message: errorMsg });
+      return res.status(401).json({ success: false, message: errorMsg, attemptsLeft });
     }
 
     // Reset login attempts on successful password match
@@ -469,12 +469,21 @@ exports.login = async (req, res, next) => {
     // --- END OTP VERIFICATION FLOW ---
 
     try {
-      await Notification.create({ 
-        title: 'User Login', 
-        message: `${user.fullName || user.username} (${user.role}) successfully logged in.`, 
-        type: 'Login', 
-        audience: 'Super Admin' 
-      });
+      if (user.role === 'Super Admin') {
+        await Notification.create({ 
+          title: '🚨 Security Alert: Super Admin Login Detected', 
+          message: `The Super Admin account (${user.email}) was just accessed from a new session. If this wasn't you, secure your account immediately.`, 
+          type: 'System', 
+          audience: 'Super Admin' 
+        });
+      } else {
+        await Notification.create({ 
+          title: 'User Login', 
+          message: `${user.fullName || user.username} (${user.role}) successfully logged in.`, 
+          type: 'Login', 
+          audience: 'Super Admin' 
+        });
+      }
     } catch (e) {}
 
     const token = generateToken(user);

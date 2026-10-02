@@ -94,23 +94,19 @@ export default function LandingPage() {
   // Fetch Notices
   useEffect(() => {
     const fetchPublicNotices = async () => {
-      let localList = [];
-      if (typeof window !== 'undefined') {
-        try {
-          const raw = localStorage.getItem('dashboard_notices');
-          if (raw) localList = JSON.parse(raw);
-        } catch (_) {}
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboard/notices`);
+        const result = await res.json();
+        if (result.success && result.data) {
+          const noticesOnly = result.data.filter(item => item.type === 'Notice');
+          setPublicNotices(noticesOnly);
+        } else {
+          setPublicNotices([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch public notices:", error);
+        setPublicNotices([]);
       }
-      
-      // Default sample notices
-      const defaultNotices = [
-        { _id: 'default-1', title: 'Annual Sports Gala 2026 Registration Open', description: 'Students interested in participating in track & field, cricket, badminton, and gymnastics are requested to submit their registrations before Friday.', noticeTo: 'Students', noticeDate: new Date().toISOString().split('T')[0], createdBy: 'Admin Office' },
-        { _id: 'default-2', title: 'Mid-Term Examination Schedule Published', description: 'The mid-term examination datesheet and syllabus outline for all classes (Grade 1 to 10) have been published on the student portal.', noticeTo: 'All', noticeDate: new Date(Date.now() - 86400000).toISOString().split('T')[0], createdBy: 'Examination Wing' },
-        { _id: 'default-3', title: 'Parent-Teacher Meeting (PTM) Notice', description: 'Parent-Teacher conference will be held this Saturday from 9:00 AM to 1:00 PM. Parents can review academic progress and attendance records with class instructors.', noticeTo: 'Parents', noticeDate: new Date(Date.now() - 172800000).toISOString().split('T')[0], createdBy: 'Principal Office' }
-      ];
-
-      // Use local list if available, else defaults
-      setPublicNotices(localList.length > 0 ? localList : defaultNotices);
     };
 
     fetchPublicNotices();
@@ -327,7 +323,7 @@ export default function LandingPage() {
                   className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-200 border border-zinc-200 dark:border-zinc-300 rounded-full py-1 px-3 transition-colors"
                 >
                   {user?.avatar || user?.picture ? (
-                    <img src={user.avatar || user.picture} alt="Profile" className="w-7 h-7 rounded-full object-cover" />
+                    <img loading="lazy" src={user.avatar || user.picture} alt="Profile" className="w-7 h-7 rounded-full object-cover" />
                   ) : (
                     <div className="w-7 h-7 bg-zinc-800 rounded-full flex items-center justify-center text-white text-xs font-bold">
                       {user?.name ? user.name.charAt(0).toUpperCase() : <User size={14} color="#ffffff" />}
@@ -425,7 +421,7 @@ export default function LandingPage() {
               <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-zinc-100">
                 <div className="flex items-center gap-3 px-2 py-1">
                   {user?.avatar || user?.picture ? (
-                    <img src={user.avatar || user.picture} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
+                    <img loading="lazy" src={user.avatar || user.picture} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
                   ) : (
                     <div className="w-8 h-8 bg-zinc-800 rounded-full flex items-center justify-center text-white text-sm font-bold">
                       {user?.name ? user.name.charAt(0).toUpperCase() : <User size={16} color="#ffffff" />}
@@ -494,13 +490,13 @@ export default function LandingPage() {
             {t.hero.desc}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/login">
-              <Button className="h-14 px-10 text-base bg-zinc-800 hover:bg-zinc-800 text-white rounded-full font-bold shadow-md hover:-translate-y-0.5 transition-all">
+            <Link href="/register">
+              <Button className="h-14 px-10 text-base bg-zinc-800 hover:bg-zinc-700 text-white rounded-full font-bold shadow-md hover:-translate-y-0.5 transition-all">
                 {t.hero.trialBtn}
               </Button>
             </Link>
             <Link href="#how-it-works">
-              <Button variant="outline" className="h-14 px-10 text-base rounded-full font-bold border-zinc-300 dark:border-zinc-200 text-zinc-800 dark:text-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-100 transition-all">
+              <Button variant="outline" className="h-14 px-10 text-base rounded-full font-bold border-2 border-zinc-800 text-zinc-800 bg-transparent hover:bg-zinc-100 transition-all">
                 {t.hero.howItWorks} <ArrowRight size={16} className="ml-2 inline" />
               </Button>
             </Link>
@@ -533,17 +529,18 @@ export default function LandingPage() {
       </section>
 
       {/* ── Public Notice Board Section ── */}
-      <section id="notices" className="py-24 bg-white dark:bg-white border-b border-zinc-200 dark:border-zinc-200">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <span className="text-xs font-bold text-zinc-800 dark:text-zinc-900 uppercase tracking-widest mb-3 block">School Announcements</span>
-            <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-zinc-900 mb-4">Latest Circulars & Notices</h2>
-            <p className="text-lg text-zinc-600 dark:text-zinc-600 max-w-2xl mx-auto">
-              Stay updated with the latest news, events, and important announcements from the school administration.
-            </p>
-          </div>
+      {publicNotices.length > 0 && (
+        <section id="notices" className="py-24 bg-white dark:bg-white border-b border-zinc-200 dark:border-zinc-200">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <span className="text-xs font-bold text-zinc-800 dark:text-zinc-900 uppercase tracking-widest mb-3 block">School Announcements</span>
+              <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-zinc-900 mb-4">Latest Circulars & Notices</h2>
+              <p className="text-lg text-zinc-600 dark:text-zinc-600 max-w-2xl mx-auto">
+                Stay updated with the latest news, events, and important announcements from the school administration.
+              </p>
+            </div>
 
-          {/* Filters & Search */}
+            {/* Filters & Search */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-10">
             <div className="flex items-center bg-zinc-100 dark:bg-zinc-50 rounded-lg p-1 w-full md:w-auto overflow-x-auto no-scrollbar">
               {['All', 'Students', 'Parents', 'Teachers', 'Staff'].map(tab => (
@@ -619,6 +616,7 @@ export default function LandingPage() {
           )}
         </div>
       </section>
+      )}
 
       {/* ── How To Use / Step-by-Step Guide Section ── */}
       <section id="how-it-works" className="py-24 bg-white dark:bg-white">
@@ -896,7 +894,7 @@ export default function LandingPage() {
       <footer className="border-t border-zinc-200 dark:border-zinc-200 py-16 bg-zinc-50 dark:bg-white">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <Link href="/" className="inline-block mb-6">
-            <img src="/stoofi light.png" alt="Stoofi PRO" className="h-10 sm:h-12 w-auto object-contain mx-auto" />
+            <img loading="lazy" src="/stoofi light.png" alt="Stoofi PRO" className="h-10 sm:h-12 w-auto object-contain mx-auto" />
           </Link>
           <p className="text-base text-zinc-600 dark:text-zinc-600 font-medium mb-3">The ultimate school management ERP solution for modern educational institutes.</p>
           <p className="text-sm text-zinc-500 dark:text-zinc-9000">&copy; {new Date().getFullYear()} Stoofi PRO. All rights reserved.</p>

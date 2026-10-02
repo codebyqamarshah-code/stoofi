@@ -450,12 +450,19 @@ export default function RegisterPage() {
         schoolName: formData.schoolName.trim(),
         schoolAddress: formData.schoolAddress.trim() || formData.address.trim(),
         address: formData.address.trim() || formData.schoolAddress.trim(),
+        dob: formData.dob,
         joiningDate: formData.joiningDate || new Date().toISOString().split('T')[0],
         picture: formData.picture,
         cnicFront: formData.cnicFront,
         cnicBack: formData.cnicBack,
         studentClass: formData.studentClass,
-        section: formData.section
+        section: formData.section,
+        gender: formData.gender || 'Male',
+        characterCertificate: formData.characterCertificate,
+        experienceLetter: formData.experienceLetter,
+        previousSchool: formData.previousSchool,
+        previousClassesTaught: formData.previousClassesTaught,
+        previousSchoolContact: formData.previousSchoolContact
       };
 
       const res = await api.post('/auth/register', payload, { timeout: 25000 });
@@ -546,12 +553,9 @@ export default function RegisterPage() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className={labelClass}>Register As <span className="text-rose-500">*</span></label>
-              {!availableRoles.includes('Super Admin') && (
-                <span className="text-[10px] text-zinc-400 font-semibold">Super Admin & Admin registered</span>
-              )}
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {['Super Admin', 'Admin', 'Teacher', 'Student', 'Parent', 'Accountant'].map((r) => {
+              {['Super Admin', 'Admin', 'Teacher', 'Student', 'Accountant'].map((r) => {
                 const isAvailable = availableRoles.includes(r);
                 const isSelected = role === r;
                 return (
@@ -716,15 +720,6 @@ export default function RegisterPage() {
                 onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
                 className={inputClass}
               />
-              {role === 'Student' && formData.dob && calculateAge(formData.dob) !== null && (
-                <p className={`text-[11px] font-semibold mt-1 flex items-center gap-1 ${
-                  calculateAge(formData.dob) < 18 ? 'text-blue-600 dark:text-blue-400' : 'text-emerald-600 dark:text-emerald-400'
-                }`}>
-                  {calculateAge(formData.dob) < 18 
-                    ? `ℹ️ Age: ${calculateAge(formData.dob)} yrs (Under 18 - CNIC document not required)`
-                    : `✓ Age: ${calculateAge(formData.dob)} yrs (18 or older - CNIC required)`}
-                </p>
-              )}
             </div>
 
             <div>
@@ -774,25 +769,6 @@ export default function RegisterPage() {
             {fieldErrors.address && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.address}</p>}
           </div>
 
-          {/* Section: Student Background */}
-          {role === 'Student' && (
-            <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/40 space-y-4">
-              <div className="flex items-center gap-2 text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider">
-                <Building size={16} /> Student Academic Background
-              </div>
-              <div>
-                <label className={labelClass}>Previous School / College Name</label>
-                <input
-                  type="text"
-                  name="previousSchool"
-                  value={formData.previousSchool}
-                  onChange={handleChange}
-                  placeholder="e.g. Government High School, Lahore"
-                  className={inputClass}
-                />
-              </div>
-            </div>
-          )}
 
           {/* Section: Teacher Experience Background */}
           {role === 'Teacher' && (
@@ -878,83 +854,88 @@ export default function RegisterPage() {
                 )}
               </div>
 
-              {/* CNIC Front */}
-              <div className="p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl space-y-2">
-                <label className={labelClass}>
-                  CNIC Front Image {role === 'Student' && calculateAge(formData.dob) !== null && calculateAge(formData.dob) < 18 ? <span className="text-xs text-zinc-400 font-normal">(Optional for Under 18)</span> : <span className="text-rose-500">*</span>}
-                </label>
-                <input
-                  type="file"
-                  accept="image/*,application/pdf"
-                  onChange={(e) => handleFileChange(e, 'cnicFront')}
-                  className="hidden"
-                  id="cnic-front-upload"
-                />
-                <label
-                  htmlFor="cnic-front-upload"
-                  className="flex items-center justify-center gap-2 p-2.5 bg-white dark:bg-zinc-900 border border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg text-xs font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer hover:border-emerald-500 transition-colors"
-                >
-                  <Upload size={14} /> Front CNIC
-                </label>
+              {/* CNIC Front & Back (Hidden for students under 18) */}
+              {!(role === 'Student' && calculateAge(formData.dob) !== null && calculateAge(formData.dob) < 18) && (
+                <>
+                  {/* CNIC Front */}
+                  <div className="p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl space-y-2">
+                    <label className={labelClass}>
+                      CNIC Front Image <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      onChange={(e) => handleFileChange(e, 'cnicFront')}
+                      className="hidden"
+                      id="cnic-front-upload"
+                    />
+                    <label
+                      htmlFor="cnic-front-upload"
+                      className="flex items-center justify-center gap-2 p-2.5 bg-white dark:bg-zinc-900 border border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg text-xs font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer hover:border-emerald-500 transition-colors"
+                    >
+                      <Upload size={14} /> Front CNIC
+                    </label>
 
-                {previews.cnicFront && (
-                  <div className="mt-2 p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg flex items-center gap-2">
-                    {previews.cnicFront.type === 'image' ? (
-                      <img src={previews.cnicFront.url} alt="CNIC Front" className="w-10 h-10 rounded object-cover border border-emerald-500" />
-                    ) : (
-                      <div className="w-10 h-10 bg-zinc-800 rounded flex items-center justify-center text-[10px] font-bold text-white">PDF</div>
+                    {previews.cnicFront && (
+                      <div className="mt-2 p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg flex items-center gap-2">
+                        {previews.cnicFront.type === 'image' ? (
+                          <img src={previews.cnicFront.url} alt="CNIC Front" className="w-10 h-10 rounded object-cover border border-emerald-500" />
+                        ) : (
+                          <div className="w-10 h-10 bg-zinc-800 rounded flex items-center justify-center text-[10px] font-bold text-white">PDF</div>
+                        )}
+                        <div className="flex-1 overflow-hidden">
+                          <p className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                            <FileCheck size={12} /> ATTACHED
+                          </p>
+                        </div>
+                        <button type="button" onClick={() => removeFile('cnicFront')} className="text-rose-500 p-1 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     )}
-                    <div className="flex-1 overflow-hidden">
-                      <p className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
-                        <FileCheck size={12} /> ATTACHED
-                      </p>
-                    </div>
-                    <button type="button" onClick={() => removeFile('cnicFront')} className="text-rose-500 p-1 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded">
-                      <Trash2 size={14} />
-                    </button>
+                    {fieldErrors.cnicFront && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.cnicFront}</p>}
                   </div>
-                )}
-                {fieldErrors.cnicFront && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.cnicFront}</p>}
-              </div>
 
-              {/* CNIC Back */}
-              <div className="p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl space-y-2">
-                <label className={labelClass}>
-                  CNIC Back Image {role === 'Student' && calculateAge(formData.dob) !== null && calculateAge(formData.dob) < 18 ? <span className="text-xs text-zinc-400 font-normal">(Optional for Under 18)</span> : <span className="text-rose-500">*</span>}
-                </label>
-                <input
-                  type="file"
-                  accept="image/*,application/pdf"
-                  onChange={(e) => handleFileChange(e, 'cnicBack')}
-                  className="hidden"
-                  id="cnic-back-upload"
-                />
-                <label
-                  htmlFor="cnic-back-upload"
-                  className="flex items-center justify-center gap-2 p-2.5 bg-white dark:bg-zinc-900 border border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg text-xs font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer hover:border-emerald-500 transition-colors"
-                >
-                  <Upload size={14} /> Back CNIC
-                </label>
+                  {/* CNIC Back */}
+                  <div className="p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl space-y-2">
+                    <label className={labelClass}>
+                      CNIC Back Image <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      onChange={(e) => handleFileChange(e, 'cnicBack')}
+                      className="hidden"
+                      id="cnic-back-upload"
+                    />
+                    <label
+                      htmlFor="cnic-back-upload"
+                      className="flex items-center justify-center gap-2 p-2.5 bg-white dark:bg-zinc-900 border border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg text-xs font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer hover:border-emerald-500 transition-colors"
+                    >
+                      <Upload size={14} /> Back CNIC
+                    </label>
 
-                {previews.cnicBack && (
-                  <div className="mt-2 p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg flex items-center gap-2">
-                    {previews.cnicBack.type === 'image' ? (
-                      <img src={previews.cnicBack.url} alt="CNIC Back" className="w-10 h-10 rounded object-cover border border-emerald-500" />
-                    ) : (
-                      <div className="w-10 h-10 bg-zinc-800 rounded flex items-center justify-center text-[10px] font-bold text-white">PDF</div>
+                    {previews.cnicBack && (
+                      <div className="mt-2 p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg flex items-center gap-2">
+                        {previews.cnicBack.type === 'image' ? (
+                          <img src={previews.cnicBack.url} alt="CNIC Back" className="w-10 h-10 rounded object-cover border border-emerald-500" />
+                        ) : (
+                          <div className="w-10 h-10 bg-zinc-800 rounded flex items-center justify-center text-[10px] font-bold text-white">PDF</div>
+                        )}
+                        <div className="flex-1 overflow-hidden">
+                          <p className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                            <FileCheck size={12} /> ATTACHED
+                          </p>
+                        </div>
+                        <button type="button" onClick={() => removeFile('cnicBack')} className="text-rose-500 p-1 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     )}
-                    <div className="flex-1 overflow-hidden">
-                      <p className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
-                        <FileCheck size={12} /> ATTACHED
-                      </p>
-                    </div>
-                    <button type="button" onClick={() => removeFile('cnicBack')} className="text-rose-500 p-1 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded">
-                      <Trash2 size={14} />
-                    </button>
+                    {fieldErrors.cnicBack && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.cnicBack}</p>}
                   </div>
-                )}
-                {fieldErrors.cnicBack && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.cnicBack}</p>}
-              </div>
+                </>
+              )}
 
               {/* Student Character Certificate Upload */}
               {role === 'Student' && (

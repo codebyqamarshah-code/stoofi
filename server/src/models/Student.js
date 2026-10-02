@@ -6,6 +6,7 @@ const schema = new mongoose.Schema({
   classId: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' },
   className: { type: String, required: true },
   section: { type: String, required: true },
+  studentGroup: { type: mongoose.Schema.Types.ObjectId, ref: 'StudentGroup' },
   admissionNo: { type: String, required: true, unique: true },
   admissionDate: { type: String },
   joiningDate: { type: String },

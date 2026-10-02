@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Mail, ArrowLeft, KeyRound, Lock, CheckCircle, ShieldAlert, Eye, EyeOff, Timer } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { StoofiLogo } from "@/components/StoofiLogo";
+import OtpInput from "@/components/OtpInput";
 import api from "@/services/api";
 
 export default function ForgotPasswordPage() {
@@ -236,22 +237,15 @@ export default function ForgotPasswordPage() {
         {step === 2 && (
           <form onSubmit={handleVerifyOtp} className="space-y-5">
             <div>
-              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-2">
-                6-Digit Verification Code
+              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-3 text-center">
+                Enter 6-Digit Verification Code
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400">
-                  <KeyRound size={18} />
-                </div>
-                <input
-                  type="text"
-                  maxLength={6}
+              <div className="mb-2">
+                <OtpInput
+                  length={6}
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                  placeholder="123456"
-                  className={`${inputClass} tracking-[6px] text-center text-lg font-bold`}
-                  required
-                  autoFocus
+                  onChange={(val) => setOtp(val)}
+                  disabled={loading || otpTimer === 0}
                 />
               </div>
             </div>

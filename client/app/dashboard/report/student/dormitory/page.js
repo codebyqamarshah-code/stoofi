@@ -21,30 +21,30 @@ export default function StudentDormitoryReportPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Student Dormitory Report</h1>
-        <div className="flex items-center text-sm text-zinc-400">
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Student Dormitory Report</h1>
+        <div className="flex items-center text-sm text-zinc-600 dark:text-zinc-400">
           <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Report</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Student Report</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-zinc-600">Student Dormitory Report</span>
         </div>
       </div>
 
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-4 space-y-4">
-        <h2 className="text-lg font-semibold text-white">Select Criteria</h2>
+      <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 space-y-4">
+        <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">Select Criteria</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Search Keywords</Label>
+            <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Search Keywords</Label>
             <Input 
               placeholder="Search..." 
               value={search} 
               onChange={(e) => setSearch(e.target.value)}
-              className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white" 
+              className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 focus-visible:ring-zinc-600 text-zinc-900 dark:text-white" 
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Class / Group</Label>
+            <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Class / Group</Label>
             <select 
               value={classFilter} 
               onChange={(e) => setClassFilter(e.target.value)}
-              className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-zinc-600"
+              className="flex h-9 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-zinc-600"
             >
               <option value="">All Classes</option>
               {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
@@ -53,31 +53,31 @@ export default function StudentDormitoryReportPage() {
             </select>
           </div>
           <div className="flex items-end justify-end">
-            <Button onClick={handleSearch} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2">
+            <Button onClick={handleSearch} className="bg-zinc-800 hover:bg-zinc-700 text-white font-semibold flex items-center gap-2">
               <Search className="h-4 w-4" /> SEARCH REPORT
             </Button>
           </div>
         </div>
       </div>
 
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-white">Student Dormitory Report List</h2>
+      <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden">
+        <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">Student Dormitory Report List</h2>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white"><Download className="h-4 w-4" /></Button>
-            <Button variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 text-zinc-600 hover:text-white"><FileText className="h-4 w-4" /></Button>
-            <Button variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 text-rose-500 hover:text-white"><Printer className="h-4 w-4" /></Button>
+            <Button variant="outline" size="icon" className="h-9 w-9 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white"><Download className="h-4 w-4" /></Button>
+            <Button variant="outline" size="icon" className="h-9 w-9 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 hover:text-zinc-900 dark:text-white"><FileText className="h-4 w-4" /></Button>
+            <Button variant="outline" size="icon" className="h-9 w-9 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-rose-500 hover:text-zinc-900 dark:text-white"><Printer className="h-4 w-4" /></Button>
           </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
+            <thead className="text-xs text-zinc-600 dark:text-zinc-400 uppercase bg-zinc-50 dark:bg-white dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
               <tr>
                 <th className="px-4 py-3 font-semibold">SL</th>
                 <th className="px-4 py-3 font-semibold">Student Name</th><th className="px-4 py-3 font-semibold">Class</th><th className="px-4 py-3 font-semibold">Dormitory Name</th><th className="px-4 py-3 font-semibold">Room No</th><th className="px-4 py-3 font-semibold">Room Type</th><th className="px-4 py-3 font-semibold">Cost</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800">
+            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
               {loading ? (
                 <tr><td colSpan="7" className="px-4 py-8 text-center text-zinc-500">Loading...</td></tr>
               ) : records.length === 0 ? (
@@ -90,3 +90,4 @@ export default function StudentDormitoryReportPage() {
     </div>
   );
 }
+

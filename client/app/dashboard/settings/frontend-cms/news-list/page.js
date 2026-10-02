@@ -275,7 +275,7 @@ export default function NewsListPage() {
                           <div className="absolute right-0 mt-1 w-28 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-20 py-1">
                             <button
                               onClick={() => handleDelete(item.id)}
-                              className="w-full text-left px-3 py-1.5 text-xs text-rose-400 hover:bg-rose-950/40 flex items-center gap-2"
+                              className="w-full text-left px-3 py-1.5 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2"
                             >
                               <Trash2 className="w-3.5 h-3.5" /> Delete
                             </button>
@@ -302,3 +302,4 @@ export default function NewsListPage() {
     </div>
   );
 }
+

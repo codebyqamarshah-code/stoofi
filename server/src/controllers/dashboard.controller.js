@@ -282,15 +282,17 @@ exports.quickAddExpense = async (req, res, next) => {
 
 exports.getNotices = async (req, res, next) => {
   try {
-    const notices = await Notice.find().sort({ createdAt: -1 });
-    const events = await Event.find().sort({ createdAt: -1 });
+    const notices = await Notice.find().lean().sort({ createdAt: -1 });
+    const events = await Event.find().lean().sort({ createdAt: -1 });
     
     // Merge them into one array for the dashboard popup
     const combined = [
-        ...notices.map(n => ({ ...n.toObject(), type: 'Notice' })),
-        ...events.map(e => ({ ...e.toObject(), type: 'Event', date: e.startDate }))
+        ...notices.map(n => ({ ...n, type: 'Notice' })),
+        ...events.map(e => ({ ...e, type: 'Event', date: e.startDate }))
     ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     
+    // Cache for 60 seconds (1 minute) to improve landing page speed on slow internet
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=300');
     res.status(200).json({ success: true, data: combined });
   } catch (error) {
     next(error);
@@ -421,6 +423,7 @@ exports.getLiveUpdates = async (req, res, next) => {
     // Role-aware notifications: user sees their role's notifications + All
     const audienceFilter = { $in: [userRole, 'All'] };
     const notifications = await Notification.find({ audience: audienceFilter })
+      .lean()
       .sort({ createdAt: -1 })
       .limit(15);
 

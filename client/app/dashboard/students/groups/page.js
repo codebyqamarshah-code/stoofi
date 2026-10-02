@@ -2,45 +2,84 @@
 
 import Link from 'next/link';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ChevronRight, Search, Download, Printer, FileText, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import api from '@/services/api';
 
 export default function StudentGroupPage() {
   const [groups, setGroups] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({ group: '' });
   const [editingId, setEditingId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleSave = (e) => {
+  useEffect(() => {
+    fetchGroups();
+  }, []);
+
+  const fetchGroups = async () => {
+    try {
+      const res = await api.get('/student-group');
+      if (res && res.success) {
+        setGroups(res.data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async (e) => {
     e.preventDefault();
     if (!formData.group.trim()) return;
+    setError(null);
 
-    if (editingId) {
-      setGroups(groups.map(g => g.id === editingId ? { ...g, group: formData.group.trim() } : g));
-      setEditingId(null);
-    } else {
-      setGroups([{ id: Date.now(), group: formData.group.trim(), students: 0 }, ...groups]);
+    try {
+      if (editingId) {
+        const res = await api.put(`/student-group/${editingId}`, { name: formData.group.trim() });
+        if (res.success) {
+          setGroups(groups.map(g => g._id === editingId ? { ...g, name: res.data.name } : g));
+          setEditingId(null);
+          setFormData({ group: '' });
+        }
+      } else {
+        const res = await api.post('/student-group', { name: formData.group.trim() });
+        if (res.success) {
+          setGroups([{ ...res.data, students: 0 }, ...groups]);
+          setFormData({ group: '' });
+        }
+      }
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Error saving group');
     }
-    setFormData({ group: '' });
   };
 
   const handleEdit = (groupObj) => {
-    setEditingId(groupObj.id);
-    setFormData({ group: groupObj.group });
+    setEditingId(groupObj._id);
+    setFormData({ group: groupObj.name });
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if(confirm('Are you sure you want to delete this group?')) {
-      setGroups(groups.filter(g => g.id !== id));
+      try {
+        const res = await api.delete(`/student-group/${id}`);
+        if (res.success) {
+          setGroups(groups.filter(g => g._id !== id));
+        }
+      } catch (err) {
+        alert(err?.response?.data?.message || 'Error deleting group');
+      }
     }
   };
 
   const filteredGroups = useMemo(() => {
     return groups.filter(g => 
-      g.group.toLowerCase().includes(searchQuery.toLowerCase())
+      g.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [groups, searchQuery]);
 
@@ -122,10 +161,14 @@ export default function StudentGroupPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredGroups.length > 0 ? filteredGroups.map((g) => (
-                    <tr key={g.id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
-                      <td className="px-4 py-4 text-zinc-300 font-medium">{g.group}</td>
-                      <td className="px-4 py-4 text-zinc-400">{g.students}</td>
+                  {loading ? (
+                    <tr>
+                      <td colSpan="3" className="px-4 py-8 text-center text-zinc-500">Loading...</td>
+                    </tr>
+                  ) : filteredGroups.length > 0 ? filteredGroups.map((g) => (
+                    <tr key={g._id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
+                      <td className="px-4 py-4 text-zinc-300 font-medium">{g.name}</td>
+                      <td className="px-4 py-4 text-zinc-400">{g.students || 0}</td>
                       <td className="px-4 py-4 text-right space-x-2">
                          <Button 
                           onClick={() => handleEdit(g)}
@@ -136,7 +179,7 @@ export default function StudentGroupPage() {
                           <Edit className="h-3.5 w-3.5 mr-1" /> EDIT
                         </Button>
                         <Button 
-                          onClick={() => handleDelete(g.id)}
+                          onClick={() => handleDelete(g._id)}
                           variant="outline" 
                           size="sm" 
                           className="h-8 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10"

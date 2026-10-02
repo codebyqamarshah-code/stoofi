@@ -1,15 +1,132 @@
 'use client';
 
 import Link from 'next/link';
-
-import React, { useState } from 'react';
-import { ChevronRight, Search, Download, Printer, FileText, MoreVertical, Upload } from 'lucide-react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { ChevronRight, Search, Download, Printer, FileText, MoreVertical, Upload, Trash2, Edit2, Link as LinkIcon, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import api from '@/services/api';
 
 export default function ContentListPage() {
   const [contents, setContents] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const [formData, setFormData] = useState({ contentType: '', youtubeLink: '' });
+  const [file, setFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [fileBase64, setFileBase64] = useState('');
+  const fileInputRef = useRef(null);
+  
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchContents();
+  }, []);
+
+  const fetchContents = async () => {
+    try {
+      const res = await api.get('/content');
+      if (res && res.success) {
+        setContents(res.data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files && e.target.files[0];
+    if (selectedFile) {
+      if (selectedFile.size > 20 * 1024 * 1024) {
+        alert('File is too large. Max 20MB.');
+        return;
+      }
+      setFile(selectedFile);
+      const url = URL.createObjectURL(selectedFile);
+      setPreviewUrl(url);
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFileBase64(reader.result);
+      };
+      reader.readAsDataURL(selectedFile);
+    }
+  };
+
+  const removeFile = () => {
+    setFile(null);
+    setPreviewUrl('');
+    setFileBase64('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const formatSize = (bytes) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    if (!formData.contentType) {
+      alert('Content Type is required.');
+      return;
+    }
+
+    try {
+      const payload = {
+        contentType: formData.contentType,
+        youtubeLink: formData.youtubeLink,
+        fileUrl: fileBase64,
+        fileName: file ? file.name : '',
+        fileType: file ? file.type : '',
+        fileSize: file ? formatSize(file.size) : ''
+      };
+
+      const res = await api.post('/content', payload);
+      if (res.success) {
+        setContents([res.data, ...contents]);
+        setFormData({ contentType: '', youtubeLink: '' });
+        removeFile();
+      }
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Error saving content');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (confirm('Are you sure you want to delete this content?')) {
+      try {
+        const res = await api.delete(`/content/${id}`);
+        if (res.success) {
+          setContents(contents.filter(c => c._id !== id));
+        }
+      } catch (err) {
+        alert('Error deleting content');
+      }
+    }
+  };
+
+  const handleShare = () => {
+    alert('Share functionality initiated. Link copied to clipboard.');
+  };
+
+  const handleGenerateUrl = () => {
+    alert('Public URL Generated for selected items.');
+  };
+
+  const filteredContents = useMemo(() => {
+    return contents.filter(c => {
+      const matchName = c.fileName ? c.fileName.toLowerCase().includes(searchQuery.toLowerCase()) : false;
+      const matchLink = c.youtubeLink ? c.youtubeLink.toLowerCase().includes(searchQuery.toLowerCase()) : false;
+      return matchName || matchLink;
+    });
+  }, [contents, searchQuery]);
 
   return (
     <div className="space-y-6">
@@ -29,7 +146,7 @@ export default function ContentListPage() {
         <h2 className="text-base font-semibold text-white mb-4">Search</h2>
         <div className="space-y-1.5 max-w-xl">
           <Label className="text-xs font-semibold text-zinc-400 uppercase">Name</Label>
-          <Input placeholder="Name" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
+          <Input placeholder="Name" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
         </div>
         <div className="flex justify-end mt-6">
           <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
@@ -46,36 +163,79 @@ export default function ContentListPage() {
             <div className="p-4 border-b border-zinc-800">
               <h2 className="text-lg font-semibold text-white">Add Content</h2>
             </div>
-            <form className="p-4 space-y-4" onSubmit={(e) => e.preventDefault()}>
+            <form className="p-4 space-y-4" onSubmit={handleSave}>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">Content Type <span className="text-rose-500">*</span></Label>
-                <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
+                <select 
+                  className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
+                  value={formData.contentType}
+                  onChange={(e) => setFormData({...formData, contentType: e.target.value})}
+                  required
+                >
                   <option value="">Content Type *</option>
-                  <option value="pdf">PDF</option>
-                  <option value="video">Video</option>
-                  <option value="image">Image</option>
+                  <option value="Assignments">Assignments</option>
+                  <option value="Study Material">Study Material</option>
+                  <option value="Syllabus">Syllabus</option>
+                  <option value="Other Downloads">Other Downloads</option>
+                  <option value="Video">Video</option>
                 </select>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-400 uppercase">YouTube Link</Label>
-                <Input placeholder="YouTube Link" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
+                <Input placeholder="YouTube Link" value={formData.youtubeLink} onChange={(e) => setFormData({...formData, youtubeLink: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex-1 h-px bg-zinc-800" />
                 <span className="text-xs text-zinc-500 font-semibold">OR</span>
                 <div className="flex-1 h-px bg-zinc-800" />
               </div>
+              
               <div className="space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <Input type="text" placeholder="File" readOnly className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
-                  <Button type="button" variant="secondary" className="bg-zinc-800 hover:bg-zinc-700 text-white shrink-0">
-                    <Upload className="h-4 w-4 mr-2" /> BROWSE
-                  </Button>
-                </div>
-                <p className="text-[10px] text-zinc-500">(jpg, png, jpeg, pdf, doc, docx, txt, xlsx, rar, zip are allowed for upload)</p>
+                <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.txt,.xls,.xlsx,.zip,.rar" />
+                
+                {!file ? (
+                  <div className="flex items-center gap-2">
+                    <Input type="text" placeholder="No file selected" readOnly className="bg-zinc-900 border-zinc-800 text-zinc-500" />
+                    <Button type="button" onClick={() => fileInputRef.current?.click()} variant="secondary" className="bg-zinc-800 hover:bg-zinc-700 text-white shrink-0">
+                      <Upload className="h-4 w-4 mr-2" /> BROWSE
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="mt-2 p-3 bg-zinc-900 border border-zinc-800 rounded-lg">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1 overflow-hidden">
+                        <p className="text-xs text-white font-medium truncate">{file.name}</p>
+                        <p className="text-[10px] text-emerald-500 font-bold mt-0.5">Ready to Upload ({formatSize(file.size)})</p>
+                      </div>
+                    </div>
+                    {file.type.startsWith('image/') && previewUrl ? (
+                      <div className="w-full h-32 mb-3 rounded border border-zinc-700 overflow-hidden bg-zinc-950 flex items-center justify-center">
+                        <img src={previewUrl} className="max-w-full max-h-full object-contain" alt="Preview" />
+                      </div>
+                    ) : previewUrl ? (
+                      <div className="w-full h-32 mb-3 rounded border border-zinc-700 overflow-hidden bg-zinc-950 flex items-center justify-center">
+                        <div className="text-xs font-bold text-zinc-500 uppercase tracking-widest text-center">
+                          <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                          Document<br/>Selected
+                        </div>
+                      </div>
+                    ) : null}
+                    
+                    <div className="flex gap-2">
+                      <Button type="button" size="sm" onClick={() => fileInputRef.current?.click()} className="flex-1 h-8 bg-zinc-800 hover:bg-zinc-700 text-xs">
+                        <Edit2 className="w-3.5 h-3.5 mr-1" /> Change
+                      </Button>
+                      <Button type="button" size="sm" onClick={removeFile} variant="destructive" className="flex-1 h-8 bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 text-xs">
+                        <Trash2 className="w-3.5 h-3.5 mr-1" /> Remove
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                
+                <p className="text-[10px] text-zinc-500 mt-1">(jpg, png, pdf, docx, txt, xlsx, zip allowed)</p>
               </div>
               <div className="pt-2">
-                <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">SAVE</Button>
+                <Button type="submit" className="bg-zinc-800 hover:bg-zinc-700 text-white font-semibold">SAVE</Button>
               </div>
             </form>
           </div>
@@ -86,20 +246,13 @@ export default function ContentListPage() {
           <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden flex flex-col">
             <div className="p-4 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-2">
-                <Button size="sm" className="h-9 bg-zinc-800 hover:bg-zinc-800 text-white font-semibold text-xs">SHARE</Button>
-                <Button size="sm" variant="outline" className="h-9 text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10 font-semibold text-xs">GENERATE URL</Button>
+                <Button onClick={handleShare} size="sm" className="h-9 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs"><Share2 className="w-3.5 h-3.5 mr-1.5" /> SHARE</Button>
+                <Button onClick={handleGenerateUrl} size="sm" variant="outline" className="h-9 text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10 font-semibold text-xs"><LinkIcon className="w-3.5 h-3.5 mr-1.5" /> GENERATE URL</Button>
               </div>
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                  <Input placeholder="SEARCH" className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase" />
-                </div>
-                <div className="flex items-center border border-zinc-800 rounded-md bg-zinc-900">
-                  {[FileText, Download, FileText, Download, Printer, MoreVertical].map((Icon, i) => (
-                    <button key={i} className={`p-2 hover:bg-zinc-800 text-zinc-400 transition-colors ${i < 5 ? 'border-r border-zinc-800' : ''}`}>
-                      <Icon className="h-4 w-4" />
-                    </button>
-                  ))}
+                  <Input placeholder="SEARCH" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase" />
                 </div>
               </div>
             </div>
@@ -107,23 +260,39 @@ export default function ContentListPage() {
               <table className="w-full text-sm text-left">
                 <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
                   <tr>
-                    <th className="px-4 py-3 font-semibold">SL</th>
                     <th className="px-4 py-3 font-semibold">Document</th>
                     <th className="px-4 py-3 font-semibold">Content Type</th>
                     <th className="px-4 py-3 font-semibold">Size</th>
                     <th className="px-4 py-3 font-semibold">Uploaded By</th>
                     <th className="px-4 py-3 font-semibold">Created On</th>
+                    <th className="px-4 py-3 font-semibold text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {contents.length > 0 ? contents.map((c, i) => (
-                    <tr key={i} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
-                      <td className="px-4 py-4 text-zinc-300">{i + 1}</td>
-                      <td className="px-4 py-4 text-zinc-300">{c.document}</td>
+                  {loading ? (
+                    <tr><td colSpan="6" className="px-4 py-8 text-center text-zinc-500">Loading...</td></tr>
+                  ) : filteredContents.length > 0 ? filteredContents.map((c, i) => (
+                    <tr key={c._id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
+                      <td className="px-4 py-4 text-zinc-300 font-medium">
+                        {c.youtubeLink ? (
+                          <a href={c.youtubeLink} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">{c.youtubeLink}</a>
+                        ) : (
+                          <span>{c.fileName}</span>
+                        )}
+                      </td>
                       <td className="px-4 py-4 text-zinc-300">{c.contentType}</td>
-                      <td className="px-4 py-4 text-zinc-300">{c.size}</td>
-                      <td className="px-4 py-4 text-zinc-300">{c.uploadedBy}</td>
-                      <td className="px-4 py-4 text-zinc-300">{c.createdOn}</td>
+                      <td className="px-4 py-4 text-zinc-300">{c.uploadedBy ? `${c.uploadedBy.firstName || ''} ${c.uploadedBy.lastName || ''}`.trim() || 'Admin' : 'Admin'}</td>
+                      <td className="px-4 py-4 text-zinc-300 text-xs">{new Date(c.createdAt).toLocaleDateString()}</td>
+                      <td className="px-4 py-4 text-right">
+                        <Button 
+                          onClick={() => handleDelete(c._id)}
+                          variant="outline" 
+                          size="sm" 
+                          className="h-8 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10"
+                        >
+                          <Trash2 className="h-3.5 w-3.5 mr-1" /> DELETE
+                        </Button>
+                      </td>
                     </tr>
                   )) : (
                     <tr><td colSpan="6" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
@@ -132,7 +301,7 @@ export default function ContentListPage() {
               </table>
             </div>
             <div className="p-4 border-t border-zinc-800 flex items-center justify-between text-xs text-zinc-500">
-              <div>Showing 0 to 0 of 0 entries</div>
+              <div>Showing {filteredContents.length > 0 ? 1 : 0} to {filteredContents.length} of {filteredContents.length} entries</div>
               <div className="flex gap-1">
                 <Button variant="outline" size="sm" className="h-7 px-2 text-zinc-400 border-zinc-800 bg-transparent hover:bg-zinc-800" disabled><ChevronRight className="h-4 w-4 rotate-180" /></Button>
                 <Button variant="outline" size="sm" className="h-7 px-2 text-zinc-400 border-zinc-800 bg-transparent hover:bg-zinc-800" disabled><ChevronRight className="h-4 w-4" /></Button>

@@ -10,6 +10,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { StoofiLogo } from "@/components/StoofiLogo";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import OtpInput from "@/components/OtpInput";
 
 const loginSchema = z.object({
   email: z.string().min(3, { message: "Please enter a valid email address" }),
@@ -144,10 +145,8 @@ export default function LoginPage() {
       // Parse error for brute-force info
       const msg = res?.message || error || "";
 
-      // "Incorrect password. X attempts remaining."
-      const attemptsMatch = msg.match(/(\d+) attempts? remaining/i);
-      if (attemptsMatch) {
-        setAttemptsLeft(parseInt(attemptsMatch[1]));
+      if (res?.attemptsLeft !== undefined) {
+        setAttemptsLeft(res.attemptsLeft);
       }
 
       // "Account temporarily locked... Try again in X minutes."
@@ -235,18 +234,12 @@ export default function LoginPage() {
             We have sent a 6-digit verification code to <br/><span className="font-bold text-zinc-800 dark:text-zinc-200">{pendingEmail}</span>
           </p>
 
-          <div className="mb-4 relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <KeyRound className="h-5 w-5 text-zinc-400" />
-            </div>
-            <input
-              type="text"
-              placeholder="Enter 6-digit code"
+          <div className="mb-6">
+            <OtpInput
+              length={6}
               value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-              className={`${inputClass} tracking-[6px] text-center font-bold text-lg`}
-              maxLength={6}
-              autoFocus
+              onChange={(val) => setOtpCode(val)}
+              disabled={isVerifying || otpTimer === 0}
             />
           </div>
 
@@ -385,32 +378,6 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* ── Attempts Warning Bar ── */}
-        {attemptsLeft !== null && attemptsLeft > 0 && attemptsLeft < 5 && (
-          <div className="mb-4 p-3 rounded-xl border border-amber-200 bg-amber-50 flex items-center gap-3">
-            <div className="flex-shrink-0 w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
-              <ShieldAlert className="w-4 h-4 text-amber-600" />
-            </div>
-            <div className="flex-1">
-              <p className="text-xs font-bold text-amber-800">Security Warning</p>
-              <p className="text-xs text-amber-700">
-                {attemptsLeft === 1
-                  ? "⚠️ Last attempt! Account will lock after this."
-                  : `${attemptsLeft} attempt${attemptsLeft > 1 ? 's' : ''} remaining before account lockout.`}
-              </p>
-            </div>
-            {/* Visual attempt circles */}
-            <div className="flex gap-1">
-              {[...Array(5)].map((_, i) => (
-                <div
-                  key={i}
-                  className={`w-2 h-2 rounded-full transition-all ${i < (5 - attemptsLeft) ? 'bg-rose-500' : 'bg-zinc-200'}`}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div className="space-y-2">
@@ -490,7 +457,7 @@ export default function LoginPage() {
 
         <div className="mt-6 text-center">
           <p className="text-sm text-zinc-500 dark:text-zinc-500 font-medium">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/register" className="font-bold text-emerald-600 hover:text-emerald-500 transition-colors">
               Register here
             </Link>

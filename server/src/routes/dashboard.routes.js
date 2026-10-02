@@ -22,6 +22,10 @@ const { protect } = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
+// Public routes for landing page
+router.get('/notices', getNotices);
+router.get('/events', getEvents);
+
 router.use(protect);
 
 router.get('/stats', getDashboardStats);
@@ -34,13 +38,11 @@ router.post('/attendance', quickMarkAttendance);
 router.post('/expense', quickAddExpense);
 
 // Notice routes
-router.get('/notices', getNotices);
 router.post('/notices', createNotice);
 router.put('/notices/:id', updateNotice);
 router.delete('/notices/:id', deleteNotice);
 
 // Event routes
-router.get('/events', getEvents);
 router.post('/events', createEvent);
 router.put('/events/:id', updateEvent);
 router.delete('/events/:id', deleteEvent);

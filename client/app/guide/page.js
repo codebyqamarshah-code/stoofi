@@ -255,8 +255,8 @@ export default function GuidePage() {
               
               <div className="mt-12 pt-10 border-t border-zinc-200 dark:border-zinc-200 text-center">
                 <h4 className="font-bold text-zinc-900 dark:text-zinc-900 mb-4">Ready to put this into action?</h4>
-                <Link href="/login">
-                  <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-bold rounded-full px-8 h-12 shadow-lg shadow-zinc-800/20">
+                <Link href="/dashboard">
+                  <Button className="bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded-full px-8 h-12 shadow-lg shadow-zinc-800/20">
                     Open {guides[activeTab].title}
                   </Button>
                 </Link>

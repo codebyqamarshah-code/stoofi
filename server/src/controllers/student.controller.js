@@ -43,6 +43,7 @@ exports.getAll = async (req, res) => {
 
     // Execute query with pagination
     const data = await Student.find(query)
+      .lean()
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNumber);
