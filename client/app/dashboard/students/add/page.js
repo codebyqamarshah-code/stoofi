@@ -439,7 +439,7 @@ const [formData, setFormData] = useState({
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold text-zinc-400 uppercase">City</Label>
-                        <Input name="city" value={formData.city} onChange={handleInputChange} placeholder="e.g. Lahore / Karachi" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
+                        <Input name="city" value={formData.city} onChange={handleInputChange} placeholder="Enter city name" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold text-zinc-400 uppercase">Emergency Contact</Label>

@@ -589,7 +589,7 @@ export default function RegisterPage() {
                 value={formData.firstName}
                 onChange={handleChange}
                 onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
-                placeholder="e.g. Syed"
+                placeholder="Enter first name"
                 className={inputClass}
                 required
               />
@@ -603,7 +603,7 @@ export default function RegisterPage() {
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
-                placeholder="e.g. Qamar Shah"
+                placeholder="Enter last name"
                 className={inputClass}
               />
             </div>
@@ -618,7 +618,7 @@ export default function RegisterPage() {
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                placeholder="e.g. qamar_shah"
+                placeholder="Enter username (e.g. user_123)"
                 className={inputClass}
               />
             </div>
@@ -667,7 +667,7 @@ export default function RegisterPage() {
                     name="schoolAddress"
                     value={formData.schoolAddress}
                     onChange={handleChange}
-                    placeholder="e.g. Campus 1, Gulberg, Lahore"
+                    placeholder="Enter school campus / address"
                     className={inputClass}
                   />
                 </div>
@@ -762,7 +762,7 @@ export default function RegisterPage() {
               value={formData.address}
               onChange={handleChange}
               onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
-              placeholder="e.g. House #12, Street 4, Lahore"
+              placeholder="Enter complete residential address"
               className={inputClass}
               required
             />
