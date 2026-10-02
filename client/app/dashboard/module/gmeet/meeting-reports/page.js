@@ -1,174 +1,370 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { ChevronRight, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Eye } from 'lucide-react';
+import { 
+  ChevronRight, 
+  Search, 
+  Copy, 
+  FileSpreadsheet, 
+  FileText, 
+  Printer, 
+  Download, 
+  Eye, 
+  RefreshCw, 
+  CheckCircle2, 
+  Calendar, 
+  Clock, 
+  Users, 
+  Video 
+} from 'lucide-react';
+import api from '@/services/api';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 
 export default function GMeetMeetingReportsPage() {
-  const [criteria, setCriteria] = useState({ host: 'All Hosts', audience: 'All Audiences', fromDate: '2026-09-01', toDate: '2026-09-30' });
-  const [activeFilter, setActiveFilter] = useState({ host: 'All Hosts', audience: 'All Audiences' });
+  const [criteria, setCriteria] = useState({
+    audience: 'All Audiences',
+    fromDate: '',
+    toDate: '',
+  });
+  const [activeFilter, setActiveFilter] = useState({ audience: 'All Audiences' });
   const [search, setSearch] = useState('');
   const [selectedReport, setSelectedReport] = useState(null);
+  const [reportsList, setReportsList] = useState([]);
+  const [stats, setStats] = useState({
+    totalClasses: 0,
+    liveClasses: 0,
+    completedClasses: 0,
+    totalHours: '0.0',
+    totalAttended: 0,
+  });
+  const [loading, setLoading] = useState(true);
 
-  const hosts = ['All Hosts', 'Mudassir Bajwa', 'Fatima Zahra', 'Muhammad Ali', 'Ahmed Khan', 'Ayesha Noor', 'Dr. Bilal Siddiqui'];
-  const audiences = ['All Audiences', 'All Teachers', 'Staff Members', 'Parents', 'Admin & Management', 'General'];
+  const audiences = ['All Audiences', 'All Teachers', 'Staff Members', 'Parents', 'Admin & Management', 'Academic Council', 'General'];
 
-  const [reportsList] = useState([
-    { id: 1, topic: 'Faculty Monthly Department Sync', host: 'Fatima Zahra', audience: 'All Teachers', date: '2026-09-02', time: '03:00 PM', duration: '45 mins', attendeesCount: 18, status: 'Completed', notes: 'Discussed mid-term assessment guidelines and question bank updates.' },
-    { id: 2, topic: 'Executive Board & Principal Conference', host: 'Dr. Bilal Siddiqui', audience: 'Admin & Management', date: '2026-09-04', time: '11:00 AM', duration: '60 mins', attendeesCount: 12, status: 'Completed', notes: 'Approved revised campus infrastructure budget and hiring plan.' },
-  ]);
+  const fetchReports = async () => {
+    setLoading(true);
+    try {
+      let queryUrl = '/virtual-class/reports?type=meeting';
+      if (criteria.fromDate && criteria.toDate) {
+        queryUrl += `&fromDate=${criteria.fromDate}&toDate=${criteria.toDate}`;
+      }
+
+      const res = await api.get(queryUrl);
+      if (res && res.success) {
+        setReportsList(res.data || []);
+        if (res.stats) setStats(res.stats);
+      }
+    } catch (err) {
+      console.error('Error fetching meeting reports:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReports();
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    setActiveFilter({ host: criteria.host, audience: criteria.audience });
+    setActiveFilter({ audience: criteria.audience });
+    fetchReports();
   };
 
-  const filtered = useMemo(() => reportsList.filter(item => {
-    const mHost = activeFilter.host === 'All Hosts' || item.host === activeFilter.host;
-    const mAud = activeFilter.audience === 'All Audiences' || item.audience === activeFilter.audience;
-    const mSearch = !search || item.topic.toLowerCase().includes(search.toLowerCase()) || item.host.toLowerCase().includes(search.toLowerCase());
-    return mHost && mAud && mSearch;
-  }), [reportsList, activeFilter, search]);
+  const filtered = useMemo(() => {
+    return reportsList.filter(item => {
+      const mAud = activeFilter.audience === 'All Audiences' || item.audience === activeFilter.audience;
+      const mSearch =
+        !search ||
+        (item.topic && item.topic.toLowerCase().includes(search.toLowerCase())) ||
+        (item.teacher && item.teacher.toLowerCase().includes(search.toLowerCase())) ||
+        (item.audience && item.audience.toLowerCase().includes(search.toLowerCase()));
+      return mAud && mSearch;
+    });
+  }, [reportsList, activeFilter, search]);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(filtered.map(r => `${r.topic} | ${r.host} | ${r.audience} | ${r.date} | ${r.attendeesCount} attendees | ${r.status}`).join('\n'));
-    alert('Copied!');
+    navigator.clipboard.writeText(
+      filtered
+        .map(r => `${r.topic} | Host: ${r.teacher} | Audience: ${r.audience} | ${r.date} ${r.time} | Duration: ${r.duration}m | Status: ${r.status}`)
+        .join('\n')
+    );
+    alert('Copied to clipboard!');
   };
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-900">Google Meet Meeting Reports</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-600 mt-1">Review past Google Meet institutional video calls, attendee counts, and summaries.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-950">Google Meet Meeting Reports</h1>
+          <p className="text-sm text-zinc-600 font-medium mt-1">Review historical conference logs, host participation, and minutes for Google Meet conferences.</p>
         </div>
-        <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-600">
-          <Link href="/dashboard" className="hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">Dashboard</Link>
-          <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/module/gmeet" className="hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">Google Meet</Link>
-          <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-800 dark:text-zinc-900 font-medium">Meeting Reports</span>
+        <div className="flex items-center text-xs text-zinc-500 font-medium">
+          <Link href="/dashboard" className="hover:text-zinc-900 transition-colors">Dashboard</Link>
+          <ChevronRight className="h-3.5 w-3.5 mx-1" />
+          <Link href="/dashboard/module/gmeet" className="hover:text-zinc-900 transition-colors">Google Meet</Link>
+          <ChevronRight className="h-3.5 w-3.5 mx-1" />
+          <span className="text-zinc-950 font-bold">Meeting Reports</span>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl shadow-sm p-6">
-        <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900 uppercase tracking-wider mb-5">Select Criteria</h2>
+      {/* KPI Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-sm">
+          <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Total Meetings</div>
+          <div className="text-2xl font-black text-zinc-950 mt-1">{stats.totalClasses}</div>
+          <div className="text-[11px] text-zinc-600 font-medium mt-1">Conferences recorded</div>
+        </div>
+        <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-sm">
+          <div className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Live Active Now</div>
+          <div className="text-2xl font-black text-emerald-700 mt-1">{stats.liveClasses}</div>
+          <div className="text-[11px] text-emerald-600 font-bold mt-1">● Ongoing sessions</div>
+        </div>
+        <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-sm">
+          <div className="text-xs font-bold text-blue-700 uppercase tracking-wider">Total Meeting Hours</div>
+          <div className="text-2xl font-black text-blue-700 mt-1">{stats.totalHours} hrs</div>
+          <div className="text-[11px] text-blue-600 font-medium mt-1">Conference time logged</div>
+        </div>
+        <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-sm">
+          <div className="text-xs font-bold text-zinc-700 uppercase tracking-wider">Completed Sessions</div>
+          <div className="text-2xl font-black text-zinc-900 mt-1">{stats.completedClasses}</div>
+          <div className="text-[11px] text-zinc-500 font-medium mt-1">Archived conferences</div>
+        </div>
+      </div>
+
+      {/* Filter Criteria Card */}
+      <div className="bg-white border border-zinc-200 rounded-xl shadow-sm p-6">
+        <h2 className="text-base font-bold text-zinc-950 uppercase tracking-wider mb-5">Filter Criteria</h2>
         <form onSubmit={handleSearch}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">Host <span className="text-rose-500">*</span></label>
-              <select value={criteria.host} onChange={(e) => setCriteria({ ...criteria, host: e.target.value })} className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors">
-                {hosts.map(h => <option key={h} value={h}>{h}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">Audience <span className="text-rose-500">*</span></label>
-              <select value={criteria.audience} onChange={(e) => setCriteria({ ...criteria, audience: e.target.value })} className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors">
+              <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1.5">
+                Target Audience <span className="text-rose-500">*</span>
+              </label>
+              <select
+                value={criteria.audience}
+                onChange={(e) => setCriteria({ ...criteria, audience: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 bg-white text-zinc-950 text-sm focus:ring-2 focus:ring-zinc-400 outline-none transition-colors font-medium"
+              >
                 {audiences.map(a => <option key={a} value={a}>{a}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">From Date <span className="text-rose-500">*</span></label>
-              <input type="date" required value={criteria.fromDate} onChange={(e) => setCriteria({ ...criteria, fromDate: e.target.value })} className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors" />
+              <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1.5">From Date</label>
+              <input
+                type="date"
+                value={criteria.fromDate}
+                onChange={(e) => setCriteria({ ...criteria, fromDate: e.target.value })}
+                className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 bg-white text-zinc-950 text-sm focus:ring-2 focus:ring-zinc-400 outline-none transition-colors font-medium"
+              />
             </div>
             <div>
-              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">To Date <span className="text-rose-500">*</span></label>
-              <input type="date" required value={criteria.toDate} onChange={(e) => setCriteria({ ...criteria, toDate: e.target.value })} className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors" />
+              <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1.5">To Date</label>
+              <input
+                type="date"
+                value={criteria.toDate}
+                onChange={(e) => setCriteria({ ...criteria, toDate: e.target.value })}
+                className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 bg-white text-zinc-950 text-sm focus:ring-2 focus:ring-zinc-400 outline-none transition-colors font-medium"
+              />
             </div>
           </div>
           <div className="flex justify-end mt-5">
-            <button type="submit" className="px-6 py-2.5 bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-2 shadow-sm"><Search className="h-4 w-4" />Search</button>
+            <button
+              type="submit"
+              className="px-6 py-2.5 bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-2 shadow-sm"
+            >
+              <Search className="h-4 w-4" /> Filter Reports
+            </button>
           </div>
         </form>
       </div>
 
-      <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl shadow-sm p-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 mb-4 border-b border-zinc-100 dark:border-zinc-200">
+      {/* Reports Table */}
+      <div className="bg-white border border-zinc-200 rounded-xl shadow-sm p-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 mb-4 border-b border-zinc-100">
           <div className="flex items-center gap-3">
-            <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900 uppercase tracking-wider">Meeting Reports Overview</h2>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-200 text-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 border border-zinc-300 dark:border-zinc-200">{filtered.length}</span>
+            <h2 className="text-base font-bold text-zinc-950 uppercase tracking-wider">Meeting Reports Overview</h2>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-zinc-100 text-zinc-900 border border-zinc-200">
+              {filtered.length}
+            </span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="relative min-w-[180px]">
+            <div className="relative min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
-              <input type="text" placeholder="SEARCH" value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-900 placeholder-zinc-400 outline-none focus:ring-1 focus:ring-zinc-600" />
+              <input
+                type="text"
+                placeholder="Search topic, host..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-zinc-300 bg-white text-zinc-950 placeholder-zinc-400 outline-none focus:ring-1 focus:ring-zinc-400 font-medium"
+              />
             </div>
-            <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-lg border border-zinc-200 dark:border-zinc-200">
-              <button onClick={handleCopy} title="Copy" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><Copy className="h-3.5 w-3.5" /></button>
-              <button onClick={() => exportToExcel(filtered, 'GMeet_Meeting_Reports')} title="Excel" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><FileSpreadsheet className="h-3.5 w-3.5" /></button>
-              <button onClick={() => exportToCSV(filtered, 'GMeet_Meeting_Reports')} title="CSV" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><FileText className="h-3.5 w-3.5" /></button>
-              <button onClick={() => exportToPDF(filtered, ['topic', 'host', 'audience', 'date', 'time', 'duration', 'attendeesCount', 'status'], 'GMeet Meeting Reports', 'GMeet_Meeting_Reports')} title="PDF" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><Download className="h-3.5 w-3.5" /></button>
-              <button onClick={() => printData(filtered, ['topic', 'host', 'audience', 'date', 'time', 'duration', 'attendeesCount', 'status'], 'GMeet Meeting Reports')} title="Print" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><Printer className="h-3.5 w-3.5" /></button>
+            <div className="flex items-center gap-1 bg-white p-1 rounded-lg border border-zinc-200">
+              <button onClick={handleCopy} title="Copy" className="p-1.5 hover:bg-zinc-100 rounded text-zinc-700 transition-colors">
+                <Copy className="h-3.5 w-3.5" />
+              </button>
+              <button onClick={() => exportToExcel(filtered, 'GMeet_Meeting_Reports')} title="Excel" className="p-1.5 hover:bg-zinc-100 rounded text-zinc-700 transition-colors">
+                <FileSpreadsheet className="h-3.5 w-3.5" />
+              </button>
+              <button onClick={() => exportToCSV(filtered, 'GMeet_Meeting_Reports')} title="CSV" className="p-1.5 hover:bg-zinc-100 rounded text-zinc-700 transition-colors">
+                <FileText className="h-3.5 w-3.5" />
+              </button>
+              <button onClick={() => exportToPDF(filtered, ['topic', 'teacher', 'audience', 'date', 'duration', 'status'], 'GMeet Meeting Reports', 'GMeet_Meeting_Reports')} title="PDF" className="p-1.5 hover:bg-zinc-100 rounded text-zinc-700 transition-colors">
+                <Download className="h-3.5 w-3.5" />
+              </button>
+              <button onClick={() => printData(filtered, ['topic', 'teacher', 'audience', 'date', 'duration', 'status'], 'GMeet Meeting Reports')} title="Print" className="p-1.5 hover:bg-zinc-100 rounded text-zinc-700 transition-colors">
+                <Printer className="h-3.5 w-3.5" />
+              </button>
             </div>
           </div>
         </div>
-        <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-200">
+
+        <div className="overflow-x-auto rounded-lg border border-zinc-200">
           <table className="w-full text-xs text-left">
-            <thead className="text-[11px] font-bold text-zinc-500 dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-200">
+            <thead className="text-[11px] font-bold text-zinc-900 uppercase tracking-wider bg-zinc-50 border-b border-zinc-200">
               <tr>
                 <th className="px-3.5 py-3">SL</th>
-                <th className="px-3.5 py-3">Topic</th>
+                <th className="px-3.5 py-3">Meeting Topic</th>
                 <th className="px-3.5 py-3">Host</th>
                 <th className="px-3.5 py-3">Audience</th>
                 <th className="px-3.5 py-3">Date & Time</th>
                 <th className="px-3.5 py-3">Duration</th>
-                <th className="px-3.5 py-3">Attendees</th>
                 <th className="px-3.5 py-3">Status</th>
                 <th className="px-3.5 py-3 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-              {filtered.length === 0 ? (
-                <tr><td colSpan={9} className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
-              ) : filtered.map((item, index) => (
-                <tr key={item.id} className="hover:bg-zinc-50/80 dark:hover:bg-zinc-100/40 transition-colors">
-                  <td className="px-3.5 py-3 font-medium text-zinc-900 dark:text-zinc-800">{index + 1}</td>
-                  <td className="px-3.5 py-3 font-semibold text-zinc-900 dark:text-zinc-900">{item.topic}</td>
-                  <td className="px-3.5 py-3 font-medium text-zinc-700 dark:text-zinc-700">{item.host}</td>
-                  <td className="px-3.5 py-3"><span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400">{item.audience}</span></td>
-                  <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap"><div>{item.date}</div><div className="text-[10px] text-zinc-400">{item.time}</div></td>
-                  <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600">{item.duration}</td>
-                  <td className="px-3.5 py-3"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-800">{item.attendeesCount} Joined</span></td>
-                  <td className="px-3.5 py-3"><span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-200 text-zinc-800 dark:bg-zinc-100 dark:text-zinc-900">{item.status}</span></td>
-                  <td className="px-3.5 py-3 text-right"><button onClick={() => setSelectedReport(item)} className="px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-800 rounded text-[11px] font-medium inline-flex items-center gap-1 transition-colors"><Eye className="h-3 w-3" />Details</button></td>
+            <tbody className="divide-y divide-zinc-100">
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-8 text-center text-zinc-600 font-semibold">
+                    <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-zinc-900" />
+                    Loading meeting reports...
+                  </td>
                 </tr>
-              ))}
+              ) : filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-8 text-center text-zinc-600 font-semibold">No Data Available In Table</td>
+                </tr>
+              ) : (
+                filtered.map((item, index) => (
+                  <tr key={item._id || item.id} className="hover:bg-zinc-50/80 transition-colors">
+                    <td className="px-3.5 py-3 font-bold text-zinc-950">{index + 1}</td>
+                    <td className="px-3.5 py-3">
+                      <div className="font-bold text-zinc-950">{item.topic}</div>
+                      {item.description && (
+                        <div className="text-[11px] text-zinc-500 font-medium line-clamp-1 mt-0.5">{item.description}</div>
+                      )}
+                    </td>
+                    <td className="px-3.5 py-3 font-medium text-zinc-900">{item.teacher}</td>
+                    <td className="px-3.5 py-3">
+                      <span className="inline-block px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-blue-900 border border-blue-200">
+                        {item.audience || 'All Teachers'}
+                      </span>
+                    </td>
+                    <td className="px-3.5 py-3 text-zinc-700 whitespace-nowrap">
+                      <div className="font-semibold text-zinc-950">{item.date}</div>
+                      <div className="text-[10px] text-zinc-500 font-medium">{item.time}</div>
+                    </td>
+                    <td className="px-3.5 py-3 text-zinc-800 whitespace-nowrap font-medium">{item.duration} Mins</td>
+                    <td className="px-3.5 py-3 whitespace-nowrap">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                        item.status === 'Live' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' :
+                        item.status === 'Completed' ? 'bg-zinc-100 text-zinc-800 border-zinc-200' :
+                        'bg-blue-50 text-blue-800 border-blue-200'
+                      }`}>
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="px-3.5 py-3 text-right">
+                      <button
+                        onClick={() => setSelectedReport(item)}
+                        className="px-2.5 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 border border-zinc-200 rounded text-[11px] font-bold inline-flex items-center gap-1 transition-colors"
+                      >
+                        <Eye className="h-3 w-3" /> Details
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
-        <div className="flex items-center justify-between pt-4 mt-2 text-xs text-zinc-500">
+        <div className="flex items-center justify-between pt-4 mt-2 text-xs text-zinc-500 font-medium">
           <div>Showing {filtered.length} of {reportsList.length} entries</div>
           <div className="flex items-center gap-1">
-            <button disabled className="px-2.5 py-1 rounded border border-zinc-200 dark:border-zinc-200 text-zinc-400 opacity-50 cursor-not-allowed">&lt;</button>
-            <button className="px-2.5 py-1 rounded border border-zinc-600 bg-zinc-100 dark:bg-zinc-100 text-zinc-800 dark:text-zinc-900 font-semibold">1</button>
-            <button disabled className="px-2.5 py-1 rounded border border-zinc-200 dark:border-zinc-200 text-zinc-400 opacity-50 cursor-not-allowed">&gt;</button>
+            <button disabled className="px-2.5 py-1 rounded border border-zinc-200 text-zinc-400 opacity-50 cursor-not-allowed font-bold">&lt;</button>
+            <button className="px-2.5 py-1 rounded border border-zinc-300 bg-zinc-100 text-zinc-950 font-bold">1</button>
+            <button disabled className="px-2.5 py-1 rounded border border-zinc-200 text-zinc-400 opacity-50 cursor-not-allowed font-bold">&gt;</button>
           </div>
         </div>
       </div>
 
+      {/* Details Modal */}
       {selectedReport && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-200 pb-3">
-              <h3 className="font-bold text-base text-zinc-900 dark:text-zinc-900">GMeet Meeting Summary</h3>
-              <button onClick={() => setSelectedReport(null)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-950 font-bold">✕</button>
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-zinc-200 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+              <h3 className="font-bold text-base text-zinc-950 flex items-center gap-2">
+                <Users className="h-4 w-4 text-zinc-900" />
+                Meeting Details & Minutes
+              </h3>
+              <button onClick={() => setSelectedReport(null)} className="text-zinc-400 hover:text-zinc-950 font-bold text-sm">✕</button>
             </div>
             <div className="space-y-3 text-xs">
-              <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-200">
-                <div className="font-semibold text-sm text-zinc-900 dark:text-zinc-900">{selectedReport.topic}</div>
-                <div className="text-zinc-500 mt-1">Host: {selectedReport.host} | Target: {selectedReport.audience}</div>
+              <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200">
+                <div className="font-bold text-sm text-zinc-950">{selectedReport.topic}</div>
+                <div className="text-zinc-600 font-semibold mt-1">Host: <span className="text-zinc-950 font-bold">{selectedReport.teacher}</span> | Audience: <span className="text-blue-700 font-bold">{selectedReport.audience}</span></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200"><span className="text-zinc-500 block">Date & Time:</span><span className="font-semibold text-zinc-800 dark:text-zinc-800">{selectedReport.date} ({selectedReport.time})</span></div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200"><span className="text-zinc-500 block">Duration:</span><span className="font-semibold text-zinc-800 dark:text-zinc-800">{selectedReport.duration}</span></div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200"><span className="text-zinc-500 block">Attendees:</span><span className="font-semibold text-zinc-800">{selectedReport.attendeesCount} Members</span></div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200"><span className="text-zinc-500 block">Status:</span><span className="font-semibold text-zinc-800">{selectedReport.status}</span></div>
+                <div className="p-2.5 rounded-lg bg-zinc-50 border border-zinc-200">
+                  <span className="text-zinc-500 font-semibold block">Date & Time:</span>
+                  <span className="font-bold text-zinc-950">{selectedReport.date} ({selectedReport.time})</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-zinc-50 border border-zinc-200">
+                  <span className="text-zinc-500 font-semibold block">Duration:</span>
+                  <span className="font-bold text-zinc-950">{selectedReport.duration} Minutes</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-zinc-50 border border-zinc-200">
+                  <span className="text-zinc-500 font-semibold block">Meeting Code:</span>
+                  <span className="font-mono font-bold text-zinc-950">{selectedReport.meetCode || 'N/A'}</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-zinc-50 border border-zinc-200">
+                  <span className="text-zinc-500 font-semibold block">Conference Status:</span>
+                  <span className="font-bold text-emerald-700">{selectedReport.status}</span>
+                </div>
               </div>
-              {selectedReport.notes && <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200"><span className="text-zinc-500 block font-semibold mb-1">Notes:</span><p className="text-zinc-700 dark:text-zinc-700 leading-relaxed">{selectedReport.notes}</p></div>}
+              {selectedReport.roomUrl && (
+                <div className="p-2.5 rounded-lg bg-zinc-50 border border-zinc-200">
+                  <span className="text-zinc-500 font-semibold block">Google Meet URL:</span>
+                  <a href={selectedReport.roomUrl} target="_blank" rel="noreferrer" className="text-blue-700 hover:underline font-mono font-bold break-all block mt-0.5">
+                    {selectedReport.roomUrl}
+                  </a>
+                </div>
+              )}
+              {selectedReport.description && (
+                <div className="p-2.5 rounded-lg bg-zinc-50 border border-zinc-200">
+                  <span className="text-zinc-500 font-semibold block">Meeting Agenda & Minutes:</span>
+                  <p className="text-zinc-800 font-medium mt-1">{selectedReport.description}</p>
+                </div>
+              )}
             </div>
-            <div className="flex justify-end pt-2">
-              <button onClick={() => setSelectedReport(null)} className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg text-xs font-semibold">Close</button>
+            <div className="flex items-center justify-between pt-2 border-t border-zinc-100">
+              <a
+                href={selectedReport.roomUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="px-4 py-2 bg-zinc-950 hover:bg-zinc-800 text-white rounded-lg text-xs font-bold flex items-center gap-1.5"
+              >
+                <Video className="h-3.5 w-3.5" /> Join Conference Room
+              </a>
+              <button
+                onClick={() => setSelectedReport(null)}
+                className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 rounded-lg text-xs font-bold"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

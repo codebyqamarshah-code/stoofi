@@ -11,11 +11,7 @@ export default function BBBMeetingRecordListPage() {
 
   const audiences = ['All','All Teachers','Staff Members','Parents','Admin & Management','General'];
 
-  const [records, setRecords] = useState([
-    { id:1, topic:'Staff Academic Progress Review', host:'Mudassir Bajwa', audience:'All Teachers', date:'2026-09-02', duration:'43:18', fileSize:'116 MB', playbackUrl:'https://bbb.stoofi.com/playback/staff-review-001', status:'Available' },
-    { id:2, topic:'Parent-Teacher Annual Interaction', host:'Dr. Bilal Siddiqui', audience:'Parents', date:'2026-09-04', duration:'59:52', fileSize:'176 MB', playbackUrl:'https://bbb.stoofi.com/playback/pta-2026-002', status:'Available' },
-    { id:3, topic:'Academic Calendar Planning Q4 2026', host:'Fatima Zahra', audience:'Admin & Management', date:'2026-09-06', duration:'28:40', fileSize:'74 MB', playbackUrl:'https://bbb.stoofi.com/playback/acad-plan-003', status:'Processing' },
-  ]);
+  const [records, setRecords] = useState([]);
 
   const handleDelete = (id) => {
     if (confirm('Delete this meeting recording permanently?')) {
@@ -73,12 +69,12 @@ export default function BBBMeetingRecordListPage() {
 
         <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-200">
           <table className="w-full text-xs text-left">
-            <thead className="text-[11px] font-bold text-zinc-500 dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-200">
+            <thead className="text-[11px] font-bold text-zinc-900 font-bold dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-50/50 border-b border-zinc-200 dark:border-zinc-200">
               <tr>
                 <th className="px-3.5 py-3">SL</th><th className="px-3.5 py-3">Meeting Topic</th><th className="px-3.5 py-3">Host</th><th className="px-3.5 py-3">Audience</th><th className="px-3.5 py-3">Date</th><th className="px-3.5 py-3">Duration</th><th className="px-3.5 py-3">File Size</th><th className="px-3.5 py-3">Status</th><th className="px-3.5 py-3 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-100">
               {filtered.length === 0 ? (
                 <tr><td colSpan={9} className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
               ) : filtered.map((item, index) => (

@@ -9,39 +9,40 @@ export default function HeaderOption() {
 
     const Toggle = ({ checked, onChange }) => (
         <button 
+            type="button"
             onClick={onChange}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${checked ? 'bg-zinc-800' : 'bg-zinc-700'}`}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${checked ? 'bg-zinc-950' : 'bg-zinc-300'}`}
         >
-            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
+            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-xs ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
         </button>
     );
 
     return (
-        <div className="min-h-screen bg-zinc-950 p-6 text-zinc-100">
+        <div className="min-h-screen bg-white p-6">
             <div className="mb-6">
-                <div className="text-xs text-zinc-400 mb-1 flex space-x-2">
+                <div className="text-xs font-semibold text-zinc-600 mb-1 flex items-center space-x-2">
                     <span>Dashboard</span>
                     <span>&gt;</span>
                     <span>System Settings</span>
                     <span>&gt;</span>
-                    <span className="text-zinc-100">Header Option</span>
+                    <span className="text-zinc-950 font-bold">Header Option</span>
                 </div>
-                <h1 className="text-2xl font-semibold">Header Option</h1>
+                <h1 className="text-2xl font-bold text-zinc-950">Header Option</h1>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-zinc-900 border border-zinc-800 rounded-lg shadow-sm">
+                <div className="bg-white border border-zinc-200 rounded-xl shadow-xs">
                     <div className="p-6 space-y-6">
                         <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">Website</span>
+                            <span className="text-sm font-bold text-zinc-950">Website</span>
                             <Toggle checked={websiteEnabled} onChange={() => setWebsiteEnabled(!websiteEnabled)} />
                         </div>
                         
                         <div>
-                            <label className="block text-sm text-zinc-400 mb-2">Custom URL</label>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-zinc-900 mb-2">Custom URL</label>
                             <input 
                                 type="text" 
-                                className="w-full p-2.5 rounded-md bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
+                                className="w-full p-2.5 rounded-lg bg-white border border-zinc-300 text-sm font-medium text-zinc-950 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600"
                                 placeholder="https://example.com"
                                 value={customUrl}
                                 onChange={(e) => setCustomUrl(e.target.value)}
@@ -49,22 +50,22 @@ export default function HeaderOption() {
                         </div>
 
                         <div>
-                            <button className="px-6 py-2 bg-zinc-800 hover:bg-zinc-800 text-white text-sm font-medium rounded-md transition-colors">
+                            <button className="px-6 py-2.5 bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm transition-colors cursor-pointer">
                                 UPDATE
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-zinc-900 border border-zinc-800 rounded-lg shadow-sm h-fit">
+                <div className="bg-white border border-zinc-200 rounded-xl shadow-xs h-fit">
                     <div className="p-6 space-y-6">
-                        <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
-                            <span className="text-sm font-medium">Dashboard</span>
+                        <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
+                            <span className="text-sm font-bold text-zinc-950">Dashboard</span>
                             <Toggle checked={dashboardEnabled} onChange={() => setDashboardEnabled(!dashboardEnabled)} />
                         </div>
                         
                         <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">Language</span>
+                            <span className="text-sm font-bold text-zinc-950">Language</span>
                             <Toggle checked={languageEnabled} onChange={() => setLanguageEnabled(!languageEnabled)} />
                         </div>
                     </div>

@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronRight, Search, Plus, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 
 const DEFAULT_EXAMS = [
@@ -123,30 +124,30 @@ export default function ExamAttendancePage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-zinc-950 flex items-center gap-2">
             <Award className="h-6 w-6 text-indigo-400" />
             Exam Attendance
           </h1>
           <p className="text-sm text-zinc-400 mt-1">Track and manage student attendance during formal examinations</p>
         </div>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-zinc-300 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-950 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Examinations</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-500">Exam Attendance</span>
+          <span className="text-zinc-950 font-bold">Exam Attendance</span>
         </div>
       </div>
 
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-sm">
-        <div className="p-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/30">
-          <h2 className="text-sm font-semibold text-zinc-200 uppercase tracking-wider">Select Criteria</h2>
+      <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden shadow-sm">
+        <div className="p-4 border-b border-zinc-200 flex justify-between items-center bg-zinc-900/30">
+          <h2 className="text-sm font-semibold text-zinc-950 uppercase tracking-wider">Select Criteria</h2>
         </div>
         
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase">EXAM <span className="text-rose-500">*</span></label>
+              <label className="text-xs font-semibold text-zinc-700 uppercase font-bold">EXAM <span className="text-rose-500">*</span></label>
               <SearchableSelect 
                 value={formData.examId} onChange={(val) => setFormData({...formData, examId: val})}
                 placeholder="Select Exam *"
@@ -155,7 +156,7 @@ export default function ExamAttendancePage() {
             </div>
             
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase">CLASS <span className="text-rose-500">*</span></label>
+              <label className="text-xs font-semibold text-zinc-700 uppercase font-bold">CLASS <span className="text-rose-500">*</span></label>
               <SearchableSelect 
                 value={formData.classId} onChange={(val) => setFormData({...formData, classId: val})}
                 placeholder="Select Class *"
@@ -164,7 +165,7 @@ export default function ExamAttendancePage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase">SUBJECT <span className="text-rose-500">*</span></label>
+              <label className="text-xs font-semibold text-zinc-700 uppercase font-bold">SUBJECT <span className="text-rose-500">*</span></label>
               <SearchableSelect 
                 value={formData.subjectId} onChange={(val) => setFormData({...formData, subjectId: val})}
                 placeholder="Select Subject *"
@@ -173,7 +174,7 @@ export default function ExamAttendancePage() {
             </div>
             
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase">SECTION</label>
+              <label className="text-xs font-semibold text-zinc-700 uppercase font-bold">SECTION</label>
               <SearchableSelect 
                 value={formData.sectionId} onChange={(val) => setFormData({...formData, sectionId: val})}
                 placeholder="Select Section"
@@ -192,12 +193,12 @@ export default function ExamAttendancePage() {
       </div>
 
       {searched && (
-        <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-sm animate-in fade-in duration-300">
-          <div className="p-4 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-zinc-900/50">
+        <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden shadow-sm animate-in fade-in duration-300">
+          <div className="p-4 border-b border-zinc-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-zinc-50">
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <h3 className="text-base font-bold text-zinc-950 flex items-center gap-2">
                 <span>Exam Attendance List</span>
-                <span className="text-xs font-normal text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-normal text-zinc-700 bg-zinc-800 px-2 py-0.5 rounded-full">
                   {students.length} Student{students.length !== 1 ? 's' : ''}
                 </span>
               </h3>
@@ -211,7 +212,7 @@ export default function ExamAttendancePage() {
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
+              <thead className="text-xs text-zinc-700 uppercase font-bold bg-zinc-50 border-b border-zinc-200">
                 <tr>
                   <th className="px-4 py-3 font-semibold w-12">#</th>
                   <th className="px-4 py-3 font-semibold">Admission No</th>
@@ -220,7 +221,7 @@ export default function ExamAttendancePage() {
                   <th className="px-4 py-3 font-semibold">Exam Attendance Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-800">
+              <tbody className="divide-y divide-zinc-100">
                 {students.length === 0 ? (
                   <tr>
                     <td colSpan="5" className="text-center py-10 text-zinc-500">
@@ -229,11 +230,11 @@ export default function ExamAttendancePage() {
                   </tr>
                 ) : (
                   students.map((student, idx) => (
-                    <tr key={student.studentId || idx} className="hover:bg-zinc-900/40 transition-colors">
+                    <tr key={student.studentId || idx} className="hover:bg-zinc-50/80 transition-colors">
                       <td className="px-4 py-3 text-zinc-500">{idx + 1}</td>
-                      <td className="px-4 py-3 font-mono text-zinc-300 text-xs">{student.admissionNo}</td>
-                      <td className="px-4 py-3 font-mono text-zinc-300 text-xs">{student.rollNo}</td>
-                      <td className="px-4 py-3 font-medium text-white">{student.name}</td>
+                      <td className="px-4 py-3 font-mono text-zinc-950 text-xs">{student.admissionNo}</td>
+                      <td className="px-4 py-3 font-mono text-zinc-950 text-xs">{student.rollNo}</td>
+                      <td className="px-4 py-3 font-medium text-zinc-950">{student.name}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           {[
@@ -250,7 +251,7 @@ export default function ExamAttendancePage() {
                                 onChange={() => handleStatusChange(student.studentId, opt.label)}
                                 className={`h-3.5 w-3.5 cursor-pointer ${opt.color}`}
                               />
-                              <span className="text-zinc-300 text-xs">{opt.label}</span>
+                              <span className="text-zinc-950 text-xs">{opt.label}</span>
                             </label>
                           ))}
                         </div>
@@ -262,7 +263,7 @@ export default function ExamAttendancePage() {
             </table>
           </div>
           {students.length > 0 && (
-            <div className="p-4 border-t border-zinc-800 flex justify-end bg-zinc-900/30">
+            <div className="p-4 border-t border-zinc-200 flex justify-end bg-zinc-900/30">
               <Button onClick={() => alert('Exam attendance submitted successfully!')} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
                 SAVE EXAM ATTENDANCE
               </Button>

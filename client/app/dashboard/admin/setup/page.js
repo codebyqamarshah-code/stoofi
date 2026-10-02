@@ -116,28 +116,28 @@ export default function AdminSetupPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Admin Setup</h1>
+        <h1 className="text-2xl font-bold text-zinc-950">Admin Setup</h1>
         <div className="flex items-center text-sm text-zinc-400">
           <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <Link href="/dashboard/admin/admission-query" className="hover:text-zinc-500 transition-colors">Admin Section</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-600">Admin Setup</span>
+          <span className="text-zinc-950 font-bold">Admin Setup</span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-1">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-white">{editingId ? 'Edit' : 'Add'} Admin Setup</h2>
+          <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden">
+            <div className="p-4 border-b border-zinc-200 flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-zinc-950">{editingId ? 'Edit' : 'Add'} Admin Setup</h2>
               {editingId && <Button variant="ghost" size="sm" onClick={() => {setEditingId(null); setFormData({ type: '', name: '', description: '' });}} className="text-zinc-400">Cancel</Button>}
             </div>
             
             <form className="p-4 space-y-4" onSubmit={handleSave}>
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-zinc-400 uppercase">Type <span className="text-rose-500">*</span></Label>
-                <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white" required>
+                <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Type <span className="text-rose-500">*</span></Label>
+                <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-zinc-950" required>
                   <option value="">Type *</option>
                   <option value="Purpose">Purpose</option>
                   <option value="Complaint Type">Complaint Type</option>
@@ -146,16 +146,16 @@ export default function AdminSetupPage() {
                 </select>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-zinc-400 uppercase">Name <span className="text-rose-500">*</span></Label>
-                <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Name" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" required />
+                <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Name <span className="text-rose-500">*</span></Label>
+                <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Name" className="bg-white border-zinc-300 text-zinc-950 focus-visible:ring-zinc-600" required />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-zinc-400 uppercase">Description</Label>
-                <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Description" className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-white resize-y" />
+                <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Description</Label>
+                <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Description" className="flex min-h-[80px] w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-zinc-950 resize-y" />
               </div>
 
               <div className="pt-4">
-                <Button type="submit" className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
+                <Button type="submit" className="w-full bg-zinc-800 hover:bg-zinc-100 text-zinc-950 font-semibold">
                   {editingId ? 'UPDATE' : 'SAVE'} SETUP
                 </Button>
               </div>
@@ -164,22 +164,22 @@ export default function AdminSetupPage() {
         </div>
 
         <div className="xl:col-span-2">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden h-full flex flex-col">
-            <div className="p-4 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <h2 className="text-lg font-semibold text-white">Admin Setup List</h2>
+          <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden h-full flex flex-col">
+            <div className="p-4 border-b border-zinc-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h2 className="text-lg font-semibold text-zinc-950">Admin Setup List</h2>
               <div className="relative">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
                 <Input 
                   value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                   placeholder="Quick Search" 
-                  className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600"
+                  className="pl-9 w-full sm:w-[200px] bg-white border-zinc-300 text-zinc-950 focus-visible:ring-zinc-600"
                 />
               </div>
             </div>
             
             <div className="flex-1 overflow-x-auto">
               <table className="w-full text-sm text-left">
-                <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
+                <thead className="text-xs text-zinc-700 uppercase font-bold bg-zinc-50 border-b border-zinc-200">
                   <tr>
                     <th className="px-4 py-3 font-semibold">Type</th>
                     <th className="px-4 py-3 font-semibold">Name</th>
@@ -190,10 +190,10 @@ export default function AdminSetupPage() {
                 <tbody>
                   {filtered.length > 0 ? (
                     filtered.map((s) => (
-                      <tr key={s._id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
-                        <td className="px-4 py-3 text-zinc-300 font-medium">{s.type}</td>
-                        <td className="px-4 py-3 text-zinc-300">{s.name}</td>
-                        <td className="px-4 py-3 text-zinc-300">{s.description || '-'}</td>
+                      <tr key={s._id} className="border-b border-zinc-200/50 hover:bg-zinc-50 transition-colors">
+                        <td className="px-4 py-3 text-zinc-950 font-medium">{s.type}</td>
+                        <td className="px-4 py-3 text-zinc-950">{s.name}</td>
+                        <td className="px-4 py-3 text-zinc-950">{s.description || '-'}</td>
                         <td className="px-4 py-3 text-right space-x-2">
                           <Button onClick={() => handleEdit(s)} variant="outline" size="sm" className="h-7 text-xs text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10 px-2"><Edit className="h-3 w-3" /></Button>
                           <Button onClick={() => handleDelete(s._id)} variant="outline" size="sm" className="h-7 text-xs text-rose-500 border-rose-500/50 hover:bg-rose-500/10 px-2"><Trash2 className="h-3 w-3" /></Button>

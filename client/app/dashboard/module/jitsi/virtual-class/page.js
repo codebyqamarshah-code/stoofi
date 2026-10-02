@@ -19,34 +19,7 @@ import {
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 
 export default function JitsiVirtualClassPage() {
-  const [records, setRecords] = useState([
-    {
-      id: 1,
-      classVal: 'Class 10',
-      section: 'A',
-      teacher: 'Mudassir Bajwa',
-      topic: 'Mathematics - Quadratic Equations Live Session',
-      description: 'Review of chapter 2 quadratic formulas and exercises.',
-      date: '2026-09-10',
-      time: '10:00 AM',
-      duration: '45',
-      status: 'Scheduled',
-      roomUrl: 'https://meet.jit.si/stoofi-math-10a'
-    },
-    {
-      id: 2,
-      classVal: 'Class 9',
-      section: 'B',
-      teacher: 'Fatima Zahra',
-      topic: 'Physics - Newton Laws and Practical Demonstration',
-      description: 'Detailed discussion on 1st and 2nd law of motion.',
-      date: '2026-09-11',
-      time: '11:30 AM',
-      duration: '60',
-      status: 'Scheduled',
-      roomUrl: 'https://meet.jit.si/stoofi-phy-9b'
-    }
-  ]);
+  const [records, setRecords] = useState([]);
 
   const [form, setForm] = useState({
     classVal: 'Class 10',
@@ -348,7 +321,7 @@ export default function JitsiVirtualClassPage() {
             {/* Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="bg-zinc-50 dark:bg-white/60 text-[11px] font-bold uppercase text-zinc-500 dark:text-zinc-600 tracking-wider border-b border-zinc-200 dark:border-zinc-200">
+                <thead className="bg-zinc-50 dark:bg-white/60 text-[11px] font-bold uppercase text-zinc-900 font-bold dark:text-zinc-600 tracking-wider border-b border-zinc-200 dark:border-zinc-200">
                   <tr>
                     <th className="py-3 px-4">SL</th>
                     <th className="py-3 px-4">Class</th>
@@ -360,7 +333,7 @@ export default function JitsiVirtualClassPage() {
                     <th className="py-3 px-4 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800 text-xs text-zinc-800 dark:text-zinc-800">
+                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-100 text-xs text-zinc-800 dark:text-zinc-800">
                   {filteredRecords.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="py-10 text-center text-zinc-400 dark:text-zinc-9000">

@@ -20,29 +20,29 @@ export default function StudentRegistrationFields() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white p-6">
+    <div className="space-y-6 text-zinc-950 p-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Student Registration</h1>
         <p className="text-sm text-zinc-400">Dashboard &gt; Custom Field &gt; Student Registration</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6 lg:col-span-1 h-fit">
-          <h2 className="text-lg font-semibold mb-4 text-zinc-100">Add Custom Field</h2>
+        <div className="bg-white border border-zinc-200 shadow-xs rounded-lg p-6 lg:col-span-1 h-fit">
+          <h2 className="text-lg font-semibold mb-4 text-zinc-950">Add Custom Field</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-zinc-400 mb-1">LABEL *</label>
+              <label className="block text-sm text-zinc-900 font-semibold mb-1">LABEL *</label>
               <input 
                 type="text" 
-                className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
+                className="w-full bg-white border border-zinc-200 shadow-xs rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                 value={formData.label}
                 onChange={(e) => setFormData({...formData, label: e.target.value})}
               />
             </div>
             <div>
-              <label className="block text-sm text-zinc-400 mb-1">TYPE *</label>
+              <label className="block text-sm text-zinc-900 font-semibold mb-1">TYPE *</label>
               <select 
-                className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
+                className="w-full bg-white border border-zinc-200 shadow-xs rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                 value={formData.type}
                 onChange={(e) => setFormData({...formData, type: e.target.value})}
               >
@@ -57,26 +57,26 @@ export default function StudentRegistrationFields() {
               <label className="flex items-center gap-2 cursor-pointer">
                 <input 
                   type="checkbox" 
-                  className="w-4 h-4 rounded border-zinc-800 bg-zinc-900 text-zinc-800 focus:ring-zinc-600"
+                  className="w-4 h-4 rounded border-zinc-200 bg-white text-zinc-800 focus:ring-zinc-600"
                   checked={formData.required}
                   onChange={(e) => setFormData({...formData, required: e.target.checked})}
                 />
-                <span className="text-sm text-zinc-300">Required</span>
+                <span className="text-sm text-zinc-950">Required</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input 
                   type="checkbox" 
-                  className="w-4 h-4 rounded border-zinc-800 bg-zinc-900 text-zinc-800 focus:ring-zinc-600"
+                  className="w-4 h-4 rounded border-zinc-200 bg-white text-zinc-800 focus:ring-zinc-600"
                   checked={formData.onlineReg}
                   onChange={(e) => setFormData({...formData, onlineReg: e.target.checked})}
                 />
-                <span className="text-sm text-zinc-300">Available For Online Registration</span>
+                <span className="text-sm text-zinc-950">Available For Online Registration</span>
               </label>
             </div>
             <div className="flex justify-end pt-4">
               <button 
                 onClick={handleSave}
-                className="bg-zinc-800 hover:bg-zinc-800 text-white px-6 py-2 rounded transition-colors text-sm font-medium"
+                className="bg-zinc-800 hover:bg-zinc-100 text-zinc-950 px-6 py-2 rounded transition-colors text-sm font-medium"
               >
                 SAVE
               </button>
@@ -84,15 +84,15 @@ export default function StudentRegistrationFields() {
           </div>
         </div>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6 lg:col-span-2">
-          <h2 className="text-lg font-semibold mb-4 text-zinc-100">Custom Field List</h2>
+        <div className="bg-white border border-zinc-200 shadow-xs rounded-lg p-6 lg:col-span-2">
+          <h2 className="text-lg font-semibold mb-4 text-zinc-950">Custom Field List</h2>
           
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
             <div className="relative w-full md:w-64">
               <input 
                 type="text" 
                 placeholder="Search..." 
-                className="w-full pl-9 pr-4 py-2 bg-zinc-900 border border-zinc-800 rounded text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
+                className="w-full pl-9 pr-4 py-2 bg-white border border-zinc-200 shadow-xs rounded text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -100,7 +100,7 @@ export default function StudentRegistrationFields() {
             </div>
             <div className="flex gap-2">
               {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, idx) => (
-                <button key={idx} className="p-2 border border-zinc-800 rounded hover:bg-zinc-800 text-zinc-400 transition-colors">
+                <button key={idx} className="p-2 border border-zinc-200 rounded hover:bg-zinc-100 text-zinc-400 transition-colors">
                   <Icon className="w-4 h-4" />
                 </button>
               ))}
@@ -109,7 +109,7 @@ export default function StudentRegistrationFields() {
 
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="text-xs text-zinc-400 uppercase bg-zinc-950/50 border-b border-zinc-800">
+              <thead className="text-xs text-zinc-700 uppercase font-bold bg-zinc-50/50 border-b border-zinc-200">
                 <tr>
                   <th className="px-4 py-3">SL</th>
                   <th className="px-4 py-3">Label</th>
@@ -130,7 +130,7 @@ export default function StudentRegistrationFields() {
                   </tr>
                 ) : (
                   fields.map((field, idx) => (
-                    <tr key={field.id} className="border-b border-zinc-800 hover:bg-zinc-800/50">
+                    <tr key={field.id} className="border-b border-zinc-200 hover:bg-zinc-100">
                       <td className="px-4 py-3">{idx + 1}</td>
                       <td className="px-4 py-3">{field.label}</td>
                       <td className="px-4 py-3 capitalize">{field.type}</td>

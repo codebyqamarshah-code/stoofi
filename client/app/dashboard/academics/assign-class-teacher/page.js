@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-
 import React, { useState } from 'react';
 import { 
   ChevronRight, 
@@ -23,28 +22,28 @@ export default function AssignClassTeacherPage() {
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Assign Class Teacher</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
+        <h1 className="text-2xl font-bold text-zinc-950">Assign Class Teacher</h1>
+        <div className="flex items-center text-sm text-zinc-500">
+          <Link href="/dashboard" className="hover:text-zinc-900 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/academics/class" className="hover:text-zinc-500 transition-colors">Academics</Link>
+          <Link href="/dashboard/academics/class" className="hover:text-zinc-900 transition-colors">Academics</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-600">Assign Class Teacher</span>
+          <span className="text-zinc-950 font-semibold">Assign Class Teacher</span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Left Panel - Add Form */}
         <div className="xl:col-span-1">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-zinc-800">
-              <h2 className="text-lg font-semibold text-white">Assign Class Teacher</h2>
+          <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs">
+            <div className="p-4 border-b border-zinc-100 bg-zinc-50/50">
+              <h2 className="text-base font-bold text-zinc-950">Assign Class Teacher</h2>
             </div>
             
-            <form className="p-4 space-y-6" onSubmit={(e) => e.preventDefault()}>
+            <form className="p-4 space-y-4" onSubmit={(e) => e.preventDefault()}>
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-zinc-400 uppercase">Class <span className="text-rose-500">*</span></Label>
-                <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-zinc-900 dark:text-zinc-900 font-medium">
+                <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Class <span className="text-rose-500">*</span></Label>
+                <select className="flex h-10 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 font-medium">
                   <option value="">Select Class *</option>
                   {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
                     <option key={c} value={c}>{c}</option>
@@ -53,8 +52,8 @@ export default function AssignClassTeacherPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-zinc-400 uppercase">Section <span className="text-rose-500">*</span></Label>
-                <select className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 text-zinc-900 dark:text-zinc-900 font-medium">
+                <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Section <span className="text-rose-500">*</span></Label>
+                <select className="flex h-10 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 font-medium">
                   <option value="">Select Section *</option>
                   {['A', 'B', 'C', 'D'].map(s => (
                     <option key={s} value={s}>Section {s}</option>
@@ -63,7 +62,7 @@ export default function AssignClassTeacherPage() {
               </div>
               
               <div className="space-y-3">
-                <Label className="text-xs font-semibold text-zinc-400 uppercase">Teacher <span className="text-rose-500">*</span></Label>
+                <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Teacher <span className="text-rose-500">*</span></Label>
                 <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                   {[
                     'Mudassir Bajwa',
@@ -73,26 +72,23 @@ export default function AssignClassTeacherPage() {
                     'Ayesha Noor',
                     'Dr. Bilal Siddiqui'
                   ].map(t => (
-                    <label key={t} className="flex items-center gap-2 cursor-pointer p-1.5 rounded hover:bg-zinc-900/50">
-                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${selectedTeacher === t ? 'border-zinc-600 bg-zinc-600' : 'border-zinc-500 bg-transparent'}`}>
-                        {selectedTeacher === t && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                      </div>
-                      <span className="text-sm text-zinc-800 dark:text-zinc-800">{t}</span>
+                    <label key={t} className="flex items-center gap-2 cursor-pointer p-1.5 rounded hover:bg-zinc-50 border border-transparent hover:border-zinc-200">
                       <input 
                         type="radio" 
-                        className="hidden" 
                         name="teacher" 
                         value={t}
                         checked={selectedTeacher === t}
                         onChange={() => setSelectedTeacher(t)} 
+                        className="w-4 h-4 text-zinc-950 border-zinc-300 focus:ring-zinc-500"
                       />
+                      <span className="text-sm font-semibold text-zinc-900">{t}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
               <div className="pt-2">
-                <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
+                <Button className="w-full bg-zinc-950 hover:bg-zinc-800 text-white font-bold py-2 rounded-lg">
                   SAVE CLASS TEACHER
                 </Button>
               </div>
@@ -102,37 +98,31 @@ export default function AssignClassTeacherPage() {
 
         {/* Right Panel - Data List */}
         <div className="xl:col-span-2">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden h-full flex flex-col">
-            <div className="p-4 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <h2 className="text-lg font-semibold text-white">Class Teacher List</h2>
+          <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs h-full flex flex-col">
+            <div className="p-4 border-b border-zinc-100 bg-zinc-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h2 className="text-base font-bold text-zinc-950">Class Teacher List</h2>
               
               <div className="flex flex-col sm:flex-row items-center gap-4">
                 <div className="relative">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
                   <Input 
                     placeholder="SEARCH" 
-                    className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase"
+                    className="pl-9 w-full sm:w-[200px] bg-white border-zinc-300 text-zinc-950 focus-visible:ring-zinc-400 text-xs font-semibold uppercase"
                   />
                 </div>
                 
-                <div className="flex items-center border border-zinc-800 rounded-md bg-zinc-900">
-                  <button className="p-2 hover:bg-zinc-800 text-zinc-400 transition-colors border-r border-zinc-800" title="Copy">
+                <div className="flex items-center gap-1 bg-white p-1 rounded-lg border border-zinc-200">
+                  <button className="p-1.5 hover:bg-zinc-100 text-zinc-600 rounded transition-colors" title="Copy">
                     <FileText className="h-4 w-4" />
                   </button>
-                  <button className="p-2 hover:bg-zinc-800 text-zinc-400 transition-colors border-r border-zinc-800" title="Excel">
+                  <button className="p-1.5 hover:bg-zinc-100 text-zinc-600 rounded transition-colors" title="Excel">
                     <Download className="h-4 w-4" />
                   </button>
-                  <button className="p-2 hover:bg-zinc-800 text-zinc-400 transition-colors border-r border-zinc-800" title="CSV">
+                  <button className="p-1.5 hover:bg-zinc-100 text-zinc-600 rounded transition-colors" title="CSV">
                     <FileText className="h-4 w-4" />
                   </button>
-                  <button className="p-2 hover:bg-zinc-800 text-zinc-400 transition-colors border-r border-zinc-800" title="PDF">
-                    <Download className="h-4 w-4" />
-                  </button>
-                  <button className="p-2 hover:bg-zinc-800 text-zinc-400 transition-colors border-r border-zinc-800" title="Print">
+                  <button className="p-1.5 hover:bg-zinc-100 text-zinc-600 rounded transition-colors" title="Print">
                     <Printer className="h-4 w-4" />
-                  </button>
-                  <button className="p-2 hover:bg-zinc-800 text-zinc-400 transition-colors" title="Columns">
-                    <MoreVertical className="h-4 w-4" />
                   </button>
                 </div>
               </div>
@@ -140,23 +130,23 @@ export default function AssignClassTeacherPage() {
             
             <div className="flex-1 overflow-x-auto">
               <table className="w-full text-sm text-left">
-                <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
+                <thead className="text-xs text-zinc-700 uppercase bg-zinc-50 border-b border-zinc-200 font-bold">
                   <tr>
-                    <th className="px-4 py-3 font-semibold">Class</th>
-                    <th className="px-4 py-3 font-semibold">Section</th>
-                    <th className="px-4 py-3 font-semibold">Teacher</th>
-                    <th className="px-4 py-3 font-semibold text-right">Action</th>
+                    <th className="px-4 py-3">Class</th>
+                    <th className="px-4 py-3">Section</th>
+                    <th className="px-4 py-3">Teacher</th>
+                    <th className="px-4 py-3 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-zinc-100">
                   {teachers.length > 0 ? (
                     teachers.map((t, i) => (
-                      <tr key={i} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
-                        <td className="px-4 py-4 text-zinc-300">{t.class}</td>
-                        <td className="px-4 py-4 text-zinc-300">{t.section}</td>
-                        <td className="px-4 py-4 text-zinc-300">{t.teacher}</td>
+                      <tr key={i} className="hover:bg-zinc-50/80 transition-colors">
+                        <td className="px-4 py-4 text-zinc-950 font-semibold">{t.class}</td>
+                        <td className="px-4 py-4 text-zinc-800">{t.section}</td>
+                        <td className="px-4 py-4 text-zinc-950 font-bold">{t.teacher}</td>
                         <td className="px-4 py-4 text-right">
-                          <Button variant="outline" size="sm" className="h-8 text-xs font-semibold text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10 hover:text-zinc-500">
+                          <Button variant="outline" size="sm" className="h-8 text-xs font-bold text-zinc-950 border-zinc-200 hover:bg-zinc-100">
                             SELECT <ChevronRight className="h-3 w-3 ml-1 rotate-90" />
                           </Button>
                         </td>
@@ -164,7 +154,7 @@ export default function AssignClassTeacherPage() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4" className="px-4 py-8 text-center text-zinc-500">
+                      <td colSpan="4" className="px-4 py-8 text-center text-zinc-500 font-medium">
                         No Data Available In Table
                       </td>
                     </tr>
@@ -173,13 +163,13 @@ export default function AssignClassTeacherPage() {
               </table>
             </div>
             
-            <div className="p-4 border-t border-zinc-800 flex items-center justify-between text-xs text-zinc-500">
+            <div className="p-4 border-t border-zinc-200 flex items-center justify-between text-xs text-zinc-500">
               <div>Showing 0 to 0 of 0 entries</div>
               <div className="flex items-center gap-1">
-                <Button variant="outline" size="sm" className="h-7 px-2 text-zinc-400 border-zinc-800 bg-transparent hover:bg-zinc-800" disabled>
+                <Button variant="outline" size="sm" className="h-7 px-2 text-zinc-400 border-zinc-200 bg-transparent hover:bg-zinc-100" disabled>
                   <ChevronRight className="h-4 w-4 rotate-180" />
                 </Button>
-                <Button variant="outline" size="sm" className="h-7 px-2 text-zinc-400 border-zinc-800 bg-transparent hover:bg-zinc-800" disabled>
+                <Button variant="outline" size="sm" className="h-7 px-2 text-zinc-400 border-zinc-200 bg-transparent hover:bg-zinc-100" disabled>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>

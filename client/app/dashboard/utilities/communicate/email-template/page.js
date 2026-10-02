@@ -20,29 +20,7 @@ import {
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 
 export default function EmailTemplatePage() {
-  const [records, setRecords] = useState([
-    {
-      id: 1,
-      title: 'Monthly Fee Reminder Template',
-      subject: 'Urgent: Monthly Tuition Fee Due Reminder for [student_name]',
-      type: 'Fee Alert',
-      body: 'Dear [parent_name],\n\nThis is a friendly reminder that the tuition fee for [student_name] (Class: [class]-[section]) for this month is due.\nTotal Amount: [due_fee]\nDue Date: [date]\n\nPlease pay promptly to ensure continuous academic portal access.\n\nRegards,\n[school_name]'
-    },
-    {
-      id: 2,
-      title: 'Student Absent Alert Notification',
-      subject: 'Attendance Notice: [student_name] was marked Absent today',
-      type: 'Attendance',
-      body: 'Dear [parent_name],\n\nYour child [student_name] was marked absent from school on [date] without prior leave approval. Please inform the class teacher immediately.\n\nRegards,\nAttendance Dept, [school_name]'
-    },
-    {
-      id: 3,
-      title: 'Examination Marksheet Release Notification',
-      subject: 'Term Examination Results Published - [student_name]',
-      type: 'Academics',
-      body: 'Dear [parent_name],\n\nThe results for the recent term examinations have been published online on Eskooly Portal. Please login to review the detailed marksheet of [student_name].\n\nRegards,\nExamination Wing'
-    }
-  ]);
+  const [records, setRecords] = useState([]);
 
   const [form, setForm] = useState({
     title: '',
@@ -256,7 +234,7 @@ export default function EmailTemplatePage() {
 
             <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-200">
               <table className="w-full text-xs text-left">
-                <thead className="text-[11px] font-bold text-zinc-500 dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-200">
+                <thead className="text-[11px] font-bold text-zinc-900 font-bold dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-50/50 border-b border-zinc-200 dark:border-zinc-200">
                   <tr>
                     <th className="px-3.5 py-3">SL</th>
                     <th className="px-3.5 py-3">Template Name</th>
@@ -265,7 +243,7 @@ export default function EmailTemplatePage() {
                     <th className="px-3.5 py-3 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-100">
                   {filteredRecords.length === 0 ? (
                     <tr><td colSpan={5} className="px-4 py-8 text-center text-zinc-500">No Templates Found</td></tr>
                   ) : filteredRecords.map((item, index) => (
@@ -318,13 +296,13 @@ export default function EmailTemplatePage() {
                 <div className="font-bold text-sm text-zinc-900 dark:text-zinc-900">{selectedTpl.title}</div>
                 <div className="text-zinc-500 mt-1">Subject: <strong>{selectedTpl.subject}</strong></div>
               </div>
-              <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
+              <div className="p-3 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                 <span className="text-zinc-500 block font-semibold mb-1">Body:</span>
                 <p className="text-zinc-700 dark:text-zinc-700 leading-relaxed whitespace-pre-wrap font-sans">{selectedTpl.body}</p>
               </div>
             </div>
             <div className="flex justify-end pt-2">
-              <button onClick={() => setSelectedTpl(null)} className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg text-xs font-semibold">
+              <button onClick={() => setSelectedTpl(null)} className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-950 rounded-lg text-xs font-semibold">
                 Close
               </button>
             </div>

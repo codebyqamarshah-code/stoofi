@@ -309,7 +309,7 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
               type="button"
               variant="outline"
               onClick={downloadSampleTemplate}
-              className="border-zinc-950 text-zinc-950 hover:bg-zinc-950 hover:text-white shrink-0 flex items-center gap-2 text-xs font-semibold cursor-pointer"
+              className="border-zinc-950 text-zinc-950 hover:bg-zinc-50/80 hover:text-white shrink-0 flex items-center gap-2 text-xs font-semibold cursor-pointer"
             >
               <Download className="h-3.5 w-3.5" />
               Download Sample Template (.xlsx)

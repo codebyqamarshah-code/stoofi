@@ -6,6 +6,7 @@ import { ChevronRight, Search, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 
 export default function ExamSchedulePage() {
@@ -94,20 +95,20 @@ export default function ExamSchedulePage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Exam Schedule</h1>
+        <h1 className="text-2xl font-bold text-zinc-950">Exam Schedule</h1>
         <div className="flex items-center text-sm text-zinc-400">
           <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Examinations</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-600">Exam Schedule</span>
+          <span className="text-zinc-950 font-bold">Exam Schedule</span>
         </div>
       </div>
 
       {/* Search Panel */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-white">Search Schedules</h2>
+      <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden">
+        <div className="p-4 border-b border-zinc-200 flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-zinc-950">Search Schedules</h2>
           <Button onClick={() => setShowForm(!showForm)} className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-4 h-9">
             <Plus className="h-4 w-4 mr-2" />ADD EXAM SCHEDULE
           </Button>
@@ -115,17 +116,17 @@ export default function ExamSchedulePage() {
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase">EXAM <span className="text-rose-500">*</span></label>
+              <label className="text-xs font-semibold text-zinc-700 uppercase font-bold">EXAM <span className="text-rose-500">*</span></label>
               <SearchableSelect value={filter.examId} onChange={(val) => setFilter({ ...filter, examId: val })}
                 placeholder="Select Exam *" options={exams.map(e => ({ label: e.name, value: e._id }))} />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase">CLASS</label>
+              <label className="text-xs font-semibold text-zinc-700 uppercase font-bold">CLASS</label>
               <SearchableSelect value={filter.classId} onChange={(val) => setFilter({ ...filter, classId: val })}
                 placeholder="Select Class" options={classes.map(c => ({ label: c.name, value: c._id }))} />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase">SECTION</label>
+              <label className="text-xs font-semibold text-zinc-700 uppercase font-bold">SECTION</label>
               <SearchableSelect value={filter.sectionId} onChange={(val) => setFilter({ ...filter, sectionId: val })}
                 placeholder="Select Section" options={sections.map(s => ({ label: s.name, value: s._id }))} />
             </div>
@@ -140,64 +141,64 @@ export default function ExamSchedulePage() {
 
       {/* Add Schedule Form */}
       {showForm && (
-        <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-          <div className="p-4 border-b border-zinc-800">
-            <h2 className="text-lg font-semibold text-white">Add New Schedule</h2>
+        <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden">
+          <div className="p-4 border-b border-zinc-200">
+            <h2 className="text-lg font-semibold text-zinc-950">Add New Schedule</h2>
           </div>
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-400 uppercase">EXAM *</label>
+                <label className="text-xs font-semibold text-zinc-700 uppercase font-bold">EXAM *</label>
                 <SearchableSelect value={formData.examId} onChange={(val) => setFormData({ ...formData, examId: val })}
                   placeholder="Select Exam *" options={exams.map(e => ({ label: e.name, value: e._id }))} />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-400 uppercase">CLASS *</label>
+                <label className="text-xs font-semibold text-zinc-700 uppercase font-bold">CLASS *</label>
                 <SearchableSelect value={formData.classId} onChange={(val) => setFormData({ ...formData, classId: val })}
                   placeholder="Select Class *" options={classes.map(c => ({ label: c.name, value: c._id }))} />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-400 uppercase">SECTION</label>
+                <label className="text-xs font-semibold text-zinc-700 uppercase font-bold">SECTION</label>
                 <SearchableSelect value={formData.sectionId} onChange={(val) => setFormData({ ...formData, sectionId: val })}
                   placeholder="Select Section" options={sections.map(s => ({ label: s.name, value: s._id }))} />
               </div>
             </div>
 
-            <div className="border border-zinc-800 rounded-lg p-4 space-y-3">
+            <div className="border border-zinc-200 rounded-lg p-4 space-y-3">
               <div className="flex justify-between items-center">
-                <h3 className="text-sm font-semibold text-zinc-300">Schedule Items</h3>
-                <Button type="button" onClick={addItem} className="h-8 text-xs bg-zinc-800 hover:bg-zinc-700 text-white">+ Add Row</Button>
+                <h3 className="text-sm font-semibold text-zinc-950">Schedule Items</h3>
+                <Button type="button" onClick={addItem} className="h-8 text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-950">+ Add Row</Button>
               </div>
               {formData.scheduleItems.map((item, i) => (
                 <div key={i} className="grid grid-cols-2 md:grid-cols-5 gap-3 items-end">
                   <div className="space-y-1">
-                    <label className="text-xs text-zinc-500">SUBJECT</label>
+                    <label className="text-xs text-zinc-900 font-semibold">SUBJECT</label>
                     <select value={item.subjectId} onChange={e => updateItem(i, 'subjectId', e.target.value)}
-                      className="h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-zinc-600">
+                      className="h-9 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm text-zinc-950 focus:outline-none focus:ring-1 focus:ring-zinc-600">
                       <option value="">Select Subject</option>
                       {subjects.map(s => <option key={s._id} value={s._id}>{s.name}</option>)}
                     </select>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs text-zinc-500">DATE</label>
+                    <label className="text-xs text-zinc-900 font-semibold">DATE</label>
                     <Input type="date" value={item.date} onChange={e => updateItem(i, 'date', e.target.value)}
-                      className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" />
+                      className="bg-white border-zinc-300 text-zinc-950 text-zinc-950 focus-visible:ring-zinc-600" />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs text-zinc-500">START TIME</label>
+                    <label className="text-xs text-zinc-900 font-semibold">START TIME</label>
                     <Input type="time" value={item.startTime} onChange={e => updateItem(i, 'startTime', e.target.value)}
-                      className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" />
+                      className="bg-white border-zinc-300 text-zinc-950 text-zinc-950 focus-visible:ring-zinc-600" />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs text-zinc-500">END TIME</label>
+                    <label className="text-xs text-zinc-900 font-semibold">END TIME</label>
                     <Input type="time" value={item.endTime} onChange={e => updateItem(i, 'endTime', e.target.value)}
-                      className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" />
+                      className="bg-white border-zinc-300 text-zinc-950 text-zinc-950 focus-visible:ring-zinc-600" />
                   </div>
                   <div className="flex gap-2">
                     <div className="flex-1 space-y-1">
-                      <label className="text-xs text-zinc-500">ROOM</label>
+                      <label className="text-xs text-zinc-900 font-semibold">ROOM</label>
                       <Input value={item.room} onChange={e => updateItem(i, 'room', e.target.value)} placeholder="Room No."
-                        className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" />
+                        className="bg-white border-zinc-300 text-zinc-950 text-zinc-950 focus-visible:ring-zinc-600" />
                     </div>
                     {formData.scheduleItems.length > 1 && (
                       <Button type="button" onClick={() => removeItem(i)} variant="ghost" size="sm"
@@ -209,7 +210,7 @@ export default function ExamSchedulePage() {
             </div>
 
             <div className="flex justify-end gap-3">
-              <Button type="button" onClick={() => setShowForm(false)} variant="ghost" className="text-zinc-400 hover:text-white">Cancel</Button>
+              <Button type="button" onClick={() => setShowForm(false)} variant="ghost" className="text-zinc-400 hover:text-zinc-950">Cancel</Button>
               <Button type="submit" disabled={submitting} className="bg-indigo-600 hover:bg-indigo-700 text-white px-8">
                 {submitting ? 'SAVING...' : 'SAVE SCHEDULE'}
               </Button>
@@ -220,13 +221,13 @@ export default function ExamSchedulePage() {
 
       {/* Results Table */}
       {searched && (
-        <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-          <div className="p-4 border-b border-zinc-800">
-            <h2 className="text-lg font-semibold text-white">Schedule Results</h2>
+        <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden">
+          <div className="p-4 border-b border-zinc-200">
+            <h2 className="text-lg font-semibold text-zinc-950">Schedule Results</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
+              <thead className="text-xs text-zinc-700 uppercase font-bold bg-zinc-50 border-b border-zinc-200">
                 <tr>
                   <th className="px-4 py-3">SL</th>
                   <th className="px-4 py-3">Exam</th>
@@ -236,18 +237,18 @@ export default function ExamSchedulePage() {
                   <th className="px-4 py-3 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-800">
+              <tbody className="divide-y divide-zinc-100">
                 {loading ? (
                   <tr><td colSpan="6" className="px-4 py-8 text-center text-zinc-500">Loading...</td></tr>
                 ) : schedules.length === 0 ? (
                   <tr><td colSpan="6" className="px-4 py-8 text-center text-zinc-500">No schedules found for selected criteria.</td></tr>
                 ) : schedules.map((s, idx) => (
-                  <tr key={s._id} className="hover:bg-zinc-900/50">
+                  <tr key={s._id} className="hover:bg-zinc-50">
                     <td className="px-4 py-3 text-zinc-600">#{idx + 1}</td>
-                    <td className="px-4 py-3 text-zinc-300 font-medium">{getName(exams, s.examId)}</td>
-                    <td className="px-4 py-3 text-zinc-400">{getName(classes, s.classId)}</td>
-                    <td className="px-4 py-3 text-zinc-400">{getName(sections, s.sectionId)}</td>
-                    <td className="px-4 py-3 text-zinc-400">{s.scheduleItems?.length || 0} subjects</td>
+                    <td className="px-4 py-3 text-zinc-950 font-medium">{getName(exams, s.examId)}</td>
+                    <td className="px-4 py-3 text-zinc-700">{getName(classes, s.classId)}</td>
+                    <td className="px-4 py-3 text-zinc-700">{getName(sections, s.sectionId)}</td>
+                    <td className="px-4 py-3 text-zinc-700">{s.scheduleItems?.length || 0} subjects</td>
                     <td className="px-4 py-3 text-right">
                       <Button onClick={() => handleDelete(s._id)} variant="ghost" size="sm" className="h-8 text-rose-500 hover:bg-rose-500/10">DELETE</Button>
                     </td>

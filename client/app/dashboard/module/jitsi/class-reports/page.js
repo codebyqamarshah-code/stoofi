@@ -316,7 +316,7 @@ export default function JitsiClassReportsPage() {
         {/* Table */}
         <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-200">
           <table className="w-full text-xs text-left">
-            <thead className="text-[11px] font-bold text-zinc-500 dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-200">
+            <thead className="text-[11px] font-bold text-zinc-900 font-bold dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-50/50 border-b border-zinc-200 dark:border-zinc-200">
               <tr>
                 <th className="px-3.5 py-3">SL</th>
                 <th className="px-3.5 py-3">Topic</th>
@@ -328,7 +328,7 @@ export default function JitsiClassReportsPage() {
                 <th className="px-3.5 py-3 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-100">
               {filteredReports.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-4 py-8 text-center text-zinc-500">
@@ -432,19 +432,19 @@ export default function JitsiClassReportsPage() {
                 <div className="text-zinc-500 mt-1">{selectedReport.classVal} - Section {selectedReport.section} | Instructor: {selectedReport.teacher}</div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Session Date:</span>
                   <span className="font-semibold text-zinc-800 dark:text-zinc-800">{selectedReport.date} ({selectedReport.time})</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Duration:</span>
                   <span className="font-semibold text-zinc-800 dark:text-zinc-800">{selectedReport.duration}</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Attended / Total:</span>
                   <span className="font-semibold text-zinc-800">{selectedReport.attended} / {selectedReport.totalEnrolled} Students</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Attendance Rate:</span>
                   <span className="font-semibold text-zinc-800">{selectedReport.percentage}</span>
                 </div>
@@ -453,7 +453,7 @@ export default function JitsiClassReportsPage() {
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => setSelectedReport(null)}
-                className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg text-xs font-semibold"
+                className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-950 rounded-lg text-xs font-semibold"
               >
                 Close
               </button>

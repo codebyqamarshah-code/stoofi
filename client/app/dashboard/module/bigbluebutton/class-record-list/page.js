@@ -10,14 +10,9 @@ export default function BBBClassRecordListPage() {
   const [filterClass, setFilterClass] = useState('All');
   const [selectedRecord, setSelectedRecord] = useState(null);
 
-  const classes = ['All','Class 7','Class 8','Class 9','Class 10','O-Levels','A-Levels'];
+  const classes = ['All', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'];
 
-  const [records, setRecords] = useState([
-    { id:1, topic:'Computer Science - Algorithms & Flowcharts', classVal:'Class 10', section:'A', teacher:'Mudassir Bajwa', date:'2026-09-02', duration:'44:32', fileSize:'128 MB', playbackUrl:'https://bbb.stoofi.com/playback/csc-algo-001', status:'Available' },
-    { id:2, topic:'Chemistry - Chemical Kinetics', classVal:'Class 9', section:'A', teacher:'Fatima Zahra', date:'2026-09-03', duration:'58:47', fileSize:'182 MB', playbackUrl:'https://bbb.stoofi.com/playback/chem-kin-002', status:'Available' },
-    { id:3, topic:'English - Essay Writing & Structure', classVal:'Class 8', section:'B', teacher:'Ayesha Noor', date:'2026-09-04', duration:'39:15', fileSize:'96 MB', playbackUrl:'https://bbb.stoofi.com/playback/eng-essay-003', status:'Processing' },
-    { id:4, topic:'Physics - Momentum & Collision Laws', classVal:'Class 10', section:'B', teacher:'Muhammad Ali', date:'2026-09-05', duration:'52:08', fileSize:'154 MB', playbackUrl:'https://bbb.stoofi.com/playback/phy-mom-004', status:'Available' },
-  ]);
+  const [records, setRecords] = useState([]);
 
   const handleDelete = (id) => {
     if (confirm('Delete this class recording permanently?')) {
@@ -75,12 +70,12 @@ export default function BBBClassRecordListPage() {
 
         <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-200">
           <table className="w-full text-xs text-left">
-            <thead className="text-[11px] font-bold text-zinc-500 dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-200">
+            <thead className="text-[11px] font-bold text-zinc-900 font-bold dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-50/50 border-b border-zinc-200 dark:border-zinc-200">
               <tr>
                 <th className="px-3.5 py-3">SL</th><th className="px-3.5 py-3">Session Topic</th><th className="px-3.5 py-3">Class (Sec)</th><th className="px-3.5 py-3">Teacher</th><th className="px-3.5 py-3">Recorded Date</th><th className="px-3.5 py-3">Duration</th><th className="px-3.5 py-3">File Size</th><th className="px-3.5 py-3">Status</th><th className="px-3.5 py-3 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-100">
               {filtered.length === 0 ? (
                 <tr><td colSpan={9} className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
               ) : filtered.map((item, index) => (

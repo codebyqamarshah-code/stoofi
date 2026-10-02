@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronRight, Printer, Receipt, Search, Building } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 
 const DEFAULT_CLASSES = [
@@ -93,32 +94,32 @@ export default function FeesInvoiceBulkPrintPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-zinc-950 flex items-center gap-2">
             <Receipt className="h-6 w-6 text-indigo-400" />
             Fees Invoice Bulk Print
           </h1>
           <p className="text-sm text-zinc-400 mt-1">Generate official monthly fee challans and invoices ready for printing</p>
         </div>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-zinc-300 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-950 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Bulk Print</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-500">Fees Invoice Bulk Print</span>
+          <span className="text-zinc-950 font-bold">Fees Invoice Bulk Print</span>
         </div>
       </div>
 
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-5 print:hidden shadow-sm">
+      <div className="bg-white border border-zinc-200 shadow-xs rounded-xl p-5 print:hidden shadow-sm">
         <div className="mb-4">
-          <h2 className="text-sm font-semibold text-zinc-200 uppercase tracking-wider">Select Criteria</h2>
+          <h2 className="text-sm font-semibold text-zinc-950 uppercase tracking-wider">Select Criteria</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Class</Label>
+            <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Class</Label>
             <select 
               value={selectedClass} 
               onChange={e => setSelectedClass(e.target.value)} 
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
             >
               <option value="">All Classes</option>
               {classes.map(c => (
@@ -128,11 +129,11 @@ export default function FeesInvoiceBulkPrintPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Section</Label>
+            <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Section</Label>
             <select 
               value={selectedSection} 
               onChange={e => setSelectedSection(e.target.value)} 
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
             >
               <option value="">All Sections</option>
               {['A', 'B', 'C', 'D'].map(s => (
@@ -142,11 +143,11 @@ export default function FeesInvoiceBulkPrintPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Student (Optional)</Label>
+            <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Student (Optional)</Label>
             <select 
               value={selectedStudentId} 
               onChange={e => setSelectedStudentId(e.target.value)} 
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
             >
               <option value="">All Enrolled Students</option>
               {students.map(st => (
@@ -183,18 +184,18 @@ export default function FeesInvoiceBulkPrintPage() {
                     <p className="text-[10px] text-zinc-500">Phone: {schoolSetting?.phone || '+92 300 0000000'}</p>
                   </div>
                   <div className="text-right">
-                    <span className="inline-block px-2 py-0.5 bg-zinc-900 text-white font-bold text-[10px] rounded uppercase">STUDENT FEE CHALLAN</span>
+                    <span className="inline-block px-2 py-0.5 bg-white text-zinc-950 font-bold text-[10px] rounded uppercase">STUDENT FEE CHALLAN</span>
                     <p className="font-mono font-bold text-zinc-800 mt-1">{inv.invoiceNo}</p>
                   </div>
                 </div>
 
                 {/* Student Details */}
                 <div className="grid grid-cols-2 gap-2 bg-zinc-50 p-2.5 rounded border border-zinc-200 text-[11px]">
-                  <div><span className="text-zinc-500">Student:</span> <strong className="text-zinc-900">{inv.studentName}</strong></div>
-                  <div><span className="text-zinc-500">Adm No:</span> <strong className="text-zinc-900">{inv.admissionNo}</strong></div>
-                  <div><span className="text-zinc-500">Class:</span> <strong className="text-zinc-900">{inv.className} ({inv.section})</strong></div>
-                  <div><span className="text-zinc-500">Roll No:</span> <strong className="text-zinc-900">{inv.rollNo}</strong></div>
-                  <div><span className="text-zinc-500">Issue Date:</span> <span className="text-zinc-800">{inv.date}</span></div>
+                  <div><span className="text-zinc-950 font-bold">Student:</span> <strong className="text-zinc-900">{inv.studentName}</strong></div>
+                  <div><span className="text-zinc-950 font-bold">Adm No:</span> <strong className="text-zinc-900">{inv.admissionNo}</strong></div>
+                  <div><span className="text-zinc-950 font-bold">Class:</span> <strong className="text-zinc-900">{inv.className} ({inv.section})</strong></div>
+                  <div><span className="text-zinc-950 font-bold">Roll No:</span> <strong className="text-zinc-900">{inv.rollNo}</strong></div>
+                  <div><span className="text-zinc-950 font-bold">Issue Date:</span> <span className="text-zinc-800">{inv.date}</span></div>
                   <div><span className="text-zinc-500 font-semibold text-rose-600">Due Date:</span> <strong className="text-rose-600">{inv.dueDate}</strong></div>
                 </div>
 

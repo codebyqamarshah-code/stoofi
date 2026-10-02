@@ -433,12 +433,12 @@ export default function SidebarManagerPage() {
                 <Link href="/dashboard" className="hover:text-zinc-700 transition-colors">
                   Dashboard
                 </Link>
-                <ChevronRight className="h-3.5 w-3.5 mx-1 text-zinc-300" />
+                <ChevronRight className="h-3.5 w-3.5 mx-1 text-zinc-950" />
                 <Link href="/dashboard/settings/general" className="hover:text-zinc-700 transition-colors">
                   Settings
                 </Link>
-                <ChevronRight className="h-3.5 w-3.5 mx-1 text-zinc-300" />
-                <span className="text-zinc-600 font-semibold">Sidebar Manager</span>
+                <ChevronRight className="h-3.5 w-3.5 mx-1 text-zinc-950" />
+                <span className="text-zinc-950 font-bold">Sidebar Manager</span>
               </div>
             </div>
           </div>
@@ -548,7 +548,7 @@ export default function SidebarManagerPage() {
                   className="bg-white border-zinc-200 text-xs text-zinc-900 h-9 rounded-lg focus-visible:ring-zinc-900"
                 />
               </div>
-              <Button type="submit" className="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-semibold text-xs h-9 rounded-lg">
+              <Button type="submit" className="w-full bg-zinc-950 hover:bg-zinc-800 text-white font-semibold text-xs h-9 rounded-lg">
                 <Plus className="h-3.5 w-3.5 mr-1" /> Create Section
               </Button>
             </form>
@@ -626,7 +626,7 @@ export default function SidebarManagerPage() {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-semibold text-xs h-9 rounded-lg mt-2">
+              <Button type="submit" className="w-full bg-zinc-950 hover:bg-zinc-800 text-white font-semibold text-xs h-9 rounded-lg mt-2">
                 <Plus className="h-3.5 w-3.5 mr-1" /> Add Menu Item
               </Button>
             </form>
@@ -653,7 +653,7 @@ export default function SidebarManagerPage() {
 
           {filteredSections.length === 0 ? (
             <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-12 text-center text-zinc-400 space-y-2">
-              <Layers className="h-8 w-8 mx-auto text-zinc-300" />
+              <Layers className="h-8 w-8 mx-auto text-zinc-950" />
               <p className="text-sm font-semibold text-zinc-500">No menus matched your search</p>
               <p className="text-xs">Try searching for another keyword or clear the search filter.</p>
             </div>
@@ -751,7 +751,7 @@ export default function SidebarManagerPage() {
                         className={`p-1.5 rounded-lg text-xs font-semibold transition-colors ${
                           !isGroupHidden 
                             ? 'text-zinc-400 hover:bg-zinc-100' 
-                            : 'text-zinc-300 hover:bg-zinc-100'
+                            : 'text-zinc-950 hover:bg-zinc-100'
                         }`}
                         title={isGroupHidden ? "Show Section" : "Hide Section"}
                       >
@@ -900,7 +900,7 @@ export default function SidebarManagerPage() {
                                     className={`p-1 transition-colors ${
                                       !isItemHidden 
                                         ? 'text-zinc-400 hover:text-zinc-700' 
-                                        : 'text-zinc-300 hover:text-zinc-500'
+                                        : 'text-zinc-950 hover:text-zinc-500'
                                     }`}
                                     title={isItemHidden ? "Show Menu" : "Hide Menu"}
                                   >
@@ -943,7 +943,7 @@ export default function SidebarManagerPage() {
                                         <div className="flex items-center gap-1">
                                           <button
                                             onClick={() => toggleSubItemVisibility(groupId, itemId, subId)}
-                                            className={`p-0.5 ${!isSubHidden ? 'text-zinc-400' : 'text-zinc-300'}`}
+                                            className={`p-0.5 ${!isSubHidden ? 'text-zinc-400' : 'text-zinc-950'}`}
                                             title="Toggle submenu item visibility"
                                           >
                                             {!isSubHidden ? <Eye size={12} /> : <EyeOff size={12} />}

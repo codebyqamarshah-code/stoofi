@@ -15,9 +15,9 @@ export default function ClassReportsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 p-6 space-y-6">
+    <div className="space-y-6 p-6 space-y-6">
       {/* Breadcrumb */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-200 pb-4">
         <h1 className="text-xl font-bold text-indigo-900 dark:text-indigo-100">Class Reports</h1>
         <div className="flex items-center text-xs text-zinc-400">
           <Link href="/dashboard" className="hover:text-zinc-200">Dashboard</Link>
@@ -28,7 +28,7 @@ export default function ClassReportsPage() {
         </div>
       </div>
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 shadow-sm">
+      <div className="bg-white border border-zinc-200 shadow-xs rounded-xl p-6 shadow-sm">
         <h2 className="text-sm font-bold text-indigo-900 dark:text-indigo-100 mb-6">Virtual Class Reports</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">

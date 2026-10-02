@@ -284,7 +284,7 @@ export default function VirtualMeetingReportsPage() {
         {/* Table */}
         <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-200">
           <table className="w-full text-xs text-left">
-            <thead className="text-[11px] font-bold text-zinc-500 dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-200">
+            <thead className="text-[11px] font-bold text-zinc-900 font-bold dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-50/50 border-b border-zinc-200 dark:border-zinc-200">
               <tr>
                 <th className="px-3.5 py-3">SL</th>
                 <th className="px-3.5 py-3">Meeting Topic</th>
@@ -297,7 +297,7 @@ export default function VirtualMeetingReportsPage() {
                 <th className="px-3.5 py-3 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-100">
               {filteredReports.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="px-4 py-8 text-center text-zinc-500">
@@ -403,25 +403,25 @@ export default function VirtualMeetingReportsPage() {
                 <div className="text-zinc-500 mt-1">Host: {selectedReport.host} | Target: {selectedReport.audience}</div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Date & Time:</span>
                   <span className="font-semibold text-zinc-800 dark:text-zinc-800">{selectedReport.date} ({selectedReport.time})</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Duration:</span>
                   <span className="font-semibold text-zinc-800 dark:text-zinc-800">{selectedReport.duration}</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Attendees:</span>
                   <span className="font-semibold text-zinc-800">{selectedReport.attendeesCount} Members Joined</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Status:</span>
                   <span className="font-semibold text-zinc-800">{selectedReport.status}</span>
                 </div>
               </div>
               {selectedReport.notes && (
-                <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
+                <div className="p-3 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block font-semibold mb-1">Meeting Minutes / Notes:</span>
                   <p className="text-zinc-700 dark:text-zinc-700 leading-relaxed">{selectedReport.notes}</p>
                 </div>
@@ -430,7 +430,7 @@ export default function VirtualMeetingReportsPage() {
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => setSelectedReport(null)}
-                className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg text-xs font-semibold"
+                className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-950 rounded-lg text-xs font-semibold"
               >
                 Close
               </button>

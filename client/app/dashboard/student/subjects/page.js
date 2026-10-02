@@ -16,14 +16,14 @@ export default function StudentSubjectsPage() {
         <h1 className="text-xl font-bold text-zinc-900">My Subjects</h1>
         <div className="text-sm font-medium text-zinc-500 flex items-center gap-2">
           <Link href="/dashboard/student" className="hover:text-indigo-600 transition-colors">Dashboard</Link>
-          <span className="text-zinc-300">|</span>
+          <span className="text-zinc-950">|</span>
           <span className="text-zinc-900">Subjects</span>
         </div>
       </div>
 
       {/* Info Banner */}
       {user?.className && (
-        <div className="bg-zinc-900 text-white rounded-2xl p-4 flex flex-wrap items-center gap-4 text-sm font-medium">
+        <div className="bg-white text-zinc-950 rounded-2xl p-4 flex flex-wrap items-center gap-4 text-sm font-medium">
           <div className="flex items-center gap-2">
             <span className="opacity-60">Class:</span>
             <span className="font-bold">{user.className}</span>

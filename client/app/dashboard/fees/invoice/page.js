@@ -249,7 +249,7 @@ export default function FeesInvoicePage() {
       {/* Header & Breadcrumb */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Fees Invoice Manager</h1>
+          <h1 className="text-2xl font-bold text-zinc-950 tracking-tight">Fees Invoice Manager</h1>
           <p className="text-xs text-zinc-400 mt-1">Generate, track, edit, and print official student fee vouchers</p>
         </div>
         <div className="flex items-center text-xs text-zinc-400">
@@ -257,7 +257,7 @@ export default function FeesInvoicePage() {
           <ChevronRight className="h-3.5 w-3.5 mx-1" />
           <span>Fees</span>
           <ChevronRight className="h-3.5 w-3.5 mx-1" />
-          <span className="text-zinc-600 font-semibold">Fees Invoice</span>
+          <span className="text-zinc-950 font-bold">Fees Invoice</span>
         </div>
       </div>
 
@@ -305,19 +305,19 @@ export default function FeesInvoicePage() {
       </div>
 
       {/* Main Card */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden flex flex-col shadow-xs">
+      <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden flex flex-col shadow-xs">
         {/* Actions Bar */}
-        <div className="p-4 border-b border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="p-4 border-b border-zinc-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-3">
             <Button 
               onClick={handleOpenCreate} 
-              className="bg-zinc-800 hover:bg-zinc-800 text-white font-bold flex items-center gap-2 shadow-xs text-xs px-4 h-9"
+              className="bg-zinc-800 hover:bg-zinc-100 text-zinc-950 font-bold flex items-center gap-2 shadow-xs text-xs px-4 h-9"
             >
               <Plus className="h-4 w-4" /> CREATE INVOICE
             </Button>
 
             {/* Status Filter Tabs */}
-            <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-lg p-0.5 text-xs font-semibold">
+            <div className="flex items-center bg-white border border-zinc-200 shadow-xs rounded-lg p-0.5 text-xs font-semibold">
               {['ALL', 'PAID', 'PARTIAL', 'UNPAID'].map(st => (
                 <button
                   key={st}
@@ -341,19 +341,19 @@ export default function FeesInvoicePage() {
                 placeholder="Search student or invoice..." 
                 value={search} 
                 onChange={e => setSearch(e.target.value)} 
-                className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-zinc-600 text-white rounded-lg" 
+                className="pl-9 h-9 bg-white border-zinc-300 text-zinc-950 text-xs focus-visible:ring-zinc-600 text-zinc-950 rounded-lg" 
               />
             </div>
 
             {/* Export Buttons */}
             <div className="flex items-center gap-1.5 shrink-0">
-              <Button onClick={() => exportToCSV(exportData, 'Fees_Invoices')} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-300" title="Export CSV">
+              <Button onClick={() => exportToCSV(exportData, 'Fees_Invoices')} variant="outline" size="icon" className="h-9 w-9 border-zinc-200 bg-zinc-900 hover:bg-zinc-800 text-zinc-950" title="Export CSV">
                 <Download className="h-4 w-4" />
               </Button>
-              <Button onClick={() => exportToExcel(exportData, 'Fees_Invoices')} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-500" title="Export Excel">
+              <Button onClick={() => exportToExcel(exportData, 'Fees_Invoices')} variant="outline" size="icon" className="h-9 w-9 border-zinc-200 bg-zinc-900 hover:bg-zinc-800 text-zinc-500" title="Export Excel">
                 <FileText className="h-4 w-4" />
               </Button>
-              <Button onClick={() => printData('Fees Invoices Report', exportData)} variant="outline" size="icon" className="h-9 w-9 border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-rose-400" title="Print List">
+              <Button onClick={() => printData('Fees Invoices Report', exportData)} variant="outline" size="icon" className="h-9 w-9 border-zinc-200 bg-zinc-900 hover:bg-zinc-800 text-rose-400" title="Print List">
                 <Printer className="h-4 w-4" />
               </Button>
             </div>
@@ -363,7 +363,7 @@ export default function FeesInvoicePage() {
         {/* Invoices Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
+            <thead className="text-xs text-zinc-700 uppercase font-bold bg-zinc-50 border-b border-zinc-200">
               <tr>
                 <th className="px-4 py-3 font-semibold">SL</th>
                 <th className="px-4 py-3 font-semibold">Invoice No</th>
@@ -379,7 +379,7 @@ export default function FeesInvoicePage() {
                 <th className="px-4 py-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800">
+            <tbody className="divide-y divide-zinc-100">
               {loading ? (
                 <tr>
                   <td colSpan="12" className="px-4 py-8 text-center text-zinc-500">Loading invoices...</td>
@@ -392,21 +392,21 @@ export default function FeesInvoicePage() {
                 </tr>
               ) : (
                 records.map((r, i) => (
-                  <tr key={r._id} className="hover:bg-zinc-900/50 transition-colors">
+                  <tr key={r._id} className="hover:bg-zinc-50 transition-colors">
                     <td className="px-4 py-3 text-zinc-500 font-medium text-xs">#{i + 1}</td>
                     <td className="px-4 py-3 font-semibold text-zinc-200 text-xs tracking-wider">{r.invoiceNo || `INV-${100 + i}`}</td>
                     <td className="px-4 py-3">
-                      <div className="font-semibold text-white">{r.student}</div>
+                      <div className="font-semibold text-zinc-950">{r.student}</div>
                       <div className="text-[11px] text-zinc-400">{r.className || '-'} &bull; {r.admissionNo || '-'}</div>
                     </td>
-                    <td className="px-4 py-3 text-zinc-300 text-xs">
-                      <span className="bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded text-[11px] text-zinc-300">
+                    <td className="px-4 py-3 text-zinc-950 text-xs">
+                      <span className="bg-white border border-zinc-200 shadow-xs px-2 py-0.5 rounded text-[11px] text-zinc-950">
                         {r.feeType || 'Tuition Fee'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 font-bold text-white">${Number(r.amount || 0).toLocaleString()}</td>
-                    <td className="px-4 py-3 text-zinc-400 text-xs">${Number(r.waiver || 0).toLocaleString()}</td>
-                    <td className="px-4 py-3 text-zinc-400 text-xs">${Number(r.fine || 0).toLocaleString()}</td>
+                    <td className="px-4 py-3 font-bold text-zinc-950">${Number(r.amount || 0).toLocaleString()}</td>
+                    <td className="px-4 py-3 text-zinc-700 text-xs">${Number(r.waiver || 0).toLocaleString()}</td>
+                    <td className="px-4 py-3 text-zinc-700 text-xs">${Number(r.fine || 0).toLocaleString()}</td>
                     <td className="px-4 py-3 text-zinc-500 font-bold">${Number(r.paid || 0).toLocaleString()}</td>
                     <td className="px-4 py-3">
                       <span className={`font-bold ${Number(r.balance || 0) > 0 ? 'text-rose-400' : 'text-zinc-500'}`}>
@@ -424,7 +424,7 @@ export default function FeesInvoicePage() {
                         {r.status || 'UNPAID'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-zinc-400 text-xs">{r.date || '-'}</td>
+                    <td className="px-4 py-3 text-zinc-700 text-xs">{r.date || '-'}</td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <Button 
@@ -464,12 +464,12 @@ export default function FeesInvoicePage() {
         </div>
 
         {/* Table Footer */}
-        <div className="p-4 border-t border-zinc-800 flex flex-wrap items-center justify-between text-xs text-zinc-500">
+        <div className="p-4 border-t border-zinc-200 flex flex-wrap items-center justify-between text-xs text-zinc-500">
           <div>Showing {totalRecords === 0 ? 0 : (page - 1) * 10 + 1} to {Math.min(page * 10, totalRecords)} of {totalRecords} invoices</div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1.5 rounded border border-zinc-700 hover:bg-zinc-800 disabled:opacity-40 transition-colors">Previous</button>
-            <div className="text-zinc-400 font-medium px-2">Page {page} of {totalPages}</div>
-            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-3 py-1.5 rounded border border-zinc-700 hover:bg-zinc-800 disabled:opacity-40 transition-colors">Next</button>
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1.5 rounded border border-zinc-200 hover:bg-zinc-100 disabled:opacity-40 transition-colors">Previous</button>
+            <div className="text-zinc-700 font-medium px-2">Page {page} of {totalPages}</div>
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-3 py-1.5 rounded border border-zinc-200 hover:bg-zinc-100 disabled:opacity-40 transition-colors">Next</button>
           </div>
         </div>
       </div>
@@ -479,10 +479,10 @@ export default function FeesInvoicePage() {
       {/* ========================================================= */}
       {isBuilderOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl max-w-2xl w-full p-6 text-white shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-4 mb-5">
+          <div className="bg-white border border-zinc-200 shadow-xs rounded-2xl max-w-2xl w-full p-6 text-zinc-950 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-zinc-200 pb-4 mb-5">
               <div>
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <h2 className="text-lg font-bold text-zinc-950 flex items-center gap-2">
                   <FileText className="h-5 w-5 text-zinc-600" />
                   {editingInvoice ? 'Edit Fees Invoice' : 'Fees Invoice Builder'}
                 </h2>
@@ -490,7 +490,7 @@ export default function FeesInvoicePage() {
               </div>
               <button 
                 onClick={() => setIsBuilderOpen(false)}
-                className="text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-zinc-900 transition-colors"
+                className="text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-zinc-50/80 transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -500,11 +500,11 @@ export default function FeesInvoicePage() {
               {/* Student & Class Row */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-semibold text-zinc-300 block mb-1.5">Select Student *</label>
+                  <label className="text-xs font-semibold text-zinc-950 block mb-1.5">Select Student *</label>
                   <select
                     value={formData.student}
                     onChange={handleStudentSelect}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:border-zinc-600 focus:outline-none"
+                    className="w-full bg-white border border-zinc-200 shadow-xs rounded-lg px-3 py-2 text-xs text-zinc-950 focus:border-zinc-600 focus:outline-none"
                     required
                   >
                     <option value="">-- Choose Student --</option>
@@ -517,12 +517,12 @@ export default function FeesInvoicePage() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-zinc-300 block mb-1.5">Class & Section</label>
+                  <label className="text-xs font-semibold text-zinc-950 block mb-1.5">Class & Section</label>
                   <Input 
                     value={formData.className}
                     onChange={e => setFormData({ ...formData, className: e.target.value })}
                     placeholder="e.g. Class 10 (A)"
-                    className="bg-zinc-900 border-zinc-800 text-xs h-9 text-white focus-visible:ring-zinc-600"
+                    className="bg-white border-zinc-300 text-zinc-950 text-xs h-9 text-zinc-950 focus-visible:ring-zinc-600"
                   />
                 </div>
               </div>
@@ -530,21 +530,21 @@ export default function FeesInvoicePage() {
               {/* Admission No & Fee Type */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-semibold text-zinc-300 block mb-1.5">Admission / Roll No</label>
+                  <label className="text-xs font-semibold text-zinc-950 block mb-1.5">Admission / Roll No</label>
                   <Input 
                     value={formData.admissionNo}
                     onChange={e => setFormData({ ...formData, admissionNo: e.target.value })}
                     placeholder="e.g. ADM-2026-001"
-                    className="bg-zinc-900 border-zinc-800 text-xs h-9 text-white focus-visible:ring-zinc-600"
+                    className="bg-white border-zinc-300 text-zinc-950 text-xs h-9 text-zinc-950 focus-visible:ring-zinc-600"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-zinc-300 block mb-1.5">Fee Category / Group *</label>
+                  <label className="text-xs font-semibold text-zinc-950 block mb-1.5">Fee Category / Group *</label>
                   <select
                     value={formData.feeType}
                     onChange={e => setFormData({ ...formData, feeType: e.target.value })}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:border-zinc-600 focus:outline-none"
+                    className="w-full bg-white border border-zinc-200 shadow-xs rounded-lg px-3 py-2 text-xs text-zinc-950 focus:border-zinc-600 focus:outline-none"
                   >
                     {FEE_TYPES.map(ft => (
                       <option key={ft} value={ft}>{ft}</option>
@@ -554,54 +554,54 @@ export default function FeesInvoicePage() {
               </div>
 
               {/* Financial Breakdown Grid */}
-              <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl p-4 space-y-3">
+              <div className="bg-zinc-50 border border-zinc-200/80 rounded-xl p-4 space-y-3">
                 <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Financial Breakdown ($)</div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div>
-                    <label className="text-[11px] font-medium text-zinc-400 block mb-1">Total Fee ($)</label>
+                    <label className="text-[11px] font-medium text-zinc-900 font-semibold block mb-1">Total Fee ($)</label>
                     <Input 
                       type="number"
                       min="0"
                       value={formData.amount}
                       onChange={e => setFormData({ ...formData, amount: e.target.value })}
-                      className="bg-zinc-950 border-zinc-800 text-xs h-8 text-white focus-visible:ring-zinc-600 font-bold"
+                      className="bg-zinc-950 border-zinc-200 text-xs h-8 text-white focus-visible:ring-zinc-600 font-bold"
                       required
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-medium text-zinc-400 block mb-1">Waiver / Disc ($)</label>
+                    <label className="text-[11px] font-medium text-zinc-900 font-semibold block mb-1">Waiver / Disc ($)</label>
                     <Input 
                       type="number"
                       min="0"
                       value={formData.waiver}
                       onChange={e => setFormData({ ...formData, waiver: e.target.value })}
-                      className="bg-zinc-950 border-zinc-800 text-xs h-8 text-white focus-visible:ring-zinc-600"
+                      className="bg-zinc-950 border-zinc-200 text-xs h-8 text-white focus-visible:ring-zinc-600"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-medium text-zinc-400 block mb-1">Late Fine ($)</label>
+                    <label className="text-[11px] font-medium text-zinc-900 font-semibold block mb-1">Late Fine ($)</label>
                     <Input 
                       type="number"
                       min="0"
                       value={formData.fine}
                       onChange={e => setFormData({ ...formData, fine: e.target.value })}
-                      className="bg-zinc-950 border-zinc-800 text-xs h-8 text-white focus-visible:ring-zinc-600"
+                      className="bg-zinc-950 border-zinc-200 text-xs h-8 text-white focus-visible:ring-zinc-600"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-medium text-zinc-400 block mb-1">Amount Paid ($)</label>
+                    <label className="text-[11px] font-medium text-zinc-900 font-semibold block mb-1">Amount Paid ($)</label>
                     <Input 
                       type="number"
                       min="0"
                       value={formData.paid}
                       onChange={e => setFormData({ ...formData, paid: e.target.value })}
-                      className="bg-zinc-950 border-zinc-800 text-xs h-8 text-zinc-500 focus-visible:ring-zinc-600 font-bold"
+                      className="bg-zinc-950 border-zinc-200 text-xs h-8 text-zinc-500 focus-visible:ring-zinc-600 font-bold"
                     />
                   </div>
                 </div>
 
                 {/* Auto Calculated Summary Banner */}
-                <div className="flex items-center justify-between pt-2 border-t border-zinc-800/80 text-xs">
+                <div className="flex items-center justify-between pt-2 border-t border-zinc-200/80 text-xs">
                   <div className="flex items-center gap-2">
                     <span className="text-zinc-400">Status:</span>
                     <span className={`px-2 py-0.5 rounded font-bold text-[10px] ${
@@ -621,11 +621,11 @@ export default function FeesInvoicePage() {
               {/* Payment Method, Date, Notes */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-semibold text-zinc-300 block mb-1.5">Payment Method</label>
+                  <label className="text-xs font-semibold text-zinc-950 block mb-1.5">Payment Method</label>
                   <select
                     value={formData.paymentMethod}
                     onChange={e => setFormData({ ...formData, paymentMethod: e.target.value })}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:border-zinc-600 focus:outline-none"
+                    className="w-full bg-white border border-zinc-200 shadow-xs rounded-lg px-3 py-2 text-xs text-zinc-950 focus:border-zinc-600 focus:outline-none"
                   >
                     <option value="Cash">Cash Counter</option>
                     <option value="Online Bank Transfer">Online Bank Transfer</option>
@@ -636,39 +636,39 @@ export default function FeesInvoicePage() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-zinc-300 block mb-1.5">Issue / Due Date</label>
+                  <label className="text-xs font-semibold text-zinc-950 block mb-1.5">Issue / Due Date</label>
                   <Input 
                     type="date"
                     value={formData.date}
                     onChange={e => setFormData({ ...formData, date: e.target.value })}
-                    className="bg-zinc-900 border-zinc-800 text-xs h-9 text-white focus-visible:ring-zinc-600"
+                    className="bg-white border-zinc-300 text-zinc-950 text-xs h-9 text-zinc-950 focus-visible:ring-zinc-600"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-zinc-300 block mb-1.5">Notes / Description (Optional)</label>
+                <label className="text-xs font-semibold text-zinc-950 block mb-1.5">Notes / Description (Optional)</label>
                 <Input 
                   value={formData.note}
                   onChange={e => setFormData({ ...formData, note: e.target.value })}
                   placeholder="e.g. Paid in cash at accounts counter"
-                  className="bg-zinc-900 border-zinc-800 text-xs h-9 text-white focus-visible:ring-zinc-600"
+                  className="bg-white border-zinc-300 text-zinc-950 text-xs h-9 text-zinc-950 focus-visible:ring-zinc-600"
                 />
               </div>
 
               {/* Modal Actions */}
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-zinc-800">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-zinc-200">
                 <Button 
                   type="button" 
                   variant="ghost" 
                   onClick={() => setIsBuilderOpen(false)}
-                  className="text-zinc-400 hover:text-white"
+                  className="text-zinc-400 hover:text-zinc-950"
                 >
                   Cancel
                 </Button>
                 <Button 
                   type="submit" 
-                  className="bg-zinc-800 hover:bg-zinc-800 text-white font-bold px-5"
+                  className="bg-zinc-800 hover:bg-zinc-100 text-zinc-950 font-bold px-5"
                 >
                   {editingInvoice ? 'Update Invoice' : 'Save & Issue Invoice'}
                 </Button>
@@ -791,7 +791,7 @@ export default function FeesInvoicePage() {
               </Button>
               <Button 
                 onClick={() => window.print()}
-                className="bg-zinc-800 hover:bg-zinc-800 text-white font-bold text-xs h-9 flex items-center gap-2"
+                className="bg-zinc-800 hover:bg-zinc-100 text-zinc-950 font-bold text-xs h-9 flex items-center gap-2"
               >
                 <Printer className="h-4 w-4" /> Print / Save PDF
               </Button>

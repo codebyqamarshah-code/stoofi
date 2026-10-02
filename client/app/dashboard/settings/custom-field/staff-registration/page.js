@@ -47,49 +47,49 @@ export default function StaffRegistrationPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Staff Registration</h1>
+        <h1 className="text-2xl font-bold text-zinc-950">Staff Registration</h1>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Custom Field</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-zinc-600">Staff Registration</span>
+          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Settings</Link><ChevronRight className="h-4 w-4 mx-1" /><Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Custom Field</Link><ChevronRight className="h-4 w-4 mx-1" /><span className="text-zinc-950 font-bold">Staff Registration</span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-1">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl">
-            <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">{editId ? 'Edit' : 'Add'} Staff Registration</h2>
-              {editId && <button onClick={cancelEdit} className="text-zinc-400 hover:text-white"><X className="h-4 w-4" /></button>}
+          <div className="bg-white border border-zinc-200 shadow-xs rounded-xl">
+            <div className="p-4 border-b border-zinc-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-zinc-950">{editId ? 'Edit' : 'Add'} Staff Registration</h2>
+              {editId && <button onClick={cancelEdit} className="text-zinc-400 hover:text-zinc-950"><X className="h-4 w-4" /></button>}
             </div>
             <form className="p-4 space-y-4" onSubmit={handleSubmit}>
               
         <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-zinc-400 uppercase">Field Label</Label>
+          <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Field Label</Label>
           <Input 
             type="text"
             name="label"
             value={formData.label || ''} 
             onChange={handleChange}
-            className="bg-zinc-900 border-zinc-800 text-white focus-visible:ring-zinc-600" 
+            className="bg-white border-zinc-300 text-zinc-950 text-zinc-950 focus-visible:ring-zinc-600" 
           />
         </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Field Type</Label>
+            <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Field Type</Label>
             <select 
               name="type"
               value={formData.type || ''} 
               onChange={handleChange}
-              className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-zinc-600"
+              className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm text-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-600"
             >
               <option value="">Select Field Type</option>
               <option value="Text">Text</option><option value="Number">Number</option><option value="Dropdown">Dropdown</option><option value="Date">Date</option>
             </select>
           </div>
               <div className="flex gap-2 pt-2">
-                <Button type="submit" className="flex-1 bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
+                <Button type="submit" className="flex-1 bg-zinc-800 hover:bg-zinc-100 text-zinc-950 font-semibold">
                   {editId ? 'UPDATE' : 'SAVE'}
                 </Button>
                 {editId && (
-                  <Button type="button" onClick={cancelEdit} variant="outline" className="border-zinc-700 text-zinc-400 hover:text-white">Cancel</Button>
+                  <Button type="button" onClick={cancelEdit} variant="outline" className="border-zinc-200 text-zinc-400 hover:text-zinc-950">Cancel</Button>
                 )}
               </div>
             </form>
@@ -97,29 +97,29 @@ export default function StaffRegistrationPage() {
         </div>
 
         <div className="xl:col-span-2">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl">
-            <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-white">Staff Registration List</h2>
+          <div className="bg-white border border-zinc-200 shadow-xs rounded-xl">
+            <div className="p-4 border-b border-zinc-200 flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-zinc-950">Staff Registration List</h2>
               <div className="relative w-48">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                <Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-zinc-900 border-zinc-800 text-xs focus-visible:ring-zinc-600 text-white" />
+                <Input placeholder="SEARCH" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 bg-white border-zinc-300 text-zinc-950 text-xs focus-visible:ring-zinc-600 text-zinc-950" />
               </div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left">
-                <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
+                <thead className="text-xs text-zinc-700 uppercase font-bold bg-zinc-50 border-b border-zinc-200">
                   <tr>
                     <th className="px-4 py-3 font-semibold">SL</th>
                     <th className="px-4 py-3 font-semibold">Field Label</th><th className="px-4 py-3 font-semibold">Field Type</th><th className="px-4 py-3 font-semibold">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-800">
+                <tbody className="divide-y divide-zinc-100">
                   {records.length === 0 ? (
                     <tr><td colSpan="4" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
                   ) : records.map((r, i) => (
-                    <tr key={r.id} className="hover:bg-zinc-900/50">
+                    <tr key={r.id} className="hover:bg-zinc-50">
                       <td className="px-4 py-3 text-zinc-600">+{i+1}</td>
-                      <td className="px-4 py-3 text-zinc-300">{r.label || '-'}</td><td className="px-4 py-3 text-zinc-300">{r.type || '-'}</td>
+                      <td className="px-4 py-3 text-zinc-950">{r.label || '-'}</td><td className="px-4 py-3 text-zinc-950">{r.type || '-'}</td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-2">
                           <Button onClick={() => handleEdit(r)} variant="ghost" size="sm" className="h-8 text-zinc-600 hover:bg-zinc-600/10"><Edit className="h-4 w-4" /></Button>

@@ -98,14 +98,14 @@ export function DataTable({
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-zinc-100 dark:bg-zinc-50 border-b border-zinc-200 dark:border-zinc-200">
-              <th className="py-3 px-4 text-xs font-semibold text-zinc-500 dark:text-zinc-600 uppercase w-12">#</th>
+              <th className="py-3 px-4 text-xs font-semibold text-zinc-900 font-bold dark:text-zinc-600 uppercase w-12">#</th>
               {columns.map((col, idx) => (
-                <th key={idx} className="py-3 px-4 text-xs font-semibold text-zinc-500 dark:text-zinc-600 uppercase whitespace-nowrap">
+                <th key={idx} className="py-3 px-4 text-xs font-semibold text-zinc-900 font-bold dark:text-zinc-600 uppercase whitespace-nowrap">
                   {col.label}
                 </th>
               ))}
               {(onEdit || onDelete) && (
-                <th className="py-3 px-4 text-xs font-semibold text-zinc-500 dark:text-zinc-600 uppercase text-right">Actions</th>
+                <th className="py-3 px-4 text-xs font-semibold text-zinc-900 font-bold dark:text-zinc-600 uppercase text-right">Actions</th>
               )}
             </tr>
           </thead>

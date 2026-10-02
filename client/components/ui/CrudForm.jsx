@@ -35,7 +35,7 @@ export function CrudForm({
           <Button 
             type="submit" 
             disabled={isSubmitting || isLoading}
-            className="w-full bg-zinc-800 hover:bg-zinc-800 text-white font-bold h-11"
+            className="w-full bg-zinc-800 hover:bg-zinc-100 text-zinc-950 font-bold h-11"
           >
             {isSubmitting ? (
               <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>

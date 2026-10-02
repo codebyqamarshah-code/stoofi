@@ -131,25 +131,25 @@ export default function ContentListPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Content</h1>
+        <h1 className="text-2xl font-bold text-zinc-950">Content</h1>
         <div className="flex items-center text-sm text-zinc-400">
           <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Download Center</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-600">Content</span>
+          <span className="text-zinc-950 font-bold">Content</span>
         </div>
       </div>
 
       {/* Search Filter */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-5">
-        <h2 className="text-base font-semibold text-white mb-4">Search</h2>
+      <div className="bg-white border border-zinc-200 shadow-xs rounded-xl p-5">
+        <h2 className="text-base font-semibold text-zinc-950 mb-4">Search</h2>
         <div className="space-y-1.5 max-w-xl">
-          <Label className="text-xs font-semibold text-zinc-400 uppercase">Name</Label>
-          <Input placeholder="Name" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
+          <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Name</Label>
+          <Input placeholder="Name" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="bg-white border-zinc-300 text-zinc-950 focus-visible:ring-zinc-600" />
         </div>
         <div className="flex justify-end mt-6">
-          <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
+          <Button className="bg-zinc-800 hover:bg-zinc-100 text-zinc-950 font-semibold">
             <Search className="h-4 w-4 mr-2" /> SEARCH
           </Button>
         </div>
@@ -159,15 +159,15 @@ export default function ContentListPage() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Left: Add Form */}
         <div className="xl:col-span-1">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-zinc-800">
-              <h2 className="text-lg font-semibold text-white">Add Content</h2>
+          <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden">
+            <div className="p-4 border-b border-zinc-200">
+              <h2 className="text-lg font-semibold text-zinc-950">Add Content</h2>
             </div>
             <form className="p-4 space-y-4" onSubmit={handleSave}>
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-zinc-400 uppercase">Content Type <span className="text-rose-500">*</span></Label>
+                <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Content Type <span className="text-rose-500">*</span></Label>
                 <select 
-                  className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
+                  className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-950 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
                   value={formData.contentType}
                   onChange={(e) => setFormData({...formData, contentType: e.target.value})}
                   required
@@ -181,8 +181,8 @@ export default function ContentListPage() {
                 </select>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-zinc-400 uppercase">YouTube Link</Label>
-                <Input placeholder="YouTube Link" value={formData.youtubeLink} onChange={(e) => setFormData({...formData, youtubeLink: e.target.value})} className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
+                <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">YouTube Link</Label>
+                <Input placeholder="YouTube Link" value={formData.youtubeLink} onChange={(e) => setFormData({...formData, youtubeLink: e.target.value})} className="bg-white border-zinc-300 text-zinc-950 focus-visible:ring-zinc-600" />
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex-1 h-px bg-zinc-800" />
@@ -195,25 +195,25 @@ export default function ContentListPage() {
                 
                 {!file ? (
                   <div className="flex items-center gap-2">
-                    <Input type="text" placeholder="No file selected" readOnly className="bg-zinc-900 border-zinc-800 text-zinc-500" />
-                    <Button type="button" onClick={() => fileInputRef.current?.click()} variant="secondary" className="bg-zinc-800 hover:bg-zinc-700 text-white shrink-0">
+                    <Input type="text" placeholder="No file selected" readOnly className="bg-white border-zinc-300 text-zinc-950 text-zinc-500" />
+                    <Button type="button" onClick={() => fileInputRef.current?.click()} variant="secondary" className="bg-zinc-800 hover:bg-zinc-700 text-zinc-950 shrink-0">
                       <Upload className="h-4 w-4 mr-2" /> BROWSE
                     </Button>
                   </div>
                 ) : (
-                  <div className="mt-2 p-3 bg-zinc-900 border border-zinc-800 rounded-lg">
+                  <div className="mt-2 p-3 bg-white border border-zinc-200 shadow-xs rounded-lg">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1 overflow-hidden">
-                        <p className="text-xs text-white font-medium truncate">{file.name}</p>
+                        <p className="text-xs text-zinc-950 font-medium truncate">{file.name}</p>
                         <p className="text-[10px] text-emerald-500 font-bold mt-0.5">Ready to Upload ({formatSize(file.size)})</p>
                       </div>
                     </div>
                     {file.type.startsWith('image/') && previewUrl ? (
-                      <div className="w-full h-32 mb-3 rounded border border-zinc-700 overflow-hidden bg-zinc-950 flex items-center justify-center">
+                      <div className="w-full h-32 mb-3 rounded border border-zinc-200 overflow-hidden bg-white flex items-center justify-center">
                         <img src={previewUrl} className="max-w-full max-h-full object-contain" alt="Preview" />
                       </div>
                     ) : previewUrl ? (
-                      <div className="w-full h-32 mb-3 rounded border border-zinc-700 overflow-hidden bg-zinc-950 flex items-center justify-center">
+                      <div className="w-full h-32 mb-3 rounded border border-zinc-200 overflow-hidden bg-white flex items-center justify-center">
                         <div className="text-xs font-bold text-zinc-500 uppercase tracking-widest text-center">
                           <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
                           Document<br/>Selected
@@ -235,7 +235,7 @@ export default function ContentListPage() {
                 <p className="text-[10px] text-zinc-500 mt-1">(jpg, png, pdf, docx, txt, xlsx, zip allowed)</p>
               </div>
               <div className="pt-2">
-                <Button type="submit" className="bg-zinc-800 hover:bg-zinc-700 text-white font-semibold">SAVE</Button>
+                <Button type="submit" className="bg-zinc-800 hover:bg-zinc-700 text-zinc-950 font-semibold">SAVE</Button>
               </div>
             </form>
           </div>
@@ -243,22 +243,22 @@ export default function ContentListPage() {
 
         {/* Right: Content List Table */}
         <div className="xl:col-span-2">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden flex flex-col">
-            <div className="p-4 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden flex flex-col">
+            <div className="p-4 border-b border-zinc-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-2">
-                <Button onClick={handleShare} size="sm" className="h-9 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs"><Share2 className="w-3.5 h-3.5 mr-1.5" /> SHARE</Button>
+                <Button onClick={handleShare} size="sm" className="h-9 bg-zinc-800 hover:bg-zinc-700 text-zinc-950 font-semibold text-xs"><Share2 className="w-3.5 h-3.5 mr-1.5" /> SHARE</Button>
                 <Button onClick={handleGenerateUrl} size="sm" variant="outline" className="h-9 text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10 font-semibold text-xs"><LinkIcon className="w-3.5 h-3.5 mr-1.5" /> GENERATE URL</Button>
               </div>
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                  <Input placeholder="SEARCH" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 w-[180px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase" />
+                  <Input placeholder="SEARCH" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 w-[180px] bg-white border-zinc-300 text-zinc-950 focus-visible:ring-zinc-600 text-xs font-semibold uppercase" />
                 </div>
               </div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left">
-                <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
+                <thead className="text-xs text-zinc-700 uppercase font-bold bg-zinc-50 border-b border-zinc-200">
                   <tr>
                     <th className="px-4 py-3 font-semibold">Document</th>
                     <th className="px-4 py-3 font-semibold">Content Type</th>
@@ -272,17 +272,17 @@ export default function ContentListPage() {
                   {loading ? (
                     <tr><td colSpan="6" className="px-4 py-8 text-center text-zinc-500">Loading...</td></tr>
                   ) : filteredContents.length > 0 ? filteredContents.map((c, i) => (
-                    <tr key={c._id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
-                      <td className="px-4 py-4 text-zinc-300 font-medium">
+                    <tr key={c._id} className="border-b border-zinc-200/50 hover:bg-zinc-50 transition-colors">
+                      <td className="px-4 py-4 text-zinc-950 font-medium">
                         {c.youtubeLink ? (
                           <a href={c.youtubeLink} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">{c.youtubeLink}</a>
                         ) : (
                           <span>{c.fileName}</span>
                         )}
                       </td>
-                      <td className="px-4 py-4 text-zinc-300">{c.contentType}</td>
-                      <td className="px-4 py-4 text-zinc-300">{c.uploadedBy ? `${c.uploadedBy.firstName || ''} ${c.uploadedBy.lastName || ''}`.trim() || 'Admin' : 'Admin'}</td>
-                      <td className="px-4 py-4 text-zinc-300 text-xs">{new Date(c.createdAt).toLocaleDateString()}</td>
+                      <td className="px-4 py-4 text-zinc-950">{c.contentType}</td>
+                      <td className="px-4 py-4 text-zinc-950">{c.uploadedBy ? `${c.uploadedBy.firstName || ''} ${c.uploadedBy.lastName || ''}`.trim() || 'Admin' : 'Admin'}</td>
+                      <td className="px-4 py-4 text-zinc-950 text-xs">{new Date(c.createdAt).toLocaleDateString()}</td>
                       <td className="px-4 py-4 text-right">
                         <Button 
                           onClick={() => handleDelete(c._id)}
@@ -300,11 +300,11 @@ export default function ContentListPage() {
                 </tbody>
               </table>
             </div>
-            <div className="p-4 border-t border-zinc-800 flex items-center justify-between text-xs text-zinc-500">
+            <div className="p-4 border-t border-zinc-200 flex items-center justify-between text-xs text-zinc-500">
               <div>Showing {filteredContents.length > 0 ? 1 : 0} to {filteredContents.length} of {filteredContents.length} entries</div>
               <div className="flex gap-1">
-                <Button variant="outline" size="sm" className="h-7 px-2 text-zinc-400 border-zinc-800 bg-transparent hover:bg-zinc-800" disabled><ChevronRight className="h-4 w-4 rotate-180" /></Button>
-                <Button variant="outline" size="sm" className="h-7 px-2 text-zinc-400 border-zinc-800 bg-transparent hover:bg-zinc-800" disabled><ChevronRight className="h-4 w-4" /></Button>
+                <Button variant="outline" size="sm" className="h-7 px-2 text-zinc-400 border-zinc-200 bg-transparent hover:bg-zinc-100" disabled><ChevronRight className="h-4 w-4 rotate-180" /></Button>
+                <Button variant="outline" size="sm" className="h-7 px-2 text-zinc-400 border-zinc-200 bg-transparent hover:bg-zinc-100" disabled><ChevronRight className="h-4 w-4" /></Button>
               </div>
             </div>
           </div>

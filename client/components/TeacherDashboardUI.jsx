@@ -694,12 +694,12 @@ export default function DashboardUI({ user }) {
                   </span>
                 )}
                 {user?.assignedSection && (
-                  <span className="px-3 py-1 bg-zinc-700 text-white text-xs font-bold rounded-full">
+                  <span className="px-3 py-1 bg-zinc-700 text-zinc-950 text-xs font-bold rounded-full">
                     🔖 Section {user.assignedSection}
                   </span>
                 )}
                 {user?.subjects?.length > 0 && (
-                  <span className="px-3 py-1 bg-zinc-500 text-white text-xs font-bold rounded-full">
+                  <span className="px-3 py-1 bg-zinc-500 text-zinc-950 text-xs font-bold rounded-full">
                     ✏️ {user.subjects.length} Subject{user.subjects.length > 1 ? 's' : ''}
                   </span>
                 )}

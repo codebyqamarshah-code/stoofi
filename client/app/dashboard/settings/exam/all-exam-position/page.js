@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { ChevronRight, Search, Trophy } from 'lucide-react';
 import Link from 'next/link';
+import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 
@@ -91,8 +92,8 @@ export default function PositionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 p-6 space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-800 pb-4">
+    <div className="space-y-6 p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-200 pb-4">
         <h1 className="text-xl font-bold text-indigo-900 dark:text-indigo-100">Position Setup</h1>
         <div className="flex items-center text-xs text-zinc-400">
           <Link href="/dashboard" className="hover:text-zinc-200">Dashboard</Link><span className="mx-2">|</span>
@@ -102,12 +103,12 @@ export default function PositionPage() {
         </div>
       </div>
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 shadow-sm">
+      <div className="bg-white border border-zinc-200 shadow-xs rounded-xl p-6 shadow-sm">
         <h2 className="text-sm font-bold text-indigo-900 dark:text-indigo-100 mb-6">Select Criteria</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-zinc-400 uppercase">Exam *</label>
+            <label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Exam *</label>
             <SearchableSelect 
               name="exam" 
               value={exam} 
@@ -117,7 +118,7 @@ export default function PositionPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-zinc-400 uppercase">Class *</label>
+            <label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Class *</label>
             <SearchableSelect 
               name="classVal" 
               value={classVal} 
@@ -127,7 +128,7 @@ export default function PositionPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-zinc-400 uppercase">Section *</label>
+            <label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Section *</label>
             <SearchableSelect 
               name="section" 
               value={section} 
@@ -150,14 +151,14 @@ export default function PositionPage() {
       </div>
 
       {searchResults && (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-zinc-800 bg-zinc-800/30 flex items-center gap-2">
+        <div className="bg-white border border-zinc-200 shadow-xs rounded-xl shadow-sm overflow-hidden">
+          <div className="p-4 border-b border-zinc-200 bg-zinc-800/30 flex items-center gap-2">
             <Trophy className="w-5 h-5 text-amber-500" />
-            <h2 className="text-sm font-bold text-white">Position Results</h2>
+            <h2 className="text-sm font-bold text-zinc-950">Position Results</h2>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-zinc-300">
-              <thead className="bg-zinc-800/50 text-xs uppercase font-semibold text-zinc-400">
+            <table className="w-full text-left text-sm text-zinc-950">
+              <thead className="bg-zinc-50/50 text-xs uppercase font-semibold text-zinc-900 font-bold">
                 <tr>
                   <th className="px-4 py-3">Position</th>
                   <th className="px-4 py-3">Admission No</th>
@@ -165,10 +166,10 @@ export default function PositionPage() {
                   <th className="px-4 py-3">Total Marks</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-800">
+              <tbody className="divide-y divide-zinc-100">
                 {searchResults.length > 0 ? (
                   searchResults.map((res, i) => (
-                    <tr key={i} className="hover:bg-zinc-800/30 transition-colors">
+                    <tr key={i} className="hover:bg-zinc-100 transition-colors">
                       <td className="px-4 py-3 font-bold text-indigo-400">#{res.position}</td>
                       <td className="px-4 py-3">{res.admissionNo}</td>
                       <td className="px-4 py-3 font-medium text-zinc-100">{res.studentName}</td>

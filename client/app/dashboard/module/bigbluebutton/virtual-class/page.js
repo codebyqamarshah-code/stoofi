@@ -19,34 +19,7 @@ import {
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 
 export default function BBBVirtualClassPage() {
-  const [records, setRecords] = useState([
-    {
-      id: 1,
-      classVal: 'Class 10',
-      section: 'A',
-      teacher: 'Mudassir Bajwa',
-      topic: 'Computer Science - Algorithms & Flowcharts',
-      description: 'BigBlueButton interactive whiteboard demo with live pseudocode writing.',
-      date: '2026-09-09',
-      time: '10:00 AM',
-      duration: '45',
-      status: 'Scheduled',
-      roomUrl: 'https://bbb.stoofi.com/b/mud-771-092'
-    },
-    {
-      id: 2,
-      classVal: 'Class 9',
-      section: 'A',
-      teacher: 'Fatima Zahra',
-      topic: 'Chemistry - Chemical Kinetics & Rate of Reaction',
-      description: 'Virtual lab simulations and shared presentation deck.',
-      date: '2026-09-10',
-      time: '12:00 PM',
-      duration: '60',
-      status: 'Scheduled',
-      roomUrl: 'https://bbb.stoofi.com/b/fat-491-112'
-    }
-  ]);
+  const [records, setRecords] = useState([]);
 
   const [form, setForm] = useState({
     classVal: 'Class 10',
@@ -464,7 +437,7 @@ export default function BBBVirtualClassPage() {
             {/* Table */}
             <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-200">
               <table className="w-full text-xs text-left">
-                <thead className="text-[11px] font-bold text-zinc-500 dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-200">
+                <thead className="text-[11px] font-bold text-zinc-900 font-bold dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-50/50 border-b border-zinc-200 dark:border-zinc-200">
                   <tr>
                     <th className="px-3.5 py-3">SL</th>
                     <th className="px-3.5 py-3">Class (Sec)</th>
@@ -476,7 +449,7 @@ export default function BBBVirtualClassPage() {
                     <th className="px-3.5 py-3 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-100">
                   {filteredRecords.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="px-4 py-8 text-center text-zinc-500">

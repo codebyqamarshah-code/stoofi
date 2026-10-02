@@ -92,7 +92,7 @@ export default function ItemCategoryPage() {
     });
 
     return (
-        <div className="min-h-screen bg-zinc-950 text-white p-6">
+        <div className="space-y-6 text-zinc-950 p-6">
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <h1 className="text-2xl font-semibold">Item Category List</h1>
@@ -108,22 +108,22 @@ export default function ItemCategoryPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left Form */}
                 <div className="lg:col-span-1">
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
-                        <h2 className="text-lg font-medium border-b border-zinc-800 pb-3 mb-4">Add Category</h2>
+                    <div className="bg-white border border-zinc-200 shadow-xs rounded-lg p-4">
+                        <h2 className="text-lg font-medium border-b border-zinc-200 pb-3 mb-4">Add Category</h2>
                         <form onSubmit={handleSave}>
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-zinc-300 mb-2">CATEGORY NAME *</label>
+                                <label className="block text-sm font-medium text-zinc-950 mb-2">CATEGORY NAME *</label>
                                 <input
                                     type="text"
                                     value={categoryName}
                                     onChange={(e) => setCategoryName(e.target.value)}
-                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-zinc-600"
+                                    className="w-full bg-white border border-zinc-200 shadow-xs rounded-md px-3 py-2 text-zinc-950 focus:outline-none focus:border-zinc-600"
                                     required
                                 />
                             </div>
                             <button
                                 type="submit"
-                                className="bg-zinc-800 hover:bg-zinc-800 text-white px-4 py-2 rounded-md transition-colors"
+                                className="bg-zinc-800 hover:bg-zinc-100 text-zinc-950 px-4 py-2 rounded-md transition-colors"
                             >
                                 SAVE
                             </button>
@@ -133,8 +133,8 @@ export default function ItemCategoryPage() {
 
                 {/* Right Table */}
                 <div className="lg:col-span-2">
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
-                        <h2 className="text-lg font-medium border-b border-zinc-800 pb-3 mb-4">Item Category List</h2>
+                    <div className="bg-white border border-zinc-200 shadow-xs rounded-lg p-4">
+                        <h2 className="text-lg font-medium border-b border-zinc-200 pb-3 mb-4">Item Category List</h2>
                         
                         {/* Table Controls */}
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
@@ -144,28 +144,28 @@ export default function ItemCategoryPage() {
                                     placeholder="Search..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-md pl-10 pr-3 py-2 text-white focus:outline-none focus:border-zinc-600"
+                                    className="w-full bg-white border border-zinc-200 shadow-xs rounded-md pl-10 pr-3 py-2 text-zinc-950 focus:outline-none focus:border-zinc-600"
                                 />
                                 <Search className="absolute left-3 top-2.5 w-4 h-4 text-zinc-400" />
                             </div>
                             
                             <div className="flex flex-wrap gap-2">
-                                <button className="p-2 bg-zinc-950 border border-zinc-800 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors" title="Copy">
+                                <button className="p-2 bg-white border border-zinc-200 shadow-xs rounded-md hover:bg-zinc-100 text-zinc-400 hover:text-zinc-950 transition-colors" title="Copy">
                                     <Copy className="w-4 h-4" />
                                 </button>
-                                <button className="p-2 bg-zinc-950 border border-zinc-800 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors" title="Export to Excel">
+                                <button className="p-2 bg-white border border-zinc-200 shadow-xs rounded-md hover:bg-zinc-100 text-zinc-400 hover:text-zinc-950 transition-colors" title="Export to Excel">
                                     <FileSpreadsheet className="w-4 h-4" />
                                 </button>
-                                <button className="p-2 bg-zinc-950 border border-zinc-800 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors" title="Export to CSV">
+                                <button className="p-2 bg-white border border-zinc-200 shadow-xs rounded-md hover:bg-zinc-100 text-zinc-400 hover:text-zinc-950 transition-colors" title="Export to CSV">
                                     <FileText className="w-4 h-4" />
                                 </button>
-                                <button className="p-2 bg-zinc-950 border border-zinc-800 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors" title="Print">
+                                <button className="p-2 bg-white border border-zinc-200 shadow-xs rounded-md hover:bg-zinc-100 text-zinc-400 hover:text-zinc-950 transition-colors" title="Print">
                                     <Printer className="w-4 h-4" />
                                 </button>
-                                <button className="p-2 bg-zinc-950 border border-zinc-800 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors" title="Download PDF">
+                                <button className="p-2 bg-white border border-zinc-200 shadow-xs rounded-md hover:bg-zinc-100 text-zinc-400 hover:text-zinc-950 transition-colors" title="Download PDF">
                                     <Download className="w-4 h-4" />
                                 </button>
-                                <button className="p-2 bg-zinc-950 border border-zinc-800 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors" title="Columns">
+                                <button className="p-2 bg-white border border-zinc-200 shadow-xs rounded-md hover:bg-zinc-100 text-zinc-400 hover:text-zinc-950 transition-colors" title="Columns">
                                     <Columns className="w-4 h-4" />
                                 </button>
                             </div>
@@ -174,11 +174,11 @@ export default function ItemCategoryPage() {
                         {/* Table */}
                         <div className="overflow-x-auto">
                             <table className="w-full text-left text-sm whitespace-nowrap">
-                                <thead className="bg-zinc-950 border-b border-zinc-800">
+                                <thead className="bg-zinc-50 border-b border-zinc-200">
                                     <tr>
-                                        <th className="px-4 py-3 font-medium text-zinc-400">SL</th>
-                                        <th className="px-4 py-3 font-medium text-zinc-400">Category Title</th>
-                                        <th className="px-4 py-3 font-medium text-zinc-400 text-right w-32">Action</th>
+                                        <th className="px-4 py-3 font-medium text-zinc-700 font-bold">SL</th>
+                                        <th className="px-4 py-3 font-medium text-zinc-700 font-bold">Category Title</th>
+                                        <th className="px-4 py-3 font-medium text-zinc-700 font-bold text-right w-32">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -190,32 +190,32 @@ export default function ItemCategoryPage() {
                                         filteredCategories.map((category, index) => {
                                             const id = category.id || category._id || index;
                                             return (
-                                                <tr key={id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
+                                                <tr key={id} className="border-b border-zinc-200/50 hover:bg-zinc-100">
                                                     <td className="px-4 py-3">{index + 1}</td>
                                                     <td className="px-4 py-3">{category.name || category.title || category.categoryName}</td>
                                                     <td className="px-4 py-3 text-right">
                                                         <div className="relative inline-block text-left">
                                                             <button 
                                                                 onClick={() => toggleDropdown(id)}
-                                                                className="inline-flex items-center justify-center px-3 py-1.5 border border-zinc-800 text-zinc-600 hover:bg-zinc-800/10 rounded-md text-xs font-medium transition-colors"
+                                                                className="inline-flex items-center justify-center px-3 py-1.5 border border-zinc-200 text-zinc-600 hover:bg-zinc-100 rounded-md text-xs font-medium transition-colors"
                                                             >
                                                                 SELECT
                                                                 <ChevronDown className="ml-1 w-3 h-3" />
                                                             </button>
                                                             
                                                             {dropdownOpen === id && (
-                                                                <div className="absolute right-0 mt-2 w-32 bg-zinc-900 border border-zinc-800 rounded-md shadow-lg z-50">
+                                                                <div className="absolute right-0 mt-2 w-32 bg-white border border-zinc-200 shadow-xs rounded-md shadow-lg z-50">
                                                                     <div className="py-1">
                                                                         <button
                                                                             onClick={() => handleEdit(category)}
-                                                                            className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white flex items-center"
+                                                                            className="w-full text-left px-4 py-2 text-sm text-zinc-950 hover:bg-zinc-100 hover:text-zinc-950 flex items-center"
                                                                         >
                                                                             <Edit className="w-4 h-4 mr-2" />
                                                                             Edit
                                                                         </button>
                                                                         <button
                                                                             onClick={() => handleDelete(id)}
-                                                                            className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-zinc-800 hover:text-red-300 flex items-center"
+                                                                            className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-zinc-100 hover:text-red-300 flex items-center"
                                                                         >
                                                                             <Trash2 className="w-4 h-4 mr-2" />
                                                                             Delete

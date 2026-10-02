@@ -49,31 +49,31 @@ export default function FrontendPagesListPage() {
   );
 
   return (
-    <div className="min-h-screen bg-zinc-950 p-6 space-y-6">
+    <div className="space-y-6 p-6 space-y-6">
       {/* Breadcrumb */}
       <div className="flex items-center gap-1 text-xs text-zinc-400">
         <span>Dashboard</span>
         <ChevronRight className="w-3 h-3" />
         <span>Frontend CMS</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-zinc-500">Pages</span>
+        <span className="text-zinc-950 font-bold">Pages</span>
       </div>
 
-      <h1 className="text-xl font-bold text-white">Pages</h1>
+      <h1 className="text-xl font-bold text-zinc-950">Pages</h1>
 
       {/* Main Card */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6">
+      <div className="bg-white border border-zinc-200 shadow-xs rounded-lg p-6">
         <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-          <h2 className="text-sm font-semibold text-zinc-300">Page List</h2>
+          <h2 className="text-sm font-semibold text-zinc-950">Page List</h2>
           
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 border border-zinc-700 rounded px-2 py-1">
+            <div className="flex items-center gap-1 border border-zinc-200 rounded px-2 py-1">
               <Search className="w-3 h-3 text-zinc-400" />
               <input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="SEARCH"
-                className="bg-transparent text-xs text-zinc-300 outline-none w-28"
+                className="bg-transparent text-xs text-zinc-950 outline-none w-28"
               />
             </div>
 
@@ -88,7 +88,7 @@ export default function FrontendPagesListPage() {
             <button
               type="button"
               onClick={() => setIsAddModalOpen(true)}
-              className="bg-zinc-800 hover:bg-zinc-800 text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 cursor-pointer shadow-lg transition-colors"
+              className="bg-zinc-800 hover:bg-zinc-100 text-zinc-950 text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 cursor-pointer shadow-lg transition-colors"
             >
               <Plus className="w-4 h-4" /> ADD
             </button>
@@ -98,10 +98,10 @@ export default function FrontendPagesListPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-800">
-                <th className="text-left py-2 px-3 text-zinc-400 font-medium text-xs">↓ Title</th>
-                <th className="text-left py-2 px-3 text-zinc-400 font-medium text-xs">↓ Sub Title</th>
-                <th className="text-left py-2 px-3 text-zinc-400 font-medium text-xs">↓ Action</th>
+              <tr className="border-b border-zinc-200">
+                <th className="text-left py-2 px-3 text-zinc-700 font-medium text-xs">↓ Title</th>
+                <th className="text-left py-2 px-3 text-zinc-700 font-medium text-xs">↓ Sub Title</th>
+                <th className="text-left py-2 px-3 text-zinc-700 font-medium text-xs">↓ Action</th>
               </tr>
             </thead>
             <tbody>
@@ -113,19 +113,19 @@ export default function FrontendPagesListPage() {
                 </tr>
               ) : (
                 filtered.map((item) => (
-                  <tr key={item.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
+                  <tr key={item.id} className="border-b border-zinc-200/50 hover:bg-zinc-100">
                     <td className="py-3 px-3 text-zinc-200 font-medium">{item.title}</td>
-                    <td className="py-3 px-3 text-zinc-400">{item.subTitle}</td>
+                    <td className="py-3 px-3 text-zinc-700">{item.subTitle}</td>
                     <td className="py-3 px-3 relative">
                       <div className="relative inline-block text-left">
                         <button
                           onClick={() => setOpenDropdownId(openDropdownId === item.id ? null : item.id)}
-                          className="border border-zinc-600 text-zinc-300 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-zinc-600 hover:text-zinc-500 cursor-pointer"
+                          className="border border-zinc-600 text-zinc-950 text-xs px-3 py-1 rounded flex items-center gap-1 hover:border-zinc-600 hover:text-zinc-500 cursor-pointer"
                         >
                           SELECT <ChevronDown className="w-3 h-3" />
                         </button>
                         {openDropdownId === item.id && (
-                          <div className="absolute right-0 mt-1 w-28 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-20 py-1">
+                          <div className="absolute right-0 mt-1 w-28 bg-white border border-zinc-200 shadow-xs rounded-lg shadow-xl z-20 py-1">
                             <button
                               onClick={() => handleDelete(item.id)}
                               className="w-full text-left px-3 py-1.5 text-xs text-rose-400 hover:bg-rose-950/40 flex items-center gap-2 cursor-pointer"
@@ -146,8 +146,8 @@ export default function FrontendPagesListPage() {
         <div className="flex items-center justify-between mt-4 text-xs text-zinc-400">
           <span>Showing 0 to {filtered.length} of {filtered.length} entries</span>
           <div className="flex items-center gap-1">
-            <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">←</button>
-            <button className="px-2 py-1 border border-zinc-700 rounded hover:bg-zinc-800">→</button>
+            <button className="px-2 py-1 border border-zinc-200 rounded hover:bg-zinc-100">←</button>
+            <button className="px-2 py-1 border border-zinc-200 rounded hover:bg-zinc-100">→</button>
           </div>
         </div>
       </div>
@@ -155,32 +155,32 @@ export default function FrontendPagesListPage() {
       {/* Add Page Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h3 className="text-base font-bold text-white">Add New Page</h3>
-              <button onClick={() => setIsAddModalOpen(false)} className="text-zinc-400 hover:text-white cursor-pointer">
+          <div className="bg-white border border-zinc-200 shadow-xs rounded-xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-zinc-200 pb-3">
+              <h3 className="text-base font-bold text-zinc-950">Add New Page</h3>
+              <button onClick={() => setIsAddModalOpen(false)} className="text-zinc-400 hover:text-zinc-950 cursor-pointer">
                 <X className="w-4 h-4" />
               </button>
             </div>
             <div className="space-y-3">
               <div>
-                <label className="text-xs font-semibold text-zinc-400 uppercase block mb-1">TITLE *</label>
+                <label className="text-xs font-semibold text-zinc-700 uppercase font-bold block mb-1">TITLE *</label>
                 <input
                   type="text"
                   placeholder="Page Title *"
                   value={title}
                   onChange={e => setTitle(e.target.value)}
-                  className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+                  className="w-full bg-zinc-800 border border-zinc-200 text-zinc-950 text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold text-zinc-400 uppercase block mb-1">SUB TITLE</label>
+                <label className="text-xs font-semibold text-zinc-700 uppercase font-bold block mb-1">SUB TITLE</label>
                 <input
                   type="text"
                   placeholder="Sub Title"
                   value={subTitle}
                   onChange={e => setSubTitle(e.target.value)}
-                  className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+                  className="w-full bg-zinc-800 border border-zinc-200 text-zinc-950 text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
                 />
               </div>
             </div>
@@ -188,14 +188,14 @@ export default function FrontendPagesListPage() {
               <button
                 type="button"
                 onClick={() => setIsAddModalOpen(false)}
-                className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer"
+                className="bg-zinc-800 hover:bg-zinc-700 text-zinc-950 text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleAdd}
-                className="bg-zinc-800 hover:bg-zinc-800 text-white text-xs font-bold px-5 py-2 rounded-lg cursor-pointer"
+                className="bg-zinc-800 hover:bg-zinc-100 text-zinc-950 text-xs font-bold px-5 py-2 rounded-lg cursor-pointer"
               >
                 ✓ SAVE PAGE
               </button>

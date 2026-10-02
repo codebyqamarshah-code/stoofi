@@ -22,29 +22,29 @@ export default function StaffSettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 p-6">
-      <div className="mb-6 flex items-center text-sm text-zinc-400">
+    <div className="min-h-screen bg-white p-6">
+      <div className="mb-6 flex items-center text-xs font-semibold text-zinc-600">
         <span>Dashboard</span>
-        <ChevronRight className="mx-2 h-4 w-4" />
-        <span>Human Resource</span>
-        <ChevronRight className="mx-2 h-4 w-4" />
-        <span className="text-zinc-100">Settings</span>
+        <ChevronRight className="mx-2 h-3.5 w-3.5" />
+        <span>General Settings</span>
+        <ChevronRight className="mx-2 h-3.5 w-3.5" />
+        <span className="text-zinc-950 font-bold">Staff Settings</span>
       </div>
 
-      <h1 className="text-2xl font-semibold text-white mb-6">Settings</h1>
+      <h1 className="text-2xl font-bold text-zinc-950 mb-6">Staff Settings</h1>
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
-        <div className="px-6 py-4 border-b border-zinc-800">
-          <h2 className="text-lg font-medium text-white">Staff Information Field</h2>
+      <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs">
+        <div className="px-6 py-4 border-b border-zinc-200">
+          <h2 className="text-sm font-bold text-zinc-950">Staff Information Field Permissions</h2>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
             {fields.map((field, index) => (
-              <div key={field.name} className="flex items-center justify-between">
-                <span className="text-sm font-medium text-zinc-300">{field.name}</span>
+              <div key={field.name} className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 border border-zinc-200">
+                <span className="text-sm font-bold text-zinc-950">{field.name}</span>
                 <div className="flex gap-4">
-                  <label className="flex flex-col items-center gap-2 cursor-pointer">
-                    <span className="text-xs text-zinc-400 font-semibold tracking-wider">STAFF EDIT</span>
+                  <label className="flex flex-col items-center gap-1 cursor-pointer">
+                    <span className="text-[10px] text-zinc-700 font-bold tracking-wider">STAFF EDIT</span>
                     <div className="relative">
                       <input 
                         type="checkbox" 
@@ -52,12 +52,12 @@ export default function StaffSettingsPage() {
                         checked={field.staffEdit}
                         onChange={() => toggleField(index, 'staffEdit')}
                       />
-                      <div className={`block w-10 h-6 rounded-full transition-colors ${field.staffEdit ? 'bg-zinc-800' : 'bg-zinc-700'}`}></div>
-                      <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${field.staffEdit ? 'transform translate-x-4' : ''}`}></div>
+                      <div className={`block w-9 h-5 rounded-full transition-colors ${field.staffEdit ? 'bg-zinc-950' : 'bg-zinc-300'}`}></div>
+                      <div className={`absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform shadow-xs ${field.staffEdit ? 'transform translate-x-4' : ''}`}></div>
                     </div>
                   </label>
-                  <label className="flex flex-col items-center gap-2 cursor-pointer">
-                    <span className="text-xs text-zinc-400 font-semibold tracking-wider">REQUIRED</span>
+                  <label className="flex flex-col items-center gap-1 cursor-pointer">
+                    <span className="text-[10px] text-zinc-700 font-bold tracking-wider">REQUIRED</span>
                     <div className="relative">
                       <input 
                         type="checkbox" 
@@ -65,8 +65,8 @@ export default function StaffSettingsPage() {
                         checked={field.required}
                         onChange={() => toggleField(index, 'required')}
                       />
-                      <div className={`block w-10 h-6 rounded-full transition-colors ${field.required ? 'bg-zinc-800' : 'bg-zinc-700'}`}></div>
-                      <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${field.required ? 'transform translate-x-4' : ''}`}></div>
+                      <div className={`block w-9 h-5 rounded-full transition-colors ${field.required ? 'bg-zinc-950' : 'bg-zinc-300'}`}></div>
+                      <div className={`absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform shadow-xs ${field.required ? 'transform translate-x-4' : ''}`}></div>
                     </div>
                   </label>
                 </div>

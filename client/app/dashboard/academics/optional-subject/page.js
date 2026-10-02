@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-
 import React, { useState } from 'react';
 import { 
   ChevronRight, 
@@ -22,37 +21,47 @@ export default function OptionalSubjectPage() {
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Optional Subject</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
-          <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/academics/class" className="hover:text-zinc-500 transition-colors">Academics</Link>
-          <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-600">Optional Subject</span>
+        <h1 className="text-2xl font-bold text-zinc-950">Optional Subject</h1>
+        <div className="flex items-center text-sm text-zinc-500 font-medium">
+          <Link href="/dashboard" className="hover:text-zinc-900 transition-colors">Dashboard</Link>
+          <ChevronRight className="h-4 w-4 mx-1 text-zinc-400" />
+          <Link href="/dashboard/academics/class" className="hover:text-zinc-900 transition-colors">Academics</Link>
+          <ChevronRight className="h-4 w-4 mx-1 text-zinc-400" />
+          <span className="text-zinc-900 font-semibold">Optional Subject</span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Left Panel - Add Form */}
         <div className="xl:col-span-1">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-zinc-800">
-              <h2 className="text-lg font-semibold text-white">Add Optional Subject</h2>
+          <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs">
+            <div className="p-4 border-b border-zinc-100 bg-zinc-50/50">
+              <h2 className="text-base font-bold text-zinc-950">Add Optional Subject</h2>
             </div>
             
-            <form className="p-4 space-y-4" onSubmit={(e) => e.preventDefault()}>
+            <form className="p-5 space-y-4" onSubmit={(e) => e.preventDefault()}>
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-zinc-400 uppercase">Subject Name <span className="text-rose-500">*</span></Label>
-                <Input placeholder="Subject Name" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
+                <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
+                  Subject Name <span className="text-rose-500">*</span>
+                </Label>
+                <Input 
+                  placeholder="Subject Name" 
+                  className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" 
+                />
               </div>
               
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-zinc-400 uppercase">Subject Code</Label>
-                <Input placeholder="Subject Code" className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600" />
+                <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
+                  Subject Code
+                </Label>
+                <Input 
+                  placeholder="Subject Code" 
+                  className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" 
+                />
               </div>
 
-              <div className="pt-4">
-                <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold">
+              <div className="pt-2">
+                <Button className="w-full bg-zinc-950 hover:bg-zinc-800 text-white font-bold py-2 rounded-lg transition-all shadow-xs">
                   SAVE SUBJECT
                 </Button>
               </div>
@@ -62,36 +71,36 @@ export default function OptionalSubjectPage() {
 
         {/* Right Panel - Data List */}
         <div className="xl:col-span-2">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden h-full flex flex-col">
-            <div className="p-4 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <h2 className="text-lg font-semibold text-white">Optional Subject List</h2>
+          <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs h-full flex flex-col">
+            <div className="p-4 border-b border-zinc-100 bg-zinc-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h2 className="text-base font-bold text-zinc-950">Optional Subject List</h2>
               
-              <div className="flex flex-col sm:flex-row items-center gap-4">
-                <div className="relative">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <div className="relative w-full sm:w-auto">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
                   <Input 
                     placeholder="SEARCH" 
-                    className="pl-9 w-full sm:w-[200px] bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-xs font-semibold uppercase"
+                    className="pl-9 w-full sm:w-[200px] bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 text-xs font-bold uppercase"
                   />
                 </div>
                 
-                <div className="flex items-center border border-zinc-800 rounded-md bg-zinc-900">
-                  <button className="p-2 hover:bg-zinc-800 text-zinc-400 transition-colors border-r border-zinc-800" title="Copy">
+                <div className="flex items-center border border-zinc-200 rounded-md bg-white shadow-xs">
+                  <button className="p-2 hover:bg-zinc-100 text-zinc-700 transition-colors border-r border-zinc-200" title="Copy">
                     <FileText className="h-4 w-4" />
                   </button>
-                  <button className="p-2 hover:bg-zinc-800 text-zinc-400 transition-colors border-r border-zinc-800" title="Excel">
+                  <button className="p-2 hover:bg-zinc-100 text-zinc-700 transition-colors border-r border-zinc-200" title="Excel">
                     <Download className="h-4 w-4" />
                   </button>
-                  <button className="p-2 hover:bg-zinc-800 text-zinc-400 transition-colors border-r border-zinc-800" title="CSV">
+                  <button className="p-2 hover:bg-zinc-100 text-zinc-700 transition-colors border-r border-zinc-200" title="CSV">
                     <FileText className="h-4 w-4" />
                   </button>
-                  <button className="p-2 hover:bg-zinc-800 text-zinc-400 transition-colors border-r border-zinc-800" title="PDF">
+                  <button className="p-2 hover:bg-zinc-100 text-zinc-700 transition-colors border-r border-zinc-200" title="PDF">
                     <Download className="h-4 w-4" />
                   </button>
-                  <button className="p-2 hover:bg-zinc-800 text-zinc-400 transition-colors border-r border-zinc-800" title="Print">
+                  <button className="p-2 hover:bg-zinc-100 text-zinc-700 transition-colors border-r border-zinc-200" title="Print">
                     <Printer className="h-4 w-4" />
                   </button>
-                  <button className="p-2 hover:bg-zinc-800 text-zinc-400 transition-colors" title="Columns">
+                  <button className="p-2 hover:bg-zinc-100 text-zinc-700 transition-colors" title="Columns">
                     <MoreVertical className="h-4 w-4" />
                   </button>
                 </div>
@@ -100,21 +109,21 @@ export default function OptionalSubjectPage() {
             
             <div className="flex-1 overflow-x-auto">
               <table className="w-full text-sm text-left">
-                <thead className="text-xs text-zinc-400 uppercase bg-zinc-900/50 border-b border-zinc-800">
+                <thead className="text-xs text-zinc-700 uppercase bg-zinc-50 border-b border-zinc-200 font-bold">
                   <tr>
-                    <th className="px-4 py-3 font-semibold">Subject Name</th>
-                    <th className="px-4 py-3 font-semibold">Subject Code</th>
-                    <th className="px-4 py-3 font-semibold text-right">Action</th>
+                    <th className="px-4 py-3 font-bold">Subject Name</th>
+                    <th className="px-4 py-3 font-bold">Subject Code</th>
+                    <th className="px-4 py-3 font-bold text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-zinc-100">
                   {subjects.length > 0 ? (
                     subjects.map((s, i) => (
-                      <tr key={i} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors">
-                        <td className="px-4 py-4 text-zinc-300">{s.name}</td>
-                        <td className="px-4 py-4 text-zinc-300">{s.code}</td>
-                        <td className="px-4 py-4 text-right">
-                          <Button variant="outline" size="sm" className="h-8 text-xs font-semibold text-zinc-600 border-zinc-600/50 hover:bg-zinc-600/10 hover:text-zinc-500">
+                      <tr key={i} className="hover:bg-zinc-50/80 transition-colors text-zinc-950 font-medium">
+                        <td className="px-4 py-3.5">{s.name}</td>
+                        <td className="px-4 py-3.5 text-zinc-700">{s.code}</td>
+                        <td className="px-4 py-3.5 text-right">
+                          <Button variant="outline" size="sm" className="h-8 text-xs font-bold text-zinc-800 border-zinc-300 bg-white hover:bg-zinc-100">
                             SELECT <ChevronRight className="h-3 w-3 ml-1 rotate-90" />
                           </Button>
                         </td>
@@ -122,7 +131,7 @@ export default function OptionalSubjectPage() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="3" className="px-4 py-8 text-center text-zinc-500">
+                      <td colSpan="3" className="px-4 py-8 text-center text-zinc-500 font-medium">
                         No Data Available In Table
                       </td>
                     </tr>
@@ -131,13 +140,13 @@ export default function OptionalSubjectPage() {
               </table>
             </div>
             
-            <div className="p-4 border-t border-zinc-800 flex items-center justify-between text-xs text-zinc-500">
+            <div className="p-4 border-t border-zinc-100 flex items-center justify-between text-xs text-zinc-500 font-medium">
               <div>Showing 0 to 0 of 0 entries</div>
               <div className="flex items-center gap-1">
-                <Button variant="outline" size="sm" className="h-7 px-2 text-zinc-400 border-zinc-800 bg-transparent hover:bg-zinc-800" disabled>
+                <Button variant="outline" size="sm" className="h-7 px-2 text-zinc-700 border-zinc-300 bg-white hover:bg-zinc-100" disabled>
                   <ChevronRight className="h-4 w-4 rotate-180" />
                 </Button>
-                <Button variant="outline" size="sm" className="h-7 px-2 text-zinc-400 border-zinc-800 bg-transparent hover:bg-zinc-800" disabled>
+                <Button variant="outline" size="sm" className="h-7 px-2 text-zinc-700 border-zinc-300 bg-white hover:bg-zinc-100" disabled>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>

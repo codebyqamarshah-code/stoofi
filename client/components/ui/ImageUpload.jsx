@@ -31,7 +31,7 @@ export function ImageUpload({ label = "Upload Picture", currentImage, onUpload }
 
   return (
     <div className="space-y-2">
-      <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-600 uppercase">{label}</label>
+      <label className="text-xs font-semibold text-zinc-900 font-semibold dark:text-zinc-600 uppercase">{label}</label>
       <div className="flex items-center gap-4">
         <div className="relative w-24 h-24 rounded-full border-2 border-dashed border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-50 flex flex-col items-center justify-center overflow-hidden group">
           {preview ? (

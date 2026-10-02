@@ -29,27 +29,27 @@ export default function SubjectWiseAttendancePage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Subject Wise Attendance</h1>
+        <h1 className="text-2xl font-bold text-zinc-950">Subject Wise Attendance</h1>
         <div className="flex items-center text-sm text-zinc-400">
           <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <Link href="/dashboard/students" className="hover:text-zinc-500 transition-colors">Student Info</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-600">Subject Wise Attendance</span>
+          <span className="text-zinc-950 font-bold">Subject Wise Attendance</span>
         </div>
       </div>
 
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <h2 className="text-lg font-semibold text-white">Select Criteria</h2>
+      <div className="bg-white border border-zinc-200 rounded-xl shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-zinc-100 bg-zinc-50/50 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <h2 className="text-lg font-semibold text-zinc-950">Select Criteria</h2>
         </div>
         <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Class <span className="text-rose-500">*</span></Label>
+            <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Class <span className="text-rose-500">*</span></Label>
             <select 
               value={formData.class}
               onChange={(e) => setFormData({...formData, class: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-900 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
+              className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-900 dark:text-zinc-900 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
             >
               <option value="">Select Class *</option>
               {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
@@ -58,11 +58,11 @@ export default function SubjectWiseAttendancePage() {
             </select>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Section <span className="text-rose-500">*</span></Label>
+            <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Section <span className="text-rose-500">*</span></Label>
             <select 
               value={formData.section}
               onChange={(e) => setFormData({...formData, section: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-900 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
+              className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-900 dark:text-zinc-900 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
             >
               <option value="">Select Section *</option>
               {['A', 'B', 'C', 'D'].map(s => (
@@ -71,11 +71,11 @@ export default function SubjectWiseAttendancePage() {
             </select>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Subject <span className="text-rose-500">*</span></Label>
+            <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Subject <span className="text-rose-500">*</span></Label>
             <select 
               value={formData.subject}
               onChange={(e) => setFormData({...formData, subject: e.target.value})}
-              className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-900 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
+              className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-900 dark:text-zinc-900 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600"
             >
               <option value="">Select Subject *</option>
               {['Mathematics', 'English Language', 'Urdu Literature', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Islamiat', 'Pakistan Studies'].map(sub => (
@@ -84,12 +84,12 @@ export default function SubjectWiseAttendancePage() {
             </select>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Attendance Date <span className="text-rose-500">*</span></Label>
+            <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Attendance Date <span className="text-rose-500">*</span></Label>
             <div className="relative">
               <Input 
                 value={formData.attendanceDate} 
                 onChange={(e) => setFormData({...formData, attendanceDate: e.target.value})}
-                className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 pr-10" 
+                className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium pr-10" 
               />
               <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
             </div>
@@ -104,8 +104,8 @@ export default function SubjectWiseAttendancePage() {
       </div>
 
       {isSearched && (
-        <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden mt-6 p-12 flex flex-col items-center justify-center text-zinc-500">
-           <h3 className="text-lg font-bold text-white mb-2">Subject Attendance Register</h3>
+        <div className="bg-white border border-zinc-200 rounded-xl shadow-xs overflow-hidden mt-6 p-12 flex flex-col items-center justify-center text-zinc-500">
+           <h3 className="text-lg font-bold text-zinc-950 mb-2">Subject Attendance Register</h3>
            <p className="text-sm">Students matching this class, section, and subject will appear here for attendance marking.</p>
            <p className="text-xs mt-2 text-zinc-600">(Mark Present, Absent, Late, or Half-Day)</p>
         </div>

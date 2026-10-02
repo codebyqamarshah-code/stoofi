@@ -199,12 +199,12 @@ export default function StoofiAiFloating() {
       ────────────────────────────────────────────────────────────── */}
       {isOpen && (
         <div 
-          className={`fixed bottom-6 right-6 z-50 w-[92vw] sm:w-[420px] bg-white dark:bg-zinc-950 rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col overflow-hidden transition-all duration-300 ${
+          className={`fixed bottom-6 right-6 z-50 w-[92vw] sm:w-[420px] bg-white dark:bg-zinc-950 rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-200 flex flex-col overflow-hidden transition-all duration-300 ${
             isMinimized ? 'h-14' : 'h-[580px] max-h-[85vh]'
           }`}
         >
           {/* Header */}
-          <div className="px-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white flex items-center justify-between shadow-sm select-none">
+          <div className="px-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-zinc-950 flex items-center justify-between shadow-sm select-none">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-white/40 p-1 shadow-xs shrink-0 overflow-hidden">
                 <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
@@ -212,7 +212,7 @@ export default function StoofiAiFloating() {
               <div>
                 <div className="flex items-center gap-1.5">
                   <h3 className="text-sm font-bold leading-tight">Stoofi AI</h3>
-                  <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-white/20 text-white uppercase tracking-wider">
+                  <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-white/20 text-zinc-950 uppercase tracking-wider">
                     {user?.role || 'Personal AI'}
                   </span>
                 </div>
@@ -225,28 +225,28 @@ export default function StoofiAiFloating() {
               <button 
                 onClick={handleClearChat}
                 title="Clear Chat"
-                className="p-1.5 rounded-lg hover:bg-white/20 text-white/90 hover:text-white transition-colors"
+                className="p-1.5 rounded-lg hover:bg-white/20 text-zinc-950/90 hover:text-white transition-colors"
               >
                 <RotateCcw className="w-4 h-4" />
               </button>
               <button 
                 onClick={handleOpenFullChat}
                 title="Expand to Full Page"
-                className="p-1.5 rounded-lg hover:bg-white/20 text-white/90 hover:text-white transition-colors"
+                className="p-1.5 rounded-lg hover:bg-white/20 text-zinc-950/90 hover:text-white transition-colors"
               >
                 <Maximize2 className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => setIsMinimized(!isMinimized)}
                 title={isMinimized ? "Expand" : "Minimize"}
-                className="p-1.5 rounded-lg hover:bg-white/20 text-white/90 hover:text-white transition-colors"
+                className="p-1.5 rounded-lg hover:bg-white/20 text-zinc-950/90 hover:text-white transition-colors"
               >
                 <Minus className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => setIsOpen(false)}
                 title="Close"
-                className="p-1.5 rounded-lg hover:bg-white/20 text-white/90 hover:text-white transition-colors"
+                className="p-1.5 rounded-lg hover:bg-white/20 text-zinc-950/90 hover:text-white transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -276,7 +276,7 @@ export default function StoofiAiFloating() {
                             ? 'bg-emerald-600 text-white rounded-br-none shadow-sm'
                             : msg.isError
                               ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 rounded-bl-none'
-                              : 'bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 border border-zinc-200/80 dark:border-zinc-800 rounded-bl-none shadow-xs'
+                              : 'bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 border border-zinc-200/80 dark:border-zinc-200 rounded-bl-none shadow-xs'
                         }`}
                       >
                         <div className="whitespace-pre-wrap break-words">{msg.content}</div>
@@ -300,7 +300,7 @@ export default function StoofiAiFloating() {
                     </div>
 
                     {msg.role === 'user' && (
-                      <div className="w-7 h-7 rounded-full bg-zinc-800 text-white flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="w-7 h-7 rounded-full bg-zinc-800 text-zinc-950 flex items-center justify-center shrink-0 mt-0.5">
                         <UserIcon className="w-3.5 h-3.5" />
                       </div>
                     )}
@@ -313,7 +313,7 @@ export default function StoofiAiFloating() {
                     <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
                       <Sparkles className="w-3.5 h-3.5 animate-spin" />
                     </div>
-                    <div className="px-3.5 py-2.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 flex items-center gap-2">
+                    <div className="px-3.5 py-2.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-200 text-xs text-zinc-500 flex items-center gap-2">
                       <span className="flex gap-1 items-center">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce"></span>
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce [animation-delay:0.2s]"></span>
@@ -329,12 +329,12 @@ export default function StoofiAiFloating() {
 
               {/* Suggestions Chips (shown if < 3 messages) */}
               {messages.length <= 2 && !isLoading && (
-                <div className="px-3 py-2 bg-white dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                <div className="px-3 py-2 bg-white dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-200 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
                   {getSuggestions().map((sug, idx) => (
                     <button
                       key={idx}
                       onClick={() => handleSendMessage(sug)}
-                      className="shrink-0 px-2.5 py-1 rounded-full text-[11px] font-medium bg-zinc-100 dark:bg-zinc-900 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-400 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 transition-colors"
+                      className="shrink-0 px-2.5 py-1 rounded-full text-[11px] font-medium bg-zinc-100 dark:bg-zinc-900 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-400 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-200 transition-colors"
                     >
                       {sug}
                     </button>
@@ -343,7 +343,7 @@ export default function StoofiAiFloating() {
               )}
 
               {/* Bottom Input Area */}
-              <div className="p-3 bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800">
+              <div className="p-3 bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-200">
                 <form 
                   onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} 
                   className="flex items-center gap-2"
@@ -356,7 +356,7 @@ export default function StoofiAiFloating() {
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyDown={handleKeyDown}
                     disabled={isLoading}
-                    className="flex-1 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all disabled:opacity-50"
+                    className="flex-1 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all disabled:opacity-50"
                   />
                   <button
                     type="submit"

@@ -13,24 +13,24 @@ export default function FeesInvoiceBulkPrintSettingsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Fees Invoice Settings</h1>
+        <h1 className="text-2xl font-bold text-zinc-950">Fees Invoice Settings</h1>
         <div className="flex items-center text-sm text-zinc-400">
           <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Bulk Print</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-600">Fees Invoice Settings</span>
+          <span className="text-zinc-950 font-bold">Fees Invoice Settings</span>
         </div>
       </div>
 
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 text-center">
-          <h2 className="text-base font-semibold text-white">Fees invoice Settings</h2>
+      <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden">
+        <div className="p-4 border-b border-zinc-200 text-center">
+          <h2 className="text-base font-semibold text-zinc-950">Fees invoice Settings</h2>
         </div>
 
         <div className="p-6 space-y-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase w-32 shrink-0">Invoice Type</Label>
+            <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold w-32 shrink-0">Invoice Type</Label>
             <div className="flex items-center gap-8">
               {['Invoice', 'Slip'].map((type) => (
                 <label key={type} className="flex items-center gap-2 cursor-pointer">
@@ -44,14 +44,14 @@ export default function FeesInvoiceBulkPrintSettingsPage() {
                   >
                     {invoiceType === type && <div className="w-2 h-2 rounded-full bg-white" />}
                   </div>
-                  <span className="text-sm text-zinc-300 font-medium">{type}</span>
+                  <span className="text-sm text-zinc-950 font-medium">{type}</span>
                 </label>
               ))}
             </div>
           </div>
 
           <div className="flex justify-center pt-4">
-            <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold px-8">
+            <Button className="bg-zinc-800 hover:bg-zinc-100 text-zinc-950 font-semibold px-8">
               UPDATE
             </Button>
           </div>

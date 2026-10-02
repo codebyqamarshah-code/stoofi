@@ -130,7 +130,7 @@ export default function VirtualClassHubPage() {
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-900 group-hover:bg-zinc-600 group-hover:text-white transition-colors">
+                  <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-900 group-hover:bg-zinc-600 group-hover:text-zinc-950 transition-colors">
                     <Icon className="h-6 w-6" />
                   </div>
                   <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-700">

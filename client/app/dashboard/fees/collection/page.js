@@ -23,6 +23,7 @@ import {
   Layers,
   ArrowRight
 } from 'lucide-react';
+import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 import { Button } from '@/components/ui/button';

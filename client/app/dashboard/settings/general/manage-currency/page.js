@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Plus, Copy, FileSpreadsheet, FileText, Printer, Download, Columns } from 'lucide-react';
+import { Plus, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, ChevronRight } from 'lucide-react';
 
 export default function ManageCurrency() {
   const currencies = [
@@ -11,61 +11,68 @@ export default function ManageCurrency() {
   ];
 
   return (
-    <div className="p-6 bg-zinc-950 min-h-screen text-zinc-100">
-      <h1 className="text-2xl font-semibold mb-6">Currency</h1>
+    <div className="p-6 bg-white min-h-screen text-zinc-950">
+      <div className="flex items-center gap-1 text-xs font-semibold text-zinc-600 mb-2">
+        <span>Dashboard</span>
+        <ChevronRight className="w-3.5 h-3.5" />
+        <span>General Settings</span>
+        <ChevronRight className="w-3.5 h-3.5" />
+        <span className="text-zinc-950 font-bold">Manage Currency</span>
+      </div>
+      <h1 className="text-2xl font-bold text-zinc-950 mb-6">Manage Currency</h1>
       
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden shadow-sm">
-        <div className="px-6 py-4 border-b border-zinc-800 flex justify-between items-center">
-          <h2 className="text-lg font-medium">Currency List</h2>
-          <button className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-800 text-white px-4 py-2 rounded text-sm transition-colors">
-            <Plus className="w-4 h-4" />
-            ADD
+      <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs">
+        <div className="px-6 py-4 border-b border-zinc-200 flex justify-between items-center">
+          <h2 className="text-sm font-bold text-zinc-950">Currency List</h2>
+          <button className="flex items-center gap-2 bg-zinc-950 hover:bg-zinc-800 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-sm">
+            <Plus className="w-3.5 h-3.5" />
+            ADD CURRENCY
           </button>
         </div>
         
         <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
-             <div className="flex gap-2">
-                <button className="p-2 border border-zinc-800 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="Copy"><Copy className="w-4 h-4" /></button>
-                <button className="p-2 border border-zinc-800 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="Excel"><FileSpreadsheet className="w-4 h-4" /></button>
-                <button className="p-2 border border-zinc-800 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="CSV"><FileText className="w-4 h-4" /></button>
-                <button className="p-2 border border-zinc-800 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="PDF"><Download className="w-4 h-4" /></button>
-                <button className="p-2 border border-zinc-800 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="Print"><Printer className="w-4 h-4" /></button>
-                <button className="p-2 border border-zinc-800 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="Columns"><Columns className="w-4 h-4" /></button>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+             <div className="flex gap-1">
+                <button className="p-2 border border-zinc-300 rounded-lg bg-white hover:bg-zinc-50 text-zinc-700 transition-colors cursor-pointer" title="Copy"><Copy className="w-3.5 h-3.5" /></button>
+                <button className="p-2 border border-zinc-300 rounded-lg bg-white hover:bg-zinc-50 text-zinc-700 transition-colors cursor-pointer" title="Excel"><FileSpreadsheet className="w-3.5 h-3.5" /></button>
+                <button className="p-2 border border-zinc-300 rounded-lg bg-white hover:bg-zinc-50 text-zinc-700 transition-colors cursor-pointer" title="CSV"><FileText className="w-3.5 h-3.5" /></button>
+                <button className="p-2 border border-zinc-300 rounded-lg bg-white hover:bg-zinc-50 text-zinc-700 transition-colors cursor-pointer" title="PDF"><Download className="w-3.5 h-3.5" /></button>
+                <button className="p-2 border border-zinc-300 rounded-lg bg-white hover:bg-zinc-50 text-zinc-700 transition-colors cursor-pointer" title="Print"><Printer className="w-3.5 h-3.5" /></button>
+                <button className="p-2 border border-zinc-300 rounded-lg bg-white hover:bg-zinc-50 text-zinc-700 transition-colors cursor-pointer" title="Columns"><Columns className="w-3.5 h-3.5" /></button>
              </div>
              <div>
-                <input type="text" placeholder="Search..." className="bg-zinc-900 border border-zinc-800 rounded-md px-3 py-1.5 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600" />
+                <input type="text" placeholder="Search..." className="bg-white border border-zinc-300 rounded-lg px-3 py-1.5 text-xs text-zinc-950 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600" />
              </div>
           </div>
           
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead className="bg-zinc-800/50 text-zinc-400">
+              <thead className="bg-zinc-50 text-zinc-700 font-bold border-b border-zinc-200">
                 <tr>
-                  <th className="px-4 py-3 font-medium border-b border-zinc-800">SL</th>
-                  <th className="px-4 py-3 font-medium border-b border-zinc-800">Name</th>
-                  <th className="px-4 py-3 font-medium border-b border-zinc-800">Code</th>
-                  <th className="px-4 py-3 font-medium border-b border-zinc-800">Symbol</th>
-                  <th className="px-4 py-3 font-medium border-b border-zinc-800">Type</th>
-                  <th className="px-4 py-3 font-medium border-b border-zinc-800">Currency Position</th>
-                  <th className="px-4 py-3 font-medium border-b border-zinc-800">Space</th>
-                  <th className="px-4 py-3 font-medium border-b border-zinc-800">Decimal Digit</th>
+                  <th className="px-4 py-3">SL</th>
+                  <th className="px-4 py-3">Name</th>
+                  <th className="px-4 py-3">Code</th>
+                  <th className="px-4 py-3">Symbol</th>
+                  <th className="px-4 py-3">Type</th>
+                  <th className="px-4 py-3">Currency Position</th>
+                  <th className="px-4 py-3">Space</th>
+                  <th className="px-4 py-3">Decimal Digit</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-800">
+              <tbody className="divide-y divide-zinc-200 text-zinc-900">
                 {currencies.map((currency, index) => (
-                  <tr key={currency.id} className="hover:bg-zinc-800/20 transition-colors">
-                    <td className="px-4 py-3 text-zinc-300">{index + 1}</td>
-                    <td className="px-4 py-3 text-zinc-100 flex items-center gap-2">
+                  <tr key={currency.id} className="hover:bg-zinc-50 transition-colors">
+                    <td className="px-4 py-3 font-semibold text-zinc-700">{index + 1}</td>
+                    <td className="px-4 py-3 text-zinc-950 font-bold flex items-center gap-2">
                       {currency.name}
-                      {currency.active && <span className="bg-zinc-600/10 text-zinc-600 text-[10px] px-2 py-0.5 rounded border border-zinc-600/20">ACTIVE</span>}
+                      {currency.active && <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-300">ACTIVE</span>}
                     </td>
-                    <td className="px-4 py-3 text-zinc-300">{currency.code}</td>
-                    <td className="px-4 py-3 text-zinc-300">{currency.symbol}</td>
-                    <td className="px-4 py-3 text-zinc-300">{currency.type}</td>
-                    <td className="px-4 py-3 text-zinc-300">{currency.position}</td>
-                    <td className="px-4 py-3 text-zinc-300">{currency.space}</td>
-                    <td className="px-4 py-3 text-zinc-300">{currency.decimal}</td>
+                    <td className="px-4 py-3 text-zinc-800 font-medium">{currency.code}</td>
+                    <td className="px-4 py-3 text-zinc-800 font-bold">{currency.symbol}</td>
+                    <td className="px-4 py-3 text-zinc-700 capitalize">{currency.type}</td>
+                    <td className="px-4 py-3 text-zinc-700">{currency.position}</td>
+                    <td className="px-4 py-3 text-zinc-700">{currency.space}</td>
+                    <td className="px-4 py-3 text-zinc-700">{currency.decimal}</td>
                   </tr>
                 ))}
               </tbody>

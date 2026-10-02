@@ -16,22 +16,22 @@ export default function AddCoursePage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Add Course</h1>
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-950">Add Course</h1>
         <div className="flex items-center text-sm text-zinc-600 dark:text-zinc-400">
           <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>LMS</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-600">Add Course</span>
+          <span className="text-zinc-950 font-bold">Add Course</span>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden">
+      <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-xl overflow-hidden">
         <form className="p-6 space-y-6" onSubmit={(e) => e.preventDefault()}>
           
           {/* Drip Content Toggle */}
           <div className="space-y-2">
-            <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Drip Content</Label>
+            <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Drip Content</Label>
             <div className="flex items-center gap-4">
               {['No', 'Yes'].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
@@ -42,7 +42,7 @@ export default function AddCoursePage() {
                     }`}>
                     {((dripContent && opt === 'Yes') || (!dripContent && opt === 'No')) && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                   </div>
-                  <span className="text-sm text-zinc-300">{opt}</span>
+                  <span className="text-sm text-zinc-950">{opt}</span>
                 </label>
               ))}
             </div>
@@ -51,8 +51,8 @@ export default function AddCoursePage() {
           {/* Teachers */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Assign Teacher</Label>
-              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
+              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Assign Teacher</Label>
+              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-600 dark:text-zinc-950 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
                 <option value="">Select Teacher</option>
                 <option value="1">John Doe (Senior Mathematics)</option>
                 <option value="2">Sarah Connor (Physics HOD)</option>
@@ -62,8 +62,8 @@ export default function AddCoursePage() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Assistant Teacher</Label>
-              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
+              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Assistant Teacher</Label>
+              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-600 dark:text-zinc-950 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
                 <option value="">Select Assistant Teacher</option>
                 <option value="1">John Doe</option>
                 <option value="2">Sarah Connor</option>
@@ -76,57 +76,57 @@ export default function AddCoursePage() {
 
           {/* Title */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Title <span className="text-rose-500">*</span></Label>
-            <Input placeholder="Title" className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 focus-visible:ring-zinc-600" />
+            <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Title <span className="text-rose-500">*</span></Label>
+            <Input placeholder="Title" className="bg-white dark:bg-white border-zinc-200 dark:border-zinc-200 focus-visible:ring-zinc-600" />
           </div>
 
           {/* Prerequisites */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Prerequisites</Label>
-            <div className="min-h-[100px] rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3">
-              <div className="flex flex-wrap gap-2 text-zinc-600 text-xs border-b border-zinc-200 dark:border-zinc-800 pb-2 mb-2">
+            <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Prerequisites</Label>
+            <div className="min-h-[100px] rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-zinc-900 p-3">
+              <div className="flex flex-wrap gap-2 text-zinc-600 text-xs border-b border-zinc-200 dark:border-zinc-200 pb-2 mb-2">
                 <span className="cursor-pointer hover:text-zinc-600 dark:text-zinc-400">B</span>
                 <span className="cursor-pointer hover:text-zinc-600 dark:text-zinc-400 italic">I</span>
                 <span className="cursor-pointer hover:text-zinc-600 dark:text-zinc-400 underline">U</span>
                 <span className="cursor-pointer hover:text-zinc-600 dark:text-zinc-400 line-through">S</span>
               </div>
-              <textarea className="w-full bg-transparent text-zinc-900 dark:text-white text-sm outline-none resize-none min-h-[60px] placeholder:text-zinc-600" placeholder="Write prerequisites here..." />
+              <textarea className="w-full bg-transparent text-zinc-900 dark:text-zinc-950 text-sm outline-none resize-none min-h-[60px] placeholder:text-zinc-600" placeholder="Write prerequisites here..." />
             </div>
           </div>
 
           {/* Overview */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Overview</Label>
-            <div className="min-h-[100px] rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3">
-              <div className="flex flex-wrap gap-2 text-zinc-600 text-xs border-b border-zinc-200 dark:border-zinc-800 pb-2 mb-2">
+            <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Overview</Label>
+            <div className="min-h-[100px] rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-zinc-900 p-3">
+              <div className="flex flex-wrap gap-2 text-zinc-600 text-xs border-b border-zinc-200 dark:border-zinc-200 pb-2 mb-2">
                 <span className="cursor-pointer hover:text-zinc-600 dark:text-zinc-400">B</span>
                 <span className="cursor-pointer hover:text-zinc-600 dark:text-zinc-400 italic">I</span>
                 <span className="cursor-pointer hover:text-zinc-600 dark:text-zinc-400 underline">U</span>
                 <span className="cursor-pointer hover:text-zinc-600 dark:text-zinc-400 line-through">S</span>
               </div>
-              <textarea className="w-full bg-transparent text-zinc-900 dark:text-white text-sm outline-none resize-none min-h-[60px] placeholder:text-zinc-600" placeholder="Write overview here..." />
+              <textarea className="w-full bg-transparent text-zinc-900 dark:text-zinc-950 text-sm outline-none resize-none min-h-[60px] placeholder:text-zinc-600" placeholder="Write overview here..." />
             </div>
           </div>
 
           {/* Description */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Description</Label>
-            <div className="min-h-[100px] rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3">
-              <div className="flex flex-wrap gap-2 text-zinc-600 text-xs border-b border-zinc-200 dark:border-zinc-800 pb-2 mb-2">
+            <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Description</Label>
+            <div className="min-h-[100px] rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-zinc-900 p-3">
+              <div className="flex flex-wrap gap-2 text-zinc-600 text-xs border-b border-zinc-200 dark:border-zinc-200 pb-2 mb-2">
                 <span className="cursor-pointer hover:text-zinc-600 dark:text-zinc-400">B</span>
                 <span className="cursor-pointer hover:text-zinc-600 dark:text-zinc-400 italic">I</span>
                 <span className="cursor-pointer hover:text-zinc-600 dark:text-zinc-400 underline">U</span>
                 <span className="cursor-pointer hover:text-zinc-600 dark:text-zinc-400 line-through">S</span>
               </div>
-              <textarea className="w-full bg-transparent text-zinc-900 dark:text-white text-sm outline-none resize-none min-h-[60px] placeholder:text-zinc-600" placeholder="Write description here..." />
+              <textarea className="w-full bg-transparent text-zinc-900 dark:text-zinc-950 text-sm outline-none resize-none min-h-[60px] placeholder:text-zinc-600" placeholder="Write description here..." />
             </div>
           </div>
 
           {/* Category / Class / Section / Subject / Mode */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Course Category <span className="text-rose-500">*</span></Label>
-              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
+              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Course Category <span className="text-rose-500">*</span></Label>
+              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-600 dark:text-zinc-950 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
                 <option value="">Course Category *</option>
                 <option value="cs">Computer Science & IT</option>
                 <option value="math">Mathematics & Logic</option>
@@ -137,8 +137,8 @@ export default function AddCoursePage() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Select Sub Category</Label>
-              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
+              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Select Sub Category</Label>
+              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-600 dark:text-zinc-950 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
                 <option value="">Select Sub Category</option>
                 <option value="web">Web Development & Design</option>
                 <option value="python">Python Programming</option>
@@ -149,8 +149,8 @@ export default function AddCoursePage() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Select Class</Label>
-              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
+              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Select Class</Label>
+              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-600 dark:text-zinc-950 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
                 <option value="">Select Class</option>
                 <option value="1">Class 1</option>
                 <option value="2">Class 2</option>
@@ -170,8 +170,8 @@ export default function AddCoursePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Select Section</Label>
-              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
+              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Select Section</Label>
+              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-600 dark:text-zinc-950 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
                 <option value="">Select Section</option>
                 <option value="A">Section A</option>
                 <option value="B">Section B</option>
@@ -180,8 +180,8 @@ export default function AddCoursePage() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Select Subject</Label>
-              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
+              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Select Subject</Label>
+              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-600 dark:text-zinc-950 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
                 <option value="">Select Subject</option>
                 <option value="math">Mathematics</option>
                 <option value="eng">English Language</option>
@@ -195,8 +195,8 @@ export default function AddCoursePage() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Mode of Delivery <span className="text-rose-500">*</span></Label>
-              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
+              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Mode of Delivery <span className="text-rose-500">*</span></Label>
+              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-900 dark:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
                 <option value="Online">Online</option>
                 <option value="Offline">Offline</option>
               </select>
@@ -206,8 +206,8 @@ export default function AddCoursePage() {
           {/* Level / Sequence / View */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Level</Label>
-              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
+              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Level</Label>
+              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-600 dark:text-zinc-950 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
                 <option value="">Select Level</option>
                 <option value="Beginner">Beginner</option>
                 <option value="Intermediate">Intermediate</option>
@@ -215,7 +215,7 @@ export default function AddCoursePage() {
               </select>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Complete Course Sequence</Label>
+              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Complete Course Sequence</Label>
               <div className="flex items-center gap-4 pt-2">
                 {['No', 'Yes'].map((opt) => (
                   <label key={opt} className="flex items-center gap-2 cursor-pointer">
@@ -226,14 +226,14 @@ export default function AddCoursePage() {
                       }`}>
                       {((completeSequence && opt === 'Yes') || (!completeSequence && opt === 'No')) && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                     </div>
-                    <span className="text-sm text-zinc-300">{opt}</span>
+                    <span className="text-sm text-zinc-950">{opt}</span>
                   </label>
                 ))}
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">View Scope</Label>
-              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
+              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">View Scope</Label>
+              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-900 dark:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
                 <option value="Public">Public</option>
                 <option value="Private">Private</option>
               </select>
@@ -243,12 +243,12 @@ export default function AddCoursePage() {
           {/* Duration / Certificate / Preview Image */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Duration (LMS in Minutes)</Label>
-              <Input type="number" placeholder="Duration in minutes" className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 focus-visible:ring-zinc-600" />
+              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Duration (LMS in Minutes)</Label>
+              <Input type="number" placeholder="Duration in minutes" className="bg-white dark:bg-white border-zinc-200 dark:border-zinc-200 focus-visible:ring-zinc-600" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Certificate</Label>
-              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
+              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Certificate</Label>
+              <select className="flex h-10 w-full rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-600 dark:text-zinc-950 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
                 <option value="">Certificate</option>
                 <option value="1">Course Completion Certificate</option>
                 <option value="2">Certificate of Excellence</option>
@@ -257,10 +257,10 @@ export default function AddCoursePage() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Preview Image</Label>
+              <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Preview Image</Label>
               <div className="flex items-center gap-2">
-                <Input type="text" placeholder="Preview Image" readOnly className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 focus-visible:ring-zinc-600" />
-                <Button type="button" variant="secondary" className="bg-zinc-800 hover:bg-zinc-700 text-white shrink-0 text-xs font-semibold">BROWSE</Button>
+                <Input type="text" placeholder="Preview Image" readOnly className="bg-white dark:bg-white border-zinc-200 dark:border-zinc-200 focus-visible:ring-zinc-600" />
+                <Button type="button" variant="secondary" className="bg-zinc-800 hover:bg-zinc-700 text-zinc-950 shrink-0 text-xs font-semibold">BROWSE</Button>
               </div>
             </div>
           </div>
@@ -270,8 +270,8 @@ export default function AddCoursePage() {
             <div className="space-y-1.5">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={isFree} onChange={(e) => setIsFree(e.target.checked)}
-                  className="rounded border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-zinc-800 focus:ring-zinc-800 h-4 w-4 cursor-pointer" />
-                <span className="text-sm text-zinc-300">This course is a free course</span>
+                  className="rounded border-zinc-200 dark:border-zinc-200 bg-white dark:bg-zinc-950 text-zinc-800 focus:ring-zinc-800 h-4 w-4 cursor-pointer" />
+                <span className="text-sm text-zinc-950">This course is a free course</span>
               </label>
             </div>
           </div>
@@ -279,20 +279,20 @@ export default function AddCoursePage() {
           {!isFree && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Price <span className="text-rose-500">*</span></Label>
-                <Input type="number" placeholder="Price" className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 focus-visible:ring-zinc-600" />
+                <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Price <span className="text-rose-500">*</span></Label>
+                <Input type="number" placeholder="Price" className="bg-white dark:bg-white border-zinc-200 dark:border-zinc-200 focus-visible:ring-zinc-600" />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Discount Price</Label>
-                <Input type="number" placeholder="Discount Price" className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 focus-visible:ring-zinc-600" />
+                <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Discount Price</Label>
+                <Input type="number" placeholder="Discount Price" className="bg-white dark:bg-white border-zinc-200 dark:border-zinc-200 focus-visible:ring-zinc-600" />
               </div>
             </div>
           )}
 
           {/* Related Course */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Related Course</Label>
-            <select className="flex h-10 w-full sm:w-1/3 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
+            <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Related Course</Label>
+            <select className="flex h-10 w-full sm:w-1/3 rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-600 dark:text-zinc-950 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
               <option value="">Select Related Course</option>
               <option value="c1">Full Stack Web Development</option>
               <option value="c2">Python for Data Analysis</option>
@@ -304,16 +304,16 @@ export default function AddCoursePage() {
 
           {/* Meta */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Meta Keywords</Label>
-            <Input placeholder="Meta Keywords" className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 focus-visible:ring-zinc-600" />
+            <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Meta Keywords</Label>
+            <Input placeholder="Meta Keywords" className="bg-white dark:bg-white border-zinc-200 dark:border-zinc-200 focus-visible:ring-zinc-600" />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">Meta Description</Label>
-            <textarea className="flex min-h-[80px] w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-white placeholder:text-zinc-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 resize-y" placeholder="Meta Description" />
+            <Label className="text-xs font-semibold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Meta Description</Label>
+            <textarea className="flex min-h-[80px] w-full rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-900 dark:text-zinc-950 placeholder:text-zinc-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 resize-y" placeholder="Meta Description" />
           </div>
 
           <div className="flex justify-center pt-4">
-            <Button className="bg-zinc-800 hover:bg-zinc-700 text-white font-semibold px-10">
+            <Button className="bg-zinc-800 hover:bg-zinc-700 text-zinc-950 font-semibold px-10">
               <Plus className="h-4 w-4 mr-2" /> ADD COURSE
             </Button>
           </div>

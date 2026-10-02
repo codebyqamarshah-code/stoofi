@@ -13,7 +13,7 @@ function InfoRow({ icon: Icon, label, value, highlight }) {
         <Icon className="h-4 w-4 text-zinc-500" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wide">{label}</p>
+        <p className="text-[11px] font-semibold text-zinc-700 uppercase font-bold tracking-wide">{label}</p>
         <p className={`text-sm font-semibold mt-0.5 break-words ${highlight ? 'text-zinc-900' : 'text-zinc-700'}`}>
           {value || '—'}
         </p>

@@ -20,10 +20,10 @@ export default function ModuleManager() {
     <div className="p-6 bg-zinc-950 min-h-screen text-zinc-100">
       <h1 className="text-2xl font-semibold mb-6">Module manage</h1>
       
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden shadow-sm">
-        <div className="px-6 py-4 border-b border-zinc-800 flex justify-between items-center">
+      <div className="bg-white border border-zinc-200 shadow-xs rounded-lg overflow-hidden shadow-sm">
+        <div className="px-6 py-4 border-b border-zinc-200 flex justify-between items-center">
           <h2 className="text-lg font-medium">Module manage</h2>
-          <button className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-800 text-white px-4 py-2 rounded text-sm transition-colors">
+          <button className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-100 text-zinc-950 px-4 py-2 rounded text-sm transition-colors">
             <UploadCloud className="w-4 h-4" />
             UPLOAD/UPDATE MODULE
           </button>
@@ -32,18 +32,18 @@ export default function ModuleManager() {
         <div className="p-6">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-zinc-800/50 text-zinc-400">
+              <thead className="bg-zinc-50/50 text-zinc-900 font-bold">
                 <tr>
-                  <th className="px-4 py-3 font-medium border-b border-zinc-800 whitespace-nowrap">SL</th>
-                  <th className="px-4 py-3 font-medium border-b border-zinc-800">NAME</th>
-                  <th className="px-4 py-3 font-medium border-b border-zinc-800 whitespace-nowrap">STATUS</th>
-                  <th className="px-4 py-3 font-medium border-b border-zinc-800 whitespace-nowrap text-right">ACTION</th>
+                  <th className="px-4 py-3 font-medium border-b border-zinc-200 whitespace-nowrap">SL</th>
+                  <th className="px-4 py-3 font-medium border-b border-zinc-200">NAME</th>
+                  <th className="px-4 py-3 font-medium border-b border-zinc-200 whitespace-nowrap">STATUS</th>
+                  <th className="px-4 py-3 font-medium border-b border-zinc-200 whitespace-nowrap text-right">ACTION</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-800">
+              <tbody className="divide-y divide-zinc-100">
                 {modules.map((mod, index) => (
-                  <tr key={mod.id} className="hover:bg-zinc-800/20 transition-colors">
-                    <td className="px-4 py-4 text-zinc-300 align-top">{index + 1}</td>
+                  <tr key={mod.id} className="hover:bg-zinc-100 transition-colors">
+                    <td className="px-4 py-4 text-zinc-950 align-top">{index + 1}</td>
                     <td className="px-4 py-4 align-top">
                        <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-2 font-medium text-zinc-100">
@@ -62,7 +62,7 @@ export default function ModuleManager() {
                       {mod.status === 'ACTIVE' ? (
                         <span className="bg-zinc-600/10 text-zinc-600 text-[10px] px-2 py-1 rounded border border-zinc-600/20 font-medium">ACTIVE</span>
                       ) : (
-                        <span className="bg-zinc-800 text-zinc-400 text-[10px] px-2 py-1 rounded border border-zinc-700 font-medium">DISABLE</span>
+                        <span className="bg-zinc-800 text-zinc-700 text-[10px] px-2 py-1 rounded border border-zinc-200 font-medium">DISABLE</span>
                       )}
                     </td>
                     <td className="px-4 py-4 align-top text-right">
@@ -74,7 +74,7 @@ export default function ModuleManager() {
                             <span className="inline-block h-4 w-4 translate-x-4 transform rounded-full bg-white transition-transform" />
                           </button>
                        ) : (
-                          <button className="bg-zinc-800 hover:bg-zinc-800 text-white px-3 py-1.5 rounded text-xs transition-colors font-medium">
+                          <button className="bg-zinc-800 hover:bg-zinc-100 text-zinc-950 px-3 py-1.5 rounded text-xs transition-colors font-medium">
                             BUY NOW
                           </button>
                        )}

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ChevronRight, Search, Printer, Award, User, CheckSquare, Square, Building } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 
 const CERT_TYPES = [
@@ -147,7 +148,7 @@ export default function BulkPrintCertificatePage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-950 flex items-center gap-2">
             <Award className="h-6 w-6 text-amber-400" />
             Generate & Print Certificates
           </h1>
@@ -156,27 +157,27 @@ export default function BulkPrintCertificatePage() {
           </p>
         </div>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-zinc-300 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-950 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Bulk Print</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-500">Certificates</span>
+          <span className="text-zinc-950 font-bold">Certificates</span>
         </div>
       </div>
 
       {/* Criteria */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-5 shadow-sm print:hidden">
+      <div className="bg-white border border-zinc-200 shadow-xs rounded-xl p-5 shadow-sm print:hidden">
         <div className="mb-4">
-          <h2 className="text-sm font-semibold text-zinc-200 uppercase tracking-wider">Select Criteria</h2>
+          <h2 className="text-sm font-semibold text-zinc-950 uppercase tracking-wider">Select Criteria</h2>
         </div>
         <form onSubmit={handleSearchSubmit}>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-400 uppercase">Certificate Type <span className="text-rose-500">*</span></Label>
+              <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Certificate Type <span className="text-rose-500">*</span></Label>
               <select 
                 value={certType} 
                 onChange={e => setCertType(e.target.value)} 
-                className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500" 
+                className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-950 focus:outline-none focus:ring-2 focus:ring-amber-500" 
                 required
               >
                 {CERT_TYPES.map(c => (
@@ -186,11 +187,11 @@ export default function BulkPrintCertificatePage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-400 uppercase">Class Filter</Label>
+              <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Class Filter</Label>
               <select 
                 value={classFilter} 
                 onChange={e => setClassFilter(e.target.value)} 
-                className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-950 focus:outline-none focus:ring-2 focus:ring-amber-500"
               >
                 <option value="">All Classes</option>
                 {classes.map(c => (
@@ -203,7 +204,7 @@ export default function BulkPrintCertificatePage() {
               <Button 
                 type="submit" 
                 disabled={loading}
-                className="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold h-10 shadow-md flex items-center justify-center gap-2"
+                className="w-full bg-amber-600 hover:bg-amber-700 text-zinc-950 font-semibold h-10 shadow-md flex items-center justify-center gap-2"
               >
                 <Search className="h-4 w-4" /> 
                 {loading ? 'SEARCHING...' : 'SEARCH CERTIFICATES'}
@@ -216,12 +217,12 @@ export default function BulkPrintCertificatePage() {
       {/* Results & Certificates */}
       <div className="space-y-6">
         {/* Action Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-zinc-950 border border-zinc-800 rounded-xl p-4 print:hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white border border-zinc-200 shadow-xs rounded-xl p-4 print:hidden">
           <div className="flex items-center gap-4">
             <button 
               type="button" 
               onClick={toggleSelectAll} 
-              className="flex items-center gap-2 text-sm font-medium text-zinc-300 hover:text-white cursor-pointer"
+              className="flex items-center gap-2 text-sm font-medium text-zinc-950 hover:text-zinc-950 cursor-pointer"
             >
               {selectedIds.length === students.length && students.length > 0 ? (
                 <CheckSquare className="h-5 w-5 text-amber-400" />
@@ -232,14 +233,14 @@ export default function BulkPrintCertificatePage() {
             </button>
             <span className="text-xs text-zinc-600">|</span>
             <span className="text-sm text-zinc-400">
-              Selected to Print: <strong className="text-white font-bold">{selectedIds.length}</strong>
+              Selected to Print: <strong className="text-zinc-950 font-bold">{selectedIds.length}</strong>
             </span>
           </div>
 
           <Button 
             onClick={handlePrint} 
             disabled={selectedStudents.length === 0}
-            className="bg-amber-600 hover:bg-amber-700 text-white font-semibold shadow-md flex items-center gap-2 px-6"
+            className="bg-amber-600 hover:bg-amber-700 text-zinc-950 font-semibold shadow-md flex items-center gap-2 px-6"
           >
             <Printer className="h-4 w-4" />
             PRINT SELECTED CERTIFICATES ({selectedIds.length})
@@ -247,9 +248,9 @@ export default function BulkPrintCertificatePage() {
         </div>
 
         {students.length === 0 ? (
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-12 text-center text-zinc-500">
+          <div className="bg-white border border-zinc-200 shadow-xs rounded-xl p-12 text-center text-zinc-500">
             <User className="h-12 w-12 mx-auto mb-3 text-zinc-700" />
-            <p className="text-base font-semibold text-zinc-300">No student records found</p>
+            <p className="text-base font-semibold text-zinc-950">No student records found</p>
             <p className="text-sm text-zinc-500 mt-1">Add students in the directory to generate certificates.</p>
           </div>
         ) : (

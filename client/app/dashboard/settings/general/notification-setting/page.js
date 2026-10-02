@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { ChevronRight } from 'lucide-react';
 
 const eventsList = [
   'Student Admission', 'Student Checkout', 'Fee Submission', 'Exam Result',
@@ -10,7 +11,7 @@ const eventsList = [
 
 export default function NotificationSettingPage() {
   const [events, setEvents] = useState(
-    eventsList.map(e => ({ name: e, email: false, sms: false, push: false }))
+    eventsList.map(e => ({ name: e, email: true, sms: false, push: true }))
   );
 
   const toggleSetting = (index, type) => {
@@ -20,29 +21,36 @@ export default function NotificationSettingPage() {
   };
 
   const renderToggle = (checked, onChange, label) => (
-    <label className="flex items-center gap-3 cursor-pointer">
+    <label className="flex items-center gap-2 cursor-pointer">
       <div className="relative">
         <input type="checkbox" className="sr-only" checked={checked} onChange={onChange} />
-        <div className={`block w-10 h-6 rounded-full transition-colors ${checked ? 'bg-zinc-800' : 'bg-zinc-700'}`}></div>
-        <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${checked ? 'transform translate-x-4' : ''}`}></div>
+        <div className={`block w-9 h-5 rounded-full transition-colors ${checked ? 'bg-zinc-950' : 'bg-zinc-300'}`}></div>
+        <div className={`absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform shadow-xs ${checked ? 'transform translate-x-4' : ''}`}></div>
       </div>
-      <span className="text-sm text-zinc-300 font-medium w-10">{label}</span>
+      <span className="text-xs font-semibold text-zinc-800">{label}</span>
     </label>
   );
 
   return (
-    <div className="min-h-screen bg-zinc-950 p-6">
-      <h1 className="text-2xl font-semibold text-white mb-6">Notification Setting</h1>
+    <div className="min-h-screen bg-white p-6">
+      <div className="flex items-center gap-1 text-xs font-semibold text-zinc-600 mb-2">
+        <span>Dashboard</span>
+        <ChevronRight className="w-3.5 h-3.5" />
+        <span>General Settings</span>
+        <ChevronRight className="w-3.5 h-3.5" />
+        <span className="text-zinc-950 font-bold">Notification Setting</span>
+      </div>
+      <h1 className="text-2xl font-bold text-zinc-950 mb-6">Notification Setting</h1>
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden max-w-5xl">
-        <div className="px-6 py-4 border-b border-zinc-800">
-          <h2 className="text-lg font-medium text-white">Notification Setting</h2>
+      <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs max-w-5xl">
+        <div className="px-6 py-4 border-b border-zinc-200">
+          <h2 className="text-sm font-bold text-zinc-950">Notification Event Channels</h2>
         </div>
         <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {events.map((event, idx) => (
-              <div key={event.name} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg bg-zinc-950/50 border border-zinc-800/50">
-                <span className="text-sm font-medium text-zinc-200 mb-4 sm:mb-0">{event.name}</span>
+              <div key={event.name} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-zinc-50 border border-zinc-200">
+                <span className="text-sm font-bold text-zinc-950 mb-3 sm:mb-0">{event.name}</span>
                 <div className="flex gap-4">
                   {renderToggle(event.email, () => toggleSetting(idx, 'email'), 'Email')}
                   {renderToggle(event.sms, () => toggleSetting(idx, 'sms'), 'SMS')}
@@ -53,8 +61,8 @@ export default function NotificationSettingPage() {
           </div>
 
           <div className="mt-8 flex justify-end">
-            <button className="bg-zinc-800 hover:bg-zinc-800 text-white font-medium py-2 px-8 rounded transition-colors">
-              SAVE
+            <button className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold text-xs uppercase tracking-wider py-2.5 px-8 rounded-lg shadow-sm transition-colors cursor-pointer">
+              SAVE NOTIFICATIONS
             </button>
           </div>
         </div>

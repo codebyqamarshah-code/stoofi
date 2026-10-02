@@ -25,17 +25,17 @@ export default function ManageThemePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-950 p-6">
+    <div className="space-y-6 p-6">
       {/* Breadcrumb */}
       <div className="flex items-center gap-1 text-xs text-zinc-400 mb-4">
         <span>Dashboard</span>
         <ChevronRight className="w-3 h-3" />
         <span>Frontend CMS</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-zinc-500">Theme Manager - {activeTheme}</span>
+        <span className="text-zinc-950 font-bold">Theme Manager - {activeTheme}</span>
       </div>
 
-      <h1 className="text-xl font-bold text-white mb-6">Theme Manager</h1>
+      <h1 className="text-xl font-bold text-zinc-950 mb-6">Theme Manager</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {themes.map((theme) => {
@@ -43,32 +43,32 @@ export default function ManageThemePage() {
           return (
             <div
               key={theme.id}
-              className={`bg-zinc-900 border ${
-                isActive ? 'border-zinc-600 ring-1 ring-zinc-600/50' : 'border-zinc-800'
+              className={`bg-white border ${
+                isActive ? 'border-zinc-600 ring-1 ring-zinc-600/50' : 'border-zinc-200'
               } rounded-xl overflow-hidden flex flex-col shadow-xl transition-all`}
             >
               {/* Preview Banner */}
-              <div className={`h-56 bg-gradient-to-br ${theme.previewGradient} p-6 flex flex-col justify-center items-center text-center relative border-b border-zinc-800`}>
+              <div className={`h-56 bg-gradient-to-br ${theme.previewGradient} p-6 flex flex-col justify-center items-center text-center relative border-b border-zinc-200`}>
                 <div className="absolute top-4 left-4 flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-zinc-600"></div>
-                  <span className="text-xs font-bold tracking-wider text-white uppercase">Stoofi Pro</span>
+                  <span className="text-xs font-bold tracking-wider text-zinc-950 uppercase">Stoofi Pro</span>
                 </div>
-                <h3 className="text-2xl font-black text-white tracking-wide mb-2 drop-shadow-md">
+                <h3 className="text-2xl font-black text-zinc-950 tracking-wide mb-2 drop-shadow-md">
                   {theme.heroTitle}
                 </h3>
-                <p className="text-xs text-zinc-300 max-w-sm drop-shadow">
+                <p className="text-xs text-zinc-950 max-w-sm drop-shadow">
                   {theme.heroSubtitle}
                 </p>
                 <div className="mt-4 flex gap-2">
-                  <span className="px-3 py-1 bg-zinc-800/80 text-white rounded text-[11px] font-semibold">Notice Board</span>
-                  <span className="px-3 py-1 bg-zinc-800/80 text-zinc-300 rounded text-[11px]">Admissions 2026</span>
+                  <span className="px-3 py-1 bg-zinc-800/80 text-zinc-950 rounded text-[11px] font-semibold">Notice Board</span>
+                  <span className="px-3 py-1 bg-zinc-800/80 text-zinc-950 rounded text-[11px]">Admissions 2026</span>
                 </div>
               </div>
 
               {/* Bottom Info & Action Bar */}
               <div className="p-4 bg-zinc-900 flex items-center justify-between">
                 <div>
-                  <h4 className="text-sm font-semibold text-white">{theme.name}</h4>
+                  <h4 className="text-sm font-semibold text-zinc-950">{theme.name}</h4>
                   <span className="text-xs text-zinc-400">Version 2.4.0</span>
                 </div>
 
@@ -82,7 +82,7 @@ export default function ManageThemePage() {
                 ) : (
                   <button
                     onClick={() => setActiveTheme(theme.id)}
-                    className="bg-zinc-800 hover:bg-zinc-800 text-white text-xs font-semibold px-5 py-2 rounded-lg transition-colors cursor-pointer"
+                    className="bg-zinc-800 hover:bg-zinc-100 text-zinc-950 text-xs font-semibold px-5 py-2 rounded-lg transition-colors cursor-pointer"
                   >
                     Make Active
                   </button>

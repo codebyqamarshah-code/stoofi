@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import Link from 'next/link';
+import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 import dynamic from 'next/dynamic';
@@ -234,76 +235,76 @@ export default function StudentListPage() {
       {/* Edit Modal */}
       {editModal && editStudent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-5 border-b border-zinc-800">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+          <div className="bg-white border border-zinc-200 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-5 border-b border-zinc-100 bg-zinc-50/50">
+              <h2 className="text-base font-bold text-zinc-950 flex items-center gap-2">
                 <Edit className="h-5 w-5 text-zinc-600" />
                 Edit Student
               </h2>
-              <button onClick={closeEdit} className="text-zinc-400 hover:text-white transition-colors">
+              <button onClick={closeEdit} className="text-zinc-400 hover:text-zinc-950 transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
             <form onSubmit={handleEditSave} className="p-5 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-zinc-400 uppercase">First Name <span className="text-rose-500">*</span></Label>
+                  <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">First Name <span className="text-rose-500">*</span></Label>
                   <Input
                     name="firstName"
                     value={editStudent.firstName || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
+                    className="bg-white border-zinc-300 focus-visible:ring-zinc-400 text-zinc-950 font-medium"
                     placeholder="First Name"
                     required
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Last Name</Label>
+                  <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Last Name</Label>
                   <Input
                     name="lastName"
                     value={editStudent.lastName || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
+                    className="bg-white border-zinc-300 focus-visible:ring-zinc-400 text-zinc-950 font-medium"
                     placeholder="Last Name"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Father Name</Label>
+                  <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Father Name</Label>
                   <Input
                     name="fatherName"
                     value={editStudent.fatherName || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
+                    className="bg-white border-zinc-300 focus-visible:ring-zinc-400 text-zinc-950 font-medium"
                     placeholder="Father Name"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Mother Name</Label>
+                  <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Mother Name</Label>
                   <Input
                     name="motherName"
                     value={editStudent.motherName || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
+                    className="bg-white border-zinc-300 focus-visible:ring-zinc-400 text-zinc-950 font-medium"
                     placeholder="Mother Name"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Date of Birth</Label>
+                  <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Date of Birth</Label>
                   <Input
                     name="dob"
                     type="date"
                     value={editStudent.dob || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
+                    className="bg-white border-zinc-300 focus-visible:ring-zinc-400 text-zinc-950 font-medium"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Gender</Label>
+                  <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Gender</Label>
                   <select
                     name="gender"
                     value={editStudent.gender || ''}
                     onChange={handleEditChange}
-                    className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-zinc-600"
+                    className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm text-zinc-950 font-medium focus:outline-none focus:ring-2 focus:ring-zinc-600"
                   >
                     <option value="">Select Gender</option>
                     <option value="Male">Male</option>
@@ -312,33 +313,33 @@ export default function StudentListPage() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Phone</Label>
+                  <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Phone</Label>
                   <Input
                     name="phone"
                     value={editStudent.phone || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
+                    className="bg-white border-zinc-300 focus-visible:ring-zinc-400 text-zinc-950 font-medium"
                     placeholder="Phone Number"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Email</Label>
+                  <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Email</Label>
                   <Input
                     name="email"
                     type="email"
                     value={editStudent.email || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
+                    className="bg-white border-zinc-300 focus-visible:ring-zinc-400 text-zinc-950 font-medium"
                     placeholder="Email Address"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Class</Label>
+                  <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Class</Label>
                   <select
                     name="className"
                     value={editStudent.className || ''}
                     onChange={handleEditChange}
-                    className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-zinc-600"
+                    className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm text-zinc-950 font-medium focus:outline-none focus:ring-2 focus:ring-zinc-600"
                   >
                     <option value="">Select Class</option>
                     {classes.map(c => (
@@ -347,53 +348,53 @@ export default function StudentListPage() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Section</Label>
+                  <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Section</Label>
                   <select
                     name="section"
                     value={editStudent.section || ''}
                     onChange={handleEditChange}
-                    className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-zinc-600"
+                    className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm text-zinc-950 font-medium focus:outline-none focus:ring-2 focus:ring-zinc-600"
                   >
                     <option value="">Select Section</option>
                     {(classes.find(c => c.name === (formData?.class || formData?.className || (typeof classVal !== 'undefined' ? classVal : '')))?.sections || []).map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Roll No</Label>
+                  <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Roll No</Label>
                   <Input
                     name="rollNo"
                     value={editStudent.rollNo || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
+                    className="bg-white border-zinc-300 focus-visible:ring-zinc-400 text-zinc-950 font-medium"
                     placeholder="Roll Number"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Admission No</Label>
+                  <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Admission No</Label>
                   <Input
                     name="admissionNo"
                     value={editStudent.admissionNo || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
+                    className="bg-white border-zinc-300 focus-visible:ring-zinc-400 text-zinc-950 font-medium"
                     placeholder="Admission Number"
                   />
                 </div>
                 <div className="space-y-1.5 sm:col-span-2">
-                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Address</Label>
+                  <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Address</Label>
                   <Input
                     name="address"
                     value={editStudent.address || ''}
                     onChange={handleEditChange}
-                    className="bg-zinc-900 border-zinc-800 focus-visible:ring-zinc-600 text-white"
+                    className="bg-white border-zinc-300 focus-visible:ring-zinc-400 text-zinc-950 font-medium"
                     placeholder="Address"
                   />
                 </div>
               </div>
-              <div className="flex items-center justify-end gap-3 pt-2 border-t border-zinc-800">
-                <Button type="button" variant="outline" onClick={closeEdit} className="border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800">
+              <div className="flex items-center justify-end gap-3 pt-2 border-t border-zinc-200">
+                <Button type="button" variant="outline" onClick={closeEdit} className="border-zinc-300 text-zinc-700 hover:text-zinc-950 hover:bg-zinc-100 font-bold">
                   Cancel
                 </Button>
-                <Button type="submit" disabled={editLoading} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold flex items-center gap-2">
+                <Button type="submit" disabled={editLoading} className="bg-zinc-800 hover:bg-zinc-100 text-zinc-950 font-semibold flex items-center gap-2">
                   <Save className="h-4 w-4" />
                   {editLoading ? 'Saving...' : 'Save Changes'}
                 </Button>
@@ -430,7 +431,7 @@ export default function StudentListPage() {
                 type="button"
                 className="bg-black hover:bg-zinc-800 text-white font-bold flex items-center gap-2 cursor-pointer text-xs h-9 px-4 shadow-sm"
               >
-                <Plus className="h-4 w-4 text-white" /> ADD STUDENT
+                <Plus className="h-4 w-4 text-zinc-950" /> ADD STUDENT
               </Button>
             </Link>
           </div>

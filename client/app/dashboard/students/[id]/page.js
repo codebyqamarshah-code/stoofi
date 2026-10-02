@@ -42,7 +42,7 @@ function InfoRow({ icon: Icon, label, value, highlight }) {
         <Icon className="h-4 w-4 text-zinc-500" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wide">{label}</p>
+        <p className="text-[11px] font-semibold text-zinc-700 uppercase font-bold tracking-wide">{label}</p>
         <p className={`text-sm font-semibold mt-0.5 break-words ${highlight ? 'text-zinc-900' : 'text-zinc-700'}`}>
           {value || '—'}
         </p>
@@ -236,7 +236,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
         <div className="h-20 w-20 rounded-full bg-zinc-100 flex items-center justify-center">
-          <User className="h-10 w-10 text-zinc-300" />
+          <User className="h-10 w-10 text-zinc-950" />
         </div>
         <h2 className="text-xl font-bold text-zinc-900">Student Not Found</h2>
         <p className="text-sm text-zinc-500">No student record found for ID: {id}</p>
@@ -280,11 +280,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
               {photoUrl ? (
                 <img src={photoUrl} alt={fullName} className="h-full w-full object-cover" />
               ) : (
-                <span className="text-3xl font-black text-white">{getInitials(student)}</span>
+                <span className="text-3xl font-black text-zinc-950">{getInitials(student)}</span>
               )}
             </div>
-            <div className="absolute -bottom-1.5 -right-1.5 h-6 w-6 rounded-full bg-zinc-900 border-2 border-white flex items-center justify-center">
-              <BadgeCheck className="h-3.5 w-3.5 text-white" />
+            <div className="absolute -bottom-1.5 -right-1.5 h-6 w-6 rounded-full bg-white border-2 border-white flex items-center justify-center">
+              <BadgeCheck className="h-3.5 w-3.5 text-zinc-950" />
             </div>
           </div>
 
@@ -292,7 +292,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl font-black text-zinc-900 tracking-tight">{fullName}</h1>
             <div className="flex flex-wrap items-center gap-2 mt-2">
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-zinc-900 text-white px-3 py-1 rounded-full">
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-white text-zinc-950 px-3 py-1 rounded-full">
                 <Hash className="h-3 w-3" /> {student.admissionNo || '—'}
               </span>
               <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-zinc-100 text-zinc-700 px-3 py-1 rounded-full border border-zinc-200">

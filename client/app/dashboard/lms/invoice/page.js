@@ -98,7 +98,7 @@ export default function LmsInvoicePage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-950 flex items-center gap-2">
             <DollarSign className="h-6 w-6 text-indigo-400" />
             LMS Course Invoices & Transactions
           </h1>
@@ -107,16 +107,16 @@ export default function LmsInvoicePage() {
           </p>
         </div>
         <div className="flex items-center text-sm text-zinc-600 dark:text-zinc-400">
-          <Link href="/dashboard" className="hover:text-zinc-300 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-950 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>LMS</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-500">Course Invoices</span>
+          <span className="text-zinc-950 font-bold">Course Invoices</span>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm print:hidden">
+      <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-xl p-5 shadow-sm print:hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex flex-1 items-center gap-4">
             <div className="relative flex-1 max-w-md">
@@ -125,13 +125,13 @@ export default function LmsInvoicePage() {
                 placeholder="Search by student, invoice ID, course..." 
                 value={search} 
                 onChange={e => setSearch(e.target.value)}
-                className="pl-9 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white focus-visible:ring-indigo-500 text-sm"
+                className="pl-9 bg-white dark:bg-white border-zinc-200 dark:border-zinc-200 text-zinc-900 dark:text-zinc-950 focus-visible:ring-indigo-500 text-sm"
               />
             </div>
             <select 
               value={statusFilter} 
               onChange={e => setStatusFilter(e.target.value)}
-              className="h-10 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="h-10 rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white px-3 text-sm text-zinc-900 dark:text-zinc-950 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="All">All Statuses</option>
               <option value="Paid">Paid</option>
@@ -140,7 +140,7 @@ export default function LmsInvoicePage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-600 dark:text-zinc-400 bg-white dark:bg-zinc-900 px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800">
+            <span className="text-xs text-zinc-600 dark:text-zinc-700 bg-white dark:bg-white px-3 py-2 text-zinc-950 rounded-lg border border-zinc-200 dark:border-zinc-200">
               Total Revenue: <strong className="text-emerald-400 font-mono font-bold">PKR {invoices.filter(i => i.status === 'Paid').reduce((a,b)=>a+b.amount,0).toLocaleString()}</strong>
             </span>
           </div>
@@ -148,16 +148,16 @@ export default function LmsInvoicePage() {
       </div>
 
       {/* Invoices Table */}
-      <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm print:hidden">
-        <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-white dark:bg-zinc-900/40">
-          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-900 dark:text-zinc-200 uppercase tracking-wider">
+      <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-xl overflow-hidden shadow-sm print:hidden">
+        <div className="p-4 border-b border-zinc-200 dark:border-zinc-200 flex justify-between items-center bg-white dark:bg-white">
+          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-900 dark:text-zinc-950 uppercase tracking-wider">
             Invoices List ({filteredInvoices.length})
           </h2>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-xs text-zinc-600 dark:text-zinc-400 uppercase bg-white dark:bg-zinc-900/60 border-b border-zinc-200 dark:border-zinc-800">
+            <thead className="text-xs text-zinc-600 dark:text-zinc-700 uppercase font-bold bg-white dark:bg-white/60 border-b border-zinc-200 dark:border-zinc-200">
               <tr>
                 <th className="px-4 py-3 font-semibold">Invoice ID</th>
                 <th className="px-4 py-3 font-semibold">Student</th>
@@ -170,7 +170,7 @@ export default function LmsInvoicePage() {
                 <th className="px-4 py-3 font-semibold text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-100">
               {filteredInvoices.length === 0 ? (
                 <tr>
                   <td colSpan="9" className="px-4 py-12 text-center text-zinc-500">
@@ -179,16 +179,16 @@ export default function LmsInvoicePage() {
                 </tr>
               ) : (
                 filteredInvoices.map((inv) => (
-                  <tr key={inv.id} className="hover:bg-white dark:bg-zinc-900/40 transition-colors">
+                  <tr key={inv.id} className="hover:bg-white dark:bg-white transition-colors">
                     <td className="px-4 py-3.5 font-mono text-xs text-indigo-400 font-semibold">{inv.id}</td>
                     <td className="px-4 py-3.5">
-                      <div className="font-medium text-zinc-900 dark:text-white">{inv.studentName}</div>
+                      <div className="font-medium text-zinc-900 dark:text-zinc-950">{inv.studentName}</div>
                       <div className="text-[11px] text-zinc-500">{inv.email}</div>
                     </td>
                     <td className="px-4 py-3.5 text-zinc-900 dark:text-zinc-900 dark:text-zinc-200 max-w-xs truncate font-medium">{inv.courseName}</td>
-                    <td className="px-4 py-3.5 text-zinc-600 dark:text-zinc-400 text-xs">{inv.instructor}</td>
-                    <td className="px-4 py-3.5 font-mono font-bold text-zinc-900 dark:text-white">PKR {inv.amount.toLocaleString()}</td>
-                    <td className="px-4 py-3.5 text-zinc-600 dark:text-zinc-400 text-xs">{inv.paymentMethod}</td>
+                    <td className="px-4 py-3.5 text-zinc-600 dark:text-zinc-700 text-xs">{inv.instructor}</td>
+                    <td className="px-4 py-3.5 font-mono font-bold text-zinc-900 dark:text-zinc-950">PKR {inv.amount.toLocaleString()}</td>
+                    <td className="px-4 py-3.5 text-zinc-600 dark:text-zinc-700 text-xs">{inv.paymentMethod}</td>
                     <td className="px-4 py-3.5">
                       <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                         inv.status === 'Paid' 
@@ -198,13 +198,13 @@ export default function LmsInvoicePage() {
                         {inv.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3.5 text-zinc-600 dark:text-zinc-400 text-xs font-mono">{inv.date}</td>
+                    <td className="px-4 py-3.5 text-zinc-600 dark:text-zinc-700 text-xs font-mono">{inv.date}</td>
                     <td className="px-4 py-3.5 text-right">
                       <Button 
                         size="sm" 
                         variant="outline" 
                         onClick={() => setSelectedInvoice(inv)}
-                        className="h-8 text-xs border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                        className="h-8 text-xs border-zinc-200 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-950 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-100"
                       >
                         <Eye className="h-3.5 w-3.5 mr-1" /> View Receipt
                       </Button>
@@ -237,10 +237,10 @@ export default function LmsInvoicePage() {
             {/* Receipt Details */}
             <div className="space-y-3 text-xs">
               <div className="grid grid-cols-2 gap-2 bg-white p-3 rounded-lg border border-zinc-200">
-                <div><span className="text-zinc-500">Student Name:</span> <strong className="text-zinc-900 block">{selectedInvoice.studentName}</strong></div>
-                <div><span className="text-zinc-500">Email:</span> <strong className="text-zinc-900 block">{selectedInvoice.email}</strong></div>
-                <div><span className="text-zinc-500">Transaction Date:</span> <span className="text-zinc-900 block">{selectedInvoice.date}</span></div>
-                <div><span className="text-zinc-500">Payment Gateway:</span> <span className="text-zinc-900 block">{selectedInvoice.paymentMethod}</span></div>
+                <div><span className="text-zinc-950 font-bold">Student Name:</span> <strong className="text-zinc-900 block">{selectedInvoice.studentName}</strong></div>
+                <div><span className="text-zinc-950 font-bold">Email:</span> <strong className="text-zinc-900 block">{selectedInvoice.email}</strong></div>
+                <div><span className="text-zinc-950 font-bold">Transaction Date:</span> <span className="text-zinc-900 block">{selectedInvoice.date}</span></div>
+                <div><span className="text-zinc-950 font-bold">Payment Gateway:</span> <span className="text-zinc-900 block">{selectedInvoice.paymentMethod}</span></div>
               </div>
 
               <div className="border-t border-b border-zinc-200 py-3">

@@ -160,7 +160,7 @@ export default function PayrollBulkPrintPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-950 flex items-center gap-2">
             <Wallet className="h-6 w-6 text-emerald-400" />
             Payroll Bulk Print & Salary Slips
           </h1>
@@ -169,27 +169,27 @@ export default function PayrollBulkPrintPage() {
           </p>
         </div>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-zinc-300 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-950 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Bulk Print</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-500">Payroll</span>
+          <span className="text-zinc-950 font-bold">Payroll</span>
         </div>
       </div>
 
       {/* Criteria */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-5 shadow-sm print:hidden">
+      <div className="bg-white border border-zinc-200 shadow-xs rounded-xl p-5 shadow-sm print:hidden">
         <div className="mb-4">
-          <h2 className="text-sm font-semibold text-zinc-200 uppercase tracking-wider">Select Criteria</h2>
+          <h2 className="text-sm font-semibold text-zinc-950 uppercase tracking-wider">Select Criteria</h2>
         </div>
         <form onSubmit={handleSearchSubmit}>
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-400 uppercase">Role</Label>
+              <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Role</Label>
               <select 
                 value={role} 
                 onChange={e => setRole(e.target.value)} 
-                className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-950 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 <option value="">All Staff & Teachers</option>
                 <option value="Teacher">Teacher</option>
@@ -198,11 +198,11 @@ export default function PayrollBulkPrintPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-400 uppercase">Month</Label>
+              <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Month</Label>
               <select 
                 value={month} 
                 onChange={e => setMonth(e.target.value)} 
-                className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-950 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 {MONTHS.map(m => (
                   <option key={m} value={m}>{m}</option>
@@ -211,11 +211,11 @@ export default function PayrollBulkPrintPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-400 uppercase">Year</Label>
+              <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Year</Label>
               <select 
                 value={year} 
                 onChange={e => setYear(e.target.value)} 
-                className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-950 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 {YEARS.map(y => (
                   <option key={y} value={y}>{y}</option>
@@ -238,12 +238,12 @@ export default function PayrollBulkPrintPage() {
       </div>
 
       {/* Action Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-zinc-950 border border-zinc-800 rounded-xl p-4 print:hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white border border-zinc-200 shadow-xs rounded-xl p-4 print:hidden">
         <div className="flex items-center gap-4">
           <button 
             type="button" 
             onClick={toggleSelectAll} 
-            className="flex items-center gap-2 text-sm font-medium text-zinc-300 hover:text-white cursor-pointer"
+            className="flex items-center gap-2 text-sm font-medium text-zinc-950 hover:text-zinc-950 cursor-pointer"
           >
             {selectedIds.length === records.length && records.length > 0 ? (
               <CheckSquare className="h-5 w-5 text-emerald-400" />
@@ -254,7 +254,7 @@ export default function PayrollBulkPrintPage() {
           </button>
           <span className="text-xs text-zinc-600">|</span>
           <span className="text-sm text-zinc-400">
-            Selected for Printing: <strong className="text-white font-bold">{selectedIds.length}</strong>
+            Selected for Printing: <strong className="text-zinc-950 font-bold">{selectedIds.length}</strong>
           </span>
         </div>
 
@@ -270,9 +270,9 @@ export default function PayrollBulkPrintPage() {
 
       {/* Salary Slips Render Grid */}
       {records.length === 0 ? (
-        <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-12 text-center text-zinc-500">
+        <div className="bg-white border border-zinc-200 shadow-xs rounded-xl p-12 text-center text-zinc-500">
           <User className="h-12 w-12 mx-auto mb-3 text-zinc-700" />
-          <p className="text-base font-semibold text-zinc-300">No staff payroll records found</p>
+          <p className="text-base font-semibold text-zinc-950">No staff payroll records found</p>
           <p className="text-sm text-zinc-500 mt-1">Please add staff members in the HR Directory.</p>
         </div>
       ) : (
@@ -306,11 +306,11 @@ export default function PayrollBulkPrintPage() {
 
                   {/* Staff Info */}
                   <div className="grid grid-cols-2 gap-2 bg-zinc-50 p-3 rounded border border-zinc-200 text-[11px]">
-                    <div><span className="text-zinc-500">Employee:</span> <strong className="text-zinc-900">{staff.name}</strong></div>
-                    <div><span className="text-zinc-500">Role:</span> <strong className="text-zinc-900">{staff.role}</strong></div>
-                    <div><span className="text-zinc-500">Designation:</span> <strong className="text-zinc-900">{staff.designation}</strong></div>
-                    <div><span className="text-zinc-500">Department:</span> <strong className="text-zinc-900">{staff.department}</strong></div>
-                    <div className="col-span-2 truncate"><span className="text-zinc-500">Bank Account:</span> <span className="font-mono text-zinc-800">{staff.bankAccount}</span></div>
+                    <div><span className="text-zinc-950 font-bold">Employee:</span> <strong className="text-zinc-900">{staff.name}</strong></div>
+                    <div><span className="text-zinc-950 font-bold">Role:</span> <strong className="text-zinc-900">{staff.role}</strong></div>
+                    <div><span className="text-zinc-950 font-bold">Designation:</span> <strong className="text-zinc-900">{staff.designation}</strong></div>
+                    <div><span className="text-zinc-950 font-bold">Department:</span> <strong className="text-zinc-900">{staff.department}</strong></div>
+                    <div className="col-span-2 truncate"><span className="text-zinc-950 font-bold">Bank Account:</span> <span className="font-mono text-zinc-800">{staff.bankAccount}</span></div>
                   </div>
 
                   {/* Earnings & Deductions Breakdown */}

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 import StudentImportModal from '@/components/StudentImportModal';
@@ -191,63 +192,63 @@ export default function StudentExportPage() {
       {/* Page Title & Breadcrumb */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Student Export & Import Center</h1>
+          <h1 className="text-2xl font-bold text-zinc-950 tracking-tight">Student Export & Import Center</h1>
           <p className="text-xs text-zinc-400 mt-1">Export filtered student directories or bulk import new students via Excel & CSV</p>
         </div>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-zinc-300 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-950 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1 text-zinc-600" />
-          <Link href="/dashboard/students" className="hover:text-zinc-300 transition-colors">Student Info</Link>
+          <Link href="/dashboard/students" className="hover:text-zinc-950 transition-colors">Student Info</Link>
           <ChevronRight className="h-4 w-4 mx-1 text-zinc-600" />
-          <span className="text-white font-medium">Export & Import</span>
+          <span className="text-zinc-950 font-medium">Export & Import</span>
         </div>
       </div>
 
       {/* Top Action Bar: Quick Import & Template */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Import Banner */}
-        <div className="p-5 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-between gap-4">
+        <div className="p-5 rounded-xl bg-white border border-zinc-200 shadow-xs flex items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="h-10 w-10 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white shrink-0">
+            <div className="h-10 w-10 rounded-lg bg-white border border-zinc-200 shadow-xs flex items-center justify-center text-zinc-950 shrink-0">
               <Upload className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">Import Students from Excel</h3>
+              <h3 className="text-sm font-bold text-zinc-950">Import Students from Excel</h3>
               <p className="text-xs text-zinc-400">Bulk upload student records with auto column matching</p>
             </div>
           </div>
           <Button
             type="button"
             onClick={() => setIsImportModalOpen(true)}
-            className="bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs shrink-0 cursor-pointer flex items-center gap-1.5"
+            className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold py-2 rounded-lg shadow-xs text-xs shrink-0 cursor-pointer flex items-center gap-1.5"
           >
             <Upload className="h-3.5 w-3.5" /> IMPORT NOW
           </Button>
         </div>
 
         {/* Total Summary */}
-        <div className="p-5 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-between gap-4">
+        <div className="p-5 rounded-xl bg-white border border-zinc-200 shadow-xs flex items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="h-10 w-10 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-white shrink-0">
+            <div className="h-10 w-10 rounded-lg bg-white border border-zinc-200 shadow-xs flex items-center justify-center text-zinc-950 shrink-0">
               <FileSpreadsheet className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">Matching Students</h3>
+              <h3 className="text-sm font-bold text-zinc-950">Matching Students</h3>
               <p className="text-xs text-zinc-400">
                 {loading ? 'Counting...' : `Ready to export ${filteredStudents.length} of ${students.length} total students`}
               </p>
             </div>
           </div>
-          <div className="text-xl font-extrabold text-white bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg">
+          <div className="text-xl font-extrabold text-zinc-950 bg-white border border-zinc-200 shadow-xs px-3 py-1.5 rounded-lg">
             {filteredStudents.length}
           </div>
         </div>
       </div>
 
       {/* Filter Section */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
-          <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+      <div className="bg-white border border-zinc-200 rounded-xl shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-zinc-100 bg-zinc-50/50 flex items-center justify-between">
+          <h2 className="text-sm font-bold text-zinc-950 uppercase tracking-wider flex items-center gap-2">
             <Filter className="h-4 w-4 text-zinc-400" /> Filter Criteria
           </h2>
           <Button
@@ -255,7 +256,7 @@ export default function StudentExportPage() {
             variant="ghost"
             size="sm"
             onClick={handleResetFilters}
-            className="text-xs text-zinc-400 hover:text-white cursor-pointer flex items-center gap-1"
+            className="text-xs text-zinc-400 hover:text-zinc-950 cursor-pointer flex items-center gap-1"
           >
             <RotateCcw className="h-3.5 w-3.5" /> Reset Filters
           </Button>
@@ -263,7 +264,7 @@ export default function StudentExportPage() {
 
         <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Academic Year</Label>
+            <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Academic Year</Label>
             <SearchableSelect
               name="academicYear"
               value={academicYear}
@@ -273,7 +274,7 @@ export default function StudentExportPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Class</Label>
+            <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Class</Label>
             <SearchableSelect
               name="classFilter"
               value={classFilter}
@@ -284,7 +285,7 @@ export default function StudentExportPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Section</Label>
+            <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Section</Label>
             <SearchableSelect
               name="sectionFilter"
               value={sectionFilter}
@@ -295,11 +296,11 @@ export default function StudentExportPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Gender</Label>
+            <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Gender</Label>
             <select
               value={genderFilter}
               onChange={(e) => setGenderFilter(e.target.value)}
-              className="flex h-9 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-zinc-600"
+              className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm text-zinc-950 focus:outline-none focus:ring-1 focus:ring-zinc-600"
             >
               <option value="">All Genders</option>
               <option value="Male">Male</option>
@@ -308,28 +309,28 @@ export default function StudentExportPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Search by Keyword</Label>
+            <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Search by Keyword</Label>
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500" />
               <Input
                 placeholder="Name / Roll / Adm No"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 bg-zinc-900 border-zinc-800 text-xs font-medium text-white"
+                className="pl-8 bg-white border-zinc-300 text-zinc-950 text-xs font-medium text-zinc-950"
               />
             </div>
           </div>
         </div>
 
         {/* Column Inclusion Checkboxes */}
-        <div className="px-4 py-3 border-t border-zinc-800 bg-zinc-900/40 flex flex-wrap items-center gap-6 text-xs text-zinc-300">
-          <span className="font-semibold text-zinc-400 uppercase">Include in Export:</span>
+        <div className="px-4 py-3 border-t border-zinc-100 bg-white flex flex-wrap items-center gap-6 text-xs text-zinc-950">
+          <span className="font-semibold text-zinc-700 uppercase font-bold">Include in Export:</span>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
               checked={includeParents}
               onChange={(e) => setIncludeParents(e.target.checked)}
-              className="rounded border-zinc-700 bg-zinc-900 text-white cursor-pointer"
+              className="rounded border-zinc-200 bg-zinc-900 text-white cursor-pointer"
             />
             <span>Parent / Guardian Name</span>
           </label>
@@ -338,7 +339,7 @@ export default function StudentExportPage() {
               type="checkbox"
               checked={includeContact}
               onChange={(e) => setIncludeContact(e.target.checked)}
-              className="rounded border-zinc-700 bg-zinc-900 text-white cursor-pointer"
+              className="rounded border-zinc-200 bg-zinc-900 text-white cursor-pointer"
             />
             <span>Phone Numbers</span>
           </label>
@@ -347,7 +348,7 @@ export default function StudentExportPage() {
               type="checkbox"
               checked={includeAddress}
               onChange={(e) => setIncludeAddress(e.target.checked)}
-              className="rounded border-zinc-700 bg-zinc-900 text-white cursor-pointer"
+              className="rounded border-zinc-200 bg-zinc-900 text-white cursor-pointer"
             />
             <span>Residential Address</span>
           </label>
@@ -355,10 +356,10 @@ export default function StudentExportPage() {
       </div>
 
       {/* Export Actions Panel */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-6">
+      <div className="bg-white border border-zinc-200 rounded-xl shadow-xs p-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div>
-            <h2 className="text-base font-bold text-white tracking-tight">Export Selected Student Records</h2>
+            <h2 className="text-base font-bold text-zinc-950 tracking-tight">Export Selected Student Records</h2>
             <p className="text-xs text-zinc-400 mt-1">
               Export {filteredStudents.length} student records in professional industry-standard formats.
             </p>
@@ -370,7 +371,7 @@ export default function StudentExportPage() {
               onClick={handleExportExcel}
               className="bg-black hover:bg-zinc-800 text-white font-bold text-xs px-5 py-2.5 flex items-center gap-2 cursor-pointer transition-all shadow-xs"
             >
-              <FileSpreadsheet className="h-4 w-4 text-white" />
+              <FileSpreadsheet className="h-4 w-4 text-zinc-950" />
               EXPORT TO EXCEL (.XLSX)
             </Button>
 
@@ -405,7 +406,7 @@ export default function StudentExportPage() {
       </div>
 
       {/* Live Preview Table */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden flex flex-col">
+      <div className="bg-white border border-zinc-200 rounded-xl shadow-xs overflow-hidden flex flex-col">
         <div className="p-4 border-b border-zinc-200 flex items-center justify-between">
           <h3 className="text-sm font-bold text-zinc-900 uppercase tracking-wider">
             Export Preview ({filteredStudents.length} Students)

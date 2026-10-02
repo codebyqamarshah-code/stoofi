@@ -16,33 +16,7 @@ import {
 
 export default function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState('September 2026');
-  const [events, setEvents] = useState([
-    { id: 1, title: 'Term 1 Midterm Examinations', date: '2026-09-08', type: 'Exam', color: 'bg-rose-500', time: '08:30 AM' },
-    { id: 2, title: 'Annual Science Fair & Exhibition', date: '2026-09-15', type: 'Event', color: 'bg-zinc-600', time: '10:00 AM' },
-    { id: 3, title: 'Parent-Teacher Meeting (PTM)', date: '2026-09-18', type: 'Meeting', color: 'bg-blue-500', time: '09:00 AM' },
-    { id: 4, title: 'Teacher Training Workshop', date: '2026-09-22', type: 'Workshop', color: 'bg-violet-500', time: '02:00 PM' },
-    { id: 5, title: 'Milad-un-Nabi Holiday', date: '2026-09-28', type: 'Holiday', color: 'bg-amber-500', time: 'All Day' },
-  ]);
-
-  const [showModal, setShowModal] = useState(false);
-  const [newEvent, setNewEvent] = useState({
-    title: '',
-    date: '2026-09-10',
-    type: 'Event',
-    time: '10:00 AM'
-  });
-
-  const handleAdd = (e) => {
-    e.preventDefault();
-    if (!newEvent.title.trim()) return;
-    const colors = {
-      Exam: 'bg-rose-500',
-      Event: 'bg-zinc-600',
-      Meeting: 'bg-blue-500',
-      Workshop: 'bg-violet-500',
-      Holiday: 'bg-amber-500'
-    };
-    setEvents([...events, { id: Date.now(), ...newEvent, color: colors[newEvent.type] || 'bg-zinc-600' }]);
+  const [events, setEvents] = useState([]);
     setShowModal(false);
     setNewEvent({ title: '', date: '2026-09-10', type: 'Event', time: '10:00 AM' });
   };
@@ -86,7 +60,7 @@ export default function CalendarPage() {
               </div>
               <button
                 onClick={() => setShowModal(true)}
-                className="px-4 py-2 bg-zinc-950 hover:bg-zinc-800 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm"
+                className="px-4 py-2 bg-white hover:bg-zinc-100 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm"
                 style={{ color: '#ffffff' }}
               >
                 <Plus className="h-4 w-4" /> Add Event
@@ -94,7 +68,7 @@ export default function CalendarPage() {
             </div>
 
             {/* Weekdays */}
-            <div className="grid grid-cols-7 gap-1 text-center font-bold text-[11px] text-zinc-400 uppercase py-2">
+            <div className="grid grid-cols-7 gap-1 text-center font-bold text-[11px] text-zinc-700 uppercase font-bold py-2">
               <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
             </div>
 
@@ -154,7 +128,7 @@ export default function CalendarPage() {
 
             <div className="space-y-3">
               {events.map(ev => (
-                <div key={ev.id} className="p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-200 bg-zinc-50/60 dark:bg-zinc-800/40 flex items-start justify-between gap-2">
+                <div key={ev.id} className="p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-200 bg-zinc-50/60 dark:bg-white flex items-start justify-between gap-2">
                   <div>
                     <span className="text-[10px] font-bold text-zinc-800 uppercase tracking-wider block">{ev.type}</span>
                     <h4 className="font-bold text-xs text-zinc-900 dark:text-zinc-900 mt-0.5">{ev.title}</h4>
@@ -232,7 +206,7 @@ export default function CalendarPage() {
               </div>
               <div className="flex justify-end gap-2 pt-3">
                 <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-700 rounded-lg text-xs font-semibold">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-zinc-950 hover:bg-zinc-800 rounded-lg text-xs font-bold uppercase tracking-wider" style={{ color: '#ffffff' }}>Save Event</button>
+                <button type="submit" className="px-4 py-2 bg-white hover:bg-zinc-100 rounded-lg text-xs font-bold uppercase tracking-wider" style={{ color: '#ffffff' }}>Save Event</button>
               </div>
             </form>
           </div>

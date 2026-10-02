@@ -568,30 +568,6 @@ export default function DashboardLayout({ children }) {
               />
             </div>
 
-            {/* Academic Session Dropdown */}
-            <div className="relative hidden lg:block">
-              <div 
-                className="flex items-center justify-between gap-2 bg-zinc-100/40 dark:bg-zinc-50 border border-zinc-300/80 dark:border-zinc-200 rounded-lg px-2.5 py-1 text-[11px] text-zinc-950 dark:text-zinc-700 font-semibold cursor-pointer hover:border-zinc-950 w-auto min-w-[110px] whitespace-nowrap"
-                onClick={() => setIsSessionDropdownOpen(!isSessionDropdownOpen)}
-              >
-                <span>{session}</span>
-                <ChevronDown className={`h-3 w-3 transition-transform ${isSessionDropdownOpen ? 'rotate-180' : ''}`} />
-              </div>
-              {isSessionDropdownOpen && (
-                <div className="absolute top-full right-0 mt-1 w-32 bg-white dark:bg-zinc-50 border border-zinc-300 dark:border-zinc-200 rounded-lg shadow-xl overflow-hidden py-1">
-                  {['2026', '2025', '2024'].map((s) => (
-                    <div 
-                      key={s} 
-                      onClick={() => { setSession(s); setIsSessionDropdownOpen(false); }}
-                      className="px-3 py-1.5 text-xs text-zinc-700 dark:text-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-200 hover:text-zinc-950 dark:hover:text-zinc-950 cursor-pointer transition-colors"
-                    >
-                      {s}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
             {/* Language Dropdown */}
             <div className="relative hidden sm:block">
               <div 
@@ -775,10 +751,10 @@ export default function DashboardLayout({ children }) {
 
       {/* Popup Modal for Notice / Event */}
       {showNoticePopup && latestNotice && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-sm animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-white/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-300 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform animate-in zoom-in-95 duration-300">
             <div className={`flex items-center justify-between px-5 py-4 ${latestNotice._popupType === 'Event' ? 'bg-gradient-to-r from-indigo-500 to-purple-600' : 'bg-gradient-to-r from-emerald-500 to-teal-600'}`}>
-              <div className="flex items-center gap-2 text-white">
+              <div className="flex items-center gap-2 text-zinc-950">
                 {latestNotice._popupType === 'Event' ? (
                   <CalendarDays className="h-5 w-5 animate-bounce" />
                 ) : (
@@ -790,7 +766,7 @@ export default function DashboardLayout({ children }) {
               </div>
               <button 
                 onClick={() => setShowNoticePopup(false)}
-                className="text-white/80 hover:text-white transition-colors cursor-pointer"
+                className="text-zinc-950/80 hover:text-white transition-colors cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>

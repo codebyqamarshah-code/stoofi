@@ -195,35 +195,35 @@ export default function ProfilePage() {
             <div className="px-4 pb-4">
               <div className="space-y-3 mt-4 text-sm">
                 <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-200 pb-2">
-                  <span className="text-zinc-500">Staff Name</span>
+                  <span className="text-zinc-950 font-bold">Staff Name</span>
                   <span className="font-semibold text-zinc-800 dark:text-zinc-800 text-right">{user.fullName || user.username || 'System Administrator'}</span>
                 </div>
                 <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-200 pb-2">
-                  <span className="text-zinc-500">Role</span>
+                  <span className="text-zinc-950 font-bold">Role</span>
                   <span className="font-semibold text-zinc-950 dark:text-zinc-900 capitalize">{user.role}</span>
                 </div>
                 <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-200 pb-2">
-                  <span className="text-zinc-500">Designation</span>
+                  <span className="text-zinc-950 font-bold">Designation</span>
                   <span className="font-semibold text-zinc-950 dark:text-zinc-900">Principal</span>
                 </div>
                 <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-200 pb-2">
-                  <span className="text-zinc-500">Department</span>
+                  <span className="text-zinc-950 font-bold">Department</span>
                   <span className="font-semibold text-zinc-950 dark:text-zinc-900">Admin</span>
                 </div>
                 <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-200 pb-2">
-                  <span className="text-zinc-500">EPF NO</span>
+                  <span className="text-zinc-950 font-bold">EPF NO</span>
                   <span className="font-semibold text-zinc-800 dark:text-zinc-800">-</span>
                 </div>
                 <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-200 pb-2">
-                  <span className="text-zinc-500">Basic Salary</span>
+                  <span className="text-zinc-950 font-bold">Basic Salary</span>
                   <span className="font-semibold text-zinc-800 dark:text-zinc-800">-</span>
                 </div>
                 <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-200 pb-2">
-                  <span className="text-zinc-500">Contract Type</span>
+                  <span className="text-zinc-950 font-bold">Contract Type</span>
                   <span className="font-semibold text-zinc-800 dark:text-zinc-800">-</span>
                 </div>
                 <div className="flex justify-between border-b border-zinc-100 dark:border-zinc-200 pb-2">
-                  <span className="text-zinc-500">Date of Joining</span>
+                  <span className="text-zinc-950 font-bold">Date of Joining</span>
                   <span className="font-semibold text-zinc-950 dark:text-zinc-900">15th Aug, 2026</span>
                 </div>
               </div>
@@ -259,7 +259,7 @@ export default function ProfilePage() {
                   </button>
                 ) : (
                   <div className="flex gap-2">
-                    <button onClick={() => setIsEditing(false)} className="flex items-center gap-1 bg-zinc-500 hover:bg-zinc-600 text-white px-4 py-2 rounded text-xs font-bold transition-colors">
+                    <button onClick={() => setIsEditing(false)} className="flex items-center gap-1 bg-zinc-500 hover:bg-zinc-600 text-zinc-950 px-4 py-2 rounded text-xs font-bold transition-colors">
                       <X size={14} /> CANCEL
                     </button>
                     <button onClick={handleSave} disabled={loading} className="flex items-center gap-1 bg-zinc-950 hover:bg-zinc-800 text-white px-5 py-2 rounded text-xs font-bold transition-colors shadow-sm">

@@ -39,25 +39,25 @@ export default function BehaviourSettingsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Setting</h1>
+        <h1 className="text-2xl font-bold text-zinc-950">Setting</h1>
         <div className="flex items-center text-sm text-zinc-400">
           <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <Link href="/dashboard/behaviour/incidents" className="hover:text-zinc-500 transition-colors">Behaviour Records</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-600">Setting</span>
+          <span className="text-zinc-950 font-bold">Setting</span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Incident Comment Setting */}
-        <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-          <div className="p-5 border-b border-zinc-800">
-            <h2 className="text-lg font-bold text-white">Incident Comment Setting</h2>
+        <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden">
+          <div className="p-5 border-b border-zinc-200">
+            <h2 className="text-lg font-bold text-zinc-950">Incident Comment Setting</h2>
           </div>
           <div className="p-6 space-y-6">
             <div className="space-y-3">
-              <p className="text-xs font-semibold text-zinc-400 uppercase">Comment Option</p>
+              <p className="text-xs font-semibold text-zinc-700 uppercase font-bold">Comment Option</p>
               <div className="flex items-center gap-6">
                 <RadioOption
                   value="student"
@@ -77,8 +77,8 @@ export default function BehaviourSettingsPage() {
               onClick={handleCommentSave}
               className={`font-semibold transition-all duration-300 ${
                 commentSaved
-                  ? 'bg-zinc-800 hover:bg-zinc-800 text-white'
-                  : 'bg-zinc-800 hover:bg-zinc-800 text-white'
+                  ? 'bg-zinc-800 hover:bg-zinc-100 text-white'
+                  : 'bg-zinc-800 hover:bg-zinc-100 text-white'
               }`}
             >
               {commentSaved ? (
@@ -89,13 +89,13 @@ export default function BehaviourSettingsPage() {
         </div>
 
         {/* Incident View Setting */}
-        <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden">
-          <div className="p-5 border-b border-zinc-800">
-            <h2 className="text-lg font-bold text-white">Incident View Setting</h2>
+        <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden">
+          <div className="p-5 border-b border-zinc-200">
+            <h2 className="text-lg font-bold text-zinc-950">Incident View Setting</h2>
           </div>
           <div className="p-6 space-y-6">
             <div className="space-y-3">
-              <p className="text-xs font-semibold text-zinc-400 uppercase">View Option</p>
+              <p className="text-xs font-semibold text-zinc-700 uppercase font-bold">View Option</p>
               <div className="flex items-center gap-6">
                 <RadioOption
                   value="student"
@@ -115,8 +115,8 @@ export default function BehaviourSettingsPage() {
               onClick={handleViewSave}
               className={`font-semibold transition-all duration-300 ${
                 viewSaved
-                  ? 'bg-zinc-800 hover:bg-zinc-800 text-white'
-                  : 'bg-zinc-800 hover:bg-zinc-800 text-white'
+                  ? 'bg-zinc-800 hover:bg-zinc-100 text-white'
+                  : 'bg-zinc-800 hover:bg-zinc-100 text-white'
               }`}
             >
               {viewSaved ? (

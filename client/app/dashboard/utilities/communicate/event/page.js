@@ -347,7 +347,7 @@ export default function EventPage() {
 
             <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-200">
               <table className="w-full text-xs text-left">
-                <thead className="text-[11px] font-bold text-zinc-500 dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-200">
+                <thead className="text-[11px] font-bold text-zinc-900 font-bold dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-50/50 border-b border-zinc-200 dark:border-zinc-200">
                   <tr>
                     <th className="px-3.5 py-3">SL</th>
                     <th className="px-3.5 py-3">Event Title</th>
@@ -358,7 +358,7 @@ export default function EventPage() {
                     <th className="px-3.5 py-3 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-100">
                   {loading ? (
                     <tr><td colSpan={7} className="px-4 py-8 text-center text-zinc-500 flex items-center justify-center gap-2"><Loader2 className="h-4 w-4 animate-spin inline mr-2" />Loading events...</td></tr>
                   ) : filteredRecords.length === 0 ? (
@@ -427,22 +427,22 @@ export default function EventPage() {
                 <div className="text-zinc-500 mt-1">Target Audience: <strong>{selectedEvent.eventFor}</strong></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Dates:</span>
                   <span className="font-semibold text-zinc-800 dark:text-zinc-800">{selectedEvent.startDate} to {selectedEvent.endDate}</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Venue / Location:</span>
                   <span className="font-semibold text-zinc-800 dark:text-zinc-800">{selectedEvent.location || 'Campus Premises'}</span>
                 </div>
               </div>
-              <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-200">
+              <div className="p-3 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                 <span className="text-zinc-500 block font-semibold mb-1">Description:</span>
                 <p className="text-zinc-700 dark:text-zinc-700 leading-relaxed">{selectedEvent.description || 'No additional description.'}</p>
               </div>
             </div>
             <div className="flex justify-end pt-2">
-              <button onClick={() => setSelectedEvent(null)} className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg text-xs font-semibold cursor-pointer">
+              <button onClick={() => setSelectedEvent(null)} className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-950 rounded-lg text-xs font-semibold cursor-pointer">
                 Close
               </button>
             </div>

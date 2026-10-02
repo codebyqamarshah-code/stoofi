@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 
 const DEFAULT_CLASSES = [
@@ -145,30 +146,30 @@ export default function AddHomeworkPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-zinc-950 flex items-center gap-2">
             <BookOpen className="h-6 w-6 text-indigo-400" />
             Add Homework
           </h1>
           <p className="text-sm text-zinc-400 mt-1">Assign homework tasks and track student submissions</p>
         </div>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-zinc-300 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-950 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Homework</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-500">Add Homework</span>
+          <span className="text-zinc-950 font-bold">Add Homework</span>
         </div>
       </div>
 
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-sm">
-        <div className="p-4 border-b border-zinc-800 bg-zinc-900/30">
-          <h2 className="text-sm font-semibold text-zinc-200 uppercase tracking-wider">Homework Details</h2>
+      <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden shadow-sm">
+        <div className="p-4 border-b border-zinc-200 bg-zinc-900/30">
+          <h2 className="text-sm font-semibold text-zinc-950 uppercase tracking-wider">Homework Details</h2>
         </div>
         
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-400 uppercase">Class <span className="text-rose-500">*</span></Label>
+              <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Class <span className="text-rose-500">*</span></Label>
               <SearchableSelect 
                 name="className" value={formData.className} onChange={(v) => handleSelectChange('className', v)}
                 placeholder="Select Class *"
@@ -177,7 +178,7 @@ export default function AddHomeworkPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-400 uppercase">Section <span className="text-rose-500">*</span></Label>
+              <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Section <span className="text-rose-500">*</span></Label>
               <SearchableSelect 
                 name="section" value={formData.section} onChange={(v) => handleSelectChange('section', v)}
                 placeholder="Select Section *"
@@ -186,7 +187,7 @@ export default function AddHomeworkPage() {
             </div>
             
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-400 uppercase">Subject <span className="text-rose-500">*</span></Label>
+              <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Subject <span className="text-rose-500">*</span></Label>
               <SearchableSelect 
                 name="subject" value={formData.subject} onChange={(v) => handleSelectChange('subject', v)}
                 placeholder="Select Subject *"
@@ -195,35 +196,35 @@ export default function AddHomeworkPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-400 uppercase">Homework Date <span className="text-rose-500">*</span></Label>
+              <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Homework Date <span className="text-rose-500">*</span></Label>
               <Input 
                 type="date" name="homeworkDate" 
                 value={formData.homeworkDate} onChange={handleChange}
-                className="bg-zinc-900 border-zinc-800 focus-visible:ring-indigo-500 text-white" 
+                className="bg-white border-zinc-300 text-zinc-950 focus-visible:ring-indigo-500 text-zinc-950" 
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-400 uppercase">Submission Date <span className="text-rose-500">*</span></Label>
+              <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Submission Date <span className="text-rose-500">*</span></Label>
               <Input 
                 type="date" name="submissionDate" 
                 value={formData.submissionDate} onChange={handleChange}
-                className="bg-zinc-900 border-zinc-800 focus-visible:ring-indigo-500 text-white" 
+                className="bg-white border-zinc-300 text-zinc-950 focus-visible:ring-indigo-500 text-zinc-950" 
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-400 uppercase">Total Marks</Label>
+              <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Total Marks</Label>
               <Input 
                 type="number" name="marks" 
                 placeholder="e.g. 20"
                 value={formData.marks} onChange={handleChange}
-                className="bg-zinc-900 border-zinc-800 focus-visible:ring-indigo-500 text-white" 
+                className="bg-white border-zinc-300 text-zinc-950 focus-visible:ring-indigo-500 text-zinc-950" 
               />
             </div>
 
             <div className="space-y-1.5 lg:col-span-3">
-              <Label className="text-xs font-semibold text-zinc-400 uppercase">Attach File / Document</Label>
+              <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Attach File / Document</Label>
               <div className="relative">
                 <input 
                   type="file" 
@@ -232,21 +233,21 @@ export default function AddHomeworkPage() {
                   id="hw-file" 
                   onChange={(e) => setFileName(e.target.files[0]?.name || '')}
                 />
-                <Label htmlFor="hw-file" className="flex items-center justify-between h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 cursor-pointer hover:border-zinc-700">
-                  <span className="truncate text-white">{fileName || 'Click to attach assignment document or worksheet...'}</span>
+                <Label htmlFor="hw-file" className="flex items-center justify-between h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-400 cursor-pointer hover:border-zinc-200">
+                  <span className="truncate text-zinc-950">{fileName || 'Click to attach assignment document or worksheet...'}</span>
                   <div className="bg-indigo-600 text-white px-3 py-1 -mr-2 rounded text-xs font-semibold">BROWSE</div>
                 </Label>
               </div>
             </div>
 
             <div className="space-y-1.5 lg:col-span-3">
-              <Label className="text-xs font-semibold text-zinc-400 uppercase">Description / Instructions <span className="text-rose-500">*</span></Label>
+              <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Description / Instructions <span className="text-rose-500">*</span></Label>
               <textarea 
                 name="description" 
                 rows={4}
                 placeholder="Enter homework instructions, questions, reading materials, or problem numbers..."
                 value={formData.description} onChange={handleChange}
-                className="flex min-h-[120px] w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 resize-none" 
+                className="flex min-h-[120px] w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-950 placeholder:text-zinc-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 resize-none" 
               />
             </div>
           </div>

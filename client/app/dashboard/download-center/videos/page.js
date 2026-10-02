@@ -6,6 +6,7 @@ import { ChevronRight, Search, Plus, Trash2, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 
 export default function VideoListPage() {
@@ -79,40 +80,40 @@ export default function VideoListPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Video</h1>
+        <h1 className="text-2xl font-bold text-zinc-950">Video</h1>
         <div className="flex items-center text-sm text-zinc-400">
           <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Download Center</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-600">Video</span>
+          <span className="text-zinc-950 font-bold">Video</span>
         </div>
       </div>
 
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-6 w-full max-w-md">
-            <h2 className="text-lg font-bold text-white mb-4">Add Video</h2>
+          <div className="bg-white border border-zinc-200 shadow-xs rounded-xl p-6 w-full max-w-md">
+            <h2 className="text-lg font-bold text-zinc-950 mb-4">Add Video</h2>
             <form onSubmit={handleAdd} className="space-y-4">
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-zinc-400 uppercase">Title</Label>
-                <Input value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required className="bg-zinc-900 border-zinc-800" />
+                <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Title</Label>
+                <Input value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required className="bg-white border-zinc-300 text-zinc-950" />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-zinc-400 uppercase">YouTube Link</Label>
-                <Input value={formData.youtubeLink} onChange={e => setFormData({...formData, youtubeLink: e.target.value})} required className="bg-zinc-900 border-zinc-800" />
+                <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">YouTube Link</Label>
+                <Input value={formData.youtubeLink} onChange={e => setFormData({...formData, youtubeLink: e.target.value})} required className="bg-white border-zinc-300 text-zinc-950" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Class</Label>
-                  <select value={formData.className} onChange={e => setFormData({...formData, className: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400">
+                  <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Class</Label>
+                  <select value={formData.className} onChange={e => setFormData({...formData, className: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-400">
                     <option value="">Select</option>
                     {classes.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-zinc-400 uppercase">Section</Label>
-                  <select value={formData.section} onChange={e => setFormData({...formData, section: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400">
+                  <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Section</Label>
+                  <select value={formData.section} onChange={e => setFormData({...formData, section: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-400">
                     <option value="">Select</option>
                     {sections.map(s => <option key={s._id} value={s.name}>{s.name}</option>)}
                   </select>
@@ -128,31 +129,31 @@ export default function VideoListPage() {
       )}
 
       {/* Search Section */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-5">
+      <div className="bg-white border border-zinc-200 shadow-xs rounded-xl p-5">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4">
-          <h2 className="text-base font-semibold text-white">Search</h2>
-          <Button onClick={() => setShowAddModal(true)} className="bg-zinc-800 hover:bg-zinc-800 text-white font-semibold h-9 text-xs self-start sm:self-auto">
+          <h2 className="text-base font-semibold text-zinc-950">Search</h2>
+          <Button onClick={() => setShowAddModal(true)} className="bg-zinc-800 hover:bg-zinc-100 text-zinc-950 font-semibold h-9 text-xs self-start sm:self-auto">
             <Plus className="h-3.5 w-3.5 mr-1" /> ADD
           </Button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Class</Label>
-            <select value={searchQuery.className} onChange={e => setSearchQuery({...searchQuery, className: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400">
+            <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Class</Label>
+            <select value={searchQuery.className} onChange={e => setSearchQuery({...searchQuery, className: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-400">
               <option value="">All Classes</option>
               {classes.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
             </select>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Section</Label>
-            <select value={searchQuery.section} onChange={e => setSearchQuery({...searchQuery, section: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400">
+            <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Section</Label>
+            <select value={searchQuery.section} onChange={e => setSearchQuery({...searchQuery, section: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-400">
               <option value="">All Sections</option>
               {sections.map(s => <option key={s._id} value={s.name}>{s.name}</option>)}
             </select>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-400 uppercase">Title</Label>
-            <Input placeholder="Title" value={searchQuery.title} onChange={e => setSearchQuery({...searchQuery, title: e.target.value})} className="bg-zinc-900 border-zinc-800" />
+            <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Title</Label>
+            <Input placeholder="Title" value={searchQuery.title} onChange={e => setSearchQuery({...searchQuery, title: e.target.value})} className="bg-white border-zinc-300 text-zinc-950" />
           </div>
         </div>
       </div>
@@ -163,26 +164,26 @@ export default function VideoListPage() {
           <div className="text-zinc-500 p-4">Loading videos...</div>
         ) : filteredVideos.length > 0 ? (
           filteredVideos.map(v => (
-            <div key={v._id} className="bg-zinc-950 border border-zinc-800 rounded-xl p-4 flex flex-col gap-3">
+            <div key={v._id} className="bg-white border border-zinc-200 shadow-xs rounded-xl p-4 flex flex-col gap-3">
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-2">
                   <div className="p-2 bg-rose-500/10 rounded-lg text-rose-500"><Video className="w-5 h-5" /></div>
                   <div>
-                    <h3 className="font-bold text-white text-sm">{v.title}</h3>
+                    <h3 className="font-bold text-zinc-950 text-sm">{v.title}</h3>
                     <p className="text-xs text-zinc-500">{v.className} {v.section && `- ${v.section}`}</p>
                   </div>
                 </div>
                 <Button onClick={() => handleDelete(v._id)} variant="ghost" size="sm" className="h-8 w-8 p-0 text-rose-500 hover:bg-rose-500/10 hover:text-rose-500"><Trash2 className="w-4 h-4" /></Button>
               </div>
               {v.youtubeLink && (
-                <a href={v.youtubeLink} target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:underline truncate bg-zinc-900 p-2 rounded border border-zinc-800">
+                <a href={v.youtubeLink} target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:underline truncate bg-white p-2 rounded border border-zinc-200">
                   {v.youtubeLink}
                 </a>
               )}
             </div>
           ))
         ) : (
-          <div className="col-span-full text-center text-zinc-500 py-10 text-sm bg-zinc-950 border border-zinc-800 rounded-xl">
+          <div className="col-span-full text-center text-zinc-500 py-10 text-sm bg-white border border-zinc-200 shadow-xs rounded-xl">
             No Videos Found
           </div>
         )}

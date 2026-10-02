@@ -22,44 +22,7 @@ import {
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 
 export default function JitsiVirtualMeetingPage() {
-  const [records, setRecords] = useState([
-    {
-      id: 1,
-      topic: 'Staff Weekly Academic Review',
-      host: 'Mudassir Bajwa',
-      audience: 'All Teachers',
-      description: 'Review curriculum progress and upcoming mid-term exams schedule.',
-      date: '2026-09-08',
-      time: '02:00 PM',
-      duration: '45',
-      status: 'Scheduled',
-      roomUrl: 'https://meet.jit.si/stoofi-staff-review-908'
-    },
-    {
-      id: 2,
-      topic: 'Parents & Teachers Association Meeting',
-      host: 'Fatima Zahra',
-      audience: 'Parents',
-      description: 'Discussion on student discipline and extracurricular programs.',
-      date: '2026-09-12',
-      time: '04:30 PM',
-      duration: '60',
-      status: 'Scheduled',
-      roomUrl: 'https://meet.jit.si/stoofi-pta-meeting-912'
-    },
-    {
-      id: 3,
-      topic: 'Administrative Board Strategy Session',
-      host: 'Dr. Bilal Siddiqui',
-      audience: 'Admin & Management',
-      description: 'Quarterly financial planning and campus safety guidelines.',
-      date: '2026-09-15',
-      time: '11:00 AM',
-      duration: '90',
-      status: 'Scheduled',
-      roomUrl: 'https://meet.jit.si/stoofi-admin-strategy-915'
-    }
-  ]);
+  const [records, setRecords] = useState([]);
 
   const [form, setForm] = useState({
     topic: '',
@@ -473,7 +436,7 @@ export default function JitsiVirtualMeetingPage() {
             {/* Table */}
             <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-200">
               <table className="w-full text-xs text-left">
-                <thead className="text-[11px] font-bold text-zinc-500 dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-200">
+                <thead className="text-[11px] font-bold text-zinc-900 font-bold dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-50/50 border-b border-zinc-200 dark:border-zinc-200">
                   <tr>
                     <th className="px-3.5 py-3">SL</th>
                     <th className="px-3.5 py-3">Meeting Topic</th>
@@ -485,7 +448,7 @@ export default function JitsiVirtualMeetingPage() {
                     <th className="px-3.5 py-3 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-100">
                   {filteredRecords.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="px-4 py-8 text-center text-zinc-500">

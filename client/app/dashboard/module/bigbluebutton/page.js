@@ -86,7 +86,7 @@ export default function BBBHubPage() {
         <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl p-5 shadow-sm">
           <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Cloud Recordings</div>
           <div className="text-2xl font-black text-zinc-900 dark:text-zinc-900 mt-1">7</div>
-          <div className="text-[11px] text-zinc-400 font-medium mt-1">Available for playback</div>
+          <div className="text-[11px] text-zinc-700 font-medium mt-1">Available for playback</div>
         </div>
         <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl p-5 shadow-sm">
           <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Server Status</div>

@@ -6,6 +6,7 @@ import { ChevronRight, Search, UserX, CheckCircle, AlertCircle, Layers, RefreshC
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 
 export default function UnassignedStudentPage() {
@@ -159,7 +160,7 @@ export default function UnassignedStudentPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Unassigned Students</h1>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-950">Unassigned Students</h1>
           <p className="text-sm text-zinc-500 mt-1">Students not assigned to any class or section</p>
         </div>
         <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
@@ -167,13 +168,13 @@ export default function UnassignedStudentPage() {
           <ChevronRight className="h-4 w-4 mx-1" />
           <Link href="/dashboard/students" className="hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors">Student Info</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-900 dark:text-white font-semibold">Unassigned</span>
+          <span className="text-zinc-900 dark:text-zinc-950 font-semibold">Unassigned</span>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm">
+        <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-xl p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Unassigned</p>
@@ -184,7 +185,7 @@ export default function UnassignedStudentPage() {
             </div>
           </div>
         </div>
-        <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm">
+        <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-xl p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Selected</p>
@@ -195,11 +196,11 @@ export default function UnassignedStudentPage() {
             </div>
           </div>
         </div>
-        <div className="col-span-2 sm:col-span-1 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm">
+        <div className="col-span-2 sm:col-span-1 bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-xl p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Total Classes</p>
-              <p className="text-3xl font-black text-zinc-900 dark:text-white mt-1">{classes.length}</p>
+              <p className="text-3xl font-black text-zinc-900 dark:text-zinc-950 mt-1">{classes.length}</p>
             </div>
             <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
               <Layers className="w-6 h-6 text-zinc-500" />
@@ -209,9 +210,9 @@ export default function UnassignedStudentPage() {
       </div>
 
       {/* Main Table Card */}
-      <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-xl overflow-hidden shadow-sm">
         {/* Toolbar */}
-        <div className="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-900/30 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
           <div className="relative w-full sm:max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
             <input
@@ -219,11 +220,11 @@ export default function UnassignedStudentPage() {
               placeholder="Search by name, admission no..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-zinc-900 dark:text-zinc-100"
+              className="w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-zinc-900 dark:text-zinc-100"
             />
           </div>
           <div className="flex gap-2 flex-wrap">
-            <button onClick={fetchData} className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+            <button onClick={fetchData} className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-950 border border-zinc-200 dark:border-zinc-200 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-100 transition-colors">
               <RefreshCw className="h-3.5 w-3.5" /> Refresh
             </button>
             {selected.length > 0 && (
@@ -237,7 +238,7 @@ export default function UnassignedStudentPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-zinc-50 dark:bg-zinc-900/50 text-xs uppercase tracking-wider text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800">
+              <tr className="bg-zinc-50 dark:bg-zinc-50 text-xs uppercase tracking-wider text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-200">
                 <th className="px-4 py-3.5">
                   <input
                     type="checkbox"
@@ -254,7 +255,7 @@ export default function UnassignedStudentPage() {
                 <th className="px-4 py-3.5 font-semibold text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-100">
               {loading ? (
                 [...Array(5)].map((_, i) => (
                   <tr key={i} className="animate-pulse">
@@ -274,14 +275,14 @@ export default function UnassignedStudentPage() {
                       <div className="w-16 h-16 bg-emerald-50 dark:bg-emerald-500/10 rounded-full flex items-center justify-center">
                         <CheckCircle className="w-8 h-8 text-emerald-500" />
                       </div>
-                      <p className="text-base font-bold text-zinc-700 dark:text-zinc-300">All students are assigned!</p>
+                      <p className="text-base font-bold text-zinc-700 dark:text-zinc-950">All students are assigned!</p>
                       <p className="text-sm text-zinc-400">No unassigned students found{search ? ' matching your search' : ''}.</p>
                     </div>
                   </td>
                 </tr>
               ) : (
                 filtered.map(student => (
-                  <tr key={student._id} className={`hover:bg-zinc-50 dark:hover:bg-zinc-900/30 transition-colors ${selected.includes(student._id) ? 'bg-emerald-50/50 dark:bg-emerald-500/5' : ''}`}>
+                  <tr key={student._id} className={`hover:bg-zinc-50 dark:hover:bg-zinc-50/80 transition-colors ${selected.includes(student._id) ? 'bg-emerald-50/50 dark:bg-emerald-500/5' : ''}`}>
                     <td className="px-4 py-4">
                       <input
                         type="checkbox"
@@ -292,17 +293,17 @@ export default function UnassignedStudentPage() {
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-zinc-950 text-xs font-bold flex-shrink-0">
                           {(student.firstName?.[0] || 'S').toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-semibold text-zinc-900 dark:text-white text-sm">{student.firstName} {student.lastName || ''}</p>
+                          <p className="font-semibold text-zinc-900 dark:text-zinc-950 text-sm">{student.firstName} {student.lastName || ''}</p>
                           <p className="text-xs text-zinc-400">{student.gender || 'N/A'} • {student.dob || 'N/A'}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-sm font-mono text-zinc-700 dark:text-zinc-300">{student.admissionNo || '—'}</td>
-                    <td className="px-4 py-4 text-sm text-zinc-600 dark:text-zinc-400">{student.fatherName || '—'}</td>
+                    <td className="px-4 py-4 text-sm font-mono text-zinc-700 dark:text-zinc-950">{student.admissionNo || '—'}</td>
+                    <td className="px-4 py-4 text-sm text-zinc-600 dark:text-zinc-700">{student.fatherName || '—'}</td>
                     <td className="px-4 py-4 text-sm text-zinc-500 dark:text-zinc-500 italic">{student.className || '—'}</td>
                     <td className="px-4 py-4">
                       <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold bg-rose-100 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20">
@@ -331,7 +332,7 @@ export default function UnassignedStudentPage() {
         </div>
 
         {filtered.length > 0 && (
-          <div className="px-5 py-3 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/20 text-xs text-zinc-500">
+          <div className="px-5 py-3 border-t border-zinc-100 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-900/20 text-xs text-zinc-500">
             Showing {filtered.length} of {students.length} unassigned students
           </div>
         )}
@@ -339,15 +340,15 @@ export default function UnassignedStudentPage() {
 
       {/* ── Single Assign Modal ── */}
       {assignModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between p-5 border-b border-zinc-100 dark:border-zinc-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-2xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-5 border-b border-zinc-100 dark:border-zinc-200">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-sm font-bold">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-zinc-950 text-sm font-bold">
                   {assignModal.firstName?.[0]?.toUpperCase()}
                 </div>
                 <div>
-                  <h3 className="font-bold text-zinc-900 dark:text-white text-sm">{assignModal.firstName} {assignModal.lastName}</h3>
+                  <h3 className="font-bold text-zinc-900 dark:text-zinc-950 text-sm">{assignModal.firstName} {assignModal.lastName}</h3>
                   <p className="text-xs text-zinc-400">{assignModal.admissionNo}</p>
                 </div>
               </div>
@@ -362,11 +363,11 @@ export default function UnassignedStudentPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase">Select Class <span className="text-rose-500">*</span></Label>
+                <Label className="text-xs font-bold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Select Class <span className="text-rose-500">*</span></Label>
                 <select
                   value={assignClass}
                   onChange={e => handleAssignClassChange(e.target.value)}
-                  className="w-full px-3 py-2.5 text-sm bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-900 dark:text-zinc-100"
+                  className="w-full px-3 py-2.5 text-sm bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-900 dark:text-zinc-100"
                 >
                   <option value="">— Select Class —</option>
                   {classes.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
@@ -374,12 +375,12 @@ export default function UnassignedStudentPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase">Select Section <span className="text-rose-500">*</span></Label>
+                <Label className="text-xs font-bold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Select Section <span className="text-rose-500">*</span></Label>
                 <select
                   value={assignSection}
                   onChange={e => setAssignSection(e.target.value)}
                   disabled={!assignClass || availableSections.length === 0}
-                  className="w-full px-3 py-2.5 text-sm bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-900 dark:text-zinc-100 disabled:opacity-50"
+                  className="w-full px-3 py-2.5 text-sm bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-900 dark:text-zinc-100 disabled:opacity-50"
                 >
                   <option value="">— Select Section —</option>
                   {availableSections.map(s => <option key={s} value={s}>{s}</option>)}
@@ -390,8 +391,8 @@ export default function UnassignedStudentPage() {
               </div>
             </div>
 
-            <div className="p-5 border-t border-zinc-100 dark:border-zinc-800 flex gap-3">
-              <Button variant="outline" onClick={() => setAssignModal(null)} className="flex-1 border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-bold">
+            <div className="p-5 border-t border-zinc-100 dark:border-zinc-200 flex gap-3">
+              <Button variant="outline" onClick={() => setAssignModal(null)} className="flex-1 border-zinc-200 dark:border-zinc-200 text-zinc-700 dark:text-zinc-950 font-bold">
                 Cancel
               </Button>
               <Button onClick={handleSingleAssign} disabled={submitting || !assignClass || !assignSection} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-sm">
@@ -404,11 +405,11 @@ export default function UnassignedStudentPage() {
 
       {/* ── Bulk Assign Modal ── */}
       {bulkModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between p-5 border-b border-zinc-100 dark:border-zinc-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-2xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-5 border-b border-zinc-100 dark:border-zinc-200">
               <div>
-                <h3 className="font-bold text-zinc-900 dark:text-white">Bulk Assign Students</h3>
+                <h3 className="font-bold text-zinc-900 dark:text-zinc-950">Bulk Assign Students</h3>
                 <p className="text-xs text-zinc-400 mt-0.5">{selected.length} student(s) selected</p>
               </div>
               <button onClick={() => setBulkModal(false)} className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 p-1">
@@ -422,11 +423,11 @@ export default function UnassignedStudentPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase">Select Class <span className="text-rose-500">*</span></Label>
+                <Label className="text-xs font-bold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Select Class <span className="text-rose-500">*</span></Label>
                 <select
                   value={bulkClass}
                   onChange={e => handleBulkClassChange(e.target.value)}
-                  className="w-full px-3 py-2.5 text-sm bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-900 dark:text-zinc-100"
+                  className="w-full px-3 py-2.5 text-sm bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-900 dark:text-zinc-100"
                 >
                   <option value="">— Select Class —</option>
                   {classes.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
@@ -434,12 +435,12 @@ export default function UnassignedStudentPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase">Select Section <span className="text-rose-500">*</span></Label>
+                <Label className="text-xs font-bold text-zinc-600 dark:text-zinc-700 uppercase font-bold">Select Section <span className="text-rose-500">*</span></Label>
                 <select
                   value={bulkSection}
                   onChange={e => setBulkSection(e.target.value)}
                   disabled={!bulkClass || bulkAvailableSections.length === 0}
-                  className="w-full px-3 py-2.5 text-sm bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-900 dark:text-zinc-100 disabled:opacity-50"
+                  className="w-full px-3 py-2.5 text-sm bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-900 dark:text-zinc-100 disabled:opacity-50"
                 >
                   <option value="">— Select Section —</option>
                   {bulkAvailableSections.map(s => <option key={s} value={s}>{s}</option>)}
@@ -447,8 +448,8 @@ export default function UnassignedStudentPage() {
               </div>
             </div>
 
-            <div className="p-5 border-t border-zinc-100 dark:border-zinc-800 flex gap-3">
-              <Button variant="outline" onClick={() => setBulkModal(false)} className="flex-1 border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-bold">
+            <div className="p-5 border-t border-zinc-100 dark:border-zinc-200 flex gap-3">
+              <Button variant="outline" onClick={() => setBulkModal(false)} className="flex-1 border-zinc-200 dark:border-zinc-200 text-zinc-700 dark:text-zinc-950 font-bold">
                 Cancel
               </Button>
               <Button onClick={handleBulkAssign} disabled={submitting || !bulkClass || !bulkSection} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-sm">

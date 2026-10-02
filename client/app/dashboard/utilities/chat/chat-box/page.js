@@ -256,19 +256,19 @@ export default function StoofiAiPage() {
       {/* ─────────────────────────────────────────────────────────────
           LEFT SIDEBAR: Conversation History & Controls
       ────────────────────────────────────────────────────────────── */}
-      <div className="xl:w-80 w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl flex flex-col overflow-hidden shadow-sm shrink-0">
+      <div className="xl:w-80 w-full bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-2xl flex flex-col overflow-hidden shadow-sm shrink-0">
         {/* Sidebar Header */}
-        <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 space-y-3">
+        <div className="p-4 border-b border-zinc-200 dark:border-zinc-200 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-sm">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-zinc-950 flex items-center justify-center shadow-sm">
                 <Sparkles className="w-4 h-4" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-zinc-900 dark:text-white leading-tight">Stoofi AI</h2>
+                <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-950 leading-tight">Stoofi AI</h2>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">Assistant Ready</span>
+                  <span className="text-[11px] text-zinc-500 dark:text-zinc-700 font-medium">Assistant Ready</span>
                 </div>
               </div>
             </div>
@@ -291,7 +291,7 @@ export default function StoofiAiPage() {
               placeholder="Search conversations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+              className="w-full pl-8 pr-3 py-2 bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-xl text-xs text-zinc-900 dark:text-zinc-950 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
             />
           </div>
         </div>
@@ -305,7 +305,7 @@ export default function StoofiAiPage() {
             </div>
           ) : filteredConversations.length === 0 ? (
             <div className="p-8 text-center text-xs text-zinc-400 space-y-1">
-              <MessageSquare className="w-6 h-6 mx-auto text-zinc-300 dark:text-zinc-700" />
+              <MessageSquare className="w-6 h-6 mx-auto text-zinc-950 dark:text-zinc-700" />
               <p className="font-medium text-zinc-500">No conversations yet</p>
               <p className="text-[11px] text-zinc-400">Ask Stoofi AI a question to get started!</p>
             </div>
@@ -321,7 +321,7 @@ export default function StoofiAiPage() {
                   className={`group relative flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium cursor-pointer transition-all ${
                     isActive
                       ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 shadow-xs'
-                      : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-900 border border-transparent'
+                      : 'text-zinc-700 dark:text-zinc-950 hover:bg-zinc-50 dark:hover:bg-white border border-transparent'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -334,7 +334,7 @@ export default function StoofiAiPage() {
                           value={editTitle}
                           onChange={(e) => setEditTitle(e.target.value)}
                           autoFocus
-                          className="w-full bg-white dark:bg-zinc-950 border border-emerald-500 rounded px-1.5 py-0.5 text-xs text-zinc-900 dark:text-white"
+                          className="w-full bg-white dark:bg-white border border-emerald-500 rounded px-1.5 py-0.5 text-xs text-zinc-900 dark:text-zinc-950"
                         />
                         <button onClick={() => handleRename(conv._id)} className="p-1 hover:text-emerald-600"><Check className="w-3.5 h-3.5" /></button>
                         <button onClick={() => setEditingConvId(null)} className="p-1 hover:text-rose-600"><X className="w-3.5 h-3.5" /></button>
@@ -373,13 +373,13 @@ export default function StoofiAiPage() {
         </div>
 
         {/* User Role Badge at Bottom of Sidebar */}
-        <div className="p-3 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/40 flex items-center justify-between text-xs">
+        <div className="p-3 border-t border-zinc-200 dark:border-zinc-200 bg-zinc-50/50 dark:bg-white flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center font-bold text-[10px] text-zinc-700 dark:text-zinc-300">
+            <div className="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center font-bold text-[10px] text-zinc-700 dark:text-zinc-950">
               {user?.role ? user.role.charAt(0) : 'U'}
             </div>
             <div className="truncate max-w-[140px]">
-              <p className="font-semibold text-zinc-900 dark:text-white truncate">{user?.fullName || user?.username || 'Authenticated'}</p>
+              <p className="font-semibold text-zinc-900 dark:text-zinc-950 truncate">{user?.fullName || user?.username || 'Authenticated'}</p>
               <p className="text-[10px] text-zinc-500 capitalize">{user?.role || 'User'}</p>
             </div>
           </div>
@@ -392,16 +392,16 @@ export default function StoofiAiPage() {
       {/* ─────────────────────────────────────────────────────────────
           CENTER / MAIN CHAT AREA
       ────────────────────────────────────────────────────────────── */}
-      <div className="flex-1 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl flex flex-col overflow-hidden shadow-sm">
+      <div className="flex-1 bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-2xl flex flex-col overflow-hidden shadow-sm">
         {/* Chat Area Header */}
-        <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-white dark:bg-zinc-950">
+        <div className="p-4 border-b border-zinc-200 dark:border-zinc-200 flex items-center justify-between bg-white dark:bg-zinc-950">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shadow-md p-1.5 overflow-hidden">
+            <div className="w-10 h-10 rounded-2xl bg-white dark:bg-white border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shadow-md p-1.5 overflow-hidden">
               <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold text-zinc-900 dark:text-white">Stoofi AI</h1>
+                <h1 className="text-base font-bold text-zinc-900 dark:text-zinc-950">Stoofi AI</h1>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/80">
                   Role-Aware Assistant
                 </span>
@@ -418,7 +418,7 @@ export default function StoofiAiPage() {
                 variant="outline"
                 size="sm"
                 onClick={handleClearMessages}
-                className="h-8 text-xs text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 flex items-center gap-1.5"
+                className="h-8 text-xs text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-50/80 flex items-center gap-1.5"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Clear Chat</span>
@@ -434,12 +434,12 @@ export default function StoofiAiPage() {
                WELCOME & QUICK PROMPTS HERO
             ────────────────────────────────────────────────────────────── */
             <div className="h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center py-8 space-y-6">
-              <div className="w-16 h-16 rounded-3xl bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shadow-xl p-2.5">
+              <div className="w-16 h-16 rounded-3xl bg-white dark:bg-white border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shadow-xl p-2.5">
                 <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
               </div>
 
               <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-950 tracking-tight">
                   Welcome to Stoofi AI, {user?.firstName || user?.fullName || user?.username || 'there'}!
                 </h2>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400 max-w-lg mx-auto">
@@ -455,13 +455,13 @@ export default function StoofiAiPage() {
                     <button
                       key={index}
                       onClick={() => handleSendMessage(card.prompt)}
-                      className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-md transition-all group cursor-pointer text-left"
+                      className="p-4 rounded-2xl bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-md transition-all group cursor-pointer text-left"
                     >
                       <div className="flex items-center gap-3 mb-1.5">
                         <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
                           <Icon className="w-4 h-4" />
                         </div>
-                        <h3 className="text-sm font-bold text-zinc-900 dark:text-white group-hover:text-emerald-600 transition-colors">
+                        <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-950 group-hover:text-emerald-600 transition-colors">
                           {card.title}
                         </h3>
                       </div>
@@ -485,7 +485,7 @@ export default function StoofiAiPage() {
                 }`}
               >
                 {msg.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-2xl bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-1 shadow-sm p-1 overflow-hidden">
+                  <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-1 shadow-sm p-1 overflow-hidden">
                     <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
                   </div>
                 )}
@@ -497,7 +497,7 @@ export default function StoofiAiPage() {
                         ? 'bg-emerald-600 text-white rounded-tr-none shadow-md'
                         : msg.isError
                           ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 rounded-tl-none'
-                          : 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-800 rounded-tl-none shadow-xs'
+                          : 'bg-white dark:bg-white text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-200 rounded-tl-none shadow-xs'
                     }`}
                   >
                     <div className="whitespace-pre-wrap break-words">{msg.content}</div>
@@ -523,13 +523,13 @@ export default function StoofiAiPage() {
                     </div>
                   )}
 
-                  <span className="block text-[10px] text-zinc-400 px-1">
+                  <span className="block text-[10px] text-zinc-700 px-1">
                     {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                   </span>
                 </div>
 
                 {msg.role === 'user' && (
-                  <div className="w-8 h-8 rounded-2xl bg-zinc-800 text-white flex items-center justify-center shrink-0 mt-1 shadow-sm">
+                  <div className="w-8 h-8 rounded-2xl bg-zinc-800 text-zinc-950 flex items-center justify-center shrink-0 mt-1 shadow-sm">
                     <UserIcon className="w-4 h-4" />
                   </div>
                 )}
@@ -540,10 +540,10 @@ export default function StoofiAiPage() {
           {/* Thinking / Typing State */}
           {isLoading && (
             <div className="flex gap-3.5 max-w-3xl mr-auto items-center">
-              <div className="w-8 h-8 rounded-2xl bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 shadow-sm p-1 overflow-hidden animate-pulse">
+              <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 shadow-sm p-1 overflow-hidden animate-pulse">
                 <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
               </div>
-              <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 flex items-center gap-2 shadow-xs">
+              <div className="p-4 rounded-2xl bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 text-xs text-zinc-500 flex items-center gap-2 shadow-xs">
                 <span className="flex gap-1 items-center">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce"></span>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce [animation-delay:0.2s]"></span>
@@ -558,7 +558,7 @@ export default function StoofiAiPage() {
         </div>
 
         {/* Bottom Message Input Box */}
-        <div className="p-4 bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 space-y-2">
+        <div className="p-4 bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-200 space-y-2">
           <form 
             onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} 
             className="relative flex items-center gap-2"
@@ -571,7 +571,7 @@ export default function StoofiAiPage() {
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isLoading}
-              className="flex-1 resize-none bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-4 py-3.5 text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all disabled:opacity-50 max-h-32"
+              className="flex-1 resize-none bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-2xl px-4 py-3.5 text-sm text-zinc-900 dark:text-zinc-950 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all disabled:opacity-50 max-h-32"
             />
             <Button
               type="submit"
@@ -590,7 +590,7 @@ export default function StoofiAiPage() {
           </form>
 
           <p className="text-[11px] text-center text-zinc-400 dark:text-zinc-500">
-            Press <kbd className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-mono text-[10px]">Enter</kbd> to send, <kbd className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-mono text-[10px]">Shift + Enter</kbd> for new line
+            Press <kbd className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-700 font-mono text-[10px]">Enter</kbd> to send, <kbd className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-mono text-[10px]">Shift + Enter</kbd> for new line
           </p>
         </div>
       </div>

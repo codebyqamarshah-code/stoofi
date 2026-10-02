@@ -44,7 +44,7 @@ export default function StudentDataTable({
             <input 
               type="text" 
               placeholder="SEARCH" 
-              className="pl-9 pr-4 py-2 w-full sm:w-64 border-b-2 border-indigo-100 focus:border-indigo-600 bg-transparent text-sm font-semibold text-zinc-700 outline-none transition-colors uppercase placeholder:text-zinc-400"
+              className="pl-9 pr-4 py-2 w-full sm:w-64 border-b-2 border-indigo-100 focus:border-indigo-600 bg-transparent text-sm font-semibold text-zinc-700 outline-none transition-colors uppercase placeholder:text-zinc-950 placeholder:text-zinc-400"
             />
           </div>
 

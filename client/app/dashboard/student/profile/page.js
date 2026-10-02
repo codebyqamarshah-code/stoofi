@@ -127,10 +127,10 @@ export default function StudentProfilePage() {
                 STUDENT PROFILE
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white capitalize">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-950 capitalize">
               {formData.fullName || 'Student Name'}
             </h1>
-            <p className="text-sm font-medium text-zinc-400">
+            <p className="text-sm font-bold text-zinc-800">
               {formData.email || 'No email provided'}
             </p>
           </div>
@@ -275,7 +275,7 @@ export default function StudentProfilePage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-2 px-6 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl font-bold text-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-2.5 bg-white hover:bg-white text-zinc-950 rounded font-bold-xl font-bold text-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {loading ? 'Saving...' : 'Save Changes'}

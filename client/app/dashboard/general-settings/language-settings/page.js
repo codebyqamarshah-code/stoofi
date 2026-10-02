@@ -16,22 +16,22 @@ export default function LanguageSettings() {
     ];
 
     return (
-        <div className="min-h-screen bg-zinc-950 p-6 text-zinc-100">
+        <div className="space-y-6 p-6 text-zinc-100">
             <div className="mb-6">
                 <h1 className="text-2xl font-semibold">Language Settings</h1>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-lg shadow-sm">
-                        <div className="border-b border-zinc-800 px-6 py-4">
+                    <div className="bg-white border border-zinc-200 shadow-xs rounded-lg shadow-sm">
+                        <div className="border-b border-zinc-200 px-6 py-4">
                             <h2 className="text-lg font-medium">Add Language</h2>
                         </div>
                         <div className="p-6 space-y-4">
                             <div>
-                                <label className="block text-sm text-zinc-400 mb-2">Select Language *</label>
+                                <label className="block text-sm text-zinc-900 font-semibold mb-2">Select Language *</label>
                                 <select 
-                                    className="w-full p-2.5 rounded-md bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
+                                    className="w-full p-2.5 rounded-md bg-white border border-zinc-200 shadow-xs text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                                     value={selectedLanguage}
                                     onChange={(e) => setSelectedLanguage(e.target.value)}
                                 >
@@ -40,7 +40,7 @@ export default function LanguageSettings() {
                                     <option value="es">Spanish</option>
                                 </select>
                             </div>
-                            <button className="w-full px-4 py-2 bg-zinc-800 hover:bg-zinc-800 text-white text-sm font-medium rounded-md transition-colors">
+                            <button className="w-full px-4 py-2 bg-zinc-800 hover:bg-zinc-100 text-zinc-950 text-sm font-medium rounded-md transition-colors">
                                 SAVE LANGUAGE
                             </button>
                         </div>
@@ -48,8 +48,8 @@ export default function LanguageSettings() {
                 </div>
 
                 <div className="lg:col-span-2">
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-lg shadow-sm overflow-hidden">
-                        <div className="border-b border-zinc-800 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div className="bg-white border border-zinc-200 shadow-xs rounded-lg shadow-sm overflow-hidden">
+                        <div className="border-b border-zinc-200 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
                             <h2 className="text-lg font-medium">Language List</h2>
                             
                             <div className="flex items-center space-x-2">
@@ -59,15 +59,15 @@ export default function LanguageSettings() {
                                         placeholder="Search..."
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="pl-8 pr-4 py-2 bg-zinc-950 border border-zinc-800 rounded-md text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600 w-48 sm:w-64"
+                                        className="pl-8 pr-4 py-2 bg-white border border-zinc-200 shadow-xs rounded-md text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600 w-48 sm:w-64"
                                     />
                                     <Search className="w-4 h-4 text-zinc-500 absolute left-2.5 top-2.5" />
                                 </div>
-                                <div className="flex space-x-1 border border-zinc-800 rounded-md p-1 bg-zinc-950">
+                                <div className="flex space-x-1 border border-zinc-200 rounded-md p-1 bg-zinc-950">
                                     {toolbarIcons.map((item, idx) => {
                                         const Icon = item.icon;
                                         return (
-                                            <button key={idx} title={item.title} className="p-1.5 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 rounded transition-colors">
+                                            <button key={idx} title={item.title} className="p-1.5 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-100 rounded transition-colors">
                                                 <Icon className="w-4 h-4" />
                                             </button>
                                         );
@@ -78,7 +78,7 @@ export default function LanguageSettings() {
 
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm text-left whitespace-nowrap">
-                                <thead className="text-xs text-zinc-400 uppercase bg-zinc-950/50">
+                                <thead className="text-xs text-zinc-700 uppercase font-bold bg-zinc-50/50">
                                     <tr>
                                         <th className="px-6 py-3 font-medium">SL</th>
                                         <th className="px-6 py-3 font-medium">Language</th>
@@ -88,8 +88,8 @@ export default function LanguageSettings() {
                                         <th className="px-6 py-3 font-medium text-right">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-zinc-800">
-                                    <tr className="hover:bg-zinc-800/50">
+                                <tbody className="divide-y divide-zinc-100">
+                                    <tr className="hover:bg-zinc-100">
                                         <td className="px-6 py-4">1</td>
                                         <td className="px-6 py-4">English</td>
                                         <td className="px-6 py-4">English</td>
@@ -114,13 +114,13 @@ export default function LanguageSettings() {
                                             </button>
                                         </td>
                                     </tr>
-                                    <tr className="hover:bg-zinc-800/50">
+                                    <tr className="hover:bg-zinc-100">
                                         <td className="px-6 py-4">2</td>
                                         <td className="px-6 py-4">Spanish</td>
                                         <td className="px-6 py-4">Español</td>
                                         <td className="px-6 py-4">es</td>
                                         <td className="px-6 py-4">
-                                            <span className="px-2 py-1 text-xs font-medium rounded-md bg-zinc-800 text-zinc-400 border border-zinc-700">
+                                            <span className="px-2 py-1 text-xs font-medium rounded-md bg-zinc-800 text-zinc-400 border border-zinc-200">
                                                 ACTIVE
                                             </span>
                                         </td>
@@ -129,7 +129,7 @@ export default function LanguageSettings() {
                                                 <Settings className="w-3 h-3" />
                                                 <span>SETUP</span>
                                             </button>
-                                            <button className="flex items-center space-x-1 px-3 py-1.5 text-xs font-medium bg-zinc-800/20 hover:bg-zinc-800/30 text-zinc-600 rounded border border-zinc-600/20 transition-colors">
+                                            <button className="flex items-center space-x-1 px-3 py-1.5 text-xs font-medium bg-zinc-800/20 hover:bg-zinc-100 text-zinc-600 rounded border border-zinc-600/20 transition-colors">
                                                 <Check className="w-3 h-3" />
                                                 <span>MAKE DEFAULT</span>
                                             </button>

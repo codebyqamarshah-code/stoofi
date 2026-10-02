@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { ChevronRight } from 'lucide-react';
 
 export default function Weekend() {
     const [days, setDays] = useState([
@@ -17,42 +18,50 @@ export default function Weekend() {
     };
 
     return (
-        <div className="min-h-screen bg-zinc-950 p-6 text-zinc-100">
+        <div className="min-h-screen bg-white p-6 text-zinc-950">
             <div className="mb-6">
-                <h1 className="text-2xl font-semibold">Weekend</h1>
+                <div className="flex items-center gap-1 text-xs font-semibold text-zinc-600 mb-2">
+                    <span>Dashboard</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                    <span>General Settings</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                    <span className="text-zinc-950 font-bold">Weekend Setup</span>
+                </div>
+                <h1 className="text-2xl font-bold text-zinc-950">Weekend Setup</h1>
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-lg shadow-sm max-w-4xl">
-                <div className="border-b border-zinc-800 px-6 py-4">
-                    <h2 className="text-lg font-medium">Day list</h2>
+            <div className="bg-white border border-zinc-200 rounded-xl shadow-xs max-w-4xl overflow-hidden">
+                <div className="border-b border-zinc-200 px-6 py-4">
+                    <h2 className="text-sm font-bold text-zinc-950">Active Week Days & Weekends</h2>
                 </div>
                 
                 <div className="p-6">
                     <table className="w-full text-sm text-left">
-                        <thead className="text-xs text-zinc-400 uppercase bg-zinc-950/50">
+                        <thead className="text-xs font-bold text-zinc-700 uppercase bg-zinc-50 border-b border-zinc-200">
                             <tr>
-                                <th className="px-6 py-3 font-medium">NAME</th>
-                                <th className="px-6 py-3 font-medium">WEEKEND</th>
-                                <th className="px-6 py-3 font-medium">ACTION</th>
+                                <th className="px-6 py-3">NAME</th>
+                                <th className="px-6 py-3">WEEKEND</th>
+                                <th className="px-6 py-3 text-right">ACTION</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-zinc-800">
+                        <tbody className="divide-y divide-zinc-200 text-zinc-900">
                             {days.map((day) => (
-                                <tr key={day.id} className="hover:bg-zinc-800/50">
-                                    <td className="px-6 py-4 font-medium">{day.name}</td>
+                                <tr key={day.id} className="hover:bg-zinc-50 transition-colors">
+                                    <td className="px-6 py-4 font-bold text-zinc-950">{day.name}</td>
                                     <td className="px-6 py-4">
-                                        <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${
-                                            day.isWeekend ? 'bg-zinc-600/10 text-zinc-600 border border-zinc-600/20' : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
+                                        <span className={`px-2.5 py-1 text-xs font-bold rounded-full border ${
+                                            day.isWeekend ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-zinc-100 text-zinc-600 border-zinc-200'
                                         }`}>
                                             {day.isWeekend ? 'Yes' : 'No'}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-6 py-4 text-right">
                                         <button 
+                                            type="button"
                                             onClick={() => toggleDay(day.id)}
-                                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${day.isWeekend ? 'bg-zinc-800' : 'bg-zinc-600'}`}
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${day.isWeekend ? 'bg-zinc-950' : 'bg-zinc-300'}`}
                                         >
-                                            <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${day.isWeekend ? 'translate-x-5' : 'translate-x-1'}`} />
+                                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-xs ${day.isWeekend ? 'translate-x-6' : 'translate-x-1'}`} />
                                         </button>
                                     </td>
                                 </tr>

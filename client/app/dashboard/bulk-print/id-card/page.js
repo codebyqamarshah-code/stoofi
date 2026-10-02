@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ChevronRight, Search, Printer, CreditCard, User, CheckSquare, Square, Building, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 
 const DEFAULT_CLASSES = [
@@ -178,7 +179,7 @@ export default function BulkPrintIdCardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-950 flex items-center gap-2">
             <CreditCard className="h-6 w-6 text-indigo-400" />
             Generate & Print ID Cards
           </h1>
@@ -187,27 +188,27 @@ export default function BulkPrintIdCardPage() {
           </p>
         </div>
         <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-zinc-300 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-950 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Bulk Print</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-500">ID Cards</span>
+          <span className="text-zinc-950 font-bold">ID Cards</span>
         </div>
       </div>
 
       {/* Criteria Filter Card */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-5 shadow-sm print:hidden">
+      <div className="bg-white border border-zinc-200 shadow-xs rounded-xl p-5 shadow-sm print:hidden">
         <div className="mb-4">
-          <h2 className="text-sm font-semibold text-zinc-200 uppercase tracking-wider">Select Criteria</h2>
+          <h2 className="text-sm font-semibold text-zinc-950 uppercase tracking-wider">Select Criteria</h2>
         </div>
         <form onSubmit={handleSearchSubmit}>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-zinc-400 uppercase">Role <span className="text-rose-500">*</span></Label>
+              <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Role <span className="text-rose-500">*</span></Label>
               <select 
                 value={role} 
                 onChange={e => setRole(e.target.value)} 
-                className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+                className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-950 focus:outline-none focus:ring-2 focus:ring-indigo-500" 
                 required
               >
                 <option value="Student">Student</option>
@@ -217,11 +218,11 @@ export default function BulkPrintIdCardPage() {
 
             {role === 'Student' && (
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-zinc-400 uppercase">Class Filter</Label>
+                <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Class Filter</Label>
                 <select 
                   value={classFilter} 
                   onChange={e => setClassFilter(e.target.value)} 
-                  className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-950 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                   <option value="">All Classes</option>
                   {classes.map(c => (
@@ -248,12 +249,12 @@ export default function BulkPrintIdCardPage() {
       {/* Results & ID Card Grid */}
       <div className="space-y-6">
         {/* Action Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-zinc-950 border border-zinc-800 rounded-xl p-4 print:hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white border border-zinc-200 shadow-xs rounded-xl p-4 print:hidden">
           <div className="flex items-center gap-4">
             <button 
               type="button" 
               onClick={toggleSelectAll} 
-              className="flex items-center gap-2 text-sm font-medium text-zinc-300 hover:text-white cursor-pointer"
+              className="flex items-center gap-2 text-sm font-medium text-zinc-950 hover:text-zinc-950 cursor-pointer"
             >
               {selectedIds.length === records.length && records.length > 0 ? (
                 <CheckSquare className="h-5 w-5 text-indigo-400" />
@@ -264,7 +265,7 @@ export default function BulkPrintIdCardPage() {
             </button>
             <span className="text-xs text-zinc-600">|</span>
             <span className="text-sm text-zinc-400">
-              Selected to Print: <strong className="text-white font-bold">{selectedIds.length}</strong>
+              Selected to Print: <strong className="text-zinc-950 font-bold">{selectedIds.length}</strong>
             </span>
           </div>
 
@@ -279,9 +280,9 @@ export default function BulkPrintIdCardPage() {
         </div>
 
         {records.length === 0 ? (
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-12 text-center text-zinc-500">
+          <div className="bg-white border border-zinc-200 shadow-xs rounded-xl p-12 text-center text-zinc-500">
             <User className="h-12 w-12 mx-auto mb-3 text-zinc-700" />
-            <p className="text-base font-semibold text-zinc-300">No {role} records found</p>
+            <p className="text-base font-semibold text-zinc-950">No {role} records found</p>
             <p className="text-sm text-zinc-500 mt-1">Add students or staff in the directory to generate ID cards.</p>
           </div>
         ) : (
@@ -306,14 +307,14 @@ export default function BulkPrintIdCardPage() {
                     {isSelected ? (
                       <span className="bg-indigo-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">Selected</span>
                     ) : (
-                      <span className="bg-zinc-800 text-zinc-400 text-[10px] px-2 py-0.5 rounded-full">Click to Select</span>
+                      <span className="bg-zinc-800 text-zinc-700 text-[10px] px-2 py-0.5 rounded-full">Click to Select</span>
                     )}
                   </div>
 
                   {/* ID Card Front Design */}
                   <div className="bg-white text-zinc-900 rounded-2xl overflow-hidden shadow-xl border border-zinc-200 w-full max-w-[340px] mx-auto h-[480px] flex flex-col justify-between">
                     {/* Card Header */}
-                    <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 text-white p-4 text-center relative">
+                    <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 text-zinc-950 p-4 text-center relative">
                       <div className="text-[10px] uppercase font-bold tracking-widest text-indigo-200">OFFICIAL IDENTITY CARD</div>
                       <h3 className="font-bold text-base leading-tight mt-0.5 truncate">{schoolName}</h3>
                       <p className="text-[10px] text-indigo-200 truncate">{schoolSetting?.address || 'Campus Lahore, Pakistan'}</p>

@@ -22,7 +22,7 @@ export default function StaffSettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 p-6">
+    <div className="space-y-6 p-6">
       <div className="mb-6 flex items-center text-sm text-zinc-400">
         <span>Dashboard</span>
         <ChevronRight className="mx-2 h-4 w-4" />
@@ -31,17 +31,17 @@ export default function StaffSettingsPage() {
         <span className="text-zinc-100">Settings</span>
       </div>
 
-      <h1 className="text-2xl font-semibold text-white mb-6">Settings</h1>
+      <h1 className="text-2xl font-semibold text-zinc-950 mb-6">Settings</h1>
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
-        <div className="px-6 py-4 border-b border-zinc-800">
-          <h2 className="text-lg font-medium text-white">Staff Information Field</h2>
+      <div className="bg-white border border-zinc-200 shadow-xs rounded-lg overflow-hidden">
+        <div className="px-6 py-4 border-b border-zinc-200">
+          <h2 className="text-lg font-medium text-zinc-950">Staff Information Field</h2>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
             {fields.map((field, index) => (
               <div key={field.name} className="flex items-center justify-between">
-                <span className="text-sm font-medium text-zinc-300">{field.name}</span>
+                <span className="text-sm font-medium text-zinc-950">{field.name}</span>
                 <div className="flex gap-4">
                   <label className="flex flex-col items-center gap-2 cursor-pointer">
                     <span className="text-xs text-zinc-400 font-semibold tracking-wider">STAFF EDIT</span>

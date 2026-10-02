@@ -17,37 +17,11 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
+import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 
 export default function VirtualClassMainPage() {
-  const [records, setRecords] = useState([
-    {
-      id: 1,
-      classVal: 'Class 10',
-      section: 'A',
-      teacher: 'Mudassir Bajwa',
-      topic: 'Advanced Calculus & Analytical Geometry',
-      description: 'Comprehensive derivation of differential forms and practice questions.',
-      date: '2026-09-09',
-      time: '09:00 AM',
-      duration: '45',
-      status: 'Scheduled',
-      roomUrl: 'https://zoom.us/j/98234120934'
-    },
-    {
-      id: 2,
-      classVal: 'Class 9',
-      section: 'B',
-      teacher: 'Fatima Zahra',
-      topic: 'Biology - Cellular Respiration & ATP Cycle',
-      description: 'Diagrammatic walkthrough of mitochondria and electron transport chain.',
-      date: '2026-09-10',
-      time: '11:00 AM',
-      duration: '60',
-      status: 'Scheduled',
-      roomUrl: 'https://zoom.us/j/98172348712'
-    }
-  ]);
+  const [records, setRecords] = useState([]);
 
   const [form, setForm] = useState({
     classVal: 'Class 10',
@@ -484,7 +458,7 @@ export default function VirtualClassMainPage() {
             {/* Table */}
             <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-200">
               <table className="w-full text-xs text-left">
-                <thead className="text-[11px] font-bold text-zinc-500 dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-200">
+                <thead className="text-[11px] font-bold text-zinc-900 font-bold dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-50/50 border-b border-zinc-200 dark:border-zinc-200">
                   <tr>
                     <th className="px-3.5 py-3">SL</th>
                     <th className="px-3.5 py-3">Class (Sec)</th>
@@ -496,7 +470,7 @@ export default function VirtualClassMainPage() {
                     <th className="px-3.5 py-3 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-100">
                   {filteredRecords.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="px-4 py-8 text-center text-zinc-500">

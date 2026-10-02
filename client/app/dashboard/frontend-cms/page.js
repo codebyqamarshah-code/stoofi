@@ -73,7 +73,7 @@ const PreviewRenderer = ({ section }) => {
       <div className="bg-zinc-50 py-20 px-6 text-center border-b">
         <h1 className="text-4xl sm:text-5xl font-black text-zinc-900 mb-4">{props.title}</h1>
         <p className="text-zinc-600 max-w-2xl mx-auto mb-8 text-lg">{props.subtitle}</p>
-        <button className="bg-zinc-800 text-white px-8 py-3 rounded-full font-bold hover:bg-zinc-800 transition shadow-lg">
+        <button className="bg-zinc-800 text-zinc-950 px-8 py-3 rounded-full font-bold hover:bg-zinc-100 transition shadow-lg">
           {props.buttonText}
         </button>
       </div>
@@ -110,10 +110,10 @@ const PreviewRenderer = ({ section }) => {
   
   if (type === 'footer') {
     return (
-      <div className="bg-zinc-900 text-zinc-400 py-8 px-6 text-center text-sm border-t-4 border-zinc-600">
+      <div className="bg-white text-zinc-700 py-8 px-6 text-center text-sm border-t-4 border-zinc-600">
         <div className="mb-4 flex justify-center gap-4">
-          <span className="hover:text-white cursor-pointer">Privacy Policy</span>
-          <span className="hover:text-white cursor-pointer">Terms of Service</span>
+          <span className="hover:text-zinc-950 cursor-pointer">Privacy Policy</span>
+          <span className="hover:text-zinc-950 cursor-pointer">Terms of Service</span>
         </div>
         {props.copyright}
       </div>
@@ -196,9 +196,9 @@ export default function FrontendCmsPage() {
           <ChevronRight className="h-4 w-4 mx-1" />
           <Link href="/dashboard/settings/general" className="hover:text-zinc-500 transition-colors">Settings</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-600 font-semibold">Frontend CMS Builder</span>
+          <span className="text-zinc-950 font-bold">Frontend CMS Builder</span>
         </div>
-        <Button className="bg-zinc-800 hover:bg-zinc-800 text-white h-9 px-4 text-xs">
+        <Button className="bg-zinc-800 hover:bg-zinc-100 text-zinc-950 h-9 px-4 text-xs">
           <Save className="h-4 w-4 mr-2" /> Save & Publish
         </Button>
       </div>
@@ -206,9 +206,9 @@ export default function FrontendCmsPage() {
       <div className="flex flex-1 gap-4 overflow-hidden">
         
         {/* LEFT: Add Sections Panel */}
-        <div className="w-64 shrink-0 bg-zinc-950 border border-zinc-800 rounded-xl flex flex-col hidden lg:flex">
-          <div className="p-4 border-b border-zinc-800">
-            <h3 className="font-bold text-white text-sm">Add Elements</h3>
+        <div className="w-64 shrink-0 bg-white border border-zinc-200 shadow-xs rounded-xl flex flex-col hidden lg:flex">
+          <div className="p-4 border-b border-zinc-200">
+            <h3 className="font-bold text-zinc-950 text-sm">Add Elements</h3>
             <p className="text-[10px] text-zinc-500 mt-1">Click to add to your page</p>
           </div>
           <div className="p-4 space-y-2 overflow-y-auto custom-scrollbar flex-1">
@@ -219,12 +219,12 @@ export default function FrontendCmsPage() {
                 <div 
                   key={key}
                   onClick={() => addSection(key)}
-                  className="flex items-center gap-3 p-3 bg-zinc-900 border border-zinc-800 rounded-lg cursor-pointer hover:border-zinc-600/50 hover:bg-zinc-100 transition group"
+                  className="flex items-center gap-3 p-3 bg-white border border-zinc-200 shadow-xs rounded-lg cursor-pointer hover:border-zinc-600/50 hover:bg-zinc-100 transition group"
                 >
                   <div className="h-8 w-8 rounded-md bg-zinc-800 text-zinc-400 group-hover:text-zinc-500 group-hover:bg-zinc-100 flex items-center justify-center transition">
                     <Icon size={16} />
                   </div>
-                  <div className="flex-1 text-xs font-semibold text-zinc-300 group-hover:text-zinc-200">{tmpl.label}</div>
+                  <div className="flex-1 text-xs font-semibold text-zinc-950 group-hover:text-zinc-200">{tmpl.label}</div>
                   <Plus size={14} className="text-zinc-600 group-hover:text-zinc-600" />
                 </div>
               );
@@ -233,10 +233,10 @@ export default function FrontendCmsPage() {
         </div>
 
         {/* MIDDLE: Canvas / Live Preview */}
-        <div className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl flex flex-col overflow-hidden relative shadow-inner">
-          <div className="p-3 bg-zinc-950/80 border-b border-zinc-800 flex items-center justify-center gap-2">
+        <div className="flex-1 bg-white border border-zinc-200 shadow-xs rounded-xl flex flex-col overflow-hidden relative shadow-inner">
+          <div className="p-3 bg-zinc-50 border-b border-zinc-200 flex items-center justify-center gap-2">
             <MonitorSmartphone size={16} className="text-zinc-600" />
-            <span className="text-xs font-bold text-zinc-300 uppercase tracking-widest">Live Page Preview</span>
+            <span className="text-xs font-bold text-zinc-950 uppercase tracking-widest">Live Page Preview</span>
           </div>
           
           <div className="flex-1 overflow-y-auto bg-zinc-300 custom-scrollbar relative p-4 sm:p-8">
@@ -268,13 +268,13 @@ export default function FrontendCmsPage() {
                     
                     <div className={`absolute top-2 right-2 flex gap-1 z-20 transition-opacity duration-200 ${selectedId === section.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                       <div 
-                        className="h-8 w-8 bg-zinc-900 border border-zinc-700 rounded shadow-lg flex items-center justify-center text-zinc-300 hover:text-zinc-500 hover:border-zinc-600 cursor-grab active:cursor-grabbing"
+                        className="h-8 w-8 bg-white border border-zinc-200 shadow-xs rounded shadow-lg flex items-center justify-center text-zinc-950 hover:text-zinc-500 hover:border-zinc-600 cursor-grab active:cursor-grabbing"
                         title="Drag to reorder"
                       >
                         <GripHorizontal size={16} />
                       </div>
                       <div 
-                        className="h-8 w-8 bg-zinc-900 border border-zinc-700 rounded shadow-lg flex items-center justify-center text-zinc-300 hover:text-rose-400 hover:border-rose-500 cursor-pointer"
+                        className="h-8 w-8 bg-white border border-zinc-200 shadow-xs rounded shadow-lg flex items-center justify-center text-zinc-950 hover:text-rose-400 hover:border-rose-500 cursor-pointer"
                         onClick={(e) => { e.stopPropagation(); removeSection(section.id); }}
                         title="Delete Section"
                       >
@@ -294,9 +294,9 @@ export default function FrontendCmsPage() {
         </div>
 
         {/* RIGHT: Settings Panel */}
-        <div className="w-80 shrink-0 bg-zinc-950 border border-zinc-800 rounded-xl flex flex-col hidden md:flex">
-          <div className="p-4 border-b border-zinc-800">
-            <h3 className="font-bold text-white text-sm">Edit Content</h3>
+        <div className="w-80 shrink-0 bg-white border border-zinc-200 shadow-xs rounded-xl flex flex-col hidden md:flex">
+          <div className="p-4 border-b border-zinc-200">
+            <h3 className="font-bold text-zinc-950 text-sm">Edit Content</h3>
             <p className="text-[10px] text-zinc-500 mt-1">Select a section to edit its properties</p>
           </div>
           
@@ -320,7 +320,7 @@ export default function FrontendCmsPage() {
                       
                       {Object.entries(section.props).map(([key, value]) => (
                         <div key={key} className="space-y-1.5">
-                          <label className="text-xs font-semibold text-zinc-400 capitalize flex items-center justify-between">
+                          <label className="text-xs font-semibold text-zinc-900 font-semibold capitalize flex items-center justify-between">
                             {key.replace(/([A-Z])/g, ' $1').trim()}
                           </label>
                           {key === 'content' || key === 'subtitle' ? (
@@ -328,20 +328,20 @@ export default function FrontendCmsPage() {
                               rows={4}
                               value={value}
                               onChange={(e) => handlePropChange(selectedId, key, e.target.value)}
-                              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-xs text-white focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600/50 transition-all outline-none resize-none"
+                              className="w-full bg-white border border-zinc-200 shadow-xs rounded-lg p-3 text-xs text-zinc-950 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600/50 transition-all outline-none resize-none"
                             />
                           ) : (
                             <input
                               type="text"
                               value={value}
                               onChange={(e) => handlePropChange(selectedId, key, e.target.value)}
-                              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600/50 transition-all outline-none"
+                              className="w-full bg-white border border-zinc-200 shadow-xs rounded-lg px-3 py-2 text-xs text-zinc-950 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600/50 transition-all outline-none"
                             />
                           )}
                         </div>
                       ))}
                       
-                      <div className="pt-4 mt-6 border-t border-zinc-800">
+                      <div className="pt-4 mt-6 border-t border-zinc-200">
                         <Button 
                           variant="outline" 
                           className="w-full border-rose-500/20 text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/50"

@@ -26,10 +26,10 @@ function formatDate() {
 
 function getWeatherIcon(code) {
   if (code === 0) return <Sun className="w-8 h-8 text-amber-400" />;
-  if (code <= 3) return <Cloud className="w-8 h-8 text-zinc-300" />;
+  if (code <= 3) return <Cloud className="w-8 h-8 text-zinc-950" />;
   if (code <= 67) return <CloudRain className="w-8 h-8 text-blue-300" />;
   if (code <= 77) return <CloudSnow className="w-8 h-8 text-sky-200" />;
-  return <Wind className="w-8 h-8 text-zinc-300" />;
+  return <Wind className="w-8 h-8 text-zinc-950" />;
 }
 
 function getWeatherDesc(code) {
@@ -188,14 +188,14 @@ export default function StudentDashboardPage() {
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white capitalize">
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-zinc-950 capitalize">
               {studentName}
             </h1>
 
-            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-zinc-300">
+            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-zinc-950">
               <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-lg border border-white/10">
                 <span>Admission No:</span>
-                <span className="font-bold text-white">{admissionNo}</span>
+                <span className="font-bold text-zinc-950">{admissionNo}</span>
               </div>
               <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-lg border border-white/10">
                 <Clock className="w-3.5 h-3.5" />
@@ -221,7 +221,7 @@ export default function StudentDashboardPage() {
           </div>
 
           {/* Live Weather Widget */}
-          <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-4 sm:p-5 flex items-center gap-5 text-white min-w-[240px]">
+          <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-4 sm:p-5 flex items-center gap-5 text-zinc-950 min-w-[240px]">
             <div className="flex-1">
               <div className="flex items-center gap-1 text-xs font-semibold opacity-75 mb-1">
                 <MapPin className="w-3.5 h-3.5" />
@@ -254,8 +254,8 @@ export default function StudentDashboardPage() {
           return (
             <Link key={idx} href={card.href}>
               <div className="bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-4 cursor-pointer group">
-                <div className="p-3 rounded-2xl bg-zinc-100 group-hover:bg-zinc-900 transition-colors">
-                  <IconComp className="w-5 h-5 text-zinc-700 group-hover:text-white transition-colors" />
+                <div className="p-3 rounded-2xl bg-zinc-100 group-hover:bg-zinc-50/80 transition-colors">
+                  <IconComp className="w-5 h-5 text-zinc-700 group-hover:text-zinc-950 transition-colors" />
                 </div>
                 <div>
                   <div className="text-2xl font-black text-zinc-900">{card.value}</div>
@@ -274,7 +274,7 @@ export default function StudentDashboardPage() {
           <Link href="/dashboard/student/class-routine" className="text-xs font-semibold text-zinc-500 hover:text-zinc-900 transition-colors">View All →</Link>
         </div>
         <div className="p-8 text-center border-2 border-dashed border-zinc-200 rounded-xl bg-zinc-50/50">
-          <Clock className="w-8 h-8 text-zinc-300 mx-auto mb-2" />
+          <Clock className="w-8 h-8 text-zinc-950 mx-auto mb-2" />
           <p className="text-sm font-semibold text-zinc-500">No Routine Schedule Available</p>
           <p className="text-xs text-zinc-400 mt-1">Your class routine will appear here once assigned by the administrator.</p>
         </div>
@@ -310,7 +310,7 @@ export default function StudentDashboardPage() {
                 <td className="py-2.5 px-1 border-r font-bold text-blue-600">0</td>
                 <td className="py-2.5 px-1 border-r font-bold text-zinc-900">100%</td>
                 {Array.from({length: daysInMonth}).map((_,i) => (
-                  <td key={i} className="py-2.5 px-1 border-r text-zinc-300 font-medium">-</td>
+                  <td key={i} className="py-2.5 px-1 border-r text-zinc-950 font-medium">-</td>
                 ))}
               </tr>
             </tbody>
@@ -372,7 +372,7 @@ export default function StudentDashboardPage() {
                   </tr>
                 )) : (
                   <tr>
-                    <td colSpan={5} className="py-6 text-center text-zinc-400 font-medium">
+                    <td colSpan={5} className="py-6 text-center text-zinc-700 font-medium">
                       No Leave Types configured by Admin.
                     </td>
                   </tr>
@@ -412,7 +412,7 @@ export default function StudentDashboardPage() {
         <div className="grid grid-cols-7 gap-1.5">
           {/* Trailing days from previous month */}
           {Array.from({length: firstDay}, (_,i) => (
-            <div key={`prev-${i}`} className="p-2 border border-zinc-100 rounded-xl bg-zinc-50/30 text-xs font-semibold text-zinc-300 min-h-[44px]">
+            <div key={`prev-${i}`} className="p-2 border border-zinc-100 rounded-xl bg-zinc-50/30 text-xs font-semibold text-zinc-950 min-h-[44px]">
               {prevMonthDays - firstDay + i + 1}
             </div>
           ))}

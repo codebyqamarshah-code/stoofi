@@ -117,19 +117,19 @@ export default function GeneralSettingsPage() {
         {/* Left Column - Logos */}
         <div className="lg:col-span-1 space-y-6">
           {/* Logo Card */}
-          <div className="bg-zinc-900 border border-zinc-800 rounded-lg shadow-sm">
-            <div className="border-b border-zinc-800 px-6 py-4">
-              <h2 className="text-lg font-medium text-white">Change Logo</h2>
+          <div className="bg-white border border-zinc-200 shadow-xs rounded-lg shadow-sm">
+            <div className="border-b border-zinc-200 px-6 py-4">
+              <h2 className="text-lg font-medium text-zinc-950">Change Logo</h2>
             </div>
             <div className="p-6 flex flex-col items-center">
-              <div className="w-24 h-24 bg-zinc-950 border border-zinc-800 rounded-lg flex items-center justify-center mb-4">
+              <div className="w-24 h-24 bg-white border border-zinc-200 shadow-xs rounded-lg flex items-center justify-center mb-4">
                 <ImageIcon size={32} className="text-zinc-700" />
               </div>
               <div className="flex gap-2 w-full">
-                <button className="flex-1 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-medium py-2 px-2 rounded text-sm transition-colors flex justify-center items-center gap-2">
+                <button className="flex-1 bg-zinc-800 hover:bg-zinc-700 border border-zinc-200 text-zinc-950 font-medium py-2 px-2 rounded text-sm transition-colors flex justify-center items-center gap-2">
                   <Upload size={16} /> UPLOAD
                 </button>
-                <button className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-2 px-2 rounded text-sm transition-colors">
+                <button className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-950 font-medium py-2 px-2 rounded text-sm transition-colors">
                   CHANGE
                 </button>
               </div>
@@ -137,19 +137,19 @@ export default function GeneralSettingsPage() {
           </div>
 
           {/* Favicon Card */}
-          <div className="bg-zinc-900 border border-zinc-800 rounded-lg shadow-sm">
-            <div className="border-b border-zinc-800 px-6 py-4">
-              <h2 className="text-lg font-medium text-white">Change Favicon</h2>
+          <div className="bg-white border border-zinc-200 shadow-xs rounded-lg shadow-sm">
+            <div className="border-b border-zinc-200 px-6 py-4">
+              <h2 className="text-lg font-medium text-zinc-950">Change Favicon</h2>
             </div>
             <div className="p-6 flex flex-col items-center">
-              <div className="w-16 h-16 bg-zinc-950 border border-zinc-800 rounded-lg flex items-center justify-center mb-4">
+              <div className="w-16 h-16 bg-white border border-zinc-200 shadow-xs rounded-lg flex items-center justify-center mb-4">
                 <ImageIcon size={24} className="text-zinc-700" />
               </div>
               <div className="flex gap-2 w-full">
-                <button className="flex-1 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-medium py-2 px-2 rounded text-sm transition-colors flex justify-center items-center gap-2">
+                <button className="flex-1 bg-zinc-800 hover:bg-zinc-700 border border-zinc-200 text-zinc-950 font-medium py-2 px-2 rounded text-sm transition-colors flex justify-center items-center gap-2">
                   <Upload size={16} /> UPLOAD
                 </button>
-                <button className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-2 px-2 rounded text-sm transition-colors">
+                <button className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-950 font-medium py-2 px-2 rounded text-sm transition-colors">
                   CHANGE
                 </button>
               </div>
@@ -159,12 +159,12 @@ export default function GeneralSettingsPage() {
 
         {/* Right Column - General Settings View */}
         <div className="lg:col-span-3">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-lg shadow-sm">
-            <div className="border-b border-zinc-800 px-6 py-4 flex justify-between items-center">
-              <h2 className="text-lg font-medium text-white">General Settings View</h2>
+          <div className="bg-white border border-zinc-200 shadow-xs rounded-lg shadow-sm">
+            <div className="border-b border-zinc-200 px-6 py-4 flex justify-between items-center">
+              <h2 className="text-lg font-medium text-zinc-950">General Settings View</h2>
               <button
                 onClick={() => setIsEditing(!isEditing)}
-                className="bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-1 px-4 rounded transition-colors text-sm"
+                className="bg-zinc-800 hover:bg-zinc-700 text-zinc-950 font-medium py-1 px-4 rounded transition-colors text-sm"
               >
                 {isEditing ? 'CANCEL' : 'EDIT'}
               </button>
@@ -179,8 +179,8 @@ export default function GeneralSettingsPage() {
                 <table className="w-full text-left border-collapse">
                   <tbody>
                     {Object.entries(settings).map(([key, value], index) => (
-                      <tr key={key} className={index !== 0 ? 'border-t border-zinc-800' : ''}>
-                        <td className="p-4 w-1/3 bg-zinc-950 text-sm font-medium text-zinc-300 capitalize border-r border-zinc-800">
+                      <tr key={key} className={index !== 0 ? 'border-t border-zinc-200' : ''}>
+                        <td className="p-4 w-1/3 bg-zinc-950 text-sm font-medium text-zinc-950 capitalize border-r border-zinc-200">
                           {FIELD_LABELS[key] || key.replace(/([A-Z])/g, ' $1').trim()}
                         </td>
                         <td className="p-4 w-2/3">
@@ -189,10 +189,10 @@ export default function GeneralSettingsPage() {
                               type="text"
                               value={value}
                               onChange={(e) => handleSettingChange(key, e.target.value)}
-                              className="w-full bg-zinc-950 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600 focus:border-zinc-600"
+                              className="w-full bg-white border border-zinc-200 shadow-xs rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600 focus:border-zinc-600"
                             />
                           ) : (
-                            <span className="text-sm text-zinc-300">{value || <span className="text-zinc-600 italic">Not set</span>}</span>
+                            <span className="text-sm text-zinc-950">{value || <span className="text-zinc-600 italic">Not set</span>}</span>
                           )}
                         </td>
                       </tr>
@@ -201,10 +201,10 @@ export default function GeneralSettingsPage() {
                 </table>
               )}
               {isEditing && !loading && (
-                <div className="p-4 border-t border-zinc-800 flex justify-end gap-3 bg-zinc-950">
+                <div className="p-4 border-t border-zinc-200 flex justify-end gap-3 bg-zinc-950">
                   <button
                     onClick={() => { setIsEditing(false); fetchSettings(); }}
-                    className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium py-2 px-5 rounded transition-colors text-sm"
+                    className="bg-zinc-800 hover:bg-zinc-700 text-zinc-950 font-medium py-2 px-5 rounded transition-colors text-sm"
                   >
                     Cancel
                   </button>
