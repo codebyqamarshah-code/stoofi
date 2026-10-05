@@ -301,7 +301,6 @@ export default function AdminSetupPage() {
             </div>
           </div>
           <div className="text-2xl font-bold text-zinc-950 mt-2">{stats.total}</div>
-          <p className="text-[11px] text-zinc-400 mt-0.5">Configured across all categories</p>
         </div>
 
         <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-2xs">
@@ -312,7 +311,6 @@ export default function AdminSetupPage() {
             </div>
           </div>
           <div className="text-2xl font-bold text-emerald-700 mt-2">{stats.active}</div>
-          <p className="text-[11px] text-zinc-400 mt-0.5">Visible in ERP dropdowns</p>
         </div>
 
         <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-2xs">
@@ -323,7 +321,6 @@ export default function AdminSetupPage() {
             </div>
           </div>
           <div className="text-2xl font-bold text-zinc-700 mt-2">{stats.inactive}</div>
-          <p className="text-[11px] text-zinc-400 mt-0.5">Archived / Hidden items</p>
         </div>
 
         <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-2xs">
@@ -333,8 +330,7 @@ export default function AdminSetupPage() {
               <SlidersHorizontal className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-zinc-950 mt-2">{stats.totalCategories || 6}</div>
-          <p className="text-[11px] text-zinc-400 mt-0.5">System setup types</p>
+          <div className="text-2xl font-bold text-zinc-950 mt-2">{stats.totalCategories || 0}</div>
         </div>
       </div>
 

@@ -1,69 +1,22 @@
 const AdminSetup = require('../models/AdminSetup');
 
-const DEFAULT_SETUP_DATA = [
-  // Purpose
-  { type: 'Purpose', name: 'Admission Inquiry', description: 'Visits and queries related to new student admissions' },
-  { type: 'Purpose', name: 'Fee Payment / Accounts', description: 'Fee clearance, voucher payment and finance matters' },
-  { type: 'Purpose', name: 'Parent-Teacher Meeting', description: 'Scheduled academic consultations and progress meetings' },
-  { type: 'Purpose', name: 'Document Collection', description: 'Collecting certificates, transcripts, or bonafide letters' },
-  { type: 'Purpose', name: 'Official Institutional Visit', description: 'Board inspection, guest speaker, or administrative delegate' },
-  { type: 'Purpose', name: 'General Campus Visit', description: 'Campus tour and general visitor meetings' },
+// Earlier builds auto-inserted placeholder categories flagged with isSystem.
+// Remove them once so only records entered by the school remain.
+let legacySeedPurged = false;
 
-  // Complaint Type
-  { type: 'Complaint Type', name: 'Academic & Curriculum', description: 'Teaching quality, syllabus pacing, and exam inquiries' },
-  { type: 'Complaint Type', name: 'Student Behavior & Discipline', description: 'Classroom conduct, bullying, or behavioral notices' },
-  { type: 'Complaint Type', name: 'Transport & Bus Route', description: 'Bus delay, route adjustment, or driver feedback' },
-  { type: 'Complaint Type', name: 'Fee & Billing Issue', description: 'Challan dispute, fine waiver, or transaction clarification' },
-  { type: 'Complaint Type', name: 'Hostel & Dormitory', description: 'Dorm room maintenance, mess food, and curfew concerns' },
-  { type: 'Complaint Type', name: 'Facilities & Hygiene', description: 'Cleanliness, sports equipment, or lab facility repair' },
-  { type: 'Complaint Type', name: 'Staff / Teacher Conduct', description: 'Staff communication and administrative service' },
-
-  // Source
-  { type: 'Source', name: 'Online Website & Portal', description: 'Inquiry originated via official school web portal' },
-  { type: 'Source', name: 'Social Media (FB / Insta / LinkedIn)', description: 'Digital social marketing campaigns' },
-  { type: 'Source', name: 'Newspaper Advertisement', description: 'Print media publication and admission circular' },
-  { type: 'Source', name: 'Direct Campus Walk-In', description: 'Walk-in visitor at reception front desk' },
-  { type: 'Source', name: 'Parent / Guardian Referral', description: 'Recommendation by current student parents' },
-  { type: 'Source', name: 'School Banner / Billboard', description: 'City billboard and banner advertisement' },
-
-  // Reference
-  { type: 'Reference', name: 'School Official Website', description: 'Official domain' },
-  { type: 'Reference', name: 'Current Student Parent', description: 'Enrolled family referral' },
-  { type: 'Reference', name: 'Faculty / Staff Member', description: 'Staff recommendation' },
-  { type: 'Reference', name: 'School Alumni Network', description: 'Former graduate referral' },
-  { type: 'Reference', name: 'Board of Intermediate & Secondary Education', description: 'Education board directive' },
-
-  // Call Purpose
-  { type: 'Call Purpose', name: 'Admission Inquiry', description: 'Inquiry regarding seats, eligibility, and fee structure' },
-  { type: 'Call Purpose', name: 'Fee Due Follow-Up', description: 'Friendly reminder on unpaid monthly dues' },
-  { type: 'Call Purpose', name: 'Attendance & Absence Verification', description: 'Verifying student absence or leave reason' },
-  { type: 'Call Purpose', name: 'Student Discipline Notice', description: 'Calling guardian regarding student conduct' },
-  { type: 'Call Purpose', name: 'Emergency Medical Contact', description: 'Urgent notification to parents' },
-  { type: 'Call Purpose', name: 'General Information', description: 'Timings, holiday schedules, and general questions' },
-
-  // Postal Type
-  { type: 'Postal Type', name: 'Official Letter', description: 'Formal correspondence and circulars' },
-  { type: 'Postal Type', name: 'Document / Transcript', description: 'Certificates and academic transcripts' },
-  { type: 'Postal Type', name: 'Parcel / Package', description: 'Books, equipment, and packages' },
-  { type: 'Postal Type', name: 'Confidential Envelope', description: 'Confidential HR or examination material' },
-  { type: 'Postal Type', name: 'Government Notice', description: 'Education ministry / department directive' }
-];
-
-async function seedDefaultSetupIfEmpty() {
+async function purgeLegacySeedData() {
+  if (legacySeedPurged) return;
   try {
-    const count = await AdminSetup.countDocuments();
-    if (count === 0) {
-      await AdminSetup.insertMany(DEFAULT_SETUP_DATA.map(d => ({ ...d, status: 'Active', isSystem: true })));
-    }
+    await AdminSetup.deleteMany({ isSystem: true });
+    legacySeedPurged = true;
   } catch (err) {
-    console.error('Error seeding default admin setup:', err.message);
+    console.error('Error removing legacy setup seed data:', err.message);
   }
 }
-
 // GET /api/setup
 exports.getAll = async (req, res) => {
   try {
-    await seedDefaultSetupIfEmpty();
+    await purgeLegacySeedData();
 
     const { 
       search = '', 
@@ -125,7 +78,7 @@ exports.getAll = async (req, res) => {
 // GET /api/setup/stats
 exports.getStats = async (req, res) => {
   try {
-    await seedDefaultSetupIfEmpty();
+    await purgeLegacySeedData();
 
     const [total, active, inactive, categories] = await Promise.all([
       AdminSetup.countDocuments(),
@@ -151,7 +104,7 @@ exports.getStats = async (req, res) => {
 // GET /api/setup/type/:type - Fetch all active items for a given category (e.g. Purpose, Source, Reference)
 exports.getByType = async (req, res) => {
   try {
-    await seedDefaultSetupIfEmpty();
+    await purgeLegacySeedData();
     const type = req.params.type;
     const data = await AdminSetup.find({ type: { $regex: new RegExp(`^${type}$`, 'i') }, status: 'Active' }).sort({ name: 1 });
     res.status(200).json({ success: true, data });
