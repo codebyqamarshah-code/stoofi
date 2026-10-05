@@ -7,14 +7,17 @@ const Attendance = require('../models/Attendance');
 const StaffAttendance = require('../models/StaffAttendance');
 const Homework = require('../models/Homework');
 const FeesInvoice = require('../models/FeesInvoice');
+const MarksRegister = require('../models/MarksRegister');
 const Notice = require('../models/Notice');
 const Notification = require('../models/Notification');
 const Event = require('../models/Event');
 const Class = require('../models/Class');
 const Section = require('../models/Section');
-const Setting = require('../models/Setting');
+const Subject = require('../models/Subject');
 
-// Define OpenAI Tools Definitions
+// ─────────────────────────────────────────────────────────────
+// OpenAI / Gemini Function Tools Schema Definitions
+// ─────────────────────────────────────────────────────────────
 const AI_TOOLS_DEFINITIONS = [
   {
     type: 'function',
@@ -32,10 +35,20 @@ const AI_TOOLS_DEFINITIONS = [
     type: 'function',
     function: {
       name: 'get_my_attendance',
-      description: 'Get the attendance records and overall attendance percentage for the current user.',
+      description: 'Get attendance records, summary statistics, and percentage for the current user. Supports time filtering such as this_month, last_month, this_week, today, all.',
       parameters: {
         type: 'object',
         properties: {
+          timeframe: { 
+            type: 'string', 
+            enum: ['all', 'today', 'yesterday', 'this_week', 'last_week', 'this_month', 'last_month'],
+            description: 'Timeframe filter for attendance'
+          },
+          status: {
+            type: 'string',
+            enum: ['all', 'Present', 'Absent', 'Late', 'Half Day'],
+            description: 'Filter by specific attendance status'
+          },
           limit: { type: 'number', description: 'Number of recent records to return (default: 15)' }
         },
         required: []
@@ -46,10 +59,11 @@ const AI_TOOLS_DEFINITIONS = [
     type: 'function',
     function: {
       name: 'get_my_homework',
-      description: 'Get homework assignments for the student or homework created by the teacher.',
+      description: 'Get homework assignments for the student or homework created by the teacher. Supports subject filtering and status filtering.',
       parameters: {
         type: 'object',
         properties: {
+          subject: { type: 'string', description: 'Subject name to filter (e.g. Mathematics, Science, English)' },
           status: { type: 'string', enum: ['all', 'pending', 'completed'], description: 'Filter homework status' }
         },
         required: []
@@ -60,10 +74,24 @@ const AI_TOOLS_DEFINITIONS = [
     type: 'function',
     function: {
       name: 'get_my_fees',
-      description: 'Get tuition fee invoices, due balances, and payment status for the student.',
+      description: 'Get tuition fee invoices, balance dues, payment status, and vouchers for the current student.',
       parameters: {
         type: 'object',
         properties: {},
+        required: []
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_my_marks',
+      description: 'Get exam marks, report cards, grades, and GPA for the current student.',
+      parameters: {
+        type: 'object',
+        properties: {
+          subject: { type: 'string', description: 'Optional subject filter' }
+        },
         required: []
       }
     }
@@ -88,8 +116,8 @@ const AI_TOOLS_DEFINITIONS = [
       parameters: {
         type: 'object',
         properties: {
-          className: { type: 'string', description: 'Name of the class, e.g. "Class 10" or "O-Levels"' },
-          section: { type: 'string', description: 'Optional section, e.g. "A" or "Blue"' }
+          className: { type: 'string', description: 'Name of the class, e.g. "Class 10" or "Class 9"' },
+          section: { type: 'string', description: 'Optional section, e.g. "A" or "B"' }
         },
         required: ['className']
       }
@@ -99,7 +127,7 @@ const AI_TOOLS_DEFINITIONS = [
     type: 'function',
     function: {
       name: 'get_notifications_and_notices',
-      description: 'Get recent school notice board announcements and personal system notifications.',
+      description: 'Get recent school notice board circulars and personal system notifications.',
       parameters: {
         type: 'object',
         properties: {
@@ -125,7 +153,7 @@ const AI_TOOLS_DEFINITIONS = [
     type: 'function',
     function: {
       name: 'navigate_to_page',
-      description: 'Trigger a safe page navigation in the Stoofi web app to help the user jump directly to a feature or section.',
+      description: 'Trigger a safe page navigation in the Stoofi web app to jump directly to a feature or section.',
       parameters: {
         type: 'object',
         properties: {
@@ -135,7 +163,7 @@ const AI_TOOLS_DEFINITIONS = [
               'dashboard', 'homework', 'attendance', 'students', 'add_student',
               'teachers', 'fees', 'fees_invoice', 'profile', 'classes', 
               'sections', 'subjects', 'notice_board', 'events', 'settings',
-              'lms_courses', 'download_center'
+              'lms_courses', 'download_center', 'exam_marks'
             ],
             description: 'The target module or feature to open'
           }
@@ -165,13 +193,15 @@ const AI_TOOLS_DEFINITIONS = [
   }
 ];
 
-// System Prompt Generator
+// ─────────────────────────────────────────────────────────────
+// System Prompt Generator with Language Mirroring & Strict Rules
+// ─────────────────────────────────────────────────────────────
 function getStoofiSystemPrompt(user) {
   const role = user?.role || 'User';
   const name = user?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.username || 'User';
   const email = user?.email || '';
 
-  return `You are Stoofi AI, the built-in intelligent assistant for the Stoofi school management platform (https://stoofi.vercel.app).
+  return `You are Stoofi AI, the intelligent, natural assistant for the Stoofi school management ERP platform (https://stoofi.vercel.app).
 
 CURRENT AUTHENTICATED USER CONTEXT:
 - Name: ${name}
@@ -179,24 +209,41 @@ CURRENT AUTHENTICATED USER CONTEXT:
 - Role: ${role}
 - User ID: ${user?._id || 'unknown'}
 
-CORE PRINCIPLES & RULES:
-1. Friendly, professional, concise, respectful, and helpful tone.
-2. You are role-aware:
-   - For Students: Help with their homework, attendance, fees, timetable, profile, and study queries.
-   - For Teachers: Help manage classes, homework, attendance records, curriculum, and evaluations.
-   - For Admins / Super Admins: Provide school-wide analytics, manage students, teachers, fee reports, and system settings.
-3. PRIVACY & SECURITY IS PARAMOUNT:
-   - NEVER invent or guess database data (attendance percentages, marks, fee amounts, student details).
-   - ALWAYS use the provided backend tools to look up real information.
-   - Never reveal private data (such as passwords, CNIC numbers of others, private financial records) to unauthorized users.
-   - If a student asks for another student's private data or overall school financial stats, politely inform them that they do not have permission.
-4. If a user asks a general education or knowledge question (e.g. "Explain photosynthesis", "Help me solve 2x + 5 = 15", "What is an API?"), answer directly with high clarity and helpful examples.
-5. If the user asks to navigate to a page or open a feature (e.g. "Open my homework", "Take me to fee payment"), call the 'navigate_to_page' tool and confirm it in your response.
-6. If data is not found in the database, honestly inform the user without guessing. Format responses cleanly using markdown (bullet points, bold text, concise tables where helpful).`;
+CRITICAL BEHAVIORAL & LANGUAGE RULES:
+1. NATURAL CONVERSATIONAL AGENT (NO ROBOTIC TEMPLATES):
+   - You are a real conversational AI agent, NOT a static FAQ bot.
+   - DO NOT start every response with generic intro text like "I am Stoofi AI, your built-in assistant..." or dump a huge 20-bullet menu of things you can do unless the user explicitly asks for help/capabilities.
+   - When the user greets you ("hello", "salam", "hi"), give a short, friendly, natural reply in 1-2 lines (e.g. "Walaikum Assalam [Name]! Main aapki kya madad kar sakta hoon?" or "Hello [Name]! How can I help you today?").
+   - Answer the user's question directly, accurately, and conversationally.
+
+2. AUTOMATIC LANGUAGE DETECTION & MIRRORING (CRITICAL):
+   - If the user talks to you in **Roman Urdu** (e.g. "mera attendance kitna hai", "kya haal hai", "homework dikhao", "fees kitni baki hai"), YOU MUST RESPOND IN NATURAL PAKISTANI ROMAN URDU (e.g. "Aapki attendance 92% hai.", "Aapka 1 pending homework hai...", "Main check karta hoon").
+   - If the user talks to you in **Urdu Script** (اردو), respond in natural, grammatically correct Urdu script.
+   - If the user talks to you in **English**, respond in fluent, natural English.
+   - If the user uses **mixed Roman Urdu + English**, respond in natural conversational mixed Roman Urdu.
+   - If the user switches language mid-conversation, dynamically switch your language to match them.
+
+3. CONVERSATIONAL MEMORY & FOLLOW-UP CONTEXT:
+   - Always remember the recent messages in context.
+   - For follow-up queries like "acha last month ki?", "aur science ka?", "khol do isko", understand that it refers to the subject previously discussed.
+
+4. REAL DATABASE DATA & ZERO FABRICATION:
+   - NEVER guess or invent database information (attendance percentages, marks, fee vouchers, student lists).
+   - ALWAYS call the appropriate tool to query real live data.
+   - If data is empty or not found, honestly inform the user.
+   - Respect Role-Based Access Control (RBAC): If a student asks for school financial statistics or other students' private records, politely inform them that they do not have permission.
+
+5. ACTIONABLE NAVIGATION:
+   - When the user asks to open or visit a page (e.g. "take me to fees", "student management kholo"), call the 'navigate_to_page' tool so the interface shows a 1-click jump button.
+
+6. GENERAL KNOWLEDGE & ACADEMICS:
+   - If a student or teacher asks academic or general knowledge questions (e.g. math problem, science concept, essay help), explain clearly, step-by-step, with helpful examples.`;
 }
 
+// ─────────────────────────────────────────────────────────────
 // Secure Tool Execution Handlers with Strict RBAC
-async function executeTool(toolName, toolArgs, user) {
+// ─────────────────────────────────────────────────────────────
+async function executeTool(toolName, toolArgs = {}, user) {
   const role = user?.role || 'User';
   const userId = user?._id;
 
@@ -223,7 +270,7 @@ async function executeTool(toolName, toolArgs, user) {
           email: user.email,
           role: user.role,
           phone: user.phone || linkedDoc?.phone,
-          schoolName: user.schoolName || 'Stoofi Model School',
+          schoolName: user.schoolName || 'Stoofi Smart Academy',
           academicDetails: linkedDoc ? {
             className: linkedDoc.className,
             section: linkedDoc.section,
@@ -238,17 +285,62 @@ async function executeTool(toolName, toolArgs, user) {
     }
 
     case 'get_my_attendance': {
-      const limit = Math.min(Number(toolArgs?.limit) || 15, 50);
+      const timeframe = toolArgs?.timeframe || 'all';
+      const statusFilter = toolArgs?.status || 'all';
+      const limit = Math.min(Number(toolArgs?.limit) || 30, 100);
+
+      // Compute date filters
+      let dateQuery = {};
+      const now = new Date();
+      if (timeframe === 'today') {
+        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+        dateQuery = { date: { $gte: start, $lte: end } };
+      } else if (timeframe === 'yesterday') {
+        const yest = new Date(now);
+        yest.setDate(yest.getDate() - 1);
+        const start = new Date(yest.getFullYear(), yest.getMonth(), yest.getDate());
+        const end = new Date(yest.getFullYear(), yest.getMonth(), yest.getDate(), 23, 59, 59, 999);
+        dateQuery = { date: { $gte: start, $lte: end } };
+      } else if (timeframe === 'this_week') {
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+        dateQuery = { date: { $gte: startOfWeek } };
+      } else if (timeframe === 'last_week') {
+        const startOfLastWeek = new Date(now);
+        startOfLastWeek.setDate(now.getDate() - now.getDay() - 7);
+        startOfLastWeek.setHours(0, 0, 0, 0);
+        const endOfLastWeek = new Date(now);
+        endOfLastWeek.setDate(now.getDate() - now.getDay() - 1);
+        endOfLastWeek.setHours(23, 59, 59, 999);
+        dateQuery = { date: { $gte: startOfLastWeek, $lte: endOfLastWeek } };
+      } else if (timeframe === 'this_month') {
+        const start = new Date(now.getFullYear(), now.getMonth(), 1);
+        dateQuery = { date: { $gte: start } };
+      } else if (timeframe === 'last_month') {
+        const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+        dateQuery = { date: { $gte: start, $lte: end } };
+      }
 
       if (role === 'Student') {
         const student = await Student.findOne({ email: user.email }).lean() ||
                         (user.referenceId ? await Student.findById(user.referenceId).lean() : null);
         
-        const query = student 
+        let matchQuery = student 
           ? { $or: [{ recordId: student._id }, { name: new RegExp(student.firstName, 'i') }] }
           : { recordId: user._id };
 
-        const records = await Attendance.find(query).sort({ date: -1 }).limit(limit).lean();
+        if (Object.keys(dateQuery).length > 0) {
+          matchQuery = { $and: [matchQuery, dateQuery] };
+        }
+
+        if (statusFilter !== 'all') {
+          matchQuery.status = statusFilter;
+        }
+
+        const records = await Attendance.find(matchQuery).sort({ date: -1 }).limit(limit).lean();
         const total = records.length;
         const present = records.filter(r => r.status === 'Present').length;
         const absent = records.filter(r => r.status === 'Absent').length;
@@ -259,8 +351,16 @@ async function executeTool(toolName, toolArgs, user) {
         return {
           success: true,
           type: 'student_attendance',
-          summary: { totalRecords: total, present, absent, late, halfDay, attendanceRate: `${percentage}%` },
-          recentRecords: records.map(r => ({
+          timeframe,
+          summary: { 
+            totalRecords: total, 
+            present, 
+            absent, 
+            late, 
+            halfDay, 
+            attendanceRate: `${percentage}%` 
+          },
+          recentRecords: records.slice(0, 10).map(r => ({
             date: r.date ? new Date(r.date).toISOString().split('T')[0] : '',
             status: r.status
           }))
@@ -270,14 +370,24 @@ async function executeTool(toolName, toolArgs, user) {
       if (role === 'Teacher' || role === 'Staff') {
         const staff = await Teacher.findOne({ email: user.email }).lean() ||
                       await Staff.findOne({ email: user.email }).lean();
-        const query = staff ? { $or: [{ staffId: staff._id }, { recordId: staff._id }] } : { recordId: user._id };
-        const records = await StaffAttendance.find(query).sort({ date: -1 }).limit(limit).lean();
+        let matchQuery = staff ? { $or: [{ staffId: staff._id }, { recordId: staff._id }] } : { recordId: user._id };
+        if (Object.keys(dateQuery).length > 0) {
+          matchQuery = { $and: [matchQuery, dateQuery] };
+        }
+
+        const records = await StaffAttendance.find(matchQuery).sort({ date: -1 }).limit(limit).lean();
+        const total = records.length;
+        const present = records.filter(r => r.status === 'Present').length;
+        const absent = records.filter(r => r.status === 'Absent').length;
+        const late = records.filter(r => r.status === 'Late').length;
+        const percentage = total > 0 ? Math.round(((present + late * 0.5) / total) * 100) : 100;
 
         return {
           success: true,
           type: 'staff_attendance',
-          totalRecords: records.length,
-          recentRecords: records.map(r => ({
+          timeframe,
+          summary: { totalRecords: total, present, absent, late, attendanceRate: `${percentage}%` },
+          recentRecords: records.slice(0, 10).map(r => ({
             date: r.date ? new Date(r.date).toISOString().split('T')[0] : '',
             status: r.status
           }))
@@ -293,14 +403,18 @@ async function executeTool(toolName, toolArgs, user) {
           type: 'admin_attendance_overview',
           todayCount: todayRecords.length,
           presentCount: todayRecords.filter(r => r.status === 'Present').length,
-          absentCount: todayRecords.filter(r => r.status === 'Absent').length
+          absentCount: todayRecords.filter(r => r.status === 'Absent').length,
+          lateCount: todayRecords.filter(r => r.status === 'Late').length
         };
       }
 
-      return { success: true, message: 'No attendance records found for this role.' };
+      return { success: true, message: 'No attendance records found.' };
     }
 
     case 'get_my_homework': {
+      const subjectFilter = toolArgs?.subject ? toolArgs.subject.trim() : null;
+      const statusFilter = toolArgs?.status || 'all';
+
       if (role === 'Student') {
         const student = await Student.findOne({ email: user.email }).lean() ||
                         (user.referenceId ? await Student.findById(user.referenceId).lean() : null);
@@ -309,9 +423,12 @@ async function executeTool(toolName, toolArgs, user) {
         if (student?.className) {
           query.className = student.className;
         }
+        if (subjectFilter) {
+          query.subject = { $regex: new RegExp(subjectFilter, 'i') };
+        }
 
-        const homeworks = await Homework.find(query).sort({ submissionDate: -1 }).limit(10).lean();
-        const formatted = homeworks.map(hw => ({
+        const homeworks = await Homework.find(query).sort({ submissionDate: -1 }).limit(15).lean();
+        let formatted = homeworks.map(hw => ({
           id: hw._id,
           subject: hw.subject,
           className: hw.className,
@@ -323,16 +440,26 @@ async function executeTool(toolName, toolArgs, user) {
           isCompleted: (hw.completedBy || []).some(id => id.toString() === user._id.toString())
         }));
 
+        if (statusFilter === 'pending') {
+          formatted = formatted.filter(h => !h.isCompleted);
+        } else if (statusFilter === 'completed') {
+          formatted = formatted.filter(h => h.isCompleted);
+        }
+
         return {
           success: true,
-          studentClass: student?.className || 'All',
+          studentClass: student?.className || 'Class',
           count: formatted.length,
           homeworks: formatted
         };
       }
 
       if (role === 'Teacher' || role === 'Admin' || role === 'Super Admin') {
-        const homeworks = await Homework.find().sort({ createdAt: -1 }).limit(15).lean();
+        let query = {};
+        if (subjectFilter) {
+          query.subject = { $regex: new RegExp(subjectFilter, 'i') };
+        }
+        const homeworks = await Homework.find(query).sort({ createdAt: -1 }).limit(20).lean();
         return {
           success: true,
           count: homeworks.length,
@@ -348,7 +475,7 @@ async function executeTool(toolName, toolArgs, user) {
         };
       }
 
-      return { success: false, message: 'Homework not applicable for this role.' };
+      return { success: false, message: 'Homework is not applicable for this role.' };
     }
 
     case 'get_my_fees': {
@@ -371,7 +498,8 @@ async function executeTool(toolName, toolArgs, user) {
             totalInvoices: invoices.length,
             totalBilled: `PKR ${totalAmount.toLocaleString()}`,
             totalPaid: `PKR ${totalPaid.toLocaleString()}`,
-            outstandingBalance: `PKR ${totalBalance.toLocaleString()}`
+            outstandingBalance: `PKR ${totalBalance.toLocaleString()}`,
+            hasPending: totalBalance > 0
           },
           invoices: invoices.map(inv => ({
             id: inv._id,
@@ -386,18 +514,48 @@ async function executeTool(toolName, toolArgs, user) {
       }
 
       if (role === 'Admin' || role === 'Super Admin' || role === 'Accountant') {
-        const invoices = await FeesInvoice.find().sort({ createdAt: -1 }).limit(10).lean();
+        const invoices = await FeesInvoice.find().sort({ createdAt: -1 }).limit(20).lean();
+        const totalBilled = invoices.reduce((sum, inv) => sum + (Number(inv.amount) || 0), 0);
+        const totalPaid = invoices.reduce((sum, inv) => sum + (Number(inv.paid) || 0), 0);
         const totalBalance = invoices.reduce((sum, inv) => sum + (Number(inv.balance) || 0), 0);
         return {
           success: true,
           adminFeeSummary: {
             recentInvoicesCount: invoices.length,
+            totalBilled: `PKR ${totalBilled.toLocaleString()}`,
+            totalCollected: `PKR ${totalPaid.toLocaleString()}`,
             recentOutstanding: `PKR ${totalBalance.toLocaleString()}`
           }
         };
       }
 
       return { success: false, message: 'Fee records are only visible to students and school administrators.' };
+    }
+
+    case 'get_my_marks': {
+      if (role === 'Student') {
+        const student = await Student.findOne({ email: user.email }).lean() ||
+                        (user.referenceId ? await Student.findById(user.referenceId).lean() : null);
+        
+        if (!student) {
+          return { success: false, message: 'Student profile not linked.' };
+        }
+
+        const marks = await MarksRegister.find({ studentId: student._id.toString() }).limit(20).lean();
+        return {
+          success: true,
+          studentName: `${student.firstName} ${student.lastName || ''}`.trim(),
+          class: student.className,
+          records: marks.map(m => ({
+            marks: m.marks,
+            totalMarks: m.totalMarks,
+            grade: m.grade,
+            gpa: m.gpa,
+            remarks: m.remarks
+          }))
+        };
+      }
+      return { success: false, message: 'Marks lookup is available for students.' };
     }
 
     case 'get_school_statistics': {
@@ -442,7 +600,7 @@ async function executeTool(toolName, toolArgs, user) {
       }
 
       const query = { className: toolArgs.className };
-      if (toolArgs.section) query.section = toolArgs.section;
+      if (toolArgs.section && toolArgs.section !== 'All') query.section = toolArgs.section;
 
       const students = await Student.find(query).select('firstName lastName admissionNo rollNo className section gender phone').limit(50).lean();
 
@@ -525,7 +683,8 @@ async function executeTool(toolName, toolArgs, user) {
         events: { route: '/dashboard/utilities/communicate/event', label: 'Events' },
         settings: { route: '/dashboard/settings/general', label: 'Settings' },
         lms_courses: { route: '/dashboard/lms/courses', label: 'LMS Courses' },
-        download_center: { route: '/dashboard/download-center/content-list', label: 'Download Center' }
+        download_center: { route: '/dashboard/download-center/content-list', label: 'Download Center' },
+        exam_marks: { route: '/dashboard/examinations/marks-register', label: 'Marks Register' }
       };
 
       const selected = routeMap[target] || { route: '/dashboard', label: 'Dashboard' };

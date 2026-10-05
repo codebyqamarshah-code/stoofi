@@ -25,7 +25,9 @@ import {
   BarChart3,
   HelpCircle,
   ShieldCheck,
-  Compass
+  Compass,
+  Copy,
+  CheckCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -40,6 +42,7 @@ export default function StoofiAiPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [copiedMessageId, setCopiedMessageId] = useState(null);
   
   // Renaming conversation state
   const [editingConvId, setEditingConvId] = useState(null);
@@ -123,7 +126,6 @@ export default function StoofiAiPage() {
       });
 
       if (res?.success) {
-        // If it was a new conversation, update active ID and list
         if (res.conversationId && activeConversationId !== res.conversationId) {
           setActiveConversationId(res.conversationId);
           loadConversations();
@@ -132,7 +134,7 @@ export default function StoofiAiPage() {
         const assistantMsg = {
           id: res.message?.id || `ai-${Date.now()}`,
           role: 'assistant',
-          content: res.message?.content || 'I processed your request.',
+          content: res.message?.content || 'Main ne aapki request process kar li hai.',
           navAction: res.message?.navAction,
           createdAt: res.message?.createdAt || new Date().toISOString()
         };
@@ -144,7 +146,7 @@ export default function StoofiAiPage() {
           {
             id: `err-${Date.now()}`,
             role: 'assistant',
-            content: res?.message || 'Stoofi AI is temporarily unavailable. Please try again.',
+            content: res?.message || 'Maaf kijiyega, is waqt Stoofi AI response nahi de pa raha. Please dobara koshish karein.',
             isError: true,
             createdAt: new Date().toISOString()
           }
@@ -157,7 +159,7 @@ export default function StoofiAiPage() {
         {
           id: `err-${Date.now()}`,
           role: 'assistant',
-          content: err?.response?.data?.message || 'I encountered an error retrieving that information. Please try again.',
+          content: err?.response?.data?.message || 'Maaf kijiyega, information check kartay waqt issue aya. Dobara poochiye.',
           isError: true,
           createdAt: new Date().toISOString()
         }
@@ -172,6 +174,12 @@ export default function StoofiAiPage() {
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const handleCopy = (text, id) => {
+    navigator.clipboard.writeText(text);
+    setCopiedMessageId(id);
+    setTimeout(() => setCopiedMessageId(null), 2000);
   };
 
   const handleRename = async (convId) => {
@@ -225,25 +233,25 @@ export default function StoofiAiPage() {
     const role = user?.role || 'User';
     if (role === 'Student') {
       return [
-        { icon: BookOpen, title: 'My Homework', desc: 'List active and pending homework assignments', prompt: 'Show me my pending homework assignments' },
-        { icon: CalendarCheck, title: 'Check Attendance', desc: 'View your overall percentage and recent record', prompt: 'What is my current attendance percentage?' },
-        { icon: CreditCard, title: 'Fee Status', desc: 'Check invoice balance and due fee vouchers', prompt: 'Show my tuition fee status and due balance' },
-        { icon: Compass, title: 'Student Profile', desc: 'View registered class, section, and roll number', prompt: 'Show my student profile and academic details' }
+        { icon: CalendarCheck, title: 'Check Attendance', desc: 'Mera attendance kitna hai?', prompt: 'Mera attendance kitna hai?' },
+        { icon: BookOpen, title: 'My Homework', desc: 'Mera homework dikhao', prompt: 'Mera homework dikhao' },
+        { icon: CreditCard, title: 'Fee Status', desc: 'Meri fees kitni baki hai?', prompt: 'Meri fees kitni baki hai?' },
+        { icon: Compass, title: 'Profile Details', desc: 'Mera student profile dikhao', prompt: 'Mera student profile dikhao' }
       ];
     }
     if (role === 'Teacher') {
       return [
-        { icon: BookOpen, title: 'Homework Management', desc: 'View created homework or create new assignment', prompt: 'Show my created homework assignments' },
-        { icon: CalendarCheck, title: 'Class Attendance', desc: 'Review attendance records for your students', prompt: 'How do I mark student attendance in Stoofi?' },
-        { icon: Compass, title: 'Class Directory', desc: 'Inspect enrolled students in a class', prompt: 'How many students are enrolled in Class 10?' },
-        { icon: HelpCircle, title: 'Curriculum & Guides', desc: 'Ask any teaching or lesson planning question', prompt: 'Help me draft a 30-minute lesson plan for science' }
+        { icon: BookOpen, title: 'Homework Assignments', desc: 'Show created homework assignments', prompt: 'Show my created homework assignments' },
+        { icon: CalendarCheck, title: 'Student Attendance', desc: 'How to mark student attendance', prompt: 'How do I mark student attendance in Stoofi?' },
+        { icon: Compass, title: 'Class Directory', desc: 'Class 10 ke students dikhao', prompt: 'Class 10 ke students dikhao' },
+        { icon: HelpCircle, title: 'Lesson Planning', desc: 'Draft a 30-minute lesson plan', prompt: 'Help me draft a 30-minute science lesson plan' }
       ];
     }
     return [
-      { icon: BarChart3, title: 'School Analytics', desc: 'Instant overview of students, teachers, and staff', prompt: 'Give me an overview of school statistics and enrolment' },
-      { icon: CreditCard, title: 'Fee Collection', desc: 'Summary of recent fee invoices and balances', prompt: 'What is the recent fee collection summary?' },
-      { icon: Compass, title: 'Manage Students', desc: 'Navigate to student directory or add new student', prompt: 'Take me to the student management section' },
-      { icon: ShieldCheck, title: 'System Features', desc: 'Learn about any Stoofi module or setting', prompt: 'Explain how the LMS and Download Center work in Stoofi' }
+      { icon: BarChart3, title: 'School Analytics', desc: 'Total students and overview', prompt: 'School ke total students aur statistics batao' },
+      { icon: CreditCard, title: 'Fee Collection', desc: 'Recent fee collection summary', prompt: 'What is the recent fee collection summary?' },
+      { icon: Compass, title: 'Student Directory', desc: 'Take me to student management', prompt: 'Student management page open karo' },
+      { icon: ShieldCheck, title: 'System Features', desc: 'Explain LMS and Stoofi modules', prompt: 'Explain how the LMS and Download Center work' }
     ];
   };
 
@@ -256,19 +264,19 @@ export default function StoofiAiPage() {
       {/* ─────────────────────────────────────────────────────────────
           LEFT SIDEBAR: Conversation History & Controls
       ────────────────────────────────────────────────────────────── */}
-      <div className="xl:w-80 w-full bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-2xl flex flex-col overflow-hidden shadow-sm shrink-0">
+      <div className="xl:w-80 w-full bg-white border border-zinc-200 rounded-2xl flex flex-col overflow-hidden shadow-xs shrink-0">
         {/* Sidebar Header */}
-        <div className="p-4 border-b border-zinc-200 dark:border-zinc-200 space-y-3">
+        <div className="p-4 border-b border-zinc-200 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-zinc-950 flex items-center justify-center shadow-sm">
+              <div className="w-8 h-8 rounded-xl bg-zinc-950 text-white flex items-center justify-center shadow-xs">
                 <Sparkles className="w-4 h-4" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-950 leading-tight">Stoofi AI</h2>
+                <h2 className="text-sm font-bold text-zinc-950 leading-tight">Stoofi AI</h2>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="text-[11px] text-zinc-500 dark:text-zinc-700 font-medium">Assistant Ready</span>
+                  <span className="text-[11px] text-zinc-500 font-medium">Agent Active</span>
                 </div>
               </div>
             </div>
@@ -276,7 +284,7 @@ export default function StoofiAiPage() {
             <Button
               onClick={startNewChat}
               size="sm"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs h-8 px-3 rounded-xl shadow-xs flex items-center gap-1.5"
+              className="bg-zinc-950 hover:bg-zinc-800 text-white font-semibold text-xs h-8 px-3 rounded-xl shadow-xs flex items-center gap-1.5"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>New Chat</span>
@@ -291,7 +299,7 @@ export default function StoofiAiPage() {
               placeholder="Search conversations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-2 bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-xl text-xs text-zinc-900 dark:text-zinc-950 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+              className="w-full pl-8 pr-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl text-xs text-zinc-950 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-950/10 focus:border-zinc-950"
             />
           </div>
         </div>
@@ -300,14 +308,14 @@ export default function StoofiAiPage() {
         <div className="flex-1 overflow-y-auto p-2 space-y-1">
           {isInitialLoading ? (
             <div className="p-8 text-center text-xs text-zinc-400 space-y-2">
-              <Loader2 className="w-5 h-5 animate-spin mx-auto text-emerald-500" />
-              <p>Loading history...</p>
+              <Loader2 className="w-5 h-5 animate-spin mx-auto text-zinc-950" />
+              <p>Loading conversations...</p>
             </div>
           ) : filteredConversations.length === 0 ? (
             <div className="p-8 text-center text-xs text-zinc-400 space-y-1">
-              <MessageSquare className="w-6 h-6 mx-auto text-zinc-950 dark:text-zinc-700" />
+              <MessageSquare className="w-6 h-6 mx-auto text-zinc-300" />
               <p className="font-medium text-zinc-500">No conversations yet</p>
-              <p className="text-[11px] text-zinc-400">Ask Stoofi AI a question to get started!</p>
+              <p className="text-[11px] text-zinc-400">Ask Stoofi AI a question to start!</p>
             </div>
           ) : (
             filteredConversations.map((conv) => {
@@ -320,12 +328,12 @@ export default function StoofiAiPage() {
                   onClick={() => selectConversation(conv._id)}
                   className={`group relative flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium cursor-pointer transition-all ${
                     isActive
-                      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 shadow-xs'
-                      : 'text-zinc-700 dark:text-zinc-950 hover:bg-zinc-50 dark:hover:bg-white border border-transparent'
+                      ? 'bg-zinc-100 text-zinc-950 font-bold border border-zinc-300 shadow-xs'
+                      : 'text-zinc-700 hover:bg-zinc-50 border border-transparent'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                    <MessageSquare className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-400'}`} />
+                    <MessageSquare className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-zinc-950' : 'text-zinc-400'}`} />
                     
                     {isEditing ? (
                       <div className="flex items-center gap-1 flex-1" onClick={(e) => e.stopPropagation()}>
@@ -334,7 +342,7 @@ export default function StoofiAiPage() {
                           value={editTitle}
                           onChange={(e) => setEditTitle(e.target.value)}
                           autoFocus
-                          className="w-full bg-white dark:bg-white border border-emerald-500 rounded px-1.5 py-0.5 text-xs text-zinc-900 dark:text-zinc-950"
+                          className="w-full bg-white border border-zinc-950 rounded px-1.5 py-0.5 text-xs text-zinc-950"
                         />
                         <button onClick={() => handleRename(conv._id)} className="p-1 hover:text-emerald-600"><Check className="w-3.5 h-3.5" /></button>
                         <button onClick={() => setEditingConvId(null)} className="p-1 hover:text-rose-600"><X className="w-3.5 h-3.5" /></button>
@@ -353,7 +361,7 @@ export default function StoofiAiPage() {
                           setEditTitle(conv.title || '');
                         }}
                         title="Rename"
-                        className="p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                        className="p-1 text-zinc-400 hover:text-zinc-950"
                       >
                         <Edit3 className="w-3 h-3" />
                       </button>
@@ -373,18 +381,18 @@ export default function StoofiAiPage() {
         </div>
 
         {/* User Role Badge at Bottom of Sidebar */}
-        <div className="p-3 border-t border-zinc-200 dark:border-zinc-200 bg-zinc-50/50 dark:bg-white flex items-center justify-between text-xs">
+        <div className="p-3 border-t border-zinc-200 bg-zinc-50 flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center font-bold text-[10px] text-zinc-700 dark:text-zinc-950">
+            <div className="w-6 h-6 rounded-full bg-zinc-950 text-white flex items-center justify-center font-bold text-[10px]">
               {user?.role ? user.role.charAt(0) : 'U'}
             </div>
             <div className="truncate max-w-[140px]">
-              <p className="font-semibold text-zinc-900 dark:text-zinc-950 truncate">{user?.fullName || user?.username || 'Authenticated'}</p>
-              <p className="text-[10px] text-zinc-500 capitalize">{user?.role || 'User'}</p>
+              <p className="font-semibold text-zinc-950 truncate">{user?.fullName || user?.username || 'User'}</p>
+              <p className="text-[10px] text-zinc-500 capitalize">{user?.role || 'Authenticated'}</p>
             </div>
           </div>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
-            Stoofi AI
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-zinc-200 text-zinc-800 border border-zinc-300">
+            Stoofi Agent
           </span>
         </div>
       </div>
@@ -392,22 +400,22 @@ export default function StoofiAiPage() {
       {/* ─────────────────────────────────────────────────────────────
           CENTER / MAIN CHAT AREA
       ────────────────────────────────────────────────────────────── */}
-      <div className="flex-1 bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-2xl flex flex-col overflow-hidden shadow-sm">
+      <div className="flex-1 bg-white border border-zinc-200 rounded-2xl flex flex-col overflow-hidden shadow-xs">
         {/* Chat Area Header */}
-        <div className="p-4 border-b border-zinc-200 dark:border-zinc-200 flex items-center justify-between bg-white dark:bg-zinc-950">
+        <div className="p-4 border-b border-zinc-200 flex items-center justify-between bg-white">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-white dark:bg-white border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shadow-md p-1.5 overflow-hidden">
+            <div className="w-10 h-10 rounded-2xl bg-zinc-50 border border-zinc-200 flex items-center justify-center shadow-xs p-1.5 overflow-hidden">
               <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold text-zinc-900 dark:text-zinc-950">Stoofi AI</h1>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/80">
-                  Role-Aware Assistant
+                <h1 className="text-base font-bold text-zinc-950">Stoofi AI Agent</h1>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  Role-Aware
                 </span>
               </div>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                Connected to your authorized Stoofi school database
+              <p className="text-xs text-zinc-500">
+                Connected to real school ERP database records (Attendance, Homework, Fees, Directory)
               </p>
             </div>
           </div>
@@ -418,7 +426,7 @@ export default function StoofiAiPage() {
                 variant="outline"
                 size="sm"
                 onClick={handleClearMessages}
-                className="h-8 text-xs text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-50/80 flex items-center gap-1.5"
+                className="h-8 text-xs text-zinc-700 border-zinc-200 hover:bg-zinc-50 flex items-center gap-1.5"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Clear Chat</span>
@@ -428,22 +436,20 @@ export default function StoofiAiPage() {
         </div>
 
         {/* Message Thread */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 bg-zinc-50/40 dark:bg-zinc-900/20">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 bg-zinc-50/50">
           {messages.length === 0 ? (
-            /* ─────────────────────────────────────────────────────────────
-               WELCOME & QUICK PROMPTS HERO
-            ────────────────────────────────────────────────────────────── */
+            /* Welcome Hero & Suggestions */
             <div className="h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center py-8 space-y-6">
-              <div className="w-16 h-16 rounded-3xl bg-white dark:bg-white border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shadow-xl p-2.5">
+              <div className="w-16 h-16 rounded-3xl bg-white border border-zinc-200 flex items-center justify-center shadow-md p-3">
                 <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
               </div>
 
               <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-950 tracking-tight">
+                <h2 className="text-2xl font-bold text-zinc-950 tracking-tight">
                   Welcome to Stoofi AI, {user?.firstName || user?.fullName || user?.username || 'there'}!
                 </h2>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400 max-w-lg mx-auto">
-                  Your smart, role-aware personal assistant. Ask me anything about your school records, homework, attendance, fees, or how to navigate Stoofi.
+                <p className="text-sm text-zinc-600 max-w-lg mx-auto">
+                  Aapka smart AI assistant. Aap normal Roman Urdu ya English mein attendance, homework, fees, ya portal navigation ke hawalay se kuch bhi pooch saktay hain.
                 </p>
               </div>
 
@@ -455,17 +461,17 @@ export default function StoofiAiPage() {
                     <button
                       key={index}
                       onClick={() => handleSendMessage(card.prompt)}
-                      className="p-4 rounded-2xl bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-md transition-all group cursor-pointer text-left"
+                      className="p-4 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-950 hover:shadow-md transition-all group cursor-pointer text-left"
                     >
                       <div className="flex items-center gap-3 mb-1.5">
-                        <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
+                        <div className="p-2 rounded-xl bg-zinc-100 text-zinc-950 group-hover:bg-zinc-950 group-hover:text-white transition-all">
                           <Icon className="w-4 h-4" />
                         </div>
-                        <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-950 group-hover:text-emerald-600 transition-colors">
+                        <h3 className="text-sm font-bold text-zinc-950 group-hover:text-zinc-950 transition-colors">
                           {card.title}
                         </h3>
                       </div>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">
+                      <p className="text-xs text-zinc-500 line-clamp-2">
                         {card.desc}
                       </p>
                     </button>
@@ -474,9 +480,7 @@ export default function StoofiAiPage() {
               </div>
             </div>
           ) : (
-            /* ─────────────────────────────────────────────────────────────
-               ACTIVE CONVERSATION THREAD
-            ────────────────────────────────────────────────────────────── */
+            /* Active Conversation Thread */
             messages.map((msg) => (
               <div
                 key={msg.id}
@@ -485,37 +489,51 @@ export default function StoofiAiPage() {
                 }`}
               >
                 {msg.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-1 shadow-sm p-1 overflow-hidden">
+                  <div className="w-8 h-8 rounded-2xl bg-white border border-zinc-200 flex items-center justify-center shrink-0 mt-1 shadow-xs p-1 overflow-hidden">
                     <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
                   </div>
                 )}
 
                 <div className="space-y-2 flex-1 max-w-[88%]">
                   <div
-                    className={`p-4 sm:p-5 rounded-2xl text-sm leading-relaxed ${
+                    className={`relative group p-4 sm:p-5 rounded-2xl text-sm leading-relaxed ${
                       msg.role === 'user'
-                        ? 'bg-emerald-600 text-white rounded-tr-none shadow-md'
+                        ? 'bg-zinc-950 text-white rounded-tr-none shadow-sm font-normal'
                         : msg.isError
-                          ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 rounded-tl-none'
-                          : 'bg-white dark:bg-white text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-200 rounded-tl-none shadow-xs'
+                          ? 'bg-rose-50 text-rose-800 border border-rose-200 rounded-tl-none'
+                          : 'bg-white text-zinc-950 border border-zinc-200 rounded-tl-none shadow-xs'
                     }`}
                   >
                     <div className="whitespace-pre-wrap break-words">{msg.content}</div>
+
+                    {msg.role === 'assistant' && !msg.isError && (
+                      <button
+                        onClick={() => handleCopy(msg.content, msg.id)}
+                        className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 p-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-600 transition-all"
+                        title="Copy message"
+                      >
+                        {copiedMessageId === msg.id ? (
+                          <CheckCheck className="w-3.5 h-3.5 text-emerald-600" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    )}
                   </div>
 
-                  {/* Navigation Action CTA Card from AI */}
+                  {/* Navigation Action CTA Button */}
                   {msg.navAction && msg.navAction.route && (
-                    <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 rounded-xl flex items-center justify-between gap-3 animate-in fade-in duration-300">
+                    <div className="p-3 bg-zinc-50 border border-zinc-200 rounded-xl flex items-center justify-between gap-3 animate-in fade-in duration-300">
                       <div className="flex items-center gap-2">
-                        <Compass className="w-4 h-4 text-emerald-600" />
-                        <span className="text-xs font-semibold text-emerald-900 dark:text-emerald-200">
+                        <Compass className="w-4 h-4 text-zinc-950" />
+                        <span className="text-xs font-semibold text-zinc-950">
                           Jump to {msg.navAction.label || 'Page'}
                         </span>
                       </div>
                       <Button
                         size="sm"
                         onClick={() => router.push(msg.navAction.route)}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-7 px-3 rounded-lg shadow-xs flex items-center gap-1"
+                        className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold text-xs h-7 px-3 rounded-lg shadow-xs flex items-center gap-1"
                       >
                         <span>Open</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -523,13 +541,13 @@ export default function StoofiAiPage() {
                     </div>
                   )}
 
-                  <span className="block text-[10px] text-zinc-700 px-1">
+                  <span className="block text-[10px] text-zinc-400 px-1">
                     {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                   </span>
                 </div>
 
                 {msg.role === 'user' && (
-                  <div className="w-8 h-8 rounded-2xl bg-zinc-800 text-zinc-950 flex items-center justify-center shrink-0 mt-1 shadow-sm">
+                  <div className="w-8 h-8 rounded-2xl bg-zinc-800 text-white flex items-center justify-center shrink-0 mt-1 shadow-xs">
                     <UserIcon className="w-4 h-4" />
                   </div>
                 )}
@@ -537,19 +555,19 @@ export default function StoofiAiPage() {
             ))
           )}
 
-          {/* Thinking / Typing State */}
+          {/* Thinking / Typing Indicator */}
           {isLoading && (
             <div className="flex gap-3.5 max-w-3xl mr-auto items-center">
-              <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 shadow-sm p-1 overflow-hidden animate-pulse">
+              <div className="w-8 h-8 rounded-2xl bg-white border border-zinc-200 flex items-center justify-center shrink-0 shadow-xs p-1 overflow-hidden animate-pulse">
                 <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
               </div>
-              <div className="p-4 rounded-2xl bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 text-xs text-zinc-500 flex items-center gap-2 shadow-xs">
+              <div className="p-4 rounded-2xl bg-white border border-zinc-200 text-xs text-zinc-500 flex items-center gap-2 shadow-xs">
                 <span className="flex gap-1 items-center">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce"></span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce [animation-delay:0.2s]"></span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce [animation-delay:0.4s]"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-950 animate-bounce"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-950 animate-bounce [animation-delay:0.2s]"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-950 animate-bounce [animation-delay:0.4s]"></span>
                 </span>
-                <span>Stoofi AI is thinking and retrieving school data...</span>
+                <span>Stoofi AI is checking live school records...</span>
               </div>
             </div>
           )}
@@ -558,7 +576,7 @@ export default function StoofiAiPage() {
         </div>
 
         {/* Bottom Message Input Box */}
-        <div className="p-4 bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-200 space-y-2">
+        <div className="p-4 bg-white border-t border-zinc-200 space-y-2">
           <form 
             onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} 
             className="relative flex items-center gap-2"
@@ -566,17 +584,17 @@ export default function StoofiAiPage() {
             <textarea
               ref={textareaRef}
               rows={1}
-              placeholder="Ask Stoofi AI anything..."
+              placeholder="Ask in Roman Urdu, English, or Urdu (e.g. 'Mera attendance kitna hai?')..."
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isLoading}
-              className="flex-1 resize-none bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-2xl px-4 py-3.5 text-sm text-zinc-900 dark:text-zinc-950 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all disabled:opacity-50 max-h-32"
+              className="flex-1 resize-none bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-3.5 text-sm text-zinc-950 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-950/10 focus:border-zinc-950 transition-all disabled:opacity-50 max-h-32"
             />
             <Button
               type="submit"
               disabled={!inputMessage.trim() || isLoading}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl h-12 px-5 shrink-0 shadow-md transition-all flex items-center gap-2"
+              className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold rounded-2xl h-12 px-5 shrink-0 shadow-xs transition-all flex items-center gap-2 disabled:opacity-40"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -589,8 +607,8 @@ export default function StoofiAiPage() {
             </Button>
           </form>
 
-          <p className="text-[11px] text-center text-zinc-400 dark:text-zinc-500">
-            Press <kbd className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-700 font-mono text-[10px]">Enter</kbd> to send, <kbd className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-mono text-[10px]">Shift + Enter</kbd> for new line
+          <p className="text-[11px] text-center text-zinc-400">
+            Press <kbd className="px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-600 font-mono text-[10px]">Enter</kbd> to send, <kbd className="px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-600 font-mono text-[10px]">Shift + Enter</kbd> for new line
           </p>
         </div>
       </div>

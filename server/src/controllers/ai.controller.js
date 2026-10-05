@@ -1,4 +1,5 @@
 const OpenAI = require('openai');
+const axios = require('axios');
 const AIConversation = require('../models/AIConversation');
 const AIMessage = require('../models/AIMessage');
 const { AI_TOOLS_DEFINITIONS, getStoofiSystemPrompt, executeTool } = require('../services/aiTools.service');
@@ -11,6 +12,11 @@ function getOpenAIClient() {
     return null;
   }
   return new OpenAI({ apiKey: apiKey.trim() });
+}
+
+function getGeminiApiKey() {
+  const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  return key && key.trim() !== '' ? key.trim() : null;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -48,7 +54,7 @@ exports.chat = async (req, res) => {
       content: message.trim()
     });
 
-    // 3. Load recent conversation history
+    // 3. Load recent conversation history (last 10 messages)
     const recentMessages = await AIMessage.find({ conversationId: conversation._id })
       .sort({ createdAt: 1 })
       .limit(10)
@@ -57,17 +63,18 @@ exports.chat = async (req, res) => {
     let replyContent = '';
     let navAction = null;
     let executedToolsData = [];
+    let providerSucceeded = false;
+
     const openai = getOpenAIClient();
+    const geminiKey = getGeminiApiKey();
+    const systemPrompt = getStoofiSystemPrompt(user);
+    const contextualSystemMsg = pageContext?.pathname
+      ? `${systemPrompt}\n\nCURRENT BROWSER PAGE CONTEXT:\nThe user is currently viewing the page: "${pageContext.pathname}".`
+      : systemPrompt;
 
-    // 4. Try calling OpenAI
-    let openAiSucceeded = false;
-    if (openai) {
+    // 4. Try OpenAI if configured
+    if (openai && !providerSucceeded) {
       try {
-        const systemPrompt = getStoofiSystemPrompt(user);
-        const contextualSystemMsg = pageContext?.pathname
-          ? `${systemPrompt}\n\nCURRENT BROWSER PAGE CONTEXT:\nThe user is currently viewing the page: "${pageContext.pathname}".`
-          : systemPrompt;
-
         const messagesPayload = [
           { role: 'system', content: contextualSystemMsg }
         ];
@@ -92,7 +99,7 @@ exports.chat = async (req, res) => {
 
         let assistantMsg = completion.choices[0].message;
 
-        // Handle tool calls loop
+        // Handle OpenAI tool calls loop
         if (assistantMsg.tool_calls && assistantMsg.tool_calls.length > 0) {
           messagesPayload.push(assistantMsg);
 
@@ -134,21 +141,57 @@ exports.chat = async (req, res) => {
         }
 
         replyContent = assistantMsg.content || 'I processed your request.';
-        openAiSucceeded = true;
+        providerSucceeded = true;
       } catch (openAiError) {
-        console.warn('OpenAI API call failed (Falling back to Stoofi Intelligent Engine):', openAiError?.message);
-        openAiSucceeded = false;
+        console.warn('OpenAI API call failed:', openAiError?.message);
+        providerSucceeded = false;
       }
     }
 
-    // 5. If OpenAI failed or had 429 quota limit, run Stoofi Intelligent NLP & Live Data Engine
-    if (!openAiSucceeded) {
-      const fallbackResult = await generateIntelligentFallbackResponse(message, user, pageContext);
+    // 5. Try Gemini API if OpenAI failed/not configured and Gemini Key is available
+    if (geminiKey && !providerSucceeded) {
+      try {
+        const geminiContents = [];
+        for (const msg of recentMessages) {
+          geminiContents.push({
+            role: msg.role === 'user' ? 'user' : 'model',
+            parts: [{ text: msg.content }]
+          });
+        }
+
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
+        const geminiResponse = await axios.post(
+          geminiUrl,
+          {
+            contents: geminiContents,
+            systemInstruction: { parts: [{ text: contextualSystemMsg }] },
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 1200
+            }
+          },
+          { timeout: 12000 }
+        );
+
+        const cand = geminiResponse.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (cand && cand.trim()) {
+          replyContent = cand.trim();
+          providerSucceeded = true;
+        }
+      } catch (geminiError) {
+        console.warn('Gemini API call failed:', geminiError?.message);
+        providerSucceeded = false;
+      }
+    }
+
+    // 6. If external LLMs failed or not configured, use Stoofi Intelligent Natural NLP Engine with Full Memory
+    if (!providerSucceeded) {
+      const fallbackResult = await generateIntelligentFallbackResponse(message, user, pageContext, recentMessages);
       replyContent = fallbackResult.content;
       navAction = fallbackResult.navAction || navAction;
     }
 
-    // 6. Save assistant message to database
+    // 7. Save assistant message to database
     const assistantMsgDoc = await AIMessage.create({
       conversationId: conversation._id,
       userId: user._id,
@@ -290,11 +333,13 @@ exports.clearConversationMessages = async (req, res) => {
 // GET /api/ai/status
 // ─────────────────────────────────────────────────────────────
 exports.getStatus = async (req, res) => {
-  const hasKey = Boolean(process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== '');
+  const hasOpenAI = Boolean(process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== '');
+  const hasGemini = Boolean(getGeminiApiKey());
   return res.json({
     success: true,
-    status: hasKey ? 'online' : 'fallback_engine',
+    status: (hasOpenAI || hasGemini) ? 'online' : 'intelligent_nlp_engine',
+    provider: hasOpenAI ? 'OpenAI' : hasGemini ? 'Google Gemini' : 'Stoofi NLP Live Engine',
     model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-    version: '1.0.0'
+    version: '2.0.0'
   });
 };
