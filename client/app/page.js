@@ -395,6 +395,7 @@ export default function LandingPage() {
                       </button>
                     </div>
                   )}
+                </div>
               </div>
             ) : (
               <Link href="/login">
