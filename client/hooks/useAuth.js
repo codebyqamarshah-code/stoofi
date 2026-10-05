@@ -12,6 +12,29 @@ export const useAuth = create(
       isLoading: false,
       error: null,
 
+      setSession: (user, token) => {
+        set({ user, token, isAuthenticated: true, isLoading: false, error: null });
+        if (token) {
+          Cookies.set('token', token, { path: '/', expires: 7 });
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem('token', token);
+            localStorage.setItem('token', token);
+          }
+        }
+        if (user && typeof window !== 'undefined') {
+          const recentUserObj = {
+            _id: user._id,
+            name: user.fullName || user.name || user.username,
+            fullName: user.fullName || user.name || user.username,
+            email: user.email,
+            role: user.role,
+            picture: user.picture || user.avatar,
+            avatar: user.avatar || user.picture
+          };
+          localStorage.setItem('recent_user', JSON.stringify(recentUserObj));
+        }
+      },
+
       login: async (email, password, remember = true, roleLabel = null, otp = null) => {
         set({ isLoading: true, error: null });
         const cleanEmail = email?.trim().toLowerCase() || 'super@gmail.com';
@@ -42,17 +65,19 @@ export const useAuth = create(
               isLoading: false,
               error: null
             });
-            // Use session cookie (no expires attribute) so it clears on browser close
+            // Use session cookie with 7 days expiry
             Cookies.set('token', finalToken, { path: '/', expires: 7 });
             if (typeof window !== 'undefined') {
               sessionStorage.setItem('token', finalToken);
+              localStorage.setItem('token', finalToken);
               localStorage.setItem('recent_user', JSON.stringify({
+                _id: finalUser._id,
                 name: finalUser.fullName || finalUser.name || finalUser.username,
                 fullName: finalUser.fullName || finalUser.name || finalUser.username,
                 email: finalUser.email,
                 role: finalUser.role,
-                picture: finalUser.picture,
-                avatar: finalUser.avatar
+                picture: finalUser.picture || finalUser.avatar,
+                avatar: finalUser.avatar || finalUser.picture
               }));
             }
             return { success: true, user: finalUser };
@@ -73,10 +98,8 @@ export const useAuth = create(
         if (typeof window !== 'undefined') {
           sessionStorage.removeItem('token');
           sessionStorage.removeItem('auth-storage');
-          // Fallback clean up just in case
           localStorage.removeItem('token');
           localStorage.removeItem('auth-storage');
-          // We intentionally do NOT remove recent_user so they see their profile next time
         }
         try { await api.get('/auth/logout'); } catch(e){}
       },
@@ -87,17 +110,26 @@ export const useAuth = create(
 
         if (typeof window !== 'undefined') {
           if (!token) {
-            token = sessionStorage.getItem('token') || Cookies.get('token');
+            token = sessionStorage.getItem('token') || Cookies.get('token') || localStorage.getItem('token');
           }
           if (!user) {
             try {
-              const raw = sessionStorage.getItem('auth-storage');
-              if (raw) {
-                const parsed = JSON.parse(raw);
+              const rawSession = sessionStorage.getItem('auth-storage');
+              if (rawSession) {
+                const parsed = JSON.parse(rawSession);
                 if (parsed?.state?.user) user = parsed.state.user;
                 if (!token && parsed?.state?.token) token = parsed.state.token;
               }
             } catch (e) {}
+
+            if (!user) {
+              try {
+                const rawRecent = localStorage.getItem('recent_user');
+                if (rawRecent) {
+                  user = JSON.parse(rawRecent);
+                }
+              } catch (e) {}
+            }
           }
         }
 
@@ -124,6 +156,17 @@ export const useAuth = create(
            const res = await api.get('/auth/me');
            if (res && res.success && res.data) {
              set({ isAuthenticated: true, user: res.data, isLoading: false });
+             if (typeof window !== 'undefined') {
+               localStorage.setItem('recent_user', JSON.stringify({
+                 _id: res.data._id,
+                 name: res.data.fullName || res.data.name || res.data.username,
+                 fullName: res.data.fullName || res.data.name || res.data.username,
+                 email: res.data.email,
+                 role: res.data.role,
+                 picture: res.data.picture || res.data.avatar,
+                 avatar: res.data.avatar || res.data.picture
+               }));
+             }
            }
         } catch (error) {
            // If /auth/me fails and we don't have a user, token is likely invalid
@@ -137,7 +180,7 @@ export const useAuth = create(
     }),
     {
       name: 'auth-storage',
-      storage: createJSONStorage(() => sessionStorage), // Use sessionStorage for zustand persist
+      storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => {
         return { user: state.user, token: state.token, isAuthenticated: state.isAuthenticated };
       },

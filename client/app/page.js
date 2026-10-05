@@ -26,10 +26,31 @@ export default function LandingPage() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
   const [mounted, setMounted] = useState(false);
+  const [recentUser, setRecentUser] = useState(null);
 
   useEffect(() => {
     setMounted(true);
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('recent_user');
+        if (stored) {
+          setRecentUser(JSON.parse(stored));
+        }
+      } catch (e) {}
+    }
   }, []);
+
+  const activeUser = user || (mounted ? recentUser : null);
+  const isUserAvailable = (isAuthenticated && !!user) || (mounted && !!recentUser);
+
+  const getDashboardUrl = (targetUser = activeUser) => {
+    const r = (targetUser?.role || '').toLowerCase();
+    if (r.includes('student')) return '/dashboard/student';
+    if (r.includes('teacher')) return '/dashboard/teacher';
+    if (r.includes('super admin') || r.includes('superadmin')) return '/dashboard';
+    if (r.includes('admin')) return '/dashboard';
+    return '/dashboard';
+  };
 
   // Notices state
   const [publicNotices, setPublicNotices] = useState([]);
@@ -316,55 +337,72 @@ export default function LandingPage() {
             </div>
 
             <ThemeToggle />
-            {isAuthenticated && user ? (
-              <div className="relative" ref={profileRef}>
-                <button
-                  onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-200 border border-zinc-200 dark:border-zinc-300 rounded-full py-1 px-3 transition-colors"
-                >
-                  {user?.avatar || user?.picture ? (
-                    <img loading="lazy" src={user.avatar || user.picture} alt="Profile" className="w-7 h-7 rounded-full object-cover" />
-                  ) : (
-                    <div className="w-7 h-7 bg-zinc-800 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                      {user?.name ? user.name.charAt(0).toUpperCase() : <User size={14} color="#ffffff" />}
+            {isUserAvailable && activeUser ? (
+              <div className="flex items-center gap-2">
+                <div className="relative" ref={profileRef}>
+                  <button
+                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                    className="flex items-center gap-2 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 rounded-full py-1.5 px-3 transition-colors"
+                  >
+                    {activeUser?.avatar || activeUser?.picture ? (
+                      <img loading="lazy" src={activeUser.avatar || activeUser.picture} alt="Profile" className="w-7 h-7 rounded-full object-cover border border-zinc-300" />
+                    ) : (
+                      <div className="w-7 h-7 bg-zinc-900 rounded-full flex items-center justify-center text-white text-xs font-black">
+                        {activeUser?.name ? activeUser.name.charAt(0).toUpperCase() : <User size={14} color="#ffffff" />}
+                      </div>
+                    )}
+                    <div className="text-left">
+                      <p className="text-xs font-bold text-zinc-900 leading-tight truncate max-w-[100px]">
+                        {activeUser?.name || activeUser?.fullName || activeUser?.email?.split('@')[0]}
+                      </p>
+                      <p className="text-[10px] font-semibold text-zinc-500 uppercase leading-none">
+                        {activeUser?.role || 'Member'}
+                      </p>
+                    </div>
+                    <ChevronDown size={14} className={`text-zinc-600 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {isProfileOpen && (
+                    <div className="absolute top-full right-0 mt-2 w-52 bg-white border border-zinc-200 rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                      <div className="px-4 py-2.5 border-b border-zinc-100 mb-1">
+                        <p className="text-sm font-bold text-zinc-900 truncate">{activeUser?.name || activeUser?.fullName || activeUser?.email}</p>
+                        <p className="text-xs text-zinc-500 truncate">{activeUser?.email}</p>
+                        <span className="inline-block mt-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-zinc-100 text-zinc-800 border border-zinc-200">
+                          {activeUser?.role || 'User'}
+                        </span>
+                      </div>
+                      <Link 
+                        href={getDashboardUrl(activeUser)}
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900"
+                      >
+                        <LayoutDashboard size={16} />
+                        Dashboard
+                      </Link>
+                      <button 
+                        onClick={() => {
+                          logout();
+                          if (typeof window !== 'undefined') {
+                            localStorage.removeItem('recent_user');
+                          }
+                          setIsProfileOpen(false);
+                          window.location.href = '/';
+                        }}
+                        className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm font-semibold text-rose-600 hover:bg-rose-50"
+                      >
+                        <LogOut size={16} />
+                        Logout / Switch
+                      </button>
                     </div>
                   )}
-                  <span className="text-sm font-bold text-zinc-800 dark:text-zinc-900 capitalize">{user?.role}</span>
-                  <ChevronDown size={14} className={`text-zinc-600 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
-                </button>
-                
-                {isProfileOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-zinc-200 rounded-xl shadow-xl py-2 z-50">
-                    <div className="px-4 py-2 border-b border-zinc-100 mb-1">
-                      <p className="text-sm font-bold text-zinc-900 truncate">{user?.name || user?.email}</p>
-                      <p className="text-xs text-zinc-500 capitalize">{user?.role}</p>
-                    </div>
-                    <Link 
-                      href={
-                        user?.role === 'Super Admin' ? '/dashboard' : 
-                        user?.role === 'Admin' ? '/dashboard/admin' : 
-                        user?.role === 'Student' ? '/dashboard/student' : 
-                        user?.role === 'Teacher' ? '/dashboard/teacher' : 
-                        '/coming-soon'
-                      }
-                      className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900"
-                    >
-                      <LayoutDashboard size={16} />
-                      Dashboard
-                    </Link>
-                    <button 
-                      onClick={() => {
-                        logout();
-                        setIsProfileOpen(false);
-                        window.location.href = '/';
-                      }}
-                      className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
-                    >
-                      <LogOut size={16} />
-                      Logout
-                    </button>
-                  </div>
-                )}
+                </div>
+
+                <Link href={getDashboardUrl(activeUser)}>
+                  <Button className="bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-full px-5 py-2 text-xs flex items-center gap-1.5 shadow-sm">
+                    <LayoutDashboard size={14} />
+                    Dashboard
+                  </Button>
+                </Link>
               </div>
             ) : (
               <>
@@ -417,32 +455,29 @@ export default function LandingPage() {
             <Link href="#about" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-zinc-700 dark:text-zinc-700 py-1.5">Portals</Link>
             <Link href="#features" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-zinc-700 dark:text-zinc-700 py-1.5">Features</Link>
             <Link href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-zinc-700 dark:text-zinc-700 py-1.5">Pricing</Link>
-            {isAuthenticated && user ? (
+            {isUserAvailable && activeUser ? (
               <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-zinc-100">
-                <div className="flex items-center gap-3 px-2 py-1">
-                  {user?.avatar || user?.picture ? (
-                    <img loading="lazy" src={user.avatar || user.picture} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
+                <div className="flex items-center gap-3 px-3 py-2 bg-zinc-50 rounded-xl border border-zinc-100">
+                  {activeUser?.avatar || activeUser?.picture ? (
+                    <img loading="lazy" src={activeUser.avatar || activeUser.picture} alt="Profile" className="w-9 h-9 rounded-full object-cover border border-zinc-300 shrink-0" />
                   ) : (
-                    <div className="w-8 h-8 bg-zinc-800 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                      {user?.name ? user.name.charAt(0).toUpperCase() : <User size={16} color="#ffffff" />}
+                    <div className="w-9 h-9 bg-zinc-900 rounded-full flex items-center justify-center text-white text-sm font-black shrink-0">
+                      {activeUser?.name ? activeUser.name.charAt(0).toUpperCase() : <User size={16} color="#ffffff" />}
                     </div>
                   )}
-                  <div>
-                    <p className="text-sm font-bold text-zinc-900">{user?.name || user?.email}</p>
-                    <p className="text-xs text-zinc-500 capitalize">{user?.role}</p>
+                  <div className="overflow-hidden">
+                    <p className="text-sm font-bold text-zinc-900 truncate">{activeUser?.name || activeUser?.fullName || activeUser?.email}</p>
+                    <p className="text-xs text-zinc-500 truncate">{activeUser?.email}</p>
+                    <span className="inline-block mt-0.5 text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-zinc-200 text-zinc-800">
+                      {activeUser?.role || 'Member'}
+                    </span>
                   </div>
                 </div>
                 <Link 
-                  href={
-                    user?.role === 'Super Admin' ? '/dashboard' : 
-                    user?.role === 'Admin' ? '/dashboard/admin' : 
-                    user?.role === 'Student' ? '/dashboard/student' : 
-                    user?.role === 'Teacher' ? '/dashboard/teacher' : 
-                    '/coming-soon'
-                  }
+                  href={getDashboardUrl(activeUser)}
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <Button className="w-full bg-zinc-100 hover:bg-zinc-200 text-zinc-900 justify-start gap-2">
+                  <Button className="w-full bg-zinc-900 hover:bg-zinc-800 text-white justify-start gap-2 rounded-xl py-3 font-bold">
                     <LayoutDashboard size={16} />
                     Go to Dashboard
                   </Button>
@@ -451,13 +486,16 @@ export default function LandingPage() {
                   variant="outline"
                   onClick={() => {
                     logout();
+                    if (typeof window !== 'undefined') {
+                      localStorage.removeItem('recent_user');
+                    }
                     setMobileMenuOpen(false);
                     window.location.href = '/';
                   }}
-                  className="w-full text-red-600 border-red-200 hover:bg-red-50 justify-start gap-2"
+                  className="w-full text-rose-600 border-rose-200 hover:bg-rose-50 justify-start gap-2 rounded-xl"
                 >
                   <LogOut size={16} />
-                  Logout
+                  Logout / Switch
                 </Button>
               </div>
             ) : (
@@ -490,11 +528,20 @@ export default function LandingPage() {
             {t.hero.desc}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/register">
-              <Button className="h-14 px-10 text-base bg-zinc-800 hover:bg-zinc-700 text-white rounded-full font-bold shadow-md hover:-translate-y-0.5 transition-all">
-                {t.hero.trialBtn}
-              </Button>
-            </Link>
+            {isUserAvailable && activeUser ? (
+              <Link href={getDashboardUrl(activeUser)}>
+                <Button className="h-14 px-10 text-base bg-zinc-900 hover:bg-zinc-800 text-white rounded-full font-bold shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                  <LayoutDashboard size={18} />
+                  Go to Dashboard <ArrowRight size={16} />
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/register">
+                <Button className="h-14 px-10 text-base bg-zinc-800 hover:bg-zinc-700 text-white rounded-full font-bold shadow-md hover:-translate-y-0.5 transition-all">
+                  {t.hero.trialBtn}
+                </Button>
+              </Link>
+            )}
             <Link href="#how-it-works">
               <Button variant="outline" className="h-14 px-10 text-base rounded-full font-bold border-2 border-zinc-800 text-zinc-800 bg-transparent hover:bg-zinc-100 transition-all">
                 {t.hero.howItWorks} <ArrowRight size={16} className="ml-2 inline" />
@@ -857,11 +904,20 @@ export default function LandingPage() {
           <Zap size={48} className="text-zinc-800 dark:text-zinc-900 mx-auto mb-6" />
           <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-zinc-900 mb-5">Ready to Digitize Your School?</h2>
           <p className="text-lg text-zinc-600 dark:text-zinc-600 mb-10 max-w-xl mx-auto">Join 500+ schools already running on Stoofi PRO. Get started with a full 1-month free trial — no credit card needed.</p>
-          <Link href="/login">
-            <Button className="h-14 px-12 text-lg bg-zinc-800 hover:bg-zinc-800 text-white rounded-full font-black shadow-lg shadow-zinc-800/20 hover:-translate-y-0.5 transition-all">
-              Get Started Free Today
-            </Button>
-          </Link>
+          {isUserAvailable && activeUser ? (
+            <Link href={getDashboardUrl(activeUser)}>
+              <Button className="h-14 px-12 text-lg bg-zinc-900 hover:bg-zinc-800 text-white rounded-full font-black shadow-lg shadow-zinc-800/20 hover:-translate-y-0.5 transition-all flex items-center gap-2 mx-auto">
+                <LayoutDashboard size={20} />
+                Go to Dashboard
+              </Button>
+            </Link>
+          ) : (
+            <Link href="/register">
+              <Button className="h-14 px-12 text-lg bg-zinc-900 hover:bg-zinc-800 text-white rounded-full font-black shadow-lg shadow-zinc-800/20 hover:-translate-y-0.5 transition-all">
+                Get Started Free Today
+              </Button>
+            </Link>
+          )}
         </div>
       </section>
 

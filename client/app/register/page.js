@@ -7,6 +7,8 @@ import { ArrowLeft, UserPlus, Image as ImageIcon, FileCheck, Upload, Trash2, Che
 import api from '@/services/api';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { StoofiLogo } from '@/components/StoofiLogo';
+import Cookies from 'js-cookie';
+import { useAuth } from '@/hooks/useAuth';
 
 // Helper for client-side image compression to prevent large payload network errors
 const compressImageToBase64 = (file, maxWidth = 600, quality = 0.6) => {
@@ -468,13 +470,50 @@ export default function RegisterPage() {
       const res = await api.post('/auth/register', payload, { timeout: 25000 });
 
       if (res && res.success) {
+        const userObj = res.data || {};
+        const profileToStore = {
+          _id: userObj._id,
+          name: userObj.fullName || userObj.name || resolvedFullName,
+          fullName: userObj.fullName || userObj.name || resolvedFullName,
+          email: userObj.email || formData.email.trim().toLowerCase(),
+          role: userObj.role || role,
+          avatar: userObj.avatar || formData.picture || '',
+          picture: userObj.avatar || formData.picture || ''
+        };
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('recent_user', JSON.stringify(profileToStore));
+          if (res.token) {
+            localStorage.setItem('token', res.token);
+            sessionStorage.setItem('token', res.token);
+            Cookies.set('token', res.token, { path: '/', expires: 7 });
+          }
+        }
+
+        if (res.token) {
+          useAuth.getState().setSession(userObj, res.token);
+        }
+
         setSuccess(true);
         if (typeof window !== 'undefined') {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         setTimeout(() => {
-          router.push('/login');
-        }, 2000);
+          if (res.token) {
+            const finalRole = userObj.role || role;
+            if (finalRole === 'Super Admin' || finalRole === 'Admin') {
+              window.location.href = '/dashboard';
+            } else if (finalRole === 'Teacher') {
+              window.location.href = '/dashboard/teacher';
+            } else if (finalRole === 'Student') {
+              window.location.href = '/dashboard/student';
+            } else {
+              window.location.href = '/dashboard';
+            }
+          } else {
+            router.push('/login');
+          }
+        }, 1500);
       } else {
         const serverMsg = res?.message || 'Registration failed. Please check your information.';
         const mapped = mapServerErrorToFields(serverMsg);

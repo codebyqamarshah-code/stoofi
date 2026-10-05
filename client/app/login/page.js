@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Mail, Lock, Eye, EyeOff, ArrowLeft, ShieldCheck, KeyRound, ShieldAlert, Timer } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, ShieldCheck, KeyRound, ShieldAlert, Timer, User } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { StoofiLogo } from "@/components/StoofiLogo";
 import Link from "next/link";
@@ -88,14 +88,27 @@ export default function LoginPage() {
     defaultValues: { email: "", password: "" },
   });
 
+  const [recentUser, setRecentUser] = useState(null);
+
   useEffect(() => {
     setMounted(true);
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const err = params.get('error');
       if (err) setUrlError(err);
+
+      try {
+        const stored = localStorage.getItem('recent_user');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          setRecentUser(parsed);
+          if (parsed.email) {
+            setValue("email", parsed.email);
+          }
+        }
+      } catch (e) {}
     }
-  }, []);
+  }, [setValue]);
 
   // Countdown timer for lockout
   useEffect(() => {
@@ -367,6 +380,48 @@ export default function LoginPage() {
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-900">Welcome Back</h1>
           <p className="text-zinc-500 dark:text-zinc-500 mt-1 text-sm font-medium">Log in to your account</p>
         </div>
+
+        {/* Registered / Recent User Profile Card */}
+        {recentUser && (
+          <div className="mb-6 p-3.5 bg-zinc-50 dark:bg-zinc-100 rounded-2xl border border-zinc-200 dark:border-zinc-300 flex items-center justify-between">
+            <div className="flex items-center gap-3 overflow-hidden">
+              {recentUser.picture || recentUser.avatar ? (
+                <img
+                  src={recentUser.picture || recentUser.avatar}
+                  alt={recentUser.name || 'User'}
+                  className="w-10 h-10 rounded-full object-cover border border-zinc-300 shadow-sm shrink-0"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-zinc-900 text-white flex items-center justify-center text-sm font-black shrink-0">
+                  {recentUser.name ? recentUser.name.charAt(0).toUpperCase() : <User size={18} />}
+                </div>
+              )}
+              <div className="overflow-hidden">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-black text-zinc-900 truncate">
+                    {recentUser.name || recentUser.fullName || recentUser.email}
+                  </p>
+                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-zinc-200 text-zinc-800">
+                    {recentUser.role || 'Member'}
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-500 truncate">{recentUser.email}</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setRecentUser(null);
+                setValue("email", "");
+                setValue("password", "");
+              }}
+              className="text-xs font-bold text-zinc-500 hover:text-rose-600 transition-colors shrink-0 ml-2"
+              title="Switch to another account"
+            >
+              Switch
+            </button>
+          </div>
+        )}
 
         {/* Error Message */}
         {(error || urlError) && (
