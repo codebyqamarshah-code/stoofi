@@ -1,12 +1,26 @@
 const express = require('express');
-const { getAll, create, update, remove } = require('../controllers/postal-dispatch.controller');
+const { 
+  getAll, 
+  getStats, 
+  getById, 
+  create, 
+  update, 
+  updateStatus, 
+  remove 
+} = require('../controllers/postal-dispatch.controller');
 const { protect } = require('../middleware/auth.middleware');
+const upload = require('../middleware/upload.middleware');
 
 const router = express.Router();
 
 router.use(protect);
 
-router.route('/').get(getAll).post(create);
-router.route('/:id').put(update).delete(remove);
+router.route('/stats').get(getStats);
+router.route('/').get(getAll).post(upload.single('file'), create);
+router.route('/:id/status').patch(updateStatus);
+router.route('/:id')
+  .get(getById)
+  .put(upload.single('file'), update)
+  .delete(remove);
 
 module.exports = router;

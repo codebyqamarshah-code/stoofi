@@ -395,14 +395,6 @@ export default function LandingPage() {
                       </button>
                     </div>
                   )}
-                </div>
-
-                <Link href={getDashboardUrl(activeUser)}>
-                  <Button className="bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-full px-5 py-2 text-xs flex items-center gap-1.5 shadow-sm">
-                    <LayoutDashboard size={14} />
-                    Dashboard
-                  </Button>
-                </Link>
               </div>
             ) : (
               <Link href="/login">

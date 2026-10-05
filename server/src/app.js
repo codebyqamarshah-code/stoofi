@@ -54,21 +54,43 @@ app.use('/api/ai', require('./routes/ai.routes'));
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/dashboard', require('./routes/dashboard.routes'));
 app.use('/api/admission-query', require('./routes/admissionQuery.routes'));
+
+// Certificate routes (mounted on /api/certificate, /api/certificates, and /api/generate-certificate)
+app.use('/api/certificate', require('./routes/certificate.routes'));
+app.use('/api/certificates', require('./routes/certificate.routes'));
 app.use('/api/generate-certificate', require('./routes/certificate.routes'));
+
+// Student & Teacher routes (both singular and plural)
 app.use('/api/student', require('./routes/student.routes'));
+app.use('/api/students', require('./routes/student.routes'));
 app.use('/api/student-group', require('./routes/studentGroup.routes'));
 app.use('/api/content', require('./routes/content.routes'));
 app.use('/api/teacher', require('./routes/teacher.routes'));
+app.use('/api/teachers', require('./routes/teacher.routes'));
+
+// Academic & Infrastructure routes
 app.use('/api/class', require('./routes/class.routes'));
+app.use('/api/classes', require('./routes/class.routes'));
 app.use('/api/section', require('./routes/section.routes'));
+app.use('/api/sections', require('./routes/section.routes'));
 app.use('/api/classroom', require('./routes/classroom.routes'));
+app.use('/api/classrooms', require('./routes/classroom.routes'));
 app.use('/api/subject', require('./routes/subject.routes'));
+app.use('/api/subjects', require('./routes/subject.routes'));
+
+// Admin Section routes
 app.use('/api/id-card', require('./routes/id-card.routes'));
+app.use('/api/id-cards', require('./routes/id-card.routes'));
+app.use('/api/generate-id-card', require('./routes/id-card.routes'));
 app.use('/api/setup', require('./routes/setup.routes'));
+app.use('/api/base-setup', require('./routes/setup.routes'));
 app.use('/api/phone-call-log', require('./routes/phone-call-log.routes'));
 app.use('/api/postal-dispatch', require('./routes/postal-dispatch.routes'));
+app.use('/api/postal-dispatches', require('./routes/postal-dispatch.routes'));
 app.use('/api/postal-receive', require('./routes/postal-receive.routes'));
+app.use('/api/postal-receives', require('./routes/postal-receive.routes'));
 app.use('/api/complaint', require('./routes/complaint.routes'));
+app.use('/api/complaints', require('./routes/complaint.routes'));
 app.use('/api/visitor-book', require('./routes/visitor-book.routes'));
 app.use('/api/fees', require('./routes/fees.routes'));
 app.use('/api/homework', require('./routes/homework.routes'));
@@ -109,6 +131,7 @@ app.use('/api/marks-register', require('./routes/marks-register.routes'));
 app.use('/api/designation', require('./routes/designation.routes'));
 
 app.use('/api/department', require('./routes/department.routes'));
+app.use('/api/Department', require('./routes/department.routes'));
 
 app.use('/api/staff', require('./routes/staff.routes'));
 
@@ -131,9 +154,11 @@ app.use('/api/student-attendance', require('./routes/student-attendance.routes')
 app.use('/api/payroll', require('./routes/payroll.routes'));
 app.use('/api/leave-type', require('./routes/leave-type.routes'));
 app.use('/api/leave', require('./routes/leave.routes'));
+app.use('/api/leave-define', require('./routes/leave.routes'));
 app.use('/api/role', require('./routes/role.routes'));
 app.use('/api/question-bank', require('./routes/question-bank.routes'));
 app.use('/api/teacher-evaluation', require('./routes/teacher-evaluation.routes'));
+app.use('/api/teacher-evaluation-settings', require('./routes/teacher-evaluation.routes'));
 app.use('/api/book', require('./routes/book.routes'));
 app.use('/api/dormitory-room', require('./routes/dormitory-room.routes'));
 app.use('/api/dormitory', require('./routes/dormitory.routes'));
