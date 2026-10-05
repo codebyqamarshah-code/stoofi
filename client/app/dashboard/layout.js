@@ -43,7 +43,9 @@ import {
   PieChart,
   List,
   Monitor,
-  User
+  User,
+  Maximize2,
+  Minimize
 } from 'lucide-react';
 import { DEFAULT_MENU_STRUCTURE, ICON_MAP, getStoredSidebar } from '@/lib/sidebarConfig';
 import { Button } from '@/components/ui/button';
@@ -72,6 +74,24 @@ export default function DashboardLayout({ children }) {
 
   // Accordion state: only one menu dropdown open at a time for smooth UX
   const [openSubmenu, setOpenSubmenu] = useState(null);
+
+  // ── Fullscreen ──────────────────────────────────────────────────────────
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  };
+
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', onFsChange);
+    return () => document.removeEventListener('fullscreenchange', onFsChange);
+  }, []);
+  // ────────────────────────────────────────────────────────────────────────
 
   // Auto-expand the active submenu on load and when pathname changes
   useEffect(() => {
@@ -619,6 +639,18 @@ export default function DashboardLayout({ children }) {
                 <span className="text-xs font-bold text-emerald-800">{activeStudentsCount} Active</span>
               </div>
             )}
+            {/* Fullscreen Toggle */}
+            <button
+              onClick={toggleFullscreen}
+              title={isFullscreen ? 'Exit Fullscreen (F11)' : 'Fullscreen (F11)'}
+              className="hidden sm:flex items-center justify-center p-2 rounded-lg bg-zinc-100/40 dark:bg-zinc-50 border border-zinc-300/80 dark:border-zinc-200 text-zinc-950 dark:text-zinc-600 hover:text-zinc-800 hover:border-zinc-950 transition-colors cursor-pointer"
+            >
+              {isFullscreen
+                ? <Minimize className="h-4 w-4" />
+                : <Maximize2 className="h-4 w-4" />
+              }
+            </button>
+
             <ThemeToggle />
 
 
