@@ -405,12 +405,11 @@ export default function LandingPage() {
                 </Link>
               </div>
             ) : (
-              <>
-                <Link href="/login" className="text-sm font-bold text-zinc-900 dark:text-zinc-900 hover:text-zinc-800 dark:hover:text-zinc-950 px-3">{t.nav.login}</Link>
-                <Link href="/register">
-                  <Button className="bg-zinc-800 hover:bg-zinc-800 text-white font-bold rounded-full px-6" style={{ color: '#ffffff' }}>{t.nav.getStarted}</Button>
-                </Link>
-              </>
+              <Link href="/login">
+                <Button className="bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-full px-6 shadow-sm" style={{ color: '#ffffff' }}>
+                  Login
+                </Button>
+              </Link>
             )}
           </div>
           <div className="md:hidden flex items-center gap-3">
@@ -501,10 +500,7 @@ export default function LandingPage() {
             ) : (
               <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-zinc-100">
                 <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full bg-zinc-800 hover:bg-zinc-800 text-white mt-2" style={{ color: '#ffffff' }}>Login</Button>
-                </Link>
-                <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full mt-1 border-zinc-300 text-zinc-800">Register / Try Free</Button>
+                  <Button className="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-bold py-3 rounded-xl mt-2" style={{ color: '#ffffff' }}>Login</Button>
                 </Link>
               </div>
             )}
@@ -536,9 +532,9 @@ export default function LandingPage() {
                 </Button>
               </Link>
             ) : (
-              <Link href="/register">
-                <Button className="h-14 px-10 text-base bg-zinc-800 hover:bg-zinc-700 text-white rounded-full font-bold shadow-md hover:-translate-y-0.5 transition-all">
-                  {t.hero.trialBtn}
+              <Link href="/login">
+                <Button className="h-14 px-10 text-base bg-zinc-900 hover:bg-zinc-800 text-white rounded-full font-bold shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                  Login <ArrowRight size={16} />
                 </Button>
               </Link>
             )}

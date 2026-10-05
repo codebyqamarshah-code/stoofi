@@ -94,18 +94,11 @@ exports.register = async (req, res, next) => {
       });
     }
 
-    // Validate required CNIC and CNIC images for adults and non-minor roles
+    // Validate required CNIC for adults and non-minor roles
     if (!isMinorStudent && (!cnic || !cnic.trim())) {
       return res.status(400).json({
         success: false,
         message: 'CNIC / National ID number is required for verification of applicants 18 years or older.'
-      });
-    }
-
-    if (!isMinorStudent && (!cnicFront || !cnicBack)) {
-      return res.status(400).json({
-        success: false,
-        message: 'CNIC Front and Back document images are required for verification of applicants 18 years or older.'
       });
     }
 
