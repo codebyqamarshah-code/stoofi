@@ -34,23 +34,23 @@
 }
 
 :root, .dark {
-  --custom-zinc-950: #09090b;
-  --custom-zinc-900: #18181b;
-  --custom-zinc-800: #27272a;
-  --custom-zinc-700: #3f3f46;
-  --custom-zinc-600: #27272a;
-  --custom-zinc-500: #3f3f46;
-  --custom-zinc-400: #52525b;
+  --custom-zinc-950: #084A86;
+  --custom-zinc-900: #084A86;
+  --custom-zinc-800: #0B5499;
+  --custom-zinc-700: #1565B0;
+  --custom-zinc-600: #2a6fc2;
+  --custom-zinc-500: #3d7fcc;
+  --custom-zinc-400: #6ca3d6;
   --custom-zinc-300: #d4d4d8;
   --custom-zinc-200: #e4e4e7;
   --custom-zinc-100: #f4f4f5;
   --custom-zinc-50: #fafafa;
-  --custom-emerald-950: #09090b;
-  --custom-emerald-900: #18181b;
-  --custom-emerald-800: #27272a;
-  --custom-emerald-700: #3f3f46;
-  --custom-emerald-600: #52525b;
-  --custom-emerald-500: #09090b;
+  --custom-emerald-950: #084A86;
+  --custom-emerald-900: #084A86;
+  --custom-emerald-800: #0B5499;
+  --custom-emerald-700: #1565B0;
+  --custom-emerald-600: #2a6fc2;
+  --custom-emerald-500: #084A86;
 }
 
 /* LIGHT MODE: Ensure card containers become clean white, but NEVER buttons or links */
@@ -85,9 +85,9 @@ a.bg-black,
 :root a.bg-zinc-900,
 :root a.bg-zinc-800,
 :root a.bg-black {
-  background-color: #09090b !important;
+  background-color: #084A86 !important;
   color: #ffffff !important;
-  border-color: #09090b !important;
+  border-color: #084A86 !important;
 }
 
 /* Ensure inner icons inside normal dark buttons are white */
@@ -120,9 +120,9 @@ a.bg-black:hover,
 :root a.bg-zinc-800:hover,
 :root a.bg-black:hover {
   background-color: #ffffff !important;
-  color: #09090b !important;
-  border: 1px solid #18181b !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+  color: #084A86 !important;
+  border: 1px solid #084A86 !important;
+  box-shadow: 0 1px 3px rgba(8,74,134,0.12) !important;
 }
 
 button.bg-zinc-950:hover *,
@@ -202,7 +202,7 @@ a[class*="hover:bg-zinc-950"]:not(.bg-zinc-800):not(.bg-zinc-900):not(.bg-zinc-9
 :root:not(.dark) label.text-white,
 :root:not(.dark) span.text-white:not(button *, .badge *, [class*="bg-black"] *, [class*="bg-zinc-950"] *, [class*="bg-zinc-900"] *, [class*="bg-zinc-800"] *, [class*="bg-emerald"] *, [class*="bg-[#009966]"] *, [class*="bg-rose"] *, [class*="bg-amber"] *),
 :root:not(.dark) div.text-white:not(button *, .badge *, [class*="bg-black"] *, [class*="bg-zinc-950"] *, [class*="bg-zinc-900"] *, [class*="bg-zinc-800"] *, [class*="bg-emerald"] *, [class*="bg-[#009966]"] *, [class*="bg-rose"] *, [class*="bg-amber"] *) {
-  color: #09090b !important;
+  color: #084A86 !important;
 }
 
 /* UNIVERSAL DROPDOWN & SELECT VISIBILITY RULES (Light Mode: Black/Dark text, Clean White bg, Mint border) */
@@ -219,9 +219,9 @@ a[class*="hover:bg-zinc-950"]:not(.bg-zinc-800):not(.bg-zinc-900):not(.bg-zinc-9
 }
 
 :root:not(.dark) select:focus {
-  border-color: #09090b !important;
+  border-color: #084A86 !important;
   outline: none !important;
-  box-shadow: 0 0 0 2px rgba(9, 9, 11, 0.2) !important;
+  box-shadow: 0 0 0 2px rgba(8,74,134,0.2) !important;
 }
 
 :root:not(.dark) option,
@@ -265,9 +265,9 @@ textarea::placeholder {
 }
 input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]):focus,
 textarea:focus {
-  border-color: #09090b !important;
+  border-color: #084A86 !important;
   outline: none !important;
-  box-shadow: 0 0 0 1px #09090b !important;
+  box-shadow: 0 0 0 1px #084A86 !important;
 }
 
 /* Dark badges/pills: always keep white text on dark backgrounds */
@@ -291,74 +291,74 @@ span[style*="backgroundColor:#09090b"] {
 
 :root {
   --card: #ffffff;
-  --card-foreground: #09090b;
+  --card-foreground: #084A86;
   --popover: #ffffff;
-  --popover-foreground: #09090b;
-  --primary: #09090b;
+  --popover-foreground: #084A86;
+  --primary: #084A86;
   --primary-foreground: #ffffff;
   --secondary: #f4f4f5;
-  --secondary-foreground: #09090b;
+  --secondary-foreground: #084A86;
   --muted: #f4f4f5;
-  --muted-foreground: #71717a;
+  --muted-foreground: #4a7aaa;
   --accent: #f4f4f5;
-  --accent-foreground: #09090b;
+  --accent-foreground: #084A86;
   --destructive: #e40014;
   --destructive-foreground: #ffffff;
   --border: #e4e4e7;
   --input: #e4e4e7;
-  --ring: #09090b;
-  --chart-1: #09090b;
-  --chart-2: #27272a;
-  --chart-3: #3f3f46;
-  --chart-4: #52525b;
-  --chart-5: #71717a;
+  --ring: #084A86;
+  --chart-1: #084A86;
+  --chart-2: #1565B0;
+  --chart-3: #2a6fc2;
+  --chart-4: #6ca3d6;
+  --chart-5: #a8c7e8;
   --radius: 0.625rem;
   --sidebar: #ffffff;
-  --sidebar-foreground: #09090b;
-  --sidebar-primary: #09090b;
+  --sidebar-foreground: #084A86;
+  --sidebar-primary: #084A86;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f4f4f5;
-  --sidebar-accent-foreground: #09090b;
+  --sidebar-accent-foreground: #084A86;
   --sidebar-border: #e4e4e7;
-  --sidebar-ring: #09090b;
+  --sidebar-ring: #084A86;
   --background: #ffffff;
-  --foreground: #09090b;
+  --foreground: #084A86;
 }
 
 .dark {
   --card: #ffffff;
-  --card-foreground: #09090b;
+  --card-foreground: #084A86;
   --popover: #ffffff;
-  --popover-foreground: #09090b;
-  --primary: #09090b;
+  --popover-foreground: #084A86;
+  --primary: #084A86;
   --primary-foreground: #ffffff;
   --secondary: #f4f4f5;
-  --secondary-foreground: #09090b;
+  --secondary-foreground: #084A86;
   --muted: #f4f4f5;
-  --muted-foreground: #71717a;
+  --muted-foreground: #4a7aaa;
   --accent: #f4f4f5;
-  --accent-foreground: #09090b;
+  --accent-foreground: #084A86;
   --destructive: #e40014;
   --destructive-foreground: #ffffff;
   --border: #e4e4e7;
   --input: #e4e4e7;
-  --ring: #09090b;
-  --chart-1: #09090b;
-  --chart-2: #27272a;
-  --chart-3: #3f3f46;
-  --chart-4: #52525b;
-  --chart-5: #71717a;
+  --ring: #084A86;
+  --chart-1: #084A86;
+  --chart-2: #1565B0;
+  --chart-3: #2a6fc2;
+  --chart-4: #6ca3d6;
+  --chart-5: #a8c7e8;
   --radius: 0.625rem;
   --sidebar: #ffffff;
-  --sidebar-foreground: #09090b;
-  --sidebar-primary: #09090b;
+  --sidebar-foreground: #084A86;
+  --sidebar-primary: #084A86;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f4f4f5;
-  --sidebar-accent-foreground: #09090b;
+  --sidebar-accent-foreground: #084A86;
   --sidebar-border: #e4e4e7;
-  --sidebar-ring: #09090b;
+  --sidebar-ring: #084A86;
   --background: #ffffff;
-  --foreground: #09090b;
+  --foreground: #084A86;
 }
 
 @theme inline {

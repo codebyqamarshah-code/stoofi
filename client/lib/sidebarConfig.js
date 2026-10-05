@@ -139,7 +139,6 @@ export const DEFAULT_MENU_STRUCTURE = [
     visible: true,
     items: [
       { id: 'item-dash', name: 'Dashboard', href: '/dashboard', iconName: 'LayoutDashboard', visible: true },
-      { id: 'item-sidebar-mgr', name: 'Sidebar Manager', href: '/dashboard/sidebar-manager', iconName: 'Settings', visible: true },
     ]
   },
   {
@@ -855,6 +854,14 @@ export const DEFAULT_MENU_STRUCTURE = [
         ]
       },
     ]
+  },
+  {
+    id: 'grp-sidebar-mgr',
+    groupTitle: 'SIDEBAR',
+    visible: true,
+    items: [
+      { id: 'item-sidebar-mgr', name: 'Sidebar Manager', href: '/dashboard/sidebar-manager', iconName: 'Settings', visible: true },
+    ]
   }
 ];
 // Teacher specific sidebar menu
@@ -1176,7 +1183,7 @@ export const STUDENT_MENU_STRUCTURE = [
   }
 ];
 
-export const STORAGE_KEY = 'stoofi_custom_sidebar_v7';
+export const STORAGE_KEY = 'stoofi_custom_sidebar_v8';
 
 // Keep Admin Setup as the last entry of Admin Section in saved layouts.
 function moveAdminSetupToEnd(menu) {

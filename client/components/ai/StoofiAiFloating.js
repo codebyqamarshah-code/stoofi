@@ -166,16 +166,17 @@ export default function StoofiAiFloating() {
           <button
             onClick={() => { setIsOpen(true); setIsMinimized(false); }}
             aria-label="Ask Stoofi AI"
-            className="relative flex items-center justify-center w-14 h-14 rounded-full bg-white text-zinc-950 shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 border-2 border-zinc-950 p-2.5 overflow-hidden group/btn"
+            className="relative flex items-center justify-center w-14 h-14 rounded-full bg-white shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 border-2 group/btn"
+            style={{borderColor:'#084A86'}}
           >
             <img 
               src="/stoofi-icon.png" 
               alt="Stoofi AI" 
-              className="w-full h-full object-contain drop-shadow-xs group-hover/btn:scale-110 transition-transform duration-300" 
+              className="w-9 h-9 object-contain group-hover/btn:scale-110 transition-transform duration-300" 
             />
-            <span className="absolute top-1 right-1 flex h-3 w-3">
+            <span className="absolute top-0.5 right-0.5 flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-[#0B4D9C] border-2 border-white"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-[#084A86] border-2 border-white"></span>
             </span>
           </button>
 
