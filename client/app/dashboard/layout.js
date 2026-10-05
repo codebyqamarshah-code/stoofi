@@ -115,14 +115,15 @@ export default function DashboardLayout({ children }) {
     if (user) {
       const fetchNoticesAndEvents = async () => {
         try {
-          const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+          const rawApi = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+          const baseApi = rawApi.replace(/\/api\/?$/, '');
           const token = localStorage.getItem('token');
           const headers = { 'Authorization': 'Bearer ' + token };
 
           // Fetch notices and events in parallel
           const [noticeRes, eventRes] = await Promise.allSettled([
-            fetch(API + '/api/dashboard/notices', { headers }),
-            fetch(API + '/api/dashboard/events', { headers })
+            fetch(baseApi + '/api/dashboard/notices', { headers }),
+            fetch(baseApi + '/api/dashboard/events', { headers })
           ]);
 
           let combined = [];
@@ -172,7 +173,9 @@ export default function DashboardLayout({ children }) {
           if (typeof window !== 'undefined') {
             token = sessionStorage.getItem('token') || localStorage.getItem('token') || '';
           }
-          const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000") + '/api/dashboard/live-updates', {
+          const rawApi = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+          const baseApi = rawApi.replace(/\/api\/?$/, '');
+          const res = await fetch(baseApi + '/api/dashboard/live-updates', {
             headers: { 'Authorization': 'Bearer ' + token }
           });
           const result = await res.json();
@@ -289,11 +292,11 @@ export default function DashboardLayout({ children }) {
 
     const storedToken =
       (typeof window !== 'undefined' && (
-        sessionStorage.getItem('token') ||
         localStorage.getItem('token') ||
+        sessionStorage.getItem('token') ||
         (() => {
           try {
-            const raw = sessionStorage.getItem('auth-storage') || localStorage.getItem('auth-storage');
+            const raw = localStorage.getItem('auth-storage') || sessionStorage.getItem('auth-storage');
             if (raw) return JSON.parse(raw)?.state?.token || '';
           } catch (e) {}
           return '';
@@ -306,6 +309,15 @@ export default function DashboardLayout({ children }) {
           return '';
         })()
       )) || '';
+
+    // Keep document.cookie synchronized with valid stored token
+    if (storedToken && typeof document !== 'undefined') {
+      try {
+        if (!document.cookie.includes('token=')) {
+          document.cookie = `token=${storedToken}; path=/; max-age=604800; SameSite=Lax`;
+        }
+      } catch (e) {}
+    }
 
     if (!storedToken && !user && !isAuthenticated) {
       redirectedRef.current = true;
@@ -335,16 +347,16 @@ export default function DashboardLayout({ children }) {
       <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-zinc-50 dark:bg-white transition-colors duration-300">
         <div className="relative flex items-center justify-center w-32 h-32 mb-6">
           {/* Background Border */}
-          <div className="absolute inset-0 border-[3px] border-zinc-200 dark:border-zinc-200 rounded-full"></div>
+          <div className="absolute inset-0 border-[3px] border-sky-100 rounded-full"></div>
           {/* Spinning Ring */}
-          <div className="absolute inset-0 border-[3px] border-zinc-950 dark:border-zinc-200 rounded-full border-t-transparent dark:border-t-transparent animate-spin"></div>
+          <div className="absolute inset-0 border-[3px] border-[#0B4D9C] rounded-full border-t-transparent animate-spin"></div>
           
           {/* Center Mascot Logo */}
           <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center p-2">
-            <img src="/stoofi light.png" alt="Loading" className="w-full h-full object-contain" />
+            <img src="/stoofi-icon.png" alt="Loading" className="w-full h-full object-contain" />
           </div>
         </div>
-        <div className="text-zinc-950 dark:text-zinc-900 font-bold tracking-[0.3em] text-xs sm:text-sm animate-pulse">
+        <div className="text-[#0B4D9C] font-bold tracking-[0.3em] text-xs sm:text-sm animate-pulse">
           LOADING ERP...
         </div>
       </div>
@@ -393,9 +405,9 @@ export default function DashboardLayout({ children }) {
       >
         {/* Brand Header */}
         <div className="flex h-[70px] items-center justify-between border-b border-zinc-200 dark:border-zinc-200 px-5 shrink-0 bg-white dark:bg-white">
-          <Link href="/dashboard" className="flex items-center cursor-pointer">
-            <img src="/stoofi light.png" alt="Stoofi PRO" className="h-12 sm:h-14 max-w-[200px] w-auto object-contain transform hover:scale-105 transition-transform duration-300" />
-          </Link>
+          <div className="flex items-center select-none cursor-default">
+            <img src="/stoofi light.png" alt="Stoofi PRO" className="h-12 sm:h-14 max-w-[200px] w-auto object-contain pointer-events-none" />
+          </div>
           <Button
             variant="ghost"
             size="icon"
@@ -432,12 +444,12 @@ export default function DashboardLayout({ children }) {
                             onClick={() => toggleSubmenu(item.name)}
                             className={`w-full flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold cursor-pointer transition-all duration-200 group ${
                               isOpen 
-                                ? 'bg-emerald-100 dark:bg-emerald-100 text-emerald-800 dark:text-emerald-900 border border-emerald-300 dark:border-emerald-300 font-bold' 
-                                : 'text-zinc-950 dark:text-zinc-600 hover:bg-emerald-50 dark:hover:bg-emerald-50/50 hover:text-emerald-700 dark:hover:text-emerald-700'
+                                ? 'bg-blue-50 text-[#0B4D9C] border border-blue-200 font-bold shadow-xs' 
+                                : 'text-zinc-950 dark:text-zinc-800 hover:bg-blue-50/60 hover:text-[#0B4D9C]'
                             }`}
                           >
                             <div className="flex items-center space-x-3">
-                              <IconComponent className={`h-4 w-4 transition-colors ${isOpen ? 'text-emerald-700 dark:text-emerald-800' : 'text-zinc-950 dark:text-zinc-600 group-hover:text-emerald-600 dark:group-hover:text-emerald-700'}`} />
+                              <IconComponent className={`h-4 w-4 transition-colors ${isOpen ? 'text-[#0B4D9C]' : 'text-zinc-950 dark:text-zinc-700 group-hover:text-[#0B4D9C]'}`} />
                               <span>{item.name}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
@@ -448,7 +460,7 @@ export default function DashboardLayout({ children }) {
                               )}
                               <ChevronDown 
                                 className={`h-3.5 w-3.5 transition-transform duration-200 ${
-                                  isOpen ? 'rotate-180 text-zinc-950 dark:text-zinc-900' : 'text-zinc-950 dark:text-zinc-900 group-hover:text-zinc-800 dark:group-hover:text-zinc-950'
+                                  isOpen ? 'rotate-180 text-[#0B4D9C]' : 'text-zinc-950 dark:text-zinc-900 group-hover:text-[#0B4D9C]'
                                 }`} 
                               />
                             </div>
@@ -472,11 +484,11 @@ export default function DashboardLayout({ children }) {
                                     onClick={() => setSidebarOpen(false)}
                                     className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer transition-colors ${
                                       pathname === sub.href
-                                        ? 'text-emerald-800 dark:text-emerald-900 bg-emerald-100 dark:bg-emerald-100 font-bold border border-emerald-300 dark:border-emerald-300'
-                                        : 'text-zinc-950 dark:text-zinc-600 hover:text-emerald-700 dark:hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-50/50'
+                                        ? 'text-[#0B4D9C] bg-blue-50 font-bold border border-blue-200 shadow-xs'
+                                        : 'text-zinc-950 dark:text-zinc-700 hover:text-[#0B4D9C] hover:bg-blue-50/50'
                                     }`}
                                   >
-                                    {SubIcon && <SubIcon className={`h-3.5 w-3.5 shrink-0 ${pathname === sub.href ? 'text-emerald-600' : 'text-zinc-500'}`} />}
+                                    {SubIcon && <SubIcon className={`h-3.5 w-3.5 shrink-0 ${pathname === sub.href ? 'text-[#0B4D9C]' : 'text-zinc-500 group-hover:text-[#0B4D9C]'}`} />}
                                     <span>{sub.name}</span>
                                   </Link>
                                 );
@@ -500,12 +512,12 @@ export default function DashboardLayout({ children }) {
                         onClick={() => setSidebarOpen(false)}
                         className={`flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold cursor-pointer transition-all duration-200 group ${
                           isItemActive
-                            ? 'border border-emerald-300 dark:border-emerald-300 bg-emerald-100 dark:bg-emerald-100 text-emerald-800 dark:text-emerald-900 font-bold shadow-xs'
-                            : 'text-zinc-950 dark:text-zinc-600 hover:bg-emerald-50 dark:hover:bg-emerald-50/50 hover:text-emerald-700 dark:hover:text-emerald-700 border border-transparent'
+                            ? 'border border-blue-200 bg-blue-50 text-[#0B4D9C] font-bold shadow-xs'
+                            : 'text-zinc-950 dark:text-zinc-800 hover:bg-blue-50/60 hover:text-[#0B4D9C] border border-transparent'
                         }`}
                       >
                         <div className="flex items-center space-x-3">
-                          <IconComponent className={`h-4 w-4 transition-colors ${isItemActive ? 'text-emerald-700 dark:text-emerald-800' : 'text-zinc-950 dark:text-zinc-600 group-hover:text-emerald-600 dark:group-hover:text-emerald-700'}`} />
+                          <IconComponent className={`h-4 w-4 transition-colors ${isItemActive ? 'text-[#0B4D9C]' : 'text-zinc-950 dark:text-zinc-700 group-hover:text-[#0B4D9C]'}`} />
                           <span>{item.name}</span>
                         </div>
                         {item.badge && (

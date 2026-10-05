@@ -169,13 +169,13 @@ export default function StoofiAiFloating() {
             className="relative flex items-center justify-center w-14 h-14 rounded-full bg-white text-zinc-950 shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 border-2 border-zinc-950 p-2.5 overflow-hidden group/btn"
           >
             <img 
-              src="/logo.png" 
+              src="/stoofi-icon.png" 
               alt="Stoofi AI" 
               className="w-full h-full object-contain drop-shadow-xs group-hover/btn:scale-110 transition-transform duration-300" 
             />
             <span className="absolute top-1 right-1 flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-white"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-[#0B4D9C] border-2 border-white"></span>
             </span>
           </button>
 
@@ -199,7 +199,7 @@ export default function StoofiAiFloating() {
           <div className="px-4 py-3 bg-zinc-950 text-white flex items-center justify-between shadow-xs select-none">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-zinc-200 p-1 shadow-xs shrink-0 overflow-hidden">
-                <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
+                <img src="/stoofi-icon.png" alt="Stoofi AI" className="w-full h-full object-contain" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
@@ -253,7 +253,7 @@ export default function StoofiAiFloating() {
                 {messages.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center p-4 space-y-3">
                     <div className="w-12 h-12 rounded-2xl bg-white border border-zinc-200 flex items-center justify-center p-2 shadow-xs">
-                      <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
+                      <img src="/stoofi-icon.png" alt="Stoofi AI" className="w-full h-full object-contain" />
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-zinc-950">
@@ -272,7 +272,7 @@ export default function StoofiAiFloating() {
                     >
                       {msg.role === 'assistant' && (
                         <div className="w-7 h-7 rounded-full bg-white border border-zinc-200 flex items-center justify-center shrink-0 mt-0.5 shadow-xs p-1 overflow-hidden">
-                          <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
+                          <img src="/stoofi-icon.png" alt="Stoofi AI" className="w-full h-full object-contain" />
                         </div>
                       )}
 

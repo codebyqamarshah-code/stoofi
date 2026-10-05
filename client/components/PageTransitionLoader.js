@@ -75,33 +75,33 @@ function PageTransitionLoaderContent() {
       <div className="relative flex items-center justify-center" style={{ width: 140, height: 140 }}>
         {/* Outer spinning ring */}
         <div
-          className="absolute rounded-full border-2 border-emerald-400 border-dashed animate-spin"
+          className="absolute rounded-full border-2 border-sky-400 border-dashed animate-spin"
           style={{ width: 140, height: 140, animationDuration: '3s' }}
         />
         {/* Inner spinning ring reverse */}
         <div
-          className="absolute rounded-full border-2 border-indigo-400"
+          className="absolute rounded-full border-2 border-[#0B4D9C]"
           style={{ width: 108, height: 108, animationDuration: '2s', animation: 'spin 2s linear infinite reverse' }}
         />
         {/* Logo in center */}
         <div className="relative flex items-center justify-center bg-white rounded-full shadow-lg" style={{ width: 80, height: 80 }}>
           <img
-            src="/stoofi light.png"
+            src="/stoofi-icon.png"
             alt="Stoofi"
             className="object-contain"
-            style={{ width: 60, height: 60 }}
-            onError={(e) => { e.currentTarget.src = '/logo.png'; }}
+            style={{ width: 52, height: 52 }}
+            onError={(e) => { e.currentTarget.src = '/stoofi-icon.png'; }}
           />
         </div>
       </div>
 
       {/* Loading text */}
       <div className="mt-6 flex flex-col items-center gap-2">
-        <span className="text-xs font-bold text-zinc-700 tracking-[0.25em] uppercase">Loading</span>
+        <span className="text-xs font-bold text-[#0B4D9C] tracking-[0.25em] uppercase">Loading</span>
         <div className="flex gap-1.5">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-          <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#0B4D9C] animate-bounce" style={{ animationDelay: '0ms' }} />
+          <span className="h-1.5 w-1.5 rounded-full bg-sky-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+          <span className="h-1.5 w-1.5 rounded-full bg-teal-500 animate-bounce" style={{ animationDelay: '300ms' }} />
         </div>
       </div>
     </div>

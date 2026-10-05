@@ -101,6 +101,7 @@ exports.getStats = async (req, res) => {
         todayVisitors: todayVisitors.length,
         currentlyInside: currentlyInsideList.length,
         checkedOutToday: checkedOutTodayList.length,
+        totalVisitsToday: todayVisitors.length,
         totalPersonsToday
       }
     });

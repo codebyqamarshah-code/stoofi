@@ -78,5 +78,6 @@ export function isRouteAllowed(role, pathname) {
     return false;
   }
 
-  return false;
+  // Accountant, Receptionist, Parent, Staff, and custom roles: allow dashboard access
+  return pathname.startsWith('/dashboard');
 }

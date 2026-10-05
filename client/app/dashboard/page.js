@@ -23,8 +23,8 @@ export default function DashboardPage() {
     return (
       <div className="flex h-[80vh] items-center justify-center bg-white dark:bg-white">
         <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center p-2 relative">
-          <div className="absolute inset-0 border-[3px] border-zinc-950 dark:border-zinc-200 rounded-full border-t-transparent dark:border-t-transparent animate-spin"></div>
-          <img src="/stoofi light.png" alt="Loading" className="w-full h-full object-contain" />
+          <div className="absolute inset-0 border-[3px] rounded-full border-t-transparent animate-spin" style={{borderColor:'#0B4D9C',borderTopColor:'transparent'}}></div>
+          <img src="/stoofi-icon.png" alt="Loading" className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
         </div>
       </div>
     );

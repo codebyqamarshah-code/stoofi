@@ -48,15 +48,21 @@ api.interceptors.response.use(
     return response.data;
   },
   (error) => {
-    // 401 Unauthorized handling for protected routes
-    if (error.response?.status === 401) {
+    // 401 Unauthorized handling for protected routes:
+    // Only force logout if the core session verification (/auth/me) itself fails with 401.
+    // Never wipe storage or kick the user out of the dashboard just because an auxiliary endpoint
+    // (e.g. /teachers, /staff, /setup/stats, /visitor-book) returned a 401 or permission error.
+    const requestUrl = error.config?.url || '';
+    const isCoreAuthCheck = requestUrl.includes('/auth/me');
+
+    if (error.response?.status === 401 && isCoreAuthCheck) {
       if (typeof window !== 'undefined' && window.location.pathname !== '/login' && window.location.pathname !== '/') {
         sessionStorage.removeItem('auth-storage');
         sessionStorage.removeItem('token');
         localStorage.removeItem('auth-storage');
         localStorage.removeItem('token');
         document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        window.location.href = '/login';
+        window.location.href = '/login?expired=true';
         return new Promise(() => {});
       }
     }

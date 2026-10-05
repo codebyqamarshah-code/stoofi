@@ -9,8 +9,16 @@ const poppins = Poppins({ weight: ["300", "400", "500", "600", "700"], variable:
 
 
 export const metadata = {
-  title: "Stoofi Dashboard",
-  description: "Stoofi Management System",
+  title: "Stoofi ERP - Smarter Education, Simple Management",
+  description: "Stoofi School Management System & ERP",
+  icons: {
+    icon: [
+      { url: '/stoofi-icon.png', type: 'image/png' },
+      { url: '/favicon.ico', sizes: 'any' },
+    ],
+    shortcut: '/stoofi-icon.png',
+    apple: '/stoofi-icon.png',
+  },
 };
 
 export const viewport = {
@@ -23,6 +31,10 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning >
+      <head>
+        <link rel="icon" href="/stoofi-icon.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/stoofi-icon.png" />
+      </head>
       <body suppressHydrationWarning className={`min-h-screen bg-background text-foreground overflow-x-hidden ${poppins.className}`}>
         <GoogleTranslate />
         <ThemeProvider attribute="class" forcedTheme="light">

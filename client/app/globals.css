@@ -68,7 +68,7 @@
   background-color: #f8fafc !important;
 }
 
-/* Ensure all dark buttons stay solid black with clear white text */
+/* Ensure all dark buttons stay solid black with clear white text in normal state */
 button.bg-zinc-950,
 button.bg-zinc-900,
 button.bg-zinc-800,
@@ -76,10 +76,33 @@ button.bg-black,
 a.bg-zinc-950,
 a.bg-zinc-900,
 a.bg-zinc-800,
-a.bg-black {
+a.bg-black,
+:root button.bg-zinc-950,
+:root button.bg-zinc-900,
+:root button.bg-zinc-800,
+:root button.bg-black,
+:root a.bg-zinc-950,
+:root a.bg-zinc-900,
+:root a.bg-zinc-800,
+:root a.bg-black {
   background-color: #09090b !important;
   color: #ffffff !important;
+  border-color: #09090b !important;
 }
+
+/* Ensure inner icons inside normal dark buttons are white */
+button.bg-zinc-950:not(:hover) svg:not(.text-emerald-400):not(.text-emerald-500):not(.text-rose-500),
+button.bg-zinc-900:not(:hover) svg:not(.text-emerald-400):not(.text-emerald-500):not(.text-rose-500),
+button.bg-zinc-800:not(:hover) svg:not(.text-emerald-400):not(.text-emerald-500):not(.text-rose-500),
+button.bg-black:not(:hover) svg:not(.text-emerald-400):not(.text-emerald-500):not(.text-rose-500),
+a.bg-zinc-950:not(:hover) svg:not(.text-emerald-400):not(.text-emerald-500):not(.text-rose-500),
+a.bg-zinc-900:not(:hover) svg:not(.text-emerald-400):not(.text-emerald-500):not(.text-rose-500),
+a.bg-zinc-800:not(:hover) svg:not(.text-emerald-400):not(.text-emerald-500):not(.text-rose-500),
+a.bg-black:not(:hover) svg:not(.text-emerald-400):not(.text-emerald-500):not(.text-rose-500) {
+  color: #ffffff !important;
+}
+
+/* On hover: clean white background with crisp dark text & border (matching image 4) */
 button.bg-zinc-950:hover,
 button.bg-zinc-900:hover,
 button.bg-zinc-800:hover,
@@ -87,21 +110,46 @@ button.bg-black:hover,
 a.bg-zinc-950:hover,
 a.bg-zinc-900:hover,
 a.bg-zinc-800:hover,
-a.bg-black:hover {
-  background-color: #27272a !important;
-  color: #ffffff !important;
+a.bg-black:hover,
+:root button.bg-zinc-950:hover,
+:root button.bg-zinc-900:hover,
+:root button.bg-zinc-800:hover,
+:root button.bg-black:hover,
+:root a.bg-zinc-950:hover,
+:root a.bg-zinc-900:hover,
+:root a.bg-zinc-800:hover,
+:root a.bg-black:hover {
+  background-color: #ffffff !important;
+  color: #09090b !important;
+  border: 1px solid #18181b !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
 }
 
-/* LIGHT MODE: Universal Soft & Clean Hover (No dark gray or black hover blocking text) */
+button.bg-zinc-950:hover *,
+button.bg-zinc-900:hover *,
+button.bg-zinc-800:hover *,
+button.bg-black:hover *,
+a.bg-zinc-950:hover *,
+a.bg-zinc-900:hover *,
+a.bg-zinc-800:hover *,
+a.bg-black:hover *,
+:root button.bg-zinc-950:hover *,
+:root button.bg-zinc-900:hover *,
+:root button.bg-zinc-800:hover *,
+:root button.bg-black:hover *,
+:root a.bg-zinc-950:hover *,
+:root a.bg-zinc-900:hover *,
+:root a.bg-zinc-800:hover *,
+:root a.bg-black:hover * {
+  color: #09090b !important;
+  stroke: #09090b !important;
+}
+
+/* LIGHT MODE: Universal Soft & Clean Hover for table rows and cards */
 :root tr:hover,
 :root tbody tr:hover,
 :root tr[class*="hover:bg-"]:hover,
 :root tbody tr[class*="hover:bg-"]:hover,
-:root .hover\:bg-zinc-900\/50:hover,
-:root .hover\:bg-zinc-900:hover,
-:root .hover\:bg-zinc-800\/50:hover,
-:root .hover\:bg-zinc-800:hover,
-:root .hover\:bg-zinc-950:hover,
 :root tr[class*="hover:bg-zinc-9"]:hover,
 :root tr[class*="hover:bg-zinc-8"]:hover {
   background-color: #f4f4f5 !important; /* Soft clean hover */
@@ -118,12 +166,12 @@ a.bg-black:hover {
 }
 
 /* Fix ghost/outline icon buttons on hover - soft gray instead of dark black square */
-button[class*="hover:bg-zinc-800"]:not(.bg-zinc-800):not(.bg-zinc-950):not(.bg-black):hover,
-button[class*="hover:bg-zinc-900"]:not(.bg-zinc-900):not(.bg-zinc-950):not(.bg-black):hover,
-button[class*="hover:bg-zinc-950"]:not(.bg-zinc-950):not(.bg-black):hover,
-a[class*="hover:bg-zinc-800"]:not(.bg-zinc-800):not(.bg-zinc-950):not(.bg-black):hover,
-a[class*="hover:bg-zinc-900"]:not(.bg-zinc-900):not(.bg-zinc-950):not(.bg-black):hover,
-a[class*="hover:bg-zinc-950"]:not(.bg-zinc-950):not(.bg-black):hover {
+button[class*="hover:bg-zinc-800"]:not(.bg-zinc-800):not(.bg-zinc-900):not(.bg-zinc-950):not(.bg-black):hover,
+button[class*="hover:bg-zinc-900"]:not(.bg-zinc-800):not(.bg-zinc-900):not(.bg-zinc-950):not(.bg-black):hover,
+button[class*="hover:bg-zinc-950"]:not(.bg-zinc-800):not(.bg-zinc-900):not(.bg-zinc-950):not(.bg-black):hover,
+a[class*="hover:bg-zinc-800"]:not(.bg-zinc-800):not(.bg-zinc-900):not(.bg-zinc-950):not(.bg-black):hover,
+a[class*="hover:bg-zinc-900"]:not(.bg-zinc-800):not(.bg-zinc-900):not(.bg-zinc-950):not(.bg-black):hover,
+a[class*="hover:bg-zinc-950"]:not(.bg-zinc-800):not(.bg-zinc-900):not(.bg-zinc-950):not(.bg-black):hover {
   background-color: #f4f4f5 !important;
   color: #09090b !important;
 }

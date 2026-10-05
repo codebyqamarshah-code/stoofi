@@ -285,12 +285,14 @@ export default function VisitorBookPage() {
     const todayRecords = visitors.filter(v => v.date && v.date.substring(0, 10) === todayStr);
     const currentlyInside = visitors.filter(v => v.status === 'Inside' || !v.outTime);
     const checkedOutToday = todayRecords.filter(v => v.status === 'Checked Out' && v.outTime);
+    const totalVisitsToday = todayRecords.length;
     const totalPersonsToday = todayRecords.reduce((sum, v) => sum + (Number(v.noOfPerson) || 1), 0);
 
     return {
       todayVisitors: todayRecords.length,
       currentlyInside: currentlyInside.length,
       checkedOutToday: checkedOutToday.length,
+      totalVisitsToday,
       totalPersonsToday
     };
   }, [visitors]);
@@ -449,8 +451,8 @@ export default function VisitorBookPage() {
 
         <div className="bg-white border border-zinc-200 rounded-2xl p-4 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Total Persons Today</p>
-            <p className="text-2xl font-black text-zinc-950 mt-1">{stats.totalPersonsToday}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Total Visits Today</p>
+            <p className="text-2xl font-black text-zinc-950 mt-1">{stats.totalVisitsToday ?? stats.todayVisitors}</p>
           </div>
           <div className="w-11 h-11 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-950">
             <Clock className="w-5 h-5" />

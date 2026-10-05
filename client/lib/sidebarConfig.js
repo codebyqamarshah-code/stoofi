@@ -160,11 +160,11 @@ export const DEFAULT_MENU_STRUCTURE = [
           { id: 'sub-adm-postal-rec', name: 'Postal Receive', href: '/dashboard/admin/postal-receive', iconName: 'Download', visible: true },
           { id: 'sub-adm-postal-disp', name: 'Postal Dispatch', href: '/dashboard/admin/postal-dispatch', iconName: 'Send', visible: true },
           { id: 'sub-adm-phone-call', name: 'Phone Call Log', href: '/dashboard/admin/phone-call-log', iconName: 'Phone', visible: true },
-          { id: 'sub-adm-setup', name: 'Admin Setup', href: '/dashboard/admin/setup', iconName: 'Settings', visible: true },
           { id: 'sub-adm-id-card', name: 'ID Card', href: '/dashboard/admin/id-card', iconName: 'CreditCard', visible: true },
           { id: 'sub-adm-cert', name: 'Certificate', href: '/dashboard/admin/certificate', iconName: 'Award', visible: true },
           { id: 'sub-adm-gen-cert', name: 'Generate Certificate', href: '/dashboard/admin/generate-certificate', iconName: 'BadgeCheck', visible: true },
           { id: 'sub-adm-gen-id', name: 'Generate ID Card', href: '/dashboard/admin/generate-id-card', iconName: 'CreditCard', visible: true },
+          { id: 'sub-adm-setup', name: 'Admin Setup', href: '/dashboard/admin/setup', iconName: 'Settings', visible: true },
         ]
       },
       {
@@ -1176,7 +1176,23 @@ export const STUDENT_MENU_STRUCTURE = [
   }
 ];
 
-export const STORAGE_KEY = 'stoofi_custom_sidebar_v6';
+export const STORAGE_KEY = 'stoofi_custom_sidebar_v7';
+
+// Keep Admin Setup as the last entry of Admin Section in saved layouts.
+function moveAdminSetupToEnd(menu) {
+  if (!Array.isArray(menu)) return menu;
+  menu.forEach(group => {
+    (group.items || []).forEach(item => {
+      if (item.id !== 'item-admin-sec' || !Array.isArray(item.subItems)) return;
+      const index = item.subItems.findIndex(sub => sub.id === 'sub-adm-setup');
+      if (index > -1 && index !== item.subItems.length - 1) {
+        const [setup] = item.subItems.splice(index, 1);
+        item.subItems.push(setup);
+      }
+    });
+  });
+  return menu;
+}
 
 export function getStoredSidebar(role = 'Super Admin') {
   let defaultForRole = DEFAULT_MENU_STRUCTURE;
@@ -1197,7 +1213,7 @@ export function getStoredSidebar(role = 'Super Admin') {
           return TEACHER_MENU_STRUCTURE;
         }
       }
-      return parsed;
+      return moveAdminSetupToEnd(parsed);
     }
   } catch (e) {
     console.error('Failed to parse sidebar data:', e);

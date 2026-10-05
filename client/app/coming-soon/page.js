@@ -48,13 +48,13 @@ export default function ComingSoonPage() {
       </div>
 
       <div className="mb-8">
-        <img src="/stoofi light.png" alt="Stoofi" className="h-16 w-auto object-contain" />
+        <img src="/logo.png" alt="Stoofi ERP" className="h-16 w-auto object-contain" />
       </div>
 
       <div className="relative w-24 h-24 mb-8 flex items-center justify-center">
-        <div className="absolute inset-0 border-[3px] border-zinc-200 dark:border-zinc-200 rounded-full"></div>
-        <div className="absolute inset-0 border-[3px] border-zinc-950 dark:border-zinc-200 rounded-full border-t-transparent animate-spin"></div>
-        <Clock size={36} className="text-zinc-950 dark:text-zinc-900" />
+        <div className="absolute inset-0 border-[3px] border-blue-100 rounded-full"></div>
+        <div className="absolute inset-0 border-[3px] rounded-full border-t-transparent animate-spin" style={{borderColor:'#0B4D9C',borderTopColor:'transparent'}}></div>
+        <Clock size={36} style={{color:'#0B4D9C'}} />
       </div>
 
       <h1 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-zinc-900 mb-4">

@@ -110,13 +110,19 @@ export const useAuth = create(
 
         if (typeof window !== 'undefined') {
           if (!token) {
-            token = sessionStorage.getItem('token') || Cookies.get('token') || localStorage.getItem('token');
+            token = localStorage.getItem('token') || sessionStorage.getItem('token') || Cookies.get('token');
+          }
+          if (token) {
+            try {
+              Cookies.set('token', token, { path: '/', expires: 7, sameSite: 'lax' });
+              localStorage.setItem('token', token);
+            } catch (_) {}
           }
           if (!user) {
             try {
-              const rawSession = sessionStorage.getItem('auth-storage');
-              if (rawSession) {
-                const parsed = JSON.parse(rawSession);
+              const rawStorage = localStorage.getItem('auth-storage') || sessionStorage.getItem('auth-storage');
+              if (rawStorage) {
+                const parsed = JSON.parse(rawStorage);
                 if (parsed?.state?.user) user = parsed.state.user;
                 if (!token && parsed?.state?.token) token = parsed.state.token;
               }
@@ -180,7 +186,7 @@ export const useAuth = create(
     }),
     {
       name: 'auth-storage',
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => (typeof window !== 'undefined' && window.localStorage ? window.localStorage : sessionStorage)),
       partialize: (state) => {
         return { user: state.user, token: state.token, isAuthenticated: state.isAuthenticated };
       },
