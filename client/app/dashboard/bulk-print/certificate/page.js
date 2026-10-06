@@ -33,6 +33,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import api from '@/services/api';
 import { exportToCSV, exportToExcel, exportToPDF } from '@/lib/exportUtils';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 
 function GenerateCertificateContent() {
   const searchParams = useSearchParams();
@@ -423,18 +424,13 @@ function GenerateCertificateContent() {
               <Label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
                 Certificate Template <span className="text-rose-500">*</span>
               </Label>
-              <select 
+              <SearchableSelect
+                name="selectedTemplateId"
                 value={selectedTemplateId} 
-                onChange={e => setSelectedTemplateId(e.target.value)} 
-                className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-zinc-950 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-zinc-900" 
-                required
-              >
-                {templates.map(t => (
-                  <option key={t._id} value={t._id}>
-                    {t.title} ({t.type})
-                  </option>
-                ))}
-              </select>
+                onChange={e => setSelectedTemplateId(e.target.value)}
+                options={templates.map(t => ({ value: t._id, label: `${t.title} (${t.type})` }))}
+                placeholder="Select Template..."
+              />
             </div>
 
             {/* Class Filter */}
@@ -442,16 +438,13 @@ function GenerateCertificateContent() {
               <Label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
                 Class Filter
               </Label>
-              <select 
+              <SearchableSelect
+                name="classFilter"
                 value={classFilter} 
-                onChange={e => setClassFilter(e.target.value)} 
-                className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-zinc-950 text-xs focus:outline-none focus:ring-1 focus:ring-zinc-900"
-              >
-                <option value="">All Classes</option>
-                {classes.map(c => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
+                onChange={e => setClassFilter(e.target.value)}
+                options={[{ value: '', label: 'All Classes' }, ...classes.map(c => ({ value: c, label: c }))]}
+                placeholder="All Classes"
+              />
             </div>
 
             {/* Section Filter */}
@@ -459,16 +452,13 @@ function GenerateCertificateContent() {
               <Label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
                 Section Filter
               </Label>
-              <select 
+              <SearchableSelect
+                name="sectionFilter"
                 value={sectionFilter} 
-                onChange={e => setSectionFilter(e.target.value)} 
-                className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-zinc-950 text-xs focus:outline-none focus:ring-1 focus:ring-zinc-900"
-              >
-                <option value="">All Sections</option>
-                {sections.map(s => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
+                onChange={e => setSectionFilter(e.target.value)}
+                options={[{ value: '', label: 'All Sections' }, ...sections.map(s => ({ value: s, label: s }))]}
+                placeholder="All Sections"
+              />
             </div>
 
             {/* Issue Date */}

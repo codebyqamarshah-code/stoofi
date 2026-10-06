@@ -26,6 +26,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 
@@ -281,49 +282,44 @@ export default function BulkPrintIdCardPage() {
             {/* Role Filter */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-700">Target Role <span className="text-rose-500">*</span></Label>
-              <select 
+              <SearchableSelect
+                name="role"
                 value={role} 
                 onChange={e => setRole(e.target.value)} 
-                className="flex h-9 w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs" 
-                required
-              >
-                <option value="Student">Student</option>
-                <option value="Teacher">Teacher</option>
-                <option value="Staff">Staff / Faculty</option>
-              </select>
+                options={[
+                  { value: 'Student', label: 'Student' },
+                  { value: 'Teacher', label: 'Teacher' },
+                  { value: 'Staff', label: 'Staff / Faculty' }
+                ]}
+              />
             </div>
 
             {/* Template Selector */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-700">ID Card Template</Label>
-              <select 
+              <SearchableSelect
+                name="selectedTemplateId"
                 value={selectedTemplateId} 
                 onChange={e => setSelectedTemplateId(e.target.value)} 
-                className="flex h-9 w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
-              >
-                {templates.filter(t => t.role === role).map(t => (
-                  <option key={t._id} value={t._id}>{t.title} ({t.cardLayout})</option>
-                ))}
-                {templates.filter(t => t.role === role).length === 0 && (
-                  <option value="">Default {role} Template</option>
-                )}
-              </select>
+                options={[
+                  ...templates.filter(t => t.role === role).map(t => ({ value: t._id, label: `${t.title} (${t.cardLayout})` })),
+                  ...(templates.filter(t => t.role === role).length === 0 ? [{ value: '', label: `Default ${role} Template` }] : [])
+                ]}
+                placeholder={`Select ${role} Template`}
+              />
             </div>
 
             {/* Class Filter (For Student) */}
             {role === 'Student' ? (
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-700">Class</Label>
-                <select 
+                <SearchableSelect
+                  name="classFilter"
                   value={classFilter} 
-                  onChange={e => setClassFilter(e.target.value)} 
-                  className="flex h-9 w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
-                >
-                  <option value="">All Classes</option>
-                  {classes.map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
+                  onChange={e => setClassFilter(e.target.value)}
+                  options={[{ value: '', label: 'All Classes' }, ...classes.map(c => ({ value: c, label: c }))]}
+                  placeholder="All Classes"
+                />
               </div>
             ) : (
               <div className="space-y-1.5">
@@ -341,16 +337,13 @@ export default function BulkPrintIdCardPage() {
             {role === 'Student' ? (
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-zinc-700">Section</Label>
-                <select 
+                <SearchableSelect
+                  name="sectionFilter"
                   value={sectionFilter} 
                   onChange={e => setSectionFilter(e.target.value)} 
-                  className="flex h-9 w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
-                >
-                  <option value="">All Sections</option>
-                  {sections.map(s => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
+                  options={[{ value: '', label: 'All Sections' }, ...sections.map(s => ({ value: s, label: s }))]}
+                  placeholder="All Sections"
+                />
               </div>
             ) : (
               <div className="space-y-1.5">
