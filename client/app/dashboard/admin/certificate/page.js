@@ -459,24 +459,33 @@ export default function CertificatePage() {
       {/* Main List & Table Container */}
       <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden flex flex-col">
         
-        {/* Table Toolbar */}
-        <div className="p-4 border-b border-zinc-200 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-zinc-50/50">
-          <div className="flex items-center gap-2">
-            <h2 className="text-base font-bold text-zinc-950">Template Library</h2>
-            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-zinc-100 text-zinc-700 border border-zinc-200">
-              {pagination.total} records
+        {/* Table Toolbar - Single Clean Professional Line */}
+        <div className="p-3.5 sm:p-4 border-b border-zinc-200 flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-zinc-50/50">
+          
+          {/* Left: Create Button & Records Count Badge */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            <Button 
+              onClick={handleOpenCreate}
+              className="bg-zinc-950 hover:bg-zinc-800 text-white font-semibold h-8 text-xs flex items-center gap-1.5 shadow-xs whitespace-nowrap px-3.5 rounded-lg border border-zinc-950 hover:border-zinc-800 transition-all cursor-pointer"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              CREATE TEMPLATE
+            </Button>
+            <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-white text-zinc-700 border border-zinc-200 shadow-2xs whitespace-nowrap">
+              {pagination.total} {pagination.total === 1 ? 'Template' : 'Templates'}
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
+          {/* Right: Search, Filters & Export Tools */}
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 overflow-x-auto">
             {/* Search */}
-            <div className="relative w-full sm:w-[220px]">
+            <div className="relative w-full sm:w-[200px] shrink-0">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
               <Input 
                 value={searchQuery} 
                 onChange={e => setSearchQuery(e.target.value)} 
                 placeholder="Search templates..." 
-                className="pl-8 h-8 text-xs bg-white border-zinc-300 text-zinc-950 focus-visible:ring-1 focus-visible:ring-zinc-900" 
+                className="pl-8 h-8 text-xs bg-white border-zinc-300 text-zinc-950 focus-visible:ring-1 focus-visible:ring-zinc-900 rounded-lg" 
               />
               {searchQuery && (
                 <button 
@@ -492,7 +501,7 @@ export default function CertificatePage() {
             <select
               value={typeFilter}
               onChange={e => { setTypeFilter(e.target.value); setPage(1); }}
-              className="h-8 rounded-md border border-zinc-300 bg-white px-2.5 text-xs text-zinc-950 focus:outline-none focus:ring-1 focus:ring-zinc-900"
+              className="h-8 rounded-lg border border-zinc-300 bg-white px-2.5 text-xs text-zinc-950 focus:outline-none focus:ring-1 focus:ring-zinc-900 font-medium shrink-0 cursor-pointer shadow-2xs"
             >
               <option value="All">All Types</option>
               {CERT_TYPE_OPTIONS.map(t => (
@@ -504,15 +513,15 @@ export default function CertificatePage() {
             <select
               value={statusFilter}
               onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
-              className="h-8 rounded-md border border-zinc-300 bg-white px-2.5 text-xs text-zinc-950 focus:outline-none focus:ring-1 focus:ring-zinc-900"
+              className="h-8 rounded-lg border border-zinc-300 bg-white px-2.5 text-xs text-zinc-950 focus:outline-none focus:ring-1 focus:ring-zinc-900 font-medium shrink-0 cursor-pointer shadow-2xs"
             >
               <option value="All">All Status</option>
-              <option value="Active">Active Only</option>
-              <option value="Inactive">Inactive Only</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
             </select>
 
             {/* Export Toolbar */}
-            <div className="flex items-center border border-zinc-200 rounded-lg bg-white overflow-hidden shadow-2xs">
+            <div className="flex items-center border border-zinc-200 rounded-lg bg-white overflow-hidden shadow-2xs shrink-0">
               <button onClick={() => handleExport('Excel')} className="px-2.5 py-1.5 hover:bg-zinc-50 text-zinc-600 transition-colors border-r border-zinc-200 text-xs font-medium flex items-center gap-1" title="Excel">
                 <Download className="h-3.5 w-3.5 text-emerald-600" />
               </button>
@@ -532,19 +541,10 @@ export default function CertificatePage() {
               onClick={fetchData}
               variant="outline"
               size="sm"
-              className="h-8 w-8 p-0 text-zinc-600 border-zinc-300 hover:bg-zinc-100"
+              className="h-8 w-8 p-0 text-zinc-600 border border-zinc-200 bg-white shadow-2xs hover:bg-zinc-50 rounded-lg shrink-0 transition-colors"
               title="Refresh data"
             >
               <RefreshCw className="h-3.5 w-3.5" />
-            </Button>
-
-            {/* Create Button */}
-            <Button 
-              onClick={handleOpenCreate}
-              className="bg-zinc-950 hover:bg-zinc-800 text-white font-medium h-8 text-xs flex items-center gap-1.5 shadow-xs whitespace-nowrap"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              CREATE TEMPLATE
             </Button>
           </div>
         </div>

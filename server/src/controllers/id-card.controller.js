@@ -66,6 +66,51 @@ const DEFAULT_ID_CARDS = [
     showQrBarcode: true,
     status: 'Active',
     isDefault: true
+  },
+
+  {
+    title: 'Premium Horizontal Student ID Card',
+    role: 'Student',
+    cardLayout: 'horizontal',
+    themeStyle: 'royal-purple',
+    headerText: 'STUDENT ID CARD',
+    footerText: 'School Seal & Signature',
+    showPhoto: true,
+    showAdmissionNo: true,
+    showRollNo: true,
+    showClass: true,
+    showSection: true,
+    showFatherName: false,
+    showPhone: true,
+    showBloodGroup: false,
+    showDob: true,
+    showDesignation: false,
+    showDepartment: false,
+    showQrBarcode: true,
+    status: 'Active',
+    isDefault: true
+  },
+  {
+    title: 'Executive Staff ID Card',
+    role: 'Staff',
+    cardLayout: 'horizontal',
+    themeStyle: 'classic-navy',
+    headerText: 'EXECUTIVE STAFF CARD',
+    footerText: 'Authorized Signature',
+    showPhoto: true,
+    showAdmissionNo: false,
+    showRollNo: false,
+    showClass: false,
+    showSection: false,
+    showFatherName: false,
+    showPhone: true,
+    showBloodGroup: true,
+    showDob: false,
+    showDesignation: true,
+    showDepartment: true,
+    showQrBarcode: true,
+    status: 'Active',
+    isDefault: true
   }
 ];
 
