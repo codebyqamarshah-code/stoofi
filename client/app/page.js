@@ -570,20 +570,20 @@ export default function LandingPage() {
           <div key={`btns-${currentSlide}`} className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in slide-in-from-bottom-8 fade-in duration-700 delay-300">
             {isUserAvailable && activeUser ? (
               <Link href={getDashboardUrl(activeUser)}>
-                <Button className="h-14 px-10 text-base bg-emerald-600 hover:bg-emerald-500 text-white rounded-full font-bold shadow-lg hover:-translate-y-1 transition-all flex items-center gap-2 border-0">
+                <Button className="h-14 px-10 text-base premium-hover bg-emerald-600 text-white rounded-full font-bold shadow-lg flex items-center gap-2 border-0">
                   <LayoutDashboard size={18} />
                   Go to Dashboard <ArrowRight size={16} />
                 </Button>
               </Link>
             ) : (
               <Link href="/login">
-                <Button className="h-14 px-10 text-base bg-[#084A86] hover:bg-[#084A86]/90 text-white rounded-full font-bold shadow-lg hover:-translate-y-1 transition-all flex items-center gap-2 border-0">
+                <Button className="h-14 px-10 text-base premium-hover bg-[#084A86] text-white rounded-full font-bold shadow-lg flex items-center gap-2 border-0">
                   Get Started <ArrowRight size={16} />
                 </Button>
               </Link>
             )}
             <Link href="#how-it-works">
-              <Button variant="outline" className="h-14 px-10 text-base rounded-full font-bold border-2 border-white/30 text-white bg-white/5 hover:bg-white/10 hover:border-white/50 backdrop-blur-sm transition-all">
+              <Button variant="outline" className="h-14 px-10 text-base rounded-full font-bold premium-hover border-2 border-white/30 text-white bg-white/5 hover:bg-white/10 backdrop-blur-sm transition-all">
                 {t.hero.howItWorks} <ArrowRight size={16} className="ml-2 inline" />
               </Button>
             </Link>
