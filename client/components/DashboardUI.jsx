@@ -746,31 +746,54 @@ export default function DashboardUI({ user }) {
       <div className="rounded-2xl bg-gradient-to-r from-zinc-100/60 via-zinc-100/30 to-zinc-100/70 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-300 p-6 border border-zinc-300/80 dark:border-zinc-200 shadow-sm relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-zinc-200/40 dark:bg-zinc-100 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-200/80 pb-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-200/60 dark:bg-zinc-100 border border-zinc-400 dark:border-zinc-200 text-xs font-bold text-zinc-950 dark:text-zinc-900">
-              <Sparkles className="h-3.5 w-3.5 text-zinc-950" />
-              {greeting}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-zinc-200 dark:border-zinc-200/80 pb-6 relative z-10">
+            {/* 1. Greeting & Titles */}
+            <div className="space-y-2 flex-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-200/60 dark:bg-zinc-100 border border-zinc-400 dark:border-zinc-200 text-xs font-bold text-zinc-950 dark:text-zinc-900 shadow-sm transition-all hover:bg-white cursor-default">
+                <Sparkles className="h-3.5 w-3.5 text-zinc-950" />
+                {greeting}
+              </div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-extrabold text-zinc-950 dark:text-zinc-900 tracking-tight">
+                  {user?.role === 'Admin' ? 'Admin Dashboard' : user?.role === 'Teacher' ? 'Teacher Dashboard' : user?.role === 'Accountant' ? 'Finance Dashboard' : 'Super Admin Dashboard'}
+                </h1>
+                <span className="bg-zinc-950 text-white font-bold text-[10px] uppercase px-2.5 py-1 rounded-full tracking-wider shadow-xs">
+                  {user?.role || 'SUPER ADMIN'}
+                </span>
+              </div>
+              <div className="flex items-center gap-4 text-xs font-medium text-zinc-600 dark:text-zinc-600 pt-1">
+                <span className="flex items-center gap-1.5 px-2 py-1 bg-white border border-zinc-200 rounded-md shadow-sm">
+                  <GraduationCap className="h-3.5 w-3.5 text-[#084A86]" /> Stoofi Pro
+                </span>
+                <span className="flex items-center gap-1.5 px-2 py-1 bg-white border border-zinc-200 rounded-md shadow-sm">
+                  <CalendarDays className="h-3.5 w-3.5 text-emerald-600" /> {formattedToday}
+                </span>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-extrabold text-zinc-950 dark:text-zinc-900 tracking-tight">
-                Super Admin Dashboard
-              </h1>
-              <span style={{backgroundColor:'#09090b', color:'#ffffff'}} className="font-bold text-xs uppercase px-2.5 py-1 rounded-full tracking-wider shadow-xs">
-                SUPER ADMIN
-              </span>
-            </div>
-            <div className="flex items-center gap-4 text-xs text-zinc-950 dark:text-zinc-600">
-              <span className="flex items-center gap-1.5 font-semibold text-zinc-950 dark:text-zinc-900">
-                <GraduationCap className="h-4 w-4" /> Stoofi Pro
-              </span>
-              <span className="flex items-center gap-1.5 font-medium text-zinc-950/80 dark:text-zinc-600">
-                <CalendarDays className="h-4 w-4 text-zinc-950 dark:text-zinc-600" /> {formattedToday}
-              </span>
-            </div>
-          </div>
 
-          {/* Real-Time Weather Widget — Lahore, Pakistan */}
+            {/* 2. Quick Actions (Fills empty middle space on wide screens) */}
+            {(user?.role === 'Super Admin' || user?.role === 'Admin') && (
+              <div className="hidden xl:flex flex-col items-center justify-center gap-3 px-8 border-x border-zinc-200/60 dark:border-zinc-200">
+                <div className="text-[10px] font-black uppercase text-zinc-400 tracking-widest flex items-center gap-2">
+                  <span className="h-px w-6 bg-zinc-200"></span>
+                  Quick Actions
+                  <span className="h-px w-6 bg-zinc-200"></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button onClick={() => router.push('/dashboard/students/add-student')} variant="outline" className="h-9 px-3 text-xs bg-white hover:bg-zinc-50 border-zinc-300 hover:border-zinc-950 text-zinc-700 shadow-sm transition-all rounded-xl font-bold">
+                    <UserPlus className="h-3.5 w-3.5 mr-1.5" /> Student
+                  </Button>
+                  <Button onClick={() => router.push('/dashboard/hr/add-staff')} variant="outline" className="h-9 px-3 text-xs bg-white hover:bg-zinc-50 border-zinc-300 hover:border-zinc-950 text-zinc-700 shadow-sm transition-all rounded-xl font-bold">
+                    <Briefcase className="h-3.5 w-3.5 mr-1.5" /> Staff
+                  </Button>
+                  <Button onClick={() => router.push('/dashboard/finance/fee-collection')} className="h-9 px-4 text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all rounded-xl font-bold border-0">
+                    <DollarSign className="h-3.5 w-3.5 mr-1.5" /> Fee
+                  </Button>
+                </div>
+              </div>
+            )}
+  
+            {/* Real-Time Weather Widget — Lahore, Pakistan */}
           <div className="bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col gap-3 shadow-sm relative overflow-hidden min-w-[280px]">
             {/* LIVE indicator */}
             <div className="absolute top-2.5 right-3 flex items-center gap-1.5">
@@ -1945,3 +1968,4 @@ export default function DashboardUI({ user }) {
     </div>
   );
 }
+
