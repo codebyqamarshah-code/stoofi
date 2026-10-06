@@ -536,7 +536,7 @@ export default function LandingPage() {
         )}
       </header>
 
-      <section id="home" className="relative pt-36 pb-20 lg:pt-48 lg:pb-28 bg-zinc-950 overflow-hidden min-h-[85vh] flex flex-col items-center justify-center">
+      <section id="home" className="relative bg-zinc-950 overflow-hidden min-h-[90vh] flex flex-col items-center justify-center">
         {/* Slider Backgrounds */}
         {heroSlides.map((slide, index) => (
           <div 
@@ -553,7 +553,7 @@ export default function LandingPage() {
           </div>
         ))}
 
-        <div className="max-w-5xl mx-auto px-6 text-center relative z-20 transition-all duration-500 ease-out mt-12">
+        <div className="max-w-5xl mx-auto px-6 text-center relative z-20 transition-all duration-500 ease-out">
           <div key={`badge-${currentSlide}`} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-white text-xs font-bold uppercase tracking-wider mb-8 border border-white/20 animate-in fade-in zoom-in duration-500">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
