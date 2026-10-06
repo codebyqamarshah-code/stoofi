@@ -27,6 +27,41 @@ export default function LandingPage() {
   const profileRef = useRef(null);
   const [mounted, setMounted] = useState(false);
   const [recentUser, setRecentUser] = useState(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const heroSlides = [
+    {
+      bgImage: "/images/hero/bg1.jpg",
+      badge: "STOOFI PRO IS LIVE - 30 DAYS FREE TRIAL",
+      title1: "The Complete",
+      title2: "School Management",
+      title3: "ERP",
+      desc: "Manage your entire institution from one unified platform. Tailored portals for Admins, Teachers, Students, Accountants and Parents."
+    },
+    {
+      bgImage: "/images/hero/bg2.jpg",
+      badge: "AI-POWERED INSIGHTS",
+      title1: "Smart Attendance",
+      title2: "& HR Payroll",
+      title3: "System",
+      desc: "Real-time tracking of staff and students with automated absentee alerts and 1-tap salary slip generation."
+    },
+    {
+      bgImage: "/images/hero/bg3.jpg",
+      badge: "MULTI-CAMPUS CONTROL",
+      title1: "Advanced Exams",
+      title2: "& Financial",
+      title3: "Control",
+      desc: "Dynamic report cards, automated grading, fee vouchers, and live cash flow monitoring in a single click."
+    }
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -501,41 +536,69 @@ export default function LandingPage() {
         )}
       </header>
 
-      <section id="home" className="relative pt-36 pb-20 lg:pt-48 lg:pb-28 bg-white dark:bg-white overflow-hidden">
-        <div className="max-w-5xl mx-auto px-6 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-zinc-100 dark:bg-zinc-50 text-zinc-800 dark:text-zinc-900 text-xs font-bold uppercase tracking-wider mb-8 border border-zinc-200 dark:border-zinc-200">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-zinc-600 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-zinc-600"></span>
-            </span>
-            {t.hero.badge}
+      <section id="home" className="relative pt-36 pb-20 lg:pt-48 lg:pb-28 bg-zinc-950 overflow-hidden min-h-[85vh] flex flex-col items-center justify-center">
+        {/* Slider Backgrounds */}
+        {heroSlides.map((slide, index) => (
+          <div 
+            key={index} 
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+          >
+            <div className="absolute inset-0 bg-zinc-950/60 z-10 mix-blend-multiply"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-900/50 to-transparent z-10"></div>
+            <img 
+              src={slide.bgImage} 
+              alt={slide.title2} 
+              className={`w-full h-full object-cover transition-transform duration-[10000ms] ease-out ${index === currentSlide ? 'scale-110' : 'scale-100'}`} 
+            />
           </div>
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight mb-6 leading-[1.1] text-zinc-900 dark:text-zinc-900">
-            {t.hero.title1} <br /><span className="text-zinc-800 dark:text-zinc-900">{t.hero.title2}</span> {t.hero.title3}
+        ))}
+
+        <div className="max-w-5xl mx-auto px-6 text-center relative z-20 transition-all duration-500 ease-out mt-12">
+          <div key={`badge-${currentSlide}`} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-white text-xs font-bold uppercase tracking-wider mb-8 border border-white/20 animate-in fade-in zoom-in duration-500">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            {heroSlides[currentSlide].badge}
+          </div>
+          <h1 key={`title-${currentSlide}`} className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight mb-6 leading-[1.1] text-white animate-in slide-in-from-bottom-8 fade-in duration-700 delay-75">
+            {heroSlides[currentSlide].title1} <br /><span className="text-emerald-400">{heroSlides[currentSlide].title2}</span> {heroSlides[currentSlide].title3}
           </h1>
-          <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-            {t.hero.desc}
+          <p key={`desc-${currentSlide}`} className="text-lg md:text-xl text-zinc-300 mb-10 max-w-2xl mx-auto leading-relaxed animate-in slide-in-from-bottom-8 fade-in duration-700 delay-150">
+            {heroSlides[currentSlide].desc}
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div key={`btns-${currentSlide}`} className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in slide-in-from-bottom-8 fade-in duration-700 delay-300">
             {isUserAvailable && activeUser ? (
               <Link href={getDashboardUrl(activeUser)}>
-                <Button className="h-14 px-10 text-base bg-zinc-900 hover:bg-zinc-800 text-white rounded-full font-bold shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                <Button className="h-14 px-10 text-base bg-emerald-600 hover:bg-emerald-500 text-white rounded-full font-bold shadow-lg hover:-translate-y-1 transition-all flex items-center gap-2 border-0">
                   <LayoutDashboard size={18} />
                   Go to Dashboard <ArrowRight size={16} />
                 </Button>
               </Link>
             ) : (
               <Link href="/login">
-                <Button className="h-14 px-10 text-base bg-zinc-900 hover:bg-zinc-800 text-white rounded-full font-bold shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-2">
-                  Login <ArrowRight size={16} />
+                <Button className="h-14 px-10 text-base bg-[#084A86] hover:bg-[#084A86]/90 text-white rounded-full font-bold shadow-lg hover:-translate-y-1 transition-all flex items-center gap-2 border-0">
+                  Get Started <ArrowRight size={16} />
                 </Button>
               </Link>
             )}
             <Link href="#how-it-works">
-              <Button variant="outline" className="h-14 px-10 text-base rounded-full font-bold border-2 border-zinc-800 text-zinc-800 bg-transparent hover:bg-zinc-100 transition-all">
+              <Button variant="outline" className="h-14 px-10 text-base rounded-full font-bold border-2 border-white/30 text-white bg-white/5 hover:bg-white/10 hover:border-white/50 backdrop-blur-sm transition-all">
                 {t.hero.howItWorks} <ArrowRight size={16} className="ml-2 inline" />
               </Button>
             </Link>
+          </div>
+
+          {/* Slider Indicators */}
+          <div className="flex justify-center gap-3 mt-16 relative z-30">
+            {heroSlides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`transition-all duration-300 rounded-full h-2 ${index === currentSlide ? 'w-8 bg-emerald-500' : 'w-2 bg-white/30 hover:bg-white/60'}`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
           </div>
         </div>
       </section>

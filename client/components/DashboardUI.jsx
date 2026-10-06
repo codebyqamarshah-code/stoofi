@@ -748,24 +748,24 @@ export default function DashboardUI({ user }) {
 
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-zinc-200 dark:border-zinc-200/80 pb-6 relative z-10">
             {/* 1. Greeting & Titles */}
-            <div className="space-y-2 flex-1">
+            <div className="space-y-2 flex-1 min-w-0">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-200/60 dark:bg-zinc-100 border border-zinc-400 dark:border-zinc-200 text-xs font-bold text-zinc-950 dark:text-zinc-900 shadow-sm transition-all hover:bg-white cursor-default">
                 <Sparkles className="h-3.5 w-3.5 text-zinc-950" />
                 {greeting}
               </div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-extrabold text-zinc-950 dark:text-zinc-900 tracking-tight">
+              <div className="flex flex-wrap items-center gap-3 mt-1">
+                <h1 className="text-2xl lg:text-3xl font-extrabold text-zinc-950 dark:text-zinc-900 tracking-tight">
                   {user?.role === 'Admin' ? 'Admin Dashboard' : user?.role === 'Teacher' ? 'Teacher Dashboard' : user?.role === 'Accountant' ? 'Finance Dashboard' : 'Super Admin Dashboard'}
                 </h1>
-                <span className="bg-zinc-950 text-white font-bold text-[10px] uppercase px-2.5 py-1 rounded-full tracking-wider shadow-xs">
+                <span className="bg-zinc-950 text-white font-bold text-[10px] uppercase px-2.5 py-1 rounded-full tracking-wider shadow-xs shrink-0">
                   {user?.role || 'SUPER ADMIN'}
                 </span>
               </div>
-              <div className="flex items-center gap-4 text-xs font-medium text-zinc-600 dark:text-zinc-600 pt-1">
-                <span className="flex items-center gap-1.5 px-2 py-1 bg-white border border-zinc-200 rounded-md shadow-sm">
+              <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-zinc-600 dark:text-zinc-600 pt-1">
+                <span className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-zinc-200 rounded-lg shadow-sm whitespace-nowrap">
                   <GraduationCap className="h-3.5 w-3.5 text-[#084A86]" /> Stoofi Pro
                 </span>
-                <span className="flex items-center gap-1.5 px-2 py-1 bg-white border border-zinc-200 rounded-md shadow-sm">
+                <span className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-zinc-200 rounded-lg shadow-sm whitespace-nowrap">
                   <CalendarDays className="h-3.5 w-3.5 text-emerald-600" /> {formattedToday}
                 </span>
               </div>
@@ -780,7 +780,7 @@ export default function DashboardUI({ user }) {
                   <span className="h-px w-6 bg-zinc-200"></span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button onClick={() => router.push('/dashboard/students/add-student')} variant="outline" className="h-9 px-3 text-xs bg-white hover:bg-zinc-50 border-zinc-300 hover:border-zinc-950 text-zinc-700 shadow-sm transition-all rounded-xl font-bold">
+                  <Button onClick={() => router.push('/dashboard/students/add')} variant="outline" className="h-9 px-3 text-xs bg-white hover:bg-zinc-50 border-zinc-300 hover:border-zinc-950 text-zinc-700 shadow-sm transition-all rounded-xl font-bold">
                     <UserPlus className="h-3.5 w-3.5 mr-1.5" /> Student
                   </Button>
                   <Button onClick={() => router.push('/dashboard/hr/add-staff')} variant="outline" className="h-9 px-3 text-xs bg-white hover:bg-zinc-50 border-zinc-300 hover:border-zinc-950 text-zinc-700 shadow-sm transition-all rounded-xl font-bold">
@@ -1968,4 +1968,5 @@ export default function DashboardUI({ user }) {
     </div>
   );
 }
+
 
