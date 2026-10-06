@@ -763,7 +763,7 @@ export default function DashboardLayout({ children }) {
                             )}
                           </div>
                         </div>
-                      }
+                      )}
                   </>
                 );
               })()}
@@ -905,6 +905,7 @@ export default function DashboardLayout({ children }) {
     </div>
   );
 }
+
 
 
 
