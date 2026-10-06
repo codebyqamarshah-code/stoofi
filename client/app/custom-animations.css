@@ -1,0 +1,250 @@
+/* ==========================================================================
+   STOOFI PREMIUM INTERACTION SYSTEM
+   Smooth ease-out curves, both enter and leave use the same transition.
+   ========================================================================== */
+
+:root {
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --stoofi-green: #009966;
+  --stoofi-green-soft: rgba(0, 153, 102, 0.08);
+  --stoofi-green-border: rgba(0, 153, 102, 0.22);
+}
+
+/* ---------- 1. Sidebar ---------- */
+.sidebar-item,
+.sidebar-subitem {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+  transition: background-color 260ms var(--ease-smooth), color 260ms var(--ease-smooth),
+    border-color 260ms var(--ease-smooth);
+}
+
+.sidebar-item::before,
+.sidebar-subitem::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 22%;
+  bottom: 22%;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--stoofi-green);
+  transform: scaleY(0);
+  opacity: 0;
+  transition: transform 260ms var(--ease-smooth), opacity 260ms var(--ease-smooth);
+  pointer-events: none;
+}
+
+.sidebar-item:hover,
+.sidebar-subitem:hover,
+.sidebar-item.active,
+.sidebar-subitem.active {
+  background-color: var(--stoofi-green-soft);
+  color: var(--stoofi-green);
+}
+
+.sidebar-item.active,
+.sidebar-subitem.active {
+  border-color: var(--stoofi-green-border);
+  font-weight: 700;
+}
+
+.sidebar-item:hover::before,
+.sidebar-subitem:hover::before,
+.sidebar-item.active::before,
+.sidebar-subitem.active::before {
+  transform: scaleY(1);
+  opacity: 1;
+}
+
+.sidebar-item span,
+.sidebar-subitem span {
+  display: inline-block;
+  transition: transform 260ms var(--ease-smooth);
+}
+.sidebar-item:hover span,
+.sidebar-subitem:hover span {
+  transform: translateX(1px);
+}
+
+.sidebar-icon {
+  transition: transform 220ms var(--ease-smooth), color 220ms var(--ease-smooth);
+}
+.sidebar-item:hover .sidebar-icon,
+.sidebar-subitem:hover .sidebar-icon,
+.sidebar-item.active .sidebar-icon,
+.sidebar-subitem.active .sidebar-icon {
+  transform: translateX(2px) scale(1.05);
+  color: var(--stoofi-green);
+}
+
+.sidebar-chevron {
+  transition: transform 260ms var(--ease-smooth), color 220ms var(--ease-smooth);
+}
+
+/* ---------- 2. Buttons (refines the white reveal sweep) ---------- */
+:is(
+  button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"],
+  button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"],
+  button[class*="bg-rose-5"], button[class*="bg-rose-6"], button[class*="bg-indigo-"], button[class*="bg-blue-"],
+  a[class*="bg-zinc-8"], a[class*="bg-zinc-9"], a[class*="bg-emerald-"],
+  a[class*="bg-[#009966]"], a[class*="bg-[#084A86]"], a[class*="bg-primary"],
+  a[class*="bg-rose-5"], a[class*="bg-rose-6"], a[class*="bg-indigo-"], a[class*="bg-blue-"],
+  .premium-hover
+):not(:disabled) {
+  transition: color 320ms var(--ease-smooth), transform 220ms var(--ease-smooth),
+    box-shadow 260ms var(--ease-smooth) !important;
+}
+
+:is(
+  button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"],
+  button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"],
+  button[class*="bg-rose-5"], button[class*="bg-rose-6"], button[class*="bg-indigo-"], button[class*="bg-blue-"],
+  a[class*="bg-zinc-8"], a[class*="bg-zinc-9"], a[class*="bg-emerald-"],
+  a[class*="bg-[#009966]"], a[class*="bg-[#084A86]"], a[class*="bg-primary"],
+  a[class*="bg-rose-5"], a[class*="bg-rose-6"], a[class*="bg-indigo-"], a[class*="bg-blue-"],
+  .premium-hover
+):not(:disabled)::before {
+  transition: transform 650ms var(--ease-smooth) !important;
+}
+
+:is(
+  button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"],
+  button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"],
+  button[class*="bg-rose-5"], button[class*="bg-rose-6"], button[class*="bg-indigo-"], button[class*="bg-blue-"],
+  a[class*="bg-zinc-8"], a[class*="bg-zinc-9"], a[class*="bg-emerald-"],
+  a[class*="bg-[#009966]"], a[class*="bg-[#084A86]"], a[class*="bg-primary"],
+  a[class*="bg-rose-5"], a[class*="bg-rose-6"], a[class*="bg-indigo-"], a[class*="bg-blue-"],
+  .premium-hover
+):not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+:is(
+  button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"],
+  button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"],
+  button[class*="bg-rose-5"], button[class*="bg-rose-6"], button[class*="bg-indigo-"], button[class*="bg-blue-"],
+  a[class*="bg-zinc-8"], a[class*="bg-zinc-9"], a[class*="bg-emerald-"],
+  a[class*="bg-[#009966]"], a[class*="bg-[#084A86]"], a[class*="bg-primary"],
+  a[class*="bg-rose-5"], a[class*="bg-rose-6"], a[class*="bg-indigo-"], a[class*="bg-blue-"],
+  .premium-hover
+):not(:disabled):active {
+  transform: scale(0.98);
+}
+
+/* Button icons: trailing icon (arrows) nudges right */
+:is(
+  button[class*="bg-zinc-9"], button[class*="bg-emerald-"], button[class*="bg-[#084A86]"], .premium-hover
+) svg {
+  transition: transform 220ms var(--ease-smooth), color 320ms var(--ease-smooth) !important;
+}
+:is(
+  button[class*="bg-zinc-9"], button[class*="bg-emerald-"], button[class*="bg-[#084A86]"], .premium-hover
+):hover > svg:last-child:not(:first-child) {
+  transform: translateX(2px);
+}
+
+/* ---------- 3. Table rows & action buttons ---------- */
+.premium-table-row {
+  transition: background-color 260ms var(--ease-smooth);
+}
+.premium-table-row:hover {
+  background-color: rgba(0, 153, 102, 0.04);
+}
+
+.table-action-btn {
+  color: #71717a;
+  transition: background-color 240ms var(--ease-smooth), color 240ms var(--ease-smooth),
+    transform 240ms var(--ease-smooth);
+}
+.table-action-btn svg {
+  transition: transform 220ms var(--ease-smooth);
+}
+.table-action-btn:hover {
+  transform: translateY(-1px);
+}
+.table-action-btn:hover svg {
+  transform: scale(1.1);
+}
+.table-action-btn.edit-btn:hover {
+  background-color: var(--stoofi-green-soft);
+  color: var(--stoofi-green);
+}
+.table-action-btn.delete-btn:hover {
+  background-color: rgba(244, 63, 94, 0.09);
+  color: #e11d48;
+}
+
+/* ---------- 4. Links & breadcrumbs: underline grows from left ---------- */
+.link-underline,
+nav[aria-label="breadcrumb"] a,
+nav[aria-label="Breadcrumb"] a {
+  position: relative;
+  text-decoration: none;
+}
+.link-underline::after,
+nav[aria-label="breadcrumb"] a::after,
+nav[aria-label="Breadcrumb"] a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 240ms var(--ease-smooth);
+}
+.link-underline:hover::after,
+nav[aria-label="breadcrumb"] a:hover::after,
+nav[aria-label="Breadcrumb"] a:hover::after {
+  transform: scaleX(1);
+}
+
+/* ---------- 5. Clickable cards only ---------- */
+div.cursor-pointer[class*="rounded-2xl"],
+div.cursor-pointer[class*="rounded-xl"],
+.card-premium {
+  transition: transform 280ms var(--ease-smooth), box-shadow 280ms var(--ease-smooth),
+    border-color 280ms var(--ease-smooth) !important;
+}
+div.cursor-pointer[class*="rounded-2xl"]:hover,
+div.cursor-pointer[class*="rounded-xl"]:hover,
+.card-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.08) !important;
+  border-color: var(--stoofi-green-border) !important;
+}
+div.cursor-pointer[class*="rounded-2xl"]:active,
+div.cursor-pointer[class*="rounded-xl"]:active,
+.card-premium:active {
+  transform: translateY(0) scale(0.995);
+}
+
+/* ---------- 6. Inputs / selects ---------- */
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  transition: border-color 240ms var(--ease-smooth), box-shadow 240ms var(--ease-smooth);
+}
+input:not([type="checkbox"]):not([type="radio"]):hover,
+select:hover,
+textarea:hover {
+  border-color: rgba(0, 153, 102, 0.45);
+}
+input:not([type="checkbox"]):not([type="radio"]):focus,
+select:focus,
+textarea:focus {
+  border-color: var(--stoofi-green) !important;
+  box-shadow: 0 0 0 3px var(--stoofi-green-soft) !important;
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 1ms !important;
+  }
+}

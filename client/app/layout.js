@@ -1,5 +1,6 @@
-import { Poppins } from "next/font/google";
+﻿import { Poppins } from "next/font/google";
 import "./globals.css";
+import "./custom-animations.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import GoogleTranslate from "@/components/google-translate";
 import PageTransitionLoader from "@/components/PageTransitionLoader";

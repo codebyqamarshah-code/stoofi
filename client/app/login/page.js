@@ -217,7 +217,6 @@ export default function LoginPage() {
     { id: "superadmin", label: "SUPER ADMIN", email: "super@gmail.com", pass: "school" },
     { id: "admin", label: "ADMIN", email: "admin@gmail.com", pass: "school" },
     { id: "teacher", label: "TEACHER", email: "teacher@gmail.com", pass: "123456" },
-    { id: "parents", label: "PARENTS", email: "parent@gmail.com", pass: "123456" },
     { id: "accountant", label: "ACCOUNTANT", email: "accountant@gmail.com", pass: "123456" },
     { id: "student", label: "STUDENT", email: "student@gmail.com", pass: "123456" },
   ];
@@ -441,10 +440,10 @@ export default function LoginPage() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="peer sr-only"
+                  className="sr-only"
                 />
-                <div className="w-5 h-5 rounded border-2 border-zinc-300 peer-checked:bg-zinc-800 peer-checked:border-zinc-800 transition-all flex items-center justify-center">
-                  <svg className="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                <div className={`w-5 h-5 rounded border-2 transition-all flex items-center justify-center ${rememberMe ? 'bg-[#084A86] border-[#084A86]' : 'border-zinc-300'}`}>
+                  <svg className={`w-3 h-3 text-white transition-opacity ${rememberMe ? 'opacity-100' : 'opacity-0'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>

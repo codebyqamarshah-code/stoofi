@@ -481,14 +481,10 @@ export default function DashboardLayout({ children }) {
                         <div key={item.id || iIdx} className="space-y-1">
                           <button
                             onClick={() => toggleSubmenu(item.name)}
-                            className={`w-full flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold cursor-pointer transition-all duration-200 group ${
-                              isOpen 
-                                ? 'bg-blue-50 text-[#0B4D9C] border border-blue-200 font-bold shadow-xs' 
-                                : 'text-zinc-950 dark:text-zinc-800 hover:bg-blue-50/60 hover:text-[#0B4D9C]'
-                            }`}
+                            className={`w-full flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold cursor-pointer sidebar-item ${isOpen ? "active" : ""}`}
                           >
                             <div className="flex items-center space-x-3">
-                              <IconComponent className={`h-4 w-4 transition-colors ${isOpen ? 'text-[#0B4D9C]' : 'text-zinc-950 dark:text-zinc-700 group-hover:text-[#0B4D9C]'}`} />
+                              <IconComponent className="h-4 w-4 sidebar-icon" />
                               <span>{item.name}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
@@ -498,9 +494,7 @@ export default function DashboardLayout({ children }) {
                                 </span>
                               )}
                               <ChevronDown 
-                                className={`h-3.5 w-3.5 transition-transform duration-200 ${
-                                  isOpen ? 'rotate-180 text-[#0B4D9C]' : 'text-zinc-950 dark:text-zinc-900 group-hover:text-[#0B4D9C]'
-                                }`} 
+                                className={`h-3.5 w-3.5 sidebar-chevron ${isOpen ? "rotate-180" : ""}`} 
                               />
                             </div>
                           </button>
@@ -521,13 +515,9 @@ export default function DashboardLayout({ children }) {
                                     prefetch={true}
                                     onMouseEnter={() => router.prefetch(sub.href)}
                                     onClick={() => setSidebarOpen(false)}
-                                    className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer transition-colors ${
-                                      pathname === sub.href
-                                        ? 'text-[#0B4D9C] bg-blue-50 font-bold border border-blue-200 shadow-xs'
-                                        : 'text-zinc-950 dark:text-zinc-700 hover:text-[#0B4D9C] hover:bg-blue-50/50'
-                                    }`}
+                                    className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer sidebar-subitem ${pathname === sub.href ? "active" : ""}`}
                                   >
-                                    {SubIcon && <SubIcon className={`h-3.5 w-3.5 shrink-0 ${pathname === sub.href ? 'text-[#0B4D9C]' : 'text-zinc-500 group-hover:text-[#0B4D9C]'}`} />}
+                                    {SubIcon && <SubIcon className="h-3.5 w-3.5 shrink-0 sidebar-icon" />}
                                     <span>{sub.name}</span>
                                   </Link>
                                 );
@@ -549,14 +539,10 @@ export default function DashboardLayout({ children }) {
                         prefetch={true}
                         onMouseEnter={() => router.prefetch(targetHref)}
                         onClick={() => setSidebarOpen(false)}
-                        className={`flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold cursor-pointer transition-all duration-200 group ${
-                          isItemActive
-                            ? 'border border-blue-200 bg-blue-50 text-[#0B4D9C] font-bold shadow-xs'
-                            : 'text-zinc-950 dark:text-zinc-800 hover:bg-blue-50/60 hover:text-[#0B4D9C] border border-transparent'
-                        }`}
+                        className={`flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold cursor-pointer sidebar-item ${isItemActive ? "active" : ""}`}
                       >
                         <div className="flex items-center space-x-3">
-                          <IconComponent className={`h-4 w-4 transition-colors ${isItemActive ? 'text-[#0B4D9C]' : 'text-zinc-950 dark:text-zinc-700 group-hover:text-[#0B4D9C]'}`} />
+                          <IconComponent className="h-4 w-4 sidebar-icon" />
                           <span>{item.name}</span>
                         </div>
                         {item.badge && (

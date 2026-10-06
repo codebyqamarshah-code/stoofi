@@ -129,12 +129,12 @@ export function DataTable({
                     <td className="py-3 px-4 text-right opacity-50 group-hover:opacity-100 transition-opacity">
                       <div className="flex justify-end gap-1">
                         {onEdit && (
-                          <Button variant="ghost" size="icon" onClick={() => onEdit(row)} className="h-7 w-7 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10">
+                          <Button variant="ghost" size="icon" onClick={() => onEdit(row)} className="h-7 w-7 table-action-btn edit-btn">
                             <Edit size={14} />
                           </Button>
                         )}
                         {onDelete && (
-                          <Button variant="ghost" size="icon" onClick={() => onDelete(row._id)} className="h-7 w-7 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10">
+                          <Button variant="ghost" size="icon" onClick={() => onDelete(row._id)} className="h-7 w-7 table-action-btn delete-btn">
                             <Trash2 size={14} />
                           </Button>
                         )}
