@@ -543,8 +543,8 @@ export default function LandingPage() {
             key={index} 
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
           >
-            <div className="absolute inset-0 bg-zinc-950/60 z-10 mix-blend-multiply"></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-900/50 to-transparent z-10"></div>
+            <div className="absolute inset-0 bg-black/40 z-10"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent z-10"></div>
             <img 
               src={slide.bgImage} 
               alt={slide.title2} 

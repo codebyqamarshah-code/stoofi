@@ -17,9 +17,9 @@
 button,
 [role="button"],
 [data-slot="button"] {
-  transition: transform 220ms var(--ease-smooth), box-shadow 240ms var(--ease-smooth),
-    background-color 240ms var(--ease-smooth), border-color 240ms var(--ease-smooth),
-    color 240ms var(--ease-smooth) !important;
+  transition: transform 300ms var(--ease-smooth), box-shadow 350ms var(--ease-smooth),
+    background-color 350ms var(--ease-smooth), border-color 350ms var(--ease-smooth),
+    color 350ms var(--ease-smooth) !important;
 }
 
 button:not(:disabled):active,
@@ -32,7 +32,7 @@ button:not(:disabled):active,
 button svg,
 [role="button"] svg,
 [data-slot="button"] svg {
-  transition: transform 220ms var(--ease-smooth), color 240ms var(--ease-smooth) !important;
+  transition: transform 260ms var(--ease-smooth), color 300ms var(--ease-smooth) !important;
 }
 
 /* ==========================================================================
@@ -47,7 +47,7 @@ button svg,
   button[class*="hover:bg-zinc-50"],
   button[class*="hover:border-zinc-"]
 ):not([class*="bg-zinc-8"]):not([class*="bg-zinc-9"]):not([class*="bg-emerald-6"]):not([class*="bg-[#084A86]"]):not([class*="bg-rose-"]):not([class*="bg-blue-6"]) {
-  transition: all 240ms var(--ease-smooth) !important;
+  transition: all 300ms var(--ease-smooth) !important;
 }
 
 :is(
@@ -63,7 +63,7 @@ button svg,
   background-color: var(--stoofi-green-soft) !important;
   border-color: var(--stoofi-green) !important;
   color: var(--stoofi-green) !important;
-  box-shadow: 0 6px 16px -2px var(--stoofi-green-glow), 0 2px 6px -1px rgba(0, 0, 0, 0.04) !important;
+  box-shadow: 0 8px 18px -3px var(--stoofi-green-glow), 0 2px 6px -1px rgba(0, 0, 0, 0.04) !important;
 }
 
 :is(
@@ -75,63 +75,12 @@ button svg,
   button[class*="hover:bg-zinc-50"],
   button[class*="hover:border-zinc-"]
 ):not([class*="bg-zinc-8"]):not([class*="bg-zinc-9"]):not([class*="bg-emerald-6"]):not([class*="bg-[#084A86]"]):not([class*="bg-rose-"]):not([class*="bg-blue-6"]):not(:disabled):hover svg {
-  transform: scale(1.1) !important;
+  transform: scale(1.12) !important;
   color: var(--stoofi-green) !important;
 }
 
 /* ==========================================================================
-   3. SOLID / BRAND BUTTONS (Liquid white organic sweep reveal)
-   ========================================================================== */
-:is(
-  button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"],
-  button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"],
-  button[class*="bg-rose-5"], button[class*="bg-rose-6"], button[class*="bg-indigo-"], button[class*="bg-blue-"],
-  a[class*="bg-zinc-8"], a[class*="bg-zinc-9"], a[class*="bg-emerald-"],
-  a[class*="bg-[#009966]"], a[class*="bg-[#084A86]"], a[class*="bg-primary"],
-  a[class*="bg-rose-5"], a[class*="bg-rose-6"], a[class*="bg-indigo-"], a[class*="bg-blue-"],
-  .premium-hover
-):not(:disabled) {
-  transition: color 320ms var(--ease-smooth), transform 220ms var(--ease-smooth),
-    box-shadow 260ms var(--ease-smooth) !important;
-}
-
-:is(
-  button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"],
-  button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"],
-  button[class*="bg-rose-5"], button[class*="bg-rose-6"], button[class*="bg-indigo-"], button[class*="bg-blue-"],
-  a[class*="bg-zinc-8"], a[class*="bg-zinc-9"], a[class*="bg-emerald-"],
-  a[class*="bg-[#009966]"], a[class*="bg-[#084A86]"], a[class*="bg-primary"],
-  a[class*="bg-rose-5"], a[class*="bg-rose-6"], a[class*="bg-indigo-"], a[class*="bg-blue-"],
-  .premium-hover
-):not(:disabled)::before {
-  transition: transform 650ms var(--ease-smooth) !important;
-}
-
-:is(
-  button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"],
-  button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"],
-  button[class*="bg-rose-5"], button[class*="bg-rose-6"], button[class*="bg-indigo-"], button[class*="bg-blue-"],
-  a[class*="bg-zinc-8"], a[class*="bg-zinc-9"], a[class*="bg-emerald-"],
-  a[class*="bg-[#009966]"], a[class*="bg-[#084A86]"], a[class*="bg-primary"],
-  a[class*="bg-rose-5"], a[class*="bg-rose-6"], a[class*="bg-indigo-"], a[class*="bg-blue-"],
-  .premium-hover
-):not(:disabled):hover {
-  transform: translateY(-1.5px) !important;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12) !important;
-}
-
-:is(
-  button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"],
-  button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"],
-  a[class*="bg-zinc-8"], a[class*="bg-zinc-9"], a[class*="bg-emerald-"],
-  a[class*="bg-[#009966]"], a[class*="bg-[#084A86]"], a[class*="bg-primary"],
-  .premium-hover
-):not(:disabled):hover svg:last-child:not(:first-child) {
-  transform: translateX(2px) !important;
-}
-
-/* ==========================================================================
-   4. STAT CARDS & DASHBOARD WIDGETS (Total Students, Teachers, Staff, etc.)
+   3. STAT CARDS & DASHBOARD WIDGETS (Total Students, Teachers, Staff, etc.)
    ========================================================================== */
 :is(
   div.cursor-pointer[class*="rounded-2xl"],
@@ -141,8 +90,8 @@ button svg,
   .card-premium
 ) {
   position: relative;
-  transition: transform 280ms var(--ease-smooth), box-shadow 280ms var(--ease-smooth),
-    border-color 280ms var(--ease-smooth), background-color 280ms var(--ease-smooth) !important;
+  transition: transform 320ms var(--ease-smooth), box-shadow 320ms var(--ease-smooth),
+    border-color 320ms var(--ease-smooth), background-color 320ms var(--ease-smooth) !important;
 }
 
 :is(
@@ -153,7 +102,7 @@ button svg,
   .card-premium
 ):hover {
   transform: translateY(-3px) !important;
-  box-shadow: 0 14px 28px -6px var(--stoofi-green-glow), 0 4px 10px -2px rgba(0, 0, 0, 0.04) !important;
+  box-shadow: 0 16px 32px -6px var(--stoofi-green-glow), 0 4px 12px -2px rgba(0, 0, 0, 0.04) !important;
   border-color: var(--stoofi-green-border) !important;
 }
 
@@ -175,8 +124,8 @@ button svg,
   div[onClick][class*="rounded-xl"],
   .card-premium
 ) :is(.h-12, .h-10, [class*="rounded-xl"][class*="bg-zinc-"]) {
-  transition: transform 260ms var(--ease-smooth), background-color 260ms var(--ease-smooth),
-    border-color 260ms var(--ease-smooth), color 260ms var(--ease-smooth) !important;
+  transition: transform 300ms var(--ease-smooth), background-color 300ms var(--ease-smooth),
+    border-color 300ms var(--ease-smooth), color 300ms var(--ease-smooth) !important;
 }
 
 :is(
@@ -198,7 +147,7 @@ button svg,
   div[onClick][class*="rounded-xl"],
   .card-premium
 ) svg {
-  transition: transform 260ms var(--ease-smooth), color 260ms var(--ease-smooth) !important;
+  transition: transform 300ms var(--ease-smooth), color 300ms var(--ease-smooth) !important;
 }
 
 :is(
@@ -212,15 +161,15 @@ button svg,
 }
 
 /* ==========================================================================
-   5. SIDEBAR NAVIGATION
+   4. SIDEBAR NAVIGATION
    ========================================================================== */
 .sidebar-item,
 .sidebar-subitem {
   position: relative;
   overflow: hidden;
   border: 1px solid transparent;
-  transition: background-color 260ms var(--ease-smooth), color 260ms var(--ease-smooth),
-    border-color 260ms var(--ease-smooth) !important;
+  transition: background-color 300ms var(--ease-smooth), color 300ms var(--ease-smooth),
+    border-color 300ms var(--ease-smooth) !important;
 }
 
 .sidebar-item::before,
@@ -228,14 +177,14 @@ button svg,
   content: "";
   position: absolute;
   left: 0;
-  top: 22%;
-  bottom: 22%;
+  top: 20%;
+  bottom: 20%;
   width: 3px;
   border-radius: 0 3px 3px 0;
   background: var(--stoofi-green);
   transform: scaleY(0);
   opacity: 0;
-  transition: transform 260ms var(--ease-smooth), opacity 260ms var(--ease-smooth);
+  transition: transform 300ms var(--ease-smooth), opacity 300ms var(--ease-smooth);
   pointer-events: none;
 }
 
@@ -264,7 +213,7 @@ button svg,
 .sidebar-item span,
 .sidebar-subitem span {
   display: inline-block;
-  transition: transform 260ms var(--ease-smooth);
+  transition: transform 300ms var(--ease-smooth);
 }
 .sidebar-item:hover span,
 .sidebar-subitem:hover span {
@@ -272,7 +221,7 @@ button svg,
 }
 
 .sidebar-icon {
-  transition: transform 220ms var(--ease-smooth), color 220ms var(--ease-smooth);
+  transition: transform 260ms var(--ease-smooth), color 260ms var(--ease-smooth) !important;
 }
 .sidebar-item:hover .sidebar-icon,
 .sidebar-subitem:hover .sidebar-icon,
@@ -283,14 +232,14 @@ button svg,
 }
 
 .sidebar-chevron {
-  transition: transform 260ms var(--ease-smooth), color 220ms var(--ease-smooth);
+  transition: transform 300ms var(--ease-smooth), color 260ms var(--ease-smooth);
 }
 
 /* ==========================================================================
-   6. TABLE ROWS & ACTION BUTTONS
+   5. TABLE ROWS & ACTION BUTTONS
    ========================================================================== */
 .premium-table-row {
-  transition: background-color 260ms var(--ease-smooth) !important;
+  transition: background-color 300ms var(--ease-smooth) !important;
 }
 .premium-table-row:hover {
   background-color: rgba(0, 153, 102, 0.04) !important;
@@ -298,11 +247,11 @@ button svg,
 
 .table-action-btn {
   color: #71717a !important;
-  transition: background-color 240ms var(--ease-smooth), color 240ms var(--ease-smooth),
-    transform 240ms var(--ease-smooth) !important;
+  transition: background-color 280ms var(--ease-smooth), color 280ms var(--ease-smooth),
+    transform 280ms var(--ease-smooth) !important;
 }
 .table-action-btn svg {
-  transition: transform 220ms var(--ease-smooth) !important;
+  transition: transform 260ms var(--ease-smooth) !important;
 }
 .table-action-btn:hover {
   transform: translateY(-1.5px) !important;
@@ -320,7 +269,7 @@ button svg,
 }
 
 /* ==========================================================================
-   7. LINKS & BREADCRUMBS
+   6. LINKS & BREADCRUMBS
    ========================================================================== */
 .link-underline,
 nav[aria-label="breadcrumb"] a,
@@ -340,7 +289,7 @@ nav[aria-label="Breadcrumb"] a::after {
   background: currentColor;
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 240ms var(--ease-smooth);
+  transition: transform 280ms var(--ease-smooth);
 }
 .link-underline:hover::after,
 nav[aria-label="breadcrumb"] a:hover::after,
@@ -349,12 +298,12 @@ nav[aria-label="Breadcrumb"] a:hover::after {
 }
 
 /* ==========================================================================
-   8. INPUTS / SELECTS / TEXTAREAS
+   7. INPUTS / SELECTS / TEXTAREAS
    ========================================================================== */
 input:not([type="checkbox"]):not([type="radio"]),
 select,
 textarea {
-  transition: border-color 240ms var(--ease-smooth), box-shadow 240ms var(--ease-smooth) !important;
+  transition: border-color 280ms var(--ease-smooth), box-shadow 280ms var(--ease-smooth) !important;
 }
 input:not([type="checkbox"]):not([type="radio"]):hover,
 select:hover,

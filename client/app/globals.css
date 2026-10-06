@@ -510,7 +510,7 @@ body {
 
 
 /* ==========================================================================
-   PREMIUM STOOFI CUSTOM BUTTON HOVER ANIMATION (ORGANIC LEFT-TO-RIGHT REVEAL)
+   PREMIUM STOOFI CUSTOM BUTTON HOVER ANIMATION (SILKY SMOOTH ORGANIC REVEAL)
    ========================================================================== */
 
 /* Target all solid colored interactive buttons and links across the application */
@@ -526,10 +526,13 @@ body {
     position: relative;
     overflow: hidden;
     isolation: isolate;
-    transition: color 300ms ease, transform 0.2s ease, box-shadow 0.2s ease !important;
+    transition: color 400ms cubic-bezier(0.22, 1, 0.36, 1), 
+                transform 300ms cubic-bezier(0.22, 1, 0.36, 1), 
+                box-shadow 350ms cubic-bezier(0.22, 1, 0.36, 1),
+                background-color 400ms cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
-/* Micro-interaction: slight scale down on click */
+/* Micro-interaction: tactile scale down on click */
 :is(
   button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"], 
   button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"], 
@@ -539,10 +542,10 @@ body {
   a[class*="bg-rose-5"], a[class*="bg-rose-6"], a[class*="bg-indigo-"], a[class*="bg-blue-"],
   .premium-hover
 ):not(:disabled):active {
-    transform: translateY(1px) scale(0.98);
+    transform: translateY(0.5px) scale(0.98) !important;
 }
 
-/* The organic/pill-shaped white reveal layer */
+/* The organic/pill-shaped white reveal layer - smooth enter & smooth leave */
 :is(
   button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"], 
   button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"], 
@@ -554,12 +557,12 @@ body {
 ):not(:disabled)::before {
     content: "";
     position: absolute;
-    top: -10px; bottom: -10px; left: -30px;
-    width: 150%;
+    top: -15px; bottom: -15px; left: -30px;
+    width: 160%;
     background-color: #ffffff;
     border-radius: 0 100% 100% 0; /* Organic pill-shaped right edge */
     transform: translateX(-100%);
-    transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1) !important;
     z-index: -1; /* Renders between the button background and the button text */
     pointer-events: none;
 }
@@ -574,7 +577,7 @@ body {
   a[class*="bg-rose-5"], a[class*="bg-rose-6"], a[class*="bg-indigo-"], a[class*="bg-blue-"],
   .premium-hover
 ):not(:disabled):hover::before {
-    transform: translateX(-10%); /* Sweeps across the entire button */
+    transform: translateX(-5%) !important; /* Sweeps across smoothly */
 }
 
 /* Transition text and icons to dark/black smoothly */
@@ -588,9 +591,11 @@ body {
   .premium-hover
 ):not(:disabled):hover {
     color: #18181b !important; /* zinc-900 */
+    transform: translateY(-1.5px) !important;
+    box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* Ensure icons transition colors as well */
+/* Ensure icons transition colors & nudge smoothly */
 :is(
   button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"], 
   button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"], 
@@ -600,7 +605,7 @@ body {
   a[class*="bg-rose-5"], a[class*="bg-rose-6"], a[class*="bg-indigo-"], a[class*="bg-blue-"],
   .premium-hover
 ) svg {
-    transition: color 300ms ease !important;
+    transition: color 400ms cubic-bezier(0.22, 1, 0.36, 1), transform 300ms cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
 :is(
@@ -613,6 +618,16 @@ body {
   .premium-hover
 ):not(:disabled):hover svg {
     color: #18181b !important;
+}
+
+:is(
+  button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"], 
+  button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"], 
+  a[class*="bg-zinc-8"], a[class*="bg-zinc-9"], a[class*="bg-emerald-"], 
+  a[class*="bg-[#009966]"], a[class*="bg-[#084A86]"], a[class*="bg-primary"], 
+  .premium-hover
+):not(:disabled):hover svg:last-child:not(:first-child) {
+    transform: translateX(3px) !important;
 }
 
 /* HERO SECTION: Override light mode forced text color */
