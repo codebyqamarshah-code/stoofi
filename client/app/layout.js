@@ -4,6 +4,7 @@ import "./custom-animations.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import GoogleTranslate from "@/components/google-translate";
 import PageTransitionLoader from "@/components/PageTransitionLoader";
+import CustomCursor from "@/components/CustomCursor";
 
 const poppins = Poppins({ weight: ["300", "400", "500", "600", "700"], variable: "--font-poppins", subsets: ["latin"] });
 
@@ -40,6 +41,7 @@ export default function RootLayout({ children }) {
         <GoogleTranslate />
         <ThemeProvider attribute="class" forcedTheme="light">
           <PageTransitionLoader />
+          <CustomCursor />
           {children}
         </ThemeProvider>
       </body>

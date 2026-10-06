@@ -536,7 +536,7 @@ export default function LandingPage() {
         )}
       </header>
 
-      <section id="home" className="relative bg-zinc-950 overflow-hidden min-h-[90vh] flex flex-col items-center justify-center">
+      <section id="home" className="relative bg-zinc-950 overflow-hidden min-h-[92vh] pt-32 pb-16 flex flex-col items-center justify-center">
         {/* Slider Backgrounds */}
         {heroSlides.map((slide, index) => (
           <div 
