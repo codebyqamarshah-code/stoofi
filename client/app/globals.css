@@ -614,3 +614,7 @@ body {
 ):not(:disabled):hover svg {
     color: #18181b !important;
 }
+
+/* HERO SECTION: Override light mode forced text color */
+#home h1.text-white, #home p.text-white, #home span.text-emerald-400 { color: #ffffff !important; }
+#home span.text-emerald-400 { color: #34d399 !important; }

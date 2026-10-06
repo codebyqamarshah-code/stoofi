@@ -331,12 +331,12 @@ export default function LandingPage() {
             <img src="/stoofi light.png" alt="Stoofi" className="h-10 sm:h-11 w-auto object-contain transform hover:scale-105 transition-transform duration-300" />
           </Link>
           <nav className="hidden md:flex items-center gap-8">
-            <Link href="#home" className="text-sm font-semibold text-zinc-600 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">{t.nav.home}</Link>
-            <Link href="#notices" className="text-sm font-semibold text-zinc-600 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">{t.nav.notices || "Notice Board"}</Link>
-            <Link href="#how-it-works" className="text-sm font-semibold text-zinc-600 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">{t.nav.howToUse}</Link>
-            <Link href="#about" className="text-sm font-semibold text-zinc-600 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">{t.nav.portals}</Link>
-            <Link href="#features" className="text-sm font-semibold text-zinc-600 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">{t.nav.features}</Link>
-            <Link href="#pricing" className="text-sm font-semibold text-zinc-600 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">{t.nav.pricing}</Link>
+            <Link href="#home" className={`text-sm font-semibold transition-colors ${isScrolled ? "text-zinc-600 hover:text-zinc-900" : "text-white/90 hover:text-white drop-shadow-md"}`}>{t.nav.home}</Link>
+            <Link href="#notices" className={`text-sm font-semibold transition-colors ${isScrolled ? "text-zinc-600 hover:text-zinc-900" : "text-white/90 hover:text-white drop-shadow-md"}`}>{t.nav.notices || "Notice Board"}</Link>
+            <Link href="#how-it-works" className={`text-sm font-semibold transition-colors ${isScrolled ? "text-zinc-600 hover:text-zinc-900" : "text-white/90 hover:text-white drop-shadow-md"}`}>{t.nav.howToUse}</Link>
+            <Link href="#about" className={`text-sm font-semibold transition-colors ${isScrolled ? "text-zinc-600 hover:text-zinc-900" : "text-white/90 hover:text-white drop-shadow-md"}`}>{t.nav.portals}</Link>
+            <Link href="#features" className={`text-sm font-semibold transition-colors ${isScrolled ? "text-zinc-600 hover:text-zinc-900" : "text-white/90 hover:text-white drop-shadow-md"}`}>{t.nav.features}</Link>
+            <Link href="#pricing" className={`text-sm font-semibold transition-colors ${isScrolled ? "text-zinc-600 hover:text-zinc-900" : "text-white/90 hover:text-white drop-shadow-md"}`}>{t.nav.pricing}</Link>
           </nav>
           <div className="hidden md:flex items-center gap-3">
             {/* Language Dropdown */}
@@ -471,7 +471,7 @@ export default function LandingPage() {
               )}
             </div>
             <ThemeToggle />
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-zinc-700 dark:text-zinc-700">{mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}</button>
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className={isScrolled ? "text-zinc-700" : "text-white"}>{mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}</button>
           </div>
         </div>
         {mobileMenuOpen && (
