@@ -508,3 +508,109 @@ body {
   }
 }
 
+
+/* ==========================================================================
+   PREMIUM STOOFI CUSTOM BUTTON HOVER ANIMATION (ORGANIC LEFT-TO-RIGHT REVEAL)
+   ========================================================================== */
+
+/* Target all solid colored interactive buttons and links across the application */
+:is(
+  button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"], 
+  button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"], 
+  button[class*="bg-rose-5"], button[class*="bg-rose-6"], button[class*="bg-indigo-"], button[class*="bg-blue-"],
+  a[class*="bg-zinc-8"], a[class*="bg-zinc-9"], a[class*="bg-emerald-"], 
+  a[class*="bg-[#009966]"], a[class*="bg-[#084A86]"], a[class*="bg-primary"], 
+  a[class*="bg-rose-5"], a[class*="bg-rose-6"], a[class*="bg-indigo-"], a[class*="bg-blue-"],
+  .premium-hover
+):not(:disabled) {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition: color 300ms ease, transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+/* Micro-interaction: slight scale down on click */
+:is(
+  button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"], 
+  button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"], 
+  button[class*="bg-rose-5"], button[class*="bg-rose-6"], button[class*="bg-indigo-"], button[class*="bg-blue-"],
+  a[class*="bg-zinc-8"], a[class*="bg-zinc-9"], a[class*="bg-emerald-"], 
+  a[class*="bg-[#009966]"], a[class*="bg-[#084A86]"], a[class*="bg-primary"], 
+  a[class*="bg-rose-5"], a[class*="bg-rose-6"], a[class*="bg-indigo-"], a[class*="bg-blue-"],
+  .premium-hover
+):not(:disabled):active {
+    transform: translateY(1px) scale(0.98);
+}
+
+/* The organic/pill-shaped white reveal layer */
+:is(
+  button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"], 
+  button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"], 
+  button[class*="bg-rose-5"], button[class*="bg-rose-6"], button[class*="bg-indigo-"], button[class*="bg-blue-"],
+  a[class*="bg-zinc-8"], a[class*="bg-zinc-9"], a[class*="bg-emerald-"], 
+  a[class*="bg-[#009966]"], a[class*="bg-[#084A86]"], a[class*="bg-primary"], 
+  a[class*="bg-rose-5"], a[class*="bg-rose-6"], a[class*="bg-indigo-"], a[class*="bg-blue-"],
+  .premium-hover
+):not(:disabled)::before {
+    content: "";
+    position: absolute;
+    top: -10px; bottom: -10px; left: -30px;
+    width: 150%;
+    background-color: #ffffff;
+    border-radius: 0 100% 100% 0; /* Organic pill-shaped right edge */
+    transform: translateX(-100%);
+    transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: -1; /* Renders between the button background and the button text */
+    pointer-events: none;
+}
+
+/* Trigger the sweep on hover */
+:is(
+  button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"], 
+  button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"], 
+  button[class*="bg-rose-5"], button[class*="bg-rose-6"], button[class*="bg-indigo-"], button[class*="bg-blue-"],
+  a[class*="bg-zinc-8"], a[class*="bg-zinc-9"], a[class*="bg-emerald-"], 
+  a[class*="bg-[#009966]"], a[class*="bg-[#084A86]"], a[class*="bg-primary"], 
+  a[class*="bg-rose-5"], a[class*="bg-rose-6"], a[class*="bg-indigo-"], a[class*="bg-blue-"],
+  .premium-hover
+):not(:disabled):hover::before {
+    transform: translateX(-10%); /* Sweeps across the entire button */
+}
+
+/* Transition text and icons to dark/black smoothly */
+:is(
+  button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"], 
+  button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"], 
+  button[class*="bg-rose-5"], button[class*="bg-rose-6"], button[class*="bg-indigo-"], button[class*="bg-blue-"],
+  a[class*="bg-zinc-8"], a[class*="bg-zinc-9"], a[class*="bg-emerald-"], 
+  a[class*="bg-[#009966]"], a[class*="bg-[#084A86]"], a[class*="bg-primary"], 
+  a[class*="bg-rose-5"], a[class*="bg-rose-6"], a[class*="bg-indigo-"], a[class*="bg-blue-"],
+  .premium-hover
+):not(:disabled):hover {
+    color: #18181b !important; /* zinc-900 */
+}
+
+/* Ensure icons transition colors as well */
+:is(
+  button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"], 
+  button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"], 
+  button[class*="bg-rose-5"], button[class*="bg-rose-6"], button[class*="bg-indigo-"], button[class*="bg-blue-"],
+  a[class*="bg-zinc-8"], a[class*="bg-zinc-9"], a[class*="bg-emerald-"], 
+  a[class*="bg-[#009966]"], a[class*="bg-[#084A86]"], a[class*="bg-primary"], 
+  a[class*="bg-rose-5"], a[class*="bg-rose-6"], a[class*="bg-indigo-"], a[class*="bg-blue-"],
+  .premium-hover
+) svg {
+    transition: color 300ms ease !important;
+}
+
+:is(
+  button[class*="bg-zinc-8"], button[class*="bg-zinc-9"], button[class*="bg-emerald-"], 
+  button[class*="bg-[#009966]"], button[class*="bg-[#084A86]"], button[class*="bg-primary"], 
+  button[class*="bg-rose-5"], button[class*="bg-rose-6"], button[class*="bg-indigo-"], button[class*="bg-blue-"],
+  a[class*="bg-zinc-8"], a[class*="bg-zinc-9"], a[class*="bg-emerald-"], 
+  a[class*="bg-[#009966]"], a[class*="bg-[#084A86]"], a[class*="bg-primary"], 
+  a[class*="bg-rose-5"], a[class*="bg-rose-6"], a[class*="bg-indigo-"], a[class*="bg-blue-"],
+  .premium-hover
+):not(:disabled):hover svg {
+    color: #18181b !important;
+}
