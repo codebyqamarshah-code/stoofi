@@ -8,7 +8,7 @@ export function StoofiLogo({ className = "", size = "md" }) {
       <img
         src="/logo.png"
         alt="Stoofi Logo"
-        className={`${heightClass} w-auto object-contain drop-shadow-md hover:scale-105 transition-transform duration-300`}
+        className={`${heightClass} w-auto object-contain hover:scale-105 transition-transform duration-300`}
       />
     </div>
   );

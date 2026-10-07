@@ -445,7 +445,7 @@ export default function DashboardLayout({ children }) {
         {/* Brand Header */}
         <div className="flex h-[70px] items-center justify-between border-b border-zinc-200 dark:border-zinc-200 px-5 shrink-0 bg-white dark:bg-white">
           <div className="flex items-center select-none cursor-default">
-            <img src="/stoofi light.png" alt="Stoofi PRO" className="h-12 sm:h-14 max-w-[200px] w-auto object-contain pointer-events-none" />
+            <img src="/logo.png" alt="Stoofi ERP" className="h-12 sm:h-14 max-w-[200px] w-auto object-contain pointer-events-none" />
           </div>
           <Button
             variant="ghost"
