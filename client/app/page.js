@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { translations } from "@/utils/translations";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  CheckCircle2, Monitor, Users, GraduationCap, Calculator,
+  CheckCircle2, Monitor, Users, GraduationCap,
   ShieldCheck, Menu, X, Star, ArrowRight, Zap, BarChart3,
   Bell, BookOpen, CreditCard, Clock, Globe, Phone, Mail, MapPin,
-  Settings2, UserPlus, FileSpreadsheet, Award, HelpCircle, ChevronDown, Search,
-  LogOut, LayoutDashboard, User
+  Settings2, UserPlus, FileSpreadsheet, Award, ChevronDown, Search,
+  LogOut, LayoutDashboard, User, Pause, Play
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -27,65 +27,10 @@ export default function LandingPage() {
   const profileRef = useRef(null);
   const [mounted, setMounted] = useState(false);
   const [recentUser, setRecentUser] = useState(null);
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isMotionPaused, setIsMotionPaused] = useState(false);
 
-  const heroSlides = [
-    {
-      bgImage: "/images/hero/bg1.jpg",
-      badge: "STOOFI PRO IS LIVE - 30 DAYS FREE TRIAL",
-      title1: "The Complete",
-      title2: "School Management",
-      title3: "ERP",
-      desc: "Manage your entire institution from one unified platform. Tailored portals for Admins, Teachers, Students and Parents."
-    },
-    {
-      bgImage: "/images/hero/bg2.jpg",
-      badge: "AI-POWERED INSIGHTS",
-      title1: "Smart Attendance",
-      title2: "& HR Payroll",
-      title3: "System",
-      desc: "Real-time tracking of staff and students with automated absentee alerts and 1-tap salary slip generation."
-    },
-    {
-      bgImage: "/images/hero/bg3.jpg",
-      badge: "MULTI-CAMPUS CONTROL",
-      title1: "Advanced Exams",
-      title2: "& Financial",
-      title3: "Control",
-      desc: "Dynamic report cards, automated grading, fee vouchers, and live cash flow monitoring in a single click."
-    }
-  ];
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    setMounted(true);
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem('recent_user');
-        if (stored) {
-          setRecentUser(JSON.parse(stored));
-        }
-      } catch (e) {}
-    }
-  }, []);
-
-  const activeUser = user || (mounted ? recentUser : null);
-  const isUserAvailable = (isAuthenticated && !!user) || (mounted && !!recentUser);
-
-  const getDashboardUrl = (targetUser = activeUser) => {
-    const r = (targetUser?.role || '').toLowerCase();
-    if (r.includes('student')) return '/dashboard/student';
-    if (r.includes('teacher')) return '/dashboard/teacher';
-    if (r.includes('super admin') || r.includes('superadmin')) return '/dashboard';
-    if (r.includes('admin')) return '/dashboard';
-    return '/dashboard';
-  };
+  // Dialog State
+  const [activeDialog, setActiveDialog] = useState(null); // { title, content, type }
 
   // Notices state
   const [publicNotices, setPublicNotices] = useState([]);
@@ -98,13 +43,51 @@ export default function LandingPage() {
   const [showTodayEventModal, setShowTodayEventModal] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    setMounted(true);
+    if (typeof window !== "undefined") {
       try {
-        const storedEvents = localStorage.getItem('dashboard_events');
+        const stored = localStorage.getItem("recent_user");
+        if (stored) {
+          setRecentUser(JSON.parse(stored));
+        }
+        const storedMotion = localStorage.getItem("stoofi_motion_paused");
+        if (storedMotion === "true") {
+          setIsMotionPaused(true);
+        }
+      } catch (e) {}
+    }
+  }, []);
+
+  const toggleMotion = () => {
+    setIsMotionPaused(prev => {
+      const next = !prev;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("stoofi_motion_paused", String(next));
+      }
+      return next;
+    });
+  };
+
+  const activeUser = user || (mounted ? recentUser : null);
+  const isUserAvailable = (isAuthenticated && !!user) || (mounted && !!recentUser);
+
+  const getDashboardUrl = (targetUser = activeUser) => {
+    const r = (targetUser?.role || "").toLowerCase();
+    if (r.includes("student")) return "/dashboard/student";
+    if (r.includes("teacher")) return "/dashboard/teacher";
+    if (r.includes("super admin") || r.includes("superadmin")) return "/dashboard";
+    if (r.includes("admin")) return "/dashboard";
+    return "/dashboard";
+  };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const storedEvents = localStorage.getItem("dashboard_events");
         if (storedEvents) {
           const parsed = JSON.parse(storedEvents);
           const todayStr = new Date().toDateString();
-          
+
           const todaysEvent = parsed.find(ev => {
             if (!ev.date) return false;
             return new Date(ev.date).toDateString() === todayStr;
@@ -122,27 +105,25 @@ export default function LandingPage() {
     }
   }, []);
 
-  const t = translations[lang] || translations['EN'];
+  const t = translations[lang] || translations["EN"];
 
   const changeLanguage = (langCode) => {
     setLang(langCode);
     setIsLangDropdownOpen(false);
-    
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('stoofi_lang', langCode);
-      
-      let googleLang = 'en';
-      if (langCode === 'UR') googleLang = 'ur';
-      if (langCode === 'AR') googleLang = 'ar';
-      
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem("stoofi_lang", langCode);
+      let googleLang = "en";
+      if (langCode === "UR") googleLang = "ur";
+      if (langCode === "AR") googleLang = "ar";
+
       document.cookie = `googtrans=/en/${googleLang}; path=/`;
       window.location.reload();
     }
   };
 
-
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 60);
+    const handleScroll = () => setIsScrolled(window.scrollY > 40);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -151,10 +132,10 @@ export default function LandingPage() {
   useEffect(() => {
     const fetchPublicNotices = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboard/notices`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/dashboard/notices`);
         const result = await res.json();
         if (result.success && result.data) {
-          const noticesOnly = result.data.filter(item => item.type === 'Notice');
+          const noticesOnly = result.data.filter(item => item.type === "Notice");
           setPublicNotices(noticesOnly);
         } else {
           setPublicNotices([]);
@@ -171,27 +152,22 @@ export default function LandingPage() {
   const formatNoticeDate = (dateStr) => {
     try {
       const d = new Date(dateStr || Date.now());
-      if (isNaN(d.getTime())) return { day: '15', month: 'SEP', year: '2026' };
-      const day = d.getDate().toString().padStart(2, '0');
-      const month = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+      if (isNaN(d.getTime())) return { day: "15", month: "SEP", year: "2026" };
+      const day = d.getDate().toString().padStart(2, "0");
+      const month = d.toLocaleString("en-US", { month: "short" }).toUpperCase();
       const year = d.getFullYear();
       return { day, month, year };
     } catch (_) {
-      return { day: '15', month: 'SEP', year: '2026' };
+      return { day: "15", month: "SEP", year: "2026" };
     }
   };
 
   const filteredPublicNotices = publicNotices.filter((n) => {
-    const titleMatch = (n.title || '').toLowerCase().includes(noticeSearch.toLowerCase()) || (n.description || '').toLowerCase().includes(noticeSearch.toLowerCase());
-    const audienceMatch = selectedNoticeTab === 'All' || (n.noticeTo && (n.noticeTo === selectedNoticeTab || n.noticeTo === 'All')) || (n.audience && (n.audience === selectedNoticeTab || n.audience === 'All'));
+    const titleMatch = (n.title || "").toLowerCase().includes(noticeSearch.toLowerCase()) || (n.description || "").toLowerCase().includes(noticeSearch.toLowerCase());
+    const audienceMatch = selectedNoticeTab === "All" || (n.noticeTo && (n.noticeTo === selectedNoticeTab || n.noticeTo === "All")) || (n.audience && (n.audience === selectedNoticeTab || n.audience === "All"));
     return titleMatch && audienceMatch;
   });
 
-
-  // Animated counter
-  const [countersStarted, setCountersStarted] = useState(false);
-  const [counts, setCounts] = useState({ schools: 0, students: 0, uptime: 0, rating: 0 });
-  const statsRef = useRef(null);
   const langDropdownRef = useRef(null);
 
   useEffect(() => {
@@ -207,752 +183,1043 @@ export default function LandingPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Check auth on mount to restore session
   useEffect(() => {
     checkAuth();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !countersStarted) {
-          setCountersStarted(true);
-          const targets = { schools: 500, students: 200, uptime: 99.9, rating: 5 };
-          const duration = 2000;
-          const steps = 60;
-          const interval = duration / steps;
-          let step = 0;
-          const timer = setInterval(() => {
-            step++;
-            const progress = step / steps;
-            const eased = 1 - Math.pow(1 - progress, 3);
-            setCounts({
-              schools: Math.floor(targets.schools * eased),
-              students: Math.floor(targets.students * eased),
-              uptime: Math.min((targets.uptime * eased).toFixed(1), targets.uptime),
-              rating: Math.min((targets.rating * eased).toFixed(1), targets.rating),
-            });
-            if (step >= steps) clearInterval(timer);
-          }, interval);
-        }
-      },
-      { threshold: 0.3 }
-    );
-    if (statsRef.current) observer.observe(statsRef.current);
-    return () => observer.disconnect();
-  }, [countersStarted]);
+  // 3D Tilt Hook for Cards
+  const handleTiltMove = (e, depth = 6) => {
+    if (isMotionPaused) return;
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = Math.max(-0.5, Math.min(0.5, (e.clientX - rect.left) / rect.width - 0.5));
+    const y = Math.max(-0.5, Math.min(0.5, (e.clientY - rect.top) / rect.height - 0.5));
+    card.style.transform = `perspective(1100px) rotateX(${-y * depth}deg) rotateY(${x * depth}deg) translateY(-4px)`;
+  };
 
-  const portals = [
-    { title: "Super Admin", desc: "Full control over the entire system, settings, branches, and all users.", icon: ShieldCheck, color: "text-zinc-800 dark:text-zinc-900", bg: "bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200" },
-    { title: "Teacher", desc: "Manage classes, attendance, homework, assignments, and student grades.", icon: Monitor, color: "text-zinc-800 dark:text-zinc-900", bg: "bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200" },
-    { title: "Student", desc: "Access homework, schedules, exam results, study material, and fees.", icon: GraduationCap, color: "text-zinc-800 dark:text-zinc-900", bg: "bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200" },
-    { title: "Parents", desc: "Track child progress, attendance, fee status and communicate with teachers.", icon: Users, color: "text-zinc-800 dark:text-zinc-900", bg: "bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200" },
+  const handleTiltLeave = (e) => {
+    const card = e.currentTarget;
+    card.style.removeProperty("transform");
+  };
+
+  const steps = [
+    {
+      number: "01",
+      icon: Settings2,
+      title: "General Settings & Academic Year",
+      desc: "Set up school name, logo, currency, grading systems, and define the active academic session (e.g. 2026)."
+    },
+    {
+      number: "02",
+      icon: BookOpen,
+      title: "Classes, Sections & Subjects",
+      desc: "Create classes (e.g., Class 1 to 10), assign sections (A, B, C), and map curriculum subjects with teacher allocations."
+    },
+    {
+      number: "03",
+      icon: Users,
+      title: "Staff & Student Enrollment",
+      desc: "Add teachers, assign roles/permissions, and enroll students with parent contact info or bulk import via Excel/CSV."
+    },
+    {
+      number: "04",
+      icon: ShieldCheck,
+      title: "System Activation & Live Go",
+      desc: "Enable automated SMS gateway, issue portal credentials to parents & staff, and monitor live dashboard analytics."
+    }
   ];
 
-  const howToUseSteps = [
+  const teacherFlowItems = [
     {
-      role: "admin",
-      roleTitle: "School Setup & Onboarding",
-      badge: "Quick Setup (Day 1)",
-      steps: [
-        { number: "01", title: "General Settings & Academic Year", desc: "Set up school name, logo, currency, grading systems, and define the active academic session (e.g. 2026).", icon: Settings2 },
-        { number: "02", title: "Classes, Sections & Subjects", desc: "Create classes (e.g., Class 1 to 10), assign sections (A, B, C), and map curriculum subjects with teacher allocations.", icon: BookOpen },
-        { number: "03", title: "Staff & Student Enrollment", desc: "Add teachers, assign roles/permissions, and enroll students with parent contact info or bulk import via Excel/CSV.", icon: UserPlus },
-        { number: "04", title: "System Activation & Live Go", desc: "Enable automated SMS gateway, issue portal credentials to parents & staff, and monitor live dashboard analytics.", icon: ShieldCheck }
-      ]
+      icon: Monitor,
+      title: "Teacher Portal",
+      desc: "Manage classes, attendance, homework, assignments, and student grades effortlessly from any browser or mobile device."
     },
     {
-      role: "teacher",
-      roleTitle: "Daily Teaching & Academic Flow",
-      badge: "Classroom Workflow",
-      steps: [
-        { number: "01", title: "Class Timetable & Roster", desc: "Access the teacher portal to view daily schedule, class timetable, and student lists with contact details.", icon: Monitor },
-        { number: "02", title: "1-Tap Attendance with SMS", desc: "Mark student attendance (Present/Absent/Late) in under 30 seconds with automatic instant SMS alert to parents.", icon: Clock },
-        { number: "03", title: "Homework & Syllabus Sharing", desc: "Publish daily homework assignments, lecture notes, syllabus files, and study materials for students.", icon: BookOpen },
-        { number: "04", title: "Online Exams & Auto Grading", desc: "Build MCQ/descriptive question banks, conduct online tests, and publish report cards with auto grade ranking.", icon: Award }
-      ]
+      icon: BookOpen,
+      title: "LMS & Online E-Learning",
+      desc: "Upload detailed study notes, assign and grade digital homework, manage class syllabus, and conduct secure online exams with auto-grading."
+    }
+  ];
+
+  const studentFlowItems = [
+    {
+      icon: GraduationCap,
+      title: "Student Portal",
+      desc: "Access homework, lecture notes, daily schedules, exam results, downloadable study material, and track fee payment history."
     },
     {
-      role: "student",
-      roleTitle: "Student & Parent Self-Service",
-      badge: "Portal Experience",
-      steps: [
-        { number: "01", title: "Instant Mobile/Web Login", desc: "Login securely using student admission ID or registered parent phone number across web and mobile browsers.", icon: GraduationCap },
-        { number: "02", title: "Daily Homework & Notices", desc: "Review daily homework deadlines, download teacher study notes, and check school event announcements.", icon: FileSpreadsheet },
-        { number: "03", title: "Fee Slips & Online Receipts", desc: "View due fee vouchers, download official stamp receipts, and verify submitted bank payment proofs.", icon: CreditCard },
-        { number: "04", title: "Progress & Exam Report Cards", desc: "Track subject-wise term marks, class position ranks, percentage graphs, and daily attendance percentages.", icon: Award }
-      ]
+      icon: Users,
+      title: "Parents Portal",
+      desc: "Track real-time child attendance, monitor academic performance, view monthly fee vouchers, and communicate directly with teachers."
+    }
+  ];
+
+  const portals = [
+    {
+      num: "01",
+      icon: ShieldCheck,
+      title: "Super Admin Portal",
+      desc: "Full control over the entire system, settings, branches, and all users."
+    },
+    {
+      num: "02",
+      icon: Monitor,
+      title: "Teacher Portal",
+      desc: "Manage classes, attendance, homework, assignments, and student grades."
+    },
+    {
+      num: "03",
+      icon: GraduationCap,
+      title: "Student Portal",
+      desc: "Access homework, schedules, exam results, study material, and fees."
+    },
+    {
+      num: "04",
+      icon: Users,
+      title: "Parents Portal",
+      desc: "Track child progress, attendance, fee status and communicate with teachers."
     }
   ];
 
   const features = [
-    { icon: CreditCard, title: "Comprehensive Fee Management", slug: "fee-management", desc: "Auto-generate fee invoices, track partial & full payments, apply dynamic discounts, add late fines, and print detailed fee receipts instantly." },
-    { icon: Clock, title: "Smart Attendance System", slug: "attendance", desc: "1-Tap student & staff attendance tracking with instant absentee SMS alerts for parents. Supports future RFID/Biometric integration." },
-    { icon: Award, title: "Advanced Exam & Results", slug: "exam-results", desc: "Create dynamic exam schedules, manage subject-wise marks, print beautiful customized report cards, and auto-calculate grades & positions." },
-    { icon: BookOpen, title: "LMS & Online E-Learning", slug: "lms-elearning", desc: "Upload detailed study notes, assign and grade digital homework, manage class syllabus, and conduct secure online exams with auto-grading." },
-    { icon: Users, title: "HR & Payroll Administration", slug: "hr-payroll", desc: "Maintain complete staff profiles, handle leave requests, track daily employee attendance, and generate automated custom salary slips." },
-    { icon: BarChart3, title: "Live Financial Accounting", slug: "financial-accounting", desc: "Monitor daily school cash flows, record income/expenses, manage chart of accounts, and generate real-time Profit & Loss balance sheets." },
-    { icon: Globe, title: "Multi-Branch Central Control", slug: "multi-branch", desc: "Manage multiple school campuses from a single Super Admin login. Compare branch revenues, standardize data, and track global analytics." },
-    { icon: Bell, title: "Automated Communication", slug: "communication", desc: "Send bulk SMS and email notifications to parents and staff regarding fee dues, exam results, holiday notices, and emergency alerts." },
-    { icon: ShieldCheck, title: "Role-Based Access Security", slug: "security", desc: "Secure data with strict permission locks. Ensure Teachers only see academics, and Parents only see their child's data." },
+    {
+      icon: CreditCard,
+      title: "Comprehensive Fee Management",
+      desc: "Auto-generate fee invoices, track partial & full payments, apply dynamic discounts, add late fines, and print detailed fee receipts instantly.",
+      guideText: "Stoofi Fee Management handles complex tuition structures, multiple fee categories, concessions, late fee calculations, and instant branded thermal/A4 voucher printing with one-click bank challan generation."
+    },
+    {
+      icon: Clock,
+      title: "Smart Attendance System",
+      desc: "1-Tap student & staff attendance tracking with instant absentee SMS alerts for parents. Supports future RFID/Biometric integration.",
+      guideText: "Take daily roll call in under 30 seconds. Parents receive immediate absentee notifications via SMS or WhatsApp, reducing unexcused absences and keeping guardians in sync."
+    },
+    {
+      icon: Award,
+      title: "Advanced Exam & Results",
+      desc: "Create dynamic exam schedules, manage subject-wise marks, print beautiful customized report cards, and auto-calculate grades & positions.",
+      guideText: "Design customized grading criteria, GPA matrices, weighted term averages, position rankings, and printable report cards with school crest and principal signature."
+    },
+    {
+      icon: BookOpen,
+      title: "LMS & Online E-Learning",
+      desc: "Upload detailed study notes, assign and grade digital homework, manage class syllabus, and conduct secure online exams with auto-grading.",
+      guideText: "Provide students with 24/7 access to curriculum materials, lesson plans, downloadable PDFs, homework submission portals, and timed online quizzes."
+    },
+    {
+      icon: Users,
+      title: "HR & Payroll Administration",
+      desc: "Maintain complete staff profiles, handle leave requests, track daily employee attendance, and generate automated custom salary slips.",
+      guideText: "Manage teacher contracts, track biometric staff check-in/out, process leave balances, calculate allowances & deductions, and print monthly pay slips."
+    },
+    {
+      icon: BarChart3,
+      title: "Live Financial Accounting",
+      desc: "Monitor daily school cash flows, record income/expenses, manage chart of accounts, and generate real-time Profit & Loss balance sheets.",
+      guideText: "Stay on top of school finances with general ledger entries, vendor expense tracking, day-book cash summaries, fee reconciliation, and annual profit/loss reports."
+    },
+    {
+      icon: Globe,
+      title: "Multi-Branch Central Control",
+      desc: "Manage multiple school campuses from a single Super Admin login. Compare branch revenues, standardize data, and track global analytics.",
+      guideText: "For growing school systems: unify multiple city campuses under one headquarters dashboard, standardize curriculum, and compare branch revenues side-by-side."
+    },
+    {
+      icon: Bell,
+      title: "Automated Communication",
+      desc: "Send bulk SMS and email notifications to parents and staff regarding fee dues, exam results, holiday notices, and emergency alerts.",
+      guideText: "Dispatch instant group announcements, fee reminders, result alerts, holiday notices, and emergency weather broadcast SMS to thousands of parents in seconds."
+    },
+    {
+      icon: ShieldCheck,
+      title: "Role-Based Access Security",
+      desc: "Secure data with strict permission locks. Ensure Teachers only see academics, and Parents only see their child's data.",
+      guideText: "Every user role has granular permissions. Sensitive financial records are locked from teachers, while parents strictly view records belonging to their enrolled children."
+    }
   ];
 
   const testimonials = [
-    { name: "Khalid Mehmood", role: "Principal, Al-Noor School System", text: "Stoofi transformed how we manage our 1200+ students. The fee collection and attendance system alone saves us 3 hours daily.", stars: 5 },
-    { name: "Sara Ahmed", role: "Admin, Bright Future Academy", text: "The multi-portal design is brilliant. Teachers love it, parents love it, and our admin team can finally breathe!", stars: 5 },
-    { name: "Usman Tariq", role: "Director, Scholars Institute", text: "Switching from manual registers to Stoofi was the best decision. Reports that used to take days now take seconds.", stars: 5 },
+    {
+      name: "Khalid Mehmood",
+      role: "Principal, Al-Noor School System",
+      text: "Stoofi transformed how we manage our 1200+ students. The fee collection and attendance system alone saves us 3 hours daily.",
+      initials: "KM",
+      avatarClass: "bg-[#dff1ea] text-[#408873]"
+    },
+    {
+      name: "Sara Ahmed",
+      role: "Admin, Bright Future Academy",
+      text: "The multi-portal design is brilliant. Teachers love it, parents love it, and our admin team can finally breathe!",
+      initials: "SA",
+      avatarClass: "bg-[#e4edf7] text-[#557b9e]"
+    },
+    {
+      name: "Usman Tariq",
+      role: "Director, Scholars Institute",
+      text: "Switching from manual registers to Stoofi was the best decision. Reports that used to take days now take seconds.",
+      initials: "UT",
+      avatarClass: "bg-[#eeebf6] text-[#87779e]"
+    }
   ];
 
   const faqs = [
-    { q: "How quickly can our school get up and running on Stoofi ERP?", a: "Most schools go live in less than 24 hours. Our step-by-step onboarding wizard lets you configure classes, assign teachers, and bulk import student records via Excel in minutes." },
-    { q: "How do automated SMS notifications work?", a: "Stoofi integrates with SMS gateways. Whenever attendance is marked, fee vouchers are generated, or exam results are published, the system automatically dispatches customized SMS alerts to parents' mobile numbers." },
-    { q: "Can we manage multi-branch campuses with single billing?", a: "Yes! Super Admin accounts have multi-branch capabilities to oversee branch finances, compare campus performance, and transfer students between branches seamlessly." },
-    { q: "Is our student and financial data safe?", a: "Absolutely. Stoofi ERP features end-to-end encryption, role-based permission locks, daily automated cloud database backups, and 99.9% uptime reliability." }
+    {
+      q: "How quickly can our school get up and running on Stoofi ERP?",
+      a: "Most schools go live in less than 24 hours. Our step-by-step onboarding wizard lets you configure classes, assign teachers, and bulk import student records via Excel in minutes."
+    },
+    {
+      q: "How do automated SMS notifications work?",
+      a: "Send bulk SMS and email notifications to parents and staff regarding fee dues, exam results, holiday notices, and emergency alerts instantly from the communication center."
+    },
+    {
+      q: "Can we manage multi-branch campuses with single billing?",
+      a: "Manage multiple school campuses from a single Super Admin login. Compare branch revenues, standardize data, and track global analytics seamlessly across all campuses."
+    },
+    {
+      q: "Is our student and financial data safe?",
+      a: "Secure data with strict permission locks. Ensure Teachers only see academics, and Parents only see their child's data with bank-grade cloud backups and 99.9% uptime."
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-white text-zinc-900 dark:text-zinc-900 font-poppins selection:bg-zinc-600 selection:text-white transition-colors duration-300">
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/90 dark:bg-white/90 backdrop-blur-lg border-b border-zinc-100 dark:border-zinc-200 py-3 shadow-sm" : "bg-transparent py-5"}`}>
-        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <img src="/logo.png" alt="Stoofi ERP" className="h-10 sm:h-11 w-auto object-contain transform hover:scale-105 transition-transform duration-300" />
+    <div className={`min-h-screen bg-white text-[#102e43] font-sans selection:bg-[#64e2bc] selection:text-[#0c322f] ${isMotionPaused ? "motion-paused" : ""}`}>
+      {/* ── Sticky Header Navigation ── */}
+      <header className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/95 backdrop-blur-md border-b border-[#dfe7eb] shadow-sm py-3" : "bg-white/95 backdrop-blur-md border-b border-[#dfe7eb] py-4"}`}>
+        <div className="max-w-[1360px] mx-auto px-6 sm:px-10 flex items-center justify-between min-h-[56px]">
+          {/* Brand Logo */}
+          <Link href="#home" className="flex items-center shrink-0" aria-label="Stoofi ERP home">
+            <img
+              src="/logo.png"
+              alt="Stoofi ERP — Smarter Education, Simple Management"
+              className="h-10 sm:h-12 w-auto object-contain hover:scale-105 transition-transform duration-300"
+            />
           </Link>
-          <nav className="hidden md:flex items-center gap-8">
-            <Link href="#home" className={`text-sm font-semibold transition-colors ${isScrolled ? "text-zinc-600 hover:text-zinc-900" : "text-white/90 hover:text-white drop-shadow-md"}`}>{t.nav.home}</Link>
-            <Link href="#notices" className={`text-sm font-semibold transition-colors ${isScrolled ? "text-zinc-600 hover:text-zinc-900" : "text-white/90 hover:text-white drop-shadow-md"}`}>{t.nav.notices || "Notice Board"}</Link>
-            <Link href="#how-it-works" className={`text-sm font-semibold transition-colors ${isScrolled ? "text-zinc-600 hover:text-zinc-900" : "text-white/90 hover:text-white drop-shadow-md"}`}>{t.nav.howToUse}</Link>
-            <Link href="#about" className={`text-sm font-semibold transition-colors ${isScrolled ? "text-zinc-600 hover:text-zinc-900" : "text-white/90 hover:text-white drop-shadow-md"}`}>{t.nav.portals}</Link>
-            <Link href="#features" className={`text-sm font-semibold transition-colors ${isScrolled ? "text-zinc-600 hover:text-zinc-900" : "text-white/90 hover:text-white drop-shadow-md"}`}>{t.nav.features}</Link>
-            <Link href="#pricing" className={`text-sm font-semibold transition-colors ${isScrolled ? "text-zinc-600 hover:text-zinc-900" : "text-white/90 hover:text-white drop-shadow-md"}`}>{t.nav.pricing}</Link>
+
+          {/* Center Navigation Links */}
+          <nav className="hidden lg:flex items-center gap-7 text-sm font-semibold text-[#102e43]">
+            <Link href="#home" className="hover:text-[#087f77] transition-colors py-1">Home</Link>
+            <button
+              onClick={() => {
+                if (publicNotices.length > 0) {
+                  const el = document.getElementById("notices");
+                  if (el) el.scrollIntoView({ behavior: "smooth" });
+                } else {
+                  setActiveDialog({
+                    title: "Notice Board",
+                    content: "No public circulars or notices have been posted yet. Check back soon for institution announcements.",
+                    isHtml: false
+                  });
+                }
+              }}
+              className="hover:text-[#087f77] transition-colors py-1 cursor-pointer"
+            >
+              Notice Board
+            </button>
+            <Link href="#how-it-works" className="hover:text-[#087f77] transition-colors py-1">How To Use</Link>
+            <Link href="#portals" className="hover:text-[#087f77] transition-colors py-1">Portals</Link>
+            <Link href="#features" className="hover:text-[#087f77] transition-colors py-1">Features</Link>
+            <Link href="#pricing" className="hover:text-[#087f77] transition-colors py-1">Pricing</Link>
           </nav>
-          <div className="hidden md:flex items-center gap-3">
-            {/* Language Dropdown */}
+
+          {/* Right Actions */}
+          <div className="hidden sm:flex items-center gap-4">
+            {/* Language Selector */}
             <div className="relative" ref={langDropdownRef}>
-              <div 
-                className="flex items-center justify-between gap-1.5 bg-zinc-100 dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-lg px-2.5 py-1.5 text-xs text-zinc-800 dark:text-zinc-800 font-bold cursor-pointer hover:border-zinc-400 dark:hover:border-zinc-700 transition-colors min-w-[54px]"
+              <button
                 onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
+                className="flex items-center gap-1 text-xs font-bold text-[#102e43] hover:text-[#087f77] px-2 py-1.5 rounded-md border border-[#dfe7eb] hover:bg-[#f3f7f8] transition-colors"
               >
                 <span>{lang}</span>
-                <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${isLangDropdownOpen ? 'rotate-180' : ''}`} />
-              </div>
+                <ChevronDown size={13} className={`transition-transform duration-200 ${isLangDropdownOpen ? "rotate-180" : ""}`} />
+              </button>
               {isLangDropdownOpen && (
-                <div className="absolute top-full right-0 mt-1.5 w-28 bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-xl shadow-2xl overflow-hidden p-1 z-50">
+                <div className="absolute top-full right-0 mt-1.5 w-28 bg-white border border-[#dfe7eb] rounded-xl shadow-xl overflow-hidden p-1 z-50 animate-in fade-in zoom-in-95 duration-150">
                   {[
-                    { code: 'EN', name: 'English' },
-                    { code: 'UR', name: 'Urdu' },
-                    { code: 'AR', name: 'Arabic' }
+                    { code: "EN", name: "English" },
+                    { code: "UR", name: "Urdu" },
+                    { code: "AR", name: "Arabic" }
                   ].map((l) => (
-                    <div 
-                      key={l.code} 
+                    <button
+                      key={l.code}
                       onClick={() => changeLanguage(l.code)}
-                      className={`px-3 py-2 text-xs rounded-lg cursor-pointer transition-colors ${
-                        lang === l.code 
-                          ? 'bg-zinc-100 dark:bg-zinc-100 text-zinc-800 dark:text-zinc-900 font-bold' 
-                          : 'text-zinc-700 dark:text-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-100 hover:text-zinc-800 font-medium'
+                      className={`w-full text-left px-3 py-2 text-xs rounded-lg transition-colors ${
+                        lang === l.code
+                          ? "bg-[#eaf6f2] text-[#087f77] font-bold"
+                          : "text-[#667987] hover:bg-[#f3f7f8] hover:text-[#102e43]"
                       }`}
                     >
                       {l.name}
-                    </div>
+                    </button>
                   ))}
                 </div>
               )}
             </div>
 
-            <ThemeToggle />
+            {/* Animation Toggle */}
+            <button
+              onClick={toggleMotion}
+              className="grid place-items-center w-8 h-8 rounded-md border border-[#dfe7eb] text-[#087f77] hover:bg-[#e9f7f1] transition-colors"
+              title={isMotionPaused ? "Resume animations" : "Pause animations"}
+              aria-label={isMotionPaused ? "Resume animations" : "Pause animations"}
+            >
+              {isMotionPaused ? <Play size={15} /> : <Pause size={15} />}
+            </button>
+
+            {/* Auth Button or User Profile */}
             {isUserAvailable && activeUser ? (
-              <div className="flex items-center gap-2">
-                <div className="relative" ref={profileRef}>
-                  <button
-                    onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    className="flex items-center gap-2 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 rounded-full py-1.5 px-3 transition-colors"
-                  >
-                    {activeUser?.avatar || activeUser?.picture ? (
-                      <img loading="lazy" src={activeUser.avatar || activeUser.picture} alt="Profile" className="w-7 h-7 rounded-full object-cover border border-zinc-300" />
-                    ) : (
-                      <div className="w-7 h-7 bg-zinc-900 rounded-full flex items-center justify-center text-white text-xs font-black">
-                        {activeUser?.name ? activeUser.name.charAt(0).toUpperCase() : <User size={14} color="#ffffff" />}
-                      </div>
-                    )}
-                    <div className="text-left">
-                      <p className="text-xs font-bold text-zinc-900 leading-tight truncate max-w-[100px]">
-                        {activeUser?.name || activeUser?.fullName || activeUser?.email?.split('@')[0]}
-                      </p>
-                      <p className="text-[10px] font-semibold text-zinc-500 uppercase leading-none">
-                        {activeUser?.role || 'Member'}
-                      </p>
-                    </div>
-                    <ChevronDown size={14} className={`text-zinc-600 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  
-                  {isProfileOpen && (
-                    <div className="absolute top-full right-0 mt-2 w-52 bg-white border border-zinc-200 rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                      <div className="px-4 py-2.5 border-b border-zinc-100 mb-1">
-                        <p className="text-sm font-bold text-zinc-900 truncate">{activeUser?.name || activeUser?.fullName || activeUser?.email}</p>
-                        <p className="text-xs text-zinc-500 truncate">{activeUser?.email}</p>
-                        <span className="inline-block mt-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-zinc-100 text-zinc-800 border border-zinc-200">
-                          {activeUser?.role || 'User'}
-                        </span>
-                      </div>
-                      <Link 
-                        href={getDashboardUrl(activeUser)}
-                        onClick={() => setIsProfileOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900"
-                      >
-                        <LayoutDashboard size={16} />
-                        Dashboard
-                      </Link>
-                      <button 
-                        onClick={() => {
-                          logout();
-                          if (typeof window !== 'undefined') {
-                            localStorage.removeItem('recent_user');
-                          }
-                          setIsProfileOpen(false);
-                          window.location.href = '/';
-                        }}
-                        className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm font-semibold text-rose-600 hover:bg-rose-50"
-                      >
-                        <LogOut size={16} />
-                        Logout / Switch
-                      </button>
+              <div className="relative" ref={profileRef}>
+                <button
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="flex items-center gap-2 bg-[#f3f7f8] hover:bg-[#eaf0f3] border border-[#dfe7eb] rounded-full py-1 px-3 transition-colors"
+                >
+                  {activeUser?.avatar || activeUser?.picture ? (
+                    <img src={activeUser.avatar || activeUser.picture} alt="Profile" className="w-7 h-7 rounded-full object-cover border border-[#dfe7eb]" />
+                  ) : (
+                    <div className="w-7 h-7 bg-[#102e43] rounded-full flex items-center justify-center text-white text-xs font-bold">
+                      {activeUser?.name ? activeUser.name.charAt(0).toUpperCase() : <User size={14} />}
                     </div>
                   )}
-                </div>
+                  <div className="text-left">
+                    <p className="text-xs font-bold text-[#102e43] leading-tight truncate max-w-[90px]">
+                      {activeUser?.name || activeUser?.fullName || activeUser?.email?.split("@")[0]}
+                    </p>
+                    <p className="text-[10px] font-semibold text-[#667987] uppercase leading-none">
+                      {activeUser?.role || "Member"}
+                    </p>
+                  </div>
+                  <ChevronDown size={13} className={`text-[#667987] transition-transform ${isProfileOpen ? "rotate-180" : ""}`} />
+                </button>
+
+                {isProfileOpen && (
+                  <div className="absolute top-full right-0 mt-2 w-52 bg-white border border-[#dfe7eb] rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="px-4 py-2.5 border-b border-[#dfe7eb] mb-1">
+                      <p className="text-sm font-bold text-[#102e43] truncate">{activeUser?.name || activeUser?.fullName || activeUser?.email}</p>
+                      <p className="text-xs text-[#667987] truncate">{activeUser?.email}</p>
+                      <span className="inline-block mt-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-[#eaf6f2] text-[#087f77] border border-[#7ebba566]">
+                        {activeUser?.role || "User"}
+                      </span>
+                    </div>
+                    <Link
+                      href={getDashboardUrl(activeUser)}
+                      onClick={() => setIsProfileOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#102e43] hover:bg-[#f3f7f8]"
+                    >
+                      <LayoutDashboard size={16} />
+                      Dashboard
+                    </Link>
+                    <button
+                      onClick={() => {
+                        logout();
+                        if (typeof window !== "undefined") {
+                          localStorage.removeItem("recent_user");
+                        }
+                        setIsProfileOpen(false);
+                        window.location.href = "/";
+                      }}
+                      className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm font-semibold text-rose-600 hover:bg-rose-50"
+                    >
+                      <LogOut size={16} />
+                      Logout / Switch
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <Link href="/login">
-                <Button className="bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-full px-6 shadow-sm" style={{ color: '#ffffff' }}>
+                <Button className="bg-[#102e43] hover:bg-[#1b425a] text-white font-bold rounded-lg px-6 h-10 shadow-sm transition-transform hover:-translate-y-0.5">
                   Login
                 </Button>
               </Link>
             )}
           </div>
-          <div className="md:hidden flex items-center gap-3">
-            {/* Mobile Language Button */}
-            <div className="relative">
-              <button 
-                className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-lg px-2 py-1 text-xs font-bold text-zinc-800 dark:text-zinc-800"
-                onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
-              >
-                <span>{lang}</span>
-                <ChevronDown size={12} className={isLangDropdownOpen ? 'rotate-180' : ''} />
-              </button>
-              {isLangDropdownOpen && (
-                <div className="absolute top-full right-0 mt-1 w-28 bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-xl shadow-xl p-1 z-50">
-                  {[
-                    { code: 'EN', name: 'English' },
-                    { code: 'UR', name: 'Urdu' },
-                    { code: 'AR', name: 'Arabic' }
-                  ].map((l) => (
-                    <div 
-                      key={l.code} 
-                      onClick={() => changeLanguage(l.code)}
-                      className={`px-3 py-2 text-xs rounded-lg cursor-pointer ${
-                        lang === l.code ? 'bg-zinc-100 dark:bg-zinc-100 text-zinc-800 dark:text-zinc-900 font-bold' : 'text-zinc-700 dark:text-zinc-700 font-medium'
-                      }`}
-                    >
-                      {l.name}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <ThemeToggle />
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className={isScrolled ? "text-zinc-700" : "text-white"}>{mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}</button>
+
+          {/* Mobile Menu Button */}
+          <div className="lg:hidden flex items-center gap-2">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 text-[#102e43] hover:bg-[#f3f7f8] rounded-md transition-colors"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-white dark:bg-white border-b border-zinc-100 dark:border-zinc-200 px-6 py-4 flex flex-col gap-3">
-            <Link href="#home" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-zinc-700 dark:text-zinc-700 py-1.5">Home</Link>
-            <Link href="#notices" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-zinc-700 dark:text-zinc-700 py-1.5">Notice Board</Link>
-            <Link href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-zinc-700 dark:text-zinc-700 py-1.5">How To Use</Link>
-            <Link href="#about" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-zinc-700 dark:text-zinc-700 py-1.5">Portals</Link>
-            <Link href="#features" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-zinc-700 dark:text-zinc-700 py-1.5">Features</Link>
-            <Link href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-zinc-700 dark:text-zinc-700 py-1.5">Pricing</Link>
+          <div className="lg:hidden bg-white border-b border-[#dfe7eb] px-6 py-4 flex flex-col gap-3 shadow-lg">
+            <Link href="#home" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-[#102e43] py-2 border-b border-[#f3f7f8]">Home</Link>
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                if (publicNotices.length > 0) {
+                  const el = document.getElementById("notices");
+                  if (el) el.scrollIntoView({ behavior: "smooth" });
+                } else {
+                  setActiveDialog({
+                    title: "Notice Board",
+                    content: "No public circulars or notices have been posted yet.",
+                    isHtml: false
+                  });
+                }
+              }}
+              className="text-left text-sm font-semibold text-[#102e43] py-2 border-b border-[#f3f7f8]"
+            >
+              Notice Board
+            </button>
+            <Link href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-[#102e43] py-2 border-b border-[#f3f7f8]">How To Use</Link>
+            <Link href="#portals" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-[#102e43] py-2 border-b border-[#f3f7f8]">Portals</Link>
+            <Link href="#features" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-[#102e43] py-2 border-b border-[#f3f7f8]">Features</Link>
+            <Link href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-[#102e43] py-2 border-b border-[#f3f7f8]">Pricing</Link>
+            <div className="pt-2 flex items-center justify-between">
+              <span className="text-xs font-bold text-[#667987]">Animations:</span>
+              <button
+                onClick={toggleMotion}
+                className="flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded border border-[#dfe7eb] text-[#087f77]"
+              >
+                {isMotionPaused ? <Play size={12} /> : <Pause size={12} />}
+                {isMotionPaused ? "Disabled" : "Active"}
+              </button>
+            </div>
             {isUserAvailable && activeUser ? (
-              <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-zinc-100">
-                <div className="flex items-center gap-3 px-3 py-2 bg-zinc-50 rounded-xl border border-zinc-100">
-                  {activeUser?.avatar || activeUser?.picture ? (
-                    <img loading="lazy" src={activeUser.avatar || activeUser.picture} alt="Profile" className="w-9 h-9 rounded-full object-cover border border-zinc-300 shrink-0" />
-                  ) : (
-                    <div className="w-9 h-9 bg-zinc-900 rounded-full flex items-center justify-center text-white text-sm font-black shrink-0">
-                      {activeUser?.name ? activeUser.name.charAt(0).toUpperCase() : <User size={16} color="#ffffff" />}
-                    </div>
-                  )}
-                  <div className="overflow-hidden">
-                    <p className="text-sm font-bold text-zinc-900 truncate">{activeUser?.name || activeUser?.fullName || activeUser?.email}</p>
-                    <p className="text-xs text-zinc-500 truncate">{activeUser?.email}</p>
-                    <span className="inline-block mt-0.5 text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-zinc-200 text-zinc-800">
-                      {activeUser?.role || 'Member'}
-                    </span>
-                  </div>
-                </div>
-                <Link 
-                  href={getDashboardUrl(activeUser)}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Button className="w-full bg-zinc-900 hover:bg-zinc-800 text-white justify-start gap-2 rounded-xl py-3 font-bold">
-                    <LayoutDashboard size={16} />
-                    Go to Dashboard
-                  </Button>
-                </Link>
-                <Button 
-                  variant="outline"
-                  onClick={() => {
-                    logout();
-                    if (typeof window !== 'undefined') {
-                      localStorage.removeItem('recent_user');
-                    }
-                    setMobileMenuOpen(false);
-                    window.location.href = '/';
-                  }}
-                  className="w-full text-rose-600 border-rose-200 hover:bg-rose-50 justify-start gap-2 rounded-xl"
-                >
-                  <LogOut size={16} />
-                  Logout / Switch
+              <Link href={getDashboardUrl(activeUser)} onClick={() => setMobileMenuOpen(false)}>
+                <Button className="w-full bg-[#102e43] hover:bg-[#1b425a] text-white font-bold py-3 rounded-lg mt-2">
+                  Go to Dashboard
                 </Button>
-              </div>
+              </Link>
             ) : (
-              <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-zinc-100">
-                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-bold py-3 rounded-xl mt-2" style={{ color: '#ffffff' }}>Login</Button>
-                </Link>
-              </div>
+              <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                <Button className="w-full bg-[#102e43] hover:bg-[#1b425a] text-white font-bold py-3 rounded-lg mt-2">
+                  Login
+                </Button>
+              </Link>
             )}
           </div>
         )}
       </header>
 
-      <section id="home" className="relative bg-zinc-950 overflow-hidden min-h-[92vh] pt-32 pb-16 flex flex-col items-center justify-center">
-        {/* Slider Backgrounds */}
-        {heroSlides.map((slide, index) => (
-          <div 
-            key={index} 
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
-          >
-            <div className="absolute inset-0 bg-black/40 z-10"></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent z-10"></div>
-            <img 
-              src={slide.bgImage} 
-              alt={slide.title2} 
-              className={`w-full h-full object-cover transition-transform duration-[10000ms] ease-out ${index === currentSlide ? 'scale-110' : 'scale-100'}`} 
-            />
-          </div>
-        ))}
+      {/* ── HERO SECTION (#home) ── */}
+      <section id="home" className="relative bg-[#0c2436] text-white overflow-hidden">
+        {/* Teal Ambient Radial Glow */}
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_87%_30%,#15606166,transparent_48%)]"></div>
 
-        <div className="max-w-5xl mx-auto px-6 text-center relative z-20 transition-all duration-500 ease-out">
-          <div key={`badge-${currentSlide}`} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-white text-xs font-bold uppercase tracking-wider mb-8 border border-white/20 animate-in fade-in zoom-in duration-500">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            {heroSlides[currentSlide].badge}
+        <div className="max-w-[1360px] mx-auto px-6 sm:px-10 py-16 sm:py-24 lg:py-28 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-14 items-center">
+          {/* Left Column: Copy & Actions */}
+          <div className="flex flex-col items-start text-left">
+            {/* Announcement Badge */}
+            <div className="inline-flex items-center gap-2.5 border border-[#56728080] rounded-full px-3.5 py-1.5 text-[11px] font-bold tracking-wider text-[#b7d0da] mb-8 bg-white/5 backdrop-blur-sm">
+              <span className="text-[#64e2bc]">STOOFI PRO IS LIVE</span>
+              <span className="h-3 w-px bg-[#507080]"></span>
+              <span>30 DAYS FREE TRIAL</span>
+            </div>
+
+            {/* Headline */}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.08] text-white">
+              The Complete<br />
+              <em className="not-italic text-[#64e2bc]">School Management</em><br />
+              ERP<span className="text-[#64e2bc]">.</span>
+            </h1>
+
+            {/* Description */}
+            <p className="text-base sm:text-lg text-[#b7cbd4] max-w-xl mt-6 leading-relaxed">
+              Manage your entire institution from one unified platform. Tailored portals for Admins, Teachers, Students and Parents.
+            </p>
+
+            {/* Hero Actions */}
+            <div className="flex flex-wrap items-center gap-4 mt-8">
+              {isUserAvailable && activeUser ? (
+                <Link href={getDashboardUrl(activeUser)}>
+                  <Button className="bg-[#64e2bc] hover:bg-[#85edce] text-[#0c322f] font-bold text-sm sm:text-base px-8 h-13 rounded-lg shadow-lg hover:-translate-y-1 transition-all border-0 flex items-center gap-2">
+                    <LayoutDashboard size={18} />
+                    Go to Dashboard
+                  </Button>
+                </Link>
+              ) : (
+                <Link href="#pricing">
+                  <Button className="bg-[#64e2bc] hover:bg-[#85edce] text-[#0c322f] font-bold text-sm sm:text-base px-8 h-13 rounded-lg shadow-lg hover:-translate-y-1 transition-all border-0">
+                    Get Started
+                  </Button>
+                </Link>
+              )}
+              <Link href="#how-it-works">
+                <Button variant="outline" className="border border-[#66818f] text-white bg-transparent hover:bg-white/10 font-bold text-sm sm:text-base px-7 h-13 rounded-lg transition-all flex items-center gap-2">
+                  <Play size={16} className="fill-white" />
+                  How It Works
+                </Button>
+              </Link>
+            </div>
+
+            {/* Note Guarantee */}
+            <div className="flex items-center gap-2 text-xs text-[#9fb8c6] mt-6">
+              <span className="text-[#64e2bc] font-bold">✓</span>
+              <span>Start free for 1 month</span>
+              <span className="text-[#536d7e]">/</span>
+              <span>No credit card required</span>
+            </div>
           </div>
-          <h1 key={`title-${currentSlide}`} className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight mb-6 leading-[1.1] text-white animate-in slide-in-from-bottom-8 fade-in duration-700 delay-75">
-            {heroSlides[currentSlide].title1} <br /><span className="text-emerald-400">{heroSlides[currentSlide].title2}</span> {heroSlides[currentSlide].title3}
-          </h1>
-          <p key={`desc-${currentSlide}`} className="text-lg md:text-xl text-zinc-300 mb-10 max-w-2xl mx-auto leading-relaxed animate-in slide-in-from-bottom-8 fade-in duration-700 delay-150">
-            {heroSlides[currentSlide].desc}
-          </p>
-          <div key={`btns-${currentSlide}`} className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in slide-in-from-bottom-8 fade-in duration-700 delay-300">
-            {isUserAvailable && activeUser ? (
-              <Link href={getDashboardUrl(activeUser)}>
-                <Button className="h-14 px-10 text-base premium-hover bg-emerald-600 text-white rounded-full font-bold shadow-lg flex items-center gap-2 border-0">
-                  <LayoutDashboard size={18} />
-                  Go to Dashboard <ArrowRight size={16} />
-                </Button>
-              </Link>
-            ) : (
-              <Link href="/login">
-                <Button className="h-14 px-10 text-base premium-hover bg-[#084A86] text-white rounded-full font-bold shadow-lg flex items-center gap-2 border-0">
-                  Get Started <ArrowRight size={16} />
-                </Button>
-              </Link>
-            )}
-            <Link href="#how-it-works">
-              <Button variant="outline" className="h-14 px-10 text-base rounded-full font-bold premium-hover border-2 border-white/30 text-white bg-white/5 hover:bg-white/10 backdrop-blur-sm transition-all">
-                {t.hero.howItWorks} <ArrowRight size={16} className="ml-2 inline" />
-              </Button>
+
+          {/* Right Column: 3D Visual with Classroom Photo & Floating Badges */}
+          <div className="relative w-full max-w-[600px] mx-auto lg:max-w-none pt-4 pb-8 perspective-1200">
+            <div
+              onPointerMove={(e) => handleTiltMove(e, 6)}
+              onPointerLeave={handleTiltLeave}
+              className="relative h-[360px] sm:h-[460px] lg:h-[480px] rounded-tl-[22px] rounded-tr-[22px] rounded-bl-[22px] rounded-br-[75px] sm:rounded-br-[85px] overflow-hidden border border-[#7ebba566] shadow-[0_24px_70px_rgba(0,0,0,0.35)] bg-[#204b53] transition-transform duration-400 ease-out"
+            >
+              {/* Drift Photo */}
+              <div className="w-full h-full animate-photo-breathe">
+                <img
+                  src="/classroom.webp"
+                  alt="A teacher supporting students learning on laptops"
+                  className="w-full h-full object-cover object-[50%_45%] scale-105"
+                />
+              </div>
+
+              {/* Photo Vignette Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#082631dc] via-transparent to-transparent pointer-events-none"></div>
+
+              {/* Photo Caption */}
+              <div className="absolute bottom-8 left-6 sm:left-8 right-6 text-white pointer-events-none">
+                <span className="text-[11px] font-bold tracking-widest text-[#64e2bc] uppercase block mb-1.5">
+                  STOOFI ERP
+                </span>
+                <strong className="text-xl sm:text-2xl font-extrabold leading-snug tracking-tight block">
+                  Smarter Education.<br />Simpler Management.
+                </strong>
+              </div>
+            </div>
+
+            {/* Floating Badge 1: Smart Attendance (Top Left) */}
+            <Link
+              href="#features"
+              className="absolute -top-3 sm:top-2 -left-2 sm:-left-4 bg-white/95 backdrop-blur-md border border-[#eff8f5] rounded-xl p-3.5 sm:p-4 shadow-[0_18px_45px_rgba(0,22,34,0.22)] hover:shadow-[0_22px_50px_rgba(0,22,34,0.35)] text-[#102e43] flex items-center gap-3 transition-all z-20 animate-float-a group"
+            >
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[#e3f7ec] text-[#087f77] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Clock size={20} />
+              </div>
+              <div>
+                <strong className="text-xs sm:text-sm font-bold block leading-tight">Smart Attendance</strong>
+                <small className="text-[10px] sm:text-xs text-[#6c8793] block">Students & staff, connected.</small>
+              </div>
+              <span className="w-5 h-5 rounded-full bg-[#d9f6e9] text-[#258965] text-xs font-bold flex items-center justify-center ml-1">✓</span>
+            </Link>
+
+            {/* Floating Badge 2: One System Every Role (Bottom Right) */}
+            <Link
+              href="#portals"
+              className="absolute -bottom-3 sm:bottom-2 right-2 sm:right-6 bg-white/95 backdrop-blur-md border border-[#eff8f5] rounded-xl p-3.5 sm:p-4 shadow-[0_18px_45px_rgba(0,22,34,0.22)] hover:shadow-[0_22px_50px_rgba(0,22,34,0.35)] text-[#102e43] flex items-center gap-3 transition-all z-20 animate-float-b group"
+            >
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[#e3f7ec] text-[#087f77] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Users size={20} />
+              </div>
+              <div>
+                <strong className="text-xs sm:text-sm font-bold block leading-tight">One system. Every role.</strong>
+                <small className="text-[10px] sm:text-xs text-[#6c8793] block">Admins · Teachers · Students · Parents</small>
+              </div>
             </Link>
           </div>
+        </div>
+      </section>
 
-          {/* Slider Indicators */}
-          <div className="flex justify-center gap-3 mt-16 relative z-30">
-            {heroSlides.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`transition-all duration-300 rounded-full h-2 ${index === currentSlide ? 'w-8 bg-emerald-500' : 'w-2 bg-white/30 hover:bg-white/60'}`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
+      {/* ── STATS BAR ── */}
+      <section className="bg-[#f8fafb] border-b border-[#dfe7eb] py-8 sm:py-10" aria-label="School statistics">
+        <div className="max-w-[1240px] mx-auto px-6 sm:px-10 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div className="p-2 transition-transform hover:-translate-y-1">
+            <strong className="text-3xl sm:text-4xl font-extrabold text-[#102e43] tracking-tight block">
+              155<span className="text-[#087f77]">+</span>
+            </strong>
+            <p className="text-xs sm:text-sm font-medium text-[#667987] mt-1">Schools onboarded</p>
+          </div>
+          <div className="p-2 border-l border-[#dfe7eb] transition-transform hover:-translate-y-1">
+            <strong className="text-3xl sm:text-4xl font-extrabold text-[#102e43] tracking-tight block">
+              62K<span className="text-[#087f77]">+</span>
+            </strong>
+            <p className="text-xs sm:text-sm font-medium text-[#667987] mt-1">Active students</p>
+          </div>
+          <div className="p-2 md:border-l border-[#dfe7eb] transition-transform hover:-translate-y-1">
+            <strong className="text-3xl sm:text-4xl font-extrabold text-[#102e43] tracking-tight block">
+              99.9<span className="text-[#087f77]">%</span>
+            </strong>
+            <p className="text-xs sm:text-sm font-medium text-[#667987] mt-1">Uptime guarantee</p>
+          </div>
+          <div className="p-2 border-l border-[#dfe7eb] transition-transform hover:-translate-y-1">
+            <strong className="text-3xl sm:text-4xl font-extrabold text-[#102e43] tracking-tight block">
+              4.9 <span className="text-amber-500 text-2xl">★</span>
+            </strong>
+            <p className="text-xs sm:text-sm font-medium text-[#667987] mt-1">Customer rating</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── HOW TO USE SECTION (#how-it-works) ── */}
+      <section id="how-it-works" className="py-20 sm:py-28 max-w-[1240px] mx-auto px-6 sm:px-10">
+        {/* Section Heading & Administrator Photo */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center mb-14">
+          <div>
+            <span className="text-xs font-extrabold tracking-widest text-[#087f77] uppercase block mb-3">
+              STEP-BY-STEP SYSTEM GUIDE
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#102e43] tracking-tight leading-tight">
+              How To Use<br />Stoofi ERP<span className="text-[#087f77]">.</span>
+            </h2>
+            <p className="text-base text-[#667987] mt-5 max-w-lg leading-relaxed">
+              Follow these simple, streamlined workflows designed for every user role in your institution.
+            </p>
+          </div>
+
+          {/* Administration Visual Photo with Figcaption */}
+          <figure
+            onPointerMove={(e) => handleTiltMove(e, 4)}
+            onPointerLeave={handleTiltLeave}
+            className="relative rounded-2xl overflow-hidden shadow-[0_12px_35px_rgba(16,53,40,0.1)] bg-[#e4ecef] transition-all duration-400 group"
+          >
+            <img
+              src="/administration.webp"
+              alt="School administrator and teacher reviewing school records"
+              className="w-full h-[240px] sm:h-[280px] object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <figcaption className="absolute left-4 bottom-4 bg-white/90 backdrop-blur-md px-3.5 py-2 rounded-md border border-white/70 text-xs font-bold text-[#102e43] shadow-sm">
+              School Setup & Onboarding
+            </figcaption>
+          </figure>
+        </div>
+
+        {/* Role Tabs */}
+        <div className="flex border-b border-[#dfe7eb] gap-4 sm:gap-6 mb-8 overflow-x-auto no-scrollbar" role="tablist">
+          {[
+            { id: "admin", label: "Super Admin Flow", badge: "SETUP" },
+            { id: "teacher", label: "Teacher Flow", badge: "ACADEMIC" },
+            { id: "student", label: "Student & Parent Flow", badge: "PORTAL" }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              role="tab"
+              aria-selected={activeStepTab === tab.id}
+              onClick={() => setActiveStepTab(tab.id)}
+              className={`pb-4 text-xs sm:text-sm font-bold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
+                activeStepTab === tab.id
+                  ? "border-[#087f77] text-[#087f77]"
+                  : "border-transparent text-[#667987] hover:text-[#102e43]"
+              }`}
+            >
+              {tab.label}
+              <span className={`inline-block text-[10px] px-2 py-0.5 rounded ml-2 uppercase font-bold tracking-wider ${
+                activeStepTab === tab.id ? "bg-[#def3eb] text-[#127d67]" : "bg-[#eaf0f3] text-[#738894]"
+              }`}>
+                {tab.badge}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Tab Content Display */}
+        {activeStepTab === "admin" && (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <span className="text-[11px] font-bold text-[#087f77] uppercase tracking-wider block">QUICK SETUP (DAY 1)</span>
+                <h3 className="text-lg font-bold text-[#102e43]">School Setup & Onboarding</h3>
+              </div>
+              <span className="text-xs text-[#8b9aa4] hidden sm:block">4 Simple Consecutive Steps</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+              {steps.map((s, idx) => (
+                <article
+                  key={idx}
+                  onPointerMove={(e) => handleTiltMove(e, 3)}
+                  onPointerLeave={handleTiltLeave}
+                  className="p-6 rounded-xl border border-[#dfe7eb] bg-white shadow-sm hover:border-[#9bcfbe] hover:shadow-[0_15px_35px_rgba(16,53,40,0.08)] hover:-translate-y-1.5 transition-all flex flex-col justify-between group"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-6">
+                      <span className="text-3xl font-extrabold text-[#bacbd2] group-hover:text-[#087f77] transition-colors">
+                        {s.number}
+                      </span>
+                      <div className="w-10 h-10 rounded-lg bg-[#eaf6f2] text-[#087f77] flex items-center justify-center group-hover:rotate-12 transition-transform">
+                        <s.icon size={20} />
+                      </div>
+                    </div>
+                    <h3 className="text-base font-bold text-[#102e43] leading-snug mb-2">{s.title}</h3>
+                    <p className="text-xs sm:text-sm text-[#667987] leading-relaxed">{s.desc}</p>
+                  </div>
+                  <small className="block text-xs font-bold text-[#087f77] mt-6 pt-3 border-t border-[#edf1f3]">
+                    Step {idx + 1} of 4
+                  </small>
+                </article>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeStepTab === "teacher" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            {teacherFlowItems.map((item, idx) => (
+              <article
+                key={idx}
+                onPointerMove={(e) => handleTiltMove(e, 3)}
+                onPointerLeave={handleTiltLeave}
+                className="p-8 rounded-xl border border-[#dfe7eb] bg-[#f8fafb] hover:bg-white hover:border-[#9bcfbe] hover:shadow-lg transition-all"
+              >
+                <div className="w-12 h-12 rounded-xl bg-[#eaf6f2] text-[#087f77] flex items-center justify-center mb-5">
+                  <item.icon size={24} />
+                </div>
+                <h3 className="text-lg font-bold text-[#102e43] mb-2">{item.title}</h3>
+                <p className="text-sm text-[#667987] leading-relaxed">{item.desc}</p>
+              </article>
             ))}
           </div>
-        </div>
-      </section>
+        )}
 
-      {/* ── Stats Bar with Animated Number Counters ── */}
-      <section ref={statsRef} className="py-12 bg-zinc-50 dark:bg-white border-y border-zinc-200 dark:border-zinc-200">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div className="p-5 rounded-2xl bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 shadow-sm">
-              <div className="text-4xl font-extrabold text-zinc-800 dark:text-zinc-900 mb-1 tabular-nums">{counts.schools}+</div>
-              <div className="text-xs text-zinc-600 dark:text-zinc-600 font-bold uppercase tracking-wider">{t.stats.schools}</div>
-            </div>
-            <div className="p-5 rounded-2xl bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 shadow-sm">
-              <div className="text-4xl font-extrabold text-zinc-800 dark:text-zinc-900 mb-1 tabular-nums">{counts.students}K+</div>
-              <div className="text-xs text-zinc-600 dark:text-zinc-600 font-bold uppercase tracking-wider">{t.stats.students}</div>
-            </div>
-            <div className="p-5 rounded-2xl bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 shadow-sm">
-              <div className="text-4xl font-extrabold text-zinc-800 dark:text-zinc-900 mb-1 tabular-nums">{counts.uptime}%</div>
-              <div className="text-xs text-zinc-600 dark:text-zinc-600 font-bold uppercase tracking-wider">{t.stats.uptime}</div>
-            </div>
-            <div className="p-5 rounded-2xl bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 shadow-sm">
-              <div className="text-4xl font-extrabold text-zinc-800 dark:text-zinc-900 mb-1 tabular-nums">{counts.rating} ★</div>
-              <div className="text-xs text-zinc-600 dark:text-zinc-600 font-bold uppercase tracking-wider">{t.stats.rating}</div>
-            </div>
+        {activeStepTab === "student" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            {studentFlowItems.map((item, idx) => (
+              <article
+                key={idx}
+                onPointerMove={(e) => handleTiltMove(e, 3)}
+                onPointerLeave={handleTiltLeave}
+                className="p-8 rounded-xl border border-[#dfe7eb] bg-[#f8fafb] hover:bg-white hover:border-[#9bcfbe] hover:shadow-lg transition-all"
+              >
+                <div className="w-12 h-12 rounded-xl bg-[#eaf6f2] text-[#087f77] flex items-center justify-center mb-5">
+                  <item.icon size={24} />
+                </div>
+                <h3 className="text-lg font-bold text-[#102e43] mb-2">{item.title}</h3>
+                <p className="text-sm text-[#667987] leading-relaxed">{item.desc}</p>
+              </article>
+            ))}
           </div>
+        )}
+
+        {/* Read Detailed User Guide Dialog Button */}
+        <div className="text-center mt-6">
+          <Button
+            onClick={() => {
+              setActiveDialog({
+                title: "School Setup & Onboarding Guide",
+                content: steps.map((s, i) => `<h3>${s.number} — ${s.title}</h3><p>${s.desc}</p>`).join(""),
+                isHtml: true
+              });
+            }}
+            className="bg-[#102e43] hover:bg-[#1b425a] text-white font-bold rounded-lg px-8 h-12 shadow-sm transition-transform hover:-translate-y-0.5 cursor-pointer"
+          >
+            Read Detailed User Guide
+          </Button>
         </div>
       </section>
 
-      {/* ── Public Notice Board Section ── */}
-      {publicNotices.length > 0 && (
-        <section id="notices" className="py-24 bg-white dark:bg-white border-b border-zinc-200 dark:border-zinc-200">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-12">
-              <span className="text-xs font-bold text-zinc-800 dark:text-zinc-900 uppercase tracking-widest mb-3 block">School Announcements</span>
-              <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-zinc-900 mb-4">Latest Circulars & Notices</h2>
-              <p className="text-lg text-zinc-600 dark:text-zinc-600 max-w-2xl mx-auto">
-                Stay updated with the latest news, events, and important announcements from the school administration.
+      {/* ── PORTALS SECTION (#portals) ── */}
+      <section id="portals" className="bg-[#0c2436] text-white py-20 sm:py-28">
+        <div className="max-w-[1240px] mx-auto px-6 sm:px-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center mb-14">
+            <div>
+              <span className="text-xs font-extrabold tracking-widest text-[#64e2bc] uppercase block mb-3">
+                DEDICATED PORTALS
+              </span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
+                One System,<br />
+                <span className="text-[#64e2bc]">Five Portals.</span>
+              </h2>
+              <p className="text-base text-[#a4bac7] mt-5 max-w-md leading-relaxed">
+                Every role gets their own tailored dashboard — no clutter, just the right tools.
               </p>
             </div>
 
-            {/* Filters & Search */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-10">
-            <div className="flex items-center bg-zinc-100 dark:bg-zinc-50 rounded-lg p-1 w-full md:w-auto overflow-x-auto no-scrollbar">
-              {['All', 'Students', 'Parents', 'Teachers', 'Staff'].map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setSelectedNoticeTab(tab)}
-                  className={`px-5 py-2 text-sm font-bold rounded-md whitespace-nowrap transition-all ${selectedNoticeTab === tab ? 'bg-white dark:bg-zinc-800 text-zinc-800 shadow-sm' : 'text-zinc-600 dark:text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-950'}`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-            <div className="relative w-full md:w-72">
-              <input
-                type="text"
-                placeholder="Search notices..."
-                value={noticeSearch}
-                onChange={(e) => setNoticeSearch(e.target.value)}
-                className="w-full bg-zinc-50 dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 text-zinc-900 dark:text-zinc-900 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 transition-all"
+            {/* 3D Artwork Illustration */}
+            <div
+              onPointerMove={(e) => handleTiltMove(e, 8)}
+              onPointerLeave={handleTiltLeave}
+              className="max-w-[460px] w-full lg:justify-self-end overflow-hidden rounded-2xl transition-transform duration-400"
+            >
+              <img
+                src="/education-3d.webp"
+                alt="3D illustration of graduation cap, open book, and educational modules"
+                className="w-full h-[250px] sm:h-[300px] object-cover rounded-2xl animate-art-float"
               />
-              <Search className="absolute left-3.5 top-3 h-4 w-4 text-zinc-400" />
             </div>
           </div>
 
-          {/* Notices Grid */}
-          {filteredPublicNotices.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPublicNotices.map((notice) => {
-                const dateParts = formatNoticeDate(notice.noticeDate || notice.date);
-                return (
-                  <div key={notice._id} onClick={() => setSelectedPublicNotice(notice)} className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl p-6 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group flex flex-col h-full relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-zinc-600/10 to-transparent rounded-bl-full -z-0"></div>
-                    <div className="flex items-start gap-4 mb-4 relative z-10">
-                      {/* Date Badge */}
-                      <div className="bg-zinc-100 dark:bg-zinc-100 border border-zinc-200 dark:border-zinc-200 rounded-xl p-2 text-center min-w-[60px] shrink-0">
-                        <div className="text-xl font-black text-zinc-800 dark:text-zinc-900 leading-none">{dateParts.day}</div>
-                        <div className="text-[10px] font-bold text-zinc-800 dark:text-zinc-900 uppercase mt-1 tracking-wider">{dateParts.month}</div>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-600">
-                            {notice.noticeTo || notice.audience || 'All'}
-                          </span>
-                        </div>
-                        <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-900 line-clamp-2 leading-snug group-hover:text-zinc-800 transition-colors">
-                          {notice.title}
-                        </h3>
-                      </div>
-                    </div>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-600 line-clamp-3 mb-5 flex-1 relative z-10">
-                      {notice.description}
-                    </p>
-                    <div className="pt-4 border-t border-zinc-100 dark:border-zinc-200 flex items-center justify-between mt-auto relative z-10">
-                      <div className="flex items-center gap-1.5 text-xs text-zinc-500">
-                        <span className="font-semibold text-zinc-700 dark:text-zinc-700">By:</span> {notice.createdBy || 'Admin'}
-                      </div>
-                      <span className="text-xs font-bold text-zinc-800 dark:text-zinc-900 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                        Read <ArrowRight size={12} />
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-20 bg-zinc-50 dark:bg-zinc-50/50 rounded-3xl border border-dashed border-zinc-200 dark:border-zinc-200">
-              <div className="w-16 h-16 bg-white dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
-                <Bell size={24} className="text-zinc-400" />
-              </div>
-              <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-900 mb-2">No Notices Found</h3>
-              <p className="text-zinc-500 dark:text-zinc-600 text-sm">There are no active circulars or announcements matching your criteria right now.</p>
-            </div>
-          )}
+          {/* 4 Portal Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {portals.map((p, idx) => (
+              <article
+                key={idx}
+                onPointerMove={(e) => handleTiltMove(e, 5)}
+                onPointerLeave={handleTiltLeave}
+                className="p-7 rounded-xl border-t border-[#3f5766] bg-white/[0.03] hover:bg-[#174051] hover:border-[#65dcbc] hover:-translate-y-2 transition-all duration-300 group"
+              >
+                <span className="text-xs font-bold text-[#6f8b9c] block mb-4">{p.num}</span>
+                <div className="w-12 h-12 rounded-xl bg-[#153c4c] border border-[#3a5b69] text-[#64e2bc] flex items-center justify-center mb-6 group-hover:-translate-y-1 group-hover:-rotate-6 transition-transform">
+                  <p.icon size={24} />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-2.5">{p.title}</h3>
+                <p className="text-xs sm:text-sm text-[#a4bac7] leading-relaxed">{p.desc}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
-      )}
 
-      {/* ── How To Use / Step-by-Step Guide Section ── */}
-      <section id="how-it-works" className="py-24 bg-white dark:bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-14">
-            <span className="text-xs font-bold text-zinc-800 dark:text-zinc-900 uppercase tracking-widest mb-3 block">Step-by-Step System Guide</span>
-            <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-zinc-900 mb-4">How To Use Stoofi ERP</h2>
-            <p className="text-lg text-zinc-600 dark:text-zinc-600 max-w-2xl mx-auto">
-              Follow these simple, streamlined workflows designed for every user role in your institution.
-            </p>
-
-            {/* Role Switcher Tabs */}
-            <div className="flex flex-wrap justify-center gap-3 mt-8">
-              {[
-                { id: "admin", label: "Super Admin Flow", icon: ShieldCheck, badge: "Setup" },
-                { id: "teacher", label: "Teacher Flow", icon: Monitor, badge: "Academic" },
-                { id: "student", label: "Student & Parent Flow", icon: GraduationCap, badge: "Portal" },
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveStepTab(tab.id)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all ${
-                    activeStepTab === tab.id
-                      ? "bg-zinc-800 text-white shadow-md shadow-zinc-800/20"
-                      : "bg-zinc-100 dark:bg-zinc-50 text-zinc-700 dark:text-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-100"
-                  }`}
-                >
-                  <tab.icon size={16} />
-                  <span>{tab.label}</span>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold uppercase ${activeStepTab === tab.id ? "bg-white/20 text-white" : "bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-600"}`}>
-                    {tab.badge}
-                  </span>
-                </button>
-              ))}
-            </div>
+      {/* ── POWERFUL FEATURES SECTION (#features) ── */}
+      <section id="features" className="py-20 sm:py-28 max-w-[1240px] mx-auto px-6 sm:px-10">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-14">
+          <div>
+            <span className="text-xs font-extrabold tracking-widest text-[#087f77] uppercase block mb-3">
+              EVERYTHING YOU NEED
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#102e43] tracking-tight">
+              Powerful Features<span className="text-[#087f77]">.</span>
+            </h2>
           </div>
+          <p className="text-sm sm:text-base text-[#667987] max-w-sm">
+            Built for modern schools with all the tools needed to run efficiently.
+          </p>
+        </div>
 
-          {/* Active Workflow Sub-heading */}
-          <div className="mb-6 flex items-center justify-between">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((f, idx) => (
+            <article
+              key={idx}
+              onPointerMove={(e) => handleTiltMove(e, 3)}
+              onPointerLeave={handleTiltLeave}
+              className="p-7 rounded-xl border border-[#dfe7eb] bg-white hover:border-[#8ac7b7] hover:shadow-[0_15px_30px_rgba(16,46,67,0.06)] hover:-translate-y-1 transition-all flex flex-col justify-between group"
+            >
+              <div>
+                <div className="w-12 h-12 rounded-lg bg-[#eaf6f2] text-[#087f77] flex items-center justify-center mb-6 group-hover:rotate-6 group-hover:scale-105 group-hover:bg-[#d5f1e5] transition-all">
+                  <f.icon size={22} />
+                </div>
+                <h3 className="text-lg font-bold text-[#102e43] leading-snug mb-2">{f.title}</h3>
+                <p className="text-xs sm:text-sm text-[#667987] leading-relaxed mb-6">{f.desc}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setActiveDialog({
+                    title: f.title,
+                    content: `<p class="mb-4">${f.desc}</p><p class="mb-4 text-xs text-[#667987]">${f.guideText}</p><a class="inline-block bg-[#102e43] text-white font-bold px-6 py-2.5 rounded-lg text-sm" href="mailto:support@stoofi.com?subject=${encodeURIComponent(f.title + " — Detailed Guide")}">Request Complete Guide</a>`,
+                    isHtml: true
+                  });
+                }}
+                className="pt-4 border-t border-[#e8edef] text-left text-xs font-bold text-[#087f77] hover:underline flex items-center justify-between cursor-pointer"
+              >
+                <span>Read Full Guide</span>
+                <ArrowRight size={14} />
+              </button>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* ── TESTIMONIALS SECTION ── */}
+      <section className="bg-[#f2f7f6] py-20 sm:py-28">
+        <div className="max-w-[1240px] mx-auto px-6 sm:px-10">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-14">
             <div>
-              <span className="text-xs font-bold text-zinc-800 dark:text-zinc-900 uppercase tracking-wider">
-                {(howToUseSteps.find(s => s.role === activeStepTab) || howToUseSteps[0]).badge}
+              <span className="text-xs font-extrabold tracking-widest text-[#087f77] uppercase block mb-3">
+                TESTIMONIALS
               </span>
-              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-900">
-                {(howToUseSteps.find(s => s.role === activeStepTab) || howToUseSteps[0]).roleTitle}
-              </h3>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#102e43] tracking-tight">
+                Loved By Schools<span className="text-[#087f77]">.</span>
+              </h2>
             </div>
-            <span className="text-xs font-semibold text-zinc-500 hidden sm:block">4 Simple Consecutive Steps</span>
+            <p className="text-sm sm:text-base text-[#667987]">What educators are saying about Stoofi PRO.</p>
           </div>
 
-          {/* Workflow Steps Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {(howToUseSteps.find(s => s.role === activeStepTab) || howToUseSteps[0]).steps.map((step, idx) => (
-              <div
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonials.map((t, idx) => (
+              <figure
                 key={idx}
-                className="relative p-7 rounded-2xl bg-zinc-50 dark:bg-zinc-50/60 border border-zinc-200 dark:border-zinc-200 hover:border-zinc-600/50 hover:shadow-lg transition-all flex flex-col justify-between group"
+                className="p-8 rounded-xl bg-white border border-[#e1eae7] flex flex-col justify-between hover:-translate-y-1.5 hover:shadow-[0_15px_40px_rgba(21,60,48,0.06)] transition-all"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-6">
-                    <span className="text-3xl font-black text-zinc-800/40 dark:text-zinc-900 group-hover:text-zinc-800 transition-colors">
-                      {step.number}
-                    </span>
-                    <div className="w-12 h-12 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-200 flex items-center justify-center text-zinc-800 dark:text-zinc-900 shadow-sm">
-                      <step.icon size={22} />
-                    </div>
+                  <div className="text-amber-500 text-base tracking-widest mb-6">★★★★★</div>
+                  <blockquote className="text-sm sm:text-base text-[#375260] leading-relaxed mb-8 italic">
+                    &ldquo;{t.text}&rdquo;
+                  </blockquote>
+                </div>
+                <figcaption className="flex items-center gap-3 pt-4 border-t border-[#f2f7f6]">
+                  <span className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${t.avatarClass}`}>
+                    {t.initials}
+                  </span>
+                  <div>
+                    <strong className="text-xs sm:text-sm font-bold text-[#102e43] block leading-tight">{t.name}</strong>
+                    <small className="text-[11px] text-[#80939d] block mt-0.5">{t.role}</small>
                   </div>
-                  <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-900 mb-2">{step.title}</h3>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-600 leading-relaxed">{step.desc}</p>
-                </div>
-                <div className="mt-6 pt-4 border-t border-zinc-200/60 dark:border-zinc-200/60 flex items-center text-xs font-bold text-zinc-800 dark:text-zinc-900">
-                  <span>Step {idx + 1} of 4</span>
-                  <ArrowRight size={14} className="ml-auto" />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Button linking to Detailed Guide Page */}
-          <div className="mt-12 text-center">
-            <Link href="/guide">
-              <Button className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 hover:text-white font-bold rounded-full px-8 h-12 shadow-lg transition-colors">
-                Read Detailed User Guide <ArrowRight size={18} className="ml-2" />
-              </Button>
-            </Link>
-          </div>
-
-          {/* FAQ Accordion Section */}
-          <div className="mt-20 pt-16 border-t border-zinc-200 dark:border-zinc-200">
-            <div className="text-center mb-10">
-              <span className="text-xs font-bold text-zinc-800 dark:text-zinc-900 uppercase tracking-widest block mb-2">Common Questions</span>
-              <h3 className="text-3xl font-bold text-zinc-900 dark:text-zinc-900">Frequently Asked Questions</h3>
-            </div>
-            <div className="max-w-3xl mx-auto space-y-4">
-              {faqs.map((faq, i) => (
-                <div
-                  key={i}
-                  className="rounded-2xl border border-zinc-200 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-50/50 overflow-hidden transition-colors"
-                >
-                  <button
-                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    className="w-full p-5 text-left font-bold text-zinc-900 dark:text-zinc-900 flex items-center justify-between gap-4 focus:outline-none"
-                  >
-                    <span>{faq.q}</span>
-                    <span className={`text-zinc-800 dark:text-zinc-900 text-lg font-black shrink-0 transition-transform duration-300 ${openFaq === i ? 'rotate-45' : ''}`}>
-                      +
-                    </span>
-                  </button>
-                  <div 
-                    className={`transition-all duration-300 ease-in-out ${openFaq === i ? 'max-h-96 opacity-100 mb-5' : 'max-h-0 opacity-0 mb-0'}`}
-                  >
-                    <div className="px-5 text-sm text-zinc-600 dark:text-zinc-600 leading-relaxed border-t border-zinc-200/60 dark:border-zinc-200/60 pt-4">
-                      {faq.a}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="about" className="py-24 bg-zinc-50 dark:bg-white border-t border-zinc-200 dark:border-zinc-200">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <span className="text-xs font-bold text-zinc-800 dark:text-zinc-900 uppercase tracking-widest mb-3 block">Dedicated Portals</span>
-            <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-zinc-900 mb-4">One System, Five Portals</h2>
-            <p className="text-lg text-zinc-600 dark:text-zinc-600 max-w-2xl mx-auto">Every role gets their own tailored dashboard — no clutter, just the right tools.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {portals.map((p, i) => (
-              <div key={i} className={`p-8 rounded-2xl ${p.bg} hover:-translate-y-2 transition-all duration-300 group`}>
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 bg-white dark:bg-zinc-50 shadow-sm group-hover:scale-110 transition-transform">
-                  <p.icon size={26} className={p.color} />
-                </div>
-                <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-900 mb-3">{p.title} Portal</h3>
-                <p className="text-zinc-600 dark:text-zinc-600 text-sm leading-relaxed">{p.desc}</p>
-              </div>
+                </figcaption>
+              </figure>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="features" className="py-24 bg-white dark:bg-white border-t border-zinc-200 dark:border-zinc-200">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <span className="text-xs font-bold text-zinc-800 dark:text-zinc-900 uppercase tracking-widest mb-3 block">Everything You Need</span>
-            <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-zinc-900 mb-4">Powerful Features</h2>
-            <p className="text-lg text-zinc-600 dark:text-zinc-600 max-w-2xl mx-auto">Built for modern schools with all the tools needed to run efficiently.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((f, i) => (
-              <Link key={i} href={`/guide/${f.slug}`} className="block">
-                <div className="p-7 bg-zinc-50 dark:bg-zinc-50 rounded-2xl border border-zinc-200 dark:border-zinc-200 hover:border-zinc-600/50 hover:shadow-lg transition-all group cursor-pointer h-full flex flex-col">
-                  <div className="w-12 h-12 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-200 flex items-center justify-center mb-5">
-                    <f.icon size={22} className="text-zinc-800 dark:text-zinc-900" />
-                  </div>
-                  <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-900 mb-2">{f.title}</h3>
-                  <p className="text-zinc-600 dark:text-zinc-600 text-sm leading-relaxed flex-1">{f.desc}</p>
-                  <div className="mt-5 pt-4 border-t border-zinc-200 dark:border-zinc-200 flex items-center text-xs font-bold text-zinc-800 dark:text-zinc-900 group-hover:gap-2 transition-all">
-                    <span>Read Full Guide</span>
-                    <ArrowRight size={13} className="ml-auto group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+      {/* ── PRICING SECTION (#pricing) ── */}
+      <section id="pricing" className="py-20 sm:py-28 max-w-[1100px] mx-auto px-6 sm:px-10">
+        <div className="text-center max-w-xl mx-auto mb-14">
+          <span className="text-xs font-extrabold tracking-widest text-[#087f77] uppercase block mb-3">
+            PRICING PLANS
+          </span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#102e43] tracking-tight">
+            Simple, Transparent Pricing<span className="text-[#087f77]">.</span>
+          </h2>
+          <p className="text-sm sm:text-base text-[#667987] mt-4">
+            Start free for 1 month. No credit card required. Cancel anytime.
+          </p>
         </div>
-      </section>
 
-      <section className="py-24 bg-zinc-50 dark:bg-white border-t border-zinc-200 dark:border-zinc-200">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <span className="text-xs font-bold text-zinc-800 dark:text-zinc-900 uppercase tracking-widest mb-3 block">Testimonials</span>
-            <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-zinc-900 mb-4">Loved By Schools</h2>
-            <p className="text-lg text-zinc-600 dark:text-zinc-600">What educators are saying about Stoofi PRO.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((t, i) => (
-              <div key={i} className="p-8 bg-white dark:bg-zinc-50 rounded-2xl border border-zinc-200 dark:border-zinc-200">
-                <div className="flex gap-1 mb-5">{Array.from({length: t.stars}).map((_, j) => <Star key={j} size={16} className="fill-amber-400 text-amber-400" />)}</div>
-                <p className="text-zinc-700 dark:text-zinc-700 text-sm leading-relaxed mb-6 italic">&quot;{t.text}&quot;</p>
-                <div>
-                  <p className="font-bold text-zinc-900 dark:text-zinc-900 text-sm">{t.name}</p>
-                  <p className="text-xs text-zinc-500 mt-0.5">{t.role}</p>
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch pt-4">
+          {/* Basic Plan */}
+          <article className="p-8 rounded-2xl border border-[#dfe7eb] bg-white flex flex-col justify-between hover:-translate-y-2 hover:shadow-xl transition-all">
+            <div>
+              <h3 className="text-xl font-bold text-[#102e43] mb-1">Basic</h3>
+              <p className="text-xs text-[#667987] mb-6">For small primary schools.</p>
+              <div className="text-4xl sm:text-5xl font-extrabold text-[#102e43] tracking-tight mb-6">
+                $29<span className="text-xs sm:text-sm font-normal text-[#7e929e] ml-1">/mo</span>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="pricing" className="py-24 bg-white dark:bg-white border-t border-zinc-200 dark:border-zinc-200">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <span className="text-xs font-bold text-zinc-800 dark:text-zinc-900 uppercase tracking-widest mb-3 block">Pricing Plans</span>
-            <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-zinc-900 mb-4">Simple, Transparent Pricing</h2>
-            <p className="text-lg text-zinc-600 dark:text-zinc-600">Start free for 1 month. No credit card required. Cancel anytime.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-            <div className="p-8 rounded-3xl bg-zinc-50 dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200">
-              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-900 mb-1">Basic</h3>
-              <p className="text-sm text-zinc-500 mb-6">For small primary schools.</p>
-              <div className="mb-6"><span className="text-5xl font-black text-zinc-900 dark:text-zinc-900">$29</span><span className="text-zinc-500">/mo</span></div>
-              <ul className="space-y-4 mb-8">{["Up to 500 Students","Basic Attendance","Fee Management","Admin & Teacher Portals","Email Support"].map((f,i) => <li key={i} className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-700"><CheckCircle2 size={18} className="text-zinc-600 shrink-0" />{f}</li>)}</ul>
-              <Link href="/login"><Button variant="outline" className="w-full rounded-xl h-12 font-bold border-zinc-200 dark:border-zinc-200 text-zinc-700 dark:text-zinc-700">Start Free Trial</Button></Link>
-            </div>
-            <div className="p-8 rounded-3xl bg-white dark:bg-zinc-50 border-2 border-zinc-600 shadow-xl relative md:-translate-y-4">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <span className="bg-zinc-800 text-white text-[11px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-sm">Most Popular</span>
-              </div>
-              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-900 mb-1">Professional</h3>
-              <p className="text-sm text-zinc-500 dark:text-zinc-600 mb-6">For growing high schools.</p>
-              <div className="mb-6"><span className="text-5xl font-black text-zinc-900 dark:text-zinc-900">$79</span><span className="text-zinc-500">/mo</span></div>
-              <ul className="space-y-4 mb-8">
-                {["Up to 2000 Students", "All 5 Portals Included", "Advanced Payroll & HR", "LMS & Online Exams", "SMS Notifications", "Priority Support"].map((f, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-700">
-                    <CheckCircle2 size={18} className="text-zinc-600 shrink-0" />{f}
+              <ul className="space-y-3.5 mb-8 text-xs sm:text-sm text-[#617886]">
+                {["Up to 500 Students", "Basic Attendance", "Fee Management", "Admin & Teacher Portals", "Email Support"].map((item, i) => (
+                  <li key={i} className="flex items-center gap-2.5">
+                    <span className="text-[#087f77] font-bold">✓</span>
+                    <span>{item}</span>
                   </li>
                 ))}
               </ul>
-              <Link href="/login"><Button className="w-full rounded-xl h-12 bg-zinc-800 hover:bg-zinc-800 text-white font-black shadow-md">Start 1 Month Free</Button></Link>
             </div>
-            <div className="p-8 rounded-3xl bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200">
-              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-900 mb-1">Enterprise</h3>
-              <p className="text-sm text-zinc-500 mb-6">For large school networks.</p>
-              <div className="mb-6"><span className="text-5xl font-black text-zinc-900 dark:text-zinc-900">$199</span><span className="text-zinc-500">/mo</span></div>
-              <ul className="space-y-4 mb-8">{["Unlimited Students","Multi-Branch Support","Custom Domain","White-label Mobile App","Dedicated Account Manager"].map((f,i) => <li key={i} className="flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-700"><CheckCircle2 size={18} className="text-zinc-600 shrink-0" />{f}</li>)}</ul>
-              <Link href="/login"><Button variant="outline" className="w-full rounded-xl h-12 font-bold border-zinc-200 dark:border-zinc-200 text-zinc-700 dark:text-zinc-700">Contact Sales</Button></Link>
+            <a
+              href="mailto:support@stoofi.com?subject=Stoofi%20Basic%20-%20Free%20Trial"
+              className="w-full text-center py-3 rounded-lg border border-[#c9d6dc] text-[#102e43] font-bold text-xs sm:text-sm hover:bg-[#f3f7f8] transition-colors"
+            >
+              Start Free Trial
+            </a>
+          </article>
+
+          {/* Professional Plan (Featured) */}
+          <article className="p-8 rounded-2xl bg-[#0c2436] text-white border-2 border-[#0c2436] shadow-[0_20px_50px_rgba(12,36,54,0.25)] flex flex-col justify-between relative md:-translate-y-3 hover:-translate-y-4 transition-all">
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#64e2bc] text-[#104439] text-[10px] font-extrabold uppercase tracking-widest px-4 py-1 rounded-full shadow-sm">
+              MOST POPULAR
             </div>
+            <div>
+              <h3 className="text-xl font-bold text-white mb-1">Professional</h3>
+              <p className="text-xs text-[#b3c8d2] mb-6">For growing high schools.</p>
+              <div className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight mb-6">
+                $79<span className="text-xs sm:text-sm font-normal text-[#b3c8d2] ml-1">/mo</span>
+              </div>
+              <ul className="space-y-3.5 mb-8 text-xs sm:text-sm text-[#b3c8d2]">
+                {[
+                  "Up to 2000 Students",
+                  "All 5 Portals Included",
+                  "Advanced Payroll & HR",
+                  "LMS & Online Exams",
+                  "SMS Notifications",
+                  "Priority Support"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-2.5">
+                    <span className="text-[#64e2bc] font-bold">✓</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <a
+              href="mailto:support@stoofi.com?subject=Stoofi%20Professional%20-%201%20Month%20Free%20Trial"
+              className="w-full text-center py-3.5 rounded-lg bg-[#64e2bc] text-[#0c322f] font-bold text-xs sm:text-sm hover:bg-[#85edce] shadow-md transition-all"
+            >
+              Start 1 Month Free
+            </a>
+          </article>
+
+          {/* Enterprise Plan */}
+          <article className="p-8 rounded-2xl border border-[#dfe7eb] bg-white flex flex-col justify-between hover:-translate-y-2 hover:shadow-xl transition-all">
+            <div>
+              <h3 className="text-xl font-bold text-[#102e43] mb-1">Enterprise</h3>
+              <p className="text-xs text-[#667987] mb-6">For large school networks.</p>
+              <div className="text-4xl sm:text-5xl font-extrabold text-[#102e43] tracking-tight mb-6">
+                $199<span className="text-xs sm:text-sm font-normal text-[#7e929e] ml-1">/mo</span>
+              </div>
+              <ul className="space-y-3.5 mb-8 text-xs sm:text-sm text-[#617886]">
+                {[
+                  "Unlimited Students",
+                  "Multi-Branch Support",
+                  "Custom Domain",
+                  "White-label Mobile App",
+                  "Dedicated Account Manager"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-2.5">
+                    <span className="text-[#087f77] font-bold">✓</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <a
+              href="mailto:support@stoofi.com?subject=Stoofi%20Enterprise%20-%20Sales%20Enquiry"
+              className="w-full text-center py-3 rounded-lg border border-[#c9d6dc] text-[#102e43] font-bold text-xs sm:text-sm hover:bg-[#f3f7f8] transition-colors"
+            >
+              Contact Sales
+            </a>
+          </article>
+        </div>
+      </section>
+
+      {/* ── FAQ SECTION ── */}
+      <section className="bg-[#f6f8fa] border-y border-[#dfe7eb] py-20 sm:py-28">
+        <div className="max-w-[1240px] mx-auto px-6 sm:px-10 grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-16">
+          <div>
+            <span className="text-xs font-extrabold tracking-widest text-[#087f77] uppercase block mb-3">
+              COMMON QUESTIONS
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#102e43] tracking-tight leading-tight">
+              Frequently<br />Asked Questions<span className="text-[#087f77]">.</span>
+            </h2>
+          </div>
+
+          <div className="lg:col-span-2 space-y-4">
+            {faqs.map((faq, i) => (
+              <div
+                key={i}
+                className="border-b border-[#d8e3e9] pb-4 transition-colors"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full py-3 text-left font-bold text-[#102e43] text-sm sm:text-base flex items-center justify-between gap-4 cursor-pointer"
+                >
+                  <span>{faq.q}</span>
+                  <span className={`text-[#087f77] text-xl font-normal shrink-0 transition-transform duration-300 ${openFaq === i ? "rotate-45" : ""}`}>
+                    +
+                  </span>
+                </button>
+                {openFaq === i && (
+                  <div className="text-xs sm:text-sm text-[#667987] leading-relaxed pt-2 pr-6 animate-in fade-in duration-200">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── Clean Dark / Neutral CTA Section (No Solid Green Banner) ── */}
-      <section className="py-24 bg-zinc-50 dark:bg-white border-y border-zinc-200 dark:border-zinc-200">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <Zap size={48} className="text-zinc-800 dark:text-zinc-900 mx-auto mb-6" />
-          <h2 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-zinc-900 mb-5">Ready to Digitize Your School?</h2>
-          <p className="text-lg text-zinc-600 dark:text-zinc-600 mb-10 max-w-xl mx-auto">Join 500+ schools already running on Stoofi PRO. Get started with a full 1-month free trial — no credit card needed.</p>
+      {/* ── CTA BANNER ── */}
+      <section className="py-16 sm:py-20 max-w-[1240px] mx-auto px-6 sm:px-10">
+        <div className="bg-[#0c2436] text-white rounded-2xl p-8 sm:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 shadow-2xl">
+          <div>
+            <span className="text-xs font-extrabold tracking-widest text-[#64e2bc] uppercase block mb-2">
+              GET STARTED
+            </span>
+            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-snug">
+              Ready to Digitize<br />Your School?
+            </h2>
+            <p className="text-sm sm:text-base text-[#aec5d0] mt-3 max-w-lg leading-relaxed">
+              Join 500+ schools already running on Stoofi PRO. Get started with a full 1-month free trial — no credit card needed.
+            </p>
+          </div>
           {isUserAvailable && activeUser ? (
-            <Link href={getDashboardUrl(activeUser)}>
-              <Button className="h-14 px-12 text-lg bg-zinc-900 hover:bg-zinc-800 text-white rounded-full font-black shadow-lg shadow-zinc-800/20 hover:-translate-y-0.5 transition-all flex items-center gap-2 mx-auto">
-                <LayoutDashboard size={20} />
+            <Link href={getDashboardUrl(activeUser)} className="shrink-0">
+              <Button className="bg-[#64e2bc] hover:bg-[#85edce] text-[#0c322f] font-bold text-sm sm:text-base px-8 h-13 rounded-lg shadow-lg hover:-translate-y-0.5 transition-all border-0">
                 Go to Dashboard
               </Button>
             </Link>
           ) : (
-            <Link href="/register">
-              <Button className="h-14 px-12 text-lg bg-zinc-900 hover:bg-zinc-800 text-white rounded-full font-black shadow-lg shadow-zinc-800/20 hover:-translate-y-0.5 transition-all">
+            <Link href="#pricing" className="shrink-0">
+              <Button className="bg-[#64e2bc] hover:bg-[#85edce] text-[#0c322f] font-bold text-sm sm:text-base px-8 h-13 rounded-lg shadow-lg hover:-translate-y-0.5 transition-all border-0">
                 Get Started Free Today
               </Button>
             </Link>
@@ -960,155 +1227,162 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="contact" className="py-24 bg-white dark:bg-white">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <span className="text-xs font-bold text-zinc-800 dark:text-zinc-900 uppercase tracking-widest mb-3 block">Contact Us</span>
-            <h2 className="text-4xl font-extrabold text-zinc-900 dark:text-zinc-900 mb-4">Get In Touch</h2>
-            <p className="text-zinc-600 dark:text-zinc-600">Have questions? Our team is here to help you get started.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { icon: Phone, title: "Call Us", info: "+92 300 1234567", sub: "Mon-Fri, 9am-6pm" },
-              { icon: Mail, title: "Email Us", info: "support@stoofi.com", sub: "We reply within 24 hours" },
-              { icon: MapPin, title: "Visit Us", info: "Lahore, Pakistan", sub: "Head Office" },
-            ].map((c, i) => (
-              <div key={i} className="text-center p-8 bg-zinc-50 dark:bg-zinc-50 rounded-2xl border border-zinc-200 dark:border-zinc-200">
-                <div className="w-14 h-14 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-5">
-                  <c.icon size={24} className="text-zinc-800 dark:text-zinc-900" />
-                </div>
-                <h3 className="font-bold text-zinc-900 dark:text-zinc-900 mb-1">{c.title}</h3>
-                <p className="text-zinc-800 dark:text-zinc-900 font-semibold text-sm mb-1">{c.info}</p>
-                <p className="text-xs text-zinc-500">{c.sub}</p>
-              </div>
-            ))}
+      {/* ── CONTACT US SECTION (#contact) ── */}
+      <section id="contact" className="py-16 sm:py-20 max-w-[1240px] mx-auto px-6 sm:px-10">
+        <div className="text-center max-w-md mx-auto mb-14">
+          <span className="text-xs font-extrabold tracking-widest text-[#087f77] uppercase block mb-3">
+            CONTACT US
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#102e43] tracking-tight">
+            Get In Touch<span className="text-[#087f77]">.</span>
+          </h2>
+          <p className="text-sm text-[#667987] mt-3">
+            Have questions? Our team is here to help you get started.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <a
+            href="tel:+923001234567"
+            className="p-6 rounded-xl border-t border-[#dfe7eb] flex items-start gap-4 hover:bg-[#f8fafb] transition-colors group"
+          >
+            <div className="w-11 h-11 rounded-lg bg-[#eaf6f2] text-[#087f77] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <Phone size={20} />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-[#667987] uppercase tracking-wider mb-1">Call Us</h3>
+              <strong className="text-sm font-bold text-[#102e43] group-hover:text-[#087f77] transition-colors block">
+                +92 300 1234567
+              </strong>
+              <p className="text-xs text-[#80939d] mt-1">Mon-Fri, 9am-6pm</p>
+            </div>
+          </a>
+
+          <a
+            href="mailto:support@stoofi.com"
+            className="p-6 rounded-xl border-t border-[#dfe7eb] flex items-start gap-4 hover:bg-[#f8fafb] transition-colors group"
+          >
+            <div className="w-11 h-11 rounded-lg bg-[#eaf6f2] text-[#087f77] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <Mail size={20} />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-[#667987] uppercase tracking-wider mb-1">Email Us</h3>
+              <strong className="text-sm font-bold text-[#102e43] group-hover:text-[#087f77] transition-colors block">
+                support@stoofi.com
+              </strong>
+              <p className="text-xs text-[#80939d] mt-1">We reply within 24 hours</p>
+            </div>
+          </a>
+
+          <div className="p-6 rounded-xl border-t border-[#dfe7eb] flex items-start gap-4">
+            <div className="w-11 h-11 rounded-lg bg-[#eaf6f2] text-[#087f77] flex items-center justify-center shrink-0">
+              <MapPin size={20} />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-[#667987] uppercase tracking-wider mb-1">Visit Us</h3>
+              <strong className="text-sm font-bold text-[#102e43] block">Lahore, Pakistan</strong>
+              <p className="text-xs text-[#80939d] mt-1">Head Office</p>
+            </div>
           </div>
         </div>
       </section>
 
-      <footer className="border-t border-zinc-200 dark:border-zinc-200 py-16 bg-zinc-50 dark:bg-white">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <Link href="/" className="inline-block mb-6">
-            <img loading="lazy" src="/logo.png" alt="Stoofi ERP" className="h-10 sm:h-12 w-auto object-contain mx-auto" />
+      {/* ── FOOTER ── */}
+      <footer className="border-t border-[#dfe7eb] bg-[#f8fafb] py-10">
+        <div className="max-w-[1240px] mx-auto px-6 sm:px-10 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+          <Link href="#home" className="shrink-0" aria-label="Stoofi ERP home">
+            <img
+              src="/logo.png"
+              alt="Stoofi ERP"
+              className="h-10 w-auto object-contain mx-auto md:mx-0"
+            />
           </Link>
-          <p className="text-base text-zinc-600 dark:text-zinc-600 font-medium mb-3">The ultimate school management ERP solution for modern educational institutes.</p>
-          <p className="text-sm text-zinc-500 dark:text-zinc-9000">&copy; {new Date().getFullYear()} Stoofi PRO. All rights reserved.</p>
+          <p className="text-xs sm:text-sm text-[#667987] max-w-sm">
+            The ultimate school management ERP solution for modern educational institutes.
+          </p>
+          <small className="text-xs text-[#83949e]">
+            &copy; {new Date().getFullYear()} Stoofi PRO. All rights reserved.
+          </small>
         </div>
       </footer>
 
-      {/* Notice Details Modal */}
-      {selectedPublicNotice && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedPublicNotice(null)}></div>
-          <div className="bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 rounded-3xl w-full max-w-2xl shadow-2xl relative z-10 overflow-hidden animate-in fade-in zoom-in duration-300">
-            {/* Header pattern */}
-            <div className="h-24 bg-gradient-to-r from-zinc-800 to-zinc-500 relative">
-              <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-              <button onClick={() => setSelectedPublicNotice(null)} className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-black/20 text-white hover:bg-black/40 transition-colors">
-                <X size={18} />
-              </button>
-            </div>
-            
-            <div className="p-8 pt-0 relative">
-              {/* Floating Date Badge */}
-              <div className="w-20 h-20 bg-white dark:bg-zinc-50 border-4 border-white dark:border-zinc-950 rounded-2xl shadow-lg absolute -top-10 left-8 flex flex-col items-center justify-center">
-                <div className="text-2xl font-black text-zinc-800 dark:text-zinc-900 leading-none">{formatNoticeDate(selectedPublicNotice.noticeDate || selectedPublicNotice.date).day}</div>
-                <div className="text-[11px] font-bold text-zinc-800 dark:text-zinc-900 uppercase mt-1 tracking-wider">{formatNoticeDate(selectedPublicNotice.noticeDate || selectedPublicNotice.date).month}</div>
-              </div>
-
-              <div className="mt-14 mb-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-zinc-100 dark:bg-zinc-50 text-zinc-800 dark:text-zinc-900 border border-zinc-200 dark:border-zinc-200">
-                    Notice For: {selectedPublicNotice.noticeTo || selectedPublicNotice.audience || 'All'}
-                  </span>
-                  <span className="text-[11px] font-semibold text-zinc-500">
-                    Published: {selectedPublicNotice.noticeDate || selectedPublicNotice.date || 'N/A'}
-                  </span>
-                </div>
-                <h2 className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-900 leading-tight">
-                  {selectedPublicNotice.title}
-                </h2>
-              </div>
-              
-              <div className="bg-zinc-50 dark:bg-zinc-50/50 rounded-2xl p-6 border border-zinc-100 dark:border-zinc-200 mb-8">
-                <p className="text-zinc-700 dark:text-zinc-700 whitespace-pre-wrap leading-relaxed text-sm">
-                  {selectedPublicNotice.description}
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-100 flex items-center justify-center text-zinc-800 dark:text-zinc-900">
-                    <UserPlus size={14} />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-zinc-900 dark:text-zinc-900 leading-none">By: {selectedPublicNotice.createdBy || 'Admin'}</p>
-                    <p className="text-xs text-zinc-500 mt-1">Official Circular</p>
-                  </div>
-                </div>
-                <Button onClick={() => setSelectedPublicNotice(null)} className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 hover:text-white rounded-xl px-8 font-bold transition-all">
-                  Close
-                </Button>
-              </div>
+      {/* ── GLOBAL INFO / GUIDE DIALOG ── */}
+      {activeDialog && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white border border-[#dfe7eb] rounded-2xl w-full max-w-xl shadow-2xl p-8 relative max-h-[85vh] overflow-y-auto">
+            <button
+              onClick={() => setActiveDialog(null)}
+              className="absolute top-4 right-4 text-2xl text-[#718790] hover:text-[#102e43] w-8 h-8 flex items-center justify-center cursor-pointer"
+              aria-label="Close dialog"
+            >
+              ×
+            </button>
+            <span className="text-[11px] font-bold text-[#087f77] uppercase tracking-widest block mb-2">
+              STOOFI ERP
+            </span>
+            <h2 className="text-2xl font-bold text-[#102e43] mb-4">{activeDialog.title}</h2>
+            {activeDialog.isHtml ? (
+              <div
+                className="text-sm text-[#667987] leading-relaxed space-y-3"
+                dangerouslySetInnerHTML={{ __html: activeDialog.content }}
+              />
+            ) : (
+              <p className="text-sm text-[#667987] leading-relaxed">{activeDialog.content}</p>
+            )}
+            <div className="mt-6 pt-4 border-t border-[#dfe7eb] flex justify-end">
+              <Button
+                onClick={() => setActiveDialog(null)}
+                className="bg-[#102e43] hover:bg-[#1b425a] text-white font-bold px-6 rounded-lg text-sm cursor-pointer"
+              >
+                Close
+              </Button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Today&apos;s Event POPUP MODAL */}
+      {/* ── TODAY'S EVENT POPUP MODAL ── */}
       {showTodayEventModal && todayEvent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-zinc-200 text-zinc-900 relative">
-            {/* Close button */}
+          <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-[#dfe7eb] text-[#102e43] relative">
             <button
               onClick={() => setShowTodayEventModal(false)}
-              className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-800 flex items-center justify-center transition-colors shadow-sm"
+              className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-[#f3f7f8] hover:bg-[#dfe7eb] text-[#102e43] flex items-center justify-center transition-colors shadow-sm"
               title="Close"
             >
               <X size={18} />
             </button>
-
-            {/* Header banner */}
-            <div className="h-28 bg-zinc-900 flex items-center justify-center relative">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-300 bg-white/10 px-3.5 py-1 rounded-full border border-white/10">
+            <div className="h-28 bg-[#0c2436] flex items-center justify-center relative">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-[#64e2bc] bg-white/10 px-3.5 py-1 rounded-full border border-white/10">
                 Today&apos;s Event & Announcement
               </span>
             </div>
-
-            {/* Content Body with date badge */}
             <div className="p-6 pt-0 flex flex-col items-center text-center">
-              {/* Date Badge - centered & overlapping top banner cleanly */}
-              <div className="-mt-10 mb-4 w-20 h-20 bg-white rounded-2xl shadow-lg border border-zinc-200 flex flex-col items-center justify-center">
+              <div className="-mt-10 mb-4 w-20 h-20 bg-white rounded-2xl shadow-lg border border-[#dfe7eb] flex flex-col items-center justify-center">
                 <span className="text-xs font-bold text-rose-600 uppercase tracking-wider">
-                  {new Date(todayEvent.date).toLocaleString('default', { month: 'short' })}
+                  {new Date(todayEvent.date).toLocaleString("default", { month: "short" })}
                 </span>
-                <span className="text-3xl font-black text-zinc-900 leading-none mt-0.5">
+                <span className="text-3xl font-black text-[#102e43] leading-none mt-0.5">
                   {new Date(todayEvent.date).getDate()}
                 </span>
               </div>
-
-              {/* Event Title */}
-              <h2 className="text-2xl font-black text-zinc-900 tracking-tight mb-1.5 px-2">
+              <h2 className="text-2xl font-black text-[#102e43] tracking-tight mb-1.5 px-2">
                 {todayEvent.title}
               </h2>
-
-              <p className="text-xs font-bold text-zinc-500 mb-3">
-                {new Date(todayEvent.date).toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
+              <p className="text-xs font-bold text-[#667987] mb-3">
+                {new Date(todayEvent.date).toLocaleDateString("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric"
                 })}
               </p>
-
-              <span className="inline-block bg-zinc-100 text-zinc-800 text-[11px] font-bold uppercase tracking-wider px-3.5 py-1 rounded-full border border-zinc-200 mb-6">
-                Target Audience: {todayEvent.audience || 'All'}
+              <span className="inline-block bg-[#f3f7f8] text-[#102e43] text-[11px] font-bold uppercase tracking-wider px-3.5 py-1 rounded-full border border-[#dfe7eb] mb-6">
+                Target Audience: {todayEvent.audience || "All"}
               </span>
-
               <Button
                 onClick={() => setShowTodayEventModal(false)}
-                className="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-bold py-3.5 rounded-2xl shadow-md transition-all text-sm"
-                style={{ color: '#ffffff' }}
+                className="w-full bg-[#102e43] hover:bg-[#1b425a] text-white font-bold py-3.5 rounded-xl shadow-md text-sm"
               >
                 Got it!
               </Button>
@@ -1119,4 +1393,3 @@ export default function LandingPage() {
     </div>
   );
 }
-

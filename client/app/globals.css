@@ -633,3 +633,65 @@ body {
 /* HERO SECTION: Override light mode forced text color */
 #home h1.text-white, #home p.text-white, #home span.text-emerald-400 { color: #ffffff !important; }
 #home span.text-emerald-400 { color: #34d399 !important; }
+
+/* ==========================================================================
+   STOOFI LANDING PAGE KEYFRAMES & MOTION STYLING
+   ========================================================================== */
+@keyframes photo-breathe {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.055) translateY(-4px);
+  }
+}
+
+@keyframes float-a {
+  0%, 100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(0deg);
+  }
+}
+
+@keyframes float-b {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+@keyframes art-float {
+  0%, 100% {
+    transform: perspective(900px) rotateY(-3deg) translateY(0) scale(0.97);
+  }
+  50% {
+    transform: perspective(900px) rotateY(3deg) translateY(-6px) scale(1);
+  }
+}
+
+.animate-photo-breathe {
+  animation: photo-breathe 12s ease-in-out infinite alternate;
+}
+
+.animate-float-a {
+  animation: float-a 6s ease-in-out infinite;
+}
+
+.animate-float-b {
+  animation: float-b 7s ease-in-out infinite;
+}
+
+.animate-art-float {
+  animation: art-float 7s ease-in-out infinite;
+}
+
+.motion-paused *,
+.motion-paused *::before,
+.motion-paused *::after {
+  animation-play-state: paused !important;
+}
+
