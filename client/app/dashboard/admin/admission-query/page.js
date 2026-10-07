@@ -256,7 +256,7 @@ export default function AdmissionQueryPage() {
               onClick={() => setShowForm(true)} 
               className="bg-zinc-950 hover:bg-zinc-800 text-white font-semibold h-8 px-4 text-xs shadow-xs"
             >
-              <Plus className="h-3.5 w-3.5 mr-1" /> ADD
+              <Plus className="h-3.5 w-3.5 mr-1" /> Add Query
             </Button>
           </div>
           
