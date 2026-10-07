@@ -107,6 +107,9 @@ export default function VisitorBookPage() {
 
       // Populate Whom To Meet list from teachers & staff
       const combinedStaff = [
+        'Founder',
+        'Chairman',
+        'CEO',
         'Principal',
         'Administrator',
         'Accountant',
@@ -565,6 +568,7 @@ export default function VisitorBookPage() {
                   >
                     <option value="Meeting">Meeting</option>
                     <option value="Admission">Admission Inquiry</option>
+                    <option value="Campus Visit">Campus Visit</option>
                     <option value="Fee Related">Fee Related</option>
                     <option value="Complaint">Complaint</option>
                     <option value="Inquiry">General Inquiry</option>

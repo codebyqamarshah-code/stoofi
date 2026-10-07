@@ -1,5 +1,15 @@
 import { 
-  LayoutDashboard, 
+  LayoutDashboard,
+  FlaskConical,
+  Cpu,
+  Beaker,
+  FileCheck,
+  ArrowLeftRight,
+  Wrench,
+  ShieldAlert,
+  Boxes,
+  CalendarClock,
+  Laptop, 
   Users, 
   BookOpen, 
   FolderOpen,
@@ -197,6 +207,27 @@ export const DEFAULT_MENU_STRUCTURE = [
         ]
       },
       {
+        id: 'item-labs',
+        name: 'Labs',
+        iconName: 'FlaskConical',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'sub-lab-dash', name: 'Dashboard', href: '/dashboard/labs', iconName: 'LayoutDashboard', visible: true },
+          { id: 'sub-lab-cats', name: 'Lab Categories', href: '/dashboard/labs/categories', iconName: 'Boxes', visible: true },
+          { id: 'sub-lab-manage', name: 'Manage Labs', href: '/dashboard/labs/manage', iconName: 'FlaskConical', visible: true },
+          { id: 'sub-lab-equip', name: 'Equipment & Assets', href: '/dashboard/labs/equipment', iconName: 'Cpu', visible: true },
+          { id: 'sub-lab-consumables', name: 'Consumables', href: '/dashboard/labs/consumables', iconName: 'Beaker', visible: true },
+          { id: 'sub-lab-schedule', name: 'Lab Schedule', href: '/dashboard/labs/schedule', iconName: 'CalendarDays', visible: true },
+          { id: 'sub-lab-practicals', name: 'Practicals', href: '/dashboard/labs/practicals', iconName: 'FileCheck', visible: true },
+          { id: 'sub-lab-issue', name: 'Equipment Issue/Return', href: '/dashboard/labs/issue-return', iconName: 'ArrowLeftRight', visible: true },
+          { id: 'sub-lab-maint', name: 'Maintenance', href: '/dashboard/labs/maintenance', iconName: 'Wrench', visible: true },
+          { id: 'sub-lab-safety', name: 'Safety & Incidents', href: '/dashboard/labs/safety', iconName: 'ShieldAlert', visible: true },
+          { id: 'sub-lab-reports', name: 'Reports', href: '/dashboard/labs/reports', iconName: 'BarChart2', visible: true },
+          { id: 'sub-lab-settings', name: 'Settings', href: '/dashboard/labs/settings', iconName: 'Settings', visible: true },
+        ]
+      },
+      {
         id: 'item-lesson-plan',
         name: 'Lesson Plan',
         iconName: 'BookMarked',
@@ -208,53 +239,6 @@ export const DEFAULT_MENU_STRUCTURE = [
           { id: 'sub-lesson-topic-ov', name: 'Topic Overview', href: '/dashboard/lesson-plan/topic-overview', iconName: 'FileText', visible: true },
           { id: 'sub-lesson-plan-item', name: 'Lesson Plan', href: '/dashboard/lesson-plan/plan', iconName: 'BookMarked', visible: true },
           { id: 'sub-lesson-plan-ov', name: 'Lesson Plan Overview', href: '/dashboard/lesson-plan/overview', iconName: 'FileSpreadsheet', visible: true },
-        ]
-      },
-      {
-        id: 'item-bulk-print',
-        name: 'Bulk Print',
-        iconName: 'Printer',
-        hasSubmenu: true,
-        visible: true,
-        subItems: [
-          { id: 'sub-bulk-id', name: 'ID Card', href: '/dashboard/bulk-print/id-card', iconName: 'CreditCard', visible: true },
-          { id: 'sub-bulk-cert', name: 'Certificate', href: '/dashboard/bulk-print/certificate', iconName: 'Award', visible: true },
-          { id: 'sub-bulk-pay', name: 'Payroll Bulk Print', href: '/dashboard/bulk-print/payroll', iconName: 'Printer', visible: true },
-          { id: 'sub-bulk-fees', name: 'Fees Invoice Bulk Print', href: '/dashboard/bulk-print/fees-invoice', iconName: 'FileText', visible: true },
-          { id: 'sub-bulk-settings', name: 'Fees Invoice Bulk Print Settings', href: '/dashboard/bulk-print/settings', iconName: 'SlidersHorizontal', visible: true },
-        ]
-      },
-      {
-        id: 'item-download-center',
-        name: 'Download Center',
-        iconName: 'Download',
-        hasSubmenu: true,
-        visible: true,
-        subItems: [
-          { id: 'sub-dl-type', name: 'Content Type', href: '/dashboard/download-center/content-type', iconName: 'Tag', visible: true },
-          { id: 'sub-dl-list', name: 'Content List', href: '/dashboard/download-center/content-list', iconName: 'List', visible: true },
-          { id: 'sub-dl-shared', name: 'Shared Content List', href: '/dashboard/download-center/shared-content', iconName: 'FolderOpen', visible: true },
-          { id: 'sub-dl-videos', name: 'Video List', href: '/dashboard/download-center/videos', iconName: 'Video', visible: true },
-        ]
-      },
-      {
-        id: 'item-lms',
-        name: 'LMS',
-        iconName: 'Layers',
-        badge: 'ADDON',
-        hasSubmenu: true,
-        visible: true,
-        subItems: [
-          { id: 'sub-lms-all', name: 'All Courses', href: '/dashboard/lms/courses', iconName: 'BookOpen', visible: true },
-          { id: 'sub-lms-add', name: 'Add Course', href: '/dashboard/lms/add-course', iconName: 'BookMarked', visible: true },
-          { id: 'sub-lms-pending', name: 'Pending Course', href: '/dashboard/lms/pending', iconName: 'ListTodo', visible: true },
-          { id: 'sub-lms-history', name: 'Enroll History', href: '/dashboard/lms/enroll-history', iconName: 'CalendarDays', visible: true },
-          { id: 'sub-lms-log', name: 'Purchase Log', href: '/dashboard/lms/purchase-log', iconName: 'FileText', visible: true },
-          { id: 'sub-lms-inv', name: 'LMS Fees Invoice', href: '/dashboard/lms/invoice', iconName: 'DollarSign', visible: true },
-          { id: 'sub-lms-cat', name: 'Category List', href: '/dashboard/lms/categories', iconName: 'List', visible: true },
-          { id: 'sub-lms-lvl', name: 'Course Level', href: '/dashboard/lms/levels', iconName: 'Layers', visible: true },
-          { id: 'sub-lms-vimeo', name: 'Vimeo Settings', href: '/dashboard/lms/vimeo', iconName: 'Video', visible: true },
-          { id: 'sub-lms-set', name: 'Settings', href: '/dashboard/lms/settings', iconName: 'Settings', visible: true },
         ]
       },
     ]
@@ -475,6 +459,53 @@ export const DEFAULT_MENU_STRUCTURE = [
           { id: 'sub-role-login', name: 'Login Permission', href: '/dashboard/roles/login-permission', iconName: 'LogIn', visible: true },
           { id: 'sub-role-role', name: 'Role', href: '/dashboard/roles/role', iconName: 'Shield', visible: true },
           { id: 'sub-role-due', name: 'Due Fees Login Permission', href: '/dashboard/roles/due-fees-permission', iconName: 'Lock', visible: true },
+        ]
+      },
+      {
+        id: 'item-bulk-print',
+        name: 'Bulk Print',
+        iconName: 'Printer',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'sub-bulk-id', name: 'ID Card', href: '/dashboard/bulk-print/id-card', iconName: 'CreditCard', visible: true },
+          { id: 'sub-bulk-cert', name: 'Certificate', href: '/dashboard/bulk-print/certificate', iconName: 'Award', visible: true },
+          { id: 'sub-bulk-pay', name: 'Payroll Bulk Print', href: '/dashboard/bulk-print/payroll', iconName: 'Printer', visible: true },
+          { id: 'sub-bulk-fees', name: 'Fees Invoice Bulk Print', href: '/dashboard/bulk-print/fees-invoice', iconName: 'FileText', visible: true },
+          { id: 'sub-bulk-settings', name: 'Fees Invoice Bulk Print Settings', href: '/dashboard/bulk-print/settings', iconName: 'SlidersHorizontal', visible: true },
+        ]
+      },
+      {
+        id: 'item-download-center',
+        name: 'Download Center',
+        iconName: 'Download',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'sub-dl-type', name: 'Content Type', href: '/dashboard/download-center/content-type', iconName: 'Tag', visible: true },
+          { id: 'sub-dl-list', name: 'Content List', href: '/dashboard/download-center/content-list', iconName: 'List', visible: true },
+          { id: 'sub-dl-shared', name: 'Shared Content List', href: '/dashboard/download-center/shared-content', iconName: 'FolderOpen', visible: true },
+          { id: 'sub-dl-videos', name: 'Video List', href: '/dashboard/download-center/videos', iconName: 'Video', visible: true },
+        ]
+      },
+      {
+        id: 'item-lms',
+        name: 'LMS',
+        iconName: 'Layers',
+        badge: 'ADDON',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'sub-lms-all', name: 'All Courses', href: '/dashboard/lms/courses', iconName: 'BookOpen', visible: true },
+          { id: 'sub-lms-add', name: 'Add Course', href: '/dashboard/lms/add-course', iconName: 'BookMarked', visible: true },
+          { id: 'sub-lms-pending', name: 'Pending Course', href: '/dashboard/lms/pending', iconName: 'ListTodo', visible: true },
+          { id: 'sub-lms-history', name: 'Enroll History', href: '/dashboard/lms/enroll-history', iconName: 'CalendarDays', visible: true },
+          { id: 'sub-lms-log', name: 'Purchase Log', href: '/dashboard/lms/purchase-log', iconName: 'FileText', visible: true },
+          { id: 'sub-lms-inv', name: 'LMS Fees Invoice', href: '/dashboard/lms/invoice', iconName: 'DollarSign', visible: true },
+          { id: 'sub-lms-cat', name: 'Category List', href: '/dashboard/lms/categories', iconName: 'List', visible: true },
+          { id: 'sub-lms-lvl', name: 'Course Level', href: '/dashboard/lms/levels', iconName: 'Layers', visible: true },
+          { id: 'sub-lms-vimeo', name: 'Vimeo Settings', href: '/dashboard/lms/vimeo', iconName: 'Video', visible: true },
+          { id: 'sub-lms-set', name: 'Settings', href: '/dashboard/lms/settings', iconName: 'Settings', visible: true },
         ]
       }
     ]
