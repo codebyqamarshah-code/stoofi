@@ -217,7 +217,6 @@ export default function LoginPage() {
     { id: "superadmin", label: "SUPER ADMIN", email: "super@gmail.com", pass: "school" },
     { id: "admin", label: "ADMIN", email: "admin@gmail.com", pass: "school" },
     { id: "teacher", label: "TEACHER", email: "teacher@gmail.com", pass: "123456" },
-    { id: "accountant", label: "ACCOUNTANT", email: "accountant@gmail.com", pass: "123456" },
     { id: "student", label: "STUDENT", email: "student@gmail.com", pass: "123456" },
   ];
 

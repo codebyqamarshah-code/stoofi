@@ -36,7 +36,7 @@ export default function LandingPage() {
       title1: "The Complete",
       title2: "School Management",
       title3: "ERP",
-      desc: "Manage your entire institution from one unified platform. Tailored portals for Admins, Teachers, Students, Accountants and Parents."
+      desc: "Manage your entire institution from one unified platform. Tailored portals for Admins, Teachers, Students and Parents."
     },
     {
       bgImage: "/images/hero/bg2.jpg",
@@ -247,7 +247,6 @@ export default function LandingPage() {
     { title: "Super Admin", desc: "Full control over the entire system, settings, branches, and all users.", icon: ShieldCheck, color: "text-zinc-800 dark:text-zinc-900", bg: "bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200" },
     { title: "Teacher", desc: "Manage classes, attendance, homework, assignments, and student grades.", icon: Monitor, color: "text-zinc-800 dark:text-zinc-900", bg: "bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200" },
     { title: "Student", desc: "Access homework, schedules, exam results, study material, and fees.", icon: GraduationCap, color: "text-zinc-800 dark:text-zinc-900", bg: "bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200" },
-    { title: "Accountant", desc: "Handle fee collection, payroll, expenses, invoices, and bank payments.", icon: Calculator, color: "text-zinc-800 dark:text-zinc-900", bg: "bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200" },
     { title: "Parents", desc: "Track child progress, attendance, fee status and communicate with teachers.", icon: Users, color: "text-zinc-800 dark:text-zinc-900", bg: "bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200" },
   ];
 
@@ -261,17 +260,6 @@ export default function LandingPage() {
         { number: "02", title: "Classes, Sections & Subjects", desc: "Create classes (e.g., Class 1 to 10), assign sections (A, B, C), and map curriculum subjects with teacher allocations.", icon: BookOpen },
         { number: "03", title: "Staff & Student Enrollment", desc: "Add teachers, assign roles/permissions, and enroll students with parent contact info or bulk import via Excel/CSV.", icon: UserPlus },
         { number: "04", title: "System Activation & Live Go", desc: "Enable automated SMS gateway, issue portal credentials to parents & staff, and monitor live dashboard analytics.", icon: ShieldCheck }
-      ]
-    },
-    {
-      role: "accountant",
-      roleTitle: "Fee & Financial Management",
-      badge: "Accounting Workflow",
-      steps: [
-        { number: "01", title: "Configure Fee Structure", desc: "Define monthly tuition fees, admission charges, transport fees, and customized concession/discount rules.", icon: Calculator },
-        { number: "02", title: "Bulk Invoicing & Carry Forward", desc: "Auto-generate monthly fee invoice vouchers for entire classes with previous unpaid balance carry-forward.", icon: CreditCard },
-        { number: "03", title: "Collect & Reconcile Payments", desc: "Record cash, bank transfers, or online payment submissions with instant printed & digital receipts.", icon: FileSpreadsheet },
-        { number: "04", title: "Profit & Loss / Payroll", desc: "Process monthly staff payroll, record daily school expenses, and generate detailed profit/loss balance sheets.", icon: BarChart3 }
       ]
     },
     {
@@ -307,7 +295,7 @@ export default function LandingPage() {
     { icon: BarChart3, title: "Live Financial Accounting", slug: "financial-accounting", desc: "Monitor daily school cash flows, record income/expenses, manage chart of accounts, and generate real-time Profit & Loss balance sheets." },
     { icon: Globe, title: "Multi-Branch Central Control", slug: "multi-branch", desc: "Manage multiple school campuses from a single Super Admin login. Compare branch revenues, standardize data, and track global analytics." },
     { icon: Bell, title: "Automated Communication", slug: "communication", desc: "Send bulk SMS and email notifications to parents and staff regarding fee dues, exam results, holiday notices, and emergency alerts." },
-    { icon: ShieldCheck, title: "Role-Based Access Security", slug: "security", desc: "Secure data with strict permission locks. Ensure Accountants only see finances, Teachers only see academics, and Parents only see their child's data." },
+    { icon: ShieldCheck, title: "Role-Based Access Security", slug: "security", desc: "Secure data with strict permission locks. Ensure Teachers only see academics, and Parents only see their child's data." },
   ];
 
   const testimonials = [
@@ -731,7 +719,6 @@ export default function LandingPage() {
             <div className="flex flex-wrap justify-center gap-3 mt-8">
               {[
                 { id: "admin", label: "Super Admin Flow", icon: ShieldCheck, badge: "Setup" },
-                { id: "accountant", label: "Accountant Flow", icon: Calculator, badge: "Finance" },
                 { id: "teacher", label: "Teacher Flow", icon: Monitor, badge: "Academic" },
                 { id: "student", label: "Student & Parent Flow", icon: GraduationCap, badge: "Portal" },
               ].map(tab => (

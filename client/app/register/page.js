@@ -62,7 +62,7 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState(false);
   
   const [role, setRole] = useState('Student');
-  const [availableRoles, setAvailableRoles] = useState(['Super Admin', 'Admin', 'Teacher', 'Student', 'Accountant']);
+  const [availableRoles, setAvailableRoles] = useState(['Super Admin', 'Admin', 'Teacher', 'Student']);
   const [statusLoading, setStatusLoading] = useState(true);
 
   useEffect(() => {
@@ -76,13 +76,13 @@ export default function RegisterPage() {
         if (!res?.hasAdmin) {
           roles.push('Admin');
         }
-        roles.push('Teacher', 'Student', 'Accountant');
+        roles.push('Teacher', 'Student');
         setAvailableRoles(roles);
         if (roles.length > 0) {
           setRole(roles[0]);
         }
       } catch (e) {
-        const roles = ['Super Admin', 'Admin', 'Teacher', 'Student', 'Accountant'];
+        const roles = ['Super Admin', 'Admin', 'Teacher', 'Student'];
         setAvailableRoles(roles);
         if (roles.length > 0) {
           setRole(roles[0]);
@@ -586,7 +586,7 @@ export default function RegisterPage() {
               <label className={labelClass}>Register As <span className="text-rose-500">*</span></label>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {['Super Admin', 'Admin', 'Teacher', 'Student', 'Accountant'].map((r) => {
+              {['Super Admin', 'Admin', 'Teacher', 'Student'].map((r) => {
                 const isAvailable = availableRoles.includes(r);
                 const isSelected = role === r;
                 return (
