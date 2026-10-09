@@ -29,7 +29,12 @@ app.use(cors({
   origin: true,
   credentials: true
 }));
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ 
+  limit: '50mb',
+  verify: (req, res, buf) => {
+    req.rawBody = buf.toString();
+  }
+}));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
 
@@ -169,6 +174,7 @@ app.use('/api/dormitory-room', require('./routes/dormitory-room.routes'));
 app.use('/api/dormitory', require('./routes/dormitory.routes'));
 app.use('/api/lms-course', require('./routes/lms-course.routes'));
 app.use('/api/payment', require('./routes/payment.routes'));
+app.use('/api/payments', require('./routes/payment.routes'));
 app.use('/api/setting', require('./routes/setting.routes'));
 app.use('/api/virtual-class', require('./routes/virtual-class.routes'));
 

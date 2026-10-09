@@ -979,7 +979,7 @@ export default function DashboardUI({ user }) {
                   <Button onClick={() => router.push('/dashboard/hr/add-staff')} variant="outline" className="h-9 px-3 text-xs bg-white hover:bg-zinc-50 border-zinc-300 hover:border-zinc-950 text-zinc-700 shadow-sm transition-all rounded-xl font-bold">
                     <Briefcase className="h-3.5 w-3.5 mr-1.5" /> Staff
                   </Button>
-                  <Button onClick={() => router.push('/dashboard/finance/fee-collection')} className="h-9 px-4 text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all rounded-xl font-bold border-0">
+                  <Button onClick={() => router.push('/dashboard/fees/collection')} className="h-9 px-4 text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all rounded-xl font-bold border-0">
                     <DollarSign className="h-3.5 w-3.5 mr-1.5" /> Fee
                   </Button>
                 </div>

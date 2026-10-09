@@ -816,6 +816,14 @@ export const DEFAULT_MENU_STRUCTURE = [
           { id: 'sub-examset-seat', name: 'Seat Plan Setting', href: '/dashboard/settings/exam/seat-plan-setting', iconName: 'LayoutDashboard', visible: true },
         ]
       },
+      {
+        id: 'item-set-billing',
+        name: 'Subscription & Billing',
+        href: '/dashboard/settings/billing',
+        iconName: 'CreditCard',
+        hasSubmenu: false,
+        visible: true,
+      },
     ]
   },
   {

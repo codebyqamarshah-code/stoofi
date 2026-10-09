@@ -661,16 +661,72 @@ exports.updateProfile = async (req, res, next) => {
     const {
       fullName, phone, mobile, emergencyMobile, address, currentAddress, permanentAddress,
       dob, dateOfBirth, gender, maritalStatus, fatherName, motherName,
-      qualifications, workExperience, experience,
+      qualifications, workExperience, experience, drivingLicense,
       bankName, accountName, bankAccountNumber, branchName,
       facebookUrl, twitterUrl, linkedinUrl, instagramUrl, avatar,
-      rollNo, bloodGroup, religion, caste, cnic, bForm, city
+      rollNo, bloodGroup, religion, caste, cnic, bForm, city,
+      fatherPhone, fatherOccupation, fatherCnic, motherPhone,
+      guardianName, guardianRelation, guardianPhone, guardianAddress,
+      academicYear, admissionDate, previousSchool, previousClassCovered,
+      designation, department
     } = req.body;
 
-    if (fullName) user.fullName = fullName;
-    if (phone || mobile) user.phone = phone || mobile;
-    if (address || currentAddress) user.schoolAddress = address || currentAddress;
-    if (avatar) user.avatar = avatar;
+    if (fullName !== undefined) user.fullName = fullName;
+    if (phone !== undefined || mobile !== undefined) user.phone = phone || mobile;
+    if (emergencyMobile !== undefined) {
+      user.emergencyMobile = emergencyMobile;
+      user.emergencyContact = emergencyMobile;
+    }
+    if (address !== undefined || currentAddress !== undefined) {
+      user.schoolAddress = currentAddress || address;
+      user.currentAddress = currentAddress || address;
+    }
+    if (permanentAddress !== undefined) user.permanentAddress = permanentAddress;
+    if (avatar !== undefined) user.avatar = avatar;
+    if (gender !== undefined) user.gender = gender;
+    if (dob !== undefined || dateOfBirth !== undefined) {
+      user.dob = dob || dateOfBirth;
+      user.dateOfBirth = dob || dateOfBirth;
+    }
+    if (maritalStatus !== undefined) user.maritalStatus = maritalStatus;
+    if (fatherName !== undefined) user.fatherName = fatherName;
+    if (motherName !== undefined) user.motherName = motherName;
+    if (qualifications !== undefined) user.qualifications = qualifications;
+    if (workExperience !== undefined || experience !== undefined) {
+      user.workExperience = workExperience || experience;
+      user.experience = workExperience || experience;
+    }
+    if (drivingLicense !== undefined) user.drivingLicense = drivingLicense;
+    if (city !== undefined) user.city = city;
+    if (bloodGroup !== undefined) user.bloodGroup = bloodGroup;
+    if (religion !== undefined) user.religion = religion;
+    if (caste !== undefined) user.caste = caste;
+    if (cnic !== undefined) user.cnic = cnic;
+    if (bForm !== undefined) user.bForm = bForm;
+    if (rollNo !== undefined) user.rollNo = rollNo;
+    if (designation !== undefined) user.designation = designation;
+    if (department !== undefined) user.department = department;
+    if (bankName !== undefined) user.bankName = bankName;
+    if (accountName !== undefined) user.accountName = accountName;
+    if (bankAccountNumber !== undefined) user.bankAccountNumber = bankAccountNumber;
+    if (branchName !== undefined) user.branchName = branchName;
+    if (facebookUrl !== undefined) user.facebookUrl = facebookUrl;
+    if (twitterUrl !== undefined) user.twitterUrl = twitterUrl;
+    if (linkedinUrl !== undefined) user.linkedinUrl = linkedinUrl;
+    if (instagramUrl !== undefined) user.instagramUrl = instagramUrl;
+    if (fatherPhone !== undefined) user.fatherPhone = fatherPhone;
+    if (fatherOccupation !== undefined) user.fatherOccupation = fatherOccupation;
+    if (fatherCnic !== undefined) user.fatherCnic = fatherCnic;
+    if (motherPhone !== undefined) user.motherPhone = motherPhone;
+    if (guardianName !== undefined) user.guardianName = guardianName;
+    if (guardianRelation !== undefined) user.guardianRelation = guardianRelation;
+    if (guardianPhone !== undefined) user.guardianPhone = guardianPhone;
+    if (guardianAddress !== undefined) user.guardianAddress = guardianAddress;
+    if (academicYear !== undefined) user.academicYear = academicYear;
+    if (admissionDate !== undefined) user.admissionDate = admissionDate;
+    if (previousSchool !== undefined) user.previousSchool = previousSchool;
+    if (previousClassCovered !== undefined) user.previousClassCovered = previousClassCovered;
+
     await user.save({ validateBeforeSave: false });
 
     if (user.role === 'Student') {
@@ -700,6 +756,18 @@ exports.updateProfile = async (req, res, next) => {
         if (city) student.city = city;
         if (avatar) student.studentPhoto = avatar;
         if (rollNo) student.rollNo = rollNo;
+        if (fatherPhone) student.fatherPhone = fatherPhone;
+        if (fatherOccupation) student.fatherOccupation = fatherOccupation;
+        if (fatherCnic) student.fatherCnic = fatherCnic;
+        if (motherPhone) student.motherPhone = motherPhone;
+        if (guardianName) student.guardianName = guardianName;
+        if (guardianRelation) student.guardianRelation = guardianRelation;
+        if (guardianPhone) student.guardianPhone = guardianPhone;
+        if (guardianAddress) student.guardianAddress = guardianAddress;
+        if (academicYear) student.academicYear = academicYear;
+        if (admissionDate) student.admissionDate = admissionDate;
+        if (previousSchool) student.previousSchool = previousSchool;
+        if (previousClassCovered) student.previousClassCovered = previousClassCovered;
         await student.save({ validateBeforeSave: false });
       }
     } else if (['Teacher', 'Staff', 'Admin', 'Super Admin', 'Accountant', 'Librarian'].includes(user.role)) {
@@ -737,6 +805,8 @@ exports.updateProfile = async (req, res, next) => {
         if (linkedinUrl) staff.linkedin = linkedinUrl;
         if (instagramUrl) staff.instagram = instagramUrl;
         if (avatar) staff.photo = avatar;
+        if (designation) staff.designation = designation;
+        if (department) staff.department = department;
         await staff.save({ validateBeforeSave: false });
       }
     }

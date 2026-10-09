@@ -5,6 +5,52 @@ import { useAuth } from '@/hooks/useAuth';
 import api from '@/services/api';
 import { Edit, Save, X, FileText, Camera, User, BookOpen, Calendar, Clock, DollarSign, Award, Shield, CheckCircle } from 'lucide-react';
 
+function InputField({ label, name, type = "text", readOnly = false, placeholder = '', isEditing, value, onChange }) {
+  const displayVal = value ?? '';
+
+  if (isEditing && !readOnly) {
+    let inputVal = displayVal;
+    let inputType = type;
+
+    if (type === 'date' && inputVal) {
+      if (!String(inputVal).match(/^\d{4}-\d{2}-\d{2}$/)) {
+        try {
+          const parsed = new Date(inputVal);
+          if (!isNaN(parsed.getTime())) {
+            inputVal = parsed.toISOString().split('T')[0];
+          } else {
+            inputType = 'text';
+          }
+        } catch (_) {
+          inputType = 'text';
+        }
+      }
+    }
+
+    return (
+      <div className="flex flex-col sm:flex-row py-3 border-b border-zinc-100 dark:border-zinc-200">
+        <div className="sm:w-1/3 text-sm text-zinc-500 dark:text-zinc-600 py-1 font-medium">{label}</div>
+        <div className="sm:w-2/3">
+          <input 
+            type={inputType} 
+            name={name} 
+            value={inputVal} 
+            placeholder={placeholder || (type === 'date' ? 'YYYY-MM-DD' : '')}
+            onChange={onChange}
+            className="w-full px-3 py-1.5 text-sm rounded border border-zinc-300 dark:border-zinc-200 bg-white dark:bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-950 font-medium text-zinc-900"
+          />
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="flex flex-col sm:flex-row py-3.5 border-b border-zinc-100 dark:border-zinc-200">
+      <div className="sm:w-1/3 text-sm text-zinc-500 dark:text-zinc-600 font-medium">{label}</div>
+      <div className="sm:w-2/3 text-sm font-semibold text-zinc-900 dark:text-zinc-800">{displayVal || '—'}</div>
+    </div>
+  );
+}
+
 export default function ProfilePage() {
   const { user, checkAuth } = useAuth();
   const [activeTab, setActiveTab] = useState('PROFILE');
@@ -202,31 +248,19 @@ export default function ProfilePage() {
     }
   };
 
-  const InputField = ({ label, name, type = "text", readOnly = false, placeholder = '' }) => {
-    if (isEditing && !readOnly) {
-      return (
-        <div className="flex flex-col sm:flex-row py-3 border-b border-zinc-100 dark:border-zinc-200">
-          <div className="sm:w-1/3 text-sm text-zinc-500 dark:text-zinc-600 py-1 font-medium">{label}</div>
-          <div className="sm:w-2/3">
-            <input 
-              type={type} 
-              name={name} 
-              value={formData[name] ?? ''} 
-              placeholder={placeholder}
-              onChange={handleChange}
-              className="w-full px-3 py-1.5 text-sm rounded border border-zinc-300 dark:border-zinc-200 bg-white dark:bg-zinc-50 focus:outline-none focus:ring-1 focus:ring-zinc-950 font-medium text-zinc-900"
-            />
-          </div>
-        </div>
-      );
-    }
-    return (
-      <div className="flex flex-col sm:flex-row py-3.5 border-b border-zinc-100 dark:border-zinc-200">
-        <div className="sm:w-1/3 text-sm text-zinc-500 dark:text-zinc-600 font-medium">{label}</div>
-        <div className="sm:w-2/3 text-sm font-semibold text-zinc-900 dark:text-zinc-800">{formData[name] || '—'}</div>
-      </div>
-    );
-  };
+  const renderInputField = (label, name, type = "text", readOnly = false, placeholder = '') => (
+    <InputField 
+      key={name}
+      label={label} 
+      name={name} 
+      type={type} 
+      readOnly={readOnly} 
+      placeholder={placeholder} 
+      isEditing={isEditing} 
+      value={formData[name]} 
+      onChange={handleChange} 
+    />
+  );
 
   if (!user) return <div className="p-6 text-zinc-500">Loading profile...</div>;
 
@@ -420,7 +454,7 @@ export default function ProfilePage() {
                 </button>
               ))}
             </div>
-            {activeTab === 'PROFILE' && (
+            {['PROFILE', 'PARENTS INFO', 'ACADEMIC'].includes(activeTab) && (
               <div>
                 {!isEditing ? (
                   <button 
@@ -463,18 +497,18 @@ export default function ProfilePage() {
                     <User className="h-4 w-4 text-zinc-500" /> Personal Info
                   </h3>
                   <div className="border-t border-zinc-200 dark:border-zinc-200">
-                    <InputField label="Full Name" name="fullName" />
+                    {renderInputField("Full Name", "fullName")}
                     {isStudent && (
                       <>
-                        <InputField label="Admission No" name="admissionNo" readOnly />
-                        <InputField label="Roll No" name="rollNo" />
-                        <InputField label="Class" name="className" readOnly />
-                        <InputField label="Section" name="section" readOnly />
+                        {renderInputField("Admission No", "admissionNo", "text", true)}
+                        {renderInputField("Roll No", "rollNo")}
+                        {renderInputField("Class", "className", "text", true)}
+                        {renderInputField("Section", "section", "text", true)}
                       </>
                     )}
-                    <InputField label="Email (Login ID)" name="email" type="email" readOnly />
-                    <InputField label="Mobile / Phone" name="mobile" />
-                    <InputField label="Emergency Contact" name="emergencyMobile" />
+                    {renderInputField("Email (Login ID)", "email", "email", true)}
+                    {renderInputField("Mobile / Phone", "mobile")}
+                    {renderInputField("Emergency Contact", "emergencyMobile")}
                     
                     {isEditing ? (
                       <div className="flex flex-col sm:flex-row py-3 border-b border-zinc-100 dark:border-zinc-200">
@@ -488,10 +522,10 @@ export default function ProfilePage() {
                         </div>
                       </div>
                     ) : (
-                      <InputField label="Gender" name="gender" />
+                      renderInputField("Gender", "gender")
                     )}
 
-                    <InputField label="Date Of Birth" name="dateOfBirth" type="date" />
+                    {renderInputField("Date Of Birth", "dateOfBirth", "date")}
 
                     {isStudent ? (
                       <>
@@ -513,15 +547,15 @@ export default function ProfilePage() {
                             </div>
                           </div>
                         ) : (
-                          <InputField label="Blood Group" name="bloodGroup" />
+                          renderInputField("Blood Group", "bloodGroup")
                         )}
-                        <InputField label="Religion" name="religion" />
-                        <InputField label="Caste / Category" name="caste" />
-                        <InputField label="B-Form / CNIC No" name="cnic" />
+                        {renderInputField("Religion", "religion")}
+                        {renderInputField("Caste / Category", "caste")}
+                        {renderInputField("B-Form / CNIC No", "cnic")}
                       </>
                     ) : (
                       <>
-                        <InputField label="Driving License" name="drivingLicense" />
+                        {renderInputField("Driving License", "drivingLicense")}
                         {isEditing ? (
                           <div className="flex flex-col sm:flex-row py-3 border-b border-zinc-100 dark:border-zinc-200">
                             <div className="sm:w-1/3 text-sm text-zinc-500 font-medium py-1">Marital Status</div>
@@ -533,12 +567,12 @@ export default function ProfilePage() {
                             </div>
                           </div>
                         ) : (
-                          <InputField label="Marital Status" name="maritalStatus" />
+                          renderInputField("Marital Status", "maritalStatus")
                         )}
-                        <InputField label="Father Name" name="fatherName" />
-                        <InputField label="Mother Name" name="motherName" />
-                        <InputField label="Qualifications" name="qualifications" />
-                        <InputField label="Work Experience" name="workExperience" />
+                        {renderInputField("Father Name", "fatherName")}
+                        {renderInputField("Mother Name", "motherName")}
+                        {renderInputField("Qualifications", "qualifications")}
+                        {renderInputField("Work Experience", "workExperience")}
                       </>
                     )}
                   </div>
@@ -548,9 +582,9 @@ export default function ProfilePage() {
                 <div>
                   <h3 className="text-zinc-950 font-bold text-xs uppercase tracking-wider mb-2">Address Information</h3>
                   <div className="border-t border-zinc-200 dark:border-zinc-200">
-                    <InputField label="Current Address" name="currentAddress" />
-                    <InputField label="Permanent Address" name="permanentAddress" />
-                    {isStudent && <InputField label="City" name="city" />}
+                    {renderInputField("Current Address", "currentAddress")}
+                    {renderInputField("Permanent Address", "permanentAddress")}
+                    {isStudent && renderInputField("City", "city")}
                   </div>
                 </div>
 
@@ -561,10 +595,10 @@ export default function ProfilePage() {
                     <div>
                       <h3 className="text-zinc-950 font-bold text-xs uppercase tracking-wider mb-2">Bank Account Details</h3>
                       <div className="border-t border-zinc-200 dark:border-zinc-200">
-                        <InputField label="Account Name" name="accountName" />
-                        <InputField label="Bank Account Number" name="bankAccountNumber" />
-                        <InputField label="Bank Name" name="bankName" />
-                        <InputField label="Branch Name" name="branchName" />
+                        {renderInputField("Account Name", "accountName")}
+                        {renderInputField("Bank Account Number", "bankAccountNumber")}
+                        {renderInputField("Bank Name", "bankName")}
+                        {renderInputField("Branch Name", "branchName")}
                       </div>
                     </div>
 
@@ -572,10 +606,10 @@ export default function ProfilePage() {
                     <div>
                       <h3 className="text-zinc-950 font-bold text-xs uppercase tracking-wider mb-2">Social Links</h3>
                       <div className="border-t border-zinc-200 dark:border-zinc-200">
-                        <InputField label="Facebook Url" name="facebookUrl" />
-                        <InputField label="Twitter Url" name="twitterUrl" />
-                        <InputField label="Linkedin Url" name="linkedinUrl" />
-                        <InputField label="Instagram Url" name="instagramUrl" />
+                        {renderInputField("Facebook Url", "facebookUrl")}
+                        {renderInputField("Twitter Url", "twitterUrl")}
+                        {renderInputField("Linkedin Url", "linkedinUrl")}
+                        {renderInputField("Instagram Url", "instagramUrl")}
                       </div>
                     </div>
                   </>
@@ -590,28 +624,28 @@ export default function ProfilePage() {
                 <div>
                   <h3 className="text-zinc-950 font-bold text-xs uppercase tracking-wider mb-2">Father's Information</h3>
                   <div className="border-t border-zinc-200 dark:border-zinc-200">
-                    <InputField label="Father's Name" name="fatherName" />
-                    <InputField label="Father's Phone" name="fatherPhone" />
-                    <InputField label="Father's Occupation" name="fatherOccupation" />
-                    <InputField label="Father's CNIC" name="fatherCnic" />
+                    {renderInputField("Father's Name", "fatherName")}
+                    {renderInputField("Father's Phone", "fatherPhone")}
+                    {renderInputField("Father's Occupation", "fatherOccupation")}
+                    {renderInputField("Father's CNIC", "fatherCnic")}
                   </div>
                 </div>
 
                 <div>
                   <h3 className="text-zinc-950 font-bold text-xs uppercase tracking-wider mb-2">Mother's Information</h3>
                   <div className="border-t border-zinc-200 dark:border-zinc-200">
-                    <InputField label="Mother's Name" name="motherName" />
-                    <InputField label="Mother's Phone" name="motherPhone" />
+                    {renderInputField("Mother's Name", "motherName")}
+                    {renderInputField("Mother's Phone", "motherPhone")}
                   </div>
                 </div>
 
                 <div>
                   <h3 className="text-zinc-950 font-bold text-xs uppercase tracking-wider mb-2">Guardian Information</h3>
                   <div className="border-t border-zinc-200 dark:border-zinc-200">
-                    <InputField label="Guardian Name" name="guardianName" />
-                    <InputField label="Guardian Relation" name="guardianRelation" />
-                    <InputField label="Guardian Phone" name="guardianPhone" />
-                    <InputField label="Guardian Address" name="guardianAddress" />
+                    {renderInputField("Guardian Name", "guardianName")}
+                    {renderInputField("Guardian Relation", "guardianRelation")}
+                    {renderInputField("Guardian Phone", "guardianPhone")}
+                    {renderInputField("Guardian Address", "guardianAddress")}
                   </div>
                 </div>
               </div>
@@ -623,14 +657,14 @@ export default function ProfilePage() {
                 <div>
                   <h3 className="text-zinc-950 font-bold text-xs uppercase tracking-wider mb-2">Academic Record</h3>
                   <div className="border-t border-zinc-200 dark:border-zinc-200">
-                    <InputField label="Academic Year" name="academicYear" />
-                    <InputField label="Admission Number" name="admissionNo" readOnly />
-                    <InputField label="Admission Date" name="admissionDate" />
-                    <InputField label="Class" name="className" readOnly />
-                    <InputField label="Section" name="section" readOnly />
-                    <InputField label="Roll No" name="rollNo" />
-                    <InputField label="Previous School" name="previousSchool" />
-                    <InputField label="Previous Class Covered" name="previousClassCovered" />
+                    {renderInputField("Academic Year", "academicYear")}
+                    {renderInputField("Admission Number", "admissionNo", "text", true)}
+                    {renderInputField("Admission Date", "admissionDate")}
+                    {renderInputField("Class", "className", "text", true)}
+                    {renderInputField("Section", "section", "text", true)}
+                    {renderInputField("Roll No", "rollNo")}
+                    {renderInputField("Previous School", "previousSchool")}
+                    {renderInputField("Previous Class Covered", "previousClassCovered")}
                   </div>
                 </div>
               </div>

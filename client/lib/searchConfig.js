@@ -126,6 +126,7 @@ const SYNONYMS_MAP = {
   '/dashboard/utilities/style/color-theme': ['color theme', 'theme colors', 'palette', 'dark light theme'],
 
   // Settings
+  '/dashboard/settings/billing': ['subscription', 'billing', 'plan', 'safepay', 'pricing', 'invoices', 'receipts', 'student quota', 'payment history', 'upgrade plan'],
   '/dashboard/settings/general': ['settings', 'general settings', 'system settings', 'school configuration'],
   '/dashboard/settings/general/holiday': ['holiday', 'holidays', 'school holidays', 'chutti list', 'vacations'],
   '/dashboard/settings/general/weekend': ['weekend', 'weekend setup', 'sunday holiday', 'saturday'],

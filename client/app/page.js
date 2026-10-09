@@ -1502,21 +1502,38 @@ export default function LandingPage() {
             Simple, Transparent Pricing<span className="text-[#087f77]">.</span>
           </h2>
           <p className="text-sm sm:text-base text-[#667987] mt-4">
-            Start free for 1 month. No credit card required. Cancel anytime.
+            Pay only for active enrolled students. Start free for 1 month via Safepay. Cancel anytime.
           </p>
+          <div className="mt-4">
+            <Link
+              href="/pricing"
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#087f77] hover:underline"
+            >
+              <span>Open Interactive Pricing Calculator & Plan Comparator</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch pt-4">
-          {/* Basic Plan */}
+          {/* Starter Plan */}
           <article className="p-8 rounded-2xl border border-[#dfe7eb] bg-white flex flex-col justify-between hover:-translate-y-2 hover:shadow-xl transition-all">
             <div>
-              <h3 className="text-xl font-bold text-[#102e43] mb-1">Basic</h3>
-              <p className="text-xs text-[#667987] mb-6">For small primary schools.</p>
-              <div className="text-4xl sm:text-5xl font-extrabold text-[#102e43] tracking-tight mb-6">
-                $29<span className="text-xs sm:text-sm font-normal text-[#7e929e] ml-1">/mo</span>
+              <h3 className="text-xl font-bold text-[#102e43] mb-1">Starter</h3>
+              <p className="text-xs text-[#667987] mb-6">For primary & smaller academies.</p>
+              <div className="text-3xl sm:text-4xl font-extrabold text-[#102e43] tracking-tight mb-2">
+                Rs. 15<span className="text-xs sm:text-sm font-normal text-[#7e929e] ml-1">/ student / mo</span>
               </div>
+              <p className="text-[11px] text-[#087f77] font-semibold mb-6">Min. 50 Students (Rs. 750 / mo)</p>
               <ul className="space-y-3.5 mb-8 text-xs sm:text-sm text-[#617886]">
-                {["Up to 500 Students", "Basic Attendance", "Fee Management", "Admin & Teacher Portals", "Email Support"].map((item, i) => (
+                {[
+                  "Up to 300 Students Quota",
+                  "Student & Teacher Portals",
+                  "Fee Invoicing & Receipt Generator",
+                  "Daily Attendance & SMS Alerts",
+                  "ID Card & Certificate Generator",
+                  "Standard Email & Chat Support"
+                ].map((item, i) => (
                   <li key={i} className="flex items-center gap-2.5">
                     <span className="text-[#087f77] font-bold">✓</span>
                     <span>{item}</span>
@@ -1524,33 +1541,42 @@ export default function LandingPage() {
                 ))}
               </ul>
             </div>
-            <a
-              href="mailto:support@stoofi.com?subject=Stoofi%20Basic%20-%20Free%20Trial"
-              className="w-full text-center py-3 rounded-lg border border-[#c9d6dc] text-[#102e43] font-bold text-xs sm:text-sm hover:bg-[#f3f7f8] transition-colors"
-            >
-              Start Free Trial
-            </a>
+            <div className="space-y-2">
+              <Link
+                href="/checkout?plan=starter&cycle=monthly&students=100"
+                className="block w-full text-center py-3 rounded-lg bg-[#087f77] text-white font-bold text-xs sm:text-sm hover:bg-[#06655f] transition-colors shadow-sm"
+              >
+                Proceed to Checkout
+              </Link>
+              <Link
+                href="/checkout?plan=starter&trial=true"
+                className="block w-full text-center py-2 text-xs font-semibold text-[#667987] hover:text-[#102e43] hover:underline"
+              >
+                Start 1-Month Free Trial
+              </Link>
+            </div>
           </article>
 
           {/* Professional Plan (Featured) */}
-          <article className="p-8 rounded-2xl bg-[#0c2436] text-white border-2 border-[#0c2436] shadow-[0_20px_50px_rgba(12,36,54,0.25)] flex flex-col justify-between relative md:-translate-y-3 hover:-translate-y-4 transition-all">
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#64e2bc] text-[#104439] text-[10px] font-extrabold uppercase tracking-widest px-4 py-1 rounded-full shadow-sm">
-              MOST POPULAR
+          <article className="p-8 rounded-2xl bg-[#0c2436] text-white border-2 border-[#64e2bc] shadow-[0_20px_50px_rgba(12,36,54,0.25)] flex flex-col justify-between relative md:-translate-y-3 hover:-translate-y-4 transition-all">
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#64e2bc] text-[#0c322f] text-[10px] font-extrabold uppercase tracking-widest px-4 py-1 rounded-full shadow-sm">
+              MOST POPULAR 🎉
             </div>
             <div>
               <h3 className="text-xl font-bold text-white mb-1">Professional</h3>
-              <p className="text-xs text-[#b3c8d2] mb-6">For growing high schools.</p>
-              <div className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight mb-6">
-                $79<span className="text-xs sm:text-sm font-normal text-[#b3c8d2] ml-1">/mo</span>
+              <p className="text-xs text-[#b3c8d2] mb-6">For modern high schools & colleges.</p>
+              <div className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-2">
+                Rs. 12<span className="text-xs sm:text-sm font-normal text-[#b3c8d2] ml-1">/ student / mo</span>
               </div>
+              <p className="text-[11px] text-[#64e2bc] font-semibold mb-6">Min. 100 Students (Rs. 1,200 / mo)</p>
               <ul className="space-y-3.5 mb-8 text-xs sm:text-sm text-[#b3c8d2]">
                 {[
-                  "Up to 2000 Students",
-                  "All 5 Portals Included",
-                  "Advanced Payroll & HR",
-                  "LMS & Online Exams",
-                  "SMS Notifications",
-                  "Priority Support"
+                  "Up to 1,500 Students Quota",
+                  "All 5 Specialized Portals Included",
+                  "Safepay Online Fee & Raast Checkout",
+                  "Full LMS, Homework & Exam Grading",
+                  "Virtual Classroom (Jitsi & Meet)",
+                  "Priority Phone & WhatsApp Support"
                 ].map((item, i) => (
                   <li key={i} className="flex items-center gap-2.5">
                     <span className="text-[#64e2bc] font-bold">✓</span>
@@ -1559,29 +1585,39 @@ export default function LandingPage() {
                 ))}
               </ul>
             </div>
-            <a
-              href="mailto:support@stoofi.com?subject=Stoofi%20Professional%20-%201%20Month%20Free%20Trial"
-              className="w-full text-center py-3.5 rounded-lg bg-[#64e2bc] text-[#0c322f] font-bold text-xs sm:text-sm hover:bg-[#85edce] shadow-md transition-all"
-            >
-              Start 1 Month Free
-            </a>
+            <div className="space-y-2">
+              <Link
+                href="/checkout?plan=professional&cycle=monthly&students=150"
+                className="block w-full text-center py-3.5 rounded-lg bg-[#64e2bc] text-[#0c322f] font-bold text-xs sm:text-sm hover:bg-[#85edce] shadow-md transition-all"
+              >
+                Proceed to Checkout
+              </Link>
+              <Link
+                href="/checkout?plan=professional&trial=true"
+                className="block w-full text-center py-2 text-xs font-semibold text-[#b3c8d2] hover:text-white hover:underline"
+              >
+                Start 1-Month Free Trial
+              </Link>
+            </div>
           </article>
 
           {/* Enterprise Plan */}
           <article className="p-8 rounded-2xl border border-[#dfe7eb] bg-white flex flex-col justify-between hover:-translate-y-2 hover:shadow-xl transition-all">
             <div>
               <h3 className="text-xl font-bold text-[#102e43] mb-1">Enterprise</h3>
-              <p className="text-xs text-[#667987] mb-6">For large school networks.</p>
-              <div className="text-4xl sm:text-5xl font-extrabold text-[#102e43] tracking-tight mb-6">
-                $199<span className="text-xs sm:text-sm font-normal text-[#7e929e] ml-1">/mo</span>
+              <p className="text-xs text-[#667987] mb-6">For large school networks & chains.</p>
+              <div className="text-3xl sm:text-4xl font-extrabold text-[#102e43] tracking-tight mb-2">
+                Rs. 10<span className="text-xs sm:text-sm font-normal text-[#7e929e] ml-1">/ student / mo</span>
               </div>
+              <p className="text-[11px] text-[#087f77] font-semibold mb-6">Min. 200 Students (Rs. 2,000 / mo)</p>
               <ul className="space-y-3.5 mb-8 text-xs sm:text-sm text-[#617886]">
                 {[
-                  "Unlimited Students",
-                  "Multi-Branch Support",
-                  "Custom Domain",
-                  "White-label Mobile App",
-                  "Dedicated Account Manager"
+                  "Unlimited Students Quota",
+                  "Multi-Campus Central Management",
+                  "Custom Domain & School Branding",
+                  "White-label Portals & Themes",
+                  "Automated Backups & API Export",
+                  "Dedicated Account Manager 24/7"
                 ].map((item, i) => (
                   <li key={i} className="flex items-center gap-2.5">
                     <span className="text-[#087f77] font-bold">✓</span>
@@ -1590,12 +1626,20 @@ export default function LandingPage() {
                 ))}
               </ul>
             </div>
-            <a
-              href="mailto:support@stoofi.com?subject=Stoofi%20Enterprise%20-%20Sales%20Enquiry"
-              className="w-full text-center py-3 rounded-lg border border-[#c9d6dc] text-[#102e43] font-bold text-xs sm:text-sm hover:bg-[#f3f7f8] transition-colors"
-            >
-              Contact Sales
-            </a>
+            <div className="space-y-2">
+              <Link
+                href="/checkout?plan=enterprise&cycle=monthly&students=300"
+                className="block w-full text-center py-3 rounded-lg bg-[#087f77] text-white font-bold text-xs sm:text-sm hover:bg-[#06655f] transition-colors shadow-sm"
+              >
+                Proceed to Checkout
+              </Link>
+              <Link
+                href="/checkout?plan=enterprise&trial=true"
+                className="block w-full text-center py-2 text-xs font-semibold text-[#667987] hover:text-[#102e43] hover:underline"
+              >
+                Start 1-Month Free Trial
+              </Link>
+            </div>
           </article>
         </div>
       </section>

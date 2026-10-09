@@ -13,3 +13,5 @@ export function StoofiLogo({ className = "", size = "md" }) {
     </div>
   );
 }
+
+export default StoofiLogo;

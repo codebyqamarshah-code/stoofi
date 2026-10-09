@@ -1,39 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth.middleware');
-const User = require('../models/User');
+const paymentController = require('../controllers/payment.controller');
 
-router.post('/', protect, async (req, res) => {
-  try {
-    const { method, amount, trxId } = req.body;
-    
-    // Check if a payment method and transaction ID was provided
-    if (!method || !amount || !trxId) {
-      return res.status(400).json({ success: false, message: 'Please provide payment method, amount, and transaction ID.' });
-    }
+// Public endpoints
+router.get('/calculate', paymentController.calculatePrice);
+router.post('/checkout-session', paymentController.createCheckoutSession);
+router.post('/start-trial', paymentController.startFreeTrial);
+router.post('/verify', paymentController.verifyPayment);
+router.post('/safepay/webhook', paymentController.handleWebhook);
+router.get('/invoice/:id', paymentController.getInvoiceById);
 
-    // In a real application, you would verify the TRX ID via JazzCash/EasyPaisa API here.
-    // We are simulating a successful verification and upgrading the subscription.
+// Protected endpoints for authenticated users/school admins
+router.get('/subscription', protect, paymentController.getSubscription);
+router.get('/history', protect, paymentController.getPaymentHistory);
+router.post('/cancel-subscription', protect, paymentController.cancelSubscription);
 
-    const user = await User.findById(req.user.id);
-    
-    user.subscription = {
-      plan: 'Premium',
-      status: 'Active',
-      startDate: new Date(),
-      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // Extends by 1 month for demo
-    };
-
-    await user.save();
-
-    res.status(200).json({
-      success: true,
-      message: 'Payment verified successfully! Your account has been upgraded to Premium.',
-      subscription: user.subscription
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
+// Legacy test/upgrade handler
+router.post('/', protect, paymentController.createCheckoutSession);
 
 module.exports = router;

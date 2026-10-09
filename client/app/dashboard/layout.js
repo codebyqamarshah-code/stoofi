@@ -497,11 +497,20 @@ export default function DashboardLayout({ children }) {
   return (
     <div className="flex h-screen bg-white dark:bg-white overflow-hidden">
       <PageTransitionLoader />
+      {/* Mobile Backdrop Overlay */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-zinc-950/50 backdrop-blur-xs md:hidden transition-opacity duration-300 cursor-pointer"
+          aria-hidden="true"
+        />
+      )}
+
       {/* Sidebar with Accordion Animation */}
       <aside
         className={`${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed inset-y-0 left-0 z-50 w-64 border-r border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white transition-transform duration-300 md:relative md:translate-x-0 ${sidebarCollapsed ? 'md:hidden' : 'md:flex'} flex-col shrink-0`}
+          sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+        } fixed inset-y-0 left-0 z-50 flex h-full max-h-screen w-72 sm:w-80 md:w-64 flex-col border-r border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white transition-transform duration-300 md:relative md:translate-x-0 ${sidebarCollapsed ? 'md:hidden' : 'md:flex'} shrink-0 overflow-hidden`}
       >
         {/* Brand Header */}
         <div className="flex h-[70px] items-center justify-between border-b border-zinc-200 dark:border-zinc-200 px-5 shrink-0 bg-white dark:bg-white">
@@ -519,7 +528,7 @@ export default function DashboardLayout({ children }) {
         </div>
 
         {/* Scrollable Navigation */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-5">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar p-3 pb-16 space-y-5 overscroll-contain">
           {menuStructure.filter(g => g.visible !== false).map((group, gIdx) => {
             const visibleItems = (group.items || []).filter(item => item.visible !== false);
             if (visibleItems.length === 0) return null;
@@ -1024,6 +1033,12 @@ export default function DashboardLayout({ children }) {
                         className="px-3 py-1.5 text-xs text-zinc-700 dark:text-zinc-700 hover:bg-zinc-200 hover:text-zinc-900 cursor-pointer flex items-center gap-2 transition-colors"
                       >
                         <Settings className="h-3.5 w-3.5" /> Settings
+                      </div>
+                      <div 
+                        onClick={() => { setIsProfileOpen(false); router.push('/dashboard/settings/billing'); }}
+                        className="px-3 py-1.5 text-xs text-zinc-700 dark:text-zinc-700 hover:bg-zinc-200 hover:text-zinc-900 cursor-pointer flex items-center gap-2 transition-colors"
+                      >
+                        <CreditCard className="h-3.5 w-3.5" /> Subscription & Billing
                       </div>
                       <div 
                         onClick={handleLogout}
