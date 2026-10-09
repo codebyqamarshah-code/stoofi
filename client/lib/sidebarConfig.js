@@ -139,7 +139,19 @@ export const ICON_MAP = {
   Send,
   Star,
   Trophy,
-  Bell
+  Bell,
+  FlaskConical,
+  Cpu,
+  Beaker,
+  FileCheck,
+  ArrowLeftRight,
+  Wrench,
+  ShieldAlert,
+  Boxes,
+  CalendarClock,
+  CalendarCheck,
+  Laptop,
+  ClipboardList
 };
 
 export const DEFAULT_MENU_STRUCTURE = [
@@ -210,6 +222,7 @@ export const DEFAULT_MENU_STRUCTURE = [
         id: 'item-labs',
         name: 'Labs',
         iconName: 'FlaskConical',
+        iconImg: '/Lab-general-icon.png',
         hasSubmenu: true,
         visible: true,
         subItems: [
@@ -955,6 +968,28 @@ export const TEACHER_MENU_STRUCTURE = [
           { id: 'sub-lesson-plan-ov', name: 'Lesson Plan Overview', href: '/dashboard/lesson-plan/overview', iconName: 'FileSpreadsheet', visible: true },
         ],
       },
+      {
+        id: 'item-labs',
+        name: 'Labs',
+        iconName: 'FlaskConical',
+        iconImg: '/Lab-general-icon.png',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'sub-lab-dash', name: 'Dashboard', href: '/dashboard/labs', iconName: 'LayoutDashboard', visible: true },
+          { id: 'sub-lab-cats', name: 'Lab Categories', href: '/dashboard/labs/categories', iconName: 'Boxes', visible: true },
+          { id: 'sub-lab-manage', name: 'Manage Labs', href: '/dashboard/labs/manage', iconName: 'FlaskConical', visible: true },
+          { id: 'sub-lab-equip', name: 'Equipment & Assets', href: '/dashboard/labs/equipment', iconName: 'Cpu', visible: true },
+          { id: 'sub-lab-consumables', name: 'Consumables', href: '/dashboard/labs/consumables', iconName: 'Beaker', visible: true },
+          { id: 'sub-lab-schedule', name: 'Lab Schedule', href: '/dashboard/labs/schedule', iconName: 'CalendarDays', visible: true },
+          { id: 'sub-lab-practicals', name: 'Practicals', href: '/dashboard/labs/practicals', iconName: 'FileCheck', visible: true },
+          { id: 'sub-lab-issue', name: 'Equipment Issue/Return', href: '/dashboard/labs/issue-return', iconName: 'ArrowLeftRight', visible: true },
+          { id: 'sub-lab-maint', name: 'Maintenance', href: '/dashboard/labs/maintenance', iconName: 'Wrench', visible: true },
+          { id: 'sub-lab-safety', name: 'Safety & Incidents', href: '/dashboard/labs/safety', iconName: 'ShieldAlert', visible: true },
+          { id: 'sub-lab-reports', name: 'Reports', href: '/dashboard/labs/reports', iconName: 'BarChart2', visible: true },
+          { id: 'sub-lab-settings', name: 'Settings', href: '/dashboard/labs/settings', iconName: 'Settings', visible: true },
+        ],
+      },
     ],
   },
   {
@@ -1214,7 +1249,7 @@ export const STUDENT_MENU_STRUCTURE = [
   }
 ];
 
-export const STORAGE_KEY = 'stoofi_custom_sidebar_v8';
+export const STORAGE_KEY = 'stoofi_custom_sidebar_v9';
 
 // Keep Admin Setup as the last entry of Admin Section in saved layouts.
 function moveAdminSetupToEnd(menu) {
@@ -1251,7 +1286,32 @@ export function getStoredSidebar(role = 'Super Admin') {
           return TEACHER_MENU_STRUCTURE;
         }
       }
-      return moveAdminSetupToEnd(parsed);
+      const menu = moveAdminSetupToEnd(parsed);
+      if (Array.isArray(menu)) {
+        return menu.map(grp => {
+          const defGrp = defaultForRole.find(g => g.id === grp.id);
+          return {
+            ...grp,
+            items: (grp.items || []).map(it => {
+              const defIt = defGrp?.items?.find(i => i.id === it.id);
+              return {
+                ...it,
+                iconImg: it.iconImg || defIt?.iconImg,
+                iconName: it.iconName || defIt?.iconName,
+                subItems: (it.subItems || []).map(sub => {
+                  const defSub = defIt?.subItems?.find(s => s.id === sub.id);
+                  return {
+                    ...sub,
+                    iconImg: sub.iconImg || defSub?.iconImg,
+                    iconName: sub.iconName || defSub?.iconName,
+                  };
+                })
+              };
+            })
+          };
+        });
+      }
+      return menu;
     }
   } catch (e) {
     console.error('Failed to parse sidebar data:', e);

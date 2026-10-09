@@ -448,9 +448,26 @@ exports.getEvents = async (req, res, next) => {
 
 exports.createEvent = async (req, res, next) => {
   try {
+    const { title, audience, eventFor, date, startDate, endDate, location, description, category, status } = req.body;
+    if (!title || !title.trim()) {
+      return res.status(400).json({ success: false, message: 'Event title is required' });
+    }
+    const aud = audience || eventFor || 'All';
+    const sDate = startDate || date || new Date().toISOString().split('T')[0];
+    const eDate = endDate || sDate;
+    
     const event = await Event.create({
-      ...req.body,
-      createdBy: req.user._id
+      title: title.trim(),
+      eventFor: aud,
+      audience: aud,
+      category: category || 'Event',
+      startDate: sDate,
+      endDate: eDate,
+      date: sDate,
+      location: location || 'Main Campus',
+      description: description || '',
+      status: status || 'Upcoming',
+      createdBy: req.user?._id
     });
     res.status(201).json({ success: true, data: event });
   } catch (error) {
@@ -460,10 +477,30 @@ exports.createEvent = async (req, res, next) => {
 
 exports.updateEvent = async (req, res, next) => {
   try {
-    const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const { title, audience, eventFor, date, startDate, endDate, location, description, category, status } = req.body;
+    let event = await Event.findById(req.params.id);
     if (!event) {
       return res.status(404).json({ success: false, message: 'Event not found' });
     }
+
+    if (title !== undefined) event.title = title.trim();
+    if (audience !== undefined || eventFor !== undefined) {
+      event.audience = audience || eventFor;
+      event.eventFor = audience || eventFor;
+    }
+    if (category !== undefined) event.category = category;
+    if (startDate !== undefined) event.startDate = startDate;
+    if (endDate !== undefined) event.endDate = endDate;
+    if (date !== undefined) {
+      event.date = date;
+      if (!startDate) event.startDate = date;
+      if (!endDate) event.endDate = date;
+    }
+    if (location !== undefined) event.location = location;
+    if (description !== undefined) event.description = description;
+    if (status !== undefined) event.status = status;
+
+    await event.save();
     res.status(200).json({ success: true, data: event });
   } catch (error) {
     next(error);
@@ -476,8 +513,9 @@ exports.deleteEvent = async (req, res, next) => {
     if (!event) {
       return res.status(404).json({ success: false, message: 'Event not found' });
     }
-    res.status(200).json({ success: true, data: {} });
+    res.status(200).json({ success: true, message: 'Event deleted successfully', data: {} });
   } catch (error) {
     next(error);
   }
 };
+

@@ -542,27 +542,199 @@ exports.getMe = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
     
-    if (user.role === 'Student' && user.referenceId) {
-      const studentData = await Student.findById(user.referenceId).lean();
-      if (studentData) {
-        user.className = studentData.className;
-        user.section = studentData.section;
-        user.rollNo = studentData.rollNo;
-        user.admissionNo = studentData.admissionNo;
-        user.gender = studentData.gender;
+    if (user.role === 'Student') {
+      let studentData = null;
+      if (user.referenceId) {
+        studentData = await Student.findById(user.referenceId).lean();
       }
-    }
-
-    if (user.role === 'Teacher' && user.referenceId) {
-      const Teacher = require('../models/Teacher');
-      const teacherData = await Teacher.findById(user.referenceId).lean();
-      if (teacherData) {
-        user.subject = teacherData.subject;
-        user.gender = teacherData.gender;
+      if (!studentData && (user.email || user.username)) {
+        studentData = await Student.findOne({
+          $or: [
+            { email: user.email },
+            { admissionNo: user.username },
+            { rollNo: user.username }
+          ]
+        }).lean();
+      }
+      if (studentData) {
+        user.className = studentData.className || user.className;
+        user.section = studentData.section || user.section;
+        user.rollNo = studentData.rollNo || user.rollNo;
+        user.admissionNo = studentData.admissionNo || user.admissionNo;
+        user.gender = studentData.gender || user.gender;
+        user.fatherName = studentData.fatherName || user.fatherName;
+        user.fatherPhone = studentData.fatherPhone;
+        user.fatherOccupation = studentData.fatherOccupation;
+        user.fatherCnic = studentData.fatherCnic;
+        user.motherName = studentData.motherName;
+        user.motherPhone = studentData.motherPhone;
+        user.guardianName = studentData.guardianName;
+        user.guardianRelation = studentData.guardianRelation;
+        user.guardianPhone = studentData.guardianPhone;
+        user.guardianAddress = studentData.guardianAddress;
+        user.dob = studentData.dob || user.dob;
+        user.dateOfBirth = studentData.dob || user.dob;
+        user.bloodGroup = studentData.bloodGroup || user.bloodGroup;
+        user.religion = studentData.religion;
+        user.caste = studentData.caste;
+        user.nationality = studentData.nationality;
+        user.cnic = studentData.cnic || studentData.bForm || user.cnic;
+        user.bForm = studentData.bForm;
+        user.academicYear = studentData.academicYear;
+        user.admissionDate = studentData.admissionDate || studentData.joiningDate;
+        user.joiningDate = studentData.admissionDate || studentData.joiningDate;
+        user.currentAddress = studentData.currentAddress || studentData.address || user.address;
+        user.permanentAddress = studentData.permanentAddress;
+        user.city = studentData.city;
+        user.emergencyContact = studentData.emergencyContact;
+        user.medicalHistory = studentData.medicalHistory;
+        user.previousSchool = studentData.previousSchool || studentData.previousSchoolName;
+        user.previousClassCovered = studentData.previousClassCovered;
+        if (studentData.studentPhoto || studentData.photo) {
+          user.avatar = user.avatar || studentData.studentPhoto || studentData.photo;
+        }
+      }
+    } else if (['Teacher', 'Staff', 'Admin', 'Super Admin', 'Accountant', 'Librarian'].includes(user.role)) {
+      let staffData = null;
+      if (user.referenceId) {
+        staffData = await Staff.findById(user.referenceId).lean();
+      }
+      if (!staffData && (user.email || user.username)) {
+        staffData = await Staff.findOne({
+          $or: [
+            { email: user.email },
+            { staffNo: user.username },
+            { mobile: user.phone || user.username }
+          ]
+        }).lean();
+      }
+      if (staffData) {
+        user.designation = staffData.designation || user.designation;
+        user.department = staffData.department || user.department;
+        user.basicSalary = staffData.basicSalary || staffData.salary;
+        user.dateOfJoining = staffData.dateOfJoining || staffData.joiningDate;
+        user.joiningDate = staffData.dateOfJoining || staffData.joiningDate;
+        user.contractType = staffData.contractType || 'Permanent';
+        user.epfNo = staffData.epfNo || staffData.staffNo || '';
+        user.fatherName = staffData.fatherName || user.fatherName;
+        user.motherName = staffData.motherName;
+        user.qualifications = staffData.qualifications || staffData.qualificationLevel;
+        user.experience = staffData.experience;
+        user.bankName = staffData.bankName;
+        user.accountName = staffData.accountName;
+        user.bankAccountNumber = staffData.accountNo;
+        user.branchName = staffData.branchName;
+        user.gender = staffData.gender || user.gender;
+        user.dob = staffData.dateOfBirth || staffData.dob || user.dob;
+        user.dateOfBirth = staffData.dateOfBirth || staffData.dob || user.dob;
+        user.maritalStatus = staffData.maritalStatus;
+        user.emergencyMobile = staffData.emergencyMobile;
+        user.currentAddress = staffData.currentAddress || user.address;
+        user.permanentAddress = staffData.permanentAddress;
+        user.facebookUrl = staffData.facebook;
+        user.twitterUrl = staffData.twitter;
+        user.linkedinUrl = staffData.linkedin;
+        user.instagramUrl = staffData.instagram;
       }
     }
     
     res.status(200).json({ success: true, data: user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const {
+      fullName, phone, mobile, emergencyMobile, address, currentAddress, permanentAddress,
+      dob, dateOfBirth, gender, maritalStatus, fatherName, motherName,
+      qualifications, workExperience, experience,
+      bankName, accountName, bankAccountNumber, branchName,
+      facebookUrl, twitterUrl, linkedinUrl, instagramUrl, avatar,
+      rollNo, bloodGroup, religion, caste, cnic, bForm, city
+    } = req.body;
+
+    if (fullName) user.fullName = fullName;
+    if (phone || mobile) user.phone = phone || mobile;
+    if (address || currentAddress) user.schoolAddress = address || currentAddress;
+    if (avatar) user.avatar = avatar;
+    await user.save({ validateBeforeSave: false });
+
+    if (user.role === 'Student') {
+      const studentMatch = user.referenceId ? { _id: user.referenceId } : { $or: [{ email: user.email }, { admissionNo: user.username }] };
+      const student = await Student.findOne(studentMatch);
+      if (student) {
+        if (fullName) {
+          const parts = fullName.trim().split(' ');
+          student.firstName = parts[0] || student.firstName;
+          student.lastName = parts.slice(1).join(' ') || student.lastName;
+        }
+        if (phone || mobile) student.phone = phone || mobile;
+        if (emergencyMobile) student.emergencyContact = emergencyMobile;
+        if (gender) student.gender = gender;
+        if (dob || dateOfBirth) student.dob = dob || dateOfBirth;
+        if (bloodGroup) student.bloodGroup = bloodGroup;
+        if (religion) student.religion = religion;
+        if (caste) student.caste = caste;
+        if (cnic || bForm) {
+          student.cnic = cnic || student.cnic;
+          student.bForm = bForm || student.bForm;
+        }
+        if (fatherName) student.fatherName = fatherName;
+        if (motherName) student.motherName = motherName;
+        if (currentAddress || address) student.currentAddress = currentAddress || address;
+        if (permanentAddress) student.permanentAddress = permanentAddress;
+        if (city) student.city = city;
+        if (avatar) student.studentPhoto = avatar;
+        if (rollNo) student.rollNo = rollNo;
+        await student.save({ validateBeforeSave: false });
+      }
+    } else if (['Teacher', 'Staff', 'Admin', 'Super Admin', 'Accountant', 'Librarian'].includes(user.role)) {
+      const staffMatch = user.referenceId ? { _id: user.referenceId } : { $or: [{ email: user.email }, { staffNo: user.username }] };
+      const staff = await Staff.findOne(staffMatch);
+      if (staff) {
+        if (fullName) {
+          const parts = fullName.trim().split(' ');
+          staff.firstName = parts[0] || staff.firstName;
+          staff.lastName = parts.slice(1).join(' ') || staff.lastName;
+        }
+        if (phone || mobile) {
+          staff.phone = phone || mobile;
+          staff.mobile = phone || mobile;
+        }
+        if (emergencyMobile) staff.emergencyMobile = emergencyMobile;
+        if (gender) staff.gender = gender;
+        if (dob || dateOfBirth) {
+          staff.dateOfBirth = dob || dateOfBirth;
+          staff.dob = dob || dateOfBirth;
+        }
+        if (maritalStatus) staff.maritalStatus = maritalStatus;
+        if (fatherName) staff.fatherName = fatherName;
+        if (motherName) staff.motherName = motherName;
+        if (qualifications) staff.qualifications = qualifications;
+        if (experience || workExperience) staff.experience = experience || workExperience;
+        if (currentAddress || address) staff.currentAddress = currentAddress || address;
+        if (permanentAddress) staff.permanentAddress = permanentAddress;
+        if (bankName) staff.bankName = bankName;
+        if (accountName) staff.accountName = accountName;
+        if (bankAccountNumber) staff.accountNo = bankAccountNumber;
+        if (branchName) staff.branchName = branchName;
+        if (facebookUrl) staff.facebook = facebookUrl;
+        if (twitterUrl) staff.twitter = twitterUrl;
+        if (linkedinUrl) staff.linkedin = linkedinUrl;
+        if (instagramUrl) staff.instagram = instagramUrl;
+        if (avatar) staff.photo = avatar;
+        await staff.save({ validateBeforeSave: false });
+      }
+    }
+
+    res.status(200).json({ success: true, message: 'Profile updated successfully', data: user });
   } catch (error) {
     next(error);
   }

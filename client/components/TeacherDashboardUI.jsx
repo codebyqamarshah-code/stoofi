@@ -26,7 +26,9 @@ import {
   UserPlus,
   CreditCard,
   Receipt,
-  CheckSquare
+  CheckSquare,
+  MapPin,
+  Calendar
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -160,6 +162,23 @@ export default function DashboardUI({ user }) {
   const [todos, setTodos] = useState([]);
   const [newTodoText, setNewTodoText] = useState('');
   const [isAddingTodo, setIsAddingTodo] = useState(false);
+
+  // Calendar Events State
+  const [events, setEvents] = useState([]);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [isViewEventModalOpen, setIsViewEventModalOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [eventForm, setEventForm] = useState({ 
+    title: '', 
+    audience: 'All', 
+    category: 'Event',
+    date: new Date().toISOString().split('T')[0],
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0],
+    location: 'Main Campus',
+    description: ''
+  });
 
   // 1. Calculate Real Dynamic Greeting & Live Clock
   useEffect(() => {
@@ -510,12 +529,225 @@ export default function DashboardUI({ user }) {
     }
   };
 
-  const handleViewNotice = (notice) => {
-    setSelectedNotice(notice);
-    setIsViewNoticeModalOpen(true);
+  // 6. EVENT & HOLIDAY ACTIONS
+  const fetchEventsList = async () => {
+    try {
+      const res = await api.get('/dashboard/events');
+      let localSaved = [];
+      if (typeof window !== 'undefined') {
+        try {
+          const raw = localStorage.getItem('dashboard_events');
+          if (raw) localSaved = JSON.parse(raw);
+        } catch (_) {}
+      }
+      const serverEvents = Array.isArray(res?.data) ? res.data : [];
+      if (serverEvents.length > 0) {
+        const combined = [...serverEvents];
+        localSaved.forEach(localItem => {
+          if (!combined.some(s => s._id === localItem._id || (s.title === localItem.title && s.date === localItem.date))) {
+            combined.push(localItem);
+          }
+        });
+        setEvents(combined);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('dashboard_events', JSON.stringify(combined));
+        }
+      } else if (localSaved.length > 0) {
+        setEvents(localSaved);
+      }
+    } catch (err) {
+      console.warn('Error fetching events:', err);
+      if (typeof window !== 'undefined') {
+        try {
+          const raw = localStorage.getItem('dashboard_events');
+          if (raw) setEvents(JSON.parse(raw));
+        } catch (_) {}
+      }
+    }
   };
 
-  // 6. TO-DO ACTIONS
+  useEffect(() => {
+    fetchEventsList();
+  }, []);
+
+  const handleOpenCreateEvent = (date = null) => {
+    setEditingEvent(null);
+    const targetDate = date || selectedDate || new Date();
+    const dateStr = targetDate instanceof Date 
+      ? targetDate.toISOString().split('T')[0] 
+      : String(targetDate).split('T')[0];
+    setEventForm({
+      title: '',
+      audience: 'All',
+      category: 'Event',
+      date: dateStr,
+      startDate: dateStr,
+      endDate: dateStr,
+      location: 'Main Campus',
+      description: ''
+    });
+    setIsEventModalOpen(true);
+  };
+
+  const handleOpenEditEvent = (event, e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    setEditingEvent(event);
+    const eventDate = event.date || event.startDate || new Date().toISOString().split('T')[0];
+    const dateStr = String(eventDate).split('T')[0];
+    setEventForm({
+      title: event.title || '',
+      audience: event.audience || event.eventFor || 'All',
+      category: event.category || 'Event',
+      date: dateStr,
+      startDate: event.startDate ? String(event.startDate).split('T')[0] : dateStr,
+      endDate: event.endDate ? String(event.endDate).split('T')[0] : dateStr,
+      location: event.location || 'Main Campus',
+      description: event.description || ''
+    });
+    setIsEventModalOpen(true);
+  };
+
+  const handleViewEvent = (event, e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    setSelectedEvent(event);
+    setIsViewEventModalOpen(true);
+  };
+
+  const handleSaveEvent = async (e) => {
+    e.preventDefault();
+    if (!eventForm.title.trim()) {
+      alert('Please enter an Event Title.');
+      return;
+    }
+
+    const titleVal = eventForm.title.trim();
+    const audienceVal = eventForm.audience || 'All';
+    const categoryVal = eventForm.category || 'Event';
+    const dateVal = eventForm.date || new Date().toISOString().split('T')[0];
+    const startDateVal = eventForm.startDate || dateVal;
+    const endDateVal = eventForm.endDate || dateVal;
+    const locationVal = eventForm.location || 'Main Campus';
+    const descriptionVal = eventForm.description || '';
+
+    if (editingEvent) {
+      const updatedEv = {
+        ...editingEvent,
+        title: titleVal,
+        audience: audienceVal,
+        eventFor: audienceVal,
+        category: categoryVal,
+        date: dateVal,
+        startDate: startDateVal,
+        endDate: endDateVal,
+        location: locationVal,
+        description: descriptionVal,
+        updatedAt: new Date().toISOString()
+      };
+
+      const updatedList = events.map(ev => ev._id === editingEvent._id ? updatedEv : ev);
+      setEvents(updatedList);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('dashboard_events', JSON.stringify(updatedList));
+      }
+      setIsEventModalOpen(false);
+      setEditingEvent(null);
+
+      try {
+        await api.put(`/dashboard/events/${editingEvent._id}`, {
+          title: titleVal,
+          audience: audienceVal,
+          eventFor: audienceVal,
+          category: categoryVal,
+          date: dateVal,
+          startDate: startDateVal,
+          endDate: endDateVal,
+          location: locationVal,
+          description: descriptionVal
+        });
+      } catch (err) {
+        console.warn('API event update fallback:', err);
+      }
+    } else {
+      const tempId = 'evt_' + Date.now();
+      const newEv = {
+        _id: tempId,
+        title: titleVal,
+        audience: audienceVal,
+        eventFor: audienceVal,
+        category: categoryVal,
+        date: dateVal,
+        startDate: startDateVal,
+        endDate: endDateVal,
+        location: locationVal,
+        description: descriptionVal,
+        createdAt: new Date().toISOString()
+      };
+
+      const updatedList = [newEv, ...events];
+      setEvents(updatedList);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('dashboard_events', JSON.stringify(updatedList));
+      }
+      setIsEventModalOpen(false);
+
+      try {
+        const res = await api.post('/dashboard/events', {
+          title: titleVal,
+          audience: audienceVal,
+          eventFor: audienceVal,
+          category: categoryVal,
+          date: dateVal,
+          startDate: startDateVal,
+          endDate: endDateVal,
+          location: locationVal,
+          description: descriptionVal
+        });
+        if (res && res.data && res.data._id) {
+          const finalSynced = updatedList.map(ev => ev._id === tempId ? res.data : ev);
+          setEvents(finalSynced);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('dashboard_events', JSON.stringify(finalSynced));
+          }
+        }
+      } catch (err) {
+        console.warn('API event create fallback:', err);
+      }
+    }
+
+    setEventForm({
+      title: '',
+      audience: 'All',
+      category: 'Event',
+      date: new Date().toISOString().split('T')[0],
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: new Date().toISOString().split('T')[0],
+      location: 'Main Campus',
+      description: ''
+    });
+  };
+
+  const handleDeleteEvent = async (id, e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    if (!confirm('Are you sure you want to delete this event?')) return;
+
+    const updatedList = events.filter(ev => ev._id !== id);
+    setEvents(updatedList);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('dashboard_events', JSON.stringify(updatedList));
+    }
+    if (selectedEvent && selectedEvent._id === id) {
+      setIsViewEventModalOpen(false);
+      setSelectedEvent(null);
+    }
+
+    try {
+      await api.delete(`/dashboard/events/${id}`);
+    } catch (err) {
+      console.warn('Event deleted locally');
+    }
+  };
+
+  // 7. TO-DO ACTIONS
   const handleAddTodo = async (e) => {
     e.preventDefault();
     if (!newTodoText.trim()) return;
@@ -1176,18 +1408,110 @@ export default function DashboardUI({ user }) {
         </Card>
 
         {/* Upcoming Events & Holidays */}
-        <Card className="bg-white dark:bg-zinc-50 border border-zinc-300/80 dark:border-zinc-200 shadow-xs">
+        <Card className="bg-white dark:bg-zinc-50 border border-zinc-300/80 dark:border-zinc-200 shadow-xs flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-200">
             <div className="flex items-center gap-2">
               <CalendarIcon className="h-4 w-4 text-zinc-600" />
               <CardTitle className="text-sm font-semibold text-zinc-950 dark:text-zinc-800 font-bold">Upcoming Events & Holidays</CardTitle>
             </div>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={() => handleOpenCreateEvent()}
+              className="h-7 px-2.5 border-zinc-300 dark:border-zinc-200 bg-white dark:bg-zinc-50 text-xs text-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-100 flex items-center gap-1 font-semibold"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>Add Event</span>
+            </Button>
           </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center h-[340px] text-center p-6">
-            <div className="h-12 w-12 rounded-full bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 flex items-center justify-center text-zinc-600 mb-3">
-              <CalendarDays className="h-6 w-6" />
-            </div>
-            <p className="text-xs text-zinc-500 dark:text-zinc-600">No upcoming events or holidays scheduled.</p>
+          <CardContent className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2 h-[340px]">
+            {events.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <div className="h-12 w-12 rounded-full bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 flex items-center justify-center text-zinc-600 mb-3">
+                  <CalendarDays className="h-6 w-6" />
+                </div>
+                <p className="text-xs text-zinc-500 dark:text-zinc-600">No upcoming events or holidays scheduled.</p>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => handleOpenCreateEvent()}
+                  className="mt-3 text-xs h-7 border-dashed border-zinc-300 hover:border-zinc-900"
+                >
+                  <Plus className="h-3.5 w-3.5 mr-1" /> Schedule an Event
+                </Button>
+              </div>
+            ) : (
+              [...events]
+                .sort((a, b) => new Date(b.date || b.startDate) - new Date(a.date || a.startDate)) // Sort newest date first
+                .map((ev, i) => {
+                  const evDate = new Date(ev.date || ev.startDate || Date.now());
+                  const monthStr = isNaN(evDate.getTime()) ? 'DATE' : evDate.toLocaleString('default', { month: 'short' });
+                  const dayNum = isNaN(evDate.getTime()) ? '1' : evDate.getDate();
+
+                  return (
+                    <div 
+                      key={ev._id || i} 
+                      className="group flex items-center justify-between p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-200/80 bg-white hover:bg-zinc-50/80 transition-all shadow-xs"
+                    >
+                      <div 
+                        className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" 
+                        onClick={() => handleViewEvent(ev)}
+                      >
+                        <div className="flex flex-col items-center justify-center h-10 w-10 shrink-0 rounded-lg bg-zinc-100 border border-zinc-200">
+                          <span className="text-[10px] font-bold text-zinc-500 uppercase leading-none">{monthStr}</span>
+                          <span className="text-sm font-black text-zinc-900 leading-none mt-1">{dayNum}</span>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-xs font-bold text-zinc-900 truncate group-hover:text-zinc-700 transition-colors">
+                            {ev.title}
+                          </h4>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[10px] font-bold text-zinc-600 uppercase bg-zinc-100 px-1.5 py-0.5 rounded">
+                              FOR: {ev.audience || ev.eventFor || 'ALL'}
+                            </span>
+                            {ev.category && ev.category !== 'Event' && (
+                              <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                                {ev.category}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action buttons: View, Edit, Delete */}
+                      <div className="flex items-center gap-1 shrink-0 ml-2">
+                        <Button 
+                          size="icon" 
+                          variant="ghost" 
+                          onClick={(e) => handleViewEvent(ev, e)}
+                          className="h-7 w-7 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg"
+                          title="View Event Details"
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button 
+                          size="icon" 
+                          variant="ghost" 
+                          onClick={(e) => handleOpenEditEvent(ev, e)}
+                          className="h-7 w-7 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg"
+                          title="Edit Event"
+                        >
+                          <Edit className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button 
+                          size="icon" 
+                          variant="ghost" 
+                          onClick={(e) => handleDeleteEvent(ev._id, e)}
+                          className="h-7 w-7 text-zinc-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg"
+                          title="Delete Event"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })
+            )}
           </CardContent>
         </Card>
       </div>
@@ -1258,28 +1582,55 @@ export default function DashboardUI({ user }) {
               <span>SAT</span>
             </div>
             <div className="grid grid-cols-7 gap-1 pt-2">
-              {calendarGrid.map((item, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => item.isCurrentMonth && setSelectedDate(item.date)}
-                  className={`min-h-[58px] p-2 rounded-lg border flex flex-col justify-between cursor-pointer transition-all ${
-                    item.isSelected
-                      ? 'bg-zinc-800/30 border-zinc-600 text-zinc-950 dark:text-zinc-800 font-bold font-bold shadow-[0_0_10px_rgba(16,185,129,0.2)]'
-                      : item.isToday
-                      ? 'bg-zinc-100 border-zinc-600/60 text-zinc-950 dark:text-zinc-800 font-bold font-bold'
-                      : item.isCurrentMonth
-                      ? 'bg-white dark:bg-white/60 border-zinc-200 dark:border-zinc-200/60 text-zinc-700 dark:text-zinc-700 hover:border-zinc-300 dark:border-zinc-200 hover:bg-zinc-100 dark:bg-zinc-50'
-                      : 'bg-white dark:bg-white/20 border-transparent text-zinc-700 pointer-events-none'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs">{item.day}</span>
-                    {item.isToday && (
-                      <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" />
-                    )}
+              {calendarGrid.map((item, idx) => {
+                // Check if this date has any events
+                const matchedEvent = events.find(e => {
+                  const dStr = e.date || e.startDate;
+                  if (!dStr) return false;
+                  const ed = new Date(dStr);
+                  return ed.getDate() === item.date.getDate() && 
+                         ed.getMonth() === item.date.getMonth() && 
+                         ed.getFullYear() === item.date.getFullYear();
+                });
+                const hasEvent = !!matchedEvent;
+
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => {
+                      if (item.isCurrentMonth) {
+                        setSelectedDate(item.date);
+                        if (matchedEvent) {
+                          handleViewEvent(matchedEvent);
+                        } else {
+                          handleOpenCreateEvent(item.date);
+                        }
+                      }
+                    }}
+                    className={`min-h-[58px] p-2 rounded-lg border flex flex-col justify-between cursor-pointer transition-all ${
+                      item.isSelected
+                        ? 'bg-zinc-800/30 border-zinc-600 text-zinc-950 dark:text-zinc-800 font-bold font-bold shadow-[0_0_10px_rgba(16,185,129,0.2)]'
+                        : item.isToday
+                        ? 'bg-zinc-100 border-zinc-600/60 text-zinc-950 dark:text-zinc-800 font-bold font-bold'
+                        : item.isCurrentMonth
+                        ? 'bg-white dark:bg-white/60 border-zinc-200 dark:border-zinc-200/60 text-zinc-700 dark:text-zinc-700 hover:border-zinc-300 dark:border-zinc-200 hover:bg-zinc-100 dark:bg-zinc-50'
+                        : 'bg-white dark:bg-white/20 border-transparent text-zinc-700 pointer-events-none'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs">{item.day}</span>
+                      <div className="flex items-center gap-1">
+                        {hasEvent && (
+                          <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                        )}
+                        {item.isToday && (
+                          <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" />
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
@@ -1750,6 +2101,205 @@ export default function DashboardUI({ user }) {
               </div>
               <div className="flex justify-end pt-2">
                 <Button onClick={() => setIsViewNoticeModalOpen(false)} className="bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-950 dark:text-zinc-800 font-bold text-xs">
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* EVENT MODAL 1: Add / Edit Event */}
+      <Dialog open={isEventModalOpen} onOpenChange={setIsEventModalOpen}>
+        <DialogContent className="bg-white border border-zinc-200 shadow-2xl text-zinc-900 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold flex items-center gap-2 text-zinc-900">
+              <CalendarDays className="h-5 w-5 text-zinc-800" />
+              {editingEvent ? 'Edit Event or Holiday' : 'Add Event or Holiday'}
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSaveEvent} className="space-y-3.5 py-2">
+            <div>
+              <label className="text-xs font-bold text-zinc-700 uppercase tracking-wider block mb-1">
+                Event Title <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Sports Gala, Eid Holiday, Exam Prep"
+                value={eventForm.title}
+                onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
+                className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:bg-white focus:outline-none transition-colors"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-bold text-zinc-700 uppercase tracking-wider block mb-1">
+                  Event Type
+                </label>
+                <select
+                  value={eventForm.category}
+                  onChange={(e) => setEventForm({ ...eventForm, category: e.target.value })}
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-xs text-zinc-900 focus:border-zinc-900 focus:bg-white focus:outline-none transition-colors"
+                >
+                  <option value="Event">Event</option>
+                  <option value="Holiday">Holiday / Off Day</option>
+                  <option value="Celebration">Celebration</option>
+                  <option value="Exam">Exam / Test</option>
+                  <option value="Sports">Sports</option>
+                  <option value="Meeting">Parent / Teacher Meeting</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-zinc-700 uppercase tracking-wider block mb-1">
+                  Target Audience
+                </label>
+                <select
+                  value={eventForm.audience}
+                  onChange={(e) => setEventForm({ ...eventForm, audience: e.target.value })}
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-xs text-zinc-900 focus:border-zinc-900 focus:bg-white focus:outline-none transition-colors"
+                >
+                  <option value="All">All (School-wide)</option>
+                  <option value="Students">Students Only</option>
+                  <option value="Teachers">Teachers Only</option>
+                  <option value="Parents">Parents Only</option>
+                  <option value="Staff">Staff Only</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-bold text-zinc-700 uppercase tracking-wider block mb-1">
+                  Event Date <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  required
+                  value={eventForm.date || eventForm.startDate}
+                  onChange={(e) => setEventForm({ ...eventForm, date: e.target.value, startDate: e.target.value })}
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-1.5 text-xs text-zinc-900 focus:border-zinc-900 focus:bg-white focus:outline-none transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-zinc-700 uppercase tracking-wider block mb-1">
+                  Location / Venue
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Main Auditorium"
+                  value={eventForm.location}
+                  onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })}
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-1.5 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:bg-white focus:outline-none transition-colors"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-zinc-700 uppercase tracking-wider block mb-1">
+                Description / Details
+              </label>
+              <textarea
+                rows={3}
+                placeholder="Enter event details, schedule or instructions..."
+                value={eventForm.description}
+                onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
+                className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-3 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:bg-white focus:outline-none transition-colors resize-none"
+              />
+            </div>
+
+            <DialogFooter className="pt-2">
+              <Button 
+                type="button" 
+                variant="ghost" 
+                onClick={() => { setIsEventModalOpen(false); setEditingEvent(null); }}
+                className="text-zinc-600 hover:text-zinc-900"
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                className="bg-zinc-950 text-white hover:bg-emerald-600 font-bold"
+              >
+                {editingEvent ? 'Update Event' : 'Save Event'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* EVENT MODAL 2: View Event Details */}
+      <Dialog open={isViewEventModalOpen} onOpenChange={setIsViewEventModalOpen}>
+        <DialogContent className="bg-white border border-zinc-200 shadow-2xl text-zinc-900 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold flex items-center gap-2 text-zinc-900">
+              <CalendarDays className="h-5 w-5 text-zinc-800" />
+              Event Details
+            </DialogTitle>
+          </DialogHeader>
+          {selectedEvent && (
+            <div className="space-y-4 py-2">
+              <div className="border-b border-zinc-200 pb-3">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-950 text-white uppercase tracking-wider">
+                    {selectedEvent.category || 'Event'}
+                  </span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-100 text-zinc-700 uppercase tracking-wider border border-zinc-200">
+                    FOR: {selectedEvent.audience || selectedEvent.eventFor || 'ALL'}
+                  </span>
+                </div>
+                <h3 className="text-lg font-bold text-zinc-950 leading-snug">
+                  {selectedEvent.title}
+                </h3>
+                <div className="flex items-center gap-3 text-xs text-zinc-500 mt-2">
+                  <span className="flex items-center gap-1 font-medium">
+                    <Calendar className="h-3.5 w-3.5 text-zinc-700" />
+                    {new Date(selectedEvent.date || selectedEvent.startDate || Date.now()).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })}
+                  </span>
+                  {selectedEvent.location && (
+                    <span className="flex items-center gap-1 font-medium">
+                      <MapPin className="h-3.5 w-3.5 text-zinc-700" />
+                      {selectedEvent.location}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-200 text-xs text-zinc-700 leading-relaxed min-h-[80px] whitespace-pre-wrap">
+                {selectedEvent.description || 'No additional description provided for this event.'}
+              </div>
+
+              <div className="flex items-center justify-between pt-2">
+                <div className="flex items-center gap-2">
+                  <Button 
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setIsViewEventModalOpen(false);
+                      handleOpenEditEvent(selectedEvent);
+                    }}
+                    className="h-8 px-3 border-zinc-300 text-xs font-semibold hover:bg-zinc-100 flex items-center gap-1.5"
+                  >
+                    <Edit className="h-3.5 w-3.5" />
+                    Edit
+                  </Button>
+                  <Button 
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDeleteEvent(selectedEvent._id)}
+                    className="h-8 px-3 border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-semibold flex items-center gap-1.5"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Delete
+                  </Button>
+                </div>
+                <Button 
+                  onClick={() => setIsViewEventModalOpen(false)} 
+                  className="h-8 px-4 bg-zinc-950 text-white text-xs font-bold"
+                >
                   Close
                 </Button>
               </div>

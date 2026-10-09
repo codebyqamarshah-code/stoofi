@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import DashboardUI from '@/components/DashboardUI';
 
 export default function DashboardPage() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -19,12 +19,12 @@ export default function DashboardPage() {
     }
   }, [user, isLoading, router]);
 
-  if (isLoading || (user && ['Student', 'Teacher'].includes(user.role))) {
+  if (isLoading || !isAuthenticated || !user || ['Student', 'Teacher'].includes(user.role)) {
     return (
       <div className="flex h-[80vh] items-center justify-center bg-white dark:bg-white">
         <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center p-2 relative">
-          <div className="absolute inset-0 border-[3px] rounded-full border-t-transparent animate-spin" style={{borderColor:'#0B4D9C',borderTopColor:'transparent'}}></div>
-          <img src="/stoofi-icon.png" alt="Loading" className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
+          <div className="absolute inset-0 border-[3px] rounded-full border-t-transparent animate-spin" style={{borderColor:'#084A86',borderTopColor:'transparent'}}></div>
+          <img src="/logo.png" alt="Loading" className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
         </div>
       </div>
     );

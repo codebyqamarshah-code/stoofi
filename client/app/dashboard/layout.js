@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
@@ -45,7 +45,11 @@ import {
   Monitor,
   User,
   Maximize2,
-  Minimize
+  Minimize,
+  Search,
+  ArrowRight,
+  CornerDownLeft,
+  Sparkles
 } from 'lucide-react';
 import { DEFAULT_MENU_STRUCTURE, ICON_MAP, getStoredSidebar } from '@/lib/sidebarConfig';
 import { Button } from '@/components/ui/button';
@@ -258,6 +262,11 @@ export default function DashboardLayout({ children }) {
 
   // Navbar interactive states
   const [globalSearchStr, setGlobalSearchStr] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [selectedSearchIndex, setSelectedSearchIndex] = useState(-1);
+  const searchContainerRef = useRef(null);
+  const searchInputRef = useRef(null);
+
   const [studentSearchStr, setStudentSearchStr] = useState('');
   const [session, setSession] = useState('2026');
   const [isSessionDropdownOpen, setIsSessionDropdownOpen] = useState(false);
@@ -271,33 +280,82 @@ export default function DashboardLayout({ children }) {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
 
+  // Live search suggestions filtered by user role
+  const searchResults = useMemo(() => {
+    if (!globalSearchStr || !globalSearchStr.trim()) return [];
+    return searchRoutes(globalSearchStr, user?.role || 'Super Admin', 8);
+  }, [globalSearchStr, user?.role]);
+
   // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (!event.target.closest('.relative')) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+        setIsSearchOpen(false);
+      }
+      if (!event.target.closest('.dropdown-container') && !event.target.closest('.relative')) {
         setIsProfileOpen(false);
         setIsNotifOpen(false);
         setIsLangDropdownOpen(false);
       }
     };
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleGlobalSearch = (e) => {
-    if (e.key === 'Enter' && globalSearchStr) {
-      if (!user) return;
-      const results = searchRoutes(globalSearchStr, user.role);
-      if (results && results.length > 0) {
-        // Navigate to the top result
-        router.push(results[0].route);
-        setGlobalSearchStr(''); // clear after search
-      } else {
-        alert('No relevant result found for your role.');
+  const navigateToRoute = (route) => {
+    if (!route) return;
+    setIsSearchOpen(false);
+    setGlobalSearchStr('');
+    setSelectedSearchIndex(-1);
+    router.push(route);
+  };
+
+  const handleGlobalSearchKeyDown = (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (!isSearchOpen && searchResults.length > 0) {
+        setIsSearchOpen(true);
+        return;
       }
+      setSelectedSearchIndex(prev => (prev < searchResults.length - 1 ? prev + 1 : 0));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (!isSearchOpen && searchResults.length > 0) {
+        setIsSearchOpen(true);
+        return;
+      }
+      setSelectedSearchIndex(prev => (prev > 0 ? prev - 1 : searchResults.length - 1));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (searchResults && searchResults.length > 0) {
+        const target = selectedSearchIndex >= 0 ? searchResults[selectedSearchIndex] : searchResults[0];
+        navigateToRoute(target.route);
+      }
+    } else if (e.key === 'Escape') {
+      setIsSearchOpen(false);
+      searchInputRef.current?.blur();
     }
   };
-  
+
+  const highlightMatch = (text, query) => {
+    if (!query || !query.trim() || !text) return text;
+    const cleanQuery = query.trim();
+    const parts = String(text).split(new RegExp(`(${cleanQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'));
+    return (
+      <span>
+        {parts.map((part, i) =>
+          part.toLowerCase() === cleanQuery.toLowerCase() ? (
+            <span key={i} className="text-[#084A86] bg-sky-100 font-bold px-0.5 rounded">
+              {part}
+            </span>
+          ) : (
+            part
+          )
+        )}
+      </span>
+    );
+  };
+
   const handleStudentSearch = (e) => {
     if (e.key === 'Enter' && studentSearchStr && user) {
       // Only Admin/Super Admin can search manage-students page
@@ -320,13 +378,11 @@ export default function DashboardLayout({ children }) {
     checkAuth();
   }, []);
 
-  // Guard ref so we only ever redirect once — prevents the 1-second bounce loop
+  // Guard ref so we only ever redirect once
   const redirectedRef = useRef(false);
 
   useEffect(() => {
-    // Only run after mount and after auth has finished loading
     if (!mounted || isLoading) return;
-    // If already redirected, don't fire again
     if (redirectedRef.current) return;
 
     const storedToken =
@@ -349,7 +405,6 @@ export default function DashboardLayout({ children }) {
         })()
       )) || '';
 
-    // Keep document.cookie synchronized with valid stored token
     if (storedToken && typeof document !== 'undefined') {
       try {
         if (!document.cookie.includes('token=')) {
@@ -358,17 +413,17 @@ export default function DashboardLayout({ children }) {
       } catch (e) {}
     }
 
-    if (!storedToken && !user && !isAuthenticated) {
+    // If unauthenticated or missing token, redirect immediately to login
+    if (!storedToken || (!user && !isAuthenticated)) {
       redirectedRef.current = true;
-      router.replace('/login');
+      router.replace('/login?redirect=' + encodeURIComponent(pathname));
     }
-  }, [mounted, isAuthenticated, isLoading, user, router]);
+  }, [mounted, isAuthenticated, isLoading, user, router, pathname]);
 
   // Route protection check based on role
   useEffect(() => {
     if (!isLoading && user && mounted) {
       if (!isRouteAllowed(user.role, pathname)) {
-        // Redirect to default dashboard for their role
         if (user.role === 'Student') {
           router.replace('/dashboard/student');
         } else if (user.role === 'Teacher') {
@@ -380,23 +435,20 @@ export default function DashboardLayout({ children }) {
     }
   }, [pathname, user, isLoading, mounted, router]);
 
-  // Loading state
-  if (!mounted || (isLoading && !user && !isAuthenticated)) {
+  // Loading & Protection state: NEVER render dashboard contents until authenticated!
+  if (!mounted || isLoading || !isAuthenticated || !user) {
     return (
-      <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-zinc-50 dark:bg-white transition-colors duration-300">
+      <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-white transition-colors duration-300">
         <div className="relative flex items-center justify-center w-32 h-32 mb-6">
-          {/* Background Border */}
           <div className="absolute inset-0 border-[3px] border-sky-100 rounded-full"></div>
-          {/* Spinning Ring */}
-          <div className="absolute inset-0 border-[3px] border-[#0B4D9C] rounded-full border-t-transparent animate-spin"></div>
+          <div className="absolute inset-0 border-[3px] border-[#084A86] rounded-full border-t-transparent animate-spin"></div>
           
-          {/* Center Mascot Logo */}
           <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center p-2">
-            <img src="/stoofi-icon.png" alt="Loading" className="w-full h-full object-contain" />
+            <img src="/logo.png" alt="Loading" className="w-full h-full object-contain" />
           </div>
         </div>
-        <div className="text-[#0B4D9C] font-bold tracking-[0.3em] text-xs sm:text-sm animate-pulse">
-          LOADING ERP...
+        <div className="text-[#084A86] font-bold tracking-[0.3em] text-xs sm:text-sm animate-pulse">
+          VERIFYING ACCESS...
         </div>
       </div>
     );
@@ -484,7 +536,11 @@ export default function DashboardLayout({ children }) {
                             className={`w-full flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold cursor-pointer sidebar-item ${isOpen ? "active" : ""}`}
                           >
                             <div className="flex items-center space-x-3">
-                              <IconComponent className="h-4 w-4 sidebar-icon" />
+                              {item.iconImg ? (
+                                <img src={item.iconImg} alt={item.name} className="h-4 w-4 object-contain sidebar-icon shrink-0" />
+                              ) : (
+                                <IconComponent className="h-4 w-4 sidebar-icon" />
+                              )}
                               <span>{item.name}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
@@ -517,7 +573,11 @@ export default function DashboardLayout({ children }) {
                                     onClick={() => setSidebarOpen(false)}
                                     className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer sidebar-subitem ${pathname === sub.href ? "active" : ""}`}
                                   >
-                                    {SubIcon && <SubIcon className="h-3.5 w-3.5 shrink-0 sidebar-icon" />}
+                                    {sub.iconImg ? (
+                                      <img src={sub.iconImg} alt={sub.name} className="h-3.5 w-3.5 object-contain shrink-0 sidebar-icon" />
+                                    ) : SubIcon ? (
+                                      <SubIcon className="h-3.5 w-3.5 shrink-0 sidebar-icon" />
+                                    ) : null}
                                     <span>{sub.name}</span>
                                   </Link>
                                 );
@@ -542,7 +602,11 @@ export default function DashboardLayout({ children }) {
                         className={`flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold cursor-pointer sidebar-item ${isItemActive ? "active" : ""}`}
                       >
                         <div className="flex items-center space-x-3">
-                          <IconComponent className="h-4 w-4 sidebar-icon" />
+                          {item.iconImg ? (
+                            <img src={item.iconImg} alt={item.name} className="h-4 w-4 object-contain sidebar-icon shrink-0" />
+                          ) : (
+                            <IconComponent className="h-4 w-4 sidebar-icon" />
+                          )}
                           <span>{item.name}</span>
                         </div>
                         {item.badge && (
@@ -581,15 +645,150 @@ export default function DashboardLayout({ children }) {
             >
               <Menu className="h-5 w-5" />
             </Button>
-            <div className="relative w-full max-w-xs hidden sm:block">
-              <input
-                type="text"
-                placeholder="Search..."
-                value={globalSearchStr}
-                onChange={(e) => setGlobalSearchStr(e.target.value)}
-                onKeyDown={handleGlobalSearch}
-                className="w-full bg-zinc-100/30 dark:bg-zinc-50 border border-zinc-300/80 dark:border-zinc-200 rounded-lg px-3 py-1.5 text-xs text-zinc-900 dark:text-zinc-700 placeholder-zinc-950/60 focus:outline-none focus:border-zinc-950 transition-colors cursor-text"
-              />
+            <div ref={searchContainerRef} className="relative w-full max-w-xs sm:max-w-sm hidden sm:block">
+              <div className="relative flex items-center">
+                <Search className="absolute left-3 h-3.5 w-3.5 text-zinc-400 pointer-events-none" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder="Search pages, attendance, labs..."
+                  value={globalSearchStr}
+                  onFocus={() => {
+                    if (globalSearchStr.trim()) setIsSearchOpen(true);
+                  }}
+                  onChange={(e) => {
+                    setGlobalSearchStr(e.target.value);
+                    setIsSearchOpen(true);
+                    setSelectedSearchIndex(-1);
+                  }}
+                  onKeyDown={handleGlobalSearchKeyDown}
+                  className="w-full bg-zinc-100/40 dark:bg-zinc-50 border border-zinc-300/80 dark:border-zinc-200 rounded-xl pl-9 pr-8 py-1.5 text-xs text-zinc-900 dark:text-zinc-700 placeholder-zinc-400 focus:outline-none focus:border-[#084A86] focus:ring-2 focus:ring-sky-100 transition-all cursor-text"
+                />
+                {globalSearchStr && (
+                  <button
+                    onClick={() => {
+                      setGlobalSearchStr('');
+                      setIsSearchOpen(false);
+                      setSelectedSearchIndex(-1);
+                    }}
+                    className="absolute right-2.5 p-0.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-900 rounded-full hover:bg-zinc-200/60 transition-colors"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+
+              {/* Auto-complete Dropdown */}
+              {isSearchOpen && globalSearchStr.trim().length > 0 && (
+                <div className="absolute top-full left-0 mt-2 w-[340px] sm:w-[400px] max-w-[90vw] bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-300 rounded-2xl shadow-2xl overflow-hidden z-[100] animate-in fade-in zoom-in-95 duration-150">
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-3.5 py-2 border-b border-zinc-100 dark:border-zinc-200 bg-zinc-50/80 dark:bg-zinc-100/80 text-[11px] font-semibold text-zinc-500">
+                    <span className="flex items-center gap-1.5 text-zinc-700 font-bold">
+                      <Sparkles className="h-3.5 w-3.5 text-[#084A86]" />
+                      {searchResults.length > 0 ? `Results (${searchResults.length})` : 'Search Pages'}
+                    </span>
+                    <span className="text-[10px] text-zinc-400">ESC to close</span>
+                  </div>
+
+                  {/* Results List */}
+                  <div className="max-h-80 overflow-y-auto custom-scrollbar p-1.5 space-y-1">
+                    {searchResults.length > 0 ? (
+                      searchResults.map((item, idx) => {
+                        const isSelected = idx === selectedSearchIndex;
+                        const ItemIcon = (item.iconName && ICON_MAP[item.iconName]) || LayoutDashboard;
+
+                        return (
+                          <div
+                            key={item.route + idx}
+                            onMouseEnter={() => setSelectedSearchIndex(idx)}
+                            onClick={() => navigateToRoute(item.route)}
+                            className={`flex items-center justify-between gap-3 px-3 py-2 rounded-xl cursor-pointer transition-all duration-150 ${
+                              isSelected
+                                ? 'bg-sky-50 dark:bg-sky-50/80 border-l-4 border-[#084A86] text-[#084A86] shadow-sm'
+                                : 'hover:bg-zinc-100 dark:hover:bg-zinc-100 text-zinc-800'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div
+                                className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 border ${
+                                  isSelected
+                                    ? 'bg-white border-sky-200 text-[#084A86]'
+                                    : 'bg-zinc-100 border-zinc-200 text-zinc-600'
+                                }`}
+                              >
+                                {item.iconImg ? (
+                                  <img src={item.iconImg} alt={item.label} className="h-4 w-4 object-contain" />
+                                ) : (
+                                  <ItemIcon className="h-4 w-4" />
+                                )}
+                              </div>
+                              <div className="min-w-0 text-left">
+                                <div className="text-xs font-bold text-zinc-900 dark:text-zinc-900 truncate">
+                                  {highlightMatch(item.label, globalSearchStr)}
+                                </div>
+                                <div className="text-[10px] text-zinc-500 font-medium truncate flex items-center gap-1">
+                                  <span>{item.groupTitle || 'Menu'}</span>
+                                  <span>›</span>
+                                  <span>{item.category || item.label}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0">
+                              {item.badge ? (
+                                <span className="text-[9px] font-bold uppercase bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded border border-amber-200">
+                                  {item.badge}
+                                </span>
+                              ) : item.category ? (
+                                <span className="text-[9px] font-semibold text-zinc-600 bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">
+                                  {item.category}
+                                </span>
+                              ) : null}
+                              <ArrowRight className={`h-3.5 w-3.5 transition-transform ${isSelected ? 'translate-x-0.5 text-[#084A86]' : 'text-zinc-400 opacity-60'}`} />
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="py-6 px-4 text-center">
+                        <div className="mx-auto h-10 w-10 rounded-full bg-zinc-100 dark:bg-zinc-100 flex items-center justify-center text-zinc-400 mb-2">
+                          <Search className="h-5 w-5" />
+                        </div>
+                        <div className="text-xs font-bold text-zinc-800">
+                          No matching pages found for &quot;{globalSearchStr}&quot;
+                        </div>
+                        <div className="text-[11px] text-zinc-500 mt-1 mb-3">
+                          Try searching by page title or keyword
+                        </div>
+                        <div className="flex flex-wrap items-center justify-center gap-1.5">
+                          {['Attendance', 'Fees', 'Labs', 'Optional Subject', 'Homework', 'Events', 'Exam'].map((suggestion) => (
+                            <button
+                              key={suggestion}
+                              onClick={() => {
+                                setGlobalSearchStr(suggestion);
+                                setSelectedSearchIndex(-1);
+                                searchInputRef.current?.focus();
+                              }}
+                              className="px-2 py-0.5 text-[10px] font-medium bg-zinc-100 hover:bg-sky-100 text-zinc-700 hover:text-[#084A86] border border-zinc-200 rounded-md transition-colors cursor-pointer"
+                            >
+                              {suggestion}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer Instructions */}
+                  <div className="flex items-center justify-between px-3 py-1.5 border-t border-zinc-100 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-100 text-[10px] text-zinc-500">
+                    <span>Quick Navigation</span>
+                    <div className="flex items-center gap-2">
+                      <span><kbd className="px-1 py-0.5 bg-white border border-zinc-200 rounded text-[9px]">↑↓</kbd> Move</span>
+                      <span><kbd className="px-1 py-0.5 bg-white border border-zinc-200 rounded text-[9px]">↵</kbd> Select</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

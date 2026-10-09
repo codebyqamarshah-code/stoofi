@@ -23,8 +23,8 @@ const STUDENT_ALLOWED = [
   '/dashboard/student',            // all /dashboard/student/* routes
   '/dashboard/profile',
   '/dashboard/notifications',
-  '/dashboard/utilities/communicate/notice-board',
-  '/dashboard/utilities/communicate/event',
+  '/dashboard/utilities',
+  '/dashboard/labs',
 ];
 
 // Routes that are allowed for Teacher (prefix-match)
@@ -43,6 +43,14 @@ const TEACHER_ALLOWED = [
   '/dashboard/leave',
   '/dashboard/student/timetable',
   '/dashboard/marks-register',
+  '/dashboard/academics',
+  '/dashboard/study',
+  '/dashboard/labs',
+  '/dashboard/lesson-plan',
+  '/dashboard/teacher-evaluation',
+  '/dashboard/dormitory',
+  '/dashboard/module',
+  '/dashboard/virtual-class',
 ];
 
 /**

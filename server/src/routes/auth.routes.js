@@ -4,6 +4,7 @@ const {
   login, 
   logout, 
   getMe, 
+  updateProfile,
   getRegistrationStatus,
   forgotPassword,
   verifyResetOtp,
@@ -20,6 +21,8 @@ router.post('/register', register);
 router.post('/login', login);
 router.get('/logout', logout);
 router.get('/me', protect, getMe);
+router.put('/me', protect, updateProfile);
+router.put('/profile', protect, updateProfile);
 router.post('/resend-otp', resendOtp);
 router.post('/forgot-password', forgotPassword);
 router.post('/verify-reset-otp', verifyResetOtp);

@@ -61,9 +61,9 @@ export default function LabsDashboardPage() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-emerald-600 text-white rounded-xl shadow-xs">
-              <FlaskConical className="h-6 w-6" />
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 bg-white border border-zinc-200 rounded-xl flex items-center justify-center p-1.5 shadow-xs shrink-0">
+              <img src="/Lab-general-icon.png" alt="Labs" className="h-full w-full object-contain" onError={(e) => { e.target.src = ''; }} />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-zinc-950">Laboratories ERP Command Center</h1>

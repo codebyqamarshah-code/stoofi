@@ -27,7 +27,8 @@ import { exportToCSV, exportToExcel, printData } from '@/lib/exportUtils';
 
 export default function OptionalSubjectPage() {
   const [subjects, setSubjects] = useState([]);
-  const [classes, setClasses] = useState([]);
+  const [classList, setClassList] = useState([]);
+  const [sectionList, setSectionList] = useState([]);
   const [loading, setLoading] = useState(true);
   
   const [selectedClass, setSelectedClass] = useState('All');
@@ -46,35 +47,41 @@ export default function OptionalSubjectPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
 
-  // Fetch subjects from API or fallback to seeded list
+  // Fetch real subjects and classes from API
   const fetchData = async () => {
+    setLoading(true);
     try {
-      const res = await api.get('/subject');
-      if (res.success && Array.isArray(res.data)) {
-        // Filter subjects that are Optional or Additional, or show all with tag
-        const optSubjects = res.data.filter(s => s.category === 'Optional / Elective' || s.category === 'Additional');
-        if (optSubjects.length > 0) {
-          setSubjects(optSubjects);
-        } else {
-          // Default initial set of elective subjects if none marked yet
-          setSubjects([
-            { _id: '1', name: 'Computer Science', code: 'CS-101', className: 'Class 9', section: 'A', category: 'Optional / Elective', type: 'Theory', studentsCount: 28 },
-            { _id: '2', name: 'Biology', code: 'BIO-101', className: 'Class 9', section: 'A', category: 'Optional / Elective', type: 'Theory', studentsCount: 32 },
-            { _id: '3', name: 'Art & Design', code: 'ART-201', className: 'Class 10', section: 'B', category: 'Optional / Elective', type: 'Practical', studentsCount: 15 },
-            { _id: '4', name: 'French Language', code: 'FRN-101', className: 'Class 8', section: 'A', category: 'Additional', type: 'Theory', studentsCount: 12 },
-            { _id: '5', name: 'Robotics & AI', code: 'ROB-301', className: 'Class 10', section: 'A', category: 'Additional', type: 'Practical', studentsCount: 18 }
-          ]);
+      const [subjRes, classRes, secRes] = await Promise.all([
+        api.get('/subject').catch(() => ({ success: false, data: [] })),
+        api.get('/class').catch(() => ({ success: false, data: [] })),
+        api.get('/section').catch(() => ({ success: false, data: [] }))
+      ]);
+
+      if (subjRes.success && Array.isArray(subjRes.data)) {
+        // Filter subjects that are Optional / Elective or Additional
+        const optSubjects = subjRes.data.filter(s => 
+          s.category === 'Optional / Elective' || 
+          s.category === 'Additional' || 
+          s.isOptional === true
+        );
+        setSubjects(optSubjects);
+      } else {
+        setSubjects([]);
+      }
+
+      if (classRes.success && Array.isArray(classRes.data) && classRes.data.length > 0) {
+        setClassList(classRes.data);
+        if (!formData.className && classRes.data[0]?.name) {
+          setFormData(prev => ({ ...prev, className: classRes.data[0].name }));
         }
       }
+
+      if (secRes.success && Array.isArray(secRes.data) && secRes.data.length > 0) {
+        setSectionList(secRes.data);
+      }
     } catch (error) {
-      console.error(error);
-      setSubjects([
-        { _id: '1', name: 'Computer Science', code: 'CS-101', className: 'Class 9', section: 'A', category: 'Optional / Elective', type: 'Theory', studentsCount: 28 },
-        { _id: '2', name: 'Biology', code: 'BIO-101', className: 'Class 9', section: 'A', category: 'Optional / Elective', type: 'Theory', studentsCount: 32 },
-        { _id: '3', name: 'Art & Design', code: 'ART-201', className: 'Class 10', section: 'B', category: 'Optional / Elective', type: 'Practical', studentsCount: 15 },
-        { _id: '4', name: 'French Language', code: 'FRN-101', className: 'Class 8', section: 'A', category: 'Additional', type: 'Theory', studentsCount: 12 },
-        { _id: '5', name: 'Robotics & AI', code: 'ROB-301', className: 'Class 10', section: 'A', category: 'Additional', type: 'Practical', studentsCount: 18 }
-      ]);
+      console.error('Failed to load optional subjects:', error);
+      setSubjects([]);
     } finally {
       setLoading(false);
     }
@@ -86,60 +93,69 @@ export default function OptionalSubjectPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name) {
+    if (!formData.name.trim()) {
       alert('Please enter a Subject Name');
       return;
     }
 
     try {
-      const newSubject = {
-        name: formData.name,
-        code: formData.code,
+      const payload = {
+        name: formData.name.trim(),
+        code: formData.code.trim(),
+        className: formData.className,
+        section: formData.section,
         category: formData.category,
-        type: formData.type
+        type: formData.type,
+        isOptional: true
       };
 
-      await api.post('/subject', newSubject).catch(() => {});
-      
-      if (isEditing) {
-        setSubjects(subjects.map(s => s._id === editId ? { ...s, ...formData } : s));
-        setIsEditing(false);
-        setEditId(null);
+      if (isEditing && editId) {
+        const res = await api.put(`/subject/${editId}`, payload);
+        if (res.success) {
+          alert('Optional subject updated successfully');
+        }
       } else {
-        setSubjects([
-          ...subjects,
-          {
-            _id: Date.now().toString(),
-            ...formData,
-            studentsCount: 0
-          }
-        ]);
+        const res = await api.post('/subject', payload);
+        if (res.success) {
+          alert('Optional subject added successfully');
+        }
       }
 
       setFormData({
         name: '',
         code: '',
-        className: 'Class 9',
-        section: 'A',
+        className: classList[0]?.name || 'Class 9',
+        section: sectionList[0]?.name || 'A',
         category: 'Optional / Elective',
         type: 'Theory'
       });
-      alert('Optional subject saved successfully!');
+      setIsEditing(false);
+      setEditId(null);
+      fetchData();
     } catch (err) {
       console.error(err);
+      alert(err.message || 'Failed to save subject');
     }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to remove this optional subject?')) return;
-    setSubjects(subjects.filter(s => s._id !== id));
+    try {
+      const res = await api.delete(`/subject/${id}`);
+      if (res.success) {
+        fetchData();
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.message || 'Failed to delete subject');
+    }
   };
 
   const handleEdit = (sub) => {
     setFormData({
-      name: sub.name,
+      name: sub.name || '',
       code: sub.code || '',
-      className: sub.className || 'Class 9',
+      className: sub.className || classList[0]?.name || 'Class 9',
       section: sub.section || 'A',
       category: sub.category || 'Optional / Elective',
       type: sub.type || 'Theory'
@@ -148,8 +164,17 @@ export default function OptionalSubjectPage() {
     setEditId(sub._id);
   };
 
+  const availableClasses = classList.length > 0 
+    ? classList.map(c => c.name) 
+    : ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'];
+
+  const availableSections = sectionList.length > 0
+    ? sectionList.map(s => s.name)
+    : ['A', 'B', 'C', 'D', 'All Sections'];
+
   const filteredSubjects = subjects.filter(s => {
-    const matchesSearch = s.name?.toLowerCase().includes(searchTerm.toLowerCase()) || s.code?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (s.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          (s.code || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesClass = selectedClass === 'All' || s.className === selectedClass;
     const matchesCategory = selectedCategory === 'All' || s.category === selectedCategory;
     return matchesSearch && matchesClass && matchesCategory;
@@ -162,7 +187,7 @@ export default function OptionalSubjectPage() {
     'Section': s.section || '-',
     'Category': s.category,
     'Type': s.type,
-    'Enrolled Students': s.studentsCount || 0
+    'Enrolled Students': s.enrolledStudents?.length || s.studentsCount || 0
   }));
 
   return (
@@ -274,7 +299,7 @@ export default function OptionalSubjectPage() {
                     onChange={e => setFormData({ ...formData, className: e.target.value })}
                     className="flex h-10 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 font-medium focus-visible:ring-2 focus-visible:ring-zinc-400"
                   >
-                    {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
+                    {availableClasses.map(c => (
                       <option key={c} value={c}>{c}</option>
                     ))}
                   </select>
@@ -287,7 +312,7 @@ export default function OptionalSubjectPage() {
                     onChange={e => setFormData({ ...formData, section: e.target.value })}
                     className="flex h-10 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 font-medium focus-visible:ring-2 focus-visible:ring-zinc-400"
                   >
-                    {['A', 'B', 'C', 'D', 'All Sections'].map(s => (
+                    {availableSections.map(s => (
                       <option key={s} value={s}>Section {s}</option>
                     ))}
                   </select>
@@ -359,11 +384,12 @@ export default function OptionalSubjectPage() {
                       setFormData({
                         name: '',
                         code: '',
-                        className: 'Class 9',
-                        section: 'A',
+                        className: availableClasses[0] || 'Class 9',
+                        section: availableSections[0] || 'A',
                         category: 'Optional / Elective',
                         type: 'Theory'
                       });
+                      setEditId(null);
                     }}
                     variant="outline"
                     className="border-zinc-300 font-semibold"
@@ -404,7 +430,7 @@ export default function OptionalSubjectPage() {
                   className="h-9 rounded-md border border-zinc-300 bg-white px-2.5 text-xs text-zinc-950 font-bold focus-visible:ring-zinc-400"
                 >
                   <option value="All">All Classes</option>
-                  {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
+                  {availableClasses.map(c => (
                     <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
@@ -447,11 +473,13 @@ export default function OptionalSubjectPage() {
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
                   {loading ? (
-                    <tr><td colSpan="6" className="px-4 py-6 text-center text-zinc-500 font-medium">Loading subjects...</td></tr>
+                    <tr><td colSpan="6" className="px-4 py-8 text-center text-zinc-500 font-medium">Loading subjects...</td></tr>
                   ) : filteredSubjects.length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="px-4 py-8 text-center text-zinc-500 font-medium">
-                        No optional subjects found matching criteria
+                      <td colSpan="6" className="px-4 py-12 text-center text-zinc-500 font-medium">
+                        <BookOpen className="h-8 w-8 text-zinc-300 mx-auto mb-2" />
+                        <p className="text-sm font-bold text-zinc-800">No optional subjects found</p>
+                        <p className="text-xs text-zinc-400 mt-1">Add your first elective or optional subject using the form on the left</p>
                       </td>
                     </tr>
                   ) : (
@@ -459,11 +487,11 @@ export default function OptionalSubjectPage() {
                       <tr key={s._id} className="hover:bg-zinc-50/80 transition-colors text-zinc-950 font-medium">
                         <td className="px-4 py-3.5">
                           <div className="font-bold text-zinc-950">{s.name}</div>
-                          <span className="text-[10px] text-zinc-500 font-medium">{s.type}</span>
+                          <span className="text-[10px] text-zinc-500 font-medium">{s.type || 'Theory'}</span>
                         </td>
                         <td className="px-4 py-3.5 text-zinc-700 font-mono text-xs">{s.code || '-'}</td>
                         <td className="px-4 py-3.5 text-zinc-800 text-xs font-semibold">
-                          {s.className} ({s.section})
+                          {s.className || 'All Classes'} {s.section ? `(${s.section})` : ''}
                         </td>
                         <td className="px-4 py-3.5">
                           <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
@@ -471,13 +499,13 @@ export default function OptionalSubjectPage() {
                               ? 'bg-indigo-50 text-indigo-800 border-indigo-200' 
                               : 'bg-amber-50 text-amber-800 border-amber-200'
                           }`}>
-                            {s.category}
+                            {s.category || 'Optional / Elective'}
                           </span>
                         </td>
                         <td className="px-4 py-3.5 text-center">
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-100 text-zinc-800 text-xs font-bold">
                             <Users className="h-3 w-3 text-zinc-500" />
-                            {s.studentsCount || 0}
+                            {s.enrolledStudents?.length || s.studentsCount || 0}
                           </span>
                         </td>
                         <td className="px-4 py-3.5 text-right">

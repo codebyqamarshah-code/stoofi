@@ -251,8 +251,8 @@ export default function LandingPage() {
     },
     {
       icon: Users,
-      title: "Parents Portal",
-      desc: "Track real-time child attendance, monitor academic performance, view monthly fee vouchers, and communicate directly with teachers."
+      title: "Admin Portal",
+      desc: "Manage campus operations, admissions, student records, fee vouchers, and staff supervision."
     }
   ];
 
@@ -278,8 +278,8 @@ export default function LandingPage() {
     {
       num: "04",
       icon: Users,
-      title: "Parents Portal",
-      desc: "Track child progress, attendance, fee status and communicate with teachers."
+      title: "Admin Portal",
+      desc: "Manage campus operations, admissions, student records, fee collection, and staff supervision."
     }
   ];
 
@@ -727,13 +727,13 @@ export default function LandingPage() {
         <div className="max-w-[1240px] mx-auto px-6 sm:px-10 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           <div className="p-2 transition-transform hover:-translate-y-1">
             <strong className="text-3xl sm:text-4xl font-extrabold text-[#102e43] tracking-tight block">
-              155<span className="text-[#087f77]">+</span>
+              5<span className="text-[#087f77]">+</span>
             </strong>
             <p className="text-xs sm:text-sm font-medium text-[#667987] mt-1">Schools onboarded</p>
           </div>
           <div className="p-2 border-l border-[#dfe7eb] transition-transform hover:-translate-y-1">
             <strong className="text-3xl sm:text-4xl font-extrabold text-[#102e43] tracking-tight block">
-              62K<span className="text-[#087f77]">+</span>
+              1000<span className="text-[#087f77]">+</span>
             </strong>
             <p className="text-xs sm:text-sm font-medium text-[#667987] mt-1">Active students</p>
           </div>
@@ -1343,48 +1343,81 @@ export default function LandingPage() {
 
       {/* ── TODAY'S EVENT POPUP MODAL ── */}
       {showTodayEventModal && todayEvent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-[#dfe7eb] text-[#102e43] relative">
-            <button
-              onClick={() => setShowTodayEventModal(false)}
-              className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-[#f3f7f8] hover:bg-[#dfe7eb] text-[#102e43] flex items-center justify-center transition-colors shadow-sm"
-              title="Close"
-            >
-              <X size={18} />
-            </button>
-            <div className="h-28 bg-[#0c2436] flex items-center justify-center relative">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-[#64e2bc] bg-white/10 px-3.5 py-1 rounded-full border border-white/10">
-                Today&apos;s Event & Announcement
-              </span>
-            </div>
-            <div className="p-6 pt-0 flex flex-col items-center text-center">
-              <div className="-mt-10 mb-4 w-20 h-20 bg-white rounded-2xl shadow-lg border border-[#dfe7eb] flex flex-col items-center justify-center">
-                <span className="text-xs font-bold text-rose-600 uppercase tracking-wider">
-                  {new Date(todayEvent.date).toLocaleString("default", { month: "short" })}
-                </span>
-                <span className="text-3xl font-black text-[#102e43] leading-none mt-0.5">
-                  {new Date(todayEvent.date).getDate()}
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border border-[#dfe7eb] text-[#102e43] relative animate-in zoom-in-95 duration-200">
+            {/* Header with Dark Navy + Teal Accent Glow */}
+            <div className="bg-[#0c2436] p-6 text-white relative">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#64e2bc]/10 rounded-full blur-2xl pointer-events-none"></div>
+
+              {/* Close Button */}
+              <button
+                onClick={() => setShowTodayEventModal(false)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+                title="Close"
+                aria-label="Close announcement"
+              >
+                <X size={16} />
+              </button>
+
+              {/* Badge */}
+              <div className="flex items-center gap-2 mb-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-[#64e2bc]/15 text-[#64e2bc] border border-[#64e2bc]/30">
+                  <Bell size={12} className="animate-pulse" />
+                  Today&apos;s Announcement
                 </span>
               </div>
-              <h2 className="text-2xl font-black text-[#102e43] tracking-tight mb-1.5 px-2">
+
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white mt-2 leading-snug">
                 {todayEvent.title}
               </h2>
-              <p className="text-xs font-bold text-[#667987] mb-3">
-                {new Date(todayEvent.date).toLocaleDateString("en-US", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric"
-                })}
-              </p>
-              <span className="inline-block bg-[#f3f7f8] text-[#102e43] text-[11px] font-bold uppercase tracking-wider px-3.5 py-1 rounded-full border border-[#dfe7eb] mb-6">
-                Target Audience: {todayEvent.audience || "All"}
-              </span>
+            </div>
+
+            {/* Content Body */}
+            <div className="p-6 space-y-4">
+              {/* Date & Audience Card */}
+              <div className="flex items-center gap-4 p-4 rounded-xl bg-[#f8fafb] border border-[#dfe7eb]">
+                {/* Calendar Date Block */}
+                <div className="w-14 h-14 rounded-xl bg-white border border-[#dfe7eb] shadow-xs flex flex-col items-center justify-center shrink-0 overflow-hidden">
+                  <div className="w-full bg-[#0c2436] text-[#64e2bc] text-[9px] font-extrabold uppercase text-center py-0.5 tracking-wider">
+                    {new Date(todayEvent.date).toLocaleString("default", { month: "short" })}
+                  </div>
+                  <span className="text-xl font-extrabold text-[#102e43] leading-none mt-1">
+                    {new Date(todayEvent.date).getDate()}
+                  </span>
+                </div>
+
+                {/* Date text & Target Audience */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-[#102e43] truncate">
+                    {new Date(todayEvent.date).toLocaleDateString("en-US", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric"
+                    })}
+                  </p>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-[#eaf6f2] text-[#087f77] border border-[#7ebba544]">
+                      <Users size={11} />
+                      Audience: {todayEvent.audience || "All"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description if present */}
+              {todayEvent.description && (
+                <div className="p-3.5 rounded-xl bg-[#f3f7f8] text-xs text-[#667987] leading-relaxed border border-[#dfe7eb]">
+                  {todayEvent.description}
+                </div>
+              )}
+
+              {/* Action Button */}
               <Button
                 onClick={() => setShowTodayEventModal(false)}
-                className="w-full bg-[#102e43] hover:bg-[#1b425a] text-white font-bold py-3.5 rounded-xl shadow-md text-sm"
+                className="w-full bg-[#102e43] hover:bg-[#1b425a] text-white font-bold py-3 h-11 rounded-xl shadow-md transition-all text-sm cursor-pointer hover:-translate-y-0.5"
               >
-                Got it!
+                Got it, thanks!
               </Button>
             </div>
           </div>
