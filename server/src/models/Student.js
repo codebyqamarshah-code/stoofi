@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 
 const schema = new mongoose.Schema({
+  // Link to User account (set when student logs in or is registered via auth)
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   // Personal Info
   academicYear: { type: String, required: true },
   classId: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' },

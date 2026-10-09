@@ -8,7 +8,7 @@ let baseURL = envApiUrl || (isProd ? '/api' : 'http://localhost:5000/api');
 
 const api = axios.create({
   baseURL,
-  timeout: 10000,
+  timeout: 30000,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -38,6 +38,8 @@ api.interceptors.request.use((config) => {
 
   if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
     delete config.headers['Content-Type'];
+    // File uploads need more time
+    config.timeout = 60000;
   }
 
   return config;

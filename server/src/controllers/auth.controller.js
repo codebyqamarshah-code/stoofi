@@ -551,19 +551,42 @@ exports.getMe = async (req, res, next) => {
     
     if (user.role === 'Student') {
       let studentData = null;
+      // Priority 1: referenceId (set during auth register)
       if (user.referenceId) {
         studentData = await Student.findById(user.referenceId).lean();
       }
+      // Priority 2: user._id stored in Student.user field
+      if (!studentData) {
+        studentData = await Student.findOne({ user: user._id }).lean();
+      }
       if (!studentData && (user.email || user.username)) {
-        studentData = await Student.findOne({
-          $or: [
-            { email: user.email },
-            { admissionNo: user.username },
-            { rollNo: user.username }
-          ]
-        }).lean();
+        // Build or/conditions
+        const orConditions = [];
+        if (user.email) orConditions.push({ email: user.email });
+        if (user.username) {
+          orConditions.push({ admissionNo: user.username });
+          orConditions.push({ rollNo: user.username });
+        }
+        // Match by full name as last resort (firstName + lastName combined)
+        const nameParts = (user.fullName || user.name || '').trim().split(/\s+/);
+        if (nameParts.length >= 1 && nameParts[0]) {
+          orConditions.push({
+            firstName: { $regex: new RegExp('^' + nameParts[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', 'i') }
+          });
+        }
+        if (orConditions.length > 0) {
+          studentData = await Student.findOne({ $or: orConditions }).lean();
+        }
       }
       if (studentData) {
+        // Auto-link admin-created students to their User account for faster future lookups
+        if (!studentData.user) {
+          Student.findByIdAndUpdate(studentData._id, { user: user._id }).catch(() => {});
+          // Also update User.referenceId for next time
+          if (!user.referenceId) {
+            User.findByIdAndUpdate(user._id, { referenceId: studentData._id }).catch(() => {});
+          }
+        }
         user.className = studentData.className || user.className;
         user.section = studentData.section || user.section;
         user.rollNo = studentData.rollNo || user.rollNo;

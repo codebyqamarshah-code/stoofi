@@ -1,12 +1,16 @@
 const express = require('express');
 const { getAll, create, update, remove } = require('../controllers/class-teacher.controller');
-const { protect } = require('../middleware/auth.middleware');
+const { protect, authorize } = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
-router.use(protect);
+router.route('/')
+  .get(protect, getAll)
+  .post(protect, authorize('Super Admin', 'Admin'), create);
 
-router.route('/').get(getAll).post(create);
-router.route('/:id').put(update).delete(remove);
+router.route('/:id')
+  .put(protect, authorize('Super Admin', 'Admin'), update)
+  .delete(protect, authorize('Super Admin', 'Admin'), remove);
 
 module.exports = router;
+

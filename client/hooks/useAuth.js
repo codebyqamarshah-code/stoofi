@@ -163,15 +163,8 @@ export const useAuth = create(
            if (res && res.success && res.data) {
              set({ isAuthenticated: true, user: res.data, isLoading: false });
              if (typeof window !== 'undefined') {
-               localStorage.setItem('recent_user', JSON.stringify({
-                 _id: res.data._id,
-                 name: res.data.fullName || res.data.name || res.data.username,
-                 fullName: res.data.fullName || res.data.name || res.data.username,
-                 email: res.data.email,
-                 role: res.data.role,
-                 picture: res.data.picture || res.data.avatar,
-                 avatar: res.data.avatar || res.data.picture
-               }));
+               // Persist the full user object so student fields (admissionNo, className, etc.) survive page reloads
+               localStorage.setItem('recent_user', JSON.stringify(res.data));
              }
            }
         } catch (error) {

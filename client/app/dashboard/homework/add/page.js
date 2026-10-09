@@ -114,7 +114,11 @@ export default function AddHomeworkPage() {
     try {
       setSubmitting(true);
       const data = new FormData();
-      Object.keys(formData).forEach(key => data.append(key, formData[key]));
+      Object.keys(formData).forEach(key => {
+        const val = formData[key];
+        // Send marks as 0 if blank
+        data.append(key, key === 'marks' && !val ? '0' : val);
+      });
       if (fileInputRef.current?.files[0]) {
         data.append('file', fileInputRef.current.files[0]);
       }
@@ -182,7 +186,7 @@ export default function AddHomeworkPage() {
               <SearchableSelect 
                 name="section" value={formData.section} onChange={(v) => handleSelectChange('section', v)}
                 placeholder="Select Section *"
-                options={sections.map(s => ({ label: s.name.startsWith('Section') ? s.name : `Section ${s.name}`, value: s.name }))}
+                options={dynamicSections.map(s => ({ label: s.name.startsWith('Section') ? s.name : `Section ${s.name}`, value: s.name }))}
               />
             </div>
             

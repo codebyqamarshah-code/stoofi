@@ -25,11 +25,35 @@ exports.getAll = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    if (!req.body.name || !req.body.name.trim()) {
-      return res.status(400).json({ success: false, message: 'Subject name is required' });
+    const { name, code, type, category, author } = req.body;
+    if (!name || !name.trim()) {
+      return res.status(400).json({ success: false, message: 'Subject name is required.' });
     }
-    const data = await Subject.create(req.body);
-    res.status(201).json({ success: true, data, message: 'Subject created successfully' });
+
+    const trimmedName = name.trim();
+    const trimmedCode = code ? code.trim() : '';
+
+    // Check duplicate subject with same name
+    const existing = await Subject.findOne({
+      name: { $regex: new RegExp(`^${trimmedName.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}$`, 'i') }
+    });
+
+    if (existing) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `Subject "${trimmedName}" already exists.` 
+      });
+    }
+
+    const data = await Subject.create({
+      name: trimmedName,
+      code: trimmedCode,
+      type: type || 'Theory',
+      category: category || 'Compulsory',
+      author: author ? author.trim() : ''
+    });
+
+    res.status(201).json({ success: true, data, message: 'Subject created successfully.' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -37,9 +61,40 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const data = await Subject.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!data) return res.status(404).json({ success: false, message: 'Subject not found' });
-    res.status(200).json({ success: true, data, message: 'Subject updated successfully' });
+    const { name, code, type, category, author } = req.body;
+    if (!name || !name.trim()) {
+      return res.status(400).json({ success: false, message: 'Subject name is required.' });
+    }
+
+    const trimmedName = name.trim();
+    const trimmedCode = code ? code.trim() : '';
+
+    const existing = await Subject.findOne({
+      _id: { $ne: req.params.id },
+      name: { $regex: new RegExp(`^${trimmedName.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}$`, 'i') }
+    });
+
+    if (existing) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `Subject "${trimmedName}" already exists.` 
+      });
+    }
+
+    const data = await Subject.findByIdAndUpdate(
+      req.params.id, 
+      {
+        name: trimmedName,
+        code: trimmedCode,
+        type: type || 'Theory',
+        category: category || 'Compulsory',
+        author: author ? author.trim() : ''
+      }, 
+      { new: true }
+    );
+
+    if (!data) return res.status(404).json({ success: false, message: 'Subject not found.' });
+    res.status(200).json({ success: true, data, message: 'Subject updated successfully.' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -48,9 +103,10 @@ exports.update = async (req, res) => {
 exports.remove = async (req, res) => {
   try {
     const data = await Subject.findByIdAndDelete(req.params.id);
-    if (!data) return res.status(404).json({ success: false, message: 'Subject not found' });
-    res.status(200).json({ success: true, data: {}, message: 'Subject deleted successfully' });
+    if (!data) return res.status(404).json({ success: false, message: 'Subject not found.' });
+    res.status(200).json({ success: true, data: {}, message: 'Subject deleted successfully.' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+

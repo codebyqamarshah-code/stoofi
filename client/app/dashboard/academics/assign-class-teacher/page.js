@@ -9,35 +9,44 @@ import {
   Printer,
   FileText,
   Trash2,
-  Edit,
+  Edit2,
   Loader2,
-  X,
   AlertCircle,
   CheckCircle2,
   AlertTriangle,
   UserCheck,
   Users,
-  Plus
+  X,
+  RefreshCw,
+  Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import api from '@/services/api';
-import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
+import { useAuth } from '@/hooks/useAuth';
+import { exportToCSV, exportToExcel, printData } from '@/lib/exportUtils';
+import { sortClassesAcademic } from '@/lib/academicUtils';
 
 export default function AssignClassTeacherPage() {
+  const { user } = useAuth();
+  const canManage = !user?.role || ['Super Admin', 'Admin'].includes(user.role);
+
   const [assignments, setAssignments] = useState([]);
   const [classes, setClasses] = useState([]);
-  const [sections, setSections] = useState([]);
+  const [allSections, setAllSections] = useState([]);
   const [teachersList, setTeachersList] = useState([]);
+
+  // Loading & error states
   const [loading, setLoading] = useState(true);
+  const [dataError, setDataError] = useState(null);
   const [teachersLoading, setTeachersLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  
+
+  // Search & filter
   const [searchTeacherQuery, setSearchTeacherQuery] = useState('');
   const [searchTableQuery, setSearchTableQuery] = useState('');
-  const [toastMessage, setToastMessage] = useState(null);
-  const [deleteConfirmItem, setDeleteConfirmItem] = useState(null);
+  const [classFilter, setClassFilter] = useState('All');
 
   // Form State
   const [formData, setFormData] = useState({
@@ -46,34 +55,39 @@ export default function AssignClassTeacherPage() {
     teacher: '',
     teacherId: ''
   });
-
+  const [formErrors, setFormErrors] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
+
+  // Delete modal state
+  const [deleteConfirmItem, setDeleteConfirmItem] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  // Notification Toast
+  const [toast, setToast] = useState(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const showToast = (text, isError = false) => {
-    setToastMessage({ text, isError });
-    setTimeout(() => setToastMessage(null), 3500);
+  const showToast = (message, isError = false) => {
+    setToast({ message, isError });
+    setTimeout(() => setToast(null), 3500);
   };
 
   // 1. Fetch live teachers from backend (/staff and /teacher)
   const fetchTeachers = async () => {
     setTeachersLoading(true);
     try {
-      // First try /staff?role=Teacher, then fallback to /staff or /teacher
       const [staffRes, teacherRes] = await Promise.allSettled([
-        api.get('/staff?limit=100'),
-        api.get('/teacher?limit=100')
+        api.get('/staff?limit=200'),
+        api.get('/teacher?limit=200')
       ]);
 
-      let combinedTeachers = [];
-      const seenNames = new Set();
+      const combinedTeachers = [];
+      const seenKeys = new Set();
 
       if (staffRes.status === 'fulfilled' && staffRes.value?.success && Array.isArray(staffRes.value.data)) {
-        // Filter teachers or all staff
         const staffData = staffRes.value.data;
         const onlyTeachers = staffData.filter(s => 
           (s.role && s.role.toLowerCase() === 'teacher') ||
@@ -83,8 +97,9 @@ export default function AssignClassTeacherPage() {
 
         listToUse.forEach(s => {
           const name = `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.name || s.email;
-          if (name && !seenNames.has(name.toLowerCase())) {
-            seenNames.add(name.toLowerCase());
+          const key = name.toLowerCase();
+          if (name && !seenKeys.has(key)) {
+            seenKeys.add(key);
             combinedTeachers.push({
               id: s._id,
               name,
@@ -99,8 +114,9 @@ export default function AssignClassTeacherPage() {
       if (teacherRes.status === 'fulfilled' && teacherRes.value?.success && Array.isArray(teacherRes.value.data)) {
         teacherRes.value.data.forEach(t => {
           const name = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.name || t.email;
-          if (name && !seenNames.has(name.toLowerCase())) {
-            seenNames.add(name.toLowerCase());
+          const key = name.toLowerCase();
+          if (name && !seenKeys.has(key)) {
+            seenKeys.add(key);
             combinedTeachers.push({
               id: t._id,
               name,
@@ -130,10 +146,10 @@ export default function AssignClassTeacherPage() {
       ]);
 
       if (classRes.status === 'fulfilled' && classRes.value?.success && Array.isArray(classRes.value.data)) {
-        setClasses(classRes.value.data);
+        setClasses(sortClassesAcademic(classRes.value.data));
       }
       if (secRes.status === 'fulfilled' && secRes.value?.success && Array.isArray(secRes.value.data)) {
-        setSections(secRes.value.data);
+        setAllSections(secRes.value.data);
       }
     } catch (err) {
       console.error('Failed to load classes/sections:', err);
@@ -142,17 +158,20 @@ export default function AssignClassTeacherPage() {
 
   // 3. Fetch Class Teacher assignments
   const fetchAssignments = async () => {
-    setLoading(true);
     try {
+      setLoading(true);
+      setDataError(null);
       const res = await api.get('/class-teacher');
-      if (res?.success && Array.isArray(res.data)) {
+      if (res && res.success && Array.isArray(res.data)) {
         setAssignments(res.data);
+      } else if (Array.isArray(res)) {
+        setAssignments(res);
       } else {
         setAssignments([]);
       }
     } catch (err) {
       console.error('Failed to load class teacher assignments:', err);
-      setAssignments([]);
+      setDataError(err?.response?.data?.message || err?.message || 'Failed to load class teacher assignments.');
     } finally {
       setLoading(false);
     }
@@ -164,7 +183,58 @@ export default function AssignClassTeacherPage() {
     fetchAssignments();
   }, []);
 
-  // Filter teachers for the left panel radio list
+  // Compute available sections dependent on selected class
+  const selectedClassObj = useMemo(() => {
+    if (!formData.className) return null;
+    return classes.find(c => c.name === formData.className);
+  }, [classes, formData.className]);
+
+  const availableSectionsForClass = useMemo(() => {
+    if (!formData.className) return [];
+
+    // If the class has explicit sections defined
+    if (selectedClassObj && Array.isArray(selectedClassObj.sections) && selectedClassObj.sections.length > 0) {
+      return selectedClassObj.sections.map(s => typeof s === 'string' ? s : s.name);
+    }
+
+    // Fallback to general sections registered in system
+    if (allSections.length > 0) {
+      return allSections.map(s => s.name);
+    }
+
+    return ['A', 'B', 'C', 'D'];
+  }, [formData.className, selectedClassObj, allSections]);
+
+  // Check if an assignment already exists for the currently selected Class + Section
+  const existingAssignmentForSelected = useMemo(() => {
+    if (!formData.className || !formData.section) return null;
+    return assignments.find(a => 
+      a.className?.trim().toLowerCase() === formData.className.trim().toLowerCase() &&
+      a.section?.trim().toLowerCase() === formData.section.trim().toLowerCase()
+    );
+  }, [assignments, formData.className, formData.section]);
+
+  // Handle Class dropdown change: reset invalid section selection
+  const handleClassChange = (newClassName) => {
+    setFormData(prev => ({
+      ...prev,
+      className: newClassName,
+      section: '' // reset section when class changes
+    }));
+    if (formErrors.className) setFormErrors(prev => ({ ...prev, className: null }));
+    if (formErrors.section) setFormErrors(prev => ({ ...prev, section: null }));
+  };
+
+  // Handle Section dropdown change
+  const handleSectionChange = (newSection) => {
+    setFormData(prev => ({
+      ...prev,
+      section: newSection
+    }));
+    if (formErrors.section) setFormErrors(prev => ({ ...prev, section: null }));
+  };
+
+  // Filter teachers for list
   const filteredTeachers = useMemo(() => {
     const q = searchTeacherQuery.trim().toLowerCase();
     if (!q) return teachersList;
@@ -174,55 +244,13 @@ export default function AssignClassTeacherPage() {
     );
   }, [teachersList, searchTeacherQuery]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.className) {
-      showToast('Please select a Class.', true);
-      return;
-    }
-    if (!formData.section) {
-      showToast('Please select a Section.', true);
-      return;
-    }
-    if (!formData.teacher) {
-      showToast('Please select a Teacher.', true);
-      return;
-    }
-
-    try {
-      setSubmitting(true);
-      const payload = {
-        className: formData.className,
-        section: formData.section,
-        teacher: formData.teacher,
-        teacherId: formData.teacherId || null
-      };
-
-      if (isEditing && editId) {
-        const res = await api.put(`/class-teacher/${editId}`, payload);
-        if (res?.success) {
-          showToast('Class teacher assignment updated successfully!');
-          resetForm();
-          fetchAssignments();
-        } else {
-          showToast(res?.message || 'Failed to update assignment.', true);
-        }
-      } else {
-        const res = await api.post('/class-teacher', payload);
-        if (res?.success) {
-          showToast('Class teacher assigned successfully!');
-          resetForm();
-          fetchAssignments();
-        } else {
-          showToast(res?.message || 'Failed to assign class teacher.', true);
-        }
-      }
-    } catch (err) {
-      console.error('Error saving assignment:', err);
-      showToast(err?.response?.data?.message || err?.message || 'Failed to assign class teacher.', true);
-    } finally {
-      setSubmitting(false);
-    }
+  const validate = () => {
+    const errs = {};
+    if (!formData.className) errs.className = 'Please select a Class.';
+    if (!formData.section) errs.section = 'Please select a Section.';
+    if (!formData.teacher) errs.teacher = 'Please select a Teacher.';
+    setFormErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const resetForm = () => {
@@ -232,8 +260,57 @@ export default function AssignClassTeacherPage() {
       teacher: '',
       teacherId: ''
     });
+    setFormErrors({});
     setIsEditing(false);
     setEditId(null);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    try {
+      setSubmitting(true);
+      setFormErrors({});
+
+      const payload = {
+        className: formData.className.trim(),
+        section: formData.section.trim(),
+        teacher: formData.teacher.trim(),
+        teacherId: formData.teacherId || null
+      };
+
+      if (isEditing && editId) {
+        const res = await api.put(`/class-teacher/${editId}`, payload);
+        if (res && res.success) {
+          showToast(res.message || 'Class teacher assignment updated successfully!');
+          resetForm();
+          fetchAssignments();
+        } else {
+          showToast(res?.message || 'Assignment updated.');
+          resetForm();
+          fetchAssignments();
+        }
+      } else {
+        const res = await api.post('/class-teacher', payload);
+        if (res && res.success) {
+          showToast(res.message || 'Class teacher assigned successfully!');
+          resetForm();
+          fetchAssignments();
+        } else {
+          showToast(res?.message || 'Assignment saved.');
+          resetForm();
+          fetchAssignments();
+        }
+      }
+    } catch (err) {
+      console.error('Error saving assignment:', err);
+      const msg = err?.response?.data?.message || err?.message || 'Failed to save class teacher assignment.';
+      setFormErrors({ general: msg });
+      showToast(msg, true);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleEdit = (item) => {
@@ -245,36 +322,50 @@ export default function AssignClassTeacherPage() {
     });
     setIsEditing(true);
     setEditId(item._id);
+    setFormErrors({});
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async () => {
     if (!deleteConfirmItem) return;
     try {
+      setDeleting(true);
       const res = await api.delete(`/class-teacher/${deleteConfirmItem._id}`);
-      if (res?.success) {
-        showToast('Assignment removed successfully!');
-        setDeleteConfirmItem(null);
-        fetchAssignments();
+      if (res && res.success) {
+        showToast('Class teacher assignment removed successfully.');
+        setAssignments(prev => prev.filter(a => a._id !== deleteConfirmItem._id));
       } else {
-        showToast(res?.message || 'Failed to remove assignment.', true);
+        showToast(res?.message || 'Assignment removed.');
+        fetchAssignments();
       }
+      setDeleteConfirmItem(null);
     } catch (err) {
-      console.error('Delete error:', err);
+      console.error('Delete assignment error:', err);
       showToast(err?.response?.data?.message || err?.message || 'Failed to remove assignment.', true);
+    } finally {
+      setDeleting(false);
     }
   };
 
   // Table filtering & pagination
   const filteredAssignments = useMemo(() => {
+    let list = assignments;
+
+    if (classFilter !== 'All') {
+      list = list.filter(a => a.className === classFilter);
+    }
+
     const q = searchTableQuery.trim().toLowerCase();
-    if (!q) return assignments;
-    return assignments.filter(a => 
-      (a.className || '').toLowerCase().includes(q) || 
-      (a.section || '').toLowerCase().includes(q) || 
-      (a.teacher || '').toLowerCase().includes(q)
-    );
-  }, [assignments, searchTableQuery]);
+    if (q) {
+      list = list.filter(a => 
+        (a.className || '').toLowerCase().includes(q) || 
+        (a.section || '').toLowerCase().includes(q) || 
+        (a.teacher || '').toLowerCase().includes(q)
+      );
+    }
+
+    return list;
+  }, [assignments, searchTableQuery, classFilter]);
 
   const totalPages = Math.ceil(filteredAssignments.length / itemsPerPage) || 1;
   const paginatedData = useMemo(() => {
@@ -289,51 +380,37 @@ export default function AssignClassTeacherPage() {
     }
 
     const exportData = filteredAssignments.map((a, idx) => ({
-      'SL': idx + 1,
-      'CLASS': a.className,
-      'SECTION': a.section,
-      'TEACHER': a.teacher
+      '#': idx + 1,
+      'Class': a.className,
+      'Section': a.section,
+      'Teacher': a.teacher
     }));
 
-    const headers = ['SL', 'CLASS', 'SECTION', 'TEACHER'];
-    const filename = `Class_Teachers_${Date.now()}`;
+    const title = 'Class Teacher Assignments';
 
     if (type === 'Print') {
-      printData(exportData, headers, 'Stoofi Class Teacher List');
+      printData(title, exportData);
     } else if (type === 'CSV') {
-      exportToCSV(exportData, filename);
-      showToast('CSV exported successfully!');
+      exportToCSV(exportData, 'Class_Teacher_Assignments');
     } else if (type === 'Excel') {
-      exportToExcel(exportData, filename, 'ClassTeachers');
-      showToast('Excel exported successfully!');
-    } else if (type === 'PDF') {
-      exportToPDF(exportData, headers, 'Stoofi Class Teacher List', filename);
-      showToast('PDF exported successfully!');
+      exportToExcel(exportData, 'Class_Teacher_Assignments');
     }
   };
-
-  const availableClassNames = classes.length > 0 
-    ? classes.map(c => c.name) 
-    : ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'];
-
-  const availableSectionNames = sections.length > 0 
-    ? sections.map(s => s.name) 
-    : ['A', 'B', 'C', 'D'];
 
   return (
     <div className="space-y-6 pb-12">
       {/* Toast Notification */}
-      {toastMessage && (
+      {toast && (
         <div 
-          className={`fixed top-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg border text-sm font-medium transition-all transform animate-in fade-in slide-in-from-top-4 ${
-            toastMessage.isError 
-              ? 'bg-rose-50 text-rose-800 border-rose-200' 
-              : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+          className={`fixed top-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-lg border text-sm font-medium transition-all animate-in fade-in slide-in-from-top-4 ${
+            toast.isError 
+              ? 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-950/80 dark:text-rose-200 dark:border-rose-800' 
+              : 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/80 dark:text-emerald-200 dark:border-emerald-800'
           }`}
         >
-          {toastMessage.isError ? <AlertCircle className="w-4 h-4 text-rose-600" /> : <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
-          <span>{toastMessage.text}</span>
-          <button onClick={() => setToastMessage(null)} className="ml-2 text-zinc-400 hover:text-zinc-600">
+          {toast.isError ? <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" /> : <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />}
+          <span>{toast.message}</span>
+          <button onClick={() => setToast(null)} className="ml-2 text-zinc-400 hover:text-zinc-600">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -342,189 +419,277 @@ export default function AssignClassTeacherPage() {
       {/* Page Header & Breadcrumbs */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-950">Assign Class Teacher</h1>
-          <p className="text-xs text-zinc-500 mt-0.5">Assign designated class teachers to specific classes and sections</p>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-950 dark:text-zinc-50">Assign Class Teacher</h1>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Assign designated faculty educators to respective academic classes and sections</p>
         </div>
-        <div className="flex items-center text-xs text-zinc-400 bg-white border border-zinc-200 px-3 py-1.5 rounded-lg shadow-2xs">
-          <Link href="/dashboard" className="hover:text-zinc-700 transition-colors">Dashboard</Link>
-          <ChevronRight className="h-3.5 w-3.5 mx-1" />
-          <Link href="/dashboard/academics/class" className="hover:text-zinc-700 transition-colors">Academics</Link>
-          <ChevronRight className="h-3.5 w-3.5 mx-1" />
-          <span className="text-zinc-950 font-semibold">Assign Class Teacher</span>
+        <div className="flex items-center text-xs text-zinc-500 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 px-3 py-1.5 rounded-lg shadow-2xs">
+          <Link href="/dashboard" className="hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors">Dashboard</Link>
+          <ChevronRight className="h-3.5 w-3.5 mx-1 text-zinc-400" />
+          <Link href="/dashboard/academics/class" className="hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors">Academics</Link>
+          <ChevronRight className="h-3.5 w-3.5 mx-1 text-zinc-400" />
+          <span className="text-zinc-950 dark:text-zinc-100 font-semibold">Assign Class Teacher</span>
         </div>
       </div>
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         
-        {/* Left Panel: Assign Form */}
-        <div className="lg:col-span-1">
-          <div className="bg-white border border-zinc-200 rounded-xl shadow-xs overflow-hidden">
-            <div className="p-4 border-b border-zinc-100 bg-zinc-50/60 flex items-center justify-between">
-              <h2 className="text-sm font-bold text-zinc-950">
-                {isEditing ? 'Edit Class Teacher' : 'Assign Class Teacher'}
-              </h2>
-              {isEditing && (
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 px-2 py-0.5 rounded-md">
-                  Editing
-                </span>
-              )}
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-5 space-y-4">
-              {/* Class Dropdown */}
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold uppercase tracking-wider text-zinc-800">
-                  CLASS <span className="text-rose-500">*</span>
-                </Label>
-                <select 
-                  value={formData.className}
-                  onChange={e => setFormData({ ...formData, className: e.target.value })}
-                  className="flex h-10 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 font-medium focus:outline-none focus:ring-1 focus:ring-zinc-900"
-                  required
-                >
-                  <option value="">Select Class *</option>
-                  {availableClassNames.map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Section Dropdown */}
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold uppercase tracking-wider text-zinc-800">
-                  SECTION <span className="text-rose-500">*</span>
-                </Label>
-                <select 
-                  value={formData.section}
-                  onChange={e => setFormData({ ...formData, section: e.target.value })}
-                  className="flex h-10 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 font-medium focus:outline-none focus:ring-1 focus:ring-zinc-900"
-                  required
-                >
-                  <option value="">Select Section *</option>
-                  {availableSectionNames.map(s => (
-                    <option key={s} value={s}>Section {s}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Dynamic Real Teachers List */}
-              <div className="space-y-2 pt-1">
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs font-bold uppercase tracking-wider text-zinc-800">
-                    TEACHER <span className="text-rose-500">*</span>
-                  </Label>
-                  <span className="text-[10px] text-zinc-400">
-                    {teachersList.length} registered {teachersList.length === 1 ? 'teacher' : 'teachers'}
-                  </span>
+        {/* Left Panel: Assignment Form (Restricted to Authorized Roles) */}
+        {canManage && (
+          <div className="lg:col-span-1">
+            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xs overflow-hidden">
+              <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-800/40 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-[#009966]"></div>
+                  <h2 className="text-sm font-bold text-zinc-950 dark:text-zinc-100">
+                    {isEditing ? 'Edit Class Teacher' : 'Assign Class Teacher'}
+                  </h2>
                 </div>
+                {isEditing && (
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-300 px-2 py-0.5 rounded-md">
+                    Editing
+                  </span>
+                )}
+              </div>
 
-                {/* Filter search if more than 5 teachers */}
-                {teachersList.length > 5 && (
-                  <div className="relative">
-                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-zinc-400" />
-                    <Input 
-                      value={searchTeacherQuery}
-                      onChange={e => setSearchTeacherQuery(e.target.value)}
-                      placeholder="Filter teachers..."
-                      className="pl-7 h-7 text-xs bg-zinc-50 border-zinc-200"
-                    />
+              <form onSubmit={handleSubmit} className="p-5 space-y-4">
+                {formErrors.general && (
+                  <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{formErrors.general}</span>
                   </div>
                 )}
 
-                <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1 border border-zinc-200 rounded-lg p-2 bg-zinc-50/40">
-                  {teachersLoading ? (
-                    <div className="py-6 text-center text-xs text-zinc-400 flex items-center justify-center gap-1.5">
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-600" />
-                      <span>Loading active teachers...</span>
-                    </div>
-                  ) : filteredTeachers.length === 0 ? (
-                    <div className="py-6 px-3 text-center">
-                      <Users className="w-6 h-6 text-zinc-300 mx-auto mb-1" />
-                      <p className="text-xs font-semibold text-zinc-600">No teachers found</p>
-                      <p className="text-[11px] text-zinc-400 mt-0.5">
-                        Please add staff/teachers under <Link href="/dashboard/hr/staff-directory" className="text-emerald-600 font-semibold underline">Staff Directory</Link>
-                      </p>
-                    </div>
-                  ) : (
-                    filteredTeachers.map(t => (
-                      <label 
-                        key={t.id || t.name} 
-                        className={`flex items-center justify-between gap-2 cursor-pointer p-2 rounded-lg border transition-all ${
-                          formData.teacher === t.name 
-                            ? 'border-zinc-950 bg-zinc-100/90 shadow-2xs font-bold text-zinc-950' 
-                            : 'border-transparent hover:border-zinc-200 hover:bg-white text-zinc-700'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <input 
-                            type="radio" 
-                            name="assignedTeacher" 
-                            value={t.name}
-                            checked={formData.teacher === t.name}
-                            onChange={() => setFormData({ ...formData, teacher: t.name, teacherId: t.id })}
-                            className="w-3.5 h-3.5 accent-zinc-950" 
-                          />
-                          <div>
-                            <span className="text-xs font-semibold block leading-tight">{t.name}</span>
-                            {t.designation && (
-                              <span className="text-[10px] text-zinc-400 block font-normal">{t.designation}</span>
-                            )}
-                          </div>
-                        </div>
-                        {formData.teacher === t.name && (
-                          <UserCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                        )}
-                      </label>
-                    ))
+                {/* Class Dropdown */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-zinc-800 dark:text-zinc-200">
+                    Select Class <span className="text-rose-500">*</span>
+                  </Label>
+                  <select 
+                    value={formData.className}
+                    onChange={(e) => handleClassChange(e.target.value)}
+                    className={`flex h-10 w-full rounded-lg border bg-white dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-950 dark:text-zinc-50 font-medium focus:outline-none focus:ring-1 focus:ring-emerald-600 ${
+                      formErrors.className ? 'border-rose-400' : 'border-zinc-300 dark:border-zinc-700'
+                    }`}
+                    disabled={submitting}
+                  >
+                    <option value="">-- Choose Class --</option>
+                    {classes.map(c => (
+                      <option key={c._id || c.name} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
+                  {formErrors.className && (
+                    <p className="text-xs text-rose-600 dark:text-rose-400 font-medium flex items-center gap-1 mt-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{formErrors.className}</span>
+                    </p>
                   )}
                 </div>
-              </div>
 
-              {/* Submit & Cancel Buttons */}
-              <div className="pt-2 flex flex-col sm:flex-row gap-2">
-                <Button 
-                  type="submit" 
-                  disabled={submitting}
-                  className="w-full bg-[#084A86] hover:bg-[#073d6e] text-white font-bold text-xs uppercase tracking-wider h-10 rounded-lg shadow-xs transition-all cursor-pointer"
-                >
-                  {submitting ? (
-                    <span className="flex items-center gap-1.5 justify-center">
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      Saving...
-                    </span>
-                  ) : (
-                    isEditing ? 'UPDATE CLASS TEACHER' : 'SAVE CLASS TEACHER'
-                  )}
-                </Button>
-
-                {isEditing && (
-                  <Button 
-                    type="button" 
-                    variant="outline"
-                    onClick={resetForm}
-                    className="w-full sm:w-auto border-zinc-300 text-zinc-700 font-semibold text-xs h-10 rounded-lg"
+                {/* Section Dropdown (Dependent on Class!) */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-bold uppercase tracking-wider text-zinc-800 dark:text-zinc-200">
+                      Select Section <span className="text-rose-500">*</span>
+                    </Label>
+                    {!formData.className && (
+                      <span className="text-[10px] text-zinc-400 italic">Select class first</span>
+                    )}
+                  </div>
+                  <select 
+                    value={formData.section}
+                    onChange={(e) => handleSectionChange(e.target.value)}
+                    disabled={!formData.className || submitting}
+                    className={`flex h-10 w-full rounded-lg border bg-white dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-950 dark:text-zinc-50 font-medium focus:outline-none focus:ring-1 focus:ring-emerald-600 ${
+                      !formData.className 
+                        ? 'opacity-60 cursor-not-allowed bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800' 
+                        : formErrors.section 
+                        ? 'border-rose-400' 
+                        : 'border-zinc-300 dark:border-zinc-700'
+                    }`}
                   >
-                    Cancel
-                  </Button>
+                    <option value="">
+                      {!formData.className ? '-- Select Class First --' : '-- Choose Section --'}
+                    </option>
+                    {availableSectionsForClass.map(s => (
+                      <option key={s} value={s}>Section {s}</option>
+                    ))}
+                  </select>
+                  {formErrors.section && (
+                    <p className="text-xs text-rose-600 dark:text-rose-400 font-medium flex items-center gap-1 mt-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{formErrors.section}</span>
+                    </p>
+                  )}
+                </div>
+
+                {/* Detected Existing Assignment Alert */}
+                {existingAssignmentForSelected && !isEditing && (
+                  <div className="p-3 rounded-lg bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-900 dark:text-emerald-200 space-y-1 animate-in fade-in duration-150">
+                    <div className="flex items-center gap-1.5 font-bold">
+                      <Info className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span>Currently Assigned: {existingAssignmentForSelected.teacher}</span>
+                    </div>
+                    <p className="text-[11px] text-emerald-800 dark:text-emerald-300">
+                      Selecting another teacher will reassign this class & section without creating a duplicate record.
+                    </p>
+                  </div>
                 )}
-              </div>
-            </form>
+
+                {/* Dynamic Eligible Teachers Selection */}
+                <div className="space-y-2 pt-1">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-bold uppercase tracking-wider text-zinc-800 dark:text-zinc-200">
+                      Select Teacher <span className="text-rose-500">*</span>
+                    </Label>
+                    <span className="text-[10px] text-zinc-400">
+                      {teachersList.length} registered
+                    </span>
+                  </div>
+
+                  {/* Filter search if more than 4 teachers */}
+                  {teachersList.length > 4 && (
+                    <div className="relative">
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-zinc-400" />
+                      <Input 
+                        value={searchTeacherQuery}
+                        onChange={(e) => setSearchTeacherQuery(e.target.value)}
+                        placeholder="Filter teachers..."
+                        className="pl-7 h-7 text-xs bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800"
+                        disabled={submitting}
+                      />
+                    </div>
+                  )}
+
+                  <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1 border border-zinc-200 dark:border-zinc-800 rounded-lg p-2 bg-zinc-50/40 dark:bg-zinc-950/40">
+                    {teachersLoading ? (
+                      <div className="py-6 text-center text-xs text-zinc-400 flex items-center justify-center gap-1.5">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-600" />
+                        <span>Loading active teachers...</span>
+                      </div>
+                    ) : filteredTeachers.length === 0 ? (
+                      <div className="py-6 px-3 text-center">
+                        <Users className="w-6 h-6 text-zinc-300 dark:text-zinc-600 mx-auto mb-1" />
+                        <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">No teachers found</p>
+                        <p className="text-[11px] text-zinc-400 mt-0.5">
+                          Register faculty under <Link href="/dashboard/hr/staff-directory" className="text-emerald-600 font-semibold underline">Staff Directory</Link>
+                        </p>
+                      </div>
+                    ) : (
+                      filteredTeachers.map(t => {
+                        const isSelected = formData.teacher === t.name;
+                        return (
+                          <label 
+                            key={t.id || t.name} 
+                            className={`flex items-center justify-between gap-2 cursor-pointer p-2 rounded-lg border transition-all ${
+                              isSelected 
+                                ? 'border-[#009966] bg-emerald-50/40 dark:bg-emerald-950/30 text-zinc-950 dark:text-zinc-50 font-bold' 
+                                : 'border-transparent hover:border-zinc-200 dark:hover:border-zinc-800 hover:bg-white dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <input 
+                                type="radio" 
+                                name="assignedTeacher" 
+                                value={t.name}
+                                checked={isSelected}
+                                onChange={() => {
+                                  setFormData({ ...formData, teacher: t.name, teacherId: t.id });
+                                  if (formErrors.teacher) setFormErrors(prev => ({ ...prev, teacher: null }));
+                                }}
+                                className="w-3.5 h-3.5 accent-[#009966]" 
+                                disabled={submitting}
+                              />
+                              <div>
+                                <span className="text-xs font-semibold block leading-tight">{t.name}</span>
+                                {t.designation && (
+                                  <span className="text-[10px] text-zinc-400 block font-normal">{t.designation}</span>
+                                )}
+                              </div>
+                            </div>
+                            {isSelected && (
+                              <UserCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            )}
+                          </label>
+                        );
+                      })
+                    )}
+                  </div>
+                  {formErrors.teacher && (
+                    <p className="text-xs text-rose-600 dark:text-rose-400 font-medium flex items-center gap-1 mt-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{formErrors.teacher}</span>
+                    </p>
+                  )}
+                </div>
+
+                {/* Submit & Cancel Buttons */}
+                <div className="pt-2 flex flex-col sm:flex-row gap-2">
+                  <Button 
+                    type="submit" 
+                    disabled={submitting}
+                    className="flex-1 bg-zinc-950 hover:bg-zinc-800 dark:bg-[#009966] dark:hover:bg-[#008055] text-white font-bold text-xs uppercase tracking-wider py-2.5 rounded-lg shadow-xs transition-all cursor-pointer"
+                  >
+                    {submitting ? (
+                      <span className="flex items-center justify-center gap-1.5">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        Saving...
+                      </span>
+                    ) : isEditing ? (
+                      'UPDATE CLASS TEACHER'
+                    ) : existingAssignmentForSelected ? (
+                      'REASSIGN CLASS TEACHER'
+                    ) : (
+                      'ASSIGN CLASS TEACHER'
+                    )}
+                  </Button>
+
+                  {isEditing && (
+                    <Button 
+                      type="button" 
+                      variant="outline"
+                      onClick={resetForm}
+                      disabled={submitting}
+                      className="border-zinc-300 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 font-semibold text-xs py-2.5 rounded-lg cursor-pointer"
+                    >
+                      Cancel
+                    </Button>
+                  )}
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Right Panel: Class Teacher List Table */}
-        <div className="lg:col-span-2">
-          <div className="bg-white border border-zinc-200 rounded-xl shadow-xs overflow-hidden flex flex-col">
+        <div className={canManage ? 'lg:col-span-2' : 'lg:col-span-3'}>
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xs overflow-hidden flex flex-col">
             
             {/* List Header & Search/Export Toolbar */}
-            <div className="p-4 border-b border-zinc-100 bg-zinc-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h2 className="text-sm font-bold text-zinc-950">Class Teacher List</h2>
-                <p className="text-[11px] text-zinc-500">Overview of assigned class educators</p>
+                <h2 className="text-sm font-bold text-zinc-950 dark:text-zinc-100">Class Teacher List</h2>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Total Assignments: {assignments.length}</p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
+                {/* Class Filter */}
+                {classes.length > 0 && (
+                  <select
+                    value={classFilter}
+                    onChange={(e) => {
+                      setClassFilter(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="h-9 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-2.5 text-xs font-semibold text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                  >
+                    <option value="All">All Classes</option>
+                    {classes.map(c => (
+                      <option key={c.name} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
+                )}
+
                 {/* Search Bar */}
                 <div className="relative w-full sm:w-48">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
@@ -534,8 +699,8 @@ export default function AssignClassTeacherPage() {
                       setSearchTableQuery(e.target.value);
                       setCurrentPage(1);
                     }}
-                    placeholder="SEARCH"
-                    className="pl-8 pr-7 h-8 text-xs font-semibold uppercase bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-900 rounded-lg"
+                    placeholder="Search..."
+                    className="pl-8 pr-7 h-9 text-xs font-medium bg-white dark:bg-zinc-950 border-zinc-300 dark:border-zinc-700 text-zinc-950 dark:text-zinc-50 focus-visible:ring-emerald-600 rounded-lg"
                   />
                   {searchTableQuery && (
                     <button 
@@ -548,107 +713,156 @@ export default function AssignClassTeacherPage() {
                 </div>
 
                 {/* Export Buttons */}
-                <div className="flex items-center border border-zinc-200 rounded-lg bg-white shadow-2xs overflow-hidden">
-                  <button 
+                <div className="flex items-center gap-1 bg-white dark:bg-zinc-950 p-1 rounded-lg border border-zinc-200 dark:border-zinc-800 shadow-2xs">
+                  <Button 
                     onClick={() => handleExport('CSV')} 
-                    className="p-1.5 hover:bg-zinc-100 text-zinc-600 border-r border-zinc-200 transition-colors" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 cursor-pointer" 
                     title="Export CSV"
                   >
-                    <FileText className="h-3.5 w-3.5" />
-                  </button>
-                  <button 
+                    <Download className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button 
                     onClick={() => handleExport('Excel')} 
-                    className="p-1.5 hover:bg-zinc-100 text-zinc-600 border-r border-zinc-200 transition-colors" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 cursor-pointer" 
                     title="Export Excel"
                   >
-                    <Download className="h-3.5 w-3.5" />
-                  </button>
-                  <button 
+                    <FileText className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button 
                     onClick={() => handleExport('Print')} 
-                    className="p-1.5 hover:bg-zinc-100 text-zinc-600 transition-colors" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 cursor-pointer" 
                     title="Print"
                   >
                     <Printer className="h-3.5 w-3.5" />
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
 
+            {/* Error Banner */}
+            {dataError && (
+              <div className="m-4 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 flex items-center justify-between gap-3 text-rose-800 dark:text-rose-200 text-xs">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
+                  <span>{dataError}</span>
+                </div>
+                <Button 
+                  onClick={fetchAssignments} 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-7 px-2.5 text-xs border-rose-300 dark:border-rose-700 hover:bg-rose-100 dark:hover:bg-rose-900"
+                >
+                  <RefreshCw className="h-3 w-3 mr-1" /> Try Again
+                </Button>
+              </div>
+            )}
+
             {/* Table */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="bg-zinc-50 border-b border-zinc-200 text-zinc-700 font-bold uppercase tracking-wider">
-                    <th className="px-4 py-3">CLASS</th>
-                    <th className="px-4 py-3">SECTION</th>
-                    <th className="px-4 py-3">TEACHER</th>
-                    <th className="px-4 py-3 text-right">ACTION</th>
+            <div className="flex-1 overflow-x-auto">
+              <table className="w-full text-xs text-left">
+                <thead className="text-[11px] text-zinc-700 dark:text-zinc-300 uppercase bg-zinc-50/80 dark:bg-zinc-800/60 border-b border-zinc-200 dark:border-zinc-800 font-bold tracking-wider">
+                  <tr>
+                    <th className="px-5 py-3">Class</th>
+                    <th className="px-5 py-3">Section</th>
+                    <th className="px-5 py-3">Teacher</th>
+                    {canManage && <th className="px-5 py-3 text-right">Action</th>}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-100 font-medium">
+                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800 font-medium">
+                  {/* Loading State */}
                   {loading ? (
-                    <tr>
-                      <td colSpan="4" className="py-12 text-center text-zinc-500">
-                        <div className="flex items-center justify-center gap-2">
-                          <Loader2 className="w-4 h-4 animate-spin text-zinc-600" />
-                          <span>Loading assignments...</span>
-                        </div>
-                      </td>
-                    </tr>
+                    Array.from({ length: 4 }).map((_, i) => (
+                      <tr key={i} className="animate-pulse">
+                        <td className="px-5 py-4">
+                          <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-24"></div>
+                        </td>
+                        <td className="px-5 py-4">
+                          <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-16"></div>
+                        </td>
+                        <td className="px-5 py-4">
+                          <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-36"></div>
+                        </td>
+                        {canManage && (
+                          <td className="px-5 py-4 text-right">
+                            <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-16 ml-auto"></div>
+                          </td>
+                        )}
+                      </tr>
+                    ))
                   ) : paginatedData.length === 0 ? (
+                    /* Empty State */
                     <tr>
-                      <td colSpan="4" className="py-14 text-center text-zinc-500">
-                        <div className="flex flex-col items-center justify-center">
-                          <Users className="w-7 h-7 text-zinc-300 mb-1.5" />
-                          <span className="font-semibold text-zinc-600">No Data Available In Table</span>
-                          {searchTableQuery && (
-                            <span className="text-[11px] text-zinc-400 mt-0.5">
-                              No results found for &quot;{searchTableQuery}&quot;
-                            </span>
-                          )}
+                      <td colSpan={canManage ? 4 : 3} className="px-5 py-14 text-center">
+                        <div className="flex flex-col items-center justify-center max-w-xs mx-auto">
+                          <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-2 text-zinc-400">
+                            <Users className="w-5 h-5" />
+                          </div>
+                          <span className="font-semibold text-zinc-800 dark:text-zinc-200 text-sm">
+                            {searchTableQuery || classFilter !== 'All' 
+                              ? 'No matching assignments found' 
+                              : 'No class teachers assigned yet.'}
+                          </span>
+                          <span className="text-zinc-400 text-xs mt-1">
+                            {searchTableQuery || classFilter !== 'All'
+                              ? 'Try adjusting your search criteria or class filter.'
+                              : canManage ? 'Select a class, section, and faculty member on the left to create an assignment.' : 'Assignments will appear here once configured.'}
+                          </span>
                         </div>
                       </td>
                     </tr>
                   ) : (
+                    /* Table Rows */
                     paginatedData.map((item) => (
                       <tr 
                         key={item._id} 
-                        className="hover:bg-zinc-50/80 transition-colors text-zinc-950"
+                        className="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 transition-colors"
                       >
-                        <td className="px-4 py-3 font-semibold text-zinc-950">
+                        <td className="px-5 py-3.5 font-bold text-zinc-950 dark:text-zinc-100">
                           {item.className}
                         </td>
-                        <td className="px-4 py-3 text-zinc-700">
-                          Section {item.section}
+                        <td className="px-5 py-3.5">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700">
+                            Section {item.section}
+                          </span>
                         </td>
-                        <td className="px-4 py-3 font-bold text-zinc-950 flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold flex items-center justify-center">
-                            {item.teacher.charAt(0)}
-                          </div>
-                          <span>{item.teacher}</span>
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <Button 
-                              onClick={() => handleEdit(item)} 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-7 w-7 p-0 text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100 rounded-md"
-                              title="Edit Assignment"
-                            >
-                              <Edit className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button 
-                              onClick={() => setDeleteConfirmItem(item)} 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-7 w-7 p-0 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-md"
-                              title="Remove Assignment"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
+                        <td className="px-5 py-3.5 text-zinc-950 dark:text-zinc-100 font-semibold">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
+                              {item.teacher ? item.teacher.charAt(0).toUpperCase() : 'T'}
+                            </div>
+                            <span>{item.teacher}</span>
                           </div>
                         </td>
+                        {canManage && (
+                          <td className="px-5 py-3.5 text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              <Button 
+                                onClick={() => handleEdit(item)} 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-7 w-7 p-0 text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-50 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md cursor-pointer"
+                                title="Edit / Reassign"
+                              >
+                                <Edit2 className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button 
+                                onClick={() => setDeleteConfirmItem(item)} 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-7 w-7 p-0 text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-md cursor-pointer"
+                                title="Remove Assignment"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </td>
+                        )}
                       </tr>
                     ))
                   )}
@@ -657,7 +871,7 @@ export default function AssignClassTeacherPage() {
             </div>
 
             {/* Footer */}
-            <div className="p-3.5 border-t border-zinc-100 bg-zinc-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-zinc-500 font-medium">
+            <div className="p-3.5 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/40 dark:bg-zinc-800/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-zinc-500 font-medium">
               <div>
                 Showing {filteredAssignments.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredAssignments.length)} of {filteredAssignments.length} entries
               </div>
@@ -669,11 +883,11 @@ export default function AssignClassTeacherPage() {
                     size="sm"
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
-                    className="h-7 px-2 text-xs border-zinc-200"
+                    className="h-7 px-2 text-xs border-zinc-200 dark:border-zinc-800"
                   >
                     Previous
                   </Button>
-                  <span className="px-2 text-zinc-700 font-semibold text-xs">
+                  <span className="px-2 text-zinc-700 dark:text-zinc-300 font-semibold text-xs">
                     {currentPage} / {totalPages}
                   </span>
                   <Button
@@ -681,7 +895,7 @@ export default function AssignClassTeacherPage() {
                     size="sm"
                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
-                    className="h-7 px-2 text-xs border-zinc-200"
+                    className="h-7 px-2 text-xs border-zinc-200 dark:border-zinc-800"
                   >
                     Next
                   </Button>
@@ -696,37 +910,46 @@ export default function AssignClassTeacherPage() {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirmItem && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-xl shadow-2xl border border-zinc-200 max-w-sm w-full p-5 space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-2xs flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 max-w-sm w-full p-5 space-y-4">
             <div className="flex items-center gap-3 text-rose-600">
-              <div className="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center shrink-0">
-                <AlertTriangle className="w-5 h-5 text-rose-600" />
+              <div className="w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-950/60 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400" />
               </div>
               <div>
-                <h3 className="font-bold text-sm text-zinc-950">Remove Class Teacher</h3>
-                <p className="text-xs text-zinc-500">This action will unassign the teacher.</p>
+                <h3 className="font-bold text-sm text-zinc-950 dark:text-zinc-50">Remove Class Teacher</h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">This will unassign the class educator.</p>
               </div>
             </div>
 
-            <p className="text-xs text-zinc-600">
-              Are you sure you want to remove <strong className="text-zinc-950">{deleteConfirmItem.teacher}</strong> as class teacher for <strong className="text-zinc-950">{deleteConfirmItem.className} (Section {deleteConfirmItem.section})</strong>?
+            <p className="text-xs text-zinc-600 dark:text-zinc-300">
+              Are you sure you want to remove <strong className="text-zinc-950 dark:text-zinc-100">{deleteConfirmItem.teacher}</strong> as class teacher for <strong className="text-zinc-950 dark:text-zinc-100">{deleteConfirmItem.className} (Section {deleteConfirmItem.section})</strong>?
             </p>
 
             <div className="flex items-center justify-end gap-2 pt-2">
               <Button 
                 variant="outline" 
                 size="sm" 
+                disabled={deleting}
                 onClick={() => setDeleteConfirmItem(null)}
-                className="text-xs"
+                className="text-xs border-zinc-300 dark:border-zinc-700"
               >
                 Cancel
               </Button>
               <Button 
                 size="sm" 
+                disabled={deleting}
                 onClick={handleDelete}
                 className="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold"
               >
-                Remove
+                {deleting ? (
+                  <span className="flex items-center gap-1">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    Removing...
+                  </span>
+                ) : (
+                  'Remove'
+                )}
               </Button>
             </div>
           </div>
