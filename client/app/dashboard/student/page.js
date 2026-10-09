@@ -188,15 +188,26 @@ export default function StudentDashboardPage() {
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-zinc-950 capitalize">
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white capitalize">
               {studentName}
             </h1>
 
-            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-zinc-950">
+            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-zinc-200">
+              {user?.username && (
+                <div className="flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-lg border border-emerald-500/30">
+                  <span className="font-bold">@{user.username}</span>
+                </div>
+              )}
               <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-lg border border-white/10">
                 <span>Admission No:</span>
-                <span className="font-bold text-zinc-950">{admissionNo}</span>
+                <span className="font-bold text-white">{admissionNo}</span>
               </div>
+              {(studentDetails?.className || user?.className) && (
+                <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-lg border border-white/10">
+                  <span>Class:</span>
+                  <span className="font-bold text-white">{studentDetails?.className || user?.className} ({studentDetails?.section || user?.section || 'A'})</span>
+                </div>
+              )}
               <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-lg border border-white/10">
                 <Clock className="w-3.5 h-3.5" />
                 <span>{formatDate()}</span>
@@ -405,8 +416,8 @@ export default function StudentDashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-7 gap-1 text-center text-xs font-extrabold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-100">
-          {['SUN','MON','TUE','WED','THU','FRI','SAT'].map(d => <div key={d}>{d}</div>)}
+        <div className="grid grid-cols-7 gap-1 text-center text-xs font-extrabold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-100 notranslate" translate="no">
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => <div key={d}>{d}</div>)}
         </div>
 
         <div className="grid grid-cols-7 gap-1.5">

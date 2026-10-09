@@ -77,13 +77,13 @@ export function SearchableSelect({ options = [], value, onChange, placeholder = 
   return (
     <div className="relative w-full" ref={wrapperRef}>
       <div
-        className="flex h-10 w-full items-center justify-between rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm cursor-pointer shadow-xs hover:border-zinc-500 transition-all font-medium text-zinc-950"
+        className="flex h-9 w-full items-center justify-between rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs cursor-pointer shadow-xs hover:border-zinc-500 transition-all font-medium text-zinc-950 gap-2 overflow-hidden"
         onClick={handleToggle}
       >
-        <span className={selectedOption ? "text-zinc-950 font-bold" : "text-zinc-400 font-medium"}>
+        <span className={`truncate leading-normal min-w-0 flex-1 ${selectedOption ? "text-zinc-950 font-bold" : "text-zinc-400 font-medium"}`}>
           {selectedOption ? selectedOption.label : placeholder}
         </span>
-        <ChevronDown className={`h-4 w-4 text-zinc-500 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+        <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-zinc-500 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
       </div>
 
       {isOpen && (

@@ -50,9 +50,12 @@ const certificateSchema = new mongoose.Schema({
   },
   themeStyle: { 
     type: String, 
-    enum: ['stoofi-emerald', 'classic-gold', 'academic-navy', 'modern-slate'],
-    default: 'stoofi-emerald'
+    enum: ['classic-gold', 'stoofi-emerald', 'royal-navy', 'crimson-merit', 'minimal-tech', 'academic-navy', 'modern-slate'],
+    default: 'classic-gold'
   },
+  uploadedBackground: { type: String, default: '' },
+  uploadedSeal: { type: String, default: '' },
+  uploadedSignature: { type: String, default: '' },
   status: { 
     type: String, 
     enum: ['Active', 'Inactive'],

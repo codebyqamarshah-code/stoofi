@@ -36,10 +36,12 @@ import api from '@/services/api';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 
 const THEME_STYLES = [
-  { id: 'stoofi-emerald', label: 'Stoofi Emerald', headerBg: 'bg-emerald-800', border: 'border-emerald-600', text: 'text-emerald-900' },
-  { id: 'classic-navy', label: 'Classic Navy', headerBg: 'bg-sky-950', border: 'border-sky-800', text: 'text-sky-950' },
-  { id: 'royal-purple', label: 'Royal Purple', headerBg: 'bg-indigo-900', border: 'border-indigo-700', text: 'text-indigo-900' },
-  { id: 'modern-slate', label: 'Modern Slate', headerBg: 'bg-zinc-900', border: 'border-zinc-700', text: 'text-zinc-900' }
+  { id: 'stoofi-emerald', label: '1. Modern Emerald Badge', headerBg: 'bg-emerald-800', border: 'border-emerald-600', text: 'text-emerald-900', accent: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+  { id: 'classic-navy', label: '2. Executive Navy Horizontal', headerBg: 'bg-sky-950', border: 'border-sky-800', text: 'text-sky-950', accent: 'bg-sky-50 text-sky-900 border-sky-200' },
+  { id: 'royal-purple', label: '3. Royal Purple Academic', headerBg: 'bg-indigo-900', border: 'border-indigo-700', text: 'text-indigo-900', accent: 'bg-indigo-50 text-indigo-900 border-indigo-200' },
+  { id: 'dark-slate', label: '4. Dark Luxury Obsidian', headerBg: 'bg-zinc-950', border: 'border-zinc-800', text: 'text-zinc-950', accent: 'bg-zinc-900 text-emerald-400 border-zinc-700' },
+  { id: 'crimson-gold', label: '5. Heritage Crimson & Gold', headerBg: 'bg-rose-950', border: 'border-amber-600', text: 'text-rose-950', accent: 'bg-amber-50 text-amber-900 border-amber-300' },
+  { id: 'modern-slate', label: 'Modern Slate', headerBg: 'bg-zinc-900', border: 'border-zinc-700', text: 'text-zinc-900', accent: 'bg-zinc-100 text-zinc-800 border-zinc-300' }
 ];
 
 export default function IdCardPage() {
@@ -140,6 +142,22 @@ export default function IdCardPage() {
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
+  const handleBackgroundUpload = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        showToast('Image size should be less than 2MB', true);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, uploadedBackground: reader.result }));
+        showToast('Custom template background image loaded!');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleOpenCreate = () => {
     setEditingId(null);
     setFormData({
@@ -161,6 +179,7 @@ export default function IdCardPage() {
       showDesignation: false,
       showDepartment: false,
       showQrBarcode: true,
+      uploadedBackground: '',
       status: 'Active'
     });
     setShowFormModal(true);
@@ -187,6 +206,7 @@ export default function IdCardPage() {
       showDesignation: card.showDesignation !== undefined ? card.showDesignation : true,
       showDepartment: card.showDepartment !== undefined ? card.showDepartment : true,
       showQrBarcode: card.showQrBarcode !== undefined ? card.showQrBarcode : true,
+      uploadedBackground: card.uploadedBackground || '',
       status: card.status || 'Active'
     });
     setShowFormModal(true);
@@ -351,13 +371,13 @@ export default function IdCardPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Total Templates</span>
+            <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Total Cards</span>
             <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center text-zinc-800">
               <CreditCard className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-bold text-zinc-950 mt-2">{stats.total}</div>
-          <p className="text-[11px] text-zinc-400 mt-0.5">Configured card layouts</p>
+          <p className="text-[11px] text-zinc-400 mt-0.5">Configured card designs</p>
         </div>
 
         <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-2xs">
@@ -764,6 +784,38 @@ export default function IdCardPage() {
                     placeholder="e.g. Principal Signature & Seal" 
                     className="bg-white border-zinc-300 text-zinc-950 text-xs" 
                   />
+                </div>
+
+                {/* Upload Custom Background Graphic */}
+                <div className="space-y-1.5 md:col-span-2 pt-2 border-t border-zinc-200">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
+                      Upload Custom Card Background Image (Optional)
+                    </Label>
+                    {formData.uploadedBackground && (
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, uploadedBackground: '' }))}
+                        className="text-[10px] text-rose-600 hover:underline font-bold"
+                      >
+                        Remove Image
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleBackgroundUpload}
+                      className="block w-full text-xs text-zinc-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-zinc-100 file:text-zinc-700 hover:file:bg-zinc-200 cursor-pointer border border-zinc-300 rounded-lg p-1"
+                    />
+                    {formData.uploadedBackground && (
+                      <div className="w-10 h-10 rounded-lg border border-zinc-300 overflow-hidden shrink-0">
+                        <img src={formData.uploadedBackground} alt="Custom Background" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-zinc-400">Upload high-res PNG/JPG custom school badge frame or card background</p>
                 </div>
               </div>
 

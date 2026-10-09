@@ -1,5 +1,6 @@
 'use client';
 
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { 
@@ -308,13 +309,7 @@ export default function JitsiVirtualClassPage() {
                 </div>
 
                 {/* Export Buttons */}
-                <div className="flex items-center gap-1 border-l border-zinc-200 dark:border-zinc-200 pl-2">
-                  <button onClick={handleCopy} title="Copy" className="p-1.5 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-100 rounded transition-colors"><Copy size={14} /></button>
-                  <button onClick={handleExportExcel} title="Excel" className="p-1.5 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-100 rounded transition-colors"><FileSpreadsheet size={14} /></button>
-                  <button onClick={handleExportCSV} title="CSV" className="p-1.5 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-100 rounded transition-colors"><FileText size={14} /></button>
-                  <button onClick={handleExportPDF} title="PDF" className="p-1.5 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-100 rounded transition-colors"><Download size={14} /></button>
-                  <button onClick={handlePrint} title="Print" className="p-1.5 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-100 rounded transition-colors"><Printer size={14} /></button>
-                </div>
+                <TableExportToolbar />
               </div>
             </div>
 

@@ -1,4 +1,6 @@
 'use client';
+
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { useState, useRef } from 'react';
 import { Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns } from 'lucide-react';
 import Link from 'next/link';
@@ -109,13 +111,7 @@ export default function GmeetVirtualMeetingPage() {
                 <Search className="w-4 h-4 text-gray-400" />
                 <input placeholder="SEARCH" className="bg-transparent text-sm text-gray-700 outline-none w-32 placeholder:text-gray-400" />
               </div>
-              <div className="flex gap-1">
-                {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                  <button key={i} className="p-1.5 text-gray-400 hover:text-indigo-600 border border-gray-200 rounded transition-colors bg-white">
-                    <Icon className="w-4 h-4" />
-                  </button>
-                ))}
-              </div>
+              <TableExportToolbar />
             </div>
           </div>
 

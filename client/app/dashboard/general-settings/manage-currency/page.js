@@ -1,5 +1,6 @@
 'use client';
 
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import React from 'react';
 import { Plus, Copy, FileSpreadsheet, FileText, Printer, Download, Columns } from 'lucide-react';
 
@@ -25,14 +26,7 @@ export default function ManageCurrency() {
         
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
-             <div className="flex gap-2">
-                <button className="p-2 border border-zinc-200 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="Copy"><Copy className="w-4 h-4" /></button>
-                <button className="p-2 border border-zinc-200 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="Excel"><FileSpreadsheet className="w-4 h-4" /></button>
-                <button className="p-2 border border-zinc-200 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="CSV"><FileText className="w-4 h-4" /></button>
-                <button className="p-2 border border-zinc-200 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="PDF"><Download className="w-4 h-4" /></button>
-                <button className="p-2 border border-zinc-200 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="Print"><Printer className="w-4 h-4" /></button>
-                <button className="p-2 border border-zinc-200 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors" title="Columns"><Columns className="w-4 h-4" /></button>
-             </div>
+             <TableExportToolbar />
              <div>
                 <input type="text" placeholder="Search..." className="bg-white border border-zinc-200 shadow-xs rounded-md px-3 py-1.5 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600" />
              </div>

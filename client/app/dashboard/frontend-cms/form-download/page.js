@@ -1,4 +1,6 @@
 'use client';
+
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { useState, useRef } from 'react';
 import { 
   ChevronRight, 
@@ -141,13 +143,7 @@ export default function FormDownloadPage() {
                   className="bg-transparent text-xs text-zinc-950 outline-none w-28"
                 />
               </div>
-              <div className="flex gap-1">
-                {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                  <button key={i} className="p-1 text-zinc-400 hover:text-zinc-500">
-                    <Icon className="w-4 h-4" />
-                  </button>
-                ))}
-              </div>
+              <TableExportToolbar />
             </div>
           </div>
 

@@ -1,5 +1,6 @@
 'use client';
 
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { 
@@ -90,13 +91,7 @@ export default function EmailSmsLogPage() {
               >
               </input>
             </div>
-            <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-lg border border-zinc-200 dark:border-zinc-200">
-              <button onClick={handleCopy} title="Copy" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><Copy className="h-3.5 w-3.5" /></button>
-              <button onClick={() => exportToExcel(filteredLogs, 'Communication_Logs')} title="Excel" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><FileSpreadsheet className="h-3.5 w-3.5" /></button>
-              <button onClick={() => exportToCSV(filteredLogs, 'Communication_Logs')} title="CSV" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><FileText className="h-3.5 w-3.5" /></button>
-              <button onClick={() => exportToPDF(filteredLogs, ['title', 'channel', 'receiverGroup', 'deliveredCount', 'sentDate', 'status'], 'Communication Logs', 'Communication_Logs')} title="PDF" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><Download className="h-3.5 w-3.5" /></button>
-              <button onClick={() => printData(filteredLogs, ['title', 'channel', 'receiverGroup', 'deliveredCount', 'sentDate', 'status'], 'Communication Logs')} title="Print" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><Printer className="h-3.5 w-3.5" /></button>
-            </div>
+            <TableExportToolbar />
           </div>
         </div>
 

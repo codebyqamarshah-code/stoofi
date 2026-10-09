@@ -1,5 +1,6 @@
 'use client';
 
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import React from 'react';
 import { Plus, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, ChevronRight } from 'lucide-react';
 
@@ -32,14 +33,7 @@ export default function ManageCurrency() {
         
         <div className="p-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
-             <div className="flex gap-1">
-                <button className="p-2 border border-zinc-300 rounded-lg bg-white hover:bg-zinc-50 text-zinc-700 transition-colors cursor-pointer" title="Copy"><Copy className="w-3.5 h-3.5" /></button>
-                <button className="p-2 border border-zinc-300 rounded-lg bg-white hover:bg-zinc-50 text-zinc-700 transition-colors cursor-pointer" title="Excel"><FileSpreadsheet className="w-3.5 h-3.5" /></button>
-                <button className="p-2 border border-zinc-300 rounded-lg bg-white hover:bg-zinc-50 text-zinc-700 transition-colors cursor-pointer" title="CSV"><FileText className="w-3.5 h-3.5" /></button>
-                <button className="p-2 border border-zinc-300 rounded-lg bg-white hover:bg-zinc-50 text-zinc-700 transition-colors cursor-pointer" title="PDF"><Download className="w-3.5 h-3.5" /></button>
-                <button className="p-2 border border-zinc-300 rounded-lg bg-white hover:bg-zinc-50 text-zinc-700 transition-colors cursor-pointer" title="Print"><Printer className="w-3.5 h-3.5" /></button>
-                <button className="p-2 border border-zinc-300 rounded-lg bg-white hover:bg-zinc-50 text-zinc-700 transition-colors cursor-pointer" title="Columns"><Columns className="w-3.5 h-3.5" /></button>
-             </div>
+             <TableExportToolbar />
              <div>
                 <input type="text" placeholder="Search..." className="bg-white border border-zinc-300 rounded-lg px-3 py-1.5 text-xs text-zinc-950 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600" />
              </div>

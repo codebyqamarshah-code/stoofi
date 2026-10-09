@@ -1,5 +1,6 @@
 'use client';
 
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import Link from 'next/link';
 
 import React, { useState } from 'react';
@@ -112,13 +113,7 @@ export default function AllCoursesPage() {
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
               <Input placeholder="SEARCH" className="pl-9 w-[180px] bg-white dark:bg-white border-zinc-200 dark:border-zinc-200 focus-visible:ring-zinc-600 text-xs font-semibold uppercase" />
             </div>
-            <div className="flex items-center border border-zinc-200 dark:border-zinc-200 rounded-md bg-white dark:bg-zinc-900">
-              {[FileText, Download, FileText, Download, Printer, MoreVertical].map((Icon, i) => (
-                <button key={i} className={`p-2 hover:bg-zinc-100 dark:hover:bg-zinc-100 text-zinc-600 dark:text-zinc-400 transition-colors ${i < 5 ? 'border-r border-zinc-200 dark:border-zinc-200' : ''}`}>
-                  <Icon className="h-4 w-4" />
-                </button>
-              ))}
-            </div>
+            <TableExportToolbar />
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -166,9 +161,3 @@ export default function AllCoursesPage() {
     </div>
   );
 }
-
-
-
-
-
-

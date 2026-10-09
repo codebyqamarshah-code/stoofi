@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -11,8 +11,119 @@ import {
   ShieldCheck, Menu, X, Star, ArrowRight, Zap, BarChart3,
   Bell, BookOpen, CreditCard, Clock, Globe, Phone, Mail, MapPin,
   Settings2, UserPlus, FileSpreadsheet, Award, ChevronDown, Search,
-  LogOut, LayoutDashboard, User, Pause, Play
+  LogOut, LayoutDashboard, User, Pause, Play, Calendar, CalendarDays,
+  FileText, Sparkles, Filter, ExternalLink, Printer, Share2, Copy, Check, Tag, Info
 } from "lucide-react";
+
+const DEFAULT_PUBLIC_NOTICES = [
+  {
+    _id: "notice-default-1",
+    id: "notice-default-1",
+    type: "Notice",
+    title: "Annual Sports Gala & Track Championship 2026",
+    description: "The Annual Sports Gala will commence from next week. All house captains and registered participants are requested to collect their sports kits from the physical education department. Parents and guardians are cordially invited for the grand closing ceremony.",
+    audience: "All",
+    date: new Date(Date.now() + 86400000 * 2).toISOString(),
+    published: true,
+    createdBy: "Sports Committee"
+  },
+  {
+    _id: "notice-default-2",
+    id: "notice-default-2",
+    type: "Notice",
+    title: "Mid-Term Examination Datesheet & Admit Card Issuance",
+    description: "The official datesheet for Mid-Term examinations has been published on the student and parent portals. Admit cards can be downloaded online or collected from the examination cell before Friday.",
+    audience: "Students",
+    date: new Date(Date.now() + 86400000 * 5).toISOString(),
+    published: true,
+    createdBy: "Examination Cell"
+  },
+  {
+    _id: "notice-default-3",
+    id: "notice-default-3",
+    type: "Notice",
+    title: "First Term Parent-Teacher Conference (PTM) Schedule",
+    description: "The first term Parent-Teacher Meeting will be held on Saturday between 9:00 AM to 1:30 PM. Class teachers will discuss academic progress, attendance records, and personalized learning milestones with parents.",
+    audience: "Parents",
+    date: new Date(Date.now() + 86400000 * 7).toISOString(),
+    published: true,
+    createdBy: "Academic Coordinator"
+  },
+  {
+    _id: "notice-default-4",
+    id: "notice-default-4",
+    type: "Notice",
+    title: "Faculty Professional Development & STEM Curriculum Workshop",
+    description: "All senior and secondary faculty members are required to attend the professional development session on modern pedagogical strategies and digital classroom toolkits in Hall A.",
+    audience: "Teachers",
+    date: new Date(Date.now() + 86400000 * 9).toISOString(),
+    published: true,
+    createdBy: "Principal Office"
+  }
+];
+
+const DEFAULT_PUBLIC_EVENTS = [
+  {
+    _id: "event-default-1",
+    id: "event-default-1",
+    type: "Event",
+    title: "National Science & Robotics Exhibition 2026",
+    description: "Inter-school exhibition featuring cutting-edge student projects in Artificial Intelligence, Renewable Energy, and Smart Robotics. Open for visitors, students, and technology enthusiasts.",
+    eventFor: "All",
+    audience: "All",
+    startDate: new Date(Date.now() + 86400000 * 12).toISOString().split('T')[0],
+    endDate: new Date(Date.now() + 86400000 * 14).toISOString().split('T')[0],
+    date: new Date(Date.now() + 86400000 * 12).toISOString().split('T')[0],
+    location: "Main Auditorium & Tech Labs",
+    category: "Academic",
+    status: "Upcoming"
+  },
+  {
+    _id: "event-default-2",
+    id: "event-default-2",
+    type: "Event",
+    title: "Inter-House Football & Basketball Championship",
+    description: "Annual tournament between school houses featuring knockout rounds, semi-finals, and trophy presentation ceremony.",
+    eventFor: "Students",
+    audience: "Students",
+    startDate: new Date(Date.now() + 86400000 * 16).toISOString().split('T')[0],
+    endDate: new Date(Date.now() + 86400000 * 18).toISOString().split('T')[0],
+    date: new Date(Date.now() + 86400000 * 16).toISOString().split('T')[0],
+    location: "Sports Complex — Ground 1",
+    category: "Sports",
+    status: "Upcoming"
+  },
+  {
+    _id: "event-default-3",
+    id: "event-default-3",
+    type: "Event",
+    title: "Annual Founder's Day & Cultural Heritage Festival",
+    description: "Celebration of institution history with musical drama, cultural performances, traditional art galleries, and food stalls hosted by students.",
+    eventFor: "All",
+    audience: "All",
+    startDate: new Date(Date.now() + 86400000 * 22).toISOString().split('T')[0],
+    endDate: new Date(Date.now() + 86400000 * 22).toISOString().split('T')[0],
+    date: new Date(Date.now() + 86400000 * 22).toISOString().split('T')[0],
+    location: "Central Campus Lawn",
+    category: "Cultural",
+    status: "Upcoming"
+  },
+  {
+    _id: "event-default-4",
+    id: "event-default-4",
+    type: "Event",
+    title: "Higher Education & Global Scholarship Seminar",
+    description: "Representatives from leading international universities and scholarship counselors will guide senior students on college applications, admissions, and financial aid.",
+    eventFor: "Students",
+    audience: "Students",
+    startDate: new Date(Date.now() + 86400000 * 25).toISOString().split('T')[0],
+    endDate: new Date(Date.now() + 86400000 * 25).toISOString().split('T')[0],
+    date: new Date(Date.now() + 86400000 * 25).toISOString().split('T')[0],
+    location: "Conference Hall B",
+    category: "Career",
+    status: "Upcoming"
+  }
+];
 
 export default function LandingPage() {
   const { user, isAuthenticated, logout, checkAuth } = useAuth();
@@ -32,11 +143,14 @@ export default function LandingPage() {
   // Dialog State
   const [activeDialog, setActiveDialog] = useState(null); // { title, content, type }
 
-  // Notices state
-  const [publicNotices, setPublicNotices] = useState([]);
-  const [selectedPublicNotice, setSelectedPublicNotice] = useState(null);
-  const [noticeSearch, setNoticeSearch] = useState("");
-  const [selectedNoticeTab, setSelectedNoticeTab] = useState("All");
+  // Notices & Events Section State
+  const [publicNotices, setPublicNotices] = useState(DEFAULT_PUBLIC_NOTICES);
+  const [publicEvents, setPublicEvents] = useState(DEFAULT_PUBLIC_EVENTS);
+  const [activeFeedType, setActiveFeedType] = useState("all"); // 'all' | 'notices' | 'events'
+  const [selectedAudience, setSelectedAudience] = useState("All");
+  const [feedSearch, setFeedSearch] = useState("");
+  const [selectedDetailItem, setSelectedDetailItem] = useState(null);
+  const [copiedItemId, setCopiedItemId] = useState(null);
 
   // Today Event Popup state
   const [todayEvent, setTodayEvent] = useState(null);
@@ -128,45 +242,139 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Fetch Notices
+  // Fetch Notices & Events
   useEffect(() => {
-    const fetchPublicNotices = async () => {
+    const fetchPublicData = async () => {
+      let fetchedNotices = [];
+      let fetchedEvents = [];
+
+      // 1. Fetch notices (and any combined items)
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/dashboard/notices`);
         const result = await res.json();
-        if (result.success && result.data) {
+        if (result.success && Array.isArray(result.data)) {
           const noticesOnly = result.data.filter(item => item.type === "Notice");
-          setPublicNotices(noticesOnly);
-        } else {
-          setPublicNotices([]);
+          const eventsFromNoticeRoute = result.data.filter(item => item.type === "Event");
+          if (noticesOnly.length > 0) fetchedNotices = noticesOnly;
+          if (eventsFromNoticeRoute.length > 0) fetchedEvents = eventsFromNoticeRoute;
         }
       } catch (error) {
         console.error("Failed to fetch public notices:", error);
-        setPublicNotices([]);
       }
+
+      // 2. Fetch events
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/dashboard/events`);
+        const result = await res.json();
+        if (result.success && Array.isArray(result.data)) {
+          fetchedEvents = [...fetchedEvents, ...result.data];
+        }
+      } catch (error) {
+        console.error("Failed to fetch public events:", error);
+      }
+
+      // 3. Merge with localStorage dashboard_events or dashboard_notices if present
+      if (typeof window !== "undefined") {
+        try {
+          const localEvents = localStorage.getItem("dashboard_events");
+          if (localEvents) {
+            const parsed = JSON.parse(localEvents);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              fetchedEvents = [...parsed, ...fetchedEvents];
+            }
+          }
+          const localNotices = localStorage.getItem("dashboard_notices");
+          if (localNotices) {
+            const parsed = JSON.parse(localNotices);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              fetchedNotices = [...parsed, ...fetchedNotices];
+            }
+          }
+        } catch (_) {}
+      }
+
+      // Deduplicate Notices
+      const uniqueNotices = [];
+      const seenNotice = new Set();
+      for (const n of [...fetchedNotices, ...DEFAULT_PUBLIC_NOTICES]) {
+        const key = (n._id || n.id || n.title).toString();
+        if (!seenNotice.has(key)) {
+          seenNotice.add(key);
+          uniqueNotices.push({ ...n, type: "Notice" });
+        }
+      }
+      setPublicNotices(uniqueNotices);
+
+      // Deduplicate Events
+      const uniqueEvents = [];
+      const seenEvent = new Set();
+      for (const e of [...fetchedEvents, ...DEFAULT_PUBLIC_EVENTS]) {
+        const key = (e._id || e.id || e.title).toString();
+        if (!seenEvent.has(key)) {
+          seenEvent.add(key);
+          uniqueEvents.push({ ...e, type: "Event" });
+        }
+      }
+      setPublicEvents(uniqueEvents);
     };
 
-    fetchPublicNotices();
+    fetchPublicData();
   }, []);
 
   const formatNoticeDate = (dateStr) => {
     try {
       const d = new Date(dateStr || Date.now());
-      if (isNaN(d.getTime())) return { day: "15", month: "SEP", year: "2026" };
+      if (isNaN(d.getTime())) return { day: "15", month: "OCT", year: "2026", formatted: "Oct 15, 2026" };
       const day = d.getDate().toString().padStart(2, "0");
       const month = d.toLocaleString("en-US", { month: "short" }).toUpperCase();
       const year = d.getFullYear();
-      return { day, month, year };
+      const formatted = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+      return { day, month, year, formatted };
     } catch (_) {
-      return { day: "15", month: "SEP", year: "2026" };
+      return { day: "15", month: "OCT", year: "2026", formatted: "Oct 15, 2026" };
     }
   };
 
-  const filteredPublicNotices = publicNotices.filter((n) => {
-    const titleMatch = (n.title || "").toLowerCase().includes(noticeSearch.toLowerCase()) || (n.description || "").toLowerCase().includes(noticeSearch.toLowerCase());
-    const audienceMatch = selectedNoticeTab === "All" || (n.noticeTo && (n.noticeTo === selectedNoticeTab || n.noticeTo === "All")) || (n.audience && (n.audience === selectedNoticeTab || n.audience === "All"));
-    return titleMatch && audienceMatch;
-  });
+  const combinedFeed = useMemo(() => {
+    const list = [
+      ...publicNotices.map(n => ({
+        ...n,
+        feedType: 'notice',
+        itemDate: n.noticeDate || n.date || n.createdAt || new Date().toISOString(),
+        targetAudience: n.noticeTo || n.audience || 'All'
+      })),
+      ...publicEvents.map(e => ({
+        ...e,
+        feedType: 'event',
+        itemDate: e.startDate || e.date || e.createdAt || new Date().toISOString(),
+        targetAudience: e.eventFor || e.audience || 'All'
+      }))
+    ];
+
+    let filtered = list;
+    if (activeFeedType === 'notices') {
+      filtered = filtered.filter(item => item.feedType === 'notice');
+    } else if (activeFeedType === 'events') {
+      filtered = filtered.filter(item => item.feedType === 'event');
+    }
+
+    if (selectedAudience !== 'All') {
+      filtered = filtered.filter(item => item.targetAudience === selectedAudience || item.targetAudience === 'All');
+    }
+
+    if (feedSearch.trim()) {
+      const q = feedSearch.toLowerCase();
+      filtered = filtered.filter(item => 
+        (item.title || '').toLowerCase().includes(q) ||
+        (item.description || '').toLowerCase().includes(q) ||
+        (item.location || '').toLowerCase().includes(q) ||
+        (item.category || '').toLowerCase().includes(q) ||
+        (item.targetAudience || '').toLowerCase().includes(q)
+      );
+    }
+
+    return filtered.sort((a, b) => new Date(b.itemDate || 0) - new Date(a.itemDate || 0));
+  }, [publicNotices, publicEvents, activeFeedType, selectedAudience, feedSearch]);
 
   const langDropdownRef = useRef(null);
 
@@ -402,20 +610,13 @@ export default function LandingPage() {
             <Link href="#home" className="hover:text-[#087f77] transition-colors py-1">Home</Link>
             <button
               onClick={() => {
-                if (publicNotices.length > 0) {
-                  const el = document.getElementById("notices");
-                  if (el) el.scrollIntoView({ behavior: "smooth" });
-                } else {
-                  setActiveDialog({
-                    title: "Notice Board",
-                    content: "No public circulars or notices have been posted yet. Check back soon for institution announcements.",
-                    isHtml: false
-                  });
-                }
+                const el = document.getElementById("notices");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
               }}
-              className="hover:text-[#087f77] transition-colors py-1 cursor-pointer"
+              className="hover:text-[#087f77] transition-colors py-1 cursor-pointer relative flex items-center gap-1.5"
             >
-              Notice Board
+              <span>Notice Board</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#087f77] animate-pulse"></span>
             </button>
             <Link href="#how-it-works" className="hover:text-[#087f77] transition-colors py-1">How To Use</Link>
             <Link href="#portals" className="hover:text-[#087f77] transition-colors py-1">Portals</Link>
@@ -496,6 +697,9 @@ export default function LandingPage() {
                   <div className="absolute top-full right-0 mt-2 w-52 bg-white border border-[#dfe7eb] rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
                     <div className="px-4 py-2.5 border-b border-[#dfe7eb] mb-1">
                       <p className="text-sm font-bold text-[#102e43] truncate">{activeUser?.name || activeUser?.fullName || activeUser?.email}</p>
+                      {activeUser?.username && (
+                        <p className="text-xs font-semibold text-[#087f77]">@{activeUser.username}</p>
+                      )}
                       <p className="text-xs text-[#667987] truncate">{activeUser?.email}</p>
                       <span className="inline-block mt-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-[#eaf6f2] text-[#087f77] border border-[#7ebba566]">
                         {activeUser?.role || "User"}
@@ -554,20 +758,13 @@ export default function LandingPage() {
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
-                if (publicNotices.length > 0) {
-                  const el = document.getElementById("notices");
-                  if (el) el.scrollIntoView({ behavior: "smooth" });
-                } else {
-                  setActiveDialog({
-                    title: "Notice Board",
-                    content: "No public circulars or notices have been posted yet.",
-                    isHtml: false
-                  });
-                }
+                const el = document.getElementById("notices");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
               }}
-              className="text-left text-sm font-semibold text-[#102e43] py-2 border-b border-[#f3f7f8]"
+              className="text-left text-sm font-semibold text-[#102e43] py-2 border-b border-[#f3f7f8] flex items-center justify-between cursor-pointer"
             >
-              Notice Board
+              <span>Notice Board & Events</span>
+              <span className="w-2 h-2 rounded-full bg-[#087f77]"></span>
             </button>
             <Link href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-[#102e43] py-2 border-b border-[#f3f7f8]">How To Use</Link>
             <Link href="#portals" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-[#102e43] py-2 border-b border-[#f3f7f8]">Portals</Link>
@@ -1009,6 +1206,250 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── NOTICE BOARD & CAMPUS EVENTS SECTION (#notices) ── */}
+      <section id="notices" className="py-20 sm:py-28 bg-[#f8fafb] border-t border-[#dfe7eb] relative scroll-mt-16">
+        <div className="max-w-[1280px] mx-auto px-6 sm:px-10">
+          {/* Section Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-extrabold uppercase tracking-widest bg-[#eaf6f2] text-[#087f77] border border-[#a2d8c7] mb-3">
+                <Bell size={13} className="animate-pulse text-[#087f77]" />
+                CAMPUS ANNOUNCEMENTS & CALENDAR
+              </div>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#102e43] tracking-tight leading-tight">
+                Notice Board & Events<span className="text-[#087f77]">.</span>
+              </h2>
+              <p className="text-sm sm:text-base text-[#667987] mt-3 max-w-xl leading-relaxed">
+                Stay informed with the latest institution circulars, examination datesheets, holiday schedules, and upcoming campus activities.
+              </p>
+            </div>
+
+            {/* Total updates badge */}
+            <div className="flex items-center gap-2 text-xs font-bold text-[#667987] bg-white px-4 py-2.5 rounded-xl border border-[#dfe7eb] shadow-xs self-start md:self-auto">
+              <Sparkles size={16} className="text-[#087f77]" />
+              <span>{combinedFeed.length} Active {combinedFeed.length === 1 ? "Update" : "Updates"} Published</span>
+            </div>
+          </div>
+
+          {/* Controls: Type Tabs + Audience Filter + Search */}
+          <div className="bg-white rounded-2xl border border-[#dfe7eb] p-4 sm:p-5 shadow-xs mb-10 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+            {/* Feed Type Switcher */}
+            <div className="flex items-center gap-1.5 p-1 bg-[#f1f5f7] rounded-xl overflow-x-auto no-scrollbar">
+              {[
+                { id: "all", label: "All Updates", count: publicNotices.length + publicEvents.length },
+                { id: "notices", label: "Official Notices", count: publicNotices.length },
+                { id: "events", label: "Upcoming Events", count: publicEvents.length }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveFeedType(tab.id)}
+                  className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer ${
+                    activeFeedType === tab.id
+                      ? "bg-white text-[#102e43] shadow-xs"
+                      : "text-[#667987] hover:text-[#102e43]"
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  <span className={`text-[11px] px-1.5 py-0.2 rounded-md font-extrabold ${
+                    activeFeedType === tab.id ? "bg-[#eaf6f2] text-[#087f77]" : "bg-[#e4ebef] text-[#788c98]"
+                  }`}>
+                    {tab.count}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {/* Right side: Audience Filter & Live Search */}
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-3">
+              {/* Audience Dropdown / Selector */}
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                <span className="text-xs font-bold text-[#8194a0] uppercase flex items-center gap-1 mr-1">
+                  <Filter size={12} />
+                  For:
+                </span>
+                {["All", "Students", "Teachers", "Parents", "Staff"].map((aud) => (
+                  <button
+                    key={aud}
+                    onClick={() => setSelectedAudience(aud)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                      selectedAudience === aud
+                        ? "bg-[#102e43] text-white"
+                        : "bg-[#f3f7f8] text-[#667987] hover:bg-[#e6edf1] hover:text-[#102e43]"
+                    }`}
+                  >
+                    {aud}
+                  </button>
+                ))}
+              </div>
+
+              {/* Live Search */}
+              <div className="relative w-full sm:w-64">
+                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8b9ea9]" />
+                <input
+                  type="text"
+                  placeholder="Search notices & events..."
+                  value={feedSearch}
+                  onChange={(e) => setFeedSearch(e.target.value)}
+                  className="w-full pl-9 pr-8 py-2 bg-[#f8fafb] border border-[#dfe7eb] rounded-xl text-xs sm:text-sm text-[#102e43] placeholder-[#8b9ea9] focus:outline-hidden focus:border-[#087f77] focus:bg-white transition-all"
+                />
+                {feedSearch && (
+                  <button
+                    onClick={() => setFeedSearch("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8b9ea9] hover:text-[#102e43] text-xs font-bold p-1 cursor-pointer"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Cards Grid */}
+          {combinedFeed.length === 0 ? (
+            <div className="text-center py-16 px-6 bg-white rounded-2xl border border-[#dfe7eb] shadow-xs">
+              <div className="w-14 h-14 rounded-2xl bg-[#eaf6f2] text-[#087f77] flex items-center justify-center mx-auto mb-4">
+                <Bell size={24} />
+              </div>
+              <h3 className="text-lg font-bold text-[#102e43]">No Announcements Found</h3>
+              <p className="text-xs sm:text-sm text-[#667987] max-w-md mx-auto mt-2 leading-relaxed">
+                {feedSearch || selectedAudience !== "All" || activeFeedType !== "all"
+                  ? "No notices or events match your current search or filter criteria. Try resetting your filters."
+                  : "There are currently no active public notices or upcoming events posted."}
+              </p>
+              {(feedSearch || selectedAudience !== "All" || activeFeedType !== "all") && (
+                <Button
+                  onClick={() => {
+                    setActiveFeedType("all");
+                    setSelectedAudience("All");
+                    setFeedSearch("");
+                  }}
+                  className="mt-5 bg-[#102e43] hover:bg-[#1b425a] text-white font-bold text-xs px-5 h-9 rounded-lg"
+                >
+                  Reset Filters
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {combinedFeed.map((item, idx) => {
+                const dateInfo = formatNoticeDate(item.itemDate);
+                const isNotice = item.feedType === "notice";
+
+                return (
+                  <article
+                    key={item._id || item.id || idx}
+                    onPointerMove={(e) => handleTiltMove(e, 3)}
+                    onPointerLeave={handleTiltLeave}
+                    className="p-6 rounded-2xl border border-[#dfe7eb] bg-white hover:border-[#8ac7b7] hover:shadow-[0_15px_35px_rgba(16,46,67,0.07)] hover:-translate-y-1 transition-all flex flex-col justify-between group relative overflow-hidden"
+                  >
+                    {/* Top Accent Line */}
+                    <div className={`absolute top-0 left-0 right-0 h-1 ${isNotice ? "bg-[#087f77]" : "bg-gradient-to-r from-emerald-500 to-teal-600"}`}></div>
+
+                    <div>
+                      {/* Top Row: Date Box + Type/Audience Badges */}
+                      <div className="flex items-start justify-between gap-4 mb-5 pt-1">
+                        {/* Calendar Date Block */}
+                        <div className="w-13 h-13 rounded-xl bg-white border border-[#dfe7eb] shadow-xs flex flex-col items-center justify-center shrink-0 overflow-hidden group-hover:border-[#95cdbf] transition-colors">
+                          <div className={`w-full text-white text-[9px] font-extrabold uppercase text-center py-0.5 tracking-wider ${isNotice ? "bg-[#102e43]" : "bg-[#087f77]"}`}>
+                            {dateInfo.month}
+                          </div>
+                          <span className="text-lg font-black text-[#102e43] leading-none mt-1">
+                            {dateInfo.day}
+                          </span>
+                        </div>
+
+                        {/* Badges */}
+                        <div className="flex flex-wrap items-center justify-end gap-1.5">
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
+                            isNotice
+                              ? "bg-[#eaf6f2] text-[#087f77] border border-[#a2d8c7]"
+                              : "bg-[#eef2ff] text-[#4338ca] border border-[#c7d2fe]"
+                          }`}>
+                            {isNotice ? <FileText size={10} /> : <Calendar size={10} />}
+                            {isNotice ? "Notice" : "Event"}
+                          </span>
+
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-[#f3f7f8] text-[#556976] border border-[#dfe7eb]">
+                            <Users size={10} />
+                            {item.targetAudience || "All"}
+                          </span>
+
+                          {!isNotice && item.status && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-extrabold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              {item.status}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="text-base font-bold text-[#102e43] group-hover:text-[#087f77] transition-colors line-clamp-2 mb-2.5 leading-snug">
+                        {item.title}
+                      </h3>
+
+                      {/* Event Extra Meta (Location & Date Range) */}
+                      {!isNotice && (
+                        <div className="space-y-1.5 mb-3 pt-1 text-xs text-[#5c7280]">
+                          {item.location && (
+                            <div className="flex items-center gap-1.5 font-medium truncate">
+                              <MapPin size={12} className="text-[#087f77] shrink-0" />
+                              <span className="truncate">{item.location}</span>
+                            </div>
+                          )}
+                          {item.startDate && (
+                            <div className="flex items-center gap-1.5 font-medium">
+                              <CalendarDays size={12} className="text-[#087f77] shrink-0" />
+                              <span>{item.startDate}{item.endDate && item.endDate !== item.startDate ? ` to ${item.endDate}` : ""}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Description */}
+                      <p className="text-xs sm:text-sm text-[#667987] leading-relaxed line-clamp-3">
+                        {item.description || (isNotice ? "Official notice from the administration. Click below for complete details." : "Upcoming school event. Click below to view the schedule.")}
+                      </p>
+                    </div>
+
+                    {/* Footer Actions */}
+                    <div className="pt-4 mt-5 border-t border-[#edf2f5] flex items-center justify-between gap-2">
+                      <button
+                        onClick={() => setSelectedDetailItem(item)}
+                        className="text-xs font-bold text-[#087f77] hover:underline flex items-center gap-1.5 cursor-pointer group-hover:translate-x-0.5 transition-transform"
+                      >
+                        <span>{isNotice ? "Read Full Circular" : "View Event Agenda"}</span>
+                        <ArrowRight size={13} />
+                      </button>
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => {
+                            const shareText = `${item.title}\n\n${item.description || ""}\nDate: ${dateInfo.formatted}\nAudience: ${item.targetAudience || "All"}`;
+                            if (typeof navigator !== "undefined" && navigator.clipboard) {
+                              navigator.clipboard.writeText(shareText);
+                              setCopiedItemId(item._id || item.id || idx);
+                              setTimeout(() => setCopiedItemId(null), 2000);
+                            }
+                          }}
+                          className="p-1.5 rounded-lg text-[#889ca8] hover:text-[#102e43] hover:bg-[#f3f7f8] transition-colors cursor-pointer"
+                          title="Copy notice text"
+                        >
+                          {copiedItemId === (item._id || item.id || idx) ? (
+                            <Check size={14} className="text-emerald-600" />
+                          ) : (
+                            <Copy size={14} />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* ── TESTIMONIALS SECTION ── */}
       <section className="bg-[#f2f7f6] py-20 sm:py-28">
         <div className="max-w-[1240px] mx-auto px-6 sm:px-10">
@@ -1305,6 +1746,199 @@ export default function LandingPage() {
           </small>
         </div>
       </footer>
+
+      {/* ── NOTICE & EVENT DETAIL POPUP MODAL ── */}
+      {selectedDetailItem && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl max-w-xl w-full overflow-hidden shadow-2xl border border-[#dfe7eb] text-[#102e43] relative animate-in zoom-in-95 duration-150 max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="bg-[#0c2436] p-6 text-white relative shrink-0">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-[#64e2bc]/10 rounded-full blur-2xl pointer-events-none"></div>
+
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedDetailItem(null)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+                title="Close"
+                aria-label="Close details"
+              >
+                <X size={16} />
+              </button>
+
+              {/* Badges */}
+              <div className="flex items-center gap-2 mb-2.5">
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest ${
+                  selectedDetailItem.feedType === "notice"
+                    ? "bg-[#64e2bc]/15 text-[#64e2bc] border border-[#64e2bc]/30"
+                    : "bg-indigo-400/20 text-indigo-300 border border-indigo-400/30"
+                }`}>
+                  {selectedDetailItem.feedType === "notice" ? <Bell size={11} /> : <CalendarDays size={11} />}
+                  {selectedDetailItem.feedType === "notice" ? "Official Notice Circular" : "Campus Event Schedule"}
+                </span>
+
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-white border border-white/20">
+                  <Users size={10} />
+                  Audience: {selectedDetailItem.targetAudience || selectedDetailItem.audience || selectedDetailItem.eventFor || "All"}
+                </span>
+              </div>
+
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white leading-snug">
+                {selectedDetailItem.title}
+              </h2>
+            </div>
+
+            {/* Modal Scrollable Content */}
+            <div className="p-6 sm:p-7 space-y-5 overflow-y-auto">
+              {/* Meta Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-xl bg-[#f8fafb] border border-[#dfe7eb]">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-[#eaf6f2] text-[#087f77] flex items-center justify-center shrink-0">
+                    <Calendar size={18} />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-[#8397a3] uppercase block">Published Date</span>
+                    <strong className="text-xs sm:text-sm font-bold text-[#102e43]">
+                      {formatNoticeDate(selectedDetailItem.itemDate).formatted}
+                    </strong>
+                  </div>
+                </div>
+
+                {selectedDetailItem.location && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-[#eaf6f2] text-[#087f77] flex items-center justify-center shrink-0">
+                      <MapPin size={18} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold text-[#8397a3] uppercase block">Location</span>
+                      <strong className="text-xs sm:text-sm font-bold text-[#102e43]">
+                        {selectedDetailItem.location}
+                      </strong>
+                    </div>
+                  </div>
+                )}
+
+                {selectedDetailItem.category && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-[#eaf6f2] text-[#087f77] flex items-center justify-center shrink-0">
+                      <Tag size={18} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold text-[#8397a3] uppercase block">Category</span>
+                      <strong className="text-xs sm:text-sm font-bold text-[#102e43]">
+                        {selectedDetailItem.category}
+                      </strong>
+                    </div>
+                  </div>
+                )}
+
+                {selectedDetailItem.createdBy && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-[#eaf6f2] text-[#087f77] flex items-center justify-center shrink-0">
+                      <ShieldCheck size={18} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold text-[#8397a3] uppercase block">Authority</span>
+                      <strong className="text-xs sm:text-sm font-bold text-[#102e43]">
+                        {selectedDetailItem.createdBy?.name || selectedDetailItem.createdBy || "School Administration"}
+                      </strong>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Main Body Text */}
+              <div>
+                <h4 className="text-xs font-bold text-[#8397a3] uppercase tracking-wider mb-2">Description & Details</h4>
+                <div className="p-4 rounded-xl bg-white border border-[#dfe7eb] text-xs sm:text-sm text-[#375260] leading-relaxed whitespace-pre-line">
+                  {selectedDetailItem.description || "No further details provided for this announcement."}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Actions Footer */}
+            <div className="p-4 sm:p-5 bg-[#f8fafb] border-t border-[#dfe7eb] flex flex-wrap items-center justify-between gap-3 shrink-0">
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => {
+                    const shareText = `STOOFI ERP ANNOUNCEMENT:\n${selectedDetailItem.title}\n\n${selectedDetailItem.description || ""}\nDate: ${formatNoticeDate(selectedDetailItem.itemDate).formatted}\nAudience: ${selectedDetailItem.targetAudience || selectedDetailItem.audience || "All"}`;
+                    if (typeof navigator !== "undefined" && navigator.clipboard) {
+                      navigator.clipboard.writeText(shareText);
+                      setCopiedItemId(selectedDetailItem._id || selectedDetailItem.id);
+                      setTimeout(() => setCopiedItemId(null), 2500);
+                    }
+                  }}
+                  variant="outline"
+                  className="text-xs font-bold border-[#c8d7de] text-[#102e43] hover:bg-white flex items-center gap-1.5 h-9 rounded-lg"
+                >
+                  {copiedItemId === (selectedDetailItem._id || selectedDetailItem.id) ? (
+                    <>
+                      <Check size={13} className="text-emerald-600" />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={13} />
+                      <span>Copy Info</span>
+                    </>
+                  )}
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      const printWindow = window.open("", "_blank");
+                      if (printWindow) {
+                        printWindow.document.write(`
+                          <html>
+                            <head>
+                              <title>${selectedDetailItem.title} - Stoofi Notice</title>
+                              <style>
+                                body { font-family: sans-serif; padding: 40px; color: #102e43; line-height: 1.6; }
+                                .header { border-bottom: 2px solid #087f77; padding-bottom: 15px; margin-bottom: 20px; }
+                                .title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+                                .meta { font-size: 13px; color: #667987; margin-bottom: 20px; }
+                                .badge { display: inline-block; padding: 3px 8px; background: #eaf6f2; color: #087f77; font-weight: bold; border-radius: 4px; font-size: 11px; margin-right: 8px; }
+                                .body { font-size: 15px; white-space: pre-line; }
+                              </style>
+                            </head>
+                            <body>
+                              <div class="header">
+                                <h1 style="margin:0; font-size: 20px; color: #087f77;">STOOFI ERP — OFFICIAL CIRCULAR</h1>
+                              </div>
+                              <div class="title">${selectedDetailItem.title}</div>
+                              <div class="meta">
+                                <span class="badge">${selectedDetailItem.feedType === "notice" ? "NOTICE" : "EVENT"}</span>
+                                <span class="badge">FOR: ${selectedDetailItem.targetAudience || selectedDetailItem.audience || "ALL"}</span>
+                                <span>Date: ${formatNoticeDate(selectedDetailItem.itemDate).formatted}</span>
+                                ${selectedDetailItem.location ? ` | Location: ${selectedDetailItem.location}` : ""}
+                              </div>
+                              <div class="body">${selectedDetailItem.description || ""}</div>
+                              <script>window.onload = function() { window.print(); }<\/script>
+                            </body>
+                          </html>
+                        `);
+                        printWindow.document.close();
+                      }
+                    }
+                  }}
+                  variant="outline"
+                  className="text-xs font-bold border-[#c8d7de] text-[#102e43] hover:bg-white flex items-center gap-1.5 h-9 rounded-lg"
+                >
+                  <Printer size={13} />
+                  <span>Print Circular</span>
+                </Button>
+              </div>
+
+              <Button
+                onClick={() => setSelectedDetailItem(null)}
+                className="bg-[#102e43] hover:bg-[#1b425a] text-white font-bold px-6 h-9 rounded-lg text-xs cursor-pointer"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── GLOBAL INFO / GUIDE DIALOG ── */}
       {activeDialog && (

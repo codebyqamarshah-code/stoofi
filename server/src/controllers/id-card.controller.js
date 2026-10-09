@@ -2,11 +2,11 @@ const IDCard = require('../models/IDCard');
 
 const DEFAULT_ID_CARDS = [
   {
-    title: 'Official Student Identity Card',
+    title: 'Modern Emerald Vertical Badge',
     role: 'Student',
     cardLayout: 'vertical',
     themeStyle: 'stoofi-emerald',
-    headerText: 'OFFICIAL IDENTITY CARD',
+    headerText: 'OFFICIAL STUDENT ID CARD',
     footerText: 'Principal Signature & Seal',
     showPhoto: true,
     showAdmissionNo: true,
@@ -22,6 +22,94 @@ const DEFAULT_ID_CARDS = [
     showQrBarcode: true,
     status: 'Active',
     isDefault: true
+  },
+  {
+    title: 'Executive Navy Horizontal Smart Card',
+    role: 'Student',
+    cardLayout: 'horizontal',
+    themeStyle: 'classic-navy',
+    headerText: 'INSTITUTIONAL IDENTITY CARD',
+    footerText: 'Authorized Signature',
+    showPhoto: true,
+    showAdmissionNo: true,
+    showRollNo: true,
+    showClass: true,
+    showSection: true,
+    showFatherName: true,
+    showPhone: true,
+    showBloodGroup: true,
+    showDob: true,
+    showDesignation: false,
+    showDepartment: false,
+    showQrBarcode: true,
+    status: 'Active',
+    isDefault: false
+  },
+  {
+    title: 'Royal Purple Academic Pass',
+    role: 'Student',
+    cardLayout: 'vertical',
+    themeStyle: 'royal-purple',
+    headerText: 'ACADEMIC EXCELLENCE CARD',
+    footerText: 'Campus Registrar Seal',
+    showPhoto: true,
+    showAdmissionNo: true,
+    showRollNo: true,
+    showClass: true,
+    showSection: true,
+    showFatherName: true,
+    showPhone: true,
+    showBloodGroup: true,
+    showDob: true,
+    showDesignation: false,
+    showDepartment: false,
+    showQrBarcode: true,
+    status: 'Active',
+    isDefault: false
+  },
+  {
+    title: 'Dark Luxury Obsidian Digital Card',
+    role: 'Student',
+    cardLayout: 'vertical',
+    themeStyle: 'dark-slate',
+    headerText: 'DIGITAL STUDENT SMART CARD',
+    footerText: 'Security & Verification Chip',
+    showPhoto: true,
+    showAdmissionNo: true,
+    showRollNo: true,
+    showClass: true,
+    showSection: true,
+    showFatherName: true,
+    showPhone: true,
+    showBloodGroup: true,
+    showDob: true,
+    showDesignation: false,
+    showDepartment: false,
+    showQrBarcode: true,
+    status: 'Active',
+    isDefault: false
+  },
+  {
+    title: 'Heritage Crimson & Gold Crest Badge',
+    role: 'Student',
+    cardLayout: 'vertical',
+    themeStyle: 'crimson-gold',
+    headerText: 'COLLEGE IDENTITY BADGE',
+    footerText: 'Head of Institution Sign',
+    showPhoto: true,
+    showAdmissionNo: true,
+    showRollNo: true,
+    showClass: true,
+    showSection: true,
+    showFatherName: true,
+    showPhone: true,
+    showBloodGroup: true,
+    showDob: true,
+    showDesignation: false,
+    showDepartment: false,
+    showQrBarcode: true,
+    status: 'Active',
+    isDefault: false
   },
   {
     title: 'Faculty & Teacher Smart ID Card',
@@ -49,54 +137,9 @@ const DEFAULT_ID_CARDS = [
     title: 'Staff & Employee Identity Card',
     role: 'Staff',
     cardLayout: 'vertical',
-    themeStyle: 'modern-slate',
+    themeStyle: 'dark-slate',
     headerText: 'STAFF IDENTITY CARD',
     footerText: 'HR & Administrative Seal',
-    showPhoto: true,
-    showAdmissionNo: false,
-    showRollNo: false,
-    showClass: false,
-    showSection: false,
-    showFatherName: false,
-    showPhone: true,
-    showBloodGroup: true,
-    showDob: false,
-    showDesignation: true,
-    showDepartment: true,
-    showQrBarcode: true,
-    status: 'Active',
-    isDefault: true
-  },
-
-  {
-    title: 'Premium Horizontal Student ID Card',
-    role: 'Student',
-    cardLayout: 'horizontal',
-    themeStyle: 'royal-purple',
-    headerText: 'STUDENT ID CARD',
-    footerText: 'School Seal & Signature',
-    showPhoto: true,
-    showAdmissionNo: true,
-    showRollNo: true,
-    showClass: true,
-    showSection: true,
-    showFatherName: false,
-    showPhone: true,
-    showBloodGroup: false,
-    showDob: true,
-    showDesignation: false,
-    showDepartment: false,
-    showQrBarcode: true,
-    status: 'Active',
-    isDefault: true
-  },
-  {
-    title: 'Executive Staff ID Card',
-    role: 'Staff',
-    cardLayout: 'horizontal',
-    themeStyle: 'classic-navy',
-    headerText: 'EXECUTIVE STAFF CARD',
-    footerText: 'Authorized Signature',
     showPhoto: true,
     showAdmissionNo: false,
     showRollNo: false,
@@ -117,8 +160,13 @@ const DEFAULT_ID_CARDS = [
 async function seedDefaultIDCardsIfEmpty() {
   try {
     const count = await IDCard.countDocuments();
-    if (count === 0) {
-      await IDCard.insertMany(DEFAULT_ID_CARDS);
+    if (count < 5) {
+      for (const tpl of DEFAULT_ID_CARDS) {
+        const exists = await IDCard.findOne({ title: tpl.title });
+        if (!exists) {
+          await IDCard.create(tpl);
+        }
+      }
     }
   } catch (err) {
     console.error('Error seeding default ID card templates:', err.message);

@@ -1,4 +1,6 @@
 'use client';
+
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { useState, useRef } from 'react';
 import { ChevronRight, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, Trash2 } from 'lucide-react';
 import api from '@/services/api';
@@ -128,11 +130,7 @@ export default function HolidayPage() {
                 <Search className="w-3.5 h-3.5 text-zinc-400" />
                 <input value={search} onChange={e => setSearch(e.target.value)} placeholder="SEARCH..." className="bg-transparent text-xs text-zinc-950 font-medium outline-none w-28 placeholder-zinc-400" />
               </div>
-              <div className="flex gap-1">
-                {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                  <button key={i} className="p-1.5 border border-zinc-300 rounded-lg text-zinc-700 hover:text-zinc-950 hover:bg-zinc-50 transition-colors cursor-pointer"><Icon className="w-3.5 h-3.5" /></button>
-                ))}
-              </div>
+              <TableExportToolbar />
             </div>
           </div>
           <div className="overflow-x-auto">

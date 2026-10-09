@@ -130,6 +130,13 @@ exports.register = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'User already exists with this email address.' });
     }
 
+    if (username && username.trim()) {
+      const usernameExists = await User.findOne({ username: username.trim() });
+      if (usernameExists) {
+        return res.status(400).json({ success: false, message: 'This username is already taken. Please choose another username.' });
+      }
+    }
+
     if (cnic) {
       const cnicExists = await User.findOne({ cnic: cnic.trim() });
       if (cnicExists) {

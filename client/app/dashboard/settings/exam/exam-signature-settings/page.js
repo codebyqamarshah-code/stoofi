@@ -1,4 +1,6 @@
 'use client';
+
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { useState, useRef } from 'react';
 import { ChevronRight, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
@@ -55,11 +57,7 @@ export default function ExamSignatureSettingsPage() {
                 <Search className="w-3.5 h-3.5 text-zinc-500" />
                 <input value={search} onChange={e => setSearch(e.target.value)} placeholder="SEARCH" className="bg-transparent text-xs text-zinc-950 outline-none w-32" />
               </div>
-              <div className="flex gap-1">
-                {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                  <button key={i} className="p-1.5 text-zinc-400 hover:text-indigo-400 hover:bg-zinc-100 rounded transition-colors"><Icon className="w-3.5 h-3.5" /></button>
-                ))}
-              </div>
+              <TableExportToolbar />
             </div>
           </div>
 

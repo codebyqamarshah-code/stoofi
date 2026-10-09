@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, UserPlus, Image as ImageIcon, FileCheck, Upload, Trash2, CheckCircle, ShieldAlert, Building, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, UserPlus, Image as ImageIcon, FileCheck, Upload, Trash2, CheckCircle, ShieldAlert, Building, ShieldCheck, GraduationCap } from 'lucide-react';
 import api from '@/services/api';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { StoofiLogo } from '@/components/StoofiLogo';
@@ -262,6 +262,10 @@ export default function RegisterPage() {
       else if (value.trim().length < 2 || isGibberish(value)) err = "Please enter a valid First Name in English.";
     } else if (name === 'lastName') {
       if (value.trim() && isGibberish(value)) err = "Please enter a valid Last Name in English.";
+    } else if (name === 'username') {
+      if (!value.trim()) err = "Username is required.";
+      else if (value.trim().length < 3) err = "Username must be at least 3 characters.";
+      else if (!/^[a-zA-Z0-9_.-]+$/.test(value.trim())) err = "Username can only contain letters, numbers, underscores, dots, or hyphens.";
     } else if (name === 'email') {
       if (!value.trim()) err = "Email address is required.";
       else if (!emailRegex.test(value.trim()) || isFakeEmail(value)) err = "Enter a valid real email address (e.g. user@domain.com).";
@@ -276,9 +280,10 @@ export default function RegisterPage() {
         if (!value.trim()) err = "CNIC / National ID number is required.";
         else if (!cnicRegex.test(value.trim()) || isFakeCnic(value)) err = "Please enter a valid 13-digit Pakistani CNIC number (e.g. 35202-1234567-1).";
       }
-    } else if (name === 'address') {
-      if (!value.trim() || value.trim().length < 5) err = "Personal Address is required (minimum 5 characters).";
-      else if (isGibberish(value)) err = "Please enter a valid location/address in English.";
+    } else if (name === 'studentClass' && role === 'Student') {
+      if (!value || !value.trim()) err = "Please select your Class / Grade.";
+    } else if (name === 'section' && role === 'Student') {
+      if (!value || !value.trim()) err = "Please select your Section.";
     } else if (name === 'password') {
       err = validatePasswordStrict(value);
     } else if (name === 'confirmPassword') {
@@ -377,6 +382,14 @@ export default function RegisterPage() {
       errors.lastName = "Please enter a valid Last Name in English.";
     }
 
+    if (!formData.username.trim()) {
+      errors.username = "Username is required.";
+    } else if (formData.username.trim().length < 3) {
+      errors.username = "Username must be at least 3 characters.";
+    } else if (!/^[a-zA-Z0-9_.-]+$/.test(formData.username.trim())) {
+      errors.username = "Username can only contain letters, numbers, underscores, dots, or hyphens.";
+    }
+
     if (!formData.email.trim()) {
       errors.email = "Email address is required.";
     } else if (!emailRegex.test(formData.email.trim()) || isFakeEmail(formData.email.trim())) {
@@ -398,16 +411,19 @@ export default function RegisterPage() {
       errors.schoolName = "School Name is required for Super Admin / Admin accounts.";
     }
 
+    if (role === 'Student') {
+      if (!formData.studentClass || !formData.studentClass.trim()) {
+        errors.studentClass = "Please select your Class / Grade.";
+      }
+      if (!formData.section || !formData.section.trim()) {
+        errors.section = "Please select your Section.";
+      }
+    }
+
     if (!formData.phone.trim()) {
       errors.phone = "Phone Number is required.";
     } else if (!phoneRegex.test(formData.phone.trim()) || isFakePhone(formData.phone.trim())) {
       errors.phone = "Please enter a valid 11-digit Pakistani phone number starting with 03 (e.g. 03351234567).";
-    }
-
-    if (!formData.address.trim() || formData.address.trim().length < 5) {
-      errors.address = "Personal Address is required (minimum 5 characters).";
-    } else if (isGibberish(formData.address.trim())) {
-      errors.address = "Please enter a valid location/address in English. Random characters are not allowed.";
     }
 
     if (!isMinorStudent) {
@@ -429,21 +445,20 @@ export default function RegisterPage() {
 
     try {
       const resolvedFullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim();
-      const generatedUsername = formData.username.trim() || `${formData.firstName.trim().toLowerCase()}_${Date.now().toString().slice(-4)}`;
 
       const payload = {
         role,
         fullName: resolvedFullName,
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
-        username: generatedUsername,
+        username: formData.username.trim(),
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
         phone: formData.phone.trim(),
         cnic: formData.cnic.trim(),
         schoolName: formData.schoolName.trim(),
-        schoolAddress: formData.schoolAddress.trim() || formData.address.trim(),
-        address: formData.address.trim() || formData.schoolAddress.trim(),
+        schoolAddress: formData.schoolAddress.trim(),
+        address: formData.schoolAddress.trim(),
         dob: formData.dob,
         joiningDate: formData.joiningDate || new Date().toISOString().split('T')[0],
         picture: formData.picture,
@@ -467,10 +482,13 @@ export default function RegisterPage() {
           _id: userObj._id,
           name: userObj.fullName || userObj.name || resolvedFullName,
           fullName: userObj.fullName || userObj.name || resolvedFullName,
+          username: userObj.username || formData.username.trim(),
           email: userObj.email || formData.email.trim().toLowerCase(),
           role: userObj.role || role,
           avatar: userObj.avatar || formData.picture || '',
-          picture: userObj.avatar || formData.picture || ''
+          picture: userObj.avatar || formData.picture || '',
+          className: userObj.className || formData.studentClass || '',
+          section: userObj.section || formData.section || ''
         };
 
         if (typeof window !== 'undefined') {
@@ -643,15 +661,18 @@ export default function RegisterPage() {
           {/* Section: Username & Email */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={labelClass}>Username (Optional)</label>
+              <label className={labelClass}>Username <span className="text-rose-500">*</span></label>
               <input
                 type="text"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                placeholder="Enter username (e.g. user_123)"
+                onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
+                placeholder="Enter unique username (e.g. user_123)"
                 className={inputClass}
+                required
               />
+              {fieldErrors.username && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.username}</p>}
             </div>
 
             <div>
@@ -669,6 +690,64 @@ export default function RegisterPage() {
               {fieldErrors.email && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.email}</p>}
             </div>
           </div>
+
+          {/* Section: Student Academic Class & Section */}
+          {role === 'Student' && (
+            <div className="p-4 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40 space-y-4">
+              <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
+                <GraduationCap size={16} /> Academic Class & Section <span className="text-rose-500">*</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>Class / Grade <span className="text-rose-500">*</span></label>
+                  <select
+                    name="studentClass"
+                    value={formData.studentClass}
+                    onChange={handleChange}
+                    onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
+                    className={inputClass}
+                    required
+                  >
+                    <option value="">-- Select Enrolled Class --</option>
+                    {classes && classes.length > 0 ? (
+                      classes.map((c) => (
+                        <option key={c._id || c.name} value={c.name}>
+                          {c.name}
+                        </option>
+                      ))
+                    ) : (
+                      [
+                        'Play Group', 'Nursery', 'Prep',
+                        'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5',
+                        'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'
+                      ].map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))
+                    )}
+                  </select>
+                  {fieldErrors.studentClass && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.studentClass}</p>}
+                </div>
+
+                <div>
+                  <label className={labelClass}>Section <span className="text-rose-500">*</span></label>
+                  <select
+                    name="section"
+                    value={formData.section}
+                    onChange={handleChange}
+                    onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
+                    className={inputClass}
+                    required
+                  >
+                    <option value="">-- Select Section --</option>
+                    {['Section A', 'Section B', 'Section C', 'Section D', 'Section E', 'General'].map((sec) => (
+                      <option key={sec} value={sec}>{sec}</option>
+                    ))}
+                  </select>
+                  {fieldErrors.section && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.section}</p>}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Section: School Info for Admin & Super Admin */}
           {(role === 'Super Admin' || role === 'Admin') && (
@@ -782,22 +861,6 @@ export default function RegisterPage() {
               />
               {fieldErrors.cnic && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.cnic}</p>}
             </div>
-          </div>
-
-          {/* Section: Address */}
-          <div>
-            <label className={labelClass}>Personal Address / Location <span className="text-rose-500">*</span></label>
-            <input
-              type="text"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
-              placeholder="Enter complete residential address"
-              className={inputClass}
-              required
-            />
-            {fieldErrors.address && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.address}</p>}
           </div>
 
 

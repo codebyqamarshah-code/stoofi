@@ -21,7 +21,7 @@ const idCardSchema = new mongoose.Schema({
   },
   themeStyle: { 
     type: String, 
-    enum: ['stoofi-emerald', 'classic-navy', 'royal-purple', 'modern-slate'],
+    enum: ['stoofi-emerald', 'classic-navy', 'royal-purple', 'dark-slate', 'crimson-gold', 'modern-slate'],
     default: 'stoofi-emerald'
   },
   headerText: { 
@@ -47,6 +47,8 @@ const idCardSchema = new mongoose.Schema({
   showDesignation: { type: Boolean, default: true },
   showDepartment: { type: Boolean, default: true },
   showQrBarcode: { type: Boolean, default: true },
+  uploadedBackground: { type: String, default: '' },
+  uploadedLogo: { type: String, default: '' },
   status: { 
     type: String, 
     enum: ['Active', 'Inactive'],

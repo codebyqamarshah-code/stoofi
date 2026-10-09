@@ -1,5 +1,6 @@
 'use client';
 
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { 
@@ -206,23 +207,7 @@ export default function GMeetClassReportsPage() {
                 className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-zinc-300 bg-white text-zinc-950 placeholder-zinc-400 outline-none focus:ring-1 focus:ring-zinc-400 font-medium"
               />
             </div>
-            <div className="flex items-center gap-1 bg-white p-1 rounded-lg border border-zinc-200">
-              <button onClick={handleCopy} title="Copy" className="p-1.5 hover:bg-zinc-100 rounded text-zinc-700 transition-colors">
-                <Copy className="h-3.5 w-3.5" />
-              </button>
-              <button onClick={() => exportToExcel(filtered, 'GMeet_Class_Reports')} title="Excel" className="p-1.5 hover:bg-zinc-100 rounded text-zinc-700 transition-colors">
-                <FileSpreadsheet className="h-3.5 w-3.5" />
-              </button>
-              <button onClick={() => exportToCSV(filtered, 'GMeet_Class_Reports')} title="CSV" className="p-1.5 hover:bg-zinc-100 rounded text-zinc-700 transition-colors">
-                <FileText className="h-3.5 w-3.5" />
-              </button>
-              <button onClick={() => exportToPDF(filtered, ['topic', 'subject', 'classVal', 'section', 'teacher', 'date', 'duration', 'status'], 'GMeet Class Reports', 'GMeet_Class_Reports')} title="PDF" className="p-1.5 hover:bg-zinc-100 rounded text-zinc-700 transition-colors">
-                <Download className="h-3.5 w-3.5" />
-              </button>
-              <button onClick={() => printData(filtered, ['topic', 'subject', 'classVal', 'section', 'teacher', 'date', 'duration', 'status'], 'GMeet Class Reports')} title="Print" className="p-1.5 hover:bg-zinc-100 rounded text-zinc-700 transition-colors">
-                <Printer className="h-3.5 w-3.5" />
-              </button>
-            </div>
+            <TableExportToolbar />
           </div>
         </div>
 

@@ -1,5 +1,6 @@
 'use client';
 
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ChevronRight, Search, Copy, FileSpreadsheet, FileText, Printer, Download, PlayCircle, Trash2 } from 'lucide-react';
@@ -57,13 +58,7 @@ export default function BBBMeetingRecordListPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
               <input type="text" placeholder="SEARCH" value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-900 placeholder-zinc-400 outline-none focus:ring-1 focus:ring-zinc-600" />
             </div>
-            <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-lg border border-zinc-200 dark:border-zinc-200">
-              <button onClick={handleCopy} title="Copy" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><Copy className="h-3.5 w-3.5" /></button>
-              <button onClick={() => exportToExcel(filtered, 'BBB_Meeting_Recordings')} title="Excel" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><FileSpreadsheet className="h-3.5 w-3.5" /></button>
-              <button onClick={() => exportToCSV(filtered, 'BBB_Meeting_Recordings')} title="CSV" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><FileText className="h-3.5 w-3.5" /></button>
-              <button onClick={() => exportToPDF(filtered, ['topic','host','audience','date','duration','fileSize','status'], 'BBB Meeting Recordings', 'BBB_Meeting_Recordings')} title="PDF" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><Download className="h-3.5 w-3.5" /></button>
-              <button onClick={() => printData(filtered, ['topic','host','audience','date','duration','fileSize','status'], 'BBB Meeting Recordings')} title="Print" className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"><Printer className="h-3.5 w-3.5" /></button>
-            </div>
+            <TableExportToolbar />
           </div>
         </div>
 

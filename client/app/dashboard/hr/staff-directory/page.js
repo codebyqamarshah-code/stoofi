@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import React, { useState, useEffect, useMemo } from 'react';
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { 
   ChevronRight, 
   ChevronDown, 
@@ -581,54 +582,12 @@ export default function StaffDirectoryPage() {
               />
             </div>
 
-            {/* Export & Action Buttons */}
-            <div className="flex items-center gap-1.5">
-              <Button onClick={handleCopy} variant="outline" size="icon" className="h-8 w-8 rounded-lg border-zinc-200 text-zinc-700 hover:bg-zinc-100" title="Copy to Clipboard">
-                <Copy className="h-3.5 w-3.5" />
-              </Button>
-              <Button onClick={() => exportToCSV(exportData, 'Staff_Directory')} variant="outline" size="icon" className="h-8 w-8 rounded-lg border-zinc-200 text-zinc-700 hover:bg-zinc-100" title="Download CSV">
-                <Download className="h-3.5 w-3.5" />
-              </Button>
-              <Button onClick={() => exportToExcel(exportData, 'Staff_Directory', 'Staff')} variant="outline" size="icon" className="h-8 w-8 rounded-lg border-zinc-200 text-zinc-700 hover:bg-zinc-100" title="Export Excel">
-                <FileSpreadsheet className="h-3.5 w-3.5" />
-              </Button>
-              <Button onClick={() => exportToPDF(exportData, 'Staff_Directory', 'Staff Directory Report')} variant="outline" size="icon" className="h-8 w-8 rounded-lg border-zinc-200 text-zinc-700 hover:bg-zinc-100" title="Export PDF">
-                <FileText className="h-3.5 w-3.5" />
-              </Button>
-              <Button onClick={() => printData('Staff Directory Report', exportData)} variant="outline" size="icon" className="h-8 w-8 rounded-lg border-zinc-200 text-zinc-700 hover:bg-zinc-100" title="Print List">
-                <Printer className="h-3.5 w-3.5" />
-              </Button>
-
-              {/* Column Visibility Menu */}
-              <div className="relative">
-                <Button 
-                  onClick={(e) => { e.stopPropagation(); setIsColumnsMenuOpen(!isColumnsMenuOpen); }} 
-                  variant="outline" 
-                  size="icon" 
-                  className="h-8 w-8 rounded-lg border-zinc-200 text-zinc-700 hover:bg-zinc-100" 
-                  title="Toggle Columns"
-                >
-                  <Columns className="h-3.5 w-3.5" />
-                </Button>
-
-                {isColumnsMenuOpen && (
-                  <div className="absolute right-0 top-full mt-1.5 z-50 bg-white border border-zinc-200 rounded-xl shadow-xl p-3 min-w-[170px] space-y-2 text-xs font-semibold text-zinc-800" onClick={e => e.stopPropagation()}>
-                    <div className="font-bold text-zinc-950 border-b border-zinc-100 pb-1.5">Show / Hide Columns</div>
-                    {Object.keys(visibleColumns).map(col => (
-                      <label key={col} className="flex items-center gap-2 cursor-pointer hover:text-emerald-600">
-                        <input 
-                          type="checkbox" 
-                          checked={visibleColumns[col]} 
-                          onChange={() => toggleColumnVisibility(col)}
-                          className="rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500"
-                        />
-                        <span className="capitalize">{col.replace(/([A-Z])/g, ' $1')}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+            {/* Export & Action Toolbar */}
+            <TableExportToolbar 
+              data={exportData} 
+              filename="Staff_Directory" 
+              title="Staff Directory Report" 
+            />
           </div>
         </div>
 

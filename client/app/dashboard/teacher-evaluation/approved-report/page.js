@@ -1,5 +1,6 @@
 'use client';
 
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
@@ -107,14 +108,7 @@ export default function ApprovedReportPage() {
                             className="pl-9 pr-4 py-2 w-full sm:w-64 bg-white border border-zinc-300 rounded-md text-xs font-bold text-zinc-950 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-400 uppercase"
                         />
                     </div>
-                    <div className="flex items-center border border-zinc-200 rounded-md bg-white shadow-xs">
-                        <button className="p-2 border-r border-zinc-200 text-zinc-700 hover:bg-zinc-100 transition-colors" title="Copy"><Copy className="w-4 h-4" /></button>
-                        <button className="p-2 border-r border-zinc-200 text-zinc-700 hover:bg-zinc-100 transition-colors" title="Excel"><FileSpreadsheet className="w-4 h-4" /></button>
-                        <button className="p-2 border-r border-zinc-200 text-zinc-700 hover:bg-zinc-100 transition-colors" title="CSV"><FileText className="w-4 h-4" /></button>
-                        <button className="p-2 border-r border-zinc-200 text-zinc-700 hover:bg-zinc-100 transition-colors" title="Print"><Printer className="w-4 h-4" /></button>
-                        <button className="p-2 border-r border-zinc-200 text-zinc-700 hover:bg-zinc-100 transition-colors" title="Download"><Download className="w-4 h-4" /></button>
-                        <button className="p-2 text-zinc-700 hover:bg-zinc-100 transition-colors" title="Columns"><Columns className="w-4 h-4" /></button>
-                    </div>
+                    <TableExportToolbar />
                 </div>
 
                 <div className="overflow-x-auto">

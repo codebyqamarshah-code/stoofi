@@ -1,4 +1,6 @@
 'use client';
+
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { useState } from 'react';
 import { 
   ChevronRight, 
@@ -77,13 +79,7 @@ export default function FrontendPagesListPage() {
               />
             </div>
 
-            <div className="flex gap-1">
-              {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, i) => (
-                <button key={i} className="p-1 text-zinc-400 hover:text-zinc-500">
-                  <Icon className="w-4 h-4" />
-                </button>
-              ))}
-            </div>
+            <TableExportToolbar />
 
             <button
               type="button"
@@ -206,4 +202,3 @@ export default function FrontendPagesListPage() {
     </div>
   );
 }
-

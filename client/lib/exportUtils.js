@@ -43,6 +43,28 @@ export const exportToExcel = (data, filename = 'Export', sheetName = 'Data') => 
 };
 
 /**
+ * Copy Table Data to Clipboard as TSV (Tab Separated Values)
+ * Pasteable directly into Microsoft Excel, Google Sheets, or Notepad.
+ */
+export const copyToClipboard = async (data, headers) => {
+  if (!data || !data.length) {
+    alert('No data available to copy.');
+    return false;
+  }
+  try {
+    const keys = Array.isArray(headers) && headers.length > 0 ? headers : Object.keys(data[0] || {});
+    const headerRow = keys.join('\t');
+    const rows = data.map(item => keys.map(k => (item[k] !== undefined && item[k] !== null ? String(item[k]).replace(/\t/g, ' ') : '')).join('\t'));
+    const text = [headerRow, ...rows].join('\n');
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (e) {
+    console.error('Failed to copy to clipboard', e);
+    return false;
+  }
+};
+
+/**
  * Export to CSV with UTF-8 BOM
  * Ensures special characters, Urdu, and accents display properly in Microsoft Excel.
  */

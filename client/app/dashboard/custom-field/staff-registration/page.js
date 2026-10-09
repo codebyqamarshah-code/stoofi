@@ -1,4 +1,6 @@
 'use client';
+
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import React, { useState, useEffect } from 'react';
 import { Copy, FileSpreadsheet, FileText, Printer, Download, Columns, Search, Edit, Trash2 } from 'lucide-react';
 import api from '@/services/api';
@@ -89,13 +91,7 @@ export default function StaffRegistrationFields() {
               />
               <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-2.5" />
             </div>
-            <div className="flex gap-2">
-              {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, idx) => (
-                <button key={idx} className="p-2 border border-zinc-200 rounded hover:bg-zinc-100 text-zinc-400 transition-colors">
-                  <Icon className="w-4 h-4" />
-                </button>
-              ))}
-            </div>
+            <TableExportToolbar />
           </div>
 
           <div className="overflow-x-auto">

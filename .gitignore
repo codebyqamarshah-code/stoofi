@@ -46,3 +46,5 @@ client/dev.log
 .vercel
 *.tsbuildinfo
 next-env.d.ts
+scratch/
+

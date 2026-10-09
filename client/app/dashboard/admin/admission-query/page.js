@@ -1,5 +1,6 @@
 'use client';
 
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import Link from 'next/link';
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
@@ -316,13 +317,7 @@ export default function AdmissionQueryPage() {
               />
             </div>
             
-            <div className="flex items-center border border-zinc-200 rounded-md bg-zinc-50">
-              <button onClick={() => handleExport('Copy')} className="p-2 hover:bg-zinc-200 text-zinc-600 transition-colors border-r border-zinc-200" title="Copy"><FileText className="h-4 w-4" /></button>
-              <button onClick={() => handleExport('Excel')} className="p-2 hover:bg-zinc-200 text-zinc-600 transition-colors border-r border-zinc-200" title="Excel"><Download className="h-4 w-4" /></button>
-              <button onClick={() => handleExport('CSV')} className="p-2 hover:bg-zinc-200 text-zinc-600 transition-colors border-r border-zinc-200" title="CSV"><FileText className="h-4 w-4" /></button>
-              <button onClick={() => handleExport('PDF')} className="p-2 hover:bg-zinc-200 text-zinc-600 transition-colors border-r border-zinc-200" title="PDF"><Download className="h-4 w-4" /></button>
-              <button onClick={() => handleExport('Print')} className="p-2 hover:bg-zinc-200 text-zinc-600 transition-colors" title="Print"><Printer className="h-4 w-4" /></button>
-            </div>
+            <TableExportToolbar />
           </div>
         </div>
         

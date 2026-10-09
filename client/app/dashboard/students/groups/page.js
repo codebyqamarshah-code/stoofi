@@ -1,5 +1,6 @@
 'use client';
 
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import Link from 'next/link';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -141,13 +142,7 @@ export default function StudentGroupPage() {
                     className="pl-9 w-[180px] bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium text-xs font-semibold uppercase" 
                   />
                 </div>
-                <div className="flex items-center border border-zinc-200 rounded-md bg-white shadow-xs">
-                  {[FileText, Download, FileText, Download, Printer, MoreVertical].map((Icon, i) => (
-                    <button key={i} className={`p-2 hover:bg-zinc-100 text-zinc-700 transition-colors ${i < 5 ? 'border-r border-zinc-200' : ''}`}>
-                      <Icon className="h-4 w-4" />
-                    </button>
-                  ))}
-                </div>
+                <TableExportToolbar />
               </div>
             </div>
 

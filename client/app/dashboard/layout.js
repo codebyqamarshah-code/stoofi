@@ -330,6 +330,15 @@ export default function DashboardLayout({ children }) {
       if (searchResults && searchResults.length > 0) {
         const target = selectedSearchIndex >= 0 ? searchResults[selectedSearchIndex] : searchResults[0];
         navigateToRoute(target.route);
+      } else if (globalSearchStr.trim()) {
+        const directResults = searchRoutes(globalSearchStr.trim(), user?.role || 'Super Admin', 1);
+        if (directResults && directResults.length > 0) {
+          navigateToRoute(directResults[0].route);
+        } else if (user?.role === 'Super Admin' || user?.role === 'Admin') {
+          router.push(`/dashboard/students?search=${encodeURIComponent(globalSearchStr.trim())}`);
+          setIsSearchOpen(false);
+          setGlobalSearchStr('');
+        }
       }
     } else if (e.key === 'Escape') {
       setIsSearchOpen(false);
@@ -999,6 +1008,9 @@ export default function DashboardLayout({ children }) {
                     <div className="absolute top-full right-0 mt-2 w-48 bg-zinc-100 dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-lg shadow-xl overflow-hidden py-1">
                       <div className="px-3 py-2 border-b border-zinc-200 dark:border-zinc-200 mb-1">
                         <div className="text-xs font-bold text-zinc-900 dark:text-zinc-900">{displayUsername}</div>
+                        {user?.username && (
+                          <div className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-700">@{user.username}</div>
+                        )}
                         <div className="text-[10px] text-zinc-600 dark:text-zinc-600">{displayEmail}</div>
                       </div>
                       <div 

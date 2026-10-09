@@ -4,7 +4,21 @@ const Setting = require('../models/Setting');
 
 const DEFAULT_TEMPLATES = [
   {
-    title: 'Character & Conduct Certificate',
+    title: 'Classical Gold Academic Excellence & Merit',
+    type: 'Academic Excellence / Merit',
+    description: 'Imperial ornate gold border certificate recognizing top scholastic standing and academic brilliance.',
+    headerTitle: 'CERTIFICATE OF ACADEMIC EXCELLENCE',
+    headerSubtitle: 'FOR OUTSTANDING SCHOLASTIC DISTINCTION',
+    templateBody: 'In recognition of outstanding academic brilliance, diligence, and distinguished performance, this Certificate of Merit is proudly presented to [student_name], Son/Daughter of [father_name], bearing Admission No [admission_no] and Roll No [roll_no], of Class [class_name] (Section [section]) for the Academic Session [academic_session]. Their unwavering commitment to learning and exemplary achievement serve as an inspiration to all.',
+    footerLeft: 'Date of Award',
+    footerCenter: 'Dean of Academics',
+    footerRight: 'Principal & Authorized Seal',
+    themeStyle: 'classic-gold',
+    status: 'Active',
+    isDefault: true
+  },
+  {
+    title: 'Modern Emerald Character & Conduct Certificate',
     type: 'Character Certificate',
     description: 'Official certification of exemplary student conduct, discipline, and moral standing.',
     headerTitle: 'CHARACTER & CONDUCT CERTIFICATE',
@@ -18,72 +32,44 @@ const DEFAULT_TEMPLATES = [
     isDefault: true
   },
   {
-    title: 'School Leaving / Transfer Certificate',
+    title: 'Royal Navy School Leaving & Transfer Diploma',
     type: 'Transfer Certificate',
-    description: 'Formal transfer and school clearance certificate for student relocation or advancement.',
+    description: 'Formal transfer and school clearance certificate for student relocation or higher education advancement.',
     headerTitle: 'SCHOOL LEAVING / TRANSFER CERTIFICATE',
-    headerSubtitle: 'OFFICIAL RECORD OF TRANSFER',
-    templateBody: 'This is to certify that [student_name], Son/Daughter of [father_name], bearing Admission No [admission_no] and Roll No [roll_no], was a bona fide student of Class [class_name] (Section [section]) of [school_name]. Their Date of Birth according to the School Admission Register is [dob]. All school dues and fees have been fully cleared up to the current session. Their attendance record was satisfactory and conduct was good. The reason for leaving the school is on parents\' request / higher education admission. We wish them prosperity in their educational journey.',
+    headerSubtitle: 'OFFICIAL RECORD OF CLEARANCE & ADVANCEMENT',
+    templateBody: 'This is to certify that [student_name], Son/Daughter of [father_name], bearing Admission No [admission_no] and Roll No [roll_no], was a bona fide student of Class [class_name] (Section [section]) of [school_name]. Their Date of Birth according to the School Admission Register is [dob]. All institutional dues and fees have been fully cleared. Their attendance record was satisfactory and conduct was exemplary. We wish them prosperity in their educational journey.',
     footerLeft: 'Prepared By / Date',
     footerCenter: 'Checked By Administration',
     footerRight: 'Principal / Authorized Seal',
-    themeStyle: 'academic-navy',
+    themeStyle: 'royal-navy',
     status: 'Active',
     isDefault: true
   },
   {
-    title: 'Bonafide Student Certificate',
-    type: 'Bonafide Certificate',
-    description: 'Proof of current enrollment and active student status for visa, banking, or administrative purposes.',
-    headerTitle: 'BONAFIDE STUDENT CERTIFICATE',
-    headerSubtitle: 'TO WHOM IT MAY CONCERN',
-    templateBody: 'This is to officially certify that [student_name], Son/Daughter of [father_name], bearing Admission No [admission_no] and Roll No [roll_no], is a bona fide regular student of Class [class_name] (Section [section]) at [school_name] for the Academic Session [academic_session]. This certificate is issued upon the student\'s / guardian\'s formal request for official and administrative verification purposes.',
-    footerLeft: 'Date of Issue',
-    footerCenter: 'Accounts & Records Officer',
-    footerRight: 'Principal / Authorized Signatory',
-    themeStyle: 'stoofi-emerald',
-    status: 'Active',
-    isDefault: true
-  },
-  {
-    title: 'Academic Excellence & Merit Award',
-    type: 'Academic Excellence / Merit',
-    description: 'Award of distinction recognizing stellar scholastic achievement and top rank.',
-    headerTitle: 'CERTIFICATE OF ACADEMIC EXCELLENCE',
-    headerSubtitle: 'FOR OUTSTANDING SCHOLASTIC ACHIEVEMENT',
-    templateBody: 'In recognition of outstanding academic brilliance, diligence, and distinguished performance, this Certificate of Merit is proudly presented to [student_name], Son/Daughter of [father_name], Admission No [admission_no], of Class [class_name] (Section [section]) for the Academic Session [academic_session]. Their pursuit of scholastic excellence and dedication to learning serve as an inspiration to peers.',
-    footerLeft: 'Date of Award',
-    footerCenter: 'Head of Academics',
-    footerRight: 'President / Principal',
-    themeStyle: 'classic-gold',
-    status: 'Active',
-    isDefault: true
-  },
-  {
-    title: 'Sports & Extracurricular Achievement',
+    title: 'Crimson Laurel Sports & Extracurricular Champion',
     type: 'Sports & Extracurricular',
-    description: 'Commendation for athletic prowess, tournament victory, and sportsmanship.',
-    headerTitle: 'CERTIFICATE OF SPORTS ACHIEVEMENT',
+    description: 'Commendation with gold laurel wreath for athletic prowess, tournament victory, and sportsmanship.',
+    headerTitle: 'CERTIFICATE OF SPORTS CHAMPIONSHIP',
     headerSubtitle: 'EXCELLENCE IN ATHLETICS & SPORTSMANSHIP',
-    templateBody: 'This certificate is proudly awarded to [student_name], Admission No [admission_no], Class [class_name] (Section [section]), in recognition of exceptional athletic talent, commendable sportsmanship, and spirited performance during the Annual Sports Meet / Interschool Championship for the Academic Year [academic_session].',
+    templateBody: 'This certificate is proudly awarded to [student_name], Admission No [admission_no], Class [class_name] (Section [section]), in recognition of exceptional athletic talent, commendable sportsmanship, and spirited victory during the Annual Sports Championship for the Academic Year [academic_session].',
     footerLeft: 'Date of Event',
     footerCenter: 'Sports Director / Coach',
     footerRight: 'Principal / Patron in Chief',
-    themeStyle: 'modern-slate',
+    themeStyle: 'crimson-merit',
     status: 'Active',
     isDefault: true
   },
   {
-    title: 'Certificate of Appreciation',
+    title: 'Minimalist Digital Verified Certificate of Appreciation',
     type: 'Appreciation Certificate',
-    description: 'Honor recognizing exceptional voluntary service, leadership, and contribution.',
+    description: 'Modern Swiss minimalist digital certificate with verified security ID and institutional badge.',
     headerTitle: 'CERTIFICATE OF APPRECIATION',
     headerSubtitle: 'IN RECOGNITION OF VALUABLE CONTRIBUTIONS',
-    templateBody: 'This certificate is bestowed upon [student_name], Admission No [admission_no], Class [class_name], in grateful appreciation for outstanding dedication, active participation, and valuable contributions to the school community and institutional events during the Academic Session [academic_session].',
+    templateBody: 'This certificate is bestowed upon [student_name], Admission No [admission_no], Class [class_name], in grateful appreciation for outstanding dedication, active participation, and valuable contributions to institutional events and student leadership during the Academic Session [academic_session].',
     footerLeft: 'Date of Presentation',
     footerCenter: 'Activity Coordinator',
-    footerRight: 'Principal',
-    themeStyle: 'classic-gold',
+    footerRight: 'Principal / Authorized Digital Seal',
+    themeStyle: 'minimal-tech',
     status: 'Active',
     isDefault: true
   }
@@ -93,8 +79,13 @@ const DEFAULT_TEMPLATES = [
 async function seedDefaultTemplatesIfEmpty() {
   try {
     const count = await Certificate.countDocuments();
-    if (count === 0) {
-      await Certificate.insertMany(DEFAULT_TEMPLATES);
+    if (count < 5) {
+      for (const tpl of DEFAULT_TEMPLATES) {
+        const exists = await Certificate.findOne({ title: tpl.title });
+        if (!exists) {
+          await Certificate.create(tpl);
+        }
+      }
     }
   } catch (err) {
     console.error('Error seeding default certificate templates:', err.message);

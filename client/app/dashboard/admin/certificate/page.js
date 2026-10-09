@@ -45,10 +45,13 @@ const CERT_TYPE_OPTIONS = [
 ];
 
 const THEME_STYLES = [
-  { id: 'stoofi-emerald', label: 'Stoofi Emerald', border: 'border-emerald-700', bg: 'bg-emerald-50/50', accent: 'text-emerald-800' },
-  { id: 'classic-gold', label: 'Classic Gold / Amber', border: 'border-amber-600', bg: 'bg-amber-50/50', accent: 'text-amber-800' },
-  { id: 'academic-navy', label: 'Academic Navy', border: 'border-sky-900', bg: 'bg-sky-50/40', accent: 'text-sky-950' },
-  { id: 'modern-slate', label: 'Modern Slate', border: 'border-zinc-800', bg: 'bg-zinc-50/50', accent: 'text-zinc-900' }
+  { id: 'classic-gold', label: '1. Imperial Classical Gold', border: 'border-amber-600', bg: 'bg-amber-50/50', accent: 'text-amber-800', ribbon: 'bg-amber-600' },
+  { id: 'stoofi-emerald', label: '2. Modern Emerald Excellence', border: 'border-emerald-700', bg: 'bg-emerald-50/50', accent: 'text-emerald-800', ribbon: 'bg-emerald-600' },
+  { id: 'royal-navy', label: '3. Royal Navy Diploma', border: 'border-sky-900', bg: 'bg-sky-50/40', accent: 'text-sky-950', ribbon: 'bg-sky-900' },
+  { id: 'crimson-merit', label: '4. Crimson Sports & Merit', border: 'border-rose-700', bg: 'bg-rose-50/40', accent: 'text-rose-900', ribbon: 'bg-rose-700' },
+  { id: 'minimal-tech', label: '5. Minimalist Digital Verified', border: 'border-zinc-800', bg: 'bg-zinc-50/50', accent: 'text-zinc-900', ribbon: 'bg-zinc-800' },
+  { id: 'academic-navy', label: 'Academic Navy', border: 'border-sky-900', bg: 'bg-sky-50/40', accent: 'text-sky-950', ribbon: 'bg-sky-900' },
+  { id: 'modern-slate', label: 'Modern Slate', border: 'border-zinc-800', bg: 'bg-zinc-50/50', accent: 'text-zinc-900', ribbon: 'bg-zinc-800' }
 ];
 
 const PLACEHOLDER_TAGS = [
@@ -121,6 +124,7 @@ export default function CertificatePage() {
     footerCenter: 'Class Teacher / Checked By',
     footerRight: 'Principal / Authorized Seal',
     themeStyle: 'stoofi-emerald',
+    uploadedBackground: '',
     status: 'Active'
   });
 
@@ -197,6 +201,22 @@ export default function CertificatePage() {
     }, 50);
   };
 
+  const handleBackgroundUpload = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        showToast('Image size should be less than 2MB', true);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, uploadedBackground: reader.result }));
+        showToast('Custom certificate template background image loaded!');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleOpenCreate = () => {
     setEditingId(null);
     setFormData({
@@ -210,6 +230,7 @@ export default function CertificatePage() {
       footerCenter: 'Class Teacher / Checked By',
       footerRight: 'Principal / Authorized Seal',
       themeStyle: 'stoofi-emerald',
+      uploadedBackground: '',
       status: 'Active'
     });
     setShowFormModal(true);
@@ -228,6 +249,7 @@ export default function CertificatePage() {
       footerCenter: cert.footerCenter || 'Class Teacher / Checked By',
       footerRight: cert.footerRight || 'Principal / Authorized Seal',
       themeStyle: cert.themeStyle || 'stoofi-emerald',
+      uploadedBackground: cert.uploadedBackground || '',
       status: cert.status || 'Active'
     });
     setShowFormModal(true);
@@ -261,6 +283,7 @@ export default function CertificatePage() {
         footerCenter: formData.footerCenter.trim(),
         footerRight: formData.footerRight.trim(),
         themeStyle: formData.themeStyle,
+        uploadedBackground: formData.uploadedBackground,
         status: formData.status
       };
 
@@ -413,7 +436,7 @@ export default function CertificatePage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Total Templates</span>
+            <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Total Certificates</span>
             <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center text-zinc-800">
               <Award className="w-4 h-4" />
             </div>
@@ -953,12 +976,44 @@ export default function CertificatePage() {
                 </div>
               </div>
 
+              {/* Upload Custom Certificate Background Graphic */}
+              <div className="space-y-1.5 pt-2 border-t border-zinc-100">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
+                    Upload Custom Certificate Border / Background (Optional)
+                  </Label>
+                  {formData.uploadedBackground && (
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, uploadedBackground: '' }))}
+                      className="text-[10px] text-rose-600 hover:underline font-bold"
+                    >
+                      Remove Image
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBackgroundUpload}
+                    className="block w-full text-xs text-zinc-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-zinc-100 file:text-zinc-700 hover:file:bg-zinc-200 cursor-pointer border border-zinc-300 rounded-lg p-1"
+                  />
+                  {formData.uploadedBackground && (
+                    <div className="w-12 h-9 rounded-lg border border-zinc-300 overflow-hidden shrink-0 bg-white">
+                      <img src={formData.uploadedBackground} alt="Custom Background" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
+                <p className="text-[10px] text-zinc-400">Upload high-res PNG/JPG institution border frame or certificate background</p>
+              </div>
+
               {/* Form Actions */}
               <div className="flex justify-end gap-2 pt-3 border-t border-zinc-200">
                 <Button 
                   type="button" 
                   variant="outline" 
-                  size="sm"
+                  size="sm" 
                   onClick={() => setShowFormModal(false)}
                   className="text-xs"
                 >
@@ -1019,12 +1074,16 @@ export default function CertificatePage() {
             {/* Content & Preview */}
             <div className="p-6 overflow-y-auto flex-1 space-y-6 bg-zinc-100/60">
               {/* Certificate Canvas Mock */}
-              <div className={`bg-white rounded-xl shadow-md border-8 border-double p-8 sm:p-12 max-w-3xl mx-auto relative ${
-                viewingCert.themeStyle === 'stoofi-emerald' ? 'border-emerald-700/80 text-zinc-900' :
-                viewingCert.themeStyle === 'classic-gold' ? 'border-amber-600/80 text-zinc-900' :
-                viewingCert.themeStyle === 'academic-navy' ? 'border-sky-950/80 text-zinc-900' :
-                'border-zinc-800/80 text-zinc-900'
-              }`}>
+              <div 
+                className={`bg-white rounded-xl shadow-md border-8 border-double p-8 sm:p-12 max-w-3xl mx-auto relative ${
+                  viewingCert.themeStyle === 'stoofi-emerald' ? 'border-emerald-700/80 text-zinc-900' :
+                  viewingCert.themeStyle === 'classic-gold' ? 'border-amber-600/80 text-zinc-900' :
+                  viewingCert.themeStyle === 'royal-navy' || viewingCert.themeStyle === 'academic-navy' ? 'border-sky-950/80 text-zinc-900' :
+                  viewingCert.themeStyle === 'crimson-merit' ? 'border-rose-700/80 text-zinc-900' :
+                  'border-zinc-800/80 text-zinc-900'
+                }`}
+                style={viewingCert.uploadedBackground ? { backgroundImage: `url(${viewingCert.uploadedBackground})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+              >
                 {/* Decorative Stars */}
                 <div className="absolute top-3 left-3 text-[10px] font-serif text-zinc-400 tracking-widest">★ ★ ★</div>
                 <div className="absolute top-3 right-3 text-[10px] font-serif text-zinc-400 tracking-widest">★ ★ ★</div>

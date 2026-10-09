@@ -1,6 +1,7 @@
-﻿'use client';
+'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronRight, Search, Download, Printer, FileText, Plus, Edit, Trash2, X, Save, Upload, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -516,20 +517,7 @@ export default function StudentListPage() {
               />
             </div>
             
-            <div className="flex items-center gap-2">
-              <Button onClick={() => exportToCSV(exportData, 'Stoofi_Students')} variant="outline" size="icon" className="h-9 w-9 border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 cursor-pointer rounded-xl" title="Download CSV">
-                <Download className="h-4 w-4" />
-              </Button>
-              <Button onClick={() => exportToExcel(exportData, 'Stoofi_Students', 'Students')} variant="outline" size="icon" className="h-9 w-9 border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 cursor-pointer rounded-xl" title="Export Excel (.xlsx)">
-                <FileText className="h-4 w-4" />
-              </Button>
-              <Button onClick={() => exportToPDF(exportData, 'Stoofi_Students', 'Student Directory Report')} variant="outline" size="icon" className="h-9 w-9 border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 cursor-pointer rounded-xl" title="Export PDF">
-                <Download className="h-4 w-4" />
-              </Button>
-              <Button onClick={() => printData('Student List Report', exportData)} variant="outline" size="icon" className="h-9 w-9 border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 cursor-pointer rounded-xl" title="Print Official Records">
-                <Printer className="h-4 w-4" />
-              </Button>
-            </div>
+            <TableExportToolbar data={exportData} filename="Stoofi_Students" title="Student Directory Report" />
           </div>
         </div>
         
@@ -689,4 +677,3 @@ export default function StudentListPage() {
     </div>
   );
 }
-

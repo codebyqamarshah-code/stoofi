@@ -1,4 +1,6 @@
 'use client';
+
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import React, { useState, useEffect } from 'react';
 import { 
     Search, ChevronRight, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, Trash2 
@@ -130,14 +132,7 @@ export default function LeaveDefinePage() {
                                 className="pl-9 pr-4 py-2 w-full sm:w-64 bg-white border border-zinc-200 shadow-xs rounded text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
                             />
                         </div>
-                        <div className="flex items-center space-x-2">
-                            <button className="p-2 border border-zinc-200 rounded text-zinc-400 hover:text-zinc-950 hover:border-zinc-200 transition-colors" title="Copy"><Copy className="w-4 h-4" /></button>
-                            <button className="p-2 border border-zinc-200 rounded text-zinc-400 hover:text-zinc-950 hover:border-zinc-200 transition-colors" title="Excel"><FileSpreadsheet className="w-4 h-4" /></button>
-                            <button className="p-2 border border-zinc-200 rounded text-zinc-400 hover:text-zinc-950 hover:border-zinc-200 transition-colors" title="CSV"><FileText className="w-4 h-4" /></button>
-                            <button className="p-2 border border-zinc-200 rounded text-zinc-400 hover:text-zinc-950 hover:border-zinc-200 transition-colors" title="Print"><Printer className="w-4 h-4" /></button>
-                            <button className="p-2 border border-zinc-200 rounded text-zinc-400 hover:text-zinc-950 hover:border-zinc-200 transition-colors" title="Download"><Download className="w-4 h-4" /></button>
-                            <button className="p-2 border border-zinc-200 rounded text-zinc-400 hover:text-zinc-950 hover:border-zinc-200 transition-colors" title="Columns"><Columns className="w-4 h-4" /></button>
-                        </div>
+                        <TableExportToolbar />
                     </div>
 
                     <div className="overflow-x-auto">

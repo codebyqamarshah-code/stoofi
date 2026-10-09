@@ -84,7 +84,7 @@ export default function CalendarPage() {
             </div>
 
             {/* Weekdays */}
-            <div className="grid grid-cols-7 gap-1 text-center font-bold text-[11px] text-zinc-700 uppercase py-2">
+            <div className="grid grid-cols-7 gap-1 text-center font-bold text-[11px] text-zinc-700 uppercase py-2 notranslate" translate="no">
               <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
             </div>
 

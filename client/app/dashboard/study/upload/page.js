@@ -1,5 +1,6 @@
 'use client';
 
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { 
@@ -158,26 +159,7 @@ export default function UploadContentPage() {
                   />
                 </div>
                 
-                <div className="flex items-center border border-zinc-200 rounded-md bg-white shadow-xs">
-                  <button className="p-2 hover:bg-zinc-100 text-zinc-700 transition-colors border-r border-zinc-200" title="Copy">
-                    <FileText className="h-4 w-4" />
-                  </button>
-                  <button className="p-2 hover:bg-zinc-100 text-zinc-700 transition-colors border-r border-zinc-200" title="Excel">
-                    <Download className="h-4 w-4" />
-                  </button>
-                  <button className="p-2 hover:bg-zinc-100 text-zinc-700 transition-colors border-r border-zinc-200" title="CSV">
-                    <FileText className="h-4 w-4" />
-                  </button>
-                  <button className="p-2 hover:bg-zinc-100 text-zinc-700 transition-colors border-r border-zinc-200" title="PDF">
-                    <Download className="h-4 w-4" />
-                  </button>
-                  <button className="p-2 hover:bg-zinc-100 text-zinc-700 transition-colors border-r border-zinc-200" title="Print">
-                    <Printer className="h-4 w-4" />
-                  </button>
-                  <button className="p-2 hover:bg-zinc-100 text-zinc-700 transition-colors" title="Columns">
-                    <MoreVertical className="h-4 w-4" />
-                  </button>
-                </div>
+                <TableExportToolbar />
               </div>
             </div>
             

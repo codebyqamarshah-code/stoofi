@@ -1,4 +1,6 @@
 'use client';
+
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, ChevronDown, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, Eye, Zap } from 'lucide-react';
@@ -136,14 +138,7 @@ export default function PayrollPage() {
         <div className="bg-white border border-zinc-200 shadow-xs rounded-xl shadow-md">
           <div className="p-4 border-b border-zinc-200 flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-base font-bold text-zinc-950">Payroll List ? {month} {year}</h2>
-            <div className="flex items-center gap-1">
-              <button onClick={handleCopy} title="Copy" className="p-1.5 rounded border border-zinc-200 text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100 transition-colors"><Copy className="h-3.5 w-3.5" /></button>
-              <button onClick={handleCSV} title="Excel" className="p-1.5 rounded border border-zinc-200 text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100 transition-colors"><FileSpreadsheet className="h-3.5 w-3.5" /></button>
-              <button onClick={handlePDF} title="PDF" className="p-1.5 rounded border border-zinc-200 text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100 transition-colors"><FileText className="h-3.5 w-3.5" /></button>
-              <button onClick={handleCSV} title="Download" className="p-1.5 rounded border border-zinc-200 text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100 transition-colors"><Download className="h-3.5 w-3.5" /></button>
-              <button onClick={handlePrint} title="Print" className="p-1.5 rounded border border-zinc-200 text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100 transition-colors"><Printer className="h-3.5 w-3.5" /></button>
-              <button title="Columns" className="p-1.5 rounded border border-zinc-200 text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100 transition-colors"><Columns className="h-3.5 w-3.5" /></button>
-            </div>
+            <TableExportToolbar />
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
@@ -215,4 +210,3 @@ export default function PayrollPage() {
     </div>
   );
 }
-

@@ -1,5 +1,6 @@
 'use client';
 
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import React, { useState, useEffect } from 'react';
 import { 
     Copy, 
@@ -149,26 +150,7 @@ export default function ItemCategoryPage() {
                                 <Search className="absolute left-3 top-2.5 w-4 h-4 text-zinc-400" />
                             </div>
                             
-                            <div className="flex flex-wrap gap-2">
-                                <button className="p-2 bg-white border border-zinc-200 shadow-xs rounded-md hover:bg-zinc-100 text-zinc-400 hover:text-zinc-950 transition-colors" title="Copy">
-                                    <Copy className="w-4 h-4" />
-                                </button>
-                                <button className="p-2 bg-white border border-zinc-200 shadow-xs rounded-md hover:bg-zinc-100 text-zinc-400 hover:text-zinc-950 transition-colors" title="Export to Excel">
-                                    <FileSpreadsheet className="w-4 h-4" />
-                                </button>
-                                <button className="p-2 bg-white border border-zinc-200 shadow-xs rounded-md hover:bg-zinc-100 text-zinc-400 hover:text-zinc-950 transition-colors" title="Export to CSV">
-                                    <FileText className="w-4 h-4" />
-                                </button>
-                                <button className="p-2 bg-white border border-zinc-200 shadow-xs rounded-md hover:bg-zinc-100 text-zinc-400 hover:text-zinc-950 transition-colors" title="Print">
-                                    <Printer className="w-4 h-4" />
-                                </button>
-                                <button className="p-2 bg-white border border-zinc-200 shadow-xs rounded-md hover:bg-zinc-100 text-zinc-400 hover:text-zinc-950 transition-colors" title="Download PDF">
-                                    <Download className="w-4 h-4" />
-                                </button>
-                                <button className="p-2 bg-white border border-zinc-200 shadow-xs rounded-md hover:bg-zinc-100 text-zinc-400 hover:text-zinc-950 transition-colors" title="Columns">
-                                    <Columns className="w-4 h-4" />
-                                </button>
-                            </div>
+                            <TableExportToolbar />
                         </div>
 
                         {/* Table */}

@@ -1,5 +1,6 @@
 'use client';
 
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import React, { useState } from 'react';
 import { 
   ChevronRight, Search, Copy, FileSpreadsheet, 
@@ -73,13 +74,7 @@ export default function AcademicYearPage() {
                   className="pl-9 pr-4 py-2 bg-white border border-zinc-200 shadow-xs rounded text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600 w-full sm:w-64"
                 />
               </div>
-              <div className="flex gap-2">
-                {[Copy, FileSpreadsheet, FileText, Printer, Download, Columns].map((Icon, idx) => (
-                  <button key={idx} className="p-2 bg-white border border-zinc-200 shadow-xs rounded text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100 transition-colors">
-                    <Icon className="h-4 w-4" />
-                  </button>
-                ))}
-              </div>
+              <TableExportToolbar />
             </div>
 
             <div className="overflow-x-auto">

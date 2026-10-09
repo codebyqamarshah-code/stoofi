@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { ChevronRight, Search, Download, Printer, FileText, MoreVertical, Upload, Trash2, Edit2, Link as LinkIcon, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -254,6 +255,10 @@ export default function ContentListPage() {
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
                   <Input placeholder="SEARCH" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 w-[180px] bg-white border-zinc-300 text-zinc-950 focus-visible:ring-zinc-600 text-xs font-semibold uppercase" />
                 </div>
+                <TableExportToolbar 
+                  filename="Content_List" 
+                  title="Content List" 
+                />
               </div>
             </div>
             <div className="overflow-x-auto">
