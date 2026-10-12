@@ -86,4 +86,15 @@ router.route('/practicals/:id')
   .put(updatePractical)
   .delete(deletePractical);
 
+// Lab Timetable & Schedules (Synced with Academic Class Routine)
+const routineController = require('../controllers/classRoutine.controller');
+router.route('/schedule')
+  .get(routineController.getRoutines)
+  .post(routineController.createRoutine);
+router.route('/schedule/:id')
+  .get(routineController.getRoutineById)
+  .put(routineController.updateRoutine)
+  .delete(routineController.deleteRoutine);
+
 module.exports = router;
+

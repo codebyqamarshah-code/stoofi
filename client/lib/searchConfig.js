@@ -163,6 +163,9 @@ const SYNONYMS_MAP = {
   '/dashboard/student/leave/apply': ['apply leave', 'request leave', 'student leave application'],
   '/dashboard/student/online-exam/active': ['active exams', 'online test', 'take quiz'],
   '/dashboard/student/virtual-class/virtual-class': ['virtual class', 'online class', 'join live class', 'zoom class', 'google meet'],
+  '/dashboard/student/chat/chat-box': ['student chat', 'chat box', 'stoofi ai', 'student ai assistant', 'ask ai', 'ai chat'],
+  '/dashboard/teacher/chat/chat-box': ['teacher chat', 'chat box', 'stoofi ai', 'teacher ai assistant', 'ask ai', 'ai chat'],
+  '/dashboard/utilities/chat/chat-box': ['chat box', 'stoofi ai', 'ai assistant', 'school ai', 'ai chat'],
 };
 
 /**

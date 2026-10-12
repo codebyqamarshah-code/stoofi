@@ -490,7 +490,92 @@ export const labService = {
     const current = getLocal(STORAGE_KEYS.PRACTICALS).filter(p => p._id !== id && p.id !== id);
     setLocal(STORAGE_KEYS.PRACTICALS, current);
     return true;
+  },
+
+  // ===============================
+  // 8. LAB SCHEDULES & TIMETABLE (SYNCED WITH CLASS ROUTINE)
+  // ===============================
+  async getSchedules(params = {}) {
+    try {
+      const query = new URLSearchParams();
+      query.append('isLab', 'true');
+      if (params.day && params.day !== 'All') query.append('day', params.day);
+      if (params.status && params.status !== 'All') query.append('status', params.status);
+      if (params.labId && params.labId !== 'All') query.append('labId', params.labId);
+      if (params.search) query.append('search', params.search);
+
+      const res = await api.get(`/labs/schedule?${query.toString()}`);
+      if (res && res.success && Array.isArray(res.data)) {
+        setLocal('stoofi_live_class_routines', res.data);
+        return res.data;
+      }
+    } catch (_) {}
+
+    // Fallback to local routines
+    const routines = getLocal('stoofi_live_class_routines');
+    let filtered = routines.filter(r => r.isLab || (r.labName && r.labName.trim() !== ''));
+    if (params.day && params.day !== 'All') {
+      filtered = filtered.filter(r => r.day === params.day);
+    }
+    if (params.status && params.status !== 'All') {
+      filtered = filtered.filter(r => r.status === params.status);
+    }
+    if (params.search) {
+      const q = params.search.toLowerCase();
+      filtered = filtered.filter(r => 
+        (r.subject || '').toLowerCase().includes(q) ||
+        (r.teacher || '').toLowerCase().includes(q) ||
+        (r.labName || '').toLowerCase().includes(q) ||
+        (r.className || '').toLowerCase().includes(q) ||
+        (r.sectionName || '').toLowerCase().includes(q) ||
+        (r.topic || '').toLowerCase().includes(q)
+      );
+    }
+    return filtered;
+  },
+
+  async saveSchedule(data) {
+    let saved = null;
+    const payload = { ...data, isLab: true };
+    try {
+      if (payload._id || (payload.id && String(payload.id).length === 24)) {
+        const id = payload._id || payload.id;
+        const res = await api.put(`/labs/schedule/${id}`, payload);
+        if (res && res.success) saved = res.data;
+      } else {
+        const res = await api.post('/labs/schedule', payload);
+        if (res && res.success) saved = res.data;
+      }
+    } catch (_) {}
+
+    const current = getLocal('stoofi_live_class_routines');
+    if (!saved) {
+      saved = {
+        ...payload,
+        id: payload.id || `SCH-${Date.now()}`,
+        _id: payload._id || `SCH-${Date.now()}`
+      };
+    }
+
+    const idx = current.findIndex(s => (s._id && s._id === saved._id) || (s.id && s.id === saved.id));
+    if (idx >= 0) {
+      current[idx] = saved;
+    } else {
+      current.unshift(saved);
+    }
+    setLocal('stoofi_live_class_routines', current);
+    return saved;
+  },
+
+  async deleteSchedule(id) {
+    try {
+      await api.delete(`/labs/schedule/${id}`);
+    } catch (_) {}
+    const current = getLocal('stoofi_live_class_routines').filter(s => s._id !== id && s.id !== id);
+    setLocal('stoofi_live_class_routines', current);
+    return true;
   }
 };
 
 export default labService;
+

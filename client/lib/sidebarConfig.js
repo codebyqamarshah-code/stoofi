@@ -1103,6 +1103,18 @@ export const TEACHER_MENU_STRUCTURE = [
     visible: true,
     items: [
       {
+        id: 'item-ut-chat',
+        name: 'Chat',
+        iconName: 'MessageSquare',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'teacher-chat-box', name: 'Chat Box', href: '/dashboard/teacher/chat/chat-box', iconName: 'Sparkles', visible: true },
+          { id: 'teacher-chat-inv', name: 'Invitation', href: '/dashboard/teacher/chat/invitation', iconName: 'MailOpen', visible: true },
+          { id: 'teacher-chat-blocked', name: 'Blocked User', href: '/dashboard/teacher/chat/blocked-user', iconName: 'Lock', visible: true },
+        ]
+      },
+      {
         id: 'item-ut-comm',
         name: 'Communicate',
         iconName: 'Megaphone',
@@ -1257,7 +1269,7 @@ export const STUDENT_MENU_STRUCTURE = [
   }
 ];
 
-export const STORAGE_KEY = 'stoofi_custom_sidebar_v9';
+export const STORAGE_KEY = 'stoofi_custom_sidebar_v10';
 
 // Keep Admin Setup as the last entry of Admin Section in saved layouts.
 function moveAdminSetupToEnd(menu) {

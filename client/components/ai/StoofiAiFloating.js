@@ -38,7 +38,9 @@ export default function StoofiAiFloating() {
   const inputRef = useRef(null);
 
   // If user is not authenticated or already on full chat-box page, don't show floating panel
-  const isFullChatPage = pathname === '/dashboard/utilities/chat/chat-box';
+  const isFullChatPage = pathname === '/dashboard/utilities/chat/chat-box' || 
+    pathname === '/dashboard/student/chat/chat-box' || 
+    pathname === '/dashboard/teacher/chat/chat-box';
 
   useEffect(() => {
     if (isOpen && !isMinimized && inputRef.current) {
@@ -144,7 +146,13 @@ export default function StoofiAiFloating() {
 
   const handleOpenFullChat = () => {
     setIsOpen(false);
-    router.push('/dashboard/utilities/chat/chat-box');
+    if (user?.role === 'Student') {
+      router.push('/dashboard/student/chat/chat-box');
+    } else if (user?.role === 'Teacher') {
+      router.push('/dashboard/teacher/chat/chat-box');
+    } else {
+      router.push('/dashboard/utilities/chat/chat-box');
+    }
   };
 
   const handleClearChat = () => {

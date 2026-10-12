@@ -87,6 +87,10 @@ app.use('/api/class-teachers', require('./routes/class-teacher.routes'));
 app.use('/api/assign-class-teacher', require('./routes/class-teacher.routes'));
 app.use('/api/assign-subject', require('./routes/assign-subject.routes'));
 app.use('/api/assign-subjects', require('./routes/assign-subject.routes'));
+app.use('/api/class-routine', require('./routes/classRoutine.routes'));
+app.use('/api/class-routines', require('./routes/classRoutine.routes'));
+app.use('/api/routine', require('./routes/classRoutine.routes'));
+app.use('/api/routines', require('./routes/classRoutine.routes'));
 
 // Admin Section routes
 app.use('/api/id-card', require('./routes/id-card.routes'));
