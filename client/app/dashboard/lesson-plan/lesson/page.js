@@ -2,16 +2,17 @@
 
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import Link from 'next/link';
-
 import React, { useState, useMemo, useEffect } from 'react';
-import { ChevronRight, Search, Download, Printer, FileText, MoreVertical, Plus, Trash2 } from 'lucide-react';
+import { ChevronRight, Search, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { useAuth } from '@/hooks/useAuth';
-import { sortClassesAcademic } from '@/lib/academicUtils';
+import { sortClassesAcademic, STANDARD_SUBJECTS_LIST } from '@/lib/academicUtils';
 import api from '@/services/api';
+
+const LOCAL_STORAGE_LESSONS_KEY = 'stoofi_lesson_plan_lessons';
 
 export default function LessonPage() {
   const { user } = useAuth();
@@ -25,24 +26,73 @@ export default function LessonPage() {
   const [subjectFilter, setSubjectFilter] = useState('');
 
   const [formData, setFormData] = useState({ class: '', subject: '' });
-  const [titles, setTitles] = useState([]);
+  const [titles, setTitles] = useState([{ id: Date.now(), value: '' }]);
 
+  // Load Classes & Subjects
   useEffect(() => {
-    if (user) {
-      if (user.role === 'Teacher') {
-        if (user.assignedClass) setClassesList([{ label: user.assignedClass, value: user.assignedClass }]);
-        if (user.subjects) setSubjectsList(user.subjects.map(s => ({ label: s.name, value: s.name })));
+    if (user && user.role === 'Teacher') {
+      if (user.assignedClass) {
+        setClassesList(sortClassesAcademic([{ label: user.assignedClass, value: user.assignedClass }], { ensureStandardClasses: false }));
       } else {
-        api.get('/class').then(r => {
-          if (r.success && Array.isArray(r.data)) {
-            const mapped = r.data.map(c => ({ label: c.name, value: c.name }));
-            setClassesList(sortClassesAcademic(mapped));
-          }
-        }).catch(()=>{});
-        api.get('/subject').then(r => r.success && setSubjectsList(r.data.map(s => ({ label: s.name, value: s.name })))).catch(()=>{});
+        setClassesList(sortClassesAcademic([], { ensureStandardClasses: true }));
       }
+      if (user.subjects && user.subjects.length > 0) {
+        setSubjectsList(user.subjects.map(s => ({ label: s.name, value: s.name })));
+      } else {
+        setSubjectsList(STANDARD_SUBJECTS_LIST.map(s => ({ label: s, value: s })));
+      }
+    } else {
+      // Admin / Staff: Fetch all classes from API + ensure complete standard academic classes
+      api.get('/class').then(r => {
+        if (r && r.success && Array.isArray(r.data) && r.data.length > 0) {
+          const mapped = r.data.map(c => ({ label: c.name, value: c.name }));
+          setClassesList(sortClassesAcademic(mapped, { ensureStandardClasses: true }));
+        } else {
+          setClassesList(sortClassesAcademic([], { ensureStandardClasses: true }));
+        }
+      }).catch(() => {
+        setClassesList(sortClassesAcademic([], { ensureStandardClasses: true }));
+      });
+
+      api.get('/subject').then(r => {
+        if (r && r.success && Array.isArray(r.data) && r.data.length > 0) {
+          setSubjectsList(r.data.map(s => ({ label: s.name, value: s.name })));
+        } else {
+          setSubjectsList(STANDARD_SUBJECTS_LIST.map(s => ({ label: s, value: s })));
+        }
+      }).catch(() => {
+        setSubjectsList(STANDARD_SUBJECTS_LIST.map(s => ({ label: s, value: s })));
+      });
     }
   }, [user]);
+
+  // Load Saved Lessons
+  useEffect(() => {
+    const fetchLessons = async () => {
+      try {
+        const res = await api.get('/lesson');
+        if (res && res.success && Array.isArray(res.data)) {
+          setLessons(res.data.map(l => ({
+            id: l._id || l.id,
+            class: l.class,
+            subject: l.subject,
+            lesson: l.lesson
+          })));
+          return;
+        }
+      } catch (_) {}
+
+      // Fallback to localStorage if API is not available or offline
+      try {
+        const cached = localStorage.getItem(LOCAL_STORAGE_LESSONS_KEY);
+        if (cached) {
+          setLessons(JSON.parse(cached));
+        }
+      } catch (_) {}
+    };
+
+    fetchLessons();
+  }, []);
 
   const handleSelectChange = (name, value) => {
     const finalValue = value?.target ? value.target.value : value;
@@ -50,46 +100,69 @@ export default function LessonPage() {
   };
 
   const addTitleRow = () => {
-    setTitles([...titles, { id: Date.now(), value: '' }]);
+    setTitles(prev => [...prev, { id: Date.now(), value: '' }]);
   };
 
   const removeTitleRow = (id) => {
     if (titles.length > 1) {
-      setTitles(titles.filter(t => t.id !== id));
+      setTitles(prev => prev.filter(t => t.id !== id));
     }
   };
 
   const handleTitleChange = (id, value) => {
-    setTitles(titles.map(t => t.id === id ? { ...t, value } : t));
+    setTitles(prev => prev.map(t => t.id === id ? { ...t, value } : t));
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     if (!formData.class || !formData.subject) return;
 
-    const newLessons = titles
-      .filter(t => t.value.trim() !== '')
-      .map(t => ({
-        id: Date.now() + Math.random(),
+    const validTitles = titles.map(t => t.value.trim()).filter(Boolean);
+    if (validTitles.length === 0) return;
+
+    const newLessons = validTitles.map(title => ({
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      class: formData.class,
+      subject: formData.subject,
+      lesson: title
+    }));
+
+    // Optimistic UI update + localStorage cache
+    const updated = [...newLessons, ...lessons];
+    setLessons(updated);
+    try {
+      localStorage.setItem(LOCAL_STORAGE_LESSONS_KEY, JSON.stringify(updated));
+    } catch (_) {}
+
+    // Reset Form
+    setTitles([{ id: Date.now(), value: '' }]);
+    setFormData({ class: '', subject: '' });
+
+    // Persist to Backend API
+    try {
+      await api.post('/lesson', {
         class: formData.class,
         subject: formData.subject,
-        lesson: t.value.trim()
-      }));
-
-    if (newLessons.length > 0) {
-      setLessons([...newLessons, ...lessons]);
-      setTitles([{ id: Date.now(), value: '' }]); // reset titles
-      setFormData({ class: '', subject: '' }); // reset form
-    }
+        lessons: validTitles
+      });
+    } catch (_) {}
   };
 
-  const handleDelete = (id) => {
-    setLessons(lessons.filter(l => l.id !== id));
+  const handleDelete = async (id) => {
+    const updated = lessons.filter(l => l.id !== id);
+    setLessons(updated);
+    try {
+      localStorage.setItem(LOCAL_STORAGE_LESSONS_KEY, JSON.stringify(updated));
+    } catch (_) {}
+
+    try {
+      await api.delete(`/lesson/${id}`);
+    } catch (_) {}
   };
 
   const filteredLessons = useMemo(() => {
     return lessons.filter(l => {
-      const matchSearch = l.lesson.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchSearch = (l.lesson || '').toLowerCase().includes(searchQuery.toLowerCase());
       const matchClass = classFilter ? l.class === classFilter : true;
       const matchSubject = subjectFilter ? l.subject === subjectFilter : true;
       return matchSearch && matchClass && matchSubject;
@@ -109,11 +182,11 @@ export default function LessonPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
         {/* Left: Add Form */}
         <div className="xl:col-span-1">
-          <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs">
-            <div className="p-4 border-b border-zinc-100 bg-zinc-50/50">
+          <div className="bg-white border border-zinc-200 rounded-xl overflow-visible shadow-xs">
+            <div className="p-4 border-b border-zinc-100 bg-zinc-50/50 rounded-t-xl">
               <h2 className="text-base font-bold text-zinc-950">Add Lesson</h2>
             </div>
             <form className="p-4 space-y-4" onSubmit={handleSave}>
@@ -171,8 +244,8 @@ export default function LessonPage() {
 
         {/* Right: Table */}
         <div className="xl:col-span-2">
-          <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs flex flex-col">
-            <div className="p-4 border-b border-zinc-100 bg-zinc-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-white border border-zinc-200 rounded-xl overflow-visible shadow-xs flex flex-col">
+            <div className="p-4 border-b border-zinc-100 bg-zinc-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-t-xl">
               <h2 className="text-base font-bold text-zinc-950">Lesson List</h2>
               <div className="flex items-center gap-3">
                 <div className="relative">

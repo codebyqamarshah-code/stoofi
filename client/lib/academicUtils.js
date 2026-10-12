@@ -1,6 +1,68 @@
+export const STANDARD_ACADEMIC_CLASSES = [
+  'Nursery',
+  'KG',
+  'Prep',
+  'Class 1',
+  'Class 2',
+  'Class 3',
+  'Class 4',
+  'Class 5',
+  'Class 6',
+  'Class 7',
+  'Class 8',
+  'Class 9',
+  'Class 10',
+  'O-Levels',
+  'A-Levels',
+];
+
+export const STANDARD_SUBJECTS_LIST = [
+  'Mathematics',
+  'English Language',
+  'Urdu',
+  'General Science',
+  'Physics',
+  'Chemistry',
+  'Biology',
+  'Computer Science',
+  'Islamiat',
+  'Pakistan Studies',
+];
+
+export const STANDARD_SECTIONS_LIST = [
+  'A',
+  'B',
+  'C',
+  'D',
+];
+
+export function normalizeClassName(className) {
+  if (!className) return '';
+  const str = String(className).trim();
+
+  // If already standard full name like "Class 9", "Class 10", "Grade 9"
+  const numMatch = str.match(/^(?:class|grade)?\s*(\d+)(?:st|nd|rd|th)?$/i);
+  if (numMatch) {
+    return `Class ${numMatch[1]}`;
+  }
+
+  // Common variations
+  if (/^(playgroup|play group|pg|play)$/i.test(str)) return 'Playgroup';
+  if (/^(nursery)$/i.test(str)) return 'Nursery';
+  if (/^(kg|kindergarten)$/i.test(str)) return 'KG';
+  if (/^(prep|pre-school|preschool|pre school)$/i.test(str)) return 'Prep';
+  if (/^o[-\s]?levels?$/i.test(str)) return 'O-Levels';
+  if (/^a[-\s]?levels?$/i.test(str)) return 'A-Levels';
+
+  return str;
+}
+
 export function getAcademicRank(className) {
   if (!className) return 9999;
   const name = String(className).trim().toLowerCase();
+
+  // Top level placeholders
+  if (/^(all classes|all class|select class|select\.\.\.)$/i.test(name)) return -1;
 
   // Playgroup / Nursery / KG / Prep
   if (/^(playgroup|play group|pg|play)\b/i.test(name)) return 1;
@@ -34,30 +96,58 @@ export function getAcademicRank(className) {
   return 200;
 }
 
-export function sortClassesAcademic(classList) {
+export function sortClassesAcademic(classList, options = {}) {
   if (!Array.isArray(classList)) return [];
 
-  // Deduplicate classes with normalized names (e.g. "10" and "Class 10", or identical names)
-  const seen = new Map();
-  for (const item of classList) {
-    if (!item) continue;
-    const rawName = String(item?.name || item?.label || item?.title || item?.value || (typeof item === 'string' ? item : '')).trim();
-    if (!rawName) continue;
+  const { ensureStandardClasses = false } = options;
 
-    // Normalization key: e.g. "class 10" -> "class-10", "10" -> "class-10", "grade 10" -> "class-10"
-    const numMatch = rawName.match(/^(?:class|grade)?\s*(\d+)(?:st|nd|rd|th)?$/i);
-    const normKey = numMatch ? `class-${numMatch[1]}` : rawName.toLowerCase();
-
-    if (!seen.has(normKey)) {
-      seen.set(normKey, item);
-    } else {
-      // If we already have one, prefer "Class X" over bare number "X"
-      const existing = seen.get(normKey);
-      const existingName = String(existing?.name || existing?.label || existing?.title || existing?.value || '');
-      if (!/^class\s*\d+/i.test(existingName) && /^class\s*\d+/i.test(rawName)) {
-        seen.set(normKey, item);
+  let sourceList = [...classList];
+  if (ensureStandardClasses) {
+    const existing = new Set(
+      classList.map(item => {
+        const val = typeof item === 'string' ? item : (item?.name || item?.label || item?.value || '');
+        return normalizeClassName(val);
+      })
+    );
+    for (const std of STANDARD_ACADEMIC_CLASSES) {
+      if (!existing.has(std)) {
+        sourceList.push({ label: std, value: std, name: std });
       }
     }
+  }
+
+  // Deduplicate classes with normalized names (e.g. "9" and "Class 9", or identical names)
+  const seen = new Map();
+  for (const item of sourceList) {
+    if (!item) continue;
+    const isString = typeof item === 'string';
+    const rawVal = isString ? item : (item.label ?? item.name ?? item.title ?? item.value ?? '');
+    const cleanStr = String(rawVal).trim();
+    if (!cleanStr) continue;
+
+    // Preserve "All Classes" or "Select Class" at top
+    if (/^(all classes|all class)$/i.test(cleanStr)) {
+      seen.set('__all_classes__', isString ? cleanStr : { ...item, label: cleanStr, value: '' });
+      continue;
+    }
+
+    const normName = normalizeClassName(cleanStr);
+    const numMatch = cleanStr.match(/^(?:class|grade)?\s*(\d+)(?:st|nd|rd|th)?$/i);
+    const normKey = numMatch ? `class-${numMatch[1]}` : normName.toLowerCase();
+
+    // Standardize the display label so bare numbers "9" or "10" always show cleanly as "Class 9", "Class 10"
+    const standardizedItem = isString
+      ? normName
+      : {
+          ...item,
+          label: normName,
+          // Keep original id value if it was a mongodb _id, otherwise use standardized name
+          value: item.value && typeof item.value === 'string' && item.value.length === 24 ? item.value : normName,
+          name: normName,
+        };
+
+    // If seen already, overwrite to ensure standardized item is used
+    seen.set(normKey, standardizedItem);
   }
 
   const uniqueList = Array.from(seen.values());

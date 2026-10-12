@@ -2,13 +2,26 @@
 
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import Link from 'next/link';
-import React, { useState, useMemo } from 'react';
-import { ChevronRight, Search, Download, Printer, FileText, MoreVertical, Plus, Trash2 } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { ChevronRight, Search, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SearchableSelect } from '@/components/ui/searchable-select';
+import { useAuth } from '@/hooks/useAuth';
+import { sortClassesAcademic, STANDARD_SUBJECTS_LIST, STANDARD_SECTIONS_LIST } from '@/lib/academicUtils';
+import api from '@/services/api';
+
+const LOCAL_STORAGE_TOPICS_KEY = 'stoofi_lesson_plan_topics';
+const LOCAL_STORAGE_LESSONS_KEY = 'stoofi_lesson_plan_lessons';
 
 export default function TopicPage() {
+  const { user } = useAuth();
+  const [classesList, setClassesList] = useState([]);
+  const [sectionsList, setSectionsList] = useState([]);
+  const [subjectsList, setSubjectsList] = useState([]);
+  const [allLessons, setAllLessons] = useState([]);
+
   const [topics, setTopics] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -16,51 +29,198 @@ export default function TopicPage() {
   const [subjectFilter, setSubjectFilter] = useState('');
 
   const [formData, setFormData] = useState({ class: '', section: '', subject: '', lesson: '' });
-  const [titles, setTitles] = useState([]);
+  const [titles, setTitles] = useState([{ id: Date.now(), value: '' }]);
+
+  // Load Classes, Sections, Subjects
+  useEffect(() => {
+    // 1. Classes
+    api.get('/class').then(r => {
+      if (r && r.success && Array.isArray(r.data) && r.data.length > 0) {
+        const mapped = r.data.map(c => ({ label: c.name, value: c.name }));
+        setClassesList(sortClassesAcademic(mapped, { ensureStandardClasses: true }));
+      } else {
+        setClassesList(sortClassesAcademic([], { ensureStandardClasses: true }));
+      }
+    }).catch(() => {
+      setClassesList(sortClassesAcademic([], { ensureStandardClasses: true }));
+    });
+
+    // 2. Sections
+    api.get('/section').then(r => {
+      if (r && r.success && Array.isArray(r.data) && r.data.length > 0) {
+        const uniqueSecs = Array.from(new Set(r.data.map(s => String(s.name || '').replace(/^section\s+/i, '').trim()))).filter(Boolean);
+        setSectionsList(uniqueSecs.map(s => ({ label: s, value: s })));
+      } else {
+        setSectionsList(STANDARD_SECTIONS_LIST.map(s => ({ label: s, value: s })));
+      }
+    }).catch(() => {
+      setSectionsList(STANDARD_SECTIONS_LIST.map(s => ({ label: s, value: s })));
+    });
+
+    // 3. Subjects
+    api.get('/subject').then(r => {
+      if (r && r.success && Array.isArray(r.data) && r.data.length > 0) {
+        setSubjectsList(r.data.map(s => ({ label: s.name, value: s.name })));
+      } else {
+        setSubjectsList(STANDARD_SUBJECTS_LIST.map(s => ({ label: s, value: s })));
+      }
+    }).catch(() => {
+      setSubjectsList(STANDARD_SUBJECTS_LIST.map(s => ({ label: s, value: s })));
+    });
+
+    // 4. Lessons for selection
+    api.get('/lesson').then(r => {
+      if (r && r.success && Array.isArray(r.data)) {
+        setAllLessons(r.data);
+      }
+    }).catch(() => {
+      try {
+        const cached = localStorage.getItem(LOCAL_STORAGE_LESSONS_KEY);
+        if (cached) setAllLessons(JSON.parse(cached));
+      } catch (_) {}
+    });
+  }, []);
+
+  // Load Topics
+  useEffect(() => {
+    const fetchTopics = async () => {
+      try {
+        const res = await api.get('/topic');
+        if (res && res.success && Array.isArray(res.data)) {
+          setTopics(res.data.map(t => ({
+            id: t._id || t.id,
+            class: t.class,
+            section: t.section,
+            subject: t.subject,
+            lesson: t.lesson,
+            topic: t.topic
+          })));
+          return;
+        }
+      } catch (_) {}
+
+      try {
+        const cached = localStorage.getItem(LOCAL_STORAGE_TOPICS_KEY);
+        if (cached) {
+          setTopics(JSON.parse(cached));
+        }
+      } catch (_) {}
+    };
+
+    fetchTopics();
+  }, []);
+
+  // Filter lessons based on selected class and subject
+  const availableLessons = useMemo(() => {
+    let list = [];
+    if (formData.class && formData.subject) {
+      list = allLessons
+        .filter(l => l.class === formData.class && l.subject === formData.subject)
+        .map(l => ({ label: l.lesson, value: l.lesson }));
+    } else if (formData.class) {
+      list = allLessons
+        .filter(l => l.class === formData.class)
+        .map(l => ({ label: l.lesson, value: l.lesson }));
+    } else {
+      list = allLessons.map(l => ({ label: l.lesson, value: l.lesson }));
+    }
+
+    // If no specific lessons were entered yet, provide standard academic fallback units
+    if (list.length === 0) {
+      const fallbackLessons = [
+        'Chapter 1 - Introduction & Basics',
+        'Chapter 2 - Fundamentals & Core Concepts',
+        'Chapter 3 - Advanced Topics',
+        'Unit 1 - Theoretical Foundations',
+        'Unit 2 - Practical Applications',
+        'Revision & Exercises'
+      ];
+      return fallbackLessons.map(l => ({ label: l, value: l }));
+    }
+
+    // Deduplicate
+    const seen = new Set();
+    return list.filter(item => {
+      if (seen.has(item.value)) return false;
+      seen.add(item.value);
+      return true;
+    });
+  }, [allLessons, formData.class, formData.subject]);
+
+  const handleSelectChange = (name, value) => {
+    const finalValue = value?.target ? value.target.value : value;
+    setFormData(prev => ({ ...prev, [name]: finalValue }));
+  };
 
   const addTitleRow = () => {
-    setTitles([...titles, { id: Date.now(), value: '' }]);
+    setTitles(prev => [...prev, { id: Date.now(), value: '' }]);
   };
 
   const removeTitleRow = (id) => {
     if (titles.length > 1) {
-      setTitles(titles.filter(t => t.id !== id));
+      setTitles(prev => prev.filter(t => t.id !== id));
     }
   };
 
   const handleTitleChange = (id, value) => {
-    setTitles(titles.map(t => t.id === id ? { ...t, value } : t));
+    setTitles(prev => prev.map(t => t.id === id ? { ...t, value } : t));
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     if (!formData.class || !formData.section || !formData.subject || !formData.lesson) return;
 
-    const newTopics = titles
-      .filter(t => t.value.trim() !== '')
-      .map(t => ({
-        id: Date.now() + Math.random(),
+    const validTitles = titles.map(t => t.value.trim()).filter(Boolean);
+    if (validTitles.length === 0) return;
+
+    const newTopics = validTitles.map(t => ({
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      class: formData.class,
+      section: formData.section,
+      subject: formData.subject,
+      lesson: formData.lesson,
+      topic: t
+    }));
+
+    // Optimistic UI update + localStorage cache
+    const updated = [...newTopics, ...topics];
+    setTopics(updated);
+    try {
+      localStorage.setItem(LOCAL_STORAGE_TOPICS_KEY, JSON.stringify(updated));
+    } catch (_) {}
+
+    // Reset Form
+    setTitles([{ id: Date.now(), value: '' }]);
+    setFormData({ class: '', section: '', subject: '', lesson: '' });
+
+    // Persist to Backend API
+    try {
+      await api.post('/topic', {
         class: formData.class,
         section: formData.section,
         subject: formData.subject,
         lesson: formData.lesson,
-        topic: t.value.trim()
-      }));
-
-    if (newTopics.length > 0) {
-      setTopics([...newTopics, ...topics]);
-      setTitles([{ id: Date.now(), value: '' }]); // reset titles
-      setFormData({ class: '', section: '', subject: '', lesson: '' }); // reset form
-    }
+        topics: validTitles
+      });
+    } catch (_) {}
   };
 
-  const handleDelete = (id) => {
-    setTopics(topics.filter(t => t.id !== id));
+  const handleDelete = async (id) => {
+    const updated = topics.filter(t => t.id !== id);
+    setTopics(updated);
+    try {
+      localStorage.setItem(LOCAL_STORAGE_TOPICS_KEY, JSON.stringify(updated));
+    } catch (_) {}
+
+    try {
+      await api.delete(`/topic/${id}`);
+    } catch (_) {}
   };
 
   const filteredTopics = useMemo(() => {
     return topics.filter(t => {
-      const matchSearch = t.topic.toLowerCase().includes(searchQuery.toLowerCase()) || t.lesson.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchSearch = (t.topic || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (t.lesson || '').toLowerCase().includes(searchQuery.toLowerCase());
       const matchClass = classFilter ? t.class === classFilter : true;
       const matchSubject = subjectFilter ? t.subject === subjectFilter : true;
       return matchSearch && matchClass && matchSubject;
@@ -80,65 +240,56 @@ export default function TopicPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
         {/* Left: Add Form */}
         <div className="xl:col-span-1">
-          <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs">
-            <div className="p-4 border-b border-zinc-100 bg-zinc-50/50">
+          <div className="bg-white border border-zinc-200 rounded-xl overflow-visible shadow-xs">
+            <div className="p-4 border-b border-zinc-100 bg-zinc-50/50 rounded-t-xl">
               <h2 className="text-base font-bold text-zinc-950">Add Topic</h2>
             </div>
             <form className="p-4 space-y-4" onSubmit={handleSave}>
               <div className="space-y-1.5">
                 <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Class <span className="text-rose-500">*</span></Label>
-                <select 
+                <SearchableSelect 
+                  name="class"
                   value={formData.class}
-                  onChange={(e) => setFormData({...formData, class: e.target.value})}
-                  className="flex h-10 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 font-medium"
-                  required
-                >
-                  <option value="">Select Class</option>
-                  <option value="Class 1">Class 1</option>
-                  <option value="Class 2">Class 2</option>
-                </select>
+                  onChange={(v) => handleSelectChange('class', v)}
+                  placeholder="Select Class *"
+                  options={classesList}
+                />
               </div>
+
               <div className="space-y-1.5">
                 <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Section <span className="text-rose-500">*</span></Label>
-                <select 
+                <SearchableSelect 
+                  name="section"
                   value={formData.section}
-                  onChange={(e) => setFormData({...formData, section: e.target.value})}
-                  className="flex h-10 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 font-medium"
-                  required
-                >
-                  <option value="">Select Section</option>
-                  <option value="A">A</option>
-                  <option value="B">B</option>
-                </select>
+                  onChange={(v) => handleSelectChange('section', v)}
+                  placeholder="Select Section *"
+                  options={sectionsList}
+                />
               </div>
+
               <div className="space-y-1.5">
                 <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Subject <span className="text-rose-500">*</span></Label>
-                <select 
+                <SearchableSelect 
+                  name="subject"
                   value={formData.subject}
-                  onChange={(e) => setFormData({...formData, subject: e.target.value})}
-                  className="flex h-10 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 font-medium"
-                  required
-                >
-                  <option value="">Select Subject</option>
-                  <option value="Mathematics">Mathematics</option>
-                  <option value="English">English</option>
-                </select>
+                  onChange={(v) => handleSelectChange('subject', v)}
+                  placeholder="Select Subject *"
+                  options={subjectsList}
+                />
               </div>
+
               <div className="space-y-1.5">
                 <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Lesson <span className="text-rose-500">*</span></Label>
-                <select 
+                <SearchableSelect 
+                  name="lesson"
                   value={formData.lesson}
-                  onChange={(e) => setFormData({...formData, lesson: e.target.value})}
-                  className="flex h-10 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 font-medium"
-                  required
-                >
-                  <option value="">Select Lesson</option>
-                  <option value="Algebra Basics">Algebra Basics</option>
-                  <option value="Grammar">Grammar</option>
-                </select>
+                  onChange={(v) => handleSelectChange('lesson', v)}
+                  placeholder="Select Lesson *"
+                  options={availableLessons}
+                />
               </div>
 
               {titles.map((t, index) => (
@@ -174,8 +325,8 @@ export default function TopicPage() {
 
         {/* Right: Table */}
         <div className="xl:col-span-2">
-          <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs flex flex-col">
-            <div className="p-4 border-b border-zinc-100 bg-zinc-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-white border border-zinc-200 rounded-xl overflow-visible shadow-xs flex flex-col">
+            <div className="p-4 border-b border-zinc-100 bg-zinc-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-t-xl">
               <h2 className="text-base font-bold text-zinc-950">Topic List</h2>
               <div className="flex items-center gap-3">
                 <div className="relative">
@@ -193,24 +344,24 @@ export default function TopicPage() {
 
             {/* Table Filters */}
             <div className="p-4 border-b border-zinc-100 bg-white flex flex-col sm:flex-row gap-4">
-               <select 
-                  value={classFilter}
-                  onChange={(e) => setClassFilter(e.target.value)}
-                  className="flex h-9 w-full sm:w-[200px] rounded-md border border-zinc-300 bg-white px-3 py-1 text-sm text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 font-medium"
-                >
-                  <option value="">All Classes</option>
-                  <option value="Class 1">Class 1</option>
-                  <option value="Class 2">Class 2</option>
-                </select>
-                <select 
-                  value={subjectFilter}
-                  onChange={(e) => setSubjectFilter(e.target.value)}
-                  className="flex h-9 w-full sm:w-[200px] rounded-md border border-zinc-300 bg-white px-3 py-1 text-sm text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 font-medium"
-                >
-                  <option value="">All Subjects</option>
-                  <option value="Mathematics">Mathematics</option>
-                  <option value="English">English</option>
-                </select>
+              <div className="w-full sm:w-[200px]">
+                <SearchableSelect 
+                  name="classFilter" 
+                  value={classFilter} 
+                  onChange={(v) => setClassFilter(v?.target ? v.target.value : v)}
+                  placeholder="All Classes"
+                  options={[{ label: 'All Classes', value: '' }, ...classesList]}
+                />
+              </div>
+              <div className="w-full sm:w-[200px]">
+                <SearchableSelect 
+                  name="subjectFilter" 
+                  value={subjectFilter} 
+                  onChange={(v) => setSubjectFilter(v?.target ? v.target.value : v)}
+                  placeholder="All Subjects"
+                  options={[{ label: 'All Subjects', value: '' }, ...subjectsList]}
+                />
+              </div>
             </div>
 
             <div className="overflow-x-auto">

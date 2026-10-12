@@ -92,6 +92,12 @@ app.use('/api/class-routines', require('./routes/classRoutine.routes'));
 app.use('/api/routine', require('./routes/classRoutine.routes'));
 app.use('/api/routines', require('./routes/classRoutine.routes'));
 
+// Lesson Plan routes
+app.use('/api/lesson', require('./routes/lesson.routes'));
+app.use('/api/lessons', require('./routes/lesson.routes'));
+app.use('/api/topic', require('./routes/topic.routes'));
+app.use('/api/topics', require('./routes/topic.routes'));
+
 // Admin Section routes
 app.use('/api/id-card', require('./routes/id-card.routes'));
 app.use('/api/id-cards', require('./routes/id-card.routes'));
@@ -109,6 +115,7 @@ app.use('/api/visitor-book', require('./routes/visitor-book.routes'));
 app.use('/api/fees', require('./routes/fees.routes'));
 app.use('/api/homework', require('./routes/homework.routes'));
 app.use('/api/whatsapp', require('./routes/whatsappRoutes'));
+app.use('/api/behaviour', require('./routes/behaviour.routes'));
 
 app.use('/api/book-category', require('./routes/book-category.routes'));
 

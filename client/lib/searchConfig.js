@@ -57,6 +57,16 @@ const SYNONYMS_MAP = {
   '/dashboard/students/export': ['student export', 'export student', 'download student list', 'excel export'],
   '/dashboard/students/sms-sending-time': ['sms sending time', 'attendance sms time', 'sms schedule'],
 
+  // Behaviour Records
+  '/dashboard/behaviour': ['behaviour records', 'student behaviour', 'discipline', 'conduct report', 'incident overview'],
+  '/dashboard/behaviour/incidents': ['incidents', 'incident categories', 'behaviour incidents', 'demerit', 'merit', 'positive incident', 'negative incident', 'rules'],
+  '/dashboard/behaviour/assign': ['assign incident', 'record incident', 'give demerit', 'award points', 'deduct points', 'student incident', 'conduct'],
+  '/dashboard/behaviour/student-report': ['student incident report', 'student behaviour report', 'student conduct', 'scorecard', 'standing', 'student points'],
+  '/dashboard/behaviour/report': ['behaviour report', 'school discipline report', 'conduct analytics', 'leaderboard', 'star students', 'watch list'],
+  '/dashboard/behaviour/class-section': ['class section report', 'class discipline report', 'section behaviour', 'comparative conduct'],
+  '/dashboard/behaviour/incident-wise': ['incident wise report', 'incident breakdown', 'most frequent incident', 'infraction stats'],
+  '/dashboard/behaviour/settings': ['behaviour settings', 'discipline settings', 'portal visibility', 'warning threshold', 'conduct settings'],
+
   // Fees
   '/dashboard/fees/collection': ['fees collection', 'collect fees', 'fee payment', 'pay fee', 'receive fees', 'fees', 'fee', 'paisa'],
   '/dashboard/fees/group': ['fees group', 'fee group', 'fee package'],

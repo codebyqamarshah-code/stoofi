@@ -431,5 +431,7 @@ export const endpointMockMap = {
   '/teacher-evaluation/teacher-wise': mockStaff,
   '/setup': {},
   '/whatsapp/contacts': mockStaff,
+  '/lesson': [],
+  '/topic': [],
 };
 

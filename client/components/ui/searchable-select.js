@@ -1,24 +1,42 @@
-import React, { useState, useRef, useEffect } from "react";
+'use client';
+
+import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
+import { createPortal } from "react-dom";
 import { ChevronDown, Search } from "lucide-react";
-import { sortClassesAcademic } from "@/lib/academicUtils";
+import { sortClassesAcademic, normalizeClassName } from "@/lib/academicUtils";
 
 export function SearchableSelect({ options = [], value, onChange, placeholder = "Select...", name }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [dropPos, setDropPos] = useState({ top: 0, left: 0, width: 0 });
+  const [mounted, setMounted] = useState(false);
   const wrapperRef = useRef(null);
   const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const updatePosition = () => {
     if (wrapperRef.current) {
       const rect = wrapperRef.current.getBoundingClientRect();
+      const dropdownHeight = 290;
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const openUpwards = spaceBelow < dropdownHeight && rect.top > dropdownHeight;
+
       setDropPos({ 
-        top: rect.bottom + window.scrollY + 4, 
-        left: rect.left + window.scrollX, 
+        top: openUpwards ? Math.max(8, rect.top - dropdownHeight - 4) : rect.bottom + 4, 
+        left: Math.max(8, Math.min(rect.left, window.innerWidth - rect.width - 8)), 
         width: rect.width 
       });
     }
   };
+
+  useLayoutEffect(() => {
+    if (isOpen) {
+      updatePosition();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -48,11 +66,13 @@ export function SearchableSelect({ options = [], value, onChange, placeholder = 
   }, [isOpen]);
 
   const handleToggle = () => {
-    updatePosition();
+    if (!isOpen) {
+      updatePosition();
+    }
     setIsOpen(prev => !prev);
   };
 
-  // Check if options are classes and sort in academic order
+  // Check if options are classes and sort/deduplicate in academic order
   const processedOptions = React.useMemo(() => {
     if (!Array.isArray(options) || options.length === 0) return [];
     
@@ -69,10 +89,17 @@ export function SearchableSelect({ options = [], value, onChange, placeholder = 
   }, [options]);
 
   const filteredOptions = (processedOptions || []).filter(opt =>
-    String(opt?.label || opt?.name || "").toLowerCase().includes((searchTerm || "").toLowerCase())
+    String(opt?.label || opt?.name || opt?.value || "").toLowerCase().includes((searchTerm || "").toLowerCase())
   );
 
-  const selectedOption = (processedOptions || []).find(opt => String(opt.value) === String(value));
+  const selectedOption = (processedOptions || []).find(opt => {
+    if (value === undefined || value === null || value === '') return false;
+    if (String(opt.value) === String(value)) return true;
+    if (String(opt.label) === String(value)) return true;
+    const normOpt = normalizeClassName(opt.value || opt.label);
+    const normVal = normalizeClassName(value);
+    return normOpt && normVal && normOpt.toLowerCase() === normVal.toLowerCase();
+  });
 
   return (
     <div className="relative w-full" ref={wrapperRef}>
@@ -86,16 +113,15 @@ export function SearchableSelect({ options = [], value, onChange, placeholder = 
         <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-zinc-500 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
       </div>
 
-      {isOpen && (
+      {isOpen && mounted && typeof document !== 'undefined' && createPortal(
         <div
           ref={dropdownRef}
           style={{ 
-            position: "absolute", 
-            top: "100%", 
-            left: 0, 
-            width: "100%", 
-            marginTop: "4px",
-            zIndex: 99999 
+            position: "fixed", 
+            top: `${dropPos.top}px`, 
+            left: `${dropPos.left}px`, 
+            width: `${dropPos.width}px`, 
+            zIndex: 999999 
           }}
           className="rounded-xl border border-zinc-200 bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150"
         >
@@ -112,15 +138,15 @@ export function SearchableSelect({ options = [], value, onChange, placeholder = 
               />
             </div>
           </div>
-          <div className="max-h-56 overflow-y-auto p-1 bg-white">
+          <div className="max-h-64 overflow-y-auto p-1 bg-white">
             {filteredOptions.length === 0 ? (
               <div className="py-4 px-3 text-xs text-zinc-500 font-medium text-center">No results found</div>
             ) : (
               filteredOptions.map((opt) => (
                 <div
-                  key={opt.value}
+                  key={String(opt.value || opt.label)}
                   className={`cursor-pointer px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
-                    String(value) === String(opt.value)
+                    String(value) === String(opt.value) || String(value) === String(opt.label)
                       ? "bg-zinc-950 text-white font-bold"
                       : "text-zinc-900 hover:bg-zinc-100"
                   }`}
@@ -135,7 +161,8 @@ export function SearchableSelect({ options = [], value, onChange, placeholder = 
               ))
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

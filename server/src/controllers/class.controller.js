@@ -36,6 +36,20 @@ function getAcademicRank(className) {
   return 200;
 }
 
+function normalizeClassName(className) {
+  if (!className) return '';
+  const str = String(className).trim();
+  const numMatch = str.match(/^(?:class|grade)?\s*(\d+)(?:st|nd|rd|th)?$/i);
+  if (numMatch) return `Class ${numMatch[1]}`;
+  if (/^(playgroup|play group|pg|play)$/i.test(str)) return 'Playgroup';
+  if (/^(nursery)$/i.test(str)) return 'Nursery';
+  if (/^(kg|kindergarten)$/i.test(str)) return 'KG';
+  if (/^(prep|pre-school|preschool)$/i.test(str)) return 'Prep';
+  if (/^o[-\s]?levels?$/i.test(str)) return 'O-Levels';
+  if (/^a[-\s]?levels?$/i.test(str)) return 'A-Levels';
+  return str;
+}
+
 function sortClasses(classList) {
   const seen = new Map();
   for (const item of classList) {
@@ -43,18 +57,15 @@ function sortClasses(classList) {
     const rawName = String(item.name || item.label || item.title || (typeof item === 'string' ? item : '')).trim();
     if (!rawName) continue;
 
+    const normName = normalizeClassName(rawName);
     const numMatch = rawName.match(/^(?:class|grade)?\s*(\d+)(?:st|nd|rd|th)?$/i);
-    const normKey = numMatch ? `class-${numMatch[1]}` : rawName.toLowerCase();
+    const normKey = numMatch ? `class-${numMatch[1]}` : normName.toLowerCase();
 
-    if (!seen.has(normKey)) {
-      seen.set(normKey, item);
-    } else {
-      const existing = seen.get(normKey);
-      const existingName = String(existing?.name || existing?.label || '');
-      if (!/^class\s*\d+/i.test(existingName) && /^class\s*\d+/i.test(rawName)) {
-        seen.set(normKey, item);
-      }
-    }
+    const normalizedObj = typeof item === 'object' && item !== null
+      ? (item._doc ? { ...item._doc, name: normName } : { ...item, name: normName, label: normName })
+      : normName;
+
+    seen.set(normKey, normalizedObj);
   }
 
   const uniqueList = Array.from(seen.values());
