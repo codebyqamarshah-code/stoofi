@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronRight, Upload, BookOpen } from 'lucide-react';
+import { ChevronRight, Upload, BookOpen, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -62,6 +62,7 @@ export default function AddHomeworkPage() {
   const fileInputRef = useRef(null);
   const [fileName, setFileName] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     const fetchDropdowns = async () => {
@@ -104,6 +105,29 @@ export default function AddHomeworkPage() {
     ? activeClass.sections.map(s => ({ _id: s, name: s })) 
     : sections;
 
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setFileName('');
+      return;
+    }
+    const maxMb = 25;
+    if (file.size > maxMb * 1024 * 1024) {
+      const actualMb = (file.size / (1024 * 1024)).toFixed(1);
+      alert(`Selected file (${actualMb} MB) exceeds the maximum limit of ${maxMb} MB. Please select a smaller file.`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      setFileName('');
+      return;
+    }
+    setFileName(file.name);
+  };
+
+  const handleClearFile = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    setFileName('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -111,20 +135,32 @@ export default function AddHomeworkPage() {
       return alert('Please fill all required fields (Class, Section, Subject, Description).');
     }
 
+    const file = fileInputRef.current?.files?.[0];
+    if (file && file.size > 25 * 1024 * 1024) {
+      return alert('Attached file exceeds 25 MB. Please select a smaller file.');
+    }
+
     try {
       setSubmitting(true);
+      setUploadProgress(0);
       const data = new FormData();
       Object.keys(formData).forEach(key => {
         const val = formData[key];
         // Send marks as 0 if blank
         data.append(key, key === 'marks' && !val ? '0' : val);
       });
-      if (fileInputRef.current?.files[0]) {
-        data.append('file', fileInputRef.current.files[0]);
+      if (file) {
+        data.append('file', file);
       }
 
+      // Do NOT specify manual Content-Type header so Axios/browser automatically appends boundary
       const res = await api.post('/homework', data, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const pct = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(pct);
+          }
+        }
       });
 
       if (res && res.success !== false) {
@@ -140,9 +176,12 @@ export default function AddHomeworkPage() {
         alert(res?.message || 'Failed to save homework');
       }
     } catch (err) {
-      alert(err.message || 'Error saving homework');
+      console.error('Error saving homework:', err);
+      const msg = err.response?.data?.message || err.message || 'Error saving homework';
+      alert(msg);
     } finally {
       setSubmitting(false);
+      setUploadProgress(0);
     }
   };
 
@@ -228,20 +267,49 @@ export default function AddHomeworkPage() {
             </div>
 
             <div className="space-y-1.5 lg:col-span-3">
-              <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Attach File / Document</Label>
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Attach File / Document (Max 25 MB)</Label>
+                {fileName && (
+                  <button 
+                    type="button" 
+                    onClick={handleClearFile} 
+                    className="text-xs text-rose-500 hover:text-rose-700 flex items-center gap-1 font-semibold"
+                  >
+                    <X className="h-3.5 w-3.5" /> Remove attachment
+                  </button>
+                )}
+              </div>
               <div className="relative">
                 <input 
                   type="file" 
                   ref={fileInputRef} 
                   className="hidden" 
                   id="hw-file" 
-                  onChange={(e) => setFileName(e.target.files[0]?.name || '')}
+                  onChange={handleFileChange}
                 />
-                <Label htmlFor="hw-file" className="flex items-center justify-between h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-400 cursor-pointer hover:border-zinc-200">
-                  <span className="truncate text-zinc-950">{fileName || 'Click to attach assignment document or worksheet...'}</span>
-                  <div className="bg-indigo-600 text-white px-3 py-1 -mr-2 rounded text-xs font-semibold">BROWSE</div>
+                <Label htmlFor="hw-file" className="flex items-center justify-between h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm cursor-pointer hover:border-zinc-300 transition-colors">
+                  <span className={`truncate ${fileName ? 'text-zinc-900 font-medium' : 'text-zinc-400'}`}>
+                    {fileName || 'Click to attach assignment document (PDF, Word, Image)...'}
+                  </span>
+                  <div className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 -mr-2 rounded text-xs font-semibold transition-colors">
+                    BROWSE
+                  </div>
                 </Label>
               </div>
+              {submitting && uploadProgress > 0 && (
+                <div className="space-y-1 pt-2">
+                  <div className="flex justify-between text-xs text-zinc-600 font-semibold">
+                    <span>Uploading attachment...</span>
+                    <span>{uploadProgress}%</span>
+                  </div>
+                  <div className="w-full bg-zinc-200 rounded-full h-2 overflow-hidden">
+                    <div 
+                      className="bg-indigo-600 h-2 rounded-full transition-all duration-200" 
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="space-y-1.5 lg:col-span-3">
@@ -251,14 +319,16 @@ export default function AddHomeworkPage() {
                 rows={4}
                 placeholder="Enter homework instructions, questions, reading materials, or problem numbers..."
                 value={formData.description} onChange={handleChange}
-                className="flex min-h-[120px] w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-950 placeholder:text-zinc-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 resize-none" 
+                className="flex min-h-[120px] w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 resize-none" 
               />
             </div>
           </div>
 
-          <div className="flex justify-end pt-4 border-t border-zinc-900">
+          <div className="flex justify-end pt-4 border-t border-zinc-200">
             <Button disabled={submitting} type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold min-w-[200px]">
-              {submitting ? 'SAVING...' : 'PUBLISH HOMEWORK'}
+              {submitting 
+                ? (uploadProgress > 0 && uploadProgress < 100 ? `UPLOADING (${uploadProgress}%)...` : 'SAVING HOMEWORK...') 
+                : 'PUBLISH HOMEWORK'}
             </Button>
           </div>
         </form>

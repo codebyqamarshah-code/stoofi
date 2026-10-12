@@ -15,11 +15,13 @@ export default function Page() {
       const res = await api.get('/homework');
       if (res?.success && Array.isArray(res.data)) {
         const normalize = (val) => String(val || '').replace(/^(Class|Section)\s*/i, '').trim().toLowerCase();
+        const rawApi = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const baseApi = rawApi.replace(/\/api\/?$/, '');
         
         const myHomework = res.data.filter(h => {
           if (!user?.className) return true; 
           const classMatch = normalize(h.className) === normalize(user.className);
-          const sectionMatch = !user.section || normalize(h.section) === normalize(user.section);
+          const sectionMatch = !user.section || !h.section || h.section === 'All' || normalize(h.section) === normalize(user.section);
           return classMatch && sectionMatch;
         });
         
@@ -55,7 +57,12 @@ export default function Page() {
               </button>
             ),
             Attachment: h.file ? (
-              <a href={h.file.startsWith('http') ? h.file : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${h.file}`} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline font-semibold text-xs flex items-center gap-1">
+              <a 
+                href={h.file.startsWith('http') ? h.file : `${baseApi}${h.file}`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-indigo-600 hover:text-indigo-800 hover:underline font-semibold text-xs flex items-center gap-1"
+              >
                 Download
               </a>
             ) : '-'

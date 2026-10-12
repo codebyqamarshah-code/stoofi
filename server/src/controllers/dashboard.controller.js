@@ -420,12 +420,31 @@ exports.getLiveUpdates = async (req, res, next) => {
     const activeStudents = await User.countDocuments({ role: 'Student', lastLogin: { $gte: tenMinsAgo } });
     const activeTeachers = await User.countDocuments({ role: 'Teacher', lastLogin: { $gte: tenMinsAgo } });
 
-    // Role-aware notifications: user sees their role's notifications + All
-    const audienceFilter = { $in: [userRole, 'All'] };
-    const notifications = await Notification.find({ audience: audienceFilter })
+    // Role-aware and user-targeted notifications:
+    // 1) Direct notifications targeted to their user ID (recipientId: req.user._id)
+    // 2) Broadcast notifications for their role or 'All' (where recipientId is null/undefined)
+    let notifFilter;
+    if (req.user?._id) {
+      notifFilter = {
+        $or: [
+          { recipientId: req.user._id },
+          { 
+            audience: { $in: [userRole, 'All'] },
+            $or: [{ recipientId: null }, { recipientId: { $exists: false } }]
+          }
+        ]
+      };
+    } else {
+      notifFilter = { 
+        audience: { $in: [userRole, 'All'] },
+        $or: [{ recipientId: null }, { recipientId: { $exists: false } }]
+      };
+    }
+
+    const notifications = await Notification.find(notifFilter)
       .lean()
       .sort({ createdAt: -1 })
-      .limit(15);
+      .limit(20);
 
     res.status(200).json({ success: true, data: { activeStudents, activeTeachers, notifications } });
   } catch (error) {

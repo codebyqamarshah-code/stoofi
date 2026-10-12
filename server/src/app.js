@@ -3,6 +3,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 const compression = require('compression');
+const path = require('path');
 
 const app = express();
 app.use(compression());
@@ -50,8 +51,11 @@ app.use(async (req, res, next) => {
 
 // Serve static files (uploads)
 app.use(express.static('public'));
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+app.use('/api/uploads', express.static(path.join(__dirname, '../public/uploads')));
 if (process.env.VERCEL === '1' || process.env.VERCEL_ENV) {
   app.use('/uploads', express.static('/tmp/uploads'));
+  app.use('/api/uploads', express.static('/tmp/uploads'));
 }
 
 // Routes

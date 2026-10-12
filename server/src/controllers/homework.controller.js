@@ -1,33 +1,48 @@
 const Model = require("../models/Homework");
 const Student = require("../models/Student");
 const Notification = require("../models/Notification");
+const User = require("../models/User");
 
 exports.getAll = async (req, res) => {
   try {
     let filter = {};
     if (req.user && req.user.role === 'Student') {
-      // Lookup student record by referenceId OR by user._id
-      const studentRecord = await Student.findOne({
+      // Lookup student record by referenceId, user._id, email, or username
+      let studentRecord = await Student.findOne({
         $or: [
           ...(req.user.referenceId ? [{ _id: req.user.referenceId }] : []),
           { user: req.user._id }
         ]
       });
 
-      if (studentRecord && studentRecord.className) {
-        const rawClass = studentRecord.className.toString().trim();
-        const rawSec = (studentRecord.section || '').toString().trim();
+      if (!studentRecord && (req.user.email || req.user.username)) {
+        studentRecord = await Student.findOne({
+          $or: [
+            ...(req.user.email ? [{ email: req.user.email }] : []),
+            ...(req.user.username ? [{ admissionNo: req.user.username }, { rollNo: req.user.username }] : [])
+          ]
+        });
+      }
 
+      const rawClass = (studentRecord?.className || req.user.className || '').toString().trim();
+      const rawSec = (studentRecord?.section || req.user.section || '').toString().trim();
+
+      if (rawClass) {
         // Strip "Class" or "Section" prefixes for flexible regex matching
         const classNum = rawClass.replace(/^class\s*/i, '');
         const secLetter = rawSec.replace(/^section\s*/i, '');
 
         filter = {
           $and: [
-            { className: { $regex: new RegExp(`(${rawClass}|Class ${classNum}|${classNum})`, 'i') } },
-            ...(secLetter ? [{ section: { $regex: new RegExp(`(${rawSec}|Section ${secLetter}|${secLetter})`, 'i') } }] : [])
+            { className: { $regex: new RegExp(`(^${rawClass}$|^Class\\s*${classNum}$|^${classNum}$)`, 'i') } },
+            ...(secLetter ? [{ section: { $regex: new RegExp(`(^${rawSec}$|^Section\\s*${secLetter}$|^${secLetter}$)`, 'i') } }] : [])
           ]
         };
+      }
+    } else if (req.query.className) {
+      filter.className = { $regex: new RegExp(`^${req.query.className.trim()}$`, 'i') };
+      if (req.query.section) {
+        filter.section = { $regex: new RegExp(`^${req.query.section.trim()}$`, 'i') };
       }
     }
 
@@ -44,22 +59,89 @@ exports.create = async (req, res) => {
     if (req.file) {
       dataObj.file = '/uploads/' + req.file.filename;
     }
+    if (dataObj.className) dataObj.className = dataObj.className.trim();
+    if (dataObj.section) dataObj.section = dataObj.section.trim();
+    if (dataObj.subject) dataObj.subject = dataObj.subject.trim();
+
     const hw = await Model.create(dataObj);
 
     // Push notification to students of the target class/section
     try {
+      const deadlineStr = hw.submissionDate ? new Date(hw.submissionDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : 'No deadline';
+      
+      // 1. Audit notification for Super Admin
       await Notification.create({
-        title: `New Homework: ${hw.subject}`,
-        message: `New homework assigned for Class ${hw.className}, Section ${hw.section || 'All'}. Subject: ${hw.subject}. Deadline: ${hw.submissionDate ? new Date(hw.submissionDate).toLocaleDateString() : 'N/A'}`,
+        title: `📚 Homework Published: ${hw.subject} (${hw.className})`,
+        message: `Homework for ${hw.className}${hw.section ? ` - Section ${hw.section}` : ''} was published. Subject: ${hw.subject}. Due: ${deadlineStr}.`,
         type: 'System',
-        audience: 'Student',
+        audience: 'Super Admin',
         isRead: false
-      });
+      }).catch(() => {});
+
+      // 2. Targeted notifications to students enrolled in this specific class
+      const classNum = hw.className.replace(/^class\s*/i, '').trim();
+      const classRegex = new RegExp(`(^${hw.className}$|^Class\\s*${classNum}$|^${classNum}$)`, 'i');
+      
+      const targetStudents = await Student.find({
+        className: { $regex: classRegex }
+      }).lean();
+
+      const notifiedUserIds = new Set();
+
+      for (const st of targetStudents) {
+        let uId = st.user ? String(st.user) : null;
+        if (!uId) {
+          const orConditions = [];
+          if (st.email) orConditions.push({ email: st.email });
+          if (st.admissionNo) orConditions.push({ username: st.admissionNo });
+          if (st.rollNo) orConditions.push({ username: st.rollNo });
+          if (orConditions.length > 0) {
+            const matchedUser = await User.findOne({ role: 'Student', $or: orConditions }).select('_id').lean();
+            if (matchedUser) {
+              uId = String(matchedUser._id);
+              Student.findByIdAndUpdate(st._id, { user: matchedUser._id }).catch(() => {});
+            }
+          }
+        }
+
+        if (uId && !notifiedUserIds.has(uId)) {
+          notifiedUserIds.add(uId);
+          await Notification.create({
+            title: `📝 New Homework: ${hw.subject}`,
+            message: `New homework assigned for ${hw.className}${hw.section ? ` - Section ${hw.section}` : ''}: "${hw.description}". Due: ${deadlineStr}.`,
+            type: 'System',
+            audience: 'Student',
+            recipientId: uId,
+            isRead: false
+          }).catch(() => {});
+        }
+      }
+
+      // 3. Also check User records registered with this class directly
+      const usersInClass = await User.find({
+        role: 'Student',
+        className: { $regex: classRegex }
+      }).select('_id').lean();
+
+      for (const u of usersInClass) {
+        const uId = String(u._id);
+        if (!notifiedUserIds.has(uId)) {
+          notifiedUserIds.add(uId);
+          await Notification.create({
+            title: `📝 New Homework: ${hw.subject}`,
+            message: `New homework assigned for ${hw.className}${hw.section ? ` - Section ${hw.section}` : ''}: "${hw.description}". Due: ${deadlineStr}.`,
+            type: 'System',
+            audience: 'Student',
+            recipientId: uId,
+            isRead: false
+          }).catch(() => {});
+        }
+      }
     } catch (notifErr) {
       console.error('Notification creation failed:', notifErr.message);
     }
 
-    res.json({ success: true, data: hw });
+    res.json({ success: true, data: hw, message: 'Homework saved and published successfully.' });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });
   }

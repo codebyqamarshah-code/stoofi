@@ -497,10 +497,26 @@ exports.login = async (req, res, next) => {
 
     let additionalData = {};
     if (user.role === 'Student') {
-      const studentData = await Student.findOne({ user: user._id });
+      let studentData = await Student.findOne({ user: user._id });
+      if (!studentData && user.referenceId) {
+        studentData = await Student.findById(user.referenceId);
+      }
+      if (!studentData && (user.email || user.username)) {
+        studentData = await Student.findOne({
+          $or: [
+            ...(user.email ? [{ email: user.email }] : []),
+            ...(user.username ? [{ admissionNo: user.username }, { rollNo: user.username }] : [])
+          ]
+        });
+      }
       if (studentData) {
+        if (!studentData.user) {
+          Student.findByIdAndUpdate(studentData._id, { user: user._id }).catch(() => {});
+        }
         additionalData.className = studentData.className;
         additionalData.section = studentData.section;
+        additionalData.admissionNo = studentData.admissionNo;
+        additionalData.rollNo = studentData.rollNo;
       }
     }
 

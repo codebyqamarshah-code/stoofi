@@ -106,6 +106,36 @@ export default function StudentDashboardPage() {
   const goToday = () => { setCalMonth(today.getMonth()); setCalYear(today.getFullYear()); };
 
   const [studentDetails, setStudentDetails] = useState(null);
+  const [pendingHomeworkList, setPendingHomeworkList] = useState([]);
+
+  useEffect(() => {
+    const fetchHomeworkList = async () => {
+      try {
+        const res = await api.get('/homework');
+        if (res?.success && Array.isArray(res.data)) {
+          const normalize = (val) => String(val || '').replace(/^(Class|Section)\s*/i, '').trim().toLowerCase();
+          const filtered = res.data.filter(h => {
+            if (user?.className) {
+              const classMatch = normalize(h.className) === normalize(user.className);
+              const sectionMatch = !user.section || !h.section || h.section === 'All' || normalize(h.section) === normalize(user.section);
+              if (!classMatch || !sectionMatch) return false;
+            }
+            return true;
+          });
+          const pending = filtered.filter(h => {
+            const isCompleted = h.completedBy && h.completedBy.some(id => String(id) === String(user?._id));
+            return !isCompleted;
+          });
+          setPendingHomeworkList(pending);
+        }
+      } catch (e) {
+        console.error('Failed to fetch homework for student dashboard:', e);
+      }
+    };
+    if (user) {
+      fetchHomeworkList();
+    }
+  }, [user]);
 
   const statCards = [
     { label: 'TOTAL SUBJECT', value: studentDetails?.subjects?.length || user?.subjects?.length || '0', icon: BookOpen, href: '/dashboard/student/subjects' },
@@ -113,7 +143,7 @@ export default function StudentDashboardPage() {
     { label: 'TOTAL ONLINE EXAM', value: studentDetails?.onlineExams?.length || '0', icon: Monitor, href: '/dashboard/student/online-exam/active' },
     { label: 'TOTAL TEACHERS', value: studentDetails?.teachers?.length || '0', icon: Users, href: '/dashboard/student/teachers' },
     { label: 'TOTAL ISSUED BOOK', value: studentDetails?.issuedBooks?.length || '0', icon: BookMarked, href: '/dashboard/student/library/book-issue' },
-    { label: 'PENDING HOMEWORK', value: studentDetails?.pendingHomeworks?.length || '0', icon: ListTodo, href: '/dashboard/student/homework' },
+    { label: 'PENDING HOMEWORK', value: String(pendingHomeworkList.length), icon: ListTodo, href: '/dashboard/student/homework' },
     { label: 'ATTENDANCE THIS MONTH', value: studentDetails?.attendanceCount || '0', icon: CalendarCheck, href: '/dashboard/student/attendance' },
     { label: 'TOTAL DUE FEES', value: '$' + (studentDetails?.dueFees || '0'), icon: DollarSign, href: '/dashboard/student/fees' },
     { label: 'BEHAVIOUR POINTS', value: studentDetails?.behaviourPoints || '0', icon: Star, href: '/dashboard/student' },
@@ -276,6 +306,60 @@ export default function StudentDashboardPage() {
             </Link>
           );
         })}
+      </div>
+
+      {/* ── ASSIGNED HOMEWORK ── */}
+      <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ListTodo className="w-5 h-5 text-indigo-600" />
+            <h2 className="text-base font-bold text-zinc-900">Assigned Homework</h2>
+            {pendingHomeworkList.length > 0 && (
+              <span className="px-2 py-0.5 text-xs font-bold bg-amber-100 text-amber-800 rounded-full border border-amber-200">
+                {pendingHomeworkList.length} Pending
+              </span>
+            )}
+          </div>
+          <Link href="/dashboard/student/homework" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
+            View All Tasks →
+          </Link>
+        </div>
+
+        {pendingHomeworkList.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {pendingHomeworkList.slice(0, 3).map((hw, idx) => (
+              <div key={idx} className="border border-zinc-200 rounded-xl p-4 bg-zinc-50/50 hover:bg-zinc-50 transition-colors flex flex-col justify-between space-y-3">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
+                      {hw.subject}
+                    </span>
+                    <span className="text-[11px] font-semibold text-rose-600">
+                      Due: {hw.submissionDate ? new Date(hw.submissionDate).toLocaleDateString() : 'N/A'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-zinc-700 font-medium mt-2 line-clamp-2">
+                    {hw.description}
+                  </p>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t border-zinc-200/80">
+                  <span className="text-[11px] text-zinc-500 font-medium">
+                    {hw.marks ? `${hw.marks} Marks` : 'Unmarked'}
+                  </span>
+                  <Link href="/dashboard/student/homework" className="text-xs font-bold text-indigo-600 hover:underline">
+                    Complete →
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-6 text-center border-2 border-dashed border-zinc-200 rounded-xl bg-zinc-50/50">
+            <ListTodo className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+            <p className="text-sm font-semibold text-zinc-700">No Pending Homework!</p>
+            <p className="text-xs text-zinc-500 mt-1">You are all caught up on your assignments for your class.</p>
+          </div>
+        )}
       </div>
 
       {/* ── CLASS ROUTINE ── */}

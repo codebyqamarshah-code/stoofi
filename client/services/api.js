@@ -37,9 +37,16 @@ api.interceptors.request.use((config) => {
   }
 
   if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
-    delete config.headers['Content-Type'];
-    // File uploads need more time
-    config.timeout = 60000;
+    if (config.headers) {
+      if (typeof config.headers.delete === 'function') {
+        config.headers.delete('Content-Type');
+        config.headers.delete('content-type');
+      }
+      delete config.headers['Content-Type'];
+      delete config.headers['content-type'];
+    }
+    // File uploads need more time (up to 3 minutes for large documents)
+    config.timeout = 180000;
   }
 
   return config;
