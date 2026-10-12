@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ChevronRight, 
   Search, 
@@ -17,96 +17,39 @@ import {
   ShieldAlert, 
   Users, 
   Eye, 
-  X,
-  Layers,
-  Sparkles,
-  MapPin,
-  CheckCircle2
+  X, 
+  Layers, 
+  Sparkles, 
+  MapPin, 
+  CheckCircle2,
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { exportToCSV, exportToExcel, printData } from '@/lib/exportUtils';
+import labService from '@/services/labService';
 
 export default function ManageLabsPage() {
-  const [labs, setLabs] = useState([
-    {
-      id: 'LAB-001',
-      name: 'Advanced Physics & Mechanics Lab',
-      code: 'PHY-LAB-01',
-      category: 'Physics & Mechanics',
-      campus: 'Main Campus',
-      building: 'Science Block A',
-      floor: '2nd Floor',
-      roomNumber: 'A-204',
-      capacity: 35,
-      inCharge: 'Dr. Farooq Khan (Associate Prof)',
-      assistant: 'Kashif Ali (Senior Lab Technician)',
-      status: 'Active',
-      description: 'Equipped with optics benches, mechanics kits, oscilloscopes, and precision measurement meters.',
-      safetyInstructions: 'Safety goggles mandatory during laser & high voltage experiments. Do not touch exposed terminals.',
-      facilities: 'Projector, Fume Exhaust, Stabilized 220V AC/DC Power Supplies, First Aid Kit, Fire Extinguisher',
-      openingTime: '08:30 AM',
-      closingTime: '04:30 PM'
-    },
-    {
-      id: 'LAB-002',
-      name: 'Software Engineering & AI Lab 1',
-      code: 'CS-LAB-01',
-      category: 'Computer Science & IT',
-      campus: 'Main Campus',
-      building: 'IT & Engineering Complex',
-      floor: '3rd Floor',
-      roomNumber: 'IT-302',
-      capacity: 40,
-      inCharge: 'Mr. Ali Raza (Assistant Prof)',
-      assistant: 'Waqas Mehmood (Network Admin)',
-      status: 'Active',
-      description: 'High-performance core i7 workstations with GPU acceleration, dual gigabit ethernet, and UPS backup.',
-      safetyInstructions: 'No food or drinks allowed near PC stations. Keep server rack locked.',
-      facilities: '40x Core i7 PCs, Smart Interactive Board, High-speed Fiber Internet, 10kVA Online UPS',
-      openingTime: '08:00 AM',
-      closingTime: '06:00 PM'
-    },
-    {
-      id: 'LAB-003',
-      name: 'Organic & Analytical Chemistry Lab',
-      code: 'CHEM-LAB-01',
-      category: 'Chemistry & Reagents',
-      campus: 'Main Campus',
-      building: 'Science Block B',
-      floor: 'Ground Floor',
-      roomNumber: 'B-012',
-      capacity: 30,
-      inCharge: 'Mrs. Sadia Tariq (Head of Chemistry)',
-      assistant: 'Imran Ashraf (Chemical Custodian)',
-      status: 'Active',
-      description: 'Equipped with chemical reagent lockers, automated fume hoods, and titration stations.',
-      safetyInstructions: 'Full lab coat, nitrile gloves and safety goggles required. In case of spill, notify assistant immediately.',
-      facilities: 'Emergency Eyewash Station, Chemical Fume Hood, Reagent Safe Lockers, Acid Wash Sink',
-      openingTime: '09:00 AM',
-      closingTime: '03:30 PM'
-    },
-    {
-      id: 'LAB-004',
-      name: 'Robotics & Embedded IoT Lab',
-      code: 'ROB-LAB-01',
-      category: 'Robotics, IoT & Embedded Systems',
-      campus: 'City Campus',
-      building: 'Innovation Hub',
-      floor: '1st Floor',
-      roomNumber: 'IH-105',
-      capacity: 25,
-      inCharge: 'Engr. Bilal Ahmed',
-      assistant: 'Zubair Shah (Electronics Tech)',
-      status: 'Maintenance',
-      description: 'Arduino, Raspberry Pi, 3D printing, soldering stations, and automation testbeds.',
-      safetyInstructions: 'Ensure soldering irons are turned off after usage. Wear ESD wrist strap.',
-      facilities: '2x 3D Printers, Soldering Exhaust, Oscilloscopes, Function Generators, Tool Kits',
-      openingTime: '08:30 AM',
-      closingTime: '05:00 PM'
+  const [labs, setLabs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadLabs = async () => {
+    setLoading(true);
+    try {
+      const data = await labService.getLabs();
+      if (Array.isArray(data)) setLabs(data);
+    } catch (err) {
+      console.error('Error loading labs:', err);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  useEffect(() => {
+    loadLabs();
+  }, []);
 
   const [showModal, setShowModal] = useState(false);
   const [viewingLab, setViewingLab] = useState(null);
@@ -153,31 +96,37 @@ export default function ManageLabsPage() {
     setShowModal(true);
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     if (!formData.name) {
       alert('Lab Name is required');
       return;
     }
 
-    if (isEditing) {
-      setLabs(labs.map(l => l.id === editId ? { ...l, ...formData } : l));
-    } else {
-      setLabs([
-        ...labs,
-        {
-          id: `LAB-${String(labs.length + 1).padStart(3, '0')}`,
-          ...formData,
-          code: formData.code || `LAB-${Math.floor(100 + Math.random() * 900)}`
+    try {
+      const payload = isEditing ? { ...formData, id: editId, _id: editId } : formData;
+      const saved = await labService.saveLab(payload);
+      if (saved) {
+        if (isEditing) {
+          setLabs(labs.map(l => (l._id === editId || l.id === editId) ? saved : l));
+        } else {
+          setLabs([saved, ...labs]);
         }
-      ]);
+      }
+    } catch (err) {
+      console.error('Failed to save lab:', err);
     }
     setShowModal(false);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to remove this laboratory?')) return;
-    setLabs(labs.filter(l => l.id !== id));
+    try {
+      await labService.deleteLab(id);
+      setLabs(labs.filter(l => l._id !== id && l.id !== id));
+    } catch (err) {
+      console.error('Failed to delete lab:', err);
+    }
   };
 
   const filtered = labs.filter(l => {
@@ -296,7 +245,28 @@ export default function ManageLabsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {filtered.map((lab) => (
+              {loading && (
+                <tr>
+                  <td colSpan={7} className="text-center py-12 text-zinc-500">
+                    <div className="flex flex-col items-center justify-center">
+                      <Loader2 className="w-8 h-8 text-emerald-600 animate-spin mb-2" />
+                      <p className="text-xs font-semibold text-zinc-600">Loading laboratories...</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+              {!loading && filtered.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="text-center py-12 text-zinc-500">
+                    <div className="flex flex-col items-center justify-center">
+                      <FlaskConical className="w-10 h-10 text-zinc-300 mb-2" />
+                      <p className="font-bold text-sm text-zinc-800">No laboratories found</p>
+                      <p className="text-xs text-zinc-500 mt-1">Click &quot;Add Lab&quot; above to create your first laboratory.</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+              {!loading && filtered.map((lab) => (
                 <tr key={lab.id} className="hover:bg-zinc-50/80 transition-colors">
                   <td className="px-4 py-3.5">
                     <div className="font-bold text-zinc-950 flex items-center gap-1.5">

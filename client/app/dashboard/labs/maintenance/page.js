@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ChevronRight,
   Search,
@@ -24,106 +24,35 @@ import {
   Calendar,
   Filter,
   Kanban,
-  List
+  List,
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { exportToCSV, exportToExcel, printData } from '@/lib/exportUtils';
+import labService from '@/services/labService';
 
 export default function MaintenancePage() {
-  const [tickets, setTickets] = useState([
-    {
-      id: 'TKT-101',
-      equipmentName: 'Dell Precision 3660 Workstation #14',
-      assetCode: 'CS-PC-014',
-      labName: 'Software Engineering & AI Lab 1 (IT-302)',
-      category: 'Hardware & Power',
-      description: 'System powers off randomly after 15 minutes of GPU workload. Suspected faulty PSU or overheating.',
-      priority: 'High',
-      reportedBy: 'Mr. Ali Raza (Faculty)',
-      reportedDate: '2026-10-10',
-      assignedTo: 'Tariq Mehmood (Hardware Tech)',
-      status: 'In Progress',
-      estimatedCost: 12000,
-      actualCost: 11500,
-      downtime: '2 Days',
-      nextMaintenanceDate: '2027-04-10',
-      resolutionNotes: 'Replaced thermal paste on Intel Core i7 and swapped 500W PSU.'
-    },
-    {
-      id: 'TKT-102',
-      equipmentName: 'Digital Storage Oscilloscope 100MHz',
-      assetCode: 'DSO-002',
-      labName: 'Advanced Physics Lab (A-204)',
-      category: 'Calibration & Testing',
-      description: 'Channel 2 has voltage drift of +0.8V. Requires precision potentiometer calibration.',
-      priority: 'Medium',
-      reportedBy: 'Kashif Ali (Lab Tech)',
-      reportedDate: '2026-10-08',
-      assignedTo: 'Apex Calibration Services (Vendor)',
-      status: 'Under Review',
-      estimatedCost: 8000,
-      actualCost: 0,
-      downtime: '4 Days',
-      nextMaintenanceDate: '2027-01-15',
-      resolutionNotes: 'Awaiting vendor technician visit scheduled for Thursday.'
-    },
-    {
-      id: 'TKT-103',
-      equipmentName: 'Split Air Conditioner (2 Ton Inverter)',
-      assetCode: 'FAC-AC-02',
-      labName: 'Software Engineering & AI Lab 1 (IT-302)',
-      category: 'Facility & Electrical',
-      description: 'Cooling gas leaked. Server room / lab temperature reaching 31°C causing thermal throttling.',
-      priority: 'Critical',
-      reportedBy: 'Kashif Ali (Lab Tech)',
-      reportedDate: '2026-10-11',
-      assignedTo: 'Campus HVAC Team',
-      status: 'Reported',
-      estimatedCost: 15000,
-      actualCost: 0,
-      downtime: '1 Day',
-      nextMaintenanceDate: '2026-11-15',
-      resolutionNotes: 'Emergency work order submitted to Estate Office.'
-    },
-    {
-      id: 'TKT-104',
-      equipmentName: 'Fume Hood Exhaust Blower System',
-      assetCode: 'CHEM-FH-01',
-      labName: 'Organic & Inorganic Chemistry Lab (C-101)',
-      category: 'Safety & Ventilation',
-      description: 'Exhaust fan belt snapped. Toxic chemical vapors not venting outside building properly.',
-      priority: 'Critical',
-      reportedBy: 'Prof. Saima Tariq',
-      reportedDate: '2026-10-05',
-      assignedTo: 'Zahid Mechanicals',
-      status: 'Repaired',
-      estimatedCost: 6500,
-      actualCost: 6200,
-      downtime: '3 Days',
-      nextMaintenanceDate: '2027-03-01',
-      resolutionNotes: 'Installed new heavy-duty fan belt and greased motor bearings. Airflow tested 100 CFM.'
-    },
-    {
-      id: 'TKT-105',
-      equipmentName: 'Compound Binocular Microscope #04',
-      assetCode: 'MIC-004',
-      labName: 'Molecular Biology & Genetics Lab (B-102)',
-      category: 'Optical & Mechanical',
-      description: 'Fine focus knob slipping. Coarse adjustment loose.',
-      priority: 'Low',
-      reportedBy: 'Dr. Ayesha Siddiqa',
-      reportedDate: '2026-10-02',
-      assignedTo: 'Noman Bashir (Lab Assistant)',
-      status: 'Closed',
-      estimatedCost: 2000,
-      actualCost: 1800,
-      downtime: '1 Day',
-      nextMaintenanceDate: '2027-04-01',
-      resolutionNotes: 'Tightened internal rack-and-pinion tension ring and lubricated gears.'
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadMaintenance = async () => {
+    setLoading(true);
+    try {
+      const data = await labService.getMaintenance();
+      if (Array.isArray(data)) setTickets(data);
+    } catch (err) {
+      console.error('Error loading maintenance tickets:', err);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  useEffect(() => {
+    loadMaintenance();
+  }, []);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPriority, setSelectedPriority] = useState('All');
@@ -208,13 +137,20 @@ export default function MaintenancePage() {
     setIsModalOpen(true);
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    if (editingTicket) {
-      setTickets(tickets.map(t => t.id === editingTicket.id ? { ...formData, id: editingTicket.id } : t));
-    } else {
-      const newId = `TKT-${100 + tickets.length + 1}`;
-      setTickets([...tickets, { ...formData, id: newId }]);
+    try {
+      const payload = editingTicket ? { ...formData, id: editingTicket.id, _id: editingTicket._id || editingTicket.id } : formData;
+      const saved = await labService.saveMaintenance(payload);
+      if (saved) {
+        if (editingTicket) {
+          setTickets(tickets.map(t => (t.id === editingTicket.id || t._id === editingTicket._id) ? saved : t));
+        } else {
+          setTickets([saved, ...tickets]);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to save ticket:', err);
     }
     setIsModalOpen(false);
   };
@@ -230,27 +166,34 @@ export default function MaintenancePage() {
     setIsUpdateStatusModalOpen(true);
   };
 
-  const handleSaveStatusUpdate = (e) => {
+  const handleSaveStatusUpdate = async (e) => {
     e.preventDefault();
     if (!updatingTicket) return;
-    setTickets(tickets.map(t => {
-      if (t.id === updatingTicket.id) {
-        return {
-          ...t,
-          status: statusUpdateData.status,
-          assignedTo: statusUpdateData.assignedTo,
-          actualCost: Number(statusUpdateData.actualCost),
-          resolutionNotes: statusUpdateData.resolutionNotes
-        };
-      }
-      return t;
-    }));
+    try {
+      const updated = {
+        ...updatingTicket,
+        status: statusUpdateData.status,
+        assignedTo: statusUpdateData.assignedTo,
+        actualCost: Number(statusUpdateData.actualCost),
+        costIncurred: Number(statusUpdateData.actualCost),
+        resolutionNotes: statusUpdateData.resolutionNotes
+      };
+      const saved = await labService.saveMaintenance(updated);
+      setTickets(tickets.map(t => (t.id === updatingTicket.id || t._id === updatingTicket._id) ? (saved || updated) : t));
+    } catch (err) {
+      console.error('Failed to update ticket status:', err);
+    }
     setIsUpdateStatusModalOpen(false);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this maintenance ticket?')) {
-      setTickets(tickets.filter(t => t.id !== id));
+      try {
+        await labService.deleteMaintenance(id);
+        setTickets(tickets.filter(t => t.id !== id && t._id !== id));
+      } catch (err) {
+        console.error('Failed to delete ticket:', err);
+      }
     }
   };
 
@@ -431,7 +374,13 @@ export default function MaintenancePage() {
       </div>
 
       {/* Kanban or Table View */}
-      {viewMode === 'kanban' ? (
+      {loading ? (
+        <div className="py-20 text-center bg-white rounded-2xl border border-zinc-200">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-emerald-600" />
+          <p className="text-sm font-semibold text-zinc-800">Loading Maintenance Pipeline...</p>
+          <p className="text-xs text-zinc-500 mt-1">Fetching live equipment tickets and repair records</p>
+        </div>
+      ) : viewMode === 'kanban' ? (
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 overflow-x-auto pb-4">
           {pipelineStages.map(stage => {
             const stageTickets = filteredTickets.filter(t => t.status === stage);
@@ -507,8 +456,10 @@ export default function MaintenancePage() {
               <tbody className="divide-y divide-zinc-200">
                 {filteredTickets.length === 0 ? (
                   <tr>
-                    <td colSpan="9" className="py-8 text-center text-zinc-500 text-xs">
-                      No maintenance tickets found matching your filters.
+                    <td colSpan="9" className="py-12 text-center text-zinc-500">
+                      <Wrench className="w-8 h-8 text-zinc-300 mx-auto mb-2" />
+                      <p className="font-medium text-xs text-zinc-600">No maintenance tickets found</p>
+                      <p className="text-[11px] text-zinc-400 mt-0.5">Click &quot;Log Maintenance Ticket&quot; to report an issue or breakdown.</p>
                     </td>
                   </tr>
                 ) : (

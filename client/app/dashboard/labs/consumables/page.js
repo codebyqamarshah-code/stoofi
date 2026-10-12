@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ChevronRight, 
   Search, 
@@ -18,23 +18,34 @@ import {
   CheckCircle2, 
   X,
   PackagePlus,
-  Boxes
+  Boxes,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { exportToCSV, exportToExcel, printData } from '@/lib/exportUtils';
+import labService from '@/services/labService';
 
 export default function ConsumablesStockPage() {
-  const [consumables, setConsumables] = useState([
-    { id: 'CON-01', name: 'Hydrochloric Acid (HCl 1M Solution)', code: 'CHM-HCL-01', category: 'Chemical Reagents', lab: 'Chemistry Lab', unit: 'Liters', inStock: 1.2, reorderLevel: 5.0, unitCost: '$12.50/L', supplier: 'Sigma Chemical Corp', lastRestocked: '2026-02-10', status: 'Critical' },
-    { id: 'CON-02', name: 'Nitrile Examination Gloves (Size M, Box of 100)', code: 'BIO-GLV-02', category: 'Safety & PPE', lab: 'Biology Lab', unit: 'Boxes', inStock: 2, reorderLevel: 10, unitCost: '$8.00/Box', supplier: 'MedGuard Supplies', lastRestocked: '2026-01-15', status: 'Low Stock' },
-    { id: 'CON-03', name: 'Standard Copper Connecting Wires (100m Spool)', code: 'PHY-WIR-03', category: 'Electrical Wires', lab: 'Physics Lab', unit: 'Spools', inStock: 8, reorderLevel: 3, unitCost: '$18.00/Spool', supplier: 'ElectroTech Wholesalers', lastRestocked: '2026-03-01', status: 'In Stock' },
-    { id: 'CON-04', name: 'Borosilicate Glass Test Tubes (15x150mm)', code: 'CHM-TT-04', category: 'Glassware Consumable', lab: 'Chemistry Lab', unit: 'Pieces', inStock: 12, reorderLevel: 50, unitCost: '$0.85/Pc', supplier: 'Pyrex Educational Lab', lastRestocked: '2026-01-20', status: 'Critical' },
-    { id: 'CON-05', name: 'CAT6 RJ45 Network Patch Cables (2-meter)', code: 'IT-CAT6-05', category: 'Network Cables', lab: 'Computer Lab 1', unit: 'Pieces', inStock: 4, reorderLevel: 20, unitCost: '$3.50/Pc', supplier: 'IT Hub Cables', lastRestocked: '2026-02-28', status: 'Low Stock' },
-    { id: 'CON-06', name: 'HP LaserJet Black Printer Toner (85A)', code: 'IT-TNR-06', category: 'Printer Cartridges', lab: 'Computer Lab 2', unit: 'Cartridges', inStock: 5, reorderLevel: 2, unitCost: '$45.00/Cartridge', supplier: 'HP Official Distributor', lastRestocked: '2026-03-15', status: 'In Stock' },
-    { id: 'CON-07', name: 'Litmus Paper Strips (Blue & Red Vials)', code: 'CHM-LTM-07', category: 'Chemical Reagents', lab: 'Chemistry Lab', unit: 'Vials (100 strips)', inStock: 25, reorderLevel: 10, unitCost: '$4.20/Vial', supplier: 'EduChem Labs', lastRestocked: '2026-03-05', status: 'In Stock' },
-  ]);
+  const [consumables, setConsumables] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadConsumables = async () => {
+    setLoading(true);
+    try {
+      const data = await labService.getConsumables();
+      if (Array.isArray(data)) setConsumables(data);
+    } catch (err) {
+      console.error('Failed to load consumables:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadConsumables();
+  }, []);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [showStockModal, setShowStockModal] = useState(false);
@@ -59,28 +70,49 @@ export default function ConsumablesStockPage() {
     supplier: ''
   });
 
-  const handleSaveItem = (e) => {
+  const handleSaveItem = async (e) => {
     e.preventDefault();
     if (!formData.name) return alert('Item name is required');
 
-    const status = Number(formData.inStock) <= Number(formData.reorderLevel) * 0.4 
+    const inStockNum = Number(formData.inStock) || 0;
+    const reorderNum = Number(formData.reorderLevel) || 0;
+    const status = inStockNum <= reorderNum * 0.4 
       ? 'Critical' 
-      : Number(formData.inStock) <= Number(formData.reorderLevel) 
+      : inStockNum <= reorderNum 
       ? 'Low Stock' 
       : 'In Stock';
 
-    setConsumables([
-      ...consumables,
-      {
-        id: `CON-${String(consumables.length + 1).padStart(2, '0')}`,
-        ...formData,
-        inStock: Number(formData.inStock),
-        reorderLevel: Number(formData.reorderLevel),
-        status,
-        lastRestocked: new Date().toISOString().split('T')[0]
+    const payload = {
+      ...formData,
+      inStock: inStockNum,
+      reorderLevel: reorderNum,
+      status,
+      lastRestocked: new Date().toISOString().split('T')[0]
+    };
+
+    try {
+      const saved = await labService.saveConsumable(payload);
+      if (saved) {
+        setConsumables(prev => [saved, ...prev.filter(c => c._id !== saved._id && c.id !== saved.id)]);
+      } else {
+        await loadConsumables();
       }
-    ]);
+    } catch (err) {
+      console.error('Failed to save consumable:', err);
+    }
+
     setShowAddModal(false);
+    setFormData({
+      name: '',
+      code: '',
+      category: 'Chemical Reagents',
+      lab: 'Chemistry Lab',
+      unit: 'Pieces',
+      inStock: 10,
+      reorderLevel: 5,
+      unitCost: '',
+      supplier: ''
+    });
   };
 
   const handleOpenStockModal = (item, type) => {
@@ -91,12 +123,13 @@ export default function ConsumablesStockPage() {
     setShowStockModal(true);
   };
 
-  const handleApplyStockTransaction = (e) => {
+  const handleApplyStockTransaction = async (e) => {
     e.preventDefault();
     if (!selectedItemForStock) return;
 
     const qty = Number(stockQtyInput);
-    let newStock = selectedItemForStock.inStock;
+    let newStock = Number(selectedItemForStock.inStock) || 0;
+    let newConsumed = Number(selectedItemForStock.consumedQty) || 0;
 
     if (stockActionType === 'add') {
       newStock += qty;
@@ -106,25 +139,51 @@ export default function ConsumablesStockPage() {
         return;
       }
       newStock -= qty;
+      newConsumed += qty;
     }
 
-    const newStatus = newStock <= selectedItemForStock.reorderLevel * 0.4 
+    const reorder = Number(selectedItemForStock.reorderLevel) || 0;
+    const newStatus = newStock <= reorder * 0.4 
       ? 'Critical' 
-      : newStock <= selectedItemForStock.reorderLevel 
+      : newStock <= reorder 
       ? 'Low Stock' 
       : 'In Stock';
 
-    setConsumables(consumables.map(c => 
-      c.id === selectedItemForStock.id 
-        ? { ...c, inStock: newStock, status: newStatus, lastRestocked: stockActionType === 'add' ? new Date().toISOString().split('T')[0] : c.lastRestocked }
-        : c
-    ));
+    const updatedItem = {
+      ...selectedItemForStock,
+      inStock: newStock,
+      consumedQty: newConsumed,
+      status: newStatus,
+      lastRestocked: stockActionType === 'add' ? new Date().toISOString().split('T')[0] : selectedItemForStock.lastRestocked
+    };
+
+    try {
+      const saved = await labService.saveConsumable(updatedItem);
+      setConsumables(consumables.map(c => 
+        (c.id === selectedItemForStock.id || c._id === selectedItemForStock._id) 
+          ? (saved || updatedItem) 
+          : c
+      ));
+    } catch (err) {
+      console.error('Failed to update stock:', err);
+    }
 
     setShowStockModal(false);
   };
 
+  const handleDeleteItem = async (item) => {
+    if (confirm(`Are you sure you want to delete "${item.name}"?`)) {
+      try {
+        await labService.deleteConsumable(item._id || item.id);
+        setConsumables(consumables.filter(c => c._id !== item._id && c.id !== item.id));
+      } catch (err) {
+        console.error('Failed to delete consumable:', err);
+      }
+    }
+  };
+
   const filtered = consumables.filter(c => {
-    const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.code.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (c.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || (c.code || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesLab = labFilter === 'All' || c.lab === labFilter;
     const matchesStatus = statusFilter === 'All' || c.status === statusFilter;
     return matchesSearch && matchesLab && matchesStatus;
@@ -260,62 +319,88 @@ export default function ConsumablesStockPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {filtered.map((item) => (
-                <tr key={item.id} className="hover:bg-zinc-50/80 transition-colors">
-                  <td className="px-4 py-3.5">
-                    <div className="font-bold text-zinc-950 flex items-center gap-1.5">
-                      <Beaker className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                      {item.name}
-                    </div>
-                    <div className="text-xs font-mono text-zinc-500 mt-0.5">{item.code} • Supplier: {item.supplier}</div>
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <div className="text-xs font-bold text-zinc-900">{item.lab}</div>
-                    <div className="text-[11px] text-zinc-500">{item.category}</div>
-                  </td>
-                  <td className="px-4 py-3.5 text-center">
-                    <div className="text-sm font-black text-zinc-950">
-                      {item.inStock} <span className="text-xs font-semibold text-zinc-500">{item.unit}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3.5 text-center text-xs text-zinc-600 font-bold">
-                    {item.reorderLevel} {item.unit}
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
-                      item.status === 'In Stock'
-                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                        : item.status === 'Low Stock'
-                        ? 'bg-amber-50 text-amber-800 border-amber-200'
-                        : 'bg-rose-50 text-rose-800 border-rose-200 animate-pulse'
-                    }`}>
-                      {item.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3.5 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <Button 
-                        onClick={() => handleOpenStockModal(item, 'add')} 
-                        variant="outline" 
-                        size="sm" 
-                        className="h-8 text-xs font-bold text-emerald-700 bg-emerald-50/60 hover:bg-emerald-100 border-emerald-200"
-                        title="Receive & Add Stock"
-                      >
-                        <ArrowDownLeft className="h-3 w-3 mr-1" /> Add Stock
-                      </Button>
-                      <Button 
-                        onClick={() => handleOpenStockModal(item, 'issue')} 
-                        variant="outline" 
-                        size="sm" 
-                        className="h-8 text-xs font-bold text-indigo-700 bg-indigo-50/60 hover:bg-indigo-100 border-indigo-200"
-                        title="Issue to Lab / Practical"
-                      >
-                        <ArrowUpRight className="h-3 w-3 mr-1" /> Issue
-                      </Button>
-                    </div>
+              {loading ? (
+                <tr>
+                  <td colSpan="6" className="py-12 text-center text-zinc-500">
+                    <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-emerald-600" />
+                    <p className="font-medium text-xs text-zinc-600">Loading consumables inventory...</p>
                   </td>
                 </tr>
-              ))}
+              ) : filtered.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="py-12 text-center text-zinc-500">
+                    <Beaker className="w-8 h-8 text-zinc-300 mx-auto mb-2" />
+                    <p className="font-medium text-xs text-zinc-600">No consumable supplies registered</p>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">Click &quot;Add New Consumable&quot; to log chemical reagents, glassware or supplies.</p>
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((item) => (
+                  <tr key={item.id || item._id} className="hover:bg-zinc-50/80 transition-colors">
+                    <td className="px-4 py-3.5">
+                      <div className="font-bold text-zinc-950 flex items-center gap-1.5">
+                        <Beaker className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                        {item.name}
+                      </div>
+                      <div className="text-xs font-mono text-zinc-500 mt-0.5">{item.code} • Supplier: {item.supplier || 'N/A'}</div>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <div className="text-xs font-bold text-zinc-900">{item.lab}</div>
+                      <div className="text-[11px] text-zinc-500">{item.category}</div>
+                    </td>
+                    <td className="px-4 py-3.5 text-center">
+                      <div className="text-sm font-black text-zinc-950">
+                        {item.inStock} <span className="text-xs font-semibold text-zinc-500">{item.unit}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5 text-center text-xs text-zinc-600 font-bold">
+                      {item.reorderLevel} {item.unit}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
+                        item.status === 'In Stock'
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                          : item.status === 'Low Stock'
+                          ? 'bg-amber-50 text-amber-800 border-amber-200'
+                          : 'bg-rose-50 text-rose-800 border-rose-200 animate-pulse'
+                      }`}>
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <Button 
+                          onClick={() => handleOpenStockModal(item, 'add')} 
+                          variant="outline" 
+                          size="sm" 
+                          className="h-8 text-xs font-bold text-emerald-700 bg-emerald-50/60 hover:bg-emerald-100 border-emerald-200"
+                          title="Receive & Add Stock"
+                        >
+                          <ArrowDownLeft className="h-3 w-3 mr-1" /> Add Stock
+                        </Button>
+                        <Button 
+                          onClick={() => handleOpenStockModal(item, 'issue')} 
+                          variant="outline" 
+                          size="sm" 
+                          className="h-8 text-xs font-bold text-indigo-700 bg-indigo-50/60 hover:bg-indigo-100 border-indigo-200"
+                          title="Issue to Lab / Practical"
+                        >
+                          <ArrowUpRight className="h-3 w-3 mr-1" /> Issue
+                        </Button>
+                        <Button 
+                          onClick={() => handleDeleteItem(item)} 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 w-8 p-0 text-zinc-400 hover:text-rose-600 hover:bg-rose-50"
+                          title="Delete Consumable"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

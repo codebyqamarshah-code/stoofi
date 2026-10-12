@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   FlaskConical, 
   Cpu, 
@@ -20,40 +20,103 @@ import {
   Users, 
   Building,
   Activity,
-  FileCheck
+  FileCheck,
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import labService from '@/services/labService';
 
 export default function LabsDashboardPage() {
-  const [activeTab, setActiveTab] = useState('today');
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState({
+    summary: {
+      totalLabs: 0,
+      activeLabs: 0,
+      totalAssetsCount: 0,
+      underMaintenanceCount: 0
+    },
+    inventoryReport: [],
+    maintenanceReport: [],
+    academicReport: [],
+    consumablesReport: [],
+    rawMaintenance: []
+  });
+
+  const loadDashboardData = async () => {
+    setLoading(true);
+    try {
+      const res = await labService.getReports();
+      if (res) setData(res);
+    } catch (err) {
+      console.error('Failed to load lab dashboard data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const {
+    summary = {},
+    academicReport = [],
+    consumablesReport = [],
+    rawMaintenance = []
+  } = data;
+
+  const lowStockItems = consumablesReport.filter(c => c.reorderAlert === 'Reorder Now' || c.reorderAlert === 'Low Stock');
 
   const stats = [
-    { title: "Total Labs", value: "8", sub: "Across 2 Campuses", icon: FlaskConical, color: "text-emerald-700", bg: "bg-emerald-50 border-emerald-200" },
-    { title: "Active Labs", value: "7", sub: "1 In Maintenance", icon: Activity, color: "text-blue-700", bg: "bg-blue-50 border-blue-200" },
-    { title: "Total Equipment", value: "485", sub: "97% Operational", icon: Cpu, color: "text-purple-700", bg: "bg-purple-50 border-purple-200" },
-    { title: "Under Maintenance", value: "14", sub: "3 Critical Priority", icon: Wrench, color: "text-rose-700", bg: "bg-rose-50 border-rose-200" },
-    { title: "Today's Sessions", value: "12", sub: "4 Completed • 2 Live", icon: CalendarDays, color: "text-amber-700", bg: "bg-amber-50 border-amber-200" },
-    { title: "Low Stock Items", value: "6", sub: "Reagents & Cables", icon: Beaker, color: "text-orange-700", bg: "bg-orange-50 border-orange-200" },
-  ];
-
-  const todaySessions = [
-    { id: 1, time: "09:00 AM - 11:00 AM", lab: "Computer Lab 1 (Block B)", program: "BSCS - Sem 1", subject: "Programming Fundamentals", teacher: "Mr. Ali Raza", status: "Completed", students: 34 },
-    { id: 2, time: "10:30 AM - 12:30 PM", lab: "Physics Lab (Main Campus)", program: "Class 10 - Sec A", subject: "Physics Practical #05 (Ohm's Law)", teacher: "Dr. Farooq Khan", status: "In Progress", students: 28 },
-    { id: 3, time: "01:00 PM - 03:00 PM", lab: "Chemistry Lab (Ground Floor)", program: "Class 9 - Sec B", subject: "Titration & Solution Prep", teacher: "Mrs. Sadia Tariq", status: "Scheduled", students: 30 },
-    { id: 4, time: "02:00 PM - 04:00 PM", lab: "Robotics & AI Lab", program: "O-Levels Science", subject: "Microcontroller Interfacing", teacher: "Engr. Bilal Ahmed", status: "Scheduled", students: 22 },
-  ];
-
-  const lowStockItems = [
-    { name: "Hydrochloric Acid (HCl 1M)", lab: "Chemistry Lab", remaining: "1.2 L", min: "5.0 L", alert: "Critical" },
-    { name: "Nitrile Gloves (Box of 100)", lab: "Biology Lab", remaining: "2 Boxes", min: "10 Boxes", alert: "Low" },
-    { name: "CAT6 RJ45 Patch Cables (2m)", lab: "Computer Lab 2", remaining: "4 Pcs", min: "25 Pcs", alert: "Low" },
-    { name: "Test Tubes (15x150mm)", lab: "Chemistry Lab", remaining: "12 Pcs", min: "50 Pcs", alert: "Critical" },
-  ];
-
-  const recentMaintenance = [
-    { id: "MNT-8821", equipment: "Vernier Caliper #04", lab: "Physics Lab", issue: "Zero error loose screw", priority: "Medium", status: "In Progress", tech: "Kashif (Tech)" },
-    { id: "MNT-8822", equipment: "Dell PC Workstation #14", lab: "Computer Lab 1", issue: "SMPS Power Supply Failure", priority: "High", status: "Reported", tech: "IT Support Team" },
-    { id: "MNT-8820", equipment: "Optical Microscope #02", lab: "Biology Lab", issue: "Objective lens blur & focus alignment", priority: "Urgent", status: "Repaired", tech: "Vendor Service" },
+    { 
+      title: "Total Labs", 
+      value: summary.totalLabs || 0, 
+      sub: summary.totalLabs > 0 ? `${summary.activeLabs || 0} Operational` : "No labs created", 
+      icon: FlaskConical, 
+      color: "text-emerald-700", 
+      bg: "bg-emerald-50 border-emerald-200" 
+    },
+    { 
+      title: "Active Labs", 
+      value: summary.activeLabs || 0, 
+      sub: summary.totalLabs > 0 ? "Ready for sessions" : "0 active", 
+      icon: Activity, 
+      color: "text-blue-700", 
+      bg: "bg-blue-50 border-blue-200" 
+    },
+    { 
+      title: "Total Equipment", 
+      value: summary.totalAssetsCount || 0, 
+      sub: summary.totalAssetsCount > 0 ? "Registered physical units" : "No equipment added", 
+      icon: Cpu, 
+      color: "text-purple-700", 
+      bg: "bg-purple-50 border-purple-200" 
+    },
+    { 
+      title: "Under Maintenance", 
+      value: summary.underMaintenanceCount || 0, 
+      sub: summary.underMaintenanceCount > 0 ? "Requires attention" : "All equipment OK", 
+      icon: Wrench, 
+      color: "text-rose-700", 
+      bg: "bg-rose-50 border-rose-200" 
+    },
+    { 
+      title: "Practicals / Sessions", 
+      value: academicReport.length || 0, 
+      sub: academicReport.length > 0 ? `${academicReport.filter(p => p.conducted > 0).length} Conducted` : "0 scheduled", 
+      icon: CalendarDays, 
+      color: "text-amber-700", 
+      bg: "bg-amber-50 border-amber-200" 
+    },
+    { 
+      title: "Low Stock Items", 
+      value: lowStockItems.length, 
+      sub: lowStockItems.length > 0 ? "Reagents & Supplies" : "All supplies healthy", 
+      icon: Beaker, 
+      color: "text-orange-700", 
+      bg: "bg-orange-50 border-orange-200" 
+    },
   ];
 
   return (
@@ -74,6 +137,15 @@ export default function LabsDashboardPage() {
 
         {/* Quick Action Buttons */}
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={loadDashboardData}
+            disabled={loading}
+            className="h-9 px-3 text-xs bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-800 font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all"
+            title="Refresh Live Data"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 text-emerald-600 ${loading ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </button>
           <Link href="/dashboard/labs/manage">
             <Button variant="outline" className="h-9 px-3 text-xs bg-white hover:bg-zinc-50 border-zinc-300 text-zinc-800 font-bold rounded-xl shadow-xs">
               <Plus className="h-3.5 w-3.5 mr-1 text-emerald-600" /> Add Lab
@@ -84,9 +156,9 @@ export default function LabsDashboardPage() {
               <Plus className="h-3.5 w-3.5 mr-1 text-purple-600" /> Add Equipment
             </Button>
           </Link>
-          <Link href="/dashboard/labs/schedule">
-            <Button className="h-9 px-4 text-xs bg-zinc-950 hover:bg-zinc-800 text-white font-bold rounded-xl shadow-xs">
-              <CalendarDays className="h-3.5 w-3.5 mr-1.5" /> Lab Timetable
+          <Link href="/dashboard/labs/reports">
+            <Button className="h-9 px-4 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-xs">
+              <BarChart2 className="h-3.5 w-3.5 mr-1.5" /> Reports & Analytics
             </Button>
           </Link>
         </div>
@@ -121,62 +193,64 @@ export default function LabsDashboardPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-zinc-100">
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-emerald-600" />
-                <h2 className="text-base font-bold text-zinc-950">Today&apos;s Scheduled Lab Sessions</h2>
+                <h2 className="text-base font-bold text-zinc-950">Scheduled Practicals & Sessions</h2>
                 <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase">Live</span>
               </div>
-              <Link href="/dashboard/labs/schedule" className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
-                View Full Timetable <ChevronRight className="h-3.5 w-3.5" />
+              <Link href="/dashboard/labs/practicals" className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
+                View All Practicals <ChevronRight className="h-3.5 w-3.5" />
               </Link>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-zinc-50 text-zinc-600 uppercase font-bold border-b border-zinc-200">
-                  <tr>
-                    <th className="px-3.5 py-2.5">Time & Lab</th>
-                    <th className="px-3.5 py-2.5">Subject & Practical</th>
-                    <th className="px-3.5 py-2.5">Class / Batch</th>
-                    <th className="px-3.5 py-2.5">Instructor</th>
-                    <th className="px-3.5 py-2.5 text-center">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-100">
-                  {todaySessions.map((session) => (
-                    <tr key={session.id} className="hover:bg-zinc-50/70 transition-colors">
-                      <td className="px-3.5 py-3">
-                        <div className="font-bold text-zinc-950">{session.time}</div>
-                        <div className="text-[11px] text-zinc-500 flex items-center gap-1 mt-0.5">
-                          <Building className="h-3 w-3 text-zinc-400" /> {session.lab}
-                        </div>
-                      </td>
-                      <td className="px-3.5 py-3">
-                        <div className="font-bold text-zinc-900">{session.subject}</div>
-                      </td>
-                      <td className="px-3.5 py-3">
-                        <span className="px-2 py-0.5 rounded bg-zinc-100 text-zinc-800 font-bold border border-zinc-200">
-                          {session.program}
-                        </span>
-                        <div className="text-[10px] text-zinc-500 mt-1">{session.students} Enrolled</div>
-                      </td>
-                      <td className="px-3.5 py-3 text-zinc-700 font-medium">
-                        {session.teacher}
-                      </td>
-                      <td className="px-3.5 py-3 text-center">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
-                          session.status === 'In Progress' 
-                            ? 'bg-amber-50 text-amber-700 border-amber-200 animate-pulse'
-                            : session.status === 'Completed'
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                            : 'bg-zinc-100 text-zinc-700 border-zinc-200'
-                        }`}>
-                          {session.status}
-                        </span>
-                      </td>
+            {academicReport.length === 0 ? (
+              <div className="py-10 text-center flex flex-col items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-zinc-100 text-zinc-400 flex items-center justify-center mb-2">
+                  <CalendarDays className="w-5 h-5" />
+                </div>
+                <p className="text-xs font-semibold text-zinc-600">No practical experiments scheduled yet</p>
+                <Link href="/dashboard/labs/practicals" className="mt-2 text-xs font-bold text-emerald-600 hover:underline">
+                  + Add Practical Experiment
+                </Link>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-zinc-50 text-zinc-600 uppercase font-bold border-b border-zinc-200">
+                    <tr>
+                      <th className="px-3.5 py-2.5">Course & Practical</th>
+                      <th className="px-3.5 py-2.5">Class / Batch</th>
+                      <th className="px-3.5 py-2.5 text-center">Completion</th>
+                      <th className="px-3.5 py-2.5 text-center">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-100">
+                    {academicReport.map((session, idx) => (
+                      <tr key={idx} className="hover:bg-zinc-50/70 transition-colors">
+                        <td className="px-3.5 py-3">
+                          <div className="font-bold text-zinc-950">{session.course}</div>
+                        </td>
+                        <td className="px-3.5 py-3">
+                          <span className="px-2 py-0.5 rounded bg-zinc-100 text-zinc-800 font-bold border border-zinc-200">
+                            {session.program}
+                          </span>
+                        </td>
+                        <td className="px-3.5 py-3 text-center">
+                          <span className="font-bold text-zinc-800">{session.completionRate}</span>
+                        </td>
+                        <td className="px-3.5 py-3 text-center">
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                            session.conducted > 0 
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : 'bg-zinc-100 text-zinc-700 border-zinc-200'
+                          }`}>
+                            {session.conducted > 0 ? 'Conducted' : 'Scheduled'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
 
           {/* Maintenance Requests Live Monitor */}
@@ -191,30 +265,42 @@ export default function LabsDashboardPage() {
               </Link>
             </div>
 
-            <div className="space-y-3">
-              {recentMaintenance.map((m) => (
-                <div key={m.id} className="p-3.5 rounded-xl border border-zinc-200 bg-zinc-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-zinc-900">{m.id}</span>
-                      <span className="font-bold text-zinc-950 text-sm">{m.equipment}</span>
-                      <span className="text-xs text-zinc-500">({m.lab})</span>
-                    </div>
-                    <p className="text-xs text-zinc-600 mt-1">{m.issue}</p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
-                      m.priority === 'Urgent' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
-                    }`}>
-                      {m.priority}
-                    </span>
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-white border border-zinc-300 text-zinc-800 shadow-xs">
-                      {m.status}
-                    </span>
-                  </div>
+            {rawMaintenance.length === 0 ? (
+              <div className="py-10 text-center flex flex-col items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-2">
+                  <CheckCircle2 className="w-5 h-5" />
                 </div>
-              ))}
-            </div>
+                <p className="text-xs font-semibold text-zinc-600">All laboratory equipment is operational. No open tickets.</p>
+                <Link href="/dashboard/labs/maintenance" className="mt-2 text-xs font-bold text-rose-600 hover:underline">
+                  + Log a Maintenance Issue
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {rawMaintenance.map((m, idx) => (
+                  <div key={m._id || m.id || idx} className="p-3.5 rounded-xl border border-zinc-200 bg-zinc-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs font-bold text-zinc-900">{m.ticketNumber || m.id}</span>
+                        <span className="font-bold text-zinc-950 text-sm">{m.equipmentName || m.equipment}</span>
+                        {m.labName && <span className="text-xs text-zinc-500">({m.labName})</span>}
+                      </div>
+                      <p className="text-xs text-zinc-600 mt-1">{m.description || m.issueDescription}</p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
+                        m.priority === 'Urgent' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {m.priority || 'Medium'}
+                      </span>
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-white border border-zinc-300 text-zinc-800 shadow-xs">
+                        {m.status || 'Reported'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -232,20 +318,32 @@ export default function LabsDashboardPage() {
               </Link>
             </div>
 
-            <div className="space-y-3">
-              {lowStockItems.map((item, idx) => (
-                <div key={idx} className="p-3 rounded-xl border border-orange-200/80 bg-orange-50/40 flex items-center justify-between">
-                  <div>
-                    <div className="font-bold text-zinc-950 text-xs">{item.name}</div>
-                    <div className="text-[11px] text-zinc-500 mt-0.5">{item.lab}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-xs font-black text-rose-600">{item.remaining}</div>
-                    <div className="text-[10px] text-zinc-400">Min: {item.min}</div>
-                  </div>
+            {lowStockItems.length === 0 ? (
+              <div className="py-8 text-center flex flex-col items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-2">
+                  <CheckCircle2 className="w-5 h-5" />
                 </div>
-              ))}
-            </div>
+                <p className="text-xs font-semibold text-zinc-600">All supplies and chemicals are in healthy stock.</p>
+                <Link href="/dashboard/labs/consumables" className="mt-2 text-xs font-bold text-orange-600 hover:underline">
+                  + Add Consumable Item
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {lowStockItems.map((item, idx) => (
+                  <div key={idx} className="p-3 rounded-xl border border-orange-200/80 bg-orange-50/40 flex items-center justify-between">
+                    <div>
+                      <div className="font-bold text-zinc-950 text-xs">{item.item}</div>
+                      <div className="text-[11px] text-zinc-500 mt-0.5">{item.category}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs font-black text-rose-600">{item.stockRemaining} {item.unit}</div>
+                      <div className="text-[10px] text-zinc-400 font-semibold">{item.reorderAlert}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <Link href="/dashboard/labs/consumables">
               <Button className="w-full mt-4 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold py-2 rounded-xl shadow-xs">

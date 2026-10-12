@@ -143,6 +143,10 @@ app.use('/api/designation', require('./routes/designation.routes'));
 app.use('/api/department', require('./routes/department.routes'));
 app.use('/api/Department', require('./routes/department.routes'));
 
+// Laboratories ERP routes
+app.use('/api/labs', require('./routes/lab.routes'));
+app.use('/api/lab', require('./routes/lab.routes'));
+
 app.use('/api/staff', require('./routes/staff.routes'));
 
 app.use('/api/staff-attendance', require('./routes/staff-attendance.routes'));

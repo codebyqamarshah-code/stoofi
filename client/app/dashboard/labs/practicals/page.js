@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ChevronRight,
   Search,
@@ -26,111 +26,34 @@ import {
   Award,
   ListChecks,
   Boxes,
-  FileCheck
+  FileCheck,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { exportToCSV, exportToExcel, printData } from '@/lib/exportUtils';
+import labService from '@/services/labService';
 
 export default function PracticalsPage() {
-  const [practicals, setPracticals] = useState([
-    {
-      id: 'PRAC-001',
-      number: 'Practical #05',
-      title: 'Determine resistance per cm of a given wire using Ohm’s Law and calculate its resistivity',
-      subject: 'Physics (PHY-101)',
-      classSemester: 'FSc Pre-Engineering 1st Year',
-      labName: 'Advanced Physics Lab (A-204)',
-      instructor: 'Dr. Farooq Khan',
-      date: '2026-10-12',
-      duration: '2 Hours',
-      totalMarks: 20,
-      status: 'Conducted',
-      attendanceCount: '28 / 30 (93%)',
-      objectives: 'To study the relationship between potential difference and current across a conductor and determine the specific resistance of resistance wire.',
-      requiredEquipment: 'Voltmeter (0-3V), Ammeter (0-1.5A), Rheostat, Battery eliminator (0-6V), Resistance wire, Plug key, Screw gauge, Meter scale',
-      requiredMaterials: 'Connecting copper leads, Sandpaper for cleaning terminals',
-      safetyInstructions: 'Ensure plug key is removed while making connections. Avoid keeping current running continuously to prevent wire heating.',
-      marksEntered: true
-    },
-    {
-      id: 'PRAC-002',
-      number: 'Practical #08',
-      title: 'Acid-Base Titration: Standardization of Sodium Hydroxide with Oxalic Acid',
-      subject: 'Chemistry (CHEM-102)',
-      classSemester: 'FSc Pre-Medical 1st Year',
-      labName: 'Organic & Inorganic Chemistry Lab (C-101)',
-      instructor: 'Prof. Saima Tariq',
-      date: '2026-10-14',
-      duration: '2.5 Hours',
-      totalMarks: 25,
-      status: 'Upcoming',
-      attendanceCount: 'Pending',
-      objectives: 'Determine the exact molarity and strength of an unknown NaOH solution using standard oxalic acid as primary standard.',
-      requiredEquipment: 'Burette (50ml), Pipette (20ml), Conical Flasks (250ml), Burette Stand with Clamp, Funnel, Electronic Analytical Balance',
-      requiredMaterials: '0.1M Oxalic acid solution, Sodium hydroxide solution, Phenolphthalein indicator, Distilled water',
-      safetyInstructions: 'Wear lab apron and safety goggles. Wash hands immediately if NaOH touches skin.',
-      marksEntered: false
-    },
-    {
-      id: 'PRAC-003',
-      number: 'Practical #03',
-      title: 'Binary Search Tree (BST) Implementation with Traversal Algorithms in C++',
-      subject: 'Data Structures & Algorithms (CS-201)',
-      classSemester: 'BS Computer Science Semester 3',
-      labName: 'Software Engineering & AI Lab 1 (IT-302)',
-      instructor: 'Mr. Ali Raza',
-      date: '2026-10-10',
-      duration: '3 Hours',
-      totalMarks: 15,
-      status: 'Evaluated',
-      attendanceCount: '34 / 35 (97%)',
-      objectives: 'Implement node insertion, deletion, searching and Inorder/Preorder/Postorder tree traversals with benchmark time complexity analysis.',
-      requiredEquipment: 'Core i7 Workstation with VS Code / CLion and GCC/G++ Compiler installed',
-      requiredMaterials: 'Stoofi Git Classroom Repository Link, Assignment Guidelines Document',
-      safetyInstructions: 'Follow digital cyber security code of conduct. Do not modify system BIOS or network configurations.',
-      marksEntered: true
-    },
-    {
-      id: 'PRAC-004',
-      number: 'Practical #04',
-      title: 'Study of Mitosis in Onion Root Tip Cells using Acetocarmine Stain',
-      subject: 'Biology & Genetics (BIO-101)',
-      classSemester: 'FSc Pre-Medical 2nd Year',
-      labName: 'Molecular Biology & Genetics Lab (B-102)',
-      instructor: 'Dr. Ayesha Siddiqa',
-      date: '2026-10-16',
-      duration: '2 Hours',
-      totalMarks: 20,
-      status: 'Upcoming',
-      attendanceCount: 'Pending',
-      objectives: 'Observe and identify various mitotic stages (Prophase, Metaphase, Anaphase, Telophase) under compound microscope.',
-      requiredEquipment: 'Compound Binocular Microscopes (10x, 40x, 100x oil immersion), Glass slides, Cover slips, Forceps, Dissecting needles, Spirit lamp',
-      requiredMaterials: 'Fresh onion root tips, 1N Hydrochloric Acid, Acetocarmine stain, Filter paper, Blotting paper',
-      safetyInstructions: 'Be careful with open flames on spirit lamps. Acetocarmine stains clothing permanently.',
-      marksEntered: false
-    },
-    {
-      id: 'PRAC-005',
-      number: 'Practical #06',
-      title: 'Interfacing ESP32 WiFi & Ultrasonic Distance Sensor with MQTT Cloud Broker',
-      subject: 'Microcontrollers & IoT (ME-402)',
-      classSemester: 'BS Robotics & Mechatronics Semester 4',
-      labName: 'Robotics, IoT & Embedded Systems Lab (R-105)',
-      instructor: 'Engr. Haris Mehmood',
-      date: '2026-10-11',
-      duration: '3 Hours',
-      totalMarks: 25,
-      status: 'Conducted',
-      attendanceCount: '20 / 20 (100%)',
-      objectives: 'Configure ESP32 DevKit to read ultrasonic echo pulses, calculate distance in centimeters and publish telemetry data to HiveMQ via WiFi.',
-      requiredEquipment: 'ESP32 NodeMCU, HC-SR04 Sensor, Solderless Breadboard, Jumper wires, USB-C Data Cables, Digital Multimeter',
-      requiredMaterials: '5V Regulated Power Supply, Resistors (1k, 2k for voltage divider on echo pin)',
-      safetyInstructions: 'Verify VCC and GND polarity before powering board to avoid burning microcontroller ICs.',
-      marksEntered: true
+  const [practicals, setPracticals] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadPracticals = async () => {
+    setLoading(true);
+    try {
+      const data = await labService.getPracticals();
+      if (Array.isArray(data)) setPracticals(data);
+    } catch (err) {
+      console.error('Failed to load practicals:', err);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  useEffect(() => {
+    loadPracticals();
+  }, []);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('All');
@@ -172,12 +95,12 @@ export default function PracticalsPage() {
 
   const filteredPracticals = practicals.filter(item => {
     const matchesSearch = 
-      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.instructor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.classSemester.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.labName.toLowerCase().includes(searchTerm.toLowerCase());
+      (item.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.subject || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.instructor || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.classSemester || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.labName || '').toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesSubject = selectedSubject === 'All' || item.subject === selectedSubject;
     const matchesStatus = selectedStatus === 'All' || item.status === selectedStatus;
@@ -214,26 +137,45 @@ export default function PracticalsPage() {
     setIsModalOpen(true);
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
+    const payload = { ...formData };
     if (editingPractical) {
-      setPracticals(practicals.map(p => p.id === editingPractical.id ? { ...formData, id: editingPractical.id } : p));
-    } else {
-      const newId = `PRAC-${String(practicals.length + 1).padStart(3, '0')}`;
-      setPracticals([...practicals, { ...formData, id: newId }]);
+      payload._id = editingPractical._id;
+      payload.id = editingPractical.id;
+    }
+    try {
+      const saved = await labService.savePractical(payload);
+      if (editingPractical) {
+        setPracticals(practicals.map(p => (p.id === editingPractical.id || p._id === editingPractical._id) ? (saved || payload) : p));
+      } else {
+        if (saved) {
+          setPracticals(prev => [saved, ...prev.filter(p => p._id !== saved._id && p.id !== saved.id)]);
+        } else {
+          await loadPracticals();
+        }
+      }
+    } catch (err) {
+      console.error('Failed to save practical:', err);
     }
     setIsModalOpen(false);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (prac) => {
+    const id = typeof prac === 'object' ? (prac._id || prac.id) : prac;
     if (confirm('Are you sure you want to delete this practical record?')) {
-      setPracticals(practicals.filter(p => p.id !== id));
+      try {
+        await labService.deletePractical(id);
+        setPracticals(practicals.filter(p => p.id !== id && p._id !== id));
+      } catch (err) {
+        console.error('Failed to delete practical:', err);
+      }
     }
   };
 
   const exportHeaders = ['ID', 'Number', 'Practical Title', 'Subject', 'Class / Semester', 'Lab', 'Instructor', 'Date', 'Duration', 'Marks', 'Status', 'Attendance'];
   const exportData = filteredPracticals.map(p => [
-    p.id,
+    p.id || p._id,
     p.number,
     p.title,
     p.subject,
@@ -398,100 +340,114 @@ export default function PracticalsPage() {
 
       {/* Practicals Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredPracticals.map((prac) => (
-          <div key={prac.id} className="bg-white rounded-2xl border border-zinc-200 p-5 shadow-sm hover:border-emerald-300 transition-all flex flex-col justify-between">
-            <div>
-              <div className="flex items-start justify-between gap-2 mb-3">
-                <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs">
-                    {prac.number}
-                  </span>
-                  <span className="text-xs text-zinc-500 font-medium flex items-center gap-1">
-                    <Calendar className="w-3 h-3 text-zinc-400" />
-                    {prac.date} • {prac.duration}
-                  </span>
-                </div>
-                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                  prac.status === 'Evaluated' ? 'bg-emerald-100 text-emerald-800' :
-                  prac.status === 'Conducted' ? 'bg-amber-100 text-amber-800' :
-                  'bg-blue-100 text-blue-800'
-                }`}>
-                  {prac.status}
-                </span>
-              </div>
-
-              <h3 className="font-bold text-zinc-900 text-sm md:text-base leading-snug">{prac.title}</h3>
-              
-              <div className="flex flex-wrap items-center gap-y-1 gap-x-3 text-xs text-zinc-600 mt-2">
-                <span className="font-semibold text-emerald-700">{prac.subject}</span>
-                <span>•</span>
-                <span className="text-zinc-700">{prac.classSemester}</span>
-                <span>•</span>
-                <span className="text-zinc-800 font-medium">Marks: {prac.totalMarks}</span>
-              </div>
-
-              <div className="mt-3.5 p-3 rounded-xl bg-zinc-50 border border-zinc-100 text-xs space-y-2 text-zinc-600">
-                <div className="flex items-start gap-2">
-                  <FlaskConical className="w-3.5 h-3.5 text-emerald-700 shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="text-zinc-800">Lab: </strong>
-                    <span>{prac.labName}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2">
-                  <Users className="w-3.5 h-3.5 text-zinc-500 shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="text-zinc-800">Faculty: </strong>
-                    <span>{prac.instructor}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2">
-                  <Boxes className="w-3.5 h-3.5 text-zinc-500 shrink-0 mt-0.5" />
-                  <div className="line-clamp-2">
-                    <strong className="text-zinc-800">Apparatus: </strong>
-                    <span>{prac.requiredEquipment}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-4 mt-4 border-t border-zinc-100 text-xs">
-              <div className="flex items-center gap-1 text-zinc-600">
-                <Users className="w-3.5 h-3.5 text-zinc-400" />
-                <span>Attendance: <strong className="text-zinc-800">{prac.attendanceCount}</strong></span>
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                <Button
-                  onClick={() => { setViewingPractical(prac); setIsViewModalOpen(true); }}
-                  size="sm"
-                  variant="outline"
-                  className="h-8 text-xs border-zinc-200 text-zinc-700 flex items-center gap-1"
-                >
-                  <Eye className="w-3.5 h-3.5" /> Manual & Rubric
-                </Button>
-                <Button
-                  onClick={() => handleOpenEditModal(prac)}
-                  size="sm"
-                  variant="ghost"
-                  className="h-8 w-8 p-0 text-emerald-600 hover:text-emerald-700"
-                >
-                  <Edit className="w-4 h-4" />
-                </Button>
-                <Button
-                  onClick={() => handleDelete(prac.id)}
-                  size="sm"
-                  variant="ghost"
-                  className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
+        {loading ? (
+          <div className="py-20 text-center col-span-full bg-white rounded-2xl border border-zinc-200">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-emerald-600" />
+            <p className="text-sm font-semibold text-zinc-800">Loading Practicals...</p>
+            <p className="text-xs text-zinc-500 mt-1">Fetching academic syllabus and lab practical records</p>
           </div>
-        ))}
+        ) : filteredPracticals.length === 0 ? (
+          <div className="py-20 text-center col-span-full bg-white rounded-2xl border border-zinc-200">
+            <BookOpen className="w-8 h-8 text-zinc-300 mx-auto mb-2" />
+            <p className="font-semibold text-sm text-zinc-800">No lab practicals registered</p>
+            <p className="text-xs text-zinc-500 mt-1">Click &quot;Add New Practical&quot; to define experiment syllabus, apparatus and instructions.</p>
+          </div>
+        ) : (
+          filteredPracticals.map((prac) => (
+            <div key={prac.id || prac._id} className="bg-white rounded-2xl border border-zinc-200 p-5 shadow-sm hover:border-emerald-300 transition-all flex flex-col justify-between">
+              <div>
+                <div className="flex items-start justify-between gap-2 mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs">
+                      {prac.number}
+                    </span>
+                    <span className="text-xs text-zinc-500 font-medium flex items-center gap-1">
+                      <Calendar className="w-3 h-3 text-zinc-400" />
+                      {prac.date} • {prac.duration}
+                    </span>
+                  </div>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                    prac.status === 'Evaluated' ? 'bg-emerald-100 text-emerald-800' :
+                    prac.status === 'Conducted' ? 'bg-amber-100 text-amber-800' :
+                    'bg-blue-100 text-blue-800'
+                  }`}>
+                    {prac.status}
+                  </span>
+                </div>
+
+                <h3 className="font-bold text-zinc-900 text-sm md:text-base leading-snug">{prac.title}</h3>
+                
+                <div className="flex flex-wrap items-center gap-y-1 gap-x-3 text-xs text-zinc-600 mt-2">
+                  <span className="font-semibold text-emerald-700">{prac.subject}</span>
+                  <span>•</span>
+                  <span className="text-zinc-700">{prac.classSemester}</span>
+                  <span>•</span>
+                  <span className="text-zinc-800 font-medium">Marks: {prac.totalMarks}</span>
+                </div>
+
+                <div className="mt-3.5 p-3 rounded-xl bg-zinc-50 border border-zinc-100 text-xs space-y-2 text-zinc-600">
+                  <div className="flex items-start gap-2">
+                    <FlaskConical className="w-3.5 h-3.5 text-emerald-700 shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="text-zinc-800">Lab: </strong>
+                      <span>{prac.labName}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2">
+                    <Users className="w-3.5 h-3.5 text-zinc-500 shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="text-zinc-800">Faculty: </strong>
+                      <span>{prac.instructor}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2">
+                    <Boxes className="w-3.5 h-3.5 text-zinc-500 shrink-0 mt-0.5" />
+                    <div className="line-clamp-2">
+                      <strong className="text-zinc-800">Apparatus: </strong>
+                      <span>{prac.requiredEquipment}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-4 mt-4 border-t border-zinc-100 text-xs">
+                <div className="flex items-center gap-1 text-zinc-600">
+                  <Users className="w-3.5 h-3.5 text-zinc-400" />
+                  <span>Attendance: <strong className="text-zinc-800">{prac.attendanceCount}</strong></span>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <Button
+                    onClick={() => { setViewingPractical(prac); setIsViewModalOpen(true); }}
+                    size="sm"
+                    variant="outline"
+                    className="h-8 text-xs border-zinc-200 text-zinc-700 flex items-center gap-1"
+                  >
+                    <Eye className="w-3.5 h-3.5" /> Manual & Rubric
+                  </Button>
+                  <Button
+                    onClick={() => handleOpenEditModal(prac)}
+                    size="sm"
+                    variant="ghost"
+                    className="h-8 w-8 p-0 text-emerald-600 hover:text-emerald-700"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    onClick={() => handleDelete(prac)}
+                    size="sm"
+                    variant="ghost"
+                    className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Add / Edit Practical Modal */}

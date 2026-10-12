@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ChevronRight, 
   Search, 
@@ -21,188 +21,37 @@ import {
   CheckCircle2, 
   AlertTriangle,
   FlaskConical,
-  Layers
+  Layers,
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { exportToCSV, exportToExcel, printData } from '@/lib/exportUtils';
+import labService from '@/services/labService';
 
 export default function EquipmentAssetsPage() {
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'science', 'computer'
 
-  const [equipmentList, setEquipmentList] = useState([
-    {
-      id: 'EQ-1001',
-      name: 'Vernier Caliper (0-150mm Stainless Steel)',
-      code: 'PHY-VC-001',
-      category: 'Physics & Mechanics',
-      lab: 'Physics Lab (Block A)',
-      brand: 'Mitutoyo',
-      model: '530-104',
-      serialNumber: 'MT-88421',
-      quantity: 20,
-      availableQty: 18,
-      purchaseDate: '2024-02-15',
-      purchaseCost: '$45.00 each',
-      supplier: 'Scientific Lab Supplies Ltd',
-      warrantyExpiry: '2026-02-15',
-      condition: 'Good',
-      status: 'Available',
-      maintenanceDate: '2026-01-10',
-      nextMaintenanceDate: '2026-07-10',
-      remarks: '2 units currently issued to Physics Practical session.',
-      isComputer: false
-    },
-    {
-      id: 'EQ-1002',
-      name: 'Precision Screw Gauge / Micrometer (0-25mm)',
-      code: 'PHY-SG-002',
-      category: 'Physics & Mechanics',
-      lab: 'Physics Lab (Block A)',
-      brand: 'Insize',
-      model: '3203-25A',
-      serialNumber: 'IN-9921',
-      quantity: 15,
-      availableQty: 15,
-      purchaseDate: '2024-03-10',
-      purchaseCost: '$38.00 each',
-      supplier: 'Precision Tools Direct',
-      warrantyExpiry: '2026-03-10',
-      condition: 'Good',
-      status: 'Available',
-      maintenanceDate: '2026-02-01',
-      nextMaintenanceDate: '2026-08-01',
-      remarks: 'All 15 calibrated and zero-aligned.',
-      isComputer: false
-    },
-    {
-      id: 'EQ-1003',
-      name: 'Digital Multimeter (Auto-ranging True RMS)',
-      code: 'PHY-DMM-003',
-      category: 'Physics & Mechanics',
-      lab: 'Physics Lab (Block A)',
-      brand: 'Fluke',
-      model: '115 Compact',
-      serialNumber: 'FL-77211',
-      quantity: 10,
-      availableQty: 10,
-      purchaseDate: '2024-05-12',
-      purchaseCost: '$180.00 each',
-      supplier: 'Fluke Authorized Dealer',
-      warrantyExpiry: '2027-05-12',
-      condition: 'Good',
-      status: 'Available',
-      maintenanceDate: '2026-03-01',
-      nextMaintenanceDate: '2026-09-01',
-      remarks: 'Fresh 9V batteries installed in all units.',
-      isComputer: false
-    },
-    {
-      id: 'EQ-1004',
-      name: 'DC Analog Ammeter (0 - 3A)',
-      code: 'PHY-AMM-004',
-      category: 'Physics & Mechanics',
-      lab: 'Physics Lab (Block A)',
-      brand: 'Phywe',
-      model: 'AM-300',
-      serialNumber: 'PW-1120',
-      quantity: 12,
-      availableQty: 12,
-      purchaseDate: '2024-01-20',
-      purchaseCost: '$25.00 each',
-      supplier: 'EduLab Global',
-      warrantyExpiry: '2025-01-20',
-      condition: 'Good',
-      status: 'Available',
-      maintenanceDate: '2026-01-15',
-      nextMaintenanceDate: '2026-07-15',
-      remarks: 'Used for Ohm\'s Law and circuit resistance practicals.',
-      isComputer: false
-    },
-    {
-      id: 'EQ-1005',
-      name: 'DC Analog Voltmeter (0 - 15V)',
-      code: 'PHY-VOLT-005',
-      category: 'Physics & Mechanics',
-      lab: 'Physics Lab (Block A)',
-      brand: 'Phywe',
-      model: 'VM-150',
-      serialNumber: 'PW-1135',
-      quantity: 12,
-      availableQty: 12,
-      purchaseDate: '2024-01-20',
-      purchaseCost: '$25.00 each',
-      supplier: 'EduLab Global',
-      warrantyExpiry: '2025-01-20',
-      condition: 'Good',
-      status: 'Available',
-      maintenanceDate: '2026-01-15',
-      nextMaintenanceDate: '2026-07-15',
-      remarks: 'Dual scale 0-3V and 0-15V.',
-      isComputer: false
-    },
-    {
-      id: 'EQ-1006',
-      name: 'Precision Optical Bench Setup (2m Aluminum Rail)',
-      code: 'PHY-OPT-006',
-      category: 'Physics & Mechanics',
-      lab: 'Physics Lab (Block A)',
-      brand: 'OptiLab',
-      model: 'OB-2000',
-      serialNumber: 'OP-4412',
-      quantity: 5,
-      availableQty: 3,
-      purchaseDate: '2023-11-05',
-      purchaseCost: '$320.00 each',
-      supplier: 'Advanced Physics Instruments',
-      warrantyExpiry: '2025-11-05',
-      condition: 'Fair',
-      status: 'Under Maintenance',
-      maintenanceDate: '2026-03-28',
-      nextMaintenanceDate: '2026-04-15',
-      remarks: '2 units undergoing lens mount track realignment.',
-      isComputer: false
-    },
-    // Computer Lab Asset
-    {
-      id: 'EQ-2001',
-      name: 'High Performance AI Workstation PC-01',
-      code: 'CS-PC-01',
-      category: 'Computer Science & IT',
-      lab: 'Software Engineering & AI Lab 1',
-      brand: 'Dell',
-      model: 'OptiPlex 7090 Tower',
-      serialNumber: 'DL-883199-X',
-      quantity: 1,
-      availableQty: 1,
-      purchaseDate: '2024-08-10',
-      purchaseCost: '$1,250.00',
-      supplier: 'Dell Enterprise Solutions',
-      warrantyExpiry: '2027-08-10',
-      condition: 'Excellent',
-      status: 'Available',
-      maintenanceDate: '2026-02-15',
-      nextMaintenanceDate: '2026-08-15',
-      remarks: 'Assigned to Programming Fundamentals & Machine Learning lab.',
-      isComputer: true,
-      compSpecs: {
-        compNumber: 'PC-01',
-        cpu: 'Intel Core i7-11700 (8 Cores, 4.90 GHz)',
-        ram: '32 GB DDR4 3200MHz',
-        storage: '1 TB NVMe SSD + 2 TB HDD',
-        os: 'Ubuntu 24.04 LTS & Windows 11 Pro Dual Boot',
-        ipAddress: '192.168.10.101',
-        macAddress: '00:1A:2B:3C:4D:5E',
-        monitor: 'Dell 24" UltraSharp FHD IPS (U2422H)',
-        keyboardMouse: 'Dell Pro Wireless KM5221W',
-        ups: 'APC 650VA Line-Interactive Dedicated UPS',
-        software: 'VS Code, Python 3.12, Node.js, PyTorch, Docker, MySQL Workbench, Git',
-        internetStatus: 'Gigabit LAN (Online)',
-        systemCondition: 'Good - Clean and updated'
-      }
+  const [equipmentList, setEquipmentList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadEquipment = async () => {
+    setLoading(true);
+    try {
+      const data = await labService.getEquipment();
+      if (Array.isArray(data)) setEquipmentList(data);
+    } catch (err) {
+      console.error('Error loading equipment:', err);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  useEffect(() => {
+    loadEquipment();
+  }, []);
 
   const [showModal, setShowModal] = useState(false);
   const [viewingItem, setViewingItem] = useState(null);
@@ -266,31 +115,37 @@ export default function EquipmentAssetsPage() {
     setShowModal(true);
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     if (!formData.name) {
       alert('Equipment Name is required');
       return;
     }
 
-    if (isEditing) {
-      setEquipmentList(equipmentList.map(item => item.id === editId ? { ...item, ...formData } : item));
-    } else {
-      setEquipmentList([
-        ...equipmentList,
-        {
-          id: `EQ-${Math.floor(1000 + Math.random() * 9000)}`,
-          ...formData,
-          code: formData.code || `EQ-ASSET-${Math.floor(100 + Math.random() * 900)}`
+    try {
+      const payload = isEditing ? { ...formData, id: editId, _id: editId } : formData;
+      const saved = await labService.saveEquipment(payload);
+      if (saved) {
+        if (isEditing) {
+          setEquipmentList(equipmentList.map(item => (item._id === editId || item.id === editId) ? saved : item));
+        } else {
+          setEquipmentList([saved, ...equipmentList]);
         }
-      ]);
+      }
+    } catch (err) {
+      console.error('Failed to save equipment:', err);
     }
     setShowModal(false);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this asset?')) return;
-    setEquipmentList(equipmentList.filter(item => item.id !== id));
+    try {
+      await labService.deleteEquipment(id);
+      setEquipmentList(equipmentList.filter(item => item._id !== id && item.id !== id));
+    } catch (err) {
+      console.error('Failed to delete asset:', err);
+    }
   };
 
   const filtered = equipmentList.filter(item => {
@@ -429,7 +284,28 @@ export default function EquipmentAssetsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {filtered.map((item) => (
+              {loading && (
+                <tr>
+                  <td colSpan={7} className="text-center py-12 text-zinc-500">
+                    <div className="flex flex-col items-center justify-center">
+                      <Loader2 className="w-8 h-8 text-emerald-600 animate-spin mb-2" />
+                      <p className="text-xs font-semibold text-zinc-600">Loading equipment inventory...</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+              {!loading && filtered.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="text-center py-12 text-zinc-500">
+                    <div className="flex flex-col items-center justify-center">
+                      <Cpu className="w-10 h-10 text-zinc-300 mb-2" />
+                      <p className="font-bold text-sm text-zinc-800">No equipment found</p>
+                      <p className="text-xs text-zinc-500 mt-1">Click &quot;Register Equipment&quot; above to add laboratory assets.</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+              {!loading && filtered.map((item) => (
                 <tr key={item.id} className="hover:bg-zinc-50/80 transition-colors">
                   <td className="px-4 py-3.5">
                     <div className="font-bold text-zinc-950 flex items-center gap-1.5">

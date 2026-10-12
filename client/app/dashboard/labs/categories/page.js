@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ChevronRight, 
   Search, 
@@ -15,75 +15,105 @@ import {
   Building,
   Layers,
   FlaskConical,
-  CheckCircle2
+  CheckCircle2,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { exportToCSV, exportToExcel, printData } from '@/lib/exportUtils';
+import labService from '@/services/labService';
 
 export default function LabCategoriesPage() {
-  const [categories, setCategories] = useState([
-    { id: 1, name: 'Computer Science & IT', code: 'CAT-CS', desc: 'Software development, programming, networking and database workstations', labsCount: 3, status: 'Active' },
-    { id: 2, name: 'Physics & Mechanics', code: 'CAT-PHY', desc: 'Mechanics, optics, thermodynamics, electricity and electronics experiments', labsCount: 2, status: 'Active' },
-    { id: 3, name: 'Chemistry & Reagents', code: 'CAT-CHEM', desc: 'Organic, inorganic and analytical chemistry with fume hoods and safety gear', labsCount: 1, status: 'Active' },
-    { id: 4, name: 'Biology & Life Sciences', code: 'CAT-BIO', desc: 'Botany, zoology, microbiology, microscopic dissection and specimens', labsCount: 1, status: 'Active' },
-    { id: 5, name: 'Robotics, IoT & Embedded Systems', code: 'CAT-ROB', desc: 'Microcontrollers, Arduino, Raspberry Pi, 3D printers and sensors', labsCount: 1, status: 'Active' },
-    { id: 6, name: 'Language & Multimedia Lab', code: 'CAT-LANG', desc: 'Audio-visual headsets and pronunciation training systems', labsCount: 1, status: 'Active' },
-  ]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadCategories = async () => {
+    setLoading(true);
+    try {
+      const data = await labService.getCategories();
+      if (Array.isArray(data)) setCategories(data);
+    } catch (err) {
+      console.error('Failed to load categories:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
 
   const [formData, setFormData] = useState({ name: '', code: '', desc: '', status: 'Active' });
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name) {
       alert('Category Name is required');
       return;
     }
 
-    if (isEditing) {
-      setCategories(categories.map(c => c.id === editId ? { ...c, ...formData } : c));
-      setIsEditing(false);
-      setEditId(null);
-    } else {
-      setCategories([
-        ...categories,
-        {
-          id: Date.now(),
-          ...formData,
-          code: formData.code || `CAT-${formData.name.substring(0, 3).toUpperCase()}`,
-          labsCount: 0
-        }
-      ]);
+    const payload = {
+      ...formData,
+      code: formData.code || `CAT-${formData.name.substring(0, 3).toUpperCase()}`
+    };
+
+    if (isEditing && editId) {
+      payload._id = editId;
+      payload.id = editId;
     }
+
+    try {
+      const saved = await labService.saveCategory(payload);
+      if (isEditing) {
+        setCategories(categories.map(c => (c.id === editId || c._id === editId) ? (saved || payload) : c));
+      } else {
+        if (saved) {
+          setCategories(prev => [saved, ...prev.filter(c => c._id !== saved._id && c.id !== saved.id)]);
+        } else {
+          await loadCategories();
+        }
+      }
+    } catch (err) {
+      console.error('Failed to save category:', err);
+    }
+
+    setIsEditing(false);
+    setEditId(null);
     setFormData({ name: '', code: '', desc: '', status: 'Active' });
   };
 
   const handleEdit = (cat) => {
-    setFormData({ name: cat.name, code: cat.code, desc: cat.desc, status: cat.status });
+    setFormData({ name: cat.name, code: cat.code, desc: cat.desc || '', status: cat.status || 'Active' });
     setIsEditing(true);
-    setEditId(cat.id);
+    setEditId(cat._id || cat.id);
   };
 
-  const handleDelete = (id) => {
-    if (!confirm('Are you sure you want to delete this lab category?')) return;
-    setCategories(categories.filter(c => c.id !== id));
+  const handleDelete = async (cat) => {
+    const id = cat._id || cat.id;
+    if (!confirm(`Are you sure you want to delete category "${cat.name}"?`)) return;
+    try {
+      await labService.deleteCategory(id);
+      setCategories(categories.filter(c => c._id !== id && c.id !== id));
+    } catch (err) {
+      console.error('Failed to delete category:', err);
+    }
   };
 
   const filtered = categories.filter(c => 
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.code.toLowerCase().includes(searchTerm.toLowerCase())
+    (c.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (c.code || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const exportData = filtered.map(c => ({
     'Category Name': c.name,
     'Category Code': c.code,
-    'Description': c.desc,
-    'Associated Labs': c.labsCount,
-    'Status': c.status
+    'Description': c.desc || '',
+    'Associated Labs': c.labsCount || 0,
+    'Status': c.status || 'Active'
   }));
 
   return (
@@ -226,36 +256,53 @@ export default function LabCategoriesPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
-                  {filtered.map((cat) => (
-                    <tr key={cat.id} className="hover:bg-zinc-50/80 transition-colors">
-                      <td className="px-4 py-3.5">
-                        <div className="font-bold text-zinc-950">{cat.name}</div>
-                        <div className="text-[11px] text-zinc-500 max-w-sm line-clamp-1">{cat.desc}</div>
-                      </td>
-                      <td className="px-4 py-3.5 font-mono text-xs text-zinc-800 font-bold">{cat.code}</td>
-                      <td className="px-4 py-3.5">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-800 text-xs font-bold border border-zinc-200">
-                          <FlaskConical className="h-3 w-3 text-emerald-600" />
-                          {cat.labsCount} Labs
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                          {cat.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button onClick={() => handleEdit(cat)} variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100">
-                            <Edit className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button onClick={() => handleDelete(cat.id)} variant="ghost" size="icon" className="h-8 w-8 text-rose-600 hover:bg-rose-50">
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
+                  {loading ? (
+                    <tr>
+                      <td colSpan="5" className="py-12 text-center text-zinc-500">
+                        <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-emerald-600" />
+                        <p className="font-medium text-xs text-zinc-600">Loading lab categories...</p>
                       </td>
                     </tr>
-                  ))}
+                  ) : filtered.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="py-12 text-center text-zinc-500">
+                        <Layers className="w-8 h-8 text-zinc-300 mx-auto mb-2" />
+                        <p className="font-medium text-xs text-zinc-600">No lab categories defined</p>
+                        <p className="text-[11px] text-zinc-400 mt-0.5">Use the form on the left to create your first category.</p>
+                      </td>
+                    </tr>
+                  ) : (
+                    filtered.map((cat) => (
+                      <tr key={cat.id || cat._id} className="hover:bg-zinc-50/80 transition-colors">
+                        <td className="px-4 py-3.5">
+                          <div className="font-bold text-zinc-950">{cat.name}</div>
+                          <div className="text-[11px] text-zinc-500 max-w-sm line-clamp-1">{cat.desc}</div>
+                        </td>
+                        <td className="px-4 py-3.5 font-mono text-xs text-zinc-800 font-bold">{cat.code}</td>
+                        <td className="px-4 py-3.5">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-800 text-xs font-bold border border-zinc-200">
+                            <FlaskConical className="h-3 w-3 text-emerald-600" />
+                            {cat.labsCount || 0} Labs
+                          </span>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                            {cat.status || 'Active'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3.5 text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button onClick={() => handleEdit(cat)} variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100">
+                              <Edit className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button onClick={() => handleDelete(cat)} variant="ghost" size="icon" className="h-8 w-8 text-rose-600 hover:bg-rose-50">
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
