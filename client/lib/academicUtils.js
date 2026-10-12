@@ -36,7 +36,33 @@ export function getAcademicRank(className) {
 
 export function sortClassesAcademic(classList) {
   if (!Array.isArray(classList)) return [];
-  return [...classList].sort((a, b) => {
+
+  // Deduplicate classes with normalized names (e.g. "10" and "Class 10", or identical names)
+  const seen = new Map();
+  for (const item of classList) {
+    if (!item) continue;
+    const rawName = String(item?.name || item?.label || item?.title || item?.value || (typeof item === 'string' ? item : '')).trim();
+    if (!rawName) continue;
+
+    // Normalization key: e.g. "class 10" -> "class-10", "10" -> "class-10", "grade 10" -> "class-10"
+    const numMatch = rawName.match(/^(?:class|grade)?\s*(\d+)(?:st|nd|rd|th)?$/i);
+    const normKey = numMatch ? `class-${numMatch[1]}` : rawName.toLowerCase();
+
+    if (!seen.has(normKey)) {
+      seen.set(normKey, item);
+    } else {
+      // If we already have one, prefer "Class X" over bare number "X"
+      const existing = seen.get(normKey);
+      const existingName = String(existing?.name || existing?.label || existing?.title || existing?.value || '');
+      if (!/^class\s*\d+/i.test(existingName) && /^class\s*\d+/i.test(rawName)) {
+        seen.set(normKey, item);
+      }
+    }
+  }
+
+  const uniqueList = Array.from(seen.values());
+
+  return uniqueList.sort((a, b) => {
     const nameA = a?.name || a?.label || a?.title || a?.value || (typeof a === 'string' ? a : '');
     const nameB = b?.name || b?.label || b?.title || b?.value || (typeof b === 'string' ? b : '');
     const rankA = getAcademicRank(nameA);

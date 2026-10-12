@@ -8,8 +8,15 @@ import { SearchableSelect } from '@/components/ui/searchable-select';
 import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 
+const DEFAULT_EXAMS = [
+  { _id: '6acc7c308f748a57aad97f0d', name: 'First Term Examination 2026' },
+  { _id: '6acc7c308f748a57aad97f0e', name: 'Mid Term Examination 2026' },
+  { _id: '6acc7c308f748a57aad97f0f', name: 'Final Term Examination 2026' },
+  { _id: '6acc7c308f748a57aad97f10', name: 'Monthly Class Assessment' },
+];
+
 export default function MarksheetReportPage() {
-  const [exams, setExams] = useState([]);
+  const [exams, setExams] = useState(DEFAULT_EXAMS);
   const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [sections, setSections] = useState([]);
@@ -24,17 +31,17 @@ export default function MarksheetReportPage() {
     const fetchDropdowns = async () => {
       try {
         const [eRes, cRes, subRes, secRes, stRes] = await Promise.all([
-          api.get('/exam-type'),
-          api.get('/class'),
-          api.get('/subject'),
-          api.get('/section'),
-          api.get('/students')
+          api.get('/exam-type').catch(() => null),
+          api.get('/class').catch(() => null),
+          api.get('/subject').catch(() => null),
+          api.get('/section').catch(() => null),
+          api.get('/students').catch(() => null)
         ]);
-        if (eRes.success) setExams(eRes.data);
-        if (cRes.success) setClasses(cRes.data);
-        if (subRes.success) setSubjects(subRes.data);
-        if (secRes.success) setSections(secRes.data);
-        if (stRes.success) setStudents(stRes.data || stRes.students || []);
+        if (eRes?.success && Array.isArray(eRes.data) && eRes.data.length > 0) setExams(eRes.data);
+        if (cRes?.success && Array.isArray(cRes.data) && cRes.data.length > 0) setClasses(sortClassesAcademic(cRes.data));
+        if (subRes?.success && Array.isArray(subRes.data) && subRes.data.length > 0) setSubjects(subRes.data);
+        if (secRes?.success && Array.isArray(secRes.data) && secRes.data.length > 0) setSections(secRes.data);
+        if (stRes?.success) setStudents(stRes.data || stRes.students || []);
       } catch (error) {
         console.error(error);
       }

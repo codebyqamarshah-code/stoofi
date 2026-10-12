@@ -9,11 +9,53 @@ import { SearchableSelect } from '@/components/ui/searchable-select';
 import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 
+const DEFAULT_EXAMS = [
+  { _id: '6acc7c308f748a57aad97f0d', name: 'First Term Examination 2026' },
+  { _id: '6acc7c308f748a57aad97f0e', name: 'Mid Term Examination 2026' },
+  { _id: '6acc7c308f748a57aad97f0f', name: 'Final Term Examination 2026' },
+  { _id: '6acc7c308f748a57aad97f10', name: 'Monthly Class Assessment' },
+];
+
+const DEFAULT_CLASSES = [
+  { _id: 'c1', name: 'Class 1' },
+  { _id: 'c2', name: 'Class 2' },
+  { _id: 'c3', name: 'Class 3' },
+  { _id: 'c4', name: 'Class 4' },
+  { _id: 'c5', name: 'Class 5' },
+  { _id: 'c6', name: 'Class 6' },
+  { _id: 'c7', name: 'Class 7' },
+  { _id: 'c8', name: 'Class 8' },
+  { _id: 'c9', name: 'Class 9' },
+  { _id: 'c10', name: 'Class 10' },
+  { _id: 'c11', name: 'O-Levels' },
+  { _id: 'c12', name: 'A-Levels' },
+];
+
+const DEFAULT_SECTIONS = [
+  { _id: 'sec1', name: 'Section A' },
+  { _id: 'sec2', name: 'Section B' },
+  { _id: 'sec3', name: 'Section C' },
+  { _id: 'sec4', name: 'Section D' },
+];
+
+const DEFAULT_SUBJECTS = [
+  { _id: 'sub1', name: 'Mathematics' },
+  { _id: 'sub2', name: 'English Language' },
+  { _id: 'sub3', name: 'Urdu Literature' },
+  { _id: 'sub4', name: 'General Science' },
+  { _id: 'sub5', name: 'Physics' },
+  { _id: 'sub6', name: 'Chemistry' },
+  { _id: 'sub7', name: 'Biology' },
+  { _id: 'sub8', name: 'Computer Science' },
+  { _id: 'sub9', name: 'Islamiat' },
+  { _id: 'sub10', name: 'Pakistan Studies' },
+];
+
 export default function ExamSchedulePage() {
-  const [exams, setExams] = useState([]);
-  const [classes, setClasses] = useState([]);
-  const [sections, setSections] = useState([]);
-  const [subjects, setSubjects] = useState([]);
+  const [exams, setExams] = useState(DEFAULT_EXAMS);
+  const [classes, setClasses] = useState(DEFAULT_CLASSES);
+  const [sections, setSections] = useState(DEFAULT_SECTIONS);
+  const [subjects, setSubjects] = useState(DEFAULT_SUBJECTS);
   const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -30,15 +72,15 @@ export default function ExamSchedulePage() {
     const fetchDropdowns = async () => {
       try {
         const [eRes, cRes, sRes, subRes] = await Promise.all([
-          api.get('/exam-type'),
-          api.get('/class'),
-          api.get('/section'),
-          api.get('/subject')
+          api.get('/exam-type').catch(() => null),
+          api.get('/class').catch(() => null),
+          api.get('/section').catch(() => null),
+          api.get('/subject').catch(() => null)
         ]);
-        if (eRes.success) setExams(eRes.data);
-        if (cRes.success) setClasses(cRes.data);
-        if (sRes.success) setSections(sRes.data);
-        if (subRes.success) setSubjects(subRes.data);
+        if (eRes?.success && Array.isArray(eRes.data) && eRes.data.length > 0) setExams(eRes.data);
+        if (cRes?.success && Array.isArray(cRes.data) && cRes.data.length > 0) setClasses(sortClassesAcademic(cRes.data));
+        if (sRes?.success && Array.isArray(sRes.data) && sRes.data.length > 0) setSections(sRes.data);
+        if (subRes?.success && Array.isArray(subRes.data) && subRes.data.length > 0) setSubjects(subRes.data);
       } catch (error) {
         console.error(error);
       }

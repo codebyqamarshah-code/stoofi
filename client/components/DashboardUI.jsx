@@ -35,7 +35,8 @@ import {
   CreditCard,
   Receipt,
   CheckSquare,
-  MapPin
+  MapPin,
+  Calendar
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -2331,7 +2332,14 @@ export default function DashboardUI({ user }) {
                 <div className="flex items-center gap-3 text-xs text-zinc-500 mt-2">
                   <span className="flex items-center gap-1 font-medium">
                     <Calendar className="h-3.5 w-3.5 text-zinc-700" />
-                    {new Date(selectedEvent.date || selectedEvent.startDate || Date.now()).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })}
+                    {(() => {
+                      try {
+                        const d = new Date(selectedEvent.date || selectedEvent.startDate || Date.now());
+                        return isNaN(d.getTime()) ? String(selectedEvent.date || selectedEvent.startDate || 'N/A') : d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+                      } catch (_) {
+                        return 'Event Date';
+                      }
+                    })()}
                   </span>
                   {selectedEvent.location && (
                     <span className="flex items-center gap-1 font-medium">

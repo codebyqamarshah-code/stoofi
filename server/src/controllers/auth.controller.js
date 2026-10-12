@@ -862,7 +862,7 @@ exports.forgotPassword = async (req, res, next) => {
 
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     user.resetOtp = otpCode;
-    user.resetOtpExpires = new Date(Date.now() + 60 * 1000); // 1 minute (60 seconds)
+    user.resetOtpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes valid window
     await user.save({ validateBeforeSave: false });
 
     try {
@@ -898,7 +898,7 @@ exports.resendOtp = async (req, res, next) => {
 
     const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
     user.emailOtp = newOtp;
-    user.otpExpires = new Date(Date.now() + 60 * 1000); // 1 minute (60 seconds)
+    user.otpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
     await user.save({ validateBeforeSave: false });
 
     try {
@@ -935,6 +935,10 @@ exports.verifyResetOtp = async (req, res, next) => {
     if (!user.resetOtpExpires || user.resetOtpExpires < new Date()) {
       return res.status(400).json({ success: false, message: 'This verification code has expired. Please request a new code.' });
     }
+
+    // Extend window by 15 minutes so user has ample time to set new password on Step 3
+    user.resetOtpExpires = new Date(Date.now() + 15 * 60 * 1000);
+    await user.save({ validateBeforeSave: false });
 
     return res.status(200).json({ success: true, message: 'OTP verified successfully.' });
   } catch (error) {

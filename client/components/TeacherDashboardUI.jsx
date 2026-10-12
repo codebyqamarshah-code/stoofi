@@ -28,7 +28,8 @@ import {
   Receipt,
   CheckSquare,
   MapPin,
-  Calendar
+  Calendar,
+  BookOpen
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -1093,9 +1094,9 @@ export default function DashboardUI({ user }) {
             variant="outline"
             size="sm"
             className="h-9 rounded-full border border-zinc-300/90 dark:border-zinc-200 bg-white dark:bg-white/50 text-xs font-bold text-zinc-950 dark:text-zinc-700 hover:bg-zinc-100 hover:border-zinc-950 hover:text-zinc-800 dark:hover:bg-zinc-200 dark:hover:text-zinc-950 cursor-pointer shadow-xs"
-            onClick={handleOpenCreateNotice}
+            onClick={() => router.push('/dashboard/homework/add')}
           >
-            <Bell className="h-3.5 w-3.5 text-zinc-950 dark:text-zinc-900" /> Add Notice
+            <BookOpen className="h-3.5 w-3.5 text-zinc-950 dark:text-zinc-900" /> Add Homework
           </Button>
 
           <Button
@@ -1313,208 +1314,7 @@ export default function DashboardUI({ user }) {
         </Card>
       </div>
 
-      {/* 4. NOTICE BOARD & UPCOMING EVENTS */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Notice Board */}
-        <Card className="bg-white dark:bg-zinc-50 border border-zinc-300/80 dark:border-zinc-200 shadow-xs">
-          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-200">
-            <div className="flex items-center gap-2">
-              <Bell className="h-4 w-4 text-zinc-600" />
-              <CardTitle className="text-sm font-semibold text-zinc-950 dark:text-zinc-800 font-bold">Notice Board</CardTitle>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Button 
-                size="sm" 
-                onClick={handleOpenCreateNotice}
-                className="h-7 px-2.5 bg-zinc-950 hover:bg-zinc-800 text-white font-bold text-xs rounded-md flex items-center gap-1"
-              >
-                <Plus className="h-3.5 w-3.5" /> Add Notice
-              </Button>
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                onClick={fetchDashboardStats} 
-                className="h-7 w-7 text-zinc-600 dark:text-zinc-600 hover:text-zinc-900 dark:text-zinc-900"
-              >
-                <RefreshCw className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0 divide-y divide-zinc-800 max-h-[360px] overflow-y-auto custom-scrollbar">
-            {noticesList.length === 0 ? (
-              <div className="p-12 text-center text-xs text-zinc-500 dark:text-zinc-600 flex flex-col items-center justify-center">
-                <Bell className="h-8 w-8 text-zinc-700 mb-2" />
-                No notices published yet in MongoDB. Click &quot;Add Notice&quot; to publish one.
-              </div>
-            ) : (
-              noticesList.map((notice) => {
-                const noticeDate = new Date(notice.date || notice.createdAt || Date.now());
-                const dayNum = noticeDate.getDate();
-                const monthStr = noticeDate.toLocaleString('en-US', { month: 'short' }).toUpperCase();
-                const dateFull = noticeDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-                return (
-                  <div key={notice._id} className="p-4 flex items-center justify-between hover:bg-white dark:bg-white/60 transition-colors group">
-                    <div className="flex items-center gap-4 flex-1 cursor-pointer" onClick={() => handleViewNotice(notice)}>
-                      <div className="h-10 w-10 rounded-lg bg-zinc-100 dark:bg-zinc-100 border border-zinc-300 dark:border-zinc-200 flex flex-col items-center justify-center shrink-0">
-                        <span className="text-xs font-bold text-zinc-800 dark:text-zinc-900 leading-none">{dayNum}</span>
-                        <span className="text-[9px] font-semibold text-zinc-600 dark:text-zinc-600 uppercase leading-none mt-0.5">{monthStr}</span>
-                      </div>
-                      <div className="flex-1 pr-2">
-                        <h4 className="text-sm font-medium text-zinc-950 dark:text-zinc-800 font-bold group-hover:text-zinc-800 dark:text-zinc-900 transition-colors line-clamp-1">
-                          {notice.title}
-                        </h4>
-                        <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-600 mt-0.5">
-                          <span>{dateFull}</span>
-                          <span className="text-zinc-600/80 font-medium text-[10px] uppercase">{notice.audience || 'All'}</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-1 shrink-0">
-                      <Button 
-                        size="icon" 
-                        variant="ghost" 
-                        onClick={() => handleViewNotice(notice)}
-                        className="h-7 w-7 text-zinc-600 dark:text-zinc-600 hover:text-zinc-800 dark:text-zinc-900 hover:bg-zinc-100 dark:bg-zinc-50"
-                        title="View Notice"
-                      >
-                        <Eye className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button 
-                        size="icon" 
-                        variant="ghost" 
-                        onClick={() => handleOpenEditNotice(notice)}
-                        className="h-7 w-7 text-zinc-600 dark:text-zinc-600 hover:text-zinc-800 dark:text-zinc-900 hover:bg-zinc-100 dark:bg-zinc-50"
-                        title="Edit Notice"
-                      >
-                        <Edit className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button 
-                        size="icon" 
-                        variant="ghost" 
-                        onClick={(e) => handleDeleteNotice(notice._id, e)}
-                        className="h-7 w-7 text-zinc-600 dark:text-zinc-600 hover:text-rose-400 hover:bg-zinc-100 dark:bg-zinc-50"
-                        title="Delete Notice"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Upcoming Events & Holidays */}
-        <Card className="bg-white dark:bg-zinc-50 border border-zinc-300/80 dark:border-zinc-200 shadow-xs flex flex-col">
-          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-200">
-            <div className="flex items-center gap-2">
-              <CalendarIcon className="h-4 w-4 text-zinc-600" />
-              <CardTitle className="text-sm font-semibold text-zinc-950 dark:text-zinc-800 font-bold">Upcoming Events & Holidays</CardTitle>
-            </div>
-            <Button 
-              size="sm" 
-              variant="outline" 
-              onClick={() => handleOpenCreateEvent()}
-              className="h-7 px-2.5 border-zinc-300 dark:border-zinc-200 bg-white dark:bg-zinc-50 text-xs text-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-100 flex items-center gap-1 font-semibold"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              <span>Add Event</span>
-            </Button>
-          </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2 h-[340px]">
-            {events.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center">
-                <div className="h-12 w-12 rounded-full bg-white dark:bg-white border border-zinc-200 dark:border-zinc-200 flex items-center justify-center text-zinc-600 mb-3">
-                  <CalendarDays className="h-6 w-6" />
-                </div>
-                <p className="text-xs text-zinc-500 dark:text-zinc-600">No upcoming events or holidays scheduled.</p>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={() => handleOpenCreateEvent()}
-                  className="mt-3 text-xs h-7 border-dashed border-zinc-300 hover:border-zinc-900"
-                >
-                  <Plus className="h-3.5 w-3.5 mr-1" /> Schedule an Event
-                </Button>
-              </div>
-            ) : (
-              [...events]
-                .sort((a, b) => new Date(b.date || b.startDate) - new Date(a.date || a.startDate)) // Sort newest date first
-                .map((ev, i) => {
-                  const evDate = new Date(ev.date || ev.startDate || Date.now());
-                  const monthStr = isNaN(evDate.getTime()) ? 'DATE' : evDate.toLocaleString('default', { month: 'short' });
-                  const dayNum = isNaN(evDate.getTime()) ? '1' : evDate.getDate();
-
-                  return (
-                    <div 
-                      key={ev._id || i} 
-                      className="group flex items-center justify-between p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-200/80 bg-white hover:bg-zinc-50/80 transition-all shadow-xs"
-                    >
-                      <div 
-                        className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" 
-                        onClick={() => handleViewEvent(ev)}
-                      >
-                        <div className="flex flex-col items-center justify-center h-10 w-10 shrink-0 rounded-lg bg-zinc-100 border border-zinc-200">
-                          <span className="text-[10px] font-bold text-zinc-500 uppercase leading-none">{monthStr}</span>
-                          <span className="text-sm font-black text-zinc-900 leading-none mt-1">{dayNum}</span>
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <h4 className="text-xs font-bold text-zinc-900 truncate group-hover:text-zinc-700 transition-colors">
-                            {ev.title}
-                          </h4>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[10px] font-bold text-zinc-600 uppercase bg-zinc-100 px-1.5 py-0.5 rounded">
-                              FOR: {ev.audience || ev.eventFor || 'ALL'}
-                            </span>
-                            {ev.category && ev.category !== 'Event' && (
-                              <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
-                                {ev.category}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Action buttons: View, Edit, Delete */}
-                      <div className="flex items-center gap-1 shrink-0 ml-2">
-                        <Button 
-                          size="icon" 
-                          variant="ghost" 
-                          onClick={(e) => handleViewEvent(ev, e)}
-                          className="h-7 w-7 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg"
-                          title="View Event Details"
-                        >
-                          <Eye className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button 
-                          size="icon" 
-                          variant="ghost" 
-                          onClick={(e) => handleOpenEditEvent(ev, e)}
-                          className="h-7 w-7 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg"
-                          title="Edit Event"
-                        >
-                          <Edit className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button 
-                          size="icon" 
-                          variant="ghost" 
-                          onClick={(e) => handleDeleteEvent(ev._id, e)}
-                          className="h-7 w-7 text-zinc-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg"
-                          title="Delete Event"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })
-            )}
-          </CardContent>
-        </Card>
-      </div>
 
       {/* 5. CALENDAR & TO DO LIST */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -2257,7 +2057,14 @@ export default function DashboardUI({ user }) {
                 <div className="flex items-center gap-3 text-xs text-zinc-500 mt-2">
                   <span className="flex items-center gap-1 font-medium">
                     <Calendar className="h-3.5 w-3.5 text-zinc-700" />
-                    {new Date(selectedEvent.date || selectedEvent.startDate || Date.now()).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })}
+                    {(() => {
+                      try {
+                        const d = new Date(selectedEvent.date || selectedEvent.startDate || Date.now());
+                        return isNaN(d.getTime()) ? String(selectedEvent.date || selectedEvent.startDate || 'N/A') : d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+                      } catch (_) {
+                        return 'Event Date';
+                      }
+                    })()}
                   </span>
                   {selectedEvent.location && (
                     <span className="flex items-center gap-1 font-medium">

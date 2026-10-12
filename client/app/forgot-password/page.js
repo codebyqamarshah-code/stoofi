@@ -22,20 +22,25 @@ export default function ForgotPasswordPage() {
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  // OTP Timer State
-  const [otpTimer, setOtpTimer] = useState(60);
+  // OTP Timer State: 5 minutes validity with 30s resend cooldown
+  const [otpTimer, setOtpTimer] = useState(300);
+  const [resendCooldown, setResendCooldown] = useState(30);
   const [canResend, setCanResend] = useState(false);
   const [resending, setResending] = useState(false);
 
   useEffect(() => {
     let timer;
     if (step === 2 && otpTimer > 0) {
-      setCanResend(false);
       timer = setInterval(() => {
         setOtpTimer(prev => prev - 1);
+        setResendCooldown(prev => {
+          if (prev <= 1) {
+            setCanResend(true);
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
-    } else if (step === 2 && otpTimer === 0) {
-      setCanResend(true);
     }
     return () => clearInterval(timer);
   }, [step, otpTimer]);
@@ -57,7 +62,9 @@ export default function ForgotPasswordPage() {
       if (res && res.success) {
         setSuccessMsg("Verification code sent to your email.");
         setStep(2);
-        setOtpTimer(60);
+        setOtpTimer(300);
+        setResendCooldown(30);
+        setCanResend(false);
       } else {
         setError(res?.message || "Failed to send reset code. Please try again.");
       }
@@ -79,7 +86,8 @@ export default function ForgotPasswordPage() {
       const res = await api.post("/auth/forgot-password", { email: email.trim().toLowerCase() });
       if (res && res.success) {
         setSuccessMsg("A new 6-digit verification code has been sent.");
-        setOtpTimer(60);
+        setOtpTimer(300);
+        setResendCooldown(30);
         setCanResend(false);
       } else {
         setError(res?.message || "Failed to resend code.");
@@ -255,7 +263,7 @@ export default function ForgotPasswordPage() {
               <span className="flex items-center gap-1.5">
                 <Timer size={14} className={otpTimer > 0 ? "text-emerald-500 animate-pulse" : "text-rose-500"} />
                 {otpTimer > 0 ? (
-                  <>Code expires in <span className="font-bold text-zinc-800 dark:text-zinc-200">00:{String(otpTimer).padStart(2, '0')}</span></>
+                  <>Code expires in <span className="font-bold text-zinc-800 dark:text-zinc-200">{String(Math.floor(otpTimer / 60)).padStart(2, '0')}:{String(otpTimer % 60).padStart(2, '0')}</span></>
                 ) : (
                   <span className="text-rose-500 font-bold">Code has expired</span>
                 )}
@@ -267,7 +275,7 @@ export default function ForgotPasswordPage() {
                 onClick={handleResendResetCode}
                 className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline disabled:opacity-40 disabled:no-underline transition-all"
               >
-                {resending ? "Resending..." : "Resend Code"}
+                {resending ? "Resending..." : canResend ? "Resend Code" : `Resend (${resendCooldown}s)`}
               </button>
             </div>
 

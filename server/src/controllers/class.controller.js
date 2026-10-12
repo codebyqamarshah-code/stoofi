@@ -37,7 +37,29 @@ function getAcademicRank(className) {
 }
 
 function sortClasses(classList) {
-  return [...classList].sort((a, b) => {
+  const seen = new Map();
+  for (const item of classList) {
+    if (!item) continue;
+    const rawName = String(item.name || item.label || item.title || (typeof item === 'string' ? item : '')).trim();
+    if (!rawName) continue;
+
+    const numMatch = rawName.match(/^(?:class|grade)?\s*(\d+)(?:st|nd|rd|th)?$/i);
+    const normKey = numMatch ? `class-${numMatch[1]}` : rawName.toLowerCase();
+
+    if (!seen.has(normKey)) {
+      seen.set(normKey, item);
+    } else {
+      const existing = seen.get(normKey);
+      const existingName = String(existing?.name || existing?.label || '');
+      if (!/^class\s*\d+/i.test(existingName) && /^class\s*\d+/i.test(rawName)) {
+        seen.set(normKey, item);
+      }
+    }
+  }
+
+  const uniqueList = Array.from(seen.values());
+
+  return uniqueList.sort((a, b) => {
     const nameA = a.name || a.label || a.title || (typeof a === 'string' ? a : '');
     const nameB = b.name || b.label || b.title || (typeof b === 'string' ? b : '');
     const rankA = getAcademicRank(nameA);
@@ -64,6 +86,19 @@ exports.getAll = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
+    const rawName = (req.body.name || '').trim();
+    if (!rawName) {
+      return res.status(400).json({ success: false, message: 'Class name is required' });
+    }
+
+    // Check duplicate
+    const numMatch = rawName.match(/^(?:class|grade)?\s*(\d+)(?:st|nd|rd|th)?$/i);
+    const regexPattern = numMatch ? `^(class\\s*|grade\\s*)?${numMatch[1]}$` : `^${rawName}$`;
+    const existing = await Class.findOne({ name: { $regex: new RegExp(regexPattern, 'i') } });
+    if (existing) {
+      return res.status(400).json({ success: false, message: `Class "${existing.name}" already exists.` });
+    }
+
     const data = await Class.create(req.body);
     res.status(201).json({ success: true, data });
   } catch (error) {
