@@ -33,7 +33,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
-import { sortClassesAcademic } from '@/lib/academicUtils';
+import { sortClassesAcademic, STANDARD_ACADEMIC_CLASSES, STANDARD_SECTIONS_LIST } from '@/lib/academicUtils';
 import api from '@/services/api';
 
 // 5 Standard Design Styles Config
@@ -99,8 +99,9 @@ export default function BulkPrintIdCardPage() {
   const [sectionFilter, setSectionFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   
-  const [classes, setClasses] = useState([]);
-  const [sections, setSections] = useState([]);
+  // Initialize with standard academic classes & sections so they are immediately available
+  const [classes, setClasses] = useState(STANDARD_ACADEMIC_CLASSES);
+  const [sections, setSections] = useState(STANDARD_SECTIONS_LIST);
   const [records, setRecords] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -110,9 +111,10 @@ export default function BulkPrintIdCardPage() {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
   const [previewCard, setPreviewCard] = useState(null);
 
-  // Initial Metadata Fetch
+  // Initial Metadata & Records Fetch
   useEffect(() => {
     fetchMetadata();
+    executeSearch('Student', '', '');
   }, []);
 
   // Sync template with active design selection
@@ -155,13 +157,32 @@ export default function BulkPrintIdCardPage() {
         }
       }
 
-      if (clsRes?.success && Array.isArray(clsRes.data)) {
-        setClasses(sortClassesAcademic(clsRes.data.map(c => c.name || c)));
-      }
+      // ── Merge DB classes with standard academic classes ──
+      let rawClasses = [];
+      if (Array.isArray(clsRes)) rawClasses = clsRes;
+      else if (Array.isArray(clsRes?.data)) rawClasses = clsRes.data;
+      else if (Array.isArray(clsRes?.classes)) rawClasses = clsRes.classes;
 
-      if (secRes?.success && Array.isArray(secRes.data)) {
-        setSections(secRes.data.map(s => s.name || s));
-      }
+      const extractedClassNames = rawClasses
+        .map(c => (typeof c === 'string' ? c : c?.name || c?.className || c?.title))
+        .filter(Boolean);
+
+      const allUniqueClasses = Array.from(new Set([...STANDARD_ACADEMIC_CLASSES, ...extractedClassNames]));
+      setClasses(sortClassesAcademic(allUniqueClasses));
+
+      // ── Merge DB sections with standard sections ──
+      let rawSections = [];
+      if (Array.isArray(secRes)) rawSections = secRes;
+      else if (Array.isArray(secRes?.data)) rawSections = secRes.data;
+      else if (Array.isArray(secRes?.sections)) rawSections = secRes.sections;
+
+      const extractedSectionNames = rawSections
+        .map(s => (typeof s === 'string' ? s : s?.name || s?.section))
+        .filter(Boolean)
+        .map(s => String(s).replace(/^Section\s*/i, '').trim());
+
+      const allUniqueSections = Array.from(new Set([...STANDARD_SECTIONS_LIST, ...extractedSectionNames]));
+      setSections(allUniqueSections);
 
       if (setRes?.success && setRes.data) {
         setSchoolSetting(setRes.data);
@@ -177,21 +198,23 @@ export default function BulkPrintIdCardPage() {
       let list = [];
       if (selectedRole === 'Student') {
         const params = new URLSearchParams({ limit: '1000' });
-        if (selectedClass) params.append('className', selectedClass);
-        if (selectedSection) params.append('section', selectedSection);
+        if (selectedClass && selectedClass !== 'All Classes' && selectedClass !== 'All') {
+          params.append('className', selectedClass);
+        }
+        if (selectedSection && selectedSection !== 'All Sections' && selectedSection !== 'All') {
+          params.append('section', selectedSection);
+        }
 
         const res = await api.get(`/student?${params.toString()}`).catch(() => null);
-        if (res?.success && Array.isArray(res.data)) {
-          list = res.data;
-        }
+        if (Array.isArray(res)) list = res;
+        else if (Array.isArray(res?.data)) list = res.data;
       } else {
         const params = new URLSearchParams({ limit: '1000' });
         if (selectedRole === 'Teacher') params.append('role', 'Teacher');
 
         const res = await api.get(`/staff?${params.toString()}`).catch(() => null);
-        if (res?.success && Array.isArray(res.data)) {
-          list = res.data;
-        }
+        if (Array.isArray(res)) list = res;
+        else if (Array.isArray(res?.data)) list = res.data;
       }
 
       setRecords(list);
@@ -271,6 +294,14 @@ export default function BulkPrintIdCardPage() {
     const designation = rec.designation || (role === 'Teacher' ? 'Senior Faculty' : 'Staff Member');
     const department = rec.department || 'Academics';
 
+    const getPhotoUrl = (p) => {
+      if (!p) return null;
+      if (p.startsWith('http') || p.startsWith('data:')) return p;
+      const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/api\/?$/, '');
+      return `${apiBase}${p.startsWith('/') ? '' : '/'}${p}`;
+    };
+    const photoUrl = getPhotoUrl(photo);
+
     // ── DESIGN 1: Modern Emerald Vertical Badge ──
     if (activeDesignId === 'stoofi-emerald') {
       return (
@@ -285,8 +316,8 @@ export default function BulkPrintIdCardPage() {
           {/* Photo & Bio */}
           <div className="p-3.5 flex flex-col items-center text-center flex-1 bg-white">
             <div className="w-20 h-20 rounded-full border-3 border-emerald-500 overflow-hidden bg-emerald-50 shadow-md mb-2 flex items-center justify-center shrink-0">
-              {photo ? (
-                <img src={photo.startsWith('http') || photo.startsWith('data:') ? photo : `http://localhost:5000/${photo}`} alt={name} className="w-full h-full object-cover" />
+              {photoUrl ? (
+                <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
               ) : (
                 <div className="text-2xl font-black text-emerald-800 uppercase">{name.charAt(0)}</div>
               )}
@@ -353,8 +384,8 @@ export default function BulkPrintIdCardPage() {
           {/* Body Dual-Column */}
           <div className="p-3 flex items-center gap-3.5 flex-1 bg-white">
             <div className="w-20 h-24 rounded-lg border-2 border-sky-800 overflow-hidden bg-sky-50 shadow-xs shrink-0 flex items-center justify-center">
-              {photo ? (
-                <img src={photo.startsWith('http') || photo.startsWith('data:') ? photo : `http://localhost:5000/${photo}`} alt={name} className="w-full h-full object-cover" />
+              {photoUrl ? (
+                <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
               ) : (
                 <span className="text-2xl font-black text-sky-900">{name.charAt(0)}</span>
               )}
@@ -406,8 +437,8 @@ export default function BulkPrintIdCardPage() {
 
           <div className="p-3.5 flex flex-col items-center text-center flex-1 bg-white">
             <div className="w-20 h-20 rounded-2xl border-3 border-purple-600 overflow-hidden bg-purple-50 shadow-md mb-2 flex items-center justify-center shrink-0">
-              {photo ? (
-                <img src={photo.startsWith('http') || photo.startsWith('data:') ? photo : `http://localhost:5000/${photo}`} alt={name} className="w-full h-full object-cover" />
+              {photoUrl ? (
+                <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
               ) : (
                 <div className="text-2xl font-black text-purple-900 uppercase">{name.charAt(0)}</div>
               )}
@@ -463,8 +494,8 @@ export default function BulkPrintIdCardPage() {
 
           <div className="p-3.5 flex flex-col items-center text-center flex-1 bg-zinc-900/90">
             <div className="w-20 h-20 rounded-2xl border-2 border-emerald-500/80 overflow-hidden bg-zinc-950 shadow-inner mb-2 flex items-center justify-center shrink-0">
-              {photo ? (
-                <img src={photo.startsWith('http') || photo.startsWith('data:') ? photo : `http://localhost:5000/${photo}`} alt={name} className="w-full h-full object-cover" />
+              {photoUrl ? (
+                <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
               ) : (
                 <div className="text-2xl font-black text-emerald-400 uppercase">{name.charAt(0)}</div>
               )}
@@ -517,8 +548,8 @@ export default function BulkPrintIdCardPage() {
 
         <div className="p-3.5 flex flex-col items-center text-center flex-1 bg-white">
           <div className="w-20 h-20 rounded-full border-3 border-amber-500 overflow-hidden bg-amber-50 shadow-md mb-2 flex items-center justify-center shrink-0">
-            {photo ? (
-              <img src={photo.startsWith('http') || photo.startsWith('data:') ? photo : `http://localhost:5000/${photo}`} alt={name} className="w-full h-full object-cover" />
+            {photoUrl ? (
+              <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
             ) : (
               <div className="text-2xl font-black text-rose-950 uppercase">{name.charAt(0)}</div>
             )}
@@ -720,7 +751,7 @@ export default function BulkPrintIdCardPage() {
                   name="sectionFilter"
                   value={sectionFilter} 
                   onChange={e => setSectionFilter(e.target.value)} 
-                  options={[{ value: '', label: 'All Sections' }, ...sections.map(s => ({ value: s, label: s }))]}
+                  options={[{ value: '', label: 'All Sections' }, ...sections.map(s => ({ value: s, label: `Section ${s}` }))]}
                   placeholder="All Sections"
                 />
               </div>

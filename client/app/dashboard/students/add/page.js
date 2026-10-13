@@ -368,7 +368,7 @@ const [formData, setFormData] = useState({
                       <div className="space-y-1.5">
                         <div className="flex justify-between items-center">
                           <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Class <span className="text-rose-500">*</span></Label>
-                          <Link href="/dashboard/class" className="text-xs font-bold text-emerald-500 hover:text-emerald-400 hover:underline flex items-center gap-1">
+                          <Link href="/dashboard/academics/class" className="text-xs font-bold text-emerald-500 hover:text-emerald-400 hover:underline flex items-center gap-1">
                             + Add Class
                           </Link>
                         </div>

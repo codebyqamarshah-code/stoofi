@@ -137,6 +137,44 @@ export default function StudentDashboardPage() {
     }
   }, [user]);
 
+  // LIVE ATTENDANCE DATA
+  const [attendanceSummary, setAttendanceSummary] = useState({
+    present: 0,
+    late: 0,
+    absent: 0,
+    halfDay: 0,
+    holiday: 0,
+    total: 0,
+    percentage: 100
+  });
+  const [attendanceDays, setAttendanceDays] = useState({});
+  const [attendanceLoading, setAttendanceLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchMonthlyAttendance = async () => {
+      if (!user) return;
+      try {
+        setAttendanceLoading(true);
+        const sId = studentDetails?._id || user.referenceId || user.studentId || user._id;
+        const res = await api.get(`/student-attendance?studentId=${sId || ''}&year=${calYear}&month=${calMonth + 1}`);
+        if (res?.success) {
+          if (res.summary) {
+            setAttendanceSummary(res.summary);
+          }
+          if (res.days) {
+            setAttendanceDays(res.days);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch student attendance:', err);
+      } finally {
+        setAttendanceLoading(false);
+      }
+    };
+
+    fetchMonthlyAttendance();
+  }, [user, studentDetails, calYear, calMonth]);
+
   const statCards = [
     { label: 'TOTAL SUBJECT', value: studentDetails?.subjects?.length || user?.subjects?.length || '0', icon: BookOpen, href: '/dashboard/student/subjects' },
     { label: 'TOTAL EXAM', value: studentDetails?.exams?.length || '0', icon: Award, href: '/dashboard/student/examinations/schedule' },
@@ -144,7 +182,7 @@ export default function StudentDashboardPage() {
     { label: 'TOTAL TEACHERS', value: studentDetails?.teachers?.length || '0', icon: Users, href: '/dashboard/student/teachers' },
     { label: 'TOTAL ISSUED BOOK', value: studentDetails?.issuedBooks?.length || '0', icon: BookMarked, href: '/dashboard/student/library/book-issue' },
     { label: 'PENDING HOMEWORK', value: String(pendingHomeworkList.length), icon: ListTodo, href: '/dashboard/student/homework' },
-    { label: 'ATTENDANCE THIS MONTH', value: studentDetails?.attendanceCount || '0', icon: CalendarCheck, href: '/dashboard/student/attendance' },
+    { label: 'ATTENDANCE THIS MONTH', value: attendanceSummary.total > 0 ? `${attendanceSummary.present} Days` : '0 Days', icon: CalendarCheck, href: '/dashboard/student/attendance' },
     { label: 'TOTAL DUE FEES', value: '$' + (studentDetails?.dueFees || '0'), icon: DollarSign, href: '/dashboard/student/fees' },
     { label: 'BEHAVIOUR POINTS', value: studentDetails?.behaviourPoints || '0', icon: Star, href: '/dashboard/student' },
   ];
@@ -384,13 +422,16 @@ export default function StudentDashboardPage() {
       {/* ── MONTHLY ATTENDANCE ── */}
       <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-100 pb-3">
-          <h2 className="text-base font-bold text-zinc-900">Monthly Attendance Report</h2>
-          <div className="flex items-center gap-3 text-xs font-semibold text-zinc-600">
-            <span>Present: <strong className="text-emerald-600">P (0)</strong></span>
-            <span>Late: <strong className="text-amber-600">L (0)</strong></span>
-            <span>Absent: <strong className="text-rose-600">A (0)</strong></span>
-            <span>Half: <strong className="text-zinc-500">F (0)</strong></span>
-            <span>Holiday: <strong className="text-blue-600">H (0)</strong></span>
+          <div className="flex items-center gap-2">
+            <CalendarCheck className="w-5 h-5 text-[#084A86]" />
+            <h2 className="text-base font-bold text-zinc-900">Monthly Attendance Report ({monthName})</h2>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-zinc-600">
+            <span>Present: <strong className="text-emerald-600">P ({attendanceSummary.present})</strong></span>
+            <span>Late: <strong className="text-amber-600">L ({attendanceSummary.late})</strong></span>
+            <span>Absent: <strong className="text-rose-600">A ({attendanceSummary.absent})</strong></span>
+            <span>Half: <strong className="text-zinc-500">F ({attendanceSummary.halfDay})</strong></span>
+            <span>Holiday: <strong className="text-blue-600">H ({attendanceSummary.holiday})</strong></span>
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -404,15 +445,44 @@ export default function StudentDashboardPage() {
             </thead>
             <tbody>
               <tr>
-                <td className="py-2.5 px-1 border-r font-bold text-emerald-600">0</td>
-                <td className="py-2.5 px-1 border-r font-bold text-amber-600">0</td>
-                <td className="py-2.5 px-1 border-r font-bold text-rose-600">0</td>
-                <td className="py-2.5 px-1 border-r font-bold text-zinc-500">0</td>
-                <td className="py-2.5 px-1 border-r font-bold text-blue-600">0</td>
-                <td className="py-2.5 px-1 border-r font-bold text-zinc-900">100%</td>
-                {Array.from({length: daysInMonth}).map((_,i) => (
-                  <td key={i} className="py-2.5 px-1 border-r text-zinc-950 font-medium">-</td>
-                ))}
+                <td className="py-2.5 px-1 border-r font-bold text-emerald-600">{attendanceSummary.present}</td>
+                <td className="py-2.5 px-1 border-r font-bold text-amber-600">{attendanceSummary.late}</td>
+                <td className="py-2.5 px-1 border-r font-bold text-rose-600">{attendanceSummary.absent}</td>
+                <td className="py-2.5 px-1 border-r font-bold text-zinc-500">{attendanceSummary.halfDay}</td>
+                <td className="py-2.5 px-1 border-r font-bold text-blue-600">{attendanceSummary.holiday}</td>
+                <td className="py-2.5 px-1 border-r font-bold text-zinc-900">{attendanceSummary.percentage}%</td>
+                {Array.from({length: daysInMonth}).map((_,i) => {
+                  const day = i + 1;
+                  const dayRecord = attendanceDays[day];
+                  const code = dayRecord?.code || dayRecord?.status?.charAt(0) || '-';
+                  let colorClass = 'text-zinc-400 font-medium';
+                  let bgClass = '';
+                  if (code === 'P') {
+                    colorClass = 'text-emerald-700 font-bold';
+                    bgClass = 'bg-emerald-50';
+                  } else if (code === 'A') {
+                    colorClass = 'text-rose-700 font-bold';
+                    bgClass = 'bg-rose-50';
+                  } else if (code === 'L') {
+                    colorClass = 'text-amber-700 font-bold';
+                    bgClass = 'bg-amber-50';
+                  } else if (code === 'F') {
+                    colorClass = 'text-zinc-700 font-bold';
+                    bgClass = 'bg-zinc-100';
+                  } else if (code === 'H') {
+                    colorClass = 'text-blue-700 font-bold';
+                    bgClass = 'bg-blue-50';
+                  }
+                  return (
+                    <td 
+                      key={i} 
+                      title={dayRecord?.status ? `Day ${day}: ${dayRecord.status}` : `Day ${day}: No record`}
+                      className={`py-2.5 px-1 border-r ${colorClass} ${bgClass}`}
+                    >
+                      {code}
+                    </td>
+                  );
+                })}
               </tr>
             </tbody>
           </table>
@@ -535,6 +605,22 @@ export default function StudentDashboardPage() {
                 {dayEvent && (
                   <div className={`mt-2 p-1 text-[9px] font-bold rounded text-white truncate ${dayEvent.color}`}>
                     {dayEvent.title}
+                  </div>
+                )}
+
+                {attendanceDays[day] && (
+                  <div className={`mt-1.5 px-1 py-0.5 text-[9px] font-black rounded text-center truncate ${
+                    attendanceDays[day].code === 'P'
+                      ? 'bg-emerald-500 text-white'
+                      : attendanceDays[day].code === 'A'
+                      ? 'bg-rose-500 text-white'
+                      : attendanceDays[day].code === 'L'
+                      ? 'bg-amber-500 text-white'
+                      : attendanceDays[day].code === 'H'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-zinc-600 text-white'
+                  }`}>
+                    {attendanceDays[day].status || (attendanceDays[day].code === 'P' ? 'Present' : 'Absent')}
                   </div>
                 )}
               </div>

@@ -617,10 +617,18 @@ exports.login = async (req, res, next) => {
         if (!studentData.user) {
           Student.findByIdAndUpdate(studentData._id, { user: user._id }).catch(() => {});
         }
+        if (!user.referenceId) {
+          User.findByIdAndUpdate(user._id, { referenceId: studentData._id }).catch(() => {});
+        }
+        additionalData.referenceId = studentData._id;
+        additionalData.studentId = studentData._id;
         additionalData.className = studentData.className;
         additionalData.section = studentData.section;
         additionalData.admissionNo = studentData.admissionNo;
         additionalData.rollNo = studentData.rollNo;
+      } else if (user.referenceId) {
+        additionalData.referenceId = user.referenceId;
+        additionalData.studentId = user.referenceId;
       }
     }
 
@@ -707,6 +715,8 @@ exports.getMe = async (req, res, next) => {
             User.findByIdAndUpdate(user._id, { referenceId: studentData._id }).catch(() => {});
           }
         }
+        user.referenceId = studentData._id;
+        user.studentId = studentData._id;
         user.className = studentData.className || user.className;
         user.section = studentData.section || user.section;
         user.rollNo = studentData.rollNo || user.rollNo;

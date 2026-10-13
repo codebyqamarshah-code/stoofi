@@ -26,11 +26,11 @@ exports.getAll = async (req, res) => {
     }
     if (className && className !== 'All Classes' && className !== 'All' && className.trim()) {
       const c = className.replace(/^Class\s+/i, '').trim();
-      query.className = { $regex: `^(${className}|${c})$`, $options: 'i' };
+      query.className = { $regex: '^(' + className + '|' + c + '|Class\\s*' + c + ')$', $options: 'i' };
     }
     if (section && section !== 'All Sections' && section !== 'All' && section.trim()) {
       const sec = section.replace(/^Section\s+/i, '').trim();
-      query.section = { $regex: `^(${section}|${sec})$`, $options: 'i' };
+      query.section = { $regex: '^(' + section + '|' + sec + '|Section\\s*' + sec + ')$', $options: 'i' };
     }
     if (rollNo && rollNo.trim()) {
       query.rollNo = { $regex: rollNo.trim(), $options: 'i' };

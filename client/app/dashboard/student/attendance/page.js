@@ -14,24 +14,24 @@ export default function Page() {
       if (!user) return;
       try {
         setLoading(true);
-        // Get attendance for current month
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-
-        const res = await api.get(`/student-attendance?studentId=${user.referenceId || ''}&year=${year}&month=${month}`);
+        const sId = user.referenceId || user.studentId || user._id || '';
+        const res = await api.get(`/student-attendance?studentId=${sId}`);
 
         if (res?.success && Array.isArray(res.data)) {
           const mapped = res.data.map(record => ({
             Date: record.date ? new Date(record.date).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '-',
             Status: record.status === 'Present'
-              ? <span className="text-emerald-500 font-bold">Present</span>
+              ? <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Present</span>
               : record.status === 'Absent'
-              ? <span className="text-rose-500 font-bold">Absent</span>
+              ? <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200">Absent</span>
               : record.status === 'Late'
-              ? <span className="text-amber-500 font-bold">Late</span>
-              : <span className="text-zinc-400">{record.status || '-'}</span>,
-            Remarks: record.note || record.remarks || '-'
+              ? <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">Late</span>
+              : record.status === 'Half Day'
+              ? <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-zinc-100 text-zinc-800 border border-zinc-200">Half Day</span>
+              : record.status === 'Holiday'
+              ? <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">Holiday</span>
+              : <span className="text-zinc-500 font-semibold">{record.status || '-'}</span>,
+            Remarks: record.name || record.note || record.remarks || '-'
           }));
           setData(mapped);
         } else {
