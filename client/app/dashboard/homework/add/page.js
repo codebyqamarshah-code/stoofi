@@ -216,7 +216,7 @@ export default function AddHomeworkPage() {
               <SearchableSelect 
                 name="className" value={formData.className} onChange={(v) => handleSelectChange('className', v)}
                 placeholder="Select Class *"
-                options={classes.map(c => ({ label: c.name, value: c.name }))}
+                options={sortClassesAcademic(classes.map(c => ({ label: c.name, value: c.name })))}
               />
             </div>
 
@@ -325,7 +325,12 @@ export default function AddHomeworkPage() {
           </div>
 
           <div className="flex justify-end pt-4 border-t border-zinc-200">
-            <Button disabled={submitting} type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold min-w-[200px]">
+            <Button 
+              disabled={submitting} 
+              type="submit" 
+              style={{ backgroundColor: '#084A86' }}
+              className="hover:opacity-95 text-white font-bold min-w-[200px] h-10 rounded-xl cursor-pointer"
+            >
               {submitting 
                 ? (uploadProgress > 0 && uploadProgress < 100 ? `UPLOADING (${uploadProgress}%)...` : 'SAVING HOMEWORK...') 
                 : 'PUBLISH HOMEWORK'}

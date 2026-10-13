@@ -1,9 +1,23 @@
 'use client';
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, UserPlus, Image as ImageIcon, FileCheck, Upload, Trash2, CheckCircle, ShieldAlert, Building, ShieldCheck, GraduationCap } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  UserPlus, 
+  Image as ImageIcon, 
+  FileCheck, 
+  Upload, 
+  Trash2, 
+  CheckCircle, 
+  CheckCircle2, 
+  AlertCircle, 
+  Loader2, 
+  ShieldAlert, 
+  Building, 
+  ShieldCheck, 
+  GraduationCap 
+} from 'lucide-react';
 import api from '@/services/api';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { StoofiLogo } from '@/components/StoofiLogo';
@@ -59,6 +73,9 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
+  const [checkingFields, setCheckingFields] = useState({});
+  const [availableFields, setAvailableFields] = useState({});
+  const availabilityTimeouts = useRef({});
   const [success, setSuccess] = useState(false);
   
   const [role, setRole] = useState('Student');
@@ -304,6 +321,83 @@ export default function RegisterPage() {
     });
   };
 
+  const checkFieldAvailability = async (name, value) => {
+    if (!value || !value.trim()) {
+      setAvailableFields(prev => ({ ...prev, [name]: false }));
+      return;
+    }
+
+    const trimmed = value.trim();
+
+    // Syntax pre-check before making network request
+    if (name === 'phone') {
+      const phoneRegex = /^(\+92|92|0)?3[0-9]{9}$/;
+      if (!phoneRegex.test(trimmed) || isFakePhone(trimmed)) {
+        setAvailableFields(prev => ({ ...prev, [name]: false }));
+        return;
+      }
+    } else if (name === 'email') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(trimmed) || isFakeEmail(trimmed)) {
+        setAvailableFields(prev => ({ ...prev, [name]: false }));
+        return;
+      }
+    } else if (name === 'username') {
+      if (trimmed.length < 3 || !/^[a-zA-Z0-9_.-]+$/.test(trimmed)) {
+        setAvailableFields(prev => ({ ...prev, [name]: false }));
+        return;
+      }
+    } else if (name === 'cnic') {
+      const cnicRegex = /^[0-9]{5}-[0-9]{7}-[0-9]{1}$|^[0-9]{13}$/;
+      if (!cnicRegex.test(trimmed) || isFakeCnic(trimmed)) {
+        setAvailableFields(prev => ({ ...prev, [name]: false }));
+        return;
+      }
+    } else {
+      return;
+    }
+
+    setCheckingFields(prev => ({ ...prev, [name]: true }));
+
+    try {
+      const res = await api.get(`/auth/check-availability?field=${name}&value=${encodeURIComponent(trimmed)}`);
+      if (res && res.success) {
+        if (!res.available) {
+          setFieldErrors(prev => ({ ...prev, [name]: res.message }));
+          setAvailableFields(prev => ({ ...prev, [name]: false }));
+        } else {
+          setFieldErrors(prev => {
+            const updated = { ...prev };
+            if (updated[name] && (
+              updated[name].toLowerCase().includes('already') ||
+              updated[name].toLowerCase().includes('taken') ||
+              updated[name].toLowerCase().includes('registered') ||
+              updated[name].toLowerCase().includes('exists')
+            )) {
+              delete updated[name];
+            }
+            return updated;
+          });
+          setAvailableFields(prev => ({ ...prev, [name]: true }));
+        }
+      }
+    } catch (err) {
+      console.error(`Error checking ${name} availability:`, err);
+    } finally {
+      setCheckingFields(prev => ({ ...prev, [name]: false }));
+    }
+  };
+
+  const handleBlur = (name, value) => {
+    validateSingleField(name, value);
+    if (['phone', 'email', 'username', 'cnic'].includes(name)) {
+      if (availabilityTimeouts.current[name]) {
+        clearTimeout(availabilityTimeouts.current[name]);
+      }
+      checkFieldAvailability(name, value);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     const newForm = { ...formData, [name]: value };
@@ -315,6 +409,17 @@ export default function RegisterPage() {
     }
     if (name === 'dob' && newForm.cnic) {
       validateSingleField('cnic', newForm.cnic, newForm);
+    }
+
+    // Live debounce checking for phone, email, username, and cnic
+    if (['phone', 'email', 'username', 'cnic'].includes(name)) {
+      setAvailableFields(prev => ({ ...prev, [name]: false }));
+      if (availabilityTimeouts.current[name]) {
+        clearTimeout(availabilityTimeouts.current[name]);
+      }
+      availabilityTimeouts.current[name] = setTimeout(() => {
+        checkFieldAvailability(name, value);
+      }, 400);
     }
   };
 
@@ -434,13 +539,53 @@ export default function RegisterPage() {
       }
     }
 
+    // Check if any field already has an active error
     if (Object.keys(errors).length > 0) {
-      setFieldErrors(errors);
+      setFieldErrors(prev => ({ ...prev, ...errors }));
       setLoading(false);
       if (typeof window !== 'undefined') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
       return;
+    }
+
+    // Pre-flight check live availability with backend before submitting
+    try {
+      const checks = [];
+      if (formData.phone && formData.phone.trim()) {
+        checks.push(api.get(`/auth/check-availability?field=phone&value=${encodeURIComponent(formData.phone.trim())}`));
+      }
+      if (formData.email && formData.email.trim()) {
+        checks.push(api.get(`/auth/check-availability?field=email&value=${encodeURIComponent(formData.email.trim())}`));
+      }
+      if (formData.username && formData.username.trim()) {
+        checks.push(api.get(`/auth/check-availability?field=username&value=${encodeURIComponent(formData.username.trim())}`));
+      }
+      if (formData.cnic && formData.cnic.trim()) {
+        checks.push(api.get(`/auth/check-availability?field=cnic&value=${encodeURIComponent(formData.cnic.trim())}`));
+      }
+
+      if (checks.length > 0) {
+        const results = await Promise.all(checks);
+        let hasAvailError = false;
+        results.forEach(res => {
+          if (res && res.success && !res.available && res.field) {
+            errors[res.field] = res.message;
+            hasAvailError = true;
+          }
+        });
+
+        if (hasAvailError) {
+          setFieldErrors(prev => ({ ...prev, ...errors }));
+          setLoading(false);
+          if (typeof window !== 'undefined') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+          return;
+        }
+      }
+    } catch (availErr) {
+      console.error("Availability check error:", availErr);
     }
 
     try {
@@ -662,32 +807,92 @@ export default function RegisterPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Username <span className="text-rose-500">*</span></label>
-              <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
-                placeholder="Enter unique username (e.g. user_123)"
-                className={inputClass}
-                required
-              />
-              {fieldErrors.username && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.username}</p>}
+              <div className="relative">
+                <input
+                  type="text"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  onBlur={(e) => handleBlur(e.target.name, e.target.value)}
+                  placeholder="Enter unique username (e.g. user_123)"
+                  className={`${inputClass} pr-10 ${
+                    fieldErrors.username 
+                      ? 'border-rose-500 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-200' 
+                      : availableFields.username 
+                      ? 'border-emerald-500 dark:border-emerald-500 focus:border-emerald-500 focus:ring-emerald-200' 
+                      : ''
+                  }`}
+                  required
+                />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+                  {checkingFields.username && (
+                    <Loader2 className="h-4 w-4 animate-spin text-zinc-400" />
+                  )}
+                  {!checkingFields.username && availableFields.username && !fieldErrors.username && (
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                  )}
+                  {!checkingFields.username && fieldErrors.username && (
+                    <AlertCircle className="h-4 w-4 text-rose-500" />
+                  )}
+                </div>
+              </div>
+              {fieldErrors.username && (
+                <p className="text-rose-500 text-xs font-semibold mt-1.5 flex items-center gap-1 animate-in fade-in">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  {fieldErrors.username}
+                </p>
+              )}
+              {!fieldErrors.username && availableFields.username && formData.username && (
+                <p className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold mt-1.5 flex items-center gap-1 animate-in fade-in">
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                  Username is available
+                </p>
+              )}
             </div>
 
             <div>
               <label className={labelClass}>Email Address <span className="text-rose-500">*</span></label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
-                placeholder="e.g. admin@school.com"
-                className={inputClass}
-                required
-              />
-              {fieldErrors.email && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.email}</p>}
+              <div className="relative">
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  onBlur={(e) => handleBlur(e.target.name, e.target.value)}
+                  placeholder="e.g. admin@school.com"
+                  className={`${inputClass} pr-10 ${
+                    fieldErrors.email 
+                      ? 'border-rose-500 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-200' 
+                      : availableFields.email 
+                      ? 'border-emerald-500 dark:border-emerald-500 focus:border-emerald-500 focus:ring-emerald-200' 
+                      : ''
+                  }`}
+                  required
+                />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+                  {checkingFields.email && (
+                    <Loader2 className="h-4 w-4 animate-spin text-zinc-400" />
+                  )}
+                  {!checkingFields.email && availableFields.email && !fieldErrors.email && (
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                  )}
+                  {!checkingFields.email && fieldErrors.email && (
+                    <AlertCircle className="h-4 w-4 text-rose-500" />
+                  )}
+                </div>
+              </div>
+              {fieldErrors.email && (
+                <p className="text-rose-500 text-xs font-semibold mt-1.5 flex items-center gap-1 animate-in fade-in">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  {fieldErrors.email}
+                </p>
+              )}
+              {!fieldErrors.email && availableFields.email && formData.email && (
+                <p className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold mt-1.5 flex items-center gap-1 animate-in fade-in">
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                  Email is available
+                </p>
+              )}
             </div>
           </div>
 
@@ -833,33 +1038,94 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className={labelClass}>Phone Number</label>
-              <input
-                type="text"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
-                placeholder="03351234567"
-                className={inputClass}
-              />
-              {fieldErrors.phone && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.phone}</p>}
+              <label className={labelClass}>Phone Number <span className="text-rose-500">*</span></label>
+              <div className="relative">
+                <input
+                  type="text"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  onBlur={(e) => handleBlur(e.target.name, e.target.value)}
+                  placeholder="03351234567"
+                  className={`${inputClass} pr-10 ${
+                    fieldErrors.phone 
+                      ? 'border-rose-500 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-200' 
+                      : availableFields.phone 
+                      ? 'border-emerald-500 dark:border-emerald-500 focus:border-emerald-500 focus:ring-emerald-200' 
+                      : ''
+                  }`}
+                  required
+                />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+                  {checkingFields.phone && (
+                    <Loader2 className="h-4 w-4 animate-spin text-zinc-400" />
+                  )}
+                  {!checkingFields.phone && availableFields.phone && !fieldErrors.phone && (
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                  )}
+                  {!checkingFields.phone && fieldErrors.phone && (
+                    <AlertCircle className="h-4 w-4 text-rose-500" />
+                  )}
+                </div>
+              </div>
+              {fieldErrors.phone && (
+                <p className="text-rose-500 text-xs font-semibold mt-1.5 flex items-center gap-1 animate-in fade-in">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  {fieldErrors.phone}
+                </p>
+              )}
+              {!fieldErrors.phone && availableFields.phone && formData.phone && (
+                <p className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold mt-1.5 flex items-center gap-1 animate-in fade-in">
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                  Phone number is available
+                </p>
+              )}
             </div>
 
             <div>
               <label className={labelClass}>
                 CNIC / National ID {role === 'Student' && calculateAge(formData.dob) !== null && calculateAge(formData.dob) < 18 ? <span className="text-xs text-zinc-400 font-normal">(Optional)</span> : <span className="text-rose-500">*</span>}
               </label>
-              <input
-                type="text"
-                name="cnic"
-                value={formData.cnic}
-                onChange={handleChange}
-                onBlur={(e) => validateSingleField(e.target.name, e.target.value)}
-                placeholder="35202-1234567-1"
-                className={inputClass}
-              />
-              {fieldErrors.cnic && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.cnic}</p>}
+              <div className="relative">
+                <input
+                  type="text"
+                  name="cnic"
+                  value={formData.cnic}
+                  onChange={handleChange}
+                  onBlur={(e) => handleBlur(e.target.name, e.target.value)}
+                  placeholder="35202-1234567-1"
+                  className={`${inputClass} pr-10 ${
+                    fieldErrors.cnic 
+                      ? 'border-rose-500 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-200' 
+                      : availableFields.cnic 
+                      ? 'border-emerald-500 dark:border-emerald-500 focus:border-emerald-500 focus:ring-emerald-200' 
+                      : ''
+                  }`}
+                />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+                  {checkingFields.cnic && (
+                    <Loader2 className="h-4 w-4 animate-spin text-zinc-400" />
+                  )}
+                  {!checkingFields.cnic && availableFields.cnic && !fieldErrors.cnic && (
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                  )}
+                  {!checkingFields.cnic && fieldErrors.cnic && (
+                    <AlertCircle className="h-4 w-4 text-rose-500" />
+                  )}
+                </div>
+              </div>
+              {fieldErrors.cnic && (
+                <p className="text-rose-500 text-xs font-semibold mt-1.5 flex items-center gap-1 animate-in fade-in">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  {fieldErrors.cnic}
+                </p>
+              )}
+              {!fieldErrors.cnic && availableFields.cnic && formData.cnic && (
+                <p className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold mt-1.5 flex items-center gap-1 animate-in fade-in">
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                  CNIC is available
+                </p>
+              )}
             </div>
           </div>
 

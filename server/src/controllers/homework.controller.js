@@ -187,3 +187,21 @@ exports.submitHomework = async (req, res) => {
     res.status(500).json({ success: false, message: e.message });
   }
 };
+
+exports.saveEvaluation = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { evaluations } = req.body;
+    const hw = await Model.findByIdAndUpdate(
+      id,
+      { evaluations },
+      { new: true }
+    );
+    if (!hw) {
+      return res.status(404).json({ success: false, message: 'Homework not found' });
+    }
+    res.json({ success: true, data: hw, message: 'Homework evaluations saved successfully' });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+};

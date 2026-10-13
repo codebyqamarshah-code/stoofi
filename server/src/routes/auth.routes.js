@@ -1,6 +1,6 @@
-const express = require('express');
 const { 
   register, 
+  checkAvailability,
   login, 
   logout, 
   getMe, 
@@ -17,6 +17,8 @@ const { protect } = require('../middleware/auth.middleware');
 const router = express.Router();
 
 router.get('/registration-status', getRegistrationStatus);
+router.get('/check-availability', checkAvailability);
+router.post('/check-availability', checkAvailability);
 router.post('/register', register);
 router.post('/login', login);
 router.get('/logout', logout);

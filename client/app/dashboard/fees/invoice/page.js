@@ -1,15 +1,33 @@
 'use client';
+
 import Link from 'next/link';
 import React, { useState, useEffect, useMemo } from 'react';
-import { ChevronRight, Search, Plus, Edit, Trash2, Printer, Download, FileText, CheckCircle2, AlertCircle, Clock, X, Eye } from 'lucide-react';
+import { 
+  ChevronRight, 
+  Search, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Printer, 
+  Download, 
+  FileText, 
+  CheckCircle2, 
+  AlertCircle, 
+  Clock, 
+  X, 
+  Eye,
+  DollarSign
+} from 'lucide-react';
 import api from '@/services/api';
-import { exportToCSV, exportToExcel, printData } from '@/lib/exportUtils';
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-const FEE_TYPES = [
+const DEFAULT_FEE_TYPES = [
   'Tuition Fee 2026',
   'Admission & Registration Fee',
+  'Monthly Tuition Fee',
+  'Annual Charges',
   'Mid-Term Exam Fee',
   'Final Exam Fee',
   'School Bus Transport',
@@ -28,8 +46,9 @@ export default function FeesInvoicePage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
 
-  // Students list for auto-fill in Invoice Builder
+  // Dynamic students and fee types
   const [studentsList, setStudentsList] = useState([]);
+  const [availableFeeTypes, setAvailableFeeTypes] = useState(DEFAULT_FEE_TYPES);
 
   // Modal states
   const [isBuilderOpen, setIsBuilderOpen] = useState(false);
@@ -55,17 +74,24 @@ export default function FeesInvoicePage() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [invRes, stuRes] = await Promise.all([
+      const [invRes, stuRes, typesRes] = await Promise.all([
         api.get('/fees-invoice', { params: { page, limit: 10, search, status: statusFilter } }),
-        api.get('/student')
+        api.get('/student?limit=1000').catch(() => null),
+        api.get('/fees/type').catch(() => null)
       ]);
       
-      if (stuRes.success) {
+      if (stuRes?.success && Array.isArray(stuRes.data)) {
         setStudentsList(stuRes.data);
       }
 
-      if (invRes.success) {
-        setRecords(invRes.data);
+      if (typesRes?.success && Array.isArray(typesRes.data) && typesRes.data.length > 0) {
+        const customTypes = typesRes.data.map(t => t.name).filter(Boolean);
+        const combined = Array.from(new Set([...customTypes, ...DEFAULT_FEE_TYPES]));
+        setAvailableFeeTypes(combined);
+      }
+
+      if (invRes?.success) {
+        setRecords(invRes.data || []);
         if (invRes.pagination) {
           setTotalPages(invRes.pagination.totalPages || 1);
           setTotalRecords(invRes.pagination.total || 0);
@@ -82,7 +108,7 @@ export default function FeesInvoicePage() {
     fetchData();
   }, [page, statusFilter]);
 
-  // Handle Search Trigger
+  // Search Submit
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault();
     setPage(1);
@@ -96,8 +122,8 @@ export default function FeesInvoicePage() {
     setFormData({
       student: firstStudent ? `${firstStudent.firstName} ${firstStudent.lastName}` : '',
       admissionNo: firstStudent?.admissionNo || 'ADM-2026-001',
-      className: firstStudent ? `${firstStudent.className} (${firstStudent.section})` : 'Class 10 (A)',
-      feeType: 'Tuition Fee 2026',
+      className: firstStudent ? `${firstStudent.className} (${firstStudent.section || 'A'})` : 'Class 10 (A)',
+      feeType: availableFeeTypes[0] || 'Tuition Fee 2026',
       amount: 15000,
       waiver: 0,
       fine: 0,
@@ -155,9 +181,9 @@ export default function FeesInvoicePage() {
   }, [formData.amount, formData.waiver, formData.fine, formData.paid]);
 
   const computedStatus = useMemo(() => {
-    if (computedBalance <= 0) return 'PAID';
-    if (Number(formData.paid) > 0) return 'PARTIAL';
-    return 'UNPAID';
+    if (computedBalance <= 0) return 'Paid';
+    if (Number(formData.paid) > 0) return 'Partial';
+    return 'Unpaid';
   }, [computedBalance, formData.paid]);
 
   // Save / Update Invoice
@@ -221,27 +247,42 @@ export default function FeesInvoicePage() {
 
   // Overall Financial Stats
   const stats = useMemo(() => {
-    const totalInvoices = records.length;
+    const totalInvoices = totalRecords || records.length;
     const totalAmount = records.reduce((acc, r) => acc + (Number(r.amount) || 0), 0);
     const totalPaid = records.reduce((acc, r) => acc + (Number(r.paid) || 0), 0);
     const totalBalance = records.reduce((acc, r) => acc + (Number(r.balance) || 0), 0);
     return { totalInvoices, totalAmount, totalPaid, totalBalance };
-  }, [records]);
+  }, [records, totalRecords]);
 
-  // Export dataset
+  // Export formatting
+  const exportColumns = [
+    { key: 'invoiceNo', label: 'Invoice No' },
+    { key: 'student', label: 'Student Name' },
+    { key: 'admissionNo', label: 'Admission No' },
+    { key: 'className', label: 'Class & Section' },
+    { key: 'feeType', label: 'Fee Type' },
+    { key: 'amount', label: 'Amount (PKR)' },
+    { key: 'waiver', label: 'Waiver (PKR)' },
+    { key: 'fine', label: 'Fine (PKR)' },
+    { key: 'paid', label: 'Paid (PKR)' },
+    { key: 'balance', label: 'Balance (PKR)' },
+    { key: 'status', label: 'Status' },
+    { key: 'date', label: 'Date' }
+  ];
+
   const exportData = records.map(r => ({
-    'Invoice No': r.invoiceNo || '-',
-    'Student Name': r.student,
-    'Admission No': r.admissionNo || '-',
-    'Class': r.className || '-',
-    'Fee Type': r.feeType || '-',
-    'Amount': r.amount,
-    'Waiver': r.waiver,
-    'Fine': r.fine,
-    'Paid': r.paid,
-    'Balance': r.balance,
-    'Status': r.status,
-    'Date': r.date
+    invoiceNo: r.invoiceNo || '—',
+    student: r.student || '—',
+    admissionNo: r.admissionNo || '—',
+    className: r.className || '—',
+    feeType: r.feeType || '—',
+    amount: r.amount || 0,
+    waiver: r.waiver || 0,
+    fine: r.fine || 0,
+    paid: r.paid || 0,
+    balance: r.balance || 0,
+    status: r.status || 'Unpaid',
+    date: r.date || '—'
   }));
 
   return (
@@ -249,13 +290,16 @@ export default function FeesInvoicePage() {
       {/* Header & Breadcrumb */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-950 tracking-tight">Fees Invoice Manager</h1>
-          <p className="text-xs text-zinc-400 mt-1">Generate, track, edit, and print official student fee vouchers</p>
+          <h1 className="text-2xl font-bold text-zinc-950 tracking-tight flex items-center gap-2">
+            <FileText className="h-6 w-6 text-[#084A86]" />
+            Fees Invoice Manager
+          </h1>
+          <p className="text-xs text-zinc-500 mt-1">Generate, track, edit, and print official student fee vouchers</p>
         </div>
         <div className="flex items-center text-xs text-zinc-400">
-          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
+          <Link href="/dashboard" className="hover:text-zinc-600 transition-colors">Dashboard</Link>
           <ChevronRight className="h-3.5 w-3.5 mx-1" />
-          <span>Fees</span>
+          <Link href="/dashboard/fees" className="hover:text-zinc-600 transition-colors">Fees</Link>
           <ChevronRight className="h-3.5 w-3.5 mx-1" />
           <span className="text-zinc-950 font-bold">Fees Invoice</span>
         </div>
@@ -263,40 +307,40 @@ export default function FeesInvoicePage() {
 
       {/* 4 Financial Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-zinc-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
+        <div className="bg-white border border-zinc-200 rounded-xl p-4 flex items-center justify-between shadow-xs">
           <div>
             <div className="text-xs text-zinc-500 font-semibold uppercase tracking-wider">Total Invoices</div>
-            <div className="text-2xl font-extrabold text-black mt-1">{stats.totalInvoices}</div>
+            <div className="text-2xl font-black text-zinc-950 mt-1">{stats.totalInvoices}</div>
           </div>
-          <div className="h-10 w-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+          <div className="h-10 w-10 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-[#084A86]">
             <FileText className="h-5 w-5" />
           </div>
         </div>
 
-        <div className="bg-white border border-zinc-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
+        <div className="bg-white border border-zinc-200 rounded-xl p-4 flex items-center justify-between shadow-xs">
           <div>
-            <div className="text-xs text-zinc-500 font-semibold uppercase tracking-wider">Total Amount</div>
-            <div className="text-2xl font-extrabold text-black mt-1">${stats.totalAmount.toLocaleString()}</div>
+            <div className="text-xs text-zinc-500 font-semibold uppercase tracking-wider">Total Invoiced</div>
+            <div className="text-2xl font-black text-zinc-950 mt-1">PKR {stats.totalAmount.toLocaleString()}</div>
           </div>
           <div className="h-10 w-10 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
             <CheckCircle2 className="h-5 w-5" />
           </div>
         </div>
 
-        <div className="bg-white border border-zinc-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
+        <div className="bg-white border border-zinc-200 rounded-xl p-4 flex items-center justify-between shadow-xs">
           <div>
             <div className="text-xs text-zinc-500 font-semibold uppercase tracking-wider">Collected Fees</div>
-            <div className="text-2xl font-extrabold text-black mt-1">${stats.totalPaid.toLocaleString()}</div>
+            <div className="text-2xl font-black text-emerald-700 mt-1">PKR {stats.totalPaid.toLocaleString()}</div>
           </div>
-          <div className="h-10 w-10 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
+          <div className="h-10 w-10 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
             <Download className="h-5 w-5" />
           </div>
         </div>
 
-        <div className="bg-white border border-zinc-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
+        <div className="bg-white border border-zinc-200 rounded-xl p-4 flex items-center justify-between shadow-xs">
           <div>
             <div className="text-xs text-zinc-500 font-semibold uppercase tracking-wider">Pending Balance</div>
-            <div className="text-2xl font-extrabold text-rose-600 mt-1">${stats.totalBalance.toLocaleString()}</div>
+            <div className="text-2xl font-black text-rose-600 mt-1">PKR {stats.totalBalance.toLocaleString()}</div>
           </div>
           <div className="h-10 w-10 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600">
             <AlertCircle className="h-5 w-5" />
@@ -305,27 +349,29 @@ export default function FeesInvoicePage() {
       </div>
 
       {/* Main Card */}
-      <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden flex flex-col shadow-xs">
+      <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden flex flex-col">
         {/* Actions Bar */}
-        <div className="p-4 border-b border-zinc-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="p-4 border-b border-zinc-200 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-zinc-50/50">
           <div className="flex flex-wrap items-center gap-3">
             <Button 
               onClick={handleOpenCreate} 
-              className="bg-zinc-800 hover:bg-zinc-100 text-zinc-950 font-bold flex items-center gap-2 shadow-xs text-xs px-4 h-9"
+              style={{ backgroundColor: '#084A86' }}
+              className="hover:opacity-95 text-white font-bold flex items-center gap-2 shadow-xs text-xs px-4 h-9 rounded-xl cursor-pointer"
             >
               <Plus className="h-4 w-4" /> CREATE INVOICE
             </Button>
 
             {/* Status Filter Tabs */}
-            <div className="flex items-center bg-white border border-zinc-200 shadow-xs rounded-lg p-0.5 text-xs font-semibold">
+            <div className="flex items-center bg-white border border-zinc-200 shadow-xs rounded-xl p-1 text-xs font-semibold">
               {['ALL', 'PAID', 'PARTIAL', 'UNPAID'].map(st => (
                 <button
                   key={st}
-                  onClick={() => setStatusFilter(st)}
-                  className={`px-3 py-1.5 rounded-md transition-colors ${
+                  onClick={() => { setStatusFilter(st); setPage(1); }}
+                  style={statusFilter === st ? { backgroundColor: '#084A86', color: '#ffffff' } : {}}
+                  className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
                     statusFilter === st 
-                      ? 'bg-zinc-800 text-white shadow-xs' 
-                      : 'text-zinc-400 hover:text-white'
+                      ? 'shadow-xs font-bold' 
+                      : 'text-zinc-600 hover:text-zinc-950'
                   }`}
                 >
                   {st}
@@ -335,28 +381,22 @@ export default function FeesInvoicePage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="relative w-full sm:w-60 flex items-center">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+            <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-60 flex items-center">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
               <Input 
                 placeholder="Search student or invoice..." 
                 value={search} 
                 onChange={e => setSearch(e.target.value)} 
-                className="pl-9 h-9 bg-white border-zinc-300 text-zinc-950 text-xs focus-visible:ring-zinc-600 text-zinc-950 rounded-lg" 
+                className="pl-9 h-9 bg-white border-zinc-200 text-zinc-950 text-xs rounded-xl focus-visible:ring-[#084A86]" 
               />
-            </div>
+            </form>
 
-            {/* Export Buttons */}
-            <div className="flex items-center gap-1.5 shrink-0">
-              <Button onClick={() => exportToCSV(exportData, 'Fees_Invoices')} variant="outline" size="icon" className="h-9 w-9 border-zinc-200 bg-zinc-900 hover:bg-zinc-800 text-zinc-950" title="Export CSV">
-                <Download className="h-4 w-4" />
-              </Button>
-              <Button onClick={() => exportToExcel(exportData, 'Fees_Invoices')} variant="outline" size="icon" className="h-9 w-9 border-zinc-200 bg-zinc-900 hover:bg-zinc-800 text-zinc-500" title="Export Excel">
-                <FileText className="h-4 w-4" />
-              </Button>
-              <Button onClick={() => printData('Fees Invoices Report', exportData)} variant="outline" size="icon" className="h-9 w-9 border-zinc-200 bg-zinc-900 hover:bg-zinc-800 text-rose-400" title="Print List">
-                <Printer className="h-4 w-4" />
-              </Button>
-            </div>
+            {/* Export Toolbar */}
+            <TableExportToolbar
+              data={exportData}
+              columns={exportColumns}
+              filename="Fees_Invoices_Report"
+            />
           </div>
         </div>
 
@@ -365,73 +405,80 @@ export default function FeesInvoicePage() {
           <table className="w-full text-sm text-left">
             <thead className="text-xs text-zinc-700 uppercase font-bold bg-zinc-50 border-b border-zinc-200">
               <tr>
-                <th className="px-4 py-3 font-semibold">SL</th>
-                <th className="px-4 py-3 font-semibold">Invoice No</th>
-                <th className="px-4 py-3 font-semibold">Student & Class</th>
-                <th className="px-4 py-3 font-semibold">Fee Type</th>
-                <th className="px-4 py-3 font-semibold">Amount</th>
-                <th className="px-4 py-3 font-semibold">Waiver</th>
-                <th className="px-4 py-3 font-semibold">Fine</th>
-                <th className="px-4 py-3 font-semibold">Paid</th>
-                <th className="px-4 py-3 font-semibold">Balance</th>
-                <th className="px-4 py-3 font-semibold">Status</th>
-                <th className="px-4 py-3 font-semibold">Date</th>
-                <th className="px-4 py-3 font-semibold text-right">Actions</th>
+                <th className="px-4 py-3.5 font-bold">SL</th>
+                <th className="px-4 py-3.5 font-bold">Invoice No</th>
+                <th className="px-4 py-3.5 font-bold">Student & Class</th>
+                <th className="px-4 py-3.5 font-bold">Fee Type</th>
+                <th className="px-4 py-3.5 font-bold">Amount (PKR)</th>
+                <th className="px-4 py-3.5 font-bold">Waiver</th>
+                <th className="px-4 py-3.5 font-bold">Fine</th>
+                <th className="px-4 py-3.5 font-bold">Paid</th>
+                <th className="px-4 py-3.5 font-bold">Balance</th>
+                <th className="px-4 py-3.5 font-bold">Status</th>
+                <th className="px-4 py-3.5 font-bold">Date</th>
+                <th className="px-4 py-3.5 font-bold text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
               {loading ? (
                 <tr>
-                  <td colSpan="12" className="px-4 py-8 text-center text-zinc-500">Loading invoices...</td>
+                  <td colSpan="12" className="px-4 py-12 text-center text-zinc-500">
+                    <div className="inline-flex items-center gap-2">
+                      <div className="h-4 w-4 rounded-full border-2 border-[#084A86] border-t-transparent animate-spin" />
+                      Loading fee invoices...
+                    </div>
+                  </td>
                 </tr>
               ) : records.length === 0 ? (
                 <tr>
-                  <td colSpan="12" className="px-4 py-8 text-center text-zinc-500">
+                  <td colSpan="12" className="px-4 py-12 text-center text-zinc-500">
                     No Invoices Available. Click &quot;Create Invoice&quot; to issue a new voucher.
                   </td>
                 </tr>
               ) : (
                 records.map((r, i) => (
-                  <tr key={r._id} className="hover:bg-zinc-50 transition-colors">
-                    <td className="px-4 py-3 text-zinc-500 font-medium text-xs">#{i + 1}</td>
-                    <td className="px-4 py-3 font-semibold text-zinc-200 text-xs tracking-wider">{r.invoiceNo || `INV-${100 + i}`}</td>
-                    <td className="px-4 py-3">
-                      <div className="font-semibold text-zinc-950">{r.student}</div>
-                      <div className="text-[11px] text-zinc-400">{r.className || '-'} &bull; {r.admissionNo || '-'}</div>
+                  <tr key={r._id || i} className="hover:bg-zinc-50 transition-colors">
+                    <td className="px-4 py-3.5 text-zinc-500 font-medium text-xs">#{(page - 1) * 10 + i + 1}</td>
+                    <td className="px-4 py-3.5 font-bold text-zinc-900 font-mono text-xs tracking-wider">
+                      {r.invoiceNo || `INV-${100 + i}`}
                     </td>
-                    <td className="px-4 py-3 text-zinc-950 text-xs">
-                      <span className="bg-white border border-zinc-200 shadow-xs px-2 py-0.5 rounded text-[11px] text-zinc-950">
+                    <td className="px-4 py-3.5">
+                      <div className="font-bold text-zinc-950">{r.student}</div>
+                      <div className="text-[11px] text-zinc-500">{r.className || '-'} &bull; {r.admissionNo || '-'}</div>
+                    </td>
+                    <td className="px-4 py-3.5 text-xs">
+                      <span className="bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md text-[11px] font-semibold text-zinc-800">
                         {r.feeType || 'Tuition Fee'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 font-bold text-zinc-950">${Number(r.amount || 0).toLocaleString()}</td>
-                    <td className="px-4 py-3 text-zinc-700 text-xs">${Number(r.waiver || 0).toLocaleString()}</td>
-                    <td className="px-4 py-3 text-zinc-700 text-xs">${Number(r.fine || 0).toLocaleString()}</td>
-                    <td className="px-4 py-3 text-zinc-500 font-bold">${Number(r.paid || 0).toLocaleString()}</td>
-                    <td className="px-4 py-3">
-                      <span className={`font-bold ${Number(r.balance || 0) > 0 ? 'text-rose-400' : 'text-zinc-500'}`}>
-                        ${Number(r.balance || 0).toLocaleString()}
+                    <td className="px-4 py-3.5 font-bold text-zinc-950">PKR {Number(r.amount || 0).toLocaleString()}</td>
+                    <td className="px-4 py-3.5 text-zinc-600 text-xs">PKR {Number(r.waiver || 0).toLocaleString()}</td>
+                    <td className="px-4 py-3.5 text-zinc-600 text-xs">PKR {Number(r.fine || 0).toLocaleString()}</td>
+                    <td className="px-4 py-3.5 text-emerald-700 font-bold">PKR {Number(r.paid || 0).toLocaleString()}</td>
+                    <td className="px-4 py-3.5">
+                      <span className={`font-bold ${Number(r.balance || 0) > 0 ? 'text-rose-600' : 'text-zinc-500'}`}>
+                        PKR {Number(r.balance || 0).toLocaleString()}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
-                      <span className={`px-2.5 py-1 text-[10px] font-bold rounded-full tracking-wider border ${
-                        r.status === 'PAID' 
-                          ? 'bg-zinc-600/10 text-zinc-500 border-zinc-600/30' 
-                          : r.status === 'PARTIAL' 
-                          ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' 
-                          : 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                    <td className="px-4 py-3.5">
+                      <span className={`px-2.5 py-1 text-[11px] font-bold rounded-full tracking-wider border ${
+                        (r.status || '').toUpperCase() === 'PAID'
+                          ? 'bg-emerald-100 text-emerald-800 border-emerald-200' 
+                          : (r.status || '').toUpperCase() === 'PARTIAL'
+                          ? 'bg-amber-100 text-amber-800 border-amber-200' 
+                          : 'bg-rose-100 text-rose-800 border-rose-200'
                       }`}>
                         {r.status || 'UNPAID'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-zinc-700 text-xs">{r.date || '-'}</td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-4 py-3.5 text-zinc-600 text-xs">{r.date || '-'}</td>
+                    <td className="px-4 py-3.5 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <Button 
                           onClick={() => handleOpenReceipt(r)} 
                           variant="ghost" 
                           size="icon" 
-                          className="h-8 w-8 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10" 
+                          className="h-8 w-8 text-[#084A86] hover:bg-blue-50 rounded-lg cursor-pointer" 
                           title="View / Print Receipt Voucher"
                         >
                           <Printer className="h-4 w-4" />
@@ -440,7 +487,7 @@ export default function FeesInvoicePage() {
                           onClick={() => handleOpenEdit(r)} 
                           variant="ghost" 
                           size="icon" 
-                          className="h-8 w-8 text-zinc-500 hover:text-zinc-400 hover:bg-zinc-600/10" 
+                          className="h-8 w-8 text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100 rounded-lg cursor-pointer" 
                           title="Edit Invoice"
                         >
                           <Edit className="h-4 w-4" />
@@ -449,7 +496,7 @@ export default function FeesInvoicePage() {
                           onClick={() => handleDelete(r._id)} 
                           variant="ghost" 
                           size="icon" 
-                          className="h-8 w-8 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10" 
+                          className="h-8 w-8 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg cursor-pointer" 
                           title="Delete Invoice"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -464,12 +511,24 @@ export default function FeesInvoicePage() {
         </div>
 
         {/* Table Footer */}
-        <div className="p-4 border-t border-zinc-200 flex flex-wrap items-center justify-between text-xs text-zinc-500">
+        <div className="p-4 border-t border-zinc-200 flex flex-wrap items-center justify-between text-xs text-zinc-500 bg-zinc-50/30">
           <div>Showing {totalRecords === 0 ? 0 : (page - 1) * 10 + 1} to {Math.min(page * 10, totalRecords)} of {totalRecords} invoices</div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1.5 rounded border border-zinc-200 hover:bg-zinc-100 disabled:opacity-40 transition-colors">Previous</button>
-            <div className="text-zinc-700 font-medium px-2">Page {page} of {totalPages}</div>
-            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-3 py-1.5 rounded border border-zinc-200 hover:bg-zinc-100 disabled:opacity-40 transition-colors">Next</button>
+            <button 
+              onClick={() => setPage(p => Math.max(1, p - 1))} 
+              disabled={page === 1} 
+              className="px-3 py-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-100 disabled:opacity-40 transition-colors cursor-pointer font-medium"
+            >
+              Previous
+            </button>
+            <div className="text-zinc-800 font-bold px-2">Page {page} of {totalPages}</div>
+            <button 
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))} 
+              disabled={page === totalPages} 
+              className="px-3 py-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-100 disabled:opacity-40 transition-colors cursor-pointer font-medium"
+            >
+              Next
+            </button>
           </div>
         </div>
       </div>
@@ -478,19 +537,19 @@ export default function FeesInvoicePage() {
       {/* MODAL 1: INVOICE BUILDER (CREATE / EDIT)                 */}
       {/* ========================================================= */}
       {isBuilderOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-zinc-200 shadow-xs rounded-2xl max-w-2xl w-full p-6 text-zinc-950 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-zinc-200 rounded-2xl max-w-2xl w-full p-6 text-zinc-950 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-zinc-200 pb-4 mb-5">
               <div>
                 <h2 className="text-lg font-bold text-zinc-950 flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-zinc-600" />
+                  <FileText className="h-5 w-5 text-[#084A86]" />
                   {editingInvoice ? 'Edit Fees Invoice' : 'Fees Invoice Builder'}
                 </h2>
-                <p className="text-xs text-zinc-400 mt-0.5">Fill details below to generate an official fee voucher</p>
+                <p className="text-xs text-zinc-500 mt-0.5">Fill details below to generate an official fee voucher</p>
               </div>
               <button 
                 onClick={() => setIsBuilderOpen(false)}
-                className="text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-zinc-50/80 transition-colors"
+                className="text-zinc-400 hover:text-zinc-600 p-1.5 rounded-lg hover:bg-zinc-100 transition-colors cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -500,11 +559,11 @@ export default function FeesInvoicePage() {
               {/* Student & Class Row */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-semibold text-zinc-950 block mb-1.5">Select Student *</label>
+                  <label className="text-xs font-bold text-zinc-700 block mb-1.5 uppercase">Select Student *</label>
                   <select
                     value={formData.student}
                     onChange={handleStudentSelect}
-                    className="w-full bg-white border border-zinc-200 shadow-xs rounded-lg px-3 py-2 text-xs text-zinc-950 focus:border-zinc-600 focus:outline-none"
+                    className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-xs text-zinc-950 focus:border-[#084A86] focus:outline-none font-medium"
                     required
                   >
                     <option value="">-- Choose Student --</option>
@@ -517,12 +576,12 @@ export default function FeesInvoicePage() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-zinc-950 block mb-1.5">Class & Section</label>
+                  <label className="text-xs font-bold text-zinc-700 block mb-1.5 uppercase">Class & Section</label>
                   <Input 
                     value={formData.className}
                     onChange={e => setFormData({ ...formData, className: e.target.value })}
                     placeholder="e.g. Class 10 (A)"
-                    className="bg-white border-zinc-300 text-zinc-950 text-xs h-9 text-zinc-950 focus-visible:ring-zinc-600"
+                    className="bg-white border-zinc-200 text-zinc-950 text-xs h-10 rounded-xl"
                   />
                 </div>
               </div>
@@ -530,23 +589,23 @@ export default function FeesInvoicePage() {
               {/* Admission No & Fee Type */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-semibold text-zinc-950 block mb-1.5">Admission / Roll No</label>
+                  <label className="text-xs font-bold text-zinc-700 block mb-1.5 uppercase">Admission / Roll No</label>
                   <Input 
                     value={formData.admissionNo}
                     onChange={e => setFormData({ ...formData, admissionNo: e.target.value })}
                     placeholder="e.g. ADM-2026-001"
-                    className="bg-white border-zinc-300 text-zinc-950 text-xs h-9 text-zinc-950 focus-visible:ring-zinc-600"
+                    className="bg-white border-zinc-200 text-zinc-950 text-xs h-10 rounded-xl"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-zinc-950 block mb-1.5">Fee Category / Group *</label>
+                  <label className="text-xs font-bold text-zinc-700 block mb-1.5 uppercase">Fee Category / Group *</label>
                   <select
                     value={formData.feeType}
                     onChange={e => setFormData({ ...formData, feeType: e.target.value })}
-                    className="w-full bg-white border border-zinc-200 shadow-xs rounded-lg px-3 py-2 text-xs text-zinc-950 focus:border-zinc-600 focus:outline-none"
+                    className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-xs text-zinc-950 focus:border-[#084A86] focus:outline-none font-medium"
                   >
-                    {FEE_TYPES.map(ft => (
+                    {availableFeeTypes.map(ft => (
                       <option key={ft} value={ft}>{ft}</option>
                     ))}
                   </select>
@@ -554,66 +613,66 @@ export default function FeesInvoicePage() {
               </div>
 
               {/* Financial Breakdown Grid */}
-              <div className="bg-zinc-50 border border-zinc-200/80 rounded-xl p-4 space-y-3">
-                <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Financial Breakdown ($)</div>
+              <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 space-y-3">
+                <div className="text-xs font-bold text-zinc-700 uppercase tracking-wider">Financial Breakdown (PKR)</div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div>
-                    <label className="text-[11px] font-medium text-zinc-900 font-semibold block mb-1">Total Fee ($)</label>
+                    <label className="text-[11px] font-bold text-zinc-700 block mb-1">Total Fee (PKR)</label>
                     <Input 
                       type="number"
                       min="0"
                       value={formData.amount}
                       onChange={e => setFormData({ ...formData, amount: e.target.value })}
-                      className="bg-zinc-950 border-zinc-200 text-xs h-8 text-white focus-visible:ring-zinc-600 font-bold"
+                      className="bg-white border-zinc-200 text-xs h-9 text-zinc-950 rounded-lg font-bold"
                       required
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-medium text-zinc-900 font-semibold block mb-1">Waiver / Disc ($)</label>
+                    <label className="text-[11px] font-bold text-zinc-700 block mb-1">Waiver / Disc (PKR)</label>
                     <Input 
                       type="number"
                       min="0"
                       value={formData.waiver}
                       onChange={e => setFormData({ ...formData, waiver: e.target.value })}
-                      className="bg-zinc-950 border-zinc-200 text-xs h-8 text-white focus-visible:ring-zinc-600"
+                      className="bg-white border-zinc-200 text-xs h-9 text-zinc-950 rounded-lg"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-medium text-zinc-900 font-semibold block mb-1">Late Fine ($)</label>
+                    <label className="text-[11px] font-bold text-zinc-700 block mb-1">Late Fine (PKR)</label>
                     <Input 
                       type="number"
                       min="0"
                       value={formData.fine}
                       onChange={e => setFormData({ ...formData, fine: e.target.value })}
-                      className="bg-zinc-950 border-zinc-200 text-xs h-8 text-white focus-visible:ring-zinc-600"
+                      className="bg-white border-zinc-200 text-xs h-9 text-zinc-950 rounded-lg"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-medium text-zinc-900 font-semibold block mb-1">Amount Paid ($)</label>
+                    <label className="text-[11px] font-bold text-zinc-700 block mb-1">Amount Paid (PKR)</label>
                     <Input 
                       type="number"
                       min="0"
                       value={formData.paid}
                       onChange={e => setFormData({ ...formData, paid: e.target.value })}
-                      className="bg-zinc-950 border-zinc-200 text-xs h-8 text-zinc-500 focus-visible:ring-zinc-600 font-bold"
+                      className="bg-white border-zinc-200 text-xs h-9 text-emerald-700 rounded-lg font-bold"
                     />
                   </div>
                 </div>
 
                 {/* Auto Calculated Summary Banner */}
-                <div className="flex items-center justify-between pt-2 border-t border-zinc-200/80 text-xs">
+                <div className="flex items-center justify-between pt-2 border-t border-zinc-200 text-xs">
                   <div className="flex items-center gap-2">
-                    <span className="text-zinc-400">Status:</span>
-                    <span className={`px-2 py-0.5 rounded font-bold text-[10px] ${
-                      computedStatus === 'PAID' ? 'bg-zinc-600/20 text-zinc-500' :
-                      computedStatus === 'PARTIAL' ? 'bg-amber-500/20 text-amber-400' : 'bg-rose-500/20 text-rose-400'
+                    <span className="text-zinc-500 font-semibold">Status:</span>
+                    <span className={`px-2 py-0.5 rounded font-bold text-[11px] ${
+                      computedStatus.toUpperCase() === 'PAID' ? 'bg-emerald-100 text-emerald-800' :
+                      computedStatus.toUpperCase() === 'PARTIAL' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800'
                     }`}>
                       {computedStatus}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-zinc-400">Remaining Balance:</span>
-                    <span className="font-extrabold text-rose-400 text-sm">${computedBalance.toLocaleString()}</span>
+                    <span className="text-zinc-500 font-semibold">Remaining Balance:</span>
+                    <span className="font-black text-rose-600 text-sm">PKR {computedBalance.toLocaleString()}</span>
                   </div>
                 </div>
               </div>
@@ -621,11 +680,11 @@ export default function FeesInvoicePage() {
               {/* Payment Method, Date, Notes */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-semibold text-zinc-950 block mb-1.5">Payment Method</label>
+                  <label className="text-xs font-bold text-zinc-700 block mb-1.5 uppercase">Payment Method</label>
                   <select
                     value={formData.paymentMethod}
                     onChange={e => setFormData({ ...formData, paymentMethod: e.target.value })}
-                    className="w-full bg-white border border-zinc-200 shadow-xs rounded-lg px-3 py-2 text-xs text-zinc-950 focus:border-zinc-600 focus:outline-none"
+                    className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-xs text-zinc-950 focus:border-[#084A86] focus:outline-none font-medium"
                   >
                     <option value="Cash">Cash Counter</option>
                     <option value="Online Bank Transfer">Online Bank Transfer</option>
@@ -636,23 +695,23 @@ export default function FeesInvoicePage() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-zinc-950 block mb-1.5">Issue / Due Date</label>
+                  <label className="text-xs font-bold text-zinc-700 block mb-1.5 uppercase">Issue / Due Date</label>
                   <Input 
                     type="date"
                     value={formData.date}
                     onChange={e => setFormData({ ...formData, date: e.target.value })}
-                    className="bg-white border-zinc-300 text-zinc-950 text-xs h-9 text-zinc-950 focus-visible:ring-zinc-600"
+                    className="bg-white border-zinc-200 text-zinc-950 text-xs h-10 rounded-xl"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-zinc-950 block mb-1.5">Notes / Description (Optional)</label>
+                <label className="text-xs font-bold text-zinc-700 block mb-1.5 uppercase">Notes / Description (Optional)</label>
                 <Input 
                   value={formData.note}
                   onChange={e => setFormData({ ...formData, note: e.target.value })}
                   placeholder="e.g. Paid in cash at accounts counter"
-                  className="bg-white border-zinc-300 text-zinc-950 text-xs h-9 text-zinc-950 focus-visible:ring-zinc-600"
+                  className="bg-white border-zinc-200 text-zinc-950 text-xs h-10 rounded-xl"
                 />
               </div>
 
@@ -662,13 +721,14 @@ export default function FeesInvoicePage() {
                   type="button" 
                   variant="ghost" 
                   onClick={() => setIsBuilderOpen(false)}
-                  className="text-zinc-400 hover:text-zinc-950"
+                  className="text-zinc-600 hover:text-zinc-950"
                 >
                   Cancel
                 </Button>
                 <Button 
                   type="submit" 
-                  className="bg-zinc-800 hover:bg-zinc-100 text-zinc-950 font-bold px-5"
+                  style={{ backgroundColor: '#084A86' }}
+                  className="hover:opacity-95 text-white font-bold px-5 h-10 rounded-xl cursor-pointer"
                 >
                   {editingInvoice ? 'Update Invoice' : 'Save & Issue Invoice'}
                 </Button>
@@ -682,7 +742,7 @@ export default function FeesInvoicePage() {
       {/* MODAL 2: PRINTABLE OFFICIAL FEE RECEIPT VOUCHER          */}
       {/* ========================================================= */}
       {isReceiptOpen && selectedReceipt && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white text-zinc-900 rounded-2xl max-w-xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             {/* Header / Brand */}
             <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
@@ -694,7 +754,7 @@ export default function FeesInvoicePage() {
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-xs font-bold text-zinc-700">{selectedReceipt.invoiceNo || 'INV-2026-001'}</div>
+                <div className="text-xs font-bold text-zinc-700 font-mono">{selectedReceipt.invoiceNo || 'INV-2026-001'}</div>
                 <div className="text-[11px] text-zinc-500">{selectedReceipt.date || '2026-09-07'}</div>
               </div>
             </div>
@@ -716,8 +776,8 @@ export default function FeesInvoicePage() {
               <div>
                 <span className="text-zinc-400 block text-[10px] uppercase font-semibold">Payment Status</span>
                 <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
-                  selectedReceipt.status === 'PAID' ? 'bg-zinc-200 text-zinc-900' :
-                  selectedReceipt.status === 'PARTIAL' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800'
+                  (selectedReceipt.status || '').toUpperCase() === 'PAID' ? 'bg-emerald-100 text-emerald-800' :
+                  (selectedReceipt.status || '').toUpperCase() === 'PARTIAL' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800'
                 }`}>
                   {selectedReceipt.status}
                 </span>
@@ -730,24 +790,24 @@ export default function FeesInvoicePage() {
                 <thead>
                   <tr className="border-b border-zinc-200 text-zinc-500 uppercase text-[10px]">
                     <th className="text-left py-1.5 font-bold">Particulars / Description</th>
-                    <th className="text-right py-1.5 font-bold">Amount</th>
+                    <th className="text-right py-1.5 font-bold">Amount (PKR)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
                   <tr>
                     <td className="py-2 font-medium">{selectedReceipt.feeType || 'Tuition Fee 2026'}</td>
-                    <td className="py-2 text-right font-bold">${Number(selectedReceipt.amount || 0).toLocaleString()}</td>
+                    <td className="py-2 text-right font-bold">PKR {Number(selectedReceipt.amount || 0).toLocaleString()}</td>
                   </tr>
                   {Number(selectedReceipt.waiver || 0) > 0 && (
-                    <tr className="text-zinc-800">
+                    <tr className="text-zinc-700">
                       <td className="py-1.5">Fee Waiver / Concession</td>
-                      <td className="py-1.5 text-right">-${Number(selectedReceipt.waiver).toLocaleString()}</td>
+                      <td className="py-1.5 text-right">-PKR {Number(selectedReceipt.waiver).toLocaleString()}</td>
                     </tr>
                   )}
                   {Number(selectedReceipt.fine || 0) > 0 && (
                     <tr className="text-rose-700">
                       <td className="py-1.5">Late Fee Fine</td>
-                      <td className="py-1.5 text-right">+${Number(selectedReceipt.fine).toLocaleString()}</td>
+                      <td className="py-1.5 text-right">+PKR {Number(selectedReceipt.fine).toLocaleString()}</td>
                     </tr>
                   )}
                 </tbody>
@@ -757,15 +817,15 @@ export default function FeesInvoicePage() {
               <div className="mt-3 pt-3 border-t border-zinc-200 space-y-1 text-xs">
                 <div className="flex justify-between text-zinc-600">
                   <span>Net Payable:</span>
-                  <span className="font-bold text-zinc-900">${(Number(selectedReceipt.amount || 0) - Number(selectedReceipt.waiver || 0) + Number(selectedReceipt.fine || 0)).toLocaleString()}</span>
+                  <span className="font-bold text-zinc-900">PKR {(Number(selectedReceipt.amount || 0) - Number(selectedReceipt.waiver || 0) + Number(selectedReceipt.fine || 0)).toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-zinc-800 font-bold">
+                <div className="flex justify-between text-emerald-700 font-bold">
                   <span>Amount Paid:</span>
-                  <span>${Number(selectedReceipt.paid || 0).toLocaleString()}</span>
+                  <span>PKR {Number(selectedReceipt.paid || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-rose-700 font-bold pt-1 border-t border-dashed border-zinc-200">
                   <span>Remaining Balance:</span>
-                  <span>${Number(selectedReceipt.balance || 0).toLocaleString()}</span>
+                  <span>PKR {Number(selectedReceipt.balance || 0).toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -785,13 +845,14 @@ export default function FeesInvoicePage() {
               <Button 
                 variant="outline" 
                 onClick={() => setIsReceiptOpen(false)}
-                className="text-xs h-9 text-zinc-700 border-zinc-300"
+                className="text-xs h-9 text-zinc-700 border-zinc-300 rounded-xl"
               >
                 Close
               </Button>
               <Button 
                 onClick={() => window.print()}
-                className="bg-zinc-800 hover:bg-zinc-100 text-zinc-950 font-bold text-xs h-9 flex items-center gap-2"
+                style={{ backgroundColor: '#084A86' }}
+                className="hover:opacity-95 text-white font-bold text-xs h-9 flex items-center gap-2 rounded-xl cursor-pointer"
               >
                 <Printer className="h-4 w-4" /> Print / Save PDF
               </Button>
@@ -802,4 +863,3 @@ export default function FeesInvoicePage() {
     </div>
   );
 }
-

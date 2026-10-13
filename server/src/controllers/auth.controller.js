@@ -62,6 +62,91 @@ const generateToken = (user) => {
   });
 };
 
+// Helper to check live availability of phone, email, username, cnic
+exports.checkAvailability = async (req, res) => {
+  try {
+    const field = (req.query.field || req.body.field || '').trim();
+    const value = (req.query.value || req.body.value || '').trim();
+
+    if (field && value) {
+      if (field === 'phone') {
+        const digits = value.replace(/\D/g, '');
+        const last10 = digits.slice(-10);
+        const query = {
+          $or: [
+            { phone: value },
+            ...(last10 && last10.length >= 9 ? [{ phone: { $regex: last10 + '$' } }] : [])
+          ]
+        };
+        const exists = await User.findOne(query);
+        const studentExists = exists ? true : await Student.findOne(query);
+        if (exists || studentExists) {
+          return res.status(200).json({
+            success: true,
+            available: false,
+            field: 'phone',
+            message: 'This phone number is already registered. Please use a different number.'
+          });
+        }
+        return res.status(200).json({ success: true, available: true, field: 'phone' });
+      }
+
+      if (field === 'email') {
+        const emailLower = value.toLowerCase();
+        const exists = await User.findOne({ email: { $regex: `^${emailLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' } });
+        if (exists) {
+          return res.status(200).json({
+            success: true,
+            available: false,
+            field: 'email',
+            message: 'This email address is already registered. Please use another email.'
+          });
+        }
+        return res.status(200).json({ success: true, available: true, field: 'email' });
+      }
+
+      if (field === 'username') {
+        const usernameLower = value.toLowerCase();
+        const exists = await User.findOne({ username: { $regex: `^${usernameLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' } });
+        if (exists) {
+          return res.status(200).json({
+            success: true,
+            available: false,
+            field: 'username',
+            message: 'This username is already taken. Please choose another username.'
+          });
+        }
+        return res.status(200).json({ success: true, available: true, field: 'username' });
+      }
+
+      if (field === 'cnic') {
+        const cleanCnic = value.replace(/\D/g, '');
+        const query = {
+          $or: [
+            { cnic: value },
+            ...(cleanCnic.length === 13 ? [{ cnic: { $regex: cleanCnic } }] : [])
+          ]
+        };
+        const exists = await User.findOne(query);
+        if (exists) {
+          return res.status(200).json({
+            success: true,
+            available: false,
+            field: 'cnic',
+            message: 'Another user is already registered with this CNIC number.'
+          });
+        }
+        return res.status(200).json({ success: true, available: true, field: 'cnic' });
+      }
+    }
+
+    return res.status(200).json({ success: true, available: true });
+  } catch (err) {
+    console.error('checkAvailability error:', err);
+    res.status(500).json({ success: false, message: 'Server error checking availability' });
+  }
+};
+
 exports.register = async (req, res, next) => {
   try {
     const { 

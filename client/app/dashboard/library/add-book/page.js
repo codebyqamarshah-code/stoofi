@@ -165,9 +165,19 @@ export default function AddBookPage() {
             </div>
           </div>
 
-          <div className="flex justify-center pt-4">
-            <Button disabled={submitting} type="submit" className="bg-zinc-800 hover:bg-zinc-100 text-zinc-950 font-semibold min-w-[200px]">
-              {submitting ? 'SAVING...' : 'SAVE BOOK'}
+          <div className="flex justify-end gap-3 pt-4 border-t border-zinc-200">
+            <Link href="/dashboard/library/book-list">
+              <Button type="button" variant="outline" className="h-10 rounded-xl px-5 text-zinc-700">
+                Cancel
+              </Button>
+            </Link>
+            <Button 
+              disabled={submitting} 
+              type="submit" 
+              style={{ backgroundColor: '#084A86' }}
+              className="hover:opacity-95 text-white font-bold h-10 px-8 rounded-xl shadow-xs cursor-pointer min-w-[180px]"
+            >
+              {submitting ? 'SAVING...' : 'SAVE BOOK TO CATALOG'}
             </Button>
           </div>
         </form>

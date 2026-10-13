@@ -25,7 +25,7 @@ import {
 import { sortClassesAcademic, normalizeClassName } from '@/lib/academicUtils';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import api from '@/services/api';
-import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -306,6 +306,52 @@ export default function FeesCollectionPage() {
 
   const currencySymbol = schoolSetting?.currencySymbol || 'PKR ';
 
+  // Export configs for students directory
+  const studentExportColumns = [
+    { key: 'admissionNo', label: 'Admission No' },
+    { key: 'studentName', label: 'Student Name' },
+    { key: 'rollNo', label: 'Roll No' },
+    { key: 'classInfo', label: 'Class & Section' },
+    { key: 'fatherName', label: 'Father Name' },
+    { key: 'phone', label: 'Contact Phone' }
+  ];
+
+  const studentExportData = filteredStudents.map(s => ({
+    admissionNo: s.admissionNo || '—',
+    studentName: `${s.firstName || ''} ${s.lastName || ''}`.trim() || 'Student',
+    rollNo: s.rollNo || 'N/A',
+    classInfo: `Class ${s.className || '10'} (${s.section || 'A'})`,
+    fatherName: s.fatherName || '—',
+    phone: s.phone || s.fatherPhone || '—'
+  }));
+
+  // Export configs for invoice collections
+  const invoiceExportColumns = [
+    { key: 'invoiceId', label: 'Invoice No' },
+    { key: 'date', label: 'Date' },
+    { key: 'student', label: 'Student Name' },
+    { key: 'admissionNo', label: 'Admission No' },
+    { key: 'className', label: 'Class & Section' },
+    { key: 'feeType', label: 'Fee Type' },
+    { key: 'paymentMethod', label: 'Payment Method' },
+    { key: 'paid', label: 'Paid Amount (PKR)' },
+    { key: 'balance', label: 'Balance (PKR)' },
+    { key: 'status', label: 'Status' }
+  ];
+
+  const invoiceExportData = filteredInvoices.map((inv, idx) => ({
+    invoiceId: inv._id?.slice(-6)?.toUpperCase() || `INV-${1000 + idx}`,
+    date: inv.date ? new Date(inv.date).toLocaleDateString() : 'Today',
+    student: inv.student || 'Student',
+    admissionNo: inv.admissionNo || '—',
+    className: inv.className || '—',
+    feeType: inv.feeType || 'Tuition Fee',
+    paymentMethod: inv.paymentMethod || 'Cash',
+    paid: Number(inv.paid) || 0,
+    balance: Number(inv.balance) || 0,
+    status: inv.status || 'Paid'
+  }));
+
   return (
     <div className="space-y-6">
       {/* Top Header */}
@@ -412,6 +458,11 @@ export default function FeesCollectionPage() {
             </h2>
             <p className="text-xs text-zinc-500 mt-0.5">Click &quot;Collect Fee&quot; to receive fee payment and generate print receipts.</p>
           </div>
+          <TableExportToolbar
+            data={studentExportData}
+            columns={studentExportColumns}
+            filename="Student_Fee_Directory"
+          />
         </div>
 
         <div className="overflow-x-auto">
@@ -518,26 +569,11 @@ export default function FeesCollectionPage() {
               <option value="UNPAID">Unpaid</option>
             </select>
 
-            <div className="flex items-center gap-1.5 border-l border-zinc-200 pl-3">
-              <Button 
-                onClick={() => exportToCSV(filteredInvoices, 'Fee_Collections')}
-                variant="outline" size="icon" className="h-8 w-8 rounded-lg border-zinc-200 text-zinc-700 hover:bg-zinc-100" title="Export CSV"
-              >
-                <Download className="h-3.5 w-3.5" />
-              </Button>
-              <Button 
-                onClick={() => exportToExcel(filteredInvoices, 'Fee_Collections', 'Collections')}
-                variant="outline" size="icon" className="h-8 w-8 rounded-lg border-zinc-200 text-zinc-700 hover:bg-zinc-100" title="Export Excel"
-              >
-                <FileText className="h-3.5 w-3.5" />
-              </Button>
-              <Button 
-                onClick={() => exportToPDF(filteredInvoices, 'Fee_Collections', 'Fee Collections Report')}
-                variant="outline" size="icon" className="h-8 w-8 rounded-lg border-zinc-200 text-zinc-700 hover:bg-zinc-100" title="Export PDF"
-              >
-                <Printer className="h-3.5 w-3.5" />
-              </Button>
-            </div>
+            <TableExportToolbar
+              data={invoiceExportData}
+              columns={invoiceExportColumns}
+              filename="Fee_Collections_Report"
+            />
           </div>
         </div>
 

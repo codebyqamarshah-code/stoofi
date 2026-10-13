@@ -11,7 +11,7 @@ const schema = new mongoose.Schema({
   balance: Number, 
   paymentMethod: { type: String, default: 'Cash' },
   note: String,
-  status: { type: String, enum: ['Paid', 'Partial', 'Unpaid'], default: 'Unpaid' }, 
+  status: { type: String, enum: ['Paid', 'Partial', 'Unpaid', 'PAID', 'PARTIAL', 'UNPAID'], default: 'Unpaid' }, 
   date: Date 
 }, { timestamps: true });
 module.exports = mongoose.model("FeesInvoice", schema);

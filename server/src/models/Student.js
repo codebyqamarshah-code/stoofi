@@ -79,7 +79,8 @@ const schema = new mongoose.Schema({
 
   // Custom Fields / Other Info
   otherInfo: { type: String },
-  behaviourPoints: { type: Number, default: 0 }
+  behaviourPoints: { type: Number, default: 0 },
+  carryForwardAmount: { type: Number, default: 0 }
 
 }, { timestamps: true });
 
