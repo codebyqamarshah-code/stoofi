@@ -31,34 +31,51 @@ exports.chat = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Message text is required.' });
     }
 
-    // 1. Find or create conversation
-    let conversation;
-    if (conversationId && conversationId !== 'new') {
-      conversation = await AIConversation.findOne({ _id: conversationId, userId: user._id });
+    // 1. Find or create conversation (fault-tolerant — DB failure won't block response)
+    let conversation = null;
+    try {
+      if (conversationId && conversationId !== 'new') {
+        conversation = await AIConversation.findOne({ _id: conversationId, userId: user._id });
+      }
+      if (!conversation) {
+        const autoTitle = message.trim().slice(0, 32) + (message.length > 32 ? '...' : '');
+        conversation = await AIConversation.create({
+          userId: user._id,
+          title: autoTitle,
+          role: user.role || 'User'
+        });
+      }
+    } catch (dbErr) {
+      console.warn('AI: DB conversation create failed (non-fatal):', dbErr?.message);
     }
 
-    if (!conversation) {
-      const autoTitle = message.trim().slice(0, 32) + (message.length > 32 ? '...' : '');
-      conversation = await AIConversation.create({
-        userId: user._id,
-        title: autoTitle,
-        role: user.role || 'User'
-      });
+    // 2. Save user message to database (fault-tolerant)
+    try {
+      if (conversation?._id) {
+        await AIMessage.create({
+          conversationId: conversation._id,
+          userId: user._id,
+          role: 'user',
+          content: message.trim()
+        });
+      }
+    } catch (dbErr) {
+      console.warn('AI: DB user message save failed (non-fatal):', dbErr?.message);
     }
-
-    // 2. Save user message to database
-    const userMsgDoc = await AIMessage.create({
-      conversationId: conversation._id,
-      userId: user._id,
-      role: 'user',
-      content: message.trim()
-    });
 
     // 3. Load recent conversation history (last 10 messages)
-    const recentMessages = await AIMessage.find({ conversationId: conversation._id })
-      .sort({ createdAt: 1 })
-      .limit(10)
-      .lean();
+    let recentMessages = [];
+    try {
+      if (conversation?._id) {
+        recentMessages = await AIMessage.find({ conversationId: conversation._id })
+          .sort({ createdAt: 1 })
+          .limit(10)
+          .lean();
+      }
+    } catch (dbErr) {
+      console.warn('AI: DB history load failed (non-fatal):', dbErr?.message);
+      recentMessages = [];
+    }
 
     let replyContent = '';
     let navAction = null;
@@ -191,24 +208,31 @@ exports.chat = async (req, res) => {
       navAction = fallbackResult.navAction || navAction;
     }
 
-    // 7. Save assistant message to database
-    const assistantMsgDoc = await AIMessage.create({
-      conversationId: conversation._id,
-      userId: user._id,
-      role: 'assistant',
-      content: replyContent,
-      navAction: navAction || undefined,
-      dataCard: executedToolsData.length > 0 ? { type: 'tool_results', data: executedToolsData } : undefined
-    });
+    // 7. Save assistant message to database (fault-tolerant)
+    let assistantMsgDoc = { _id: `temp-${Date.now()}`, navAction, createdAt: new Date() };
+    try {
+      if (conversation?._id) {
+        assistantMsgDoc = await AIMessage.create({
+          conversationId: conversation._id,
+          userId: user._id,
+          role: 'assistant',
+          content: replyContent,
+          navAction: navAction || undefined,
+          dataCard: executedToolsData.length > 0 ? { type: 'tool_results', data: executedToolsData } : undefined
+        });
 
-    // Update conversation timestamp
-    conversation.updatedAt = new Date();
-    await conversation.save();
+        // Update conversation timestamp
+        conversation.updatedAt = new Date();
+        await conversation.save();
+      }
+    } catch (dbErr) {
+      console.warn('AI: DB assistant message save failed (non-fatal):', dbErr?.message);
+    }
 
     return res.json({
       success: true,
-      conversationId: conversation._id,
-      conversationTitle: conversation.title,
+      conversationId: conversation?._id,
+      conversationTitle: conversation?.title,
       message: {
         id: assistantMsgDoc._id,
         role: 'assistant',

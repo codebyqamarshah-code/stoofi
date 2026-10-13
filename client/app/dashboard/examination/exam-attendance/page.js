@@ -149,7 +149,7 @@ export default function ExamAttendancePage() {
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-zinc-700 uppercase font-bold">EXAM <span className="text-rose-500">*</span></label>
               <SearchableSelect 
-                value={formData.examId} onChange={(val) => setFormData({...formData, examId: val})}
+                value={formData.examId} onChange={(val) => { const v = val?.target?.value ?? val; setFormData(f => ({...f, examId: v})); }}
                 placeholder="Select Exam *"
                 options={exams.map(e => ({ label: e.name, value: e._id || e.name }))}
               />
@@ -158,7 +158,7 @@ export default function ExamAttendancePage() {
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-zinc-700 uppercase font-bold">CLASS <span className="text-rose-500">*</span></label>
               <SearchableSelect 
-                value={formData.classId} onChange={(val) => setFormData({...formData, classId: val})}
+                value={formData.classId} onChange={(val) => { const v = val?.target?.value ?? val; setFormData(f => ({...f, classId: v})); }}
                 placeholder="Select Class *"
                 options={classes.map(c => ({ label: c.name, value: c._id || c.name }))}
               />
@@ -167,7 +167,7 @@ export default function ExamAttendancePage() {
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-zinc-700 uppercase font-bold">SUBJECT <span className="text-rose-500">*</span></label>
               <SearchableSelect 
-                value={formData.subjectId} onChange={(val) => setFormData({...formData, subjectId: val})}
+                value={formData.subjectId} onChange={(val) => { const v = val?.target?.value ?? val; setFormData(f => ({...f, subjectId: v})); }}
                 placeholder="Select Subject *"
                 options={subjects.map(s => ({ label: s.name, value: s._id || s.name }))}
               />
@@ -176,7 +176,7 @@ export default function ExamAttendancePage() {
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-zinc-700 uppercase font-bold">SECTION</label>
               <SearchableSelect 
-                value={formData.sectionId} onChange={(val) => setFormData({...formData, sectionId: val})}
+                value={formData.sectionId} onChange={(val) => { const v = val?.target?.value ?? val; setFormData(f => ({...f, sectionId: v})); }}
                 placeholder="Select Section"
                 options={sections.map(s => ({ label: s.name, value: s._id || s.name }))}
               />

@@ -116,12 +116,16 @@ export default function StoofiAiFloating() {
       }
     } catch (err) {
       console.error('AI chat error:', err);
+      const errMsg = err?.response?.data?.message || err?.message || '';
+      // Show friendly message - server might be temporarily unavailable
       setMessages(prev => [
         ...prev,
         {
           id: `err-${Date.now()}`,
           role: 'assistant',
-          content: err?.response?.data?.message || 'I encountered an error retrieving data. Please try again.',
+          content: errMsg && errMsg.length < 200 
+            ? errMsg 
+            : 'Stoofi AI filhal available nahi hai. Thori der baad dobara try karein, ya full chat page open karein.',
           isError: true,
           createdAt: new Date().toISOString()
         }
@@ -182,10 +186,6 @@ export default function StoofiAiFloating() {
               alt="Stoofi AI" 
               className="w-9 h-9 object-contain group-hover/btn:scale-110 transition-transform duration-300" 
             />
-            <span className="absolute top-0.5 right-0.5 flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-[#084A86] border-2 border-white"></span>
-            </span>
           </button>
 
           {/* Hover Tooltip */}

@@ -239,51 +239,48 @@ export default function StudentDashboardPage() {
   return (
     <div className="space-y-6 pb-12 relative">
 
-      {/* ── TOP HEADER BANNER (Stoofi brand #084A86 theme) ── */}
+      {/* ── TOP HEADER BANNER (white bg, blue content) ── */}
       <div 
-        className="relative overflow-hidden rounded-3xl p-6 sm:p-8 text-white shadow-xl"
-        style={{ 
-          backgroundColor: '#084A86',
-          backgroundImage: 'linear-gradient(135deg, #084A86 0%, #063968 60%, #042747 100%)'
-        }}
+        className="relative overflow-hidden rounded-3xl p-6 sm:p-8 shadow-xl border border-[#084A86]/15"
+        style={{ backgroundColor: '#ffffff' }}
       >
         {/* decorative glow elements */}
-        <div className="absolute right-0 top-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-white/10 blur-3xl pointer-events-none" />
-        <div className="absolute left-1/3 bottom-0 -mb-16 h-48 w-48 rounded-full bg-sky-400/10 blur-2xl pointer-events-none" />
+        <div className="absolute right-0 top-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-[#084A86]/5 blur-3xl pointer-events-none" />
+        <div className="absolute left-1/3 bottom-0 -mb-16 h-48 w-48 rounded-full bg-sky-400/5 blur-2xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6">
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider rounded-full bg-white/20 text-white border border-white/25 shadow-xs">
+              <span className="px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider rounded-full bg-[#084A86]/10 text-[#084A86] border border-[#084A86]/20 shadow-xs">
                 {getGreeting()}
               </span>
-              <span className="px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider rounded-full bg-sky-950/60 text-sky-200 border border-sky-400/30">
+              <span className="px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider rounded-full bg-[#084A86] text-white border border-[#084A86]/30">
                 STUDENT
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white capitalize drop-shadow-xs">
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-[#084A86] capitalize drop-shadow-xs">
               {studentName}
             </h1>
 
-            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-white">
+            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-[#084A86]">
               {user?.username && (
-                <div className="flex items-center gap-1.5 bg-white/15 text-white px-3 py-1.5 rounded-lg border border-white/20 shadow-xs">
+                <div className="flex items-center gap-1.5 bg-[#084A86]/8 text-[#084A86] px-3 py-1.5 rounded-lg border border-[#084A86]/20 shadow-xs">
                   <span className="font-bold">@{user.username}</span>
                 </div>
               )}
-              <div className="flex items-center gap-1.5 bg-white/15 text-white px-3 py-1.5 rounded-lg border border-white/20 shadow-xs">
-                <span className="text-white/80">Admission No:</span>
-                <span className="font-black text-white">{admissionNo}</span>
+              <div className="flex items-center gap-1.5 bg-[#084A86]/8 text-[#084A86] px-3 py-1.5 rounded-lg border border-[#084A86]/20 shadow-xs">
+                <span className="text-[#084A86]/70">Admission No:</span>
+                <span className="font-black text-[#084A86]">{admissionNo}</span>
               </div>
               {(studentDetails?.className || user?.className) && (
-                <div className="flex items-center gap-1.5 bg-white/15 text-white px-3 py-1.5 rounded-lg border border-white/20 shadow-xs">
-                  <span className="text-white/80">Class:</span>
-                  <span className="font-black text-white">{studentDetails?.className || user?.className} ({studentDetails?.section || user?.section || 'A'})</span>
+                <div className="flex items-center gap-1.5 bg-[#084A86]/8 text-[#084A86] px-3 py-1.5 rounded-lg border border-[#084A86]/20 shadow-xs">
+                  <span className="text-[#084A86]/70">Class:</span>
+                  <span className="font-black text-[#084A86]">{studentDetails?.className || user?.className} ({studentDetails?.section || user?.section || 'A'})</span>
                 </div>
               )}
-              <div className="flex items-center gap-1.5 bg-white/15 text-white px-3 py-1.5 rounded-lg border border-white/20 shadow-xs">
-                <Clock className="w-3.5 h-3.5 text-white/80" />
+              <div className="flex items-center gap-1.5 bg-[#084A86]/8 text-[#084A86] px-3 py-1.5 rounded-lg border border-[#084A86]/20 shadow-xs">
+                <Clock className="w-3.5 h-3.5 text-[#084A86]/70" />
                 <span>{formatDate()}</span>
               </div>
             </div>
@@ -297,7 +294,7 @@ export default function StudentDashboardPage() {
                 { name: 'Exam Schedule', href: '/dashboard/student/examinations/schedule' },
               ].map((act, idx) => (
                 <Link key={idx} href={act.href}>
-                  <button className="px-3.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 text-white text-xs font-bold transition-all backdrop-blur-sm cursor-pointer shadow-xs">
+                  <button className="px-3.5 py-1.5 rounded-xl bg-[#084A86] hover:bg-[#063968] border border-[#084A86] text-white text-xs font-bold transition-all cursor-pointer shadow-xs">
                     {act.name}
                   </button>
                 </Link>
@@ -306,27 +303,27 @@ export default function StudentDashboardPage() {
           </div>
 
           {/* Live Weather Widget */}
-          <div className="bg-white/15 backdrop-blur-md border border-white/25 rounded-2xl p-4 sm:p-5 flex items-center gap-5 text-white min-w-[240px] shadow-sm">
+          <div className="bg-[#084A86]/8 border border-[#084A86]/20 rounded-2xl p-4 sm:p-5 flex items-center gap-5 min-w-[240px] shadow-sm">
             <div className="flex-1">
-              <div className="flex items-center gap-1 text-xs font-semibold text-white/80 mb-1">
-                <MapPin className="w-3.5 h-3.5 text-white/90" />
+              <div className="flex items-center gap-1 text-xs font-semibold text-[#084A86]/70 mb-1">
+                <MapPin className="w-3.5 h-3.5 text-[#084A86]" />
                 <span>Lahore, Pakistan</span>
               </div>
-              <div className="text-4xl font-black text-white tracking-tight">
+              <div className="text-4xl font-black text-[#084A86] tracking-tight">
                 {weather ? `${weather.temp}°C` : '33°C'}
               </div>
-              <div className="text-xs text-white/80 font-medium mt-0.5">
+              <div className="text-xs text-[#084A86]/70 font-medium mt-0.5">
                 {weather ? getWeatherDesc(weather.code) : 'Clear Sky'}
               </div>
               {weather && (
-                <div className="flex items-center gap-1 text-[11px] text-white/70 mt-1">
-                  <Wind className="w-3 h-3 text-white/80" />
+                <div className="flex items-center gap-1 text-[11px] text-[#084A86]/60 mt-1">
+                  <Wind className="w-3 h-3 text-[#084A86]/70" />
                   <span>{weather?.wind || 12} km/h</span>
                 </div>
               )}
             </div>
-            <div className="p-3 bg-white/20 rounded-2xl border border-white/20 shadow-xs">
-              {weather ? getWeatherIcon(weather.code) : <Sun className="w-8 h-8 text-amber-300" />}
+            <div className="p-3 bg-[#084A86]/10 rounded-2xl border border-[#084A86]/20 shadow-xs">
+              {weather ? getWeatherIcon(weather.code) : <Sun className="w-8 h-8 text-[#084A86]" />}
             </div>
           </div>
         </div>
