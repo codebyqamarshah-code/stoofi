@@ -12,8 +12,9 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 import behaviourService from '@/services/behaviourService';
+import api from '@/services/api';
 
-const CLASSES = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'];
+const DEFAULT_CLASSES = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'];
 const SECTIONS = ['A', 'B', 'C', 'D'];
 
 export default function AssignIncidentPage() {
@@ -22,9 +23,10 @@ export default function AssignIncidentPage() {
   const [assignedList, setAssignedList] = useState([]);
   const [incidents, setIncidents] = useState([]);
   const [students, setStudents] = useState([]);
+  const [classList, setClassList] = useState(DEFAULT_CLASSES);
   const [loading, setLoading] = useState(true);
 
-  // Filters
+  // Filters for Main Table
   const [classFilter, setClassFilter] = useState('');
   const [sectionFilter, setSectionFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -33,6 +35,10 @@ export default function AssignIncidentPage() {
   // Modal State
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [modalClass, setModalClass] = useState('');
+  const [modalSection, setModalSection] = useState('');
+  const [isCustomIncident, setIsCustomIncident] = useState(false);
+  const [isManualStudent, setIsManualStudent] = useState(false);
 
   const [modalForm, setModalForm] = useState({
     studentId: '',
@@ -56,25 +62,24 @@ export default function AssignIncidentPage() {
   const loadAllData = async () => {
     setLoading(true);
     try {
-      const [assignedData, incData, stuData] = await Promise.all([
+      const [assignedData, incData, stuData, classRes] = await Promise.all([
         behaviourService.getAssignedIncidents(),
         behaviourService.getIncidents(),
-        behaviourService.getAvailableStudents()
+        behaviourService.getAvailableStudents(),
+        api.get('/class').catch(() => null)
       ]);
-      setAssignedList(assignedData);
-      setIncidents(incData);
-      setStudents(stuData);
+      setAssignedList(assignedData || []);
+      setIncidents(incData || []);
+      setStudents(stuData || []);
 
-      if (incData.length > 0 && stuData.length > 0) {
-        const firstStu = stuData[0];
+      if (classRes?.success && Array.isArray(classRes.data) && classRes.data.length > 0) {
+        setClassList(classRes.data.map(c => c.name || c.className));
+      }
+
+      if (incData?.length > 0) {
         const firstInc = incData[0];
         setModalForm(prev => ({
           ...prev,
-          studentId: firstStu._id || 'stu-1',
-          studentName: `${firstStu.firstName || ''} ${firstStu.lastName || ''}`.trim() || 'Student',
-          admissionNo: firstStu.admissionNo || 'ADM-2026-001',
-          className: firstStu.className || 'Class 1',
-          section: firstStu.section || 'A',
           incidentId: firstInc._id,
           incidentTitle: firstInc.title,
           point: Math.abs(firstInc.point),
@@ -91,8 +96,17 @@ export default function AssignIncidentPage() {
 
   const showToast = (msg) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(''), 3000);
+    setTimeout(() => setToastMessage(''), 3500);
   };
+
+  // Filter students in modal by selected class & section
+  const filteredModalStudents = useMemo(() => {
+    return students.filter(s => {
+      const matchClass = !modalClass || s.className === modalClass;
+      const matchSec = !modalSection || s.section === modalSection;
+      return matchClass && matchSec;
+    });
+  }, [students, modalClass, modalSection]);
 
   const handleStudentSelect = (e) => {
     const selectedAdmission = e.target.value;
@@ -103,8 +117,8 @@ export default function AssignIncidentPage() {
         studentId: stu._id || 'stu-1',
         studentName: `${stu.firstName || ''} ${stu.lastName || ''}`.trim(),
         admissionNo: stu.admissionNo,
-        className: stu.className || 'Class 1',
-        section: stu.section || 'A'
+        className: stu.className || modalClass || 'Class 1',
+        section: stu.section || modalSection || 'A'
       }));
     }
   };
@@ -126,38 +140,55 @@ export default function AssignIncidentPage() {
   const handleAssignSubmit = async (e) => {
     e.preventDefault();
     if (!modalForm.studentName || !modalForm.incidentTitle) {
-      alert('Please select both a student and an incident.');
+      alert('Please provide student name and incident title.');
       return;
     }
 
-    await behaviourService.assignIncident(modalForm);
-    showToast(`Assigned ${modalForm.incidentTitle} to ${modalForm.studentName}`);
-    setShowAssignModal(false);
+    try {
+      await behaviourService.assignIncident(modalForm);
+      showToast(`Recorded "${modalForm.incidentTitle}" for ${modalForm.studentName}`);
+      setShowAssignModal(false);
 
-    // Refresh list
-    const updated = await behaviourService.getAssignedIncidents();
-    setAssignedList(updated);
+      // Reset modal state
+      setIsCustomIncident(false);
+      setIsManualStudent(false);
+
+      // Refresh live list
+      const updated = await behaviourService.getAssignedIncidents();
+      setAssignedList(updated || []);
+    } catch (err) {
+      alert('Failed to assign incident. Please try again.');
+    }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to revoke/delete this assigned incident?')) return;
-    await behaviourService.deleteAssignedIncident(id);
-    setAssignedList(prev => prev.filter(item => item._id !== id));
-    showToast('Incident assignment revoked successfully.');
+    if (!confirm('Are you sure you want to revoke/delete this assigned incident? This will also revert the student behaviour points.')) return;
+    try {
+      await behaviourService.deleteAssignedIncident(id);
+      setAssignedList(prev => prev.filter(item => item._id !== id));
+      showToast('Incident assignment revoked successfully.');
+    } catch (err) {
+      alert('Failed to delete assignment record.');
+    }
   };
 
   const filteredList = useMemo(() => {
     return assignedList.filter(item => {
-      const matchesSearch = item.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.admissionNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.incidentTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (item.remarks || '').toLowerCase().includes(searchQuery.toLowerCase());
+      const s = searchQuery.toLowerCase();
+      const matchesSearch = (item.studentName || '').toLowerCase().includes(s) ||
+        (item.admissionNo || '').toLowerCase().includes(s) ||
+        (item.incidentTitle || '').toLowerCase().includes(s) ||
+        (item.remarks || '').toLowerCase().includes(s);
       const matchesClass = !classFilter || item.className === classFilter;
       const matchesSection = !sectionFilter || item.section === sectionFilter;
       const matchesType = typeFilter === 'all' || item.pointType === typeFilter;
       return matchesSearch && matchesClass && matchesSection && matchesType;
     });
   }, [assignedList, searchQuery, classFilter, sectionFilter, typeFilter]);
+
+  const totalPositive = assignedList.filter(i => i.pointType === 'positive' || i.point > 0).length;
+  const totalNegative = assignedList.filter(i => i.pointType === 'negative' || i.point < 0).length;
+  const netPoints = assignedList.reduce((sum, curr) => sum + (curr.point || 0), 0);
 
   const exportData = filteredList.map(item => ({
     'Admission No': item.admissionNo,
@@ -195,9 +226,51 @@ export default function AssignIncidentPage() {
         </div>
       </div>
 
+      {/* Top Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-zinc-950 text-white flex items-center justify-center shrink-0">
+            <UserCheck className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Total Records</p>
+            <h3 className="text-xl font-black text-zinc-950 mt-0.5">{assignedList.length}</h3>
+          </div>
+        </div>
+        <div className="p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
+            <PlusCircle className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Positive Merits</p>
+            <h3 className="text-xl font-black text-emerald-700 mt-0.5">{totalPositive}</h3>
+          </div>
+        </div>
+        <div className="p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 flex items-center justify-center shrink-0">
+            <MinusCircle className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-rose-600">Negative Infractions</p>
+            <h3 className="text-xl font-black text-rose-700 mt-0.5">{totalNegative}</h3>
+          </div>
+        </div>
+        <div className="p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center justify-center shrink-0">
+            <Shield className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-600">Net Points Balance</p>
+            <h3 className="text-xl font-black text-indigo-950 mt-0.5">
+              {netPoints > 0 ? `+${netPoints}` : netPoints}
+            </h3>
+          </div>
+        </div>
+      </div>
+
       {/* Top Filter & Criteria Card */}
       <div className="bg-white border border-zinc-200 rounded-2xl p-4 shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+        <div className="flex items-center justify-between border-b border-zinc-100 pb-3 flex-wrap gap-2">
           <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-700 flex items-center gap-2">
             <UserCheck className="w-4 h-4 text-zinc-500" />
             Filter Incident Assignments
@@ -207,7 +280,7 @@ export default function AssignIncidentPage() {
             className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold text-xs h-9 px-4 rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span style={{ color: '#ffffff' }}>ASSIGN NEW INCIDENT</span>
+            <span style={{ color: '#ffffff' }}>ASSIGN INCIDENT</span>
           </Button>
         </div>
 
@@ -233,7 +306,7 @@ export default function AssignIncidentPage() {
               className="w-full h-9 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-xs text-zinc-950 font-medium focus:outline-none focus:ring-2 focus:ring-zinc-950"
             >
               <option value="">All Classes</option>
-              {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
+              {classList.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
 
@@ -263,11 +336,11 @@ export default function AssignIncidentPage() {
           </div>
         </div>
 
-        {(classFilter || sectionFilter || searchQuery || typeFilter !== 'all') && (
+        {(classFilter || sectionFilter || typeFilter !== 'all' || searchQuery) && (
           <div className="flex items-center justify-between pt-2 border-t border-zinc-100 text-xs">
-            <span className="text-zinc-500">Filtered Results: <strong>{filteredList.length}</strong> records</span>
+            <span className="text-zinc-500">Filtered: <strong>{filteredList.length}</strong> records</span>
             <button
-              onClick={() => { setClassFilter(''); setSectionFilter(''); setSearchQuery(''); setTypeFilter('all'); }}
+              onClick={() => { setClassFilter(''); setSectionFilter(''); setTypeFilter('all'); setSearchQuery(''); }}
               className="text-xs text-zinc-600 hover:text-zinc-950 font-semibold flex items-center gap-1 cursor-pointer"
             >
               <RotateCcw className="w-3 h-3" /> Reset Filters
@@ -276,35 +349,29 @@ export default function AssignIncidentPage() {
         )}
       </div>
 
-      {/* Table & Export Bar */}
+      {/* Assigned Incidents Table Card */}
       <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-xs">
         <div className="p-4 border-b border-zinc-100 flex items-center justify-between flex-wrap gap-2">
           <div>
-            <h3 className="text-sm font-bold text-zinc-950">Assigned Incidents History</h3>
-            <p className="text-[11px] text-zinc-500">Showing {filteredList.length} recorded incidents</p>
+            <h3 className="text-sm font-bold text-zinc-950">Assigned Incidents Directory</h3>
+            <p className="text-[11px] text-zinc-500">Showing {filteredList.length} assigned records</p>
           </div>
 
           <div className="flex items-center gap-2">
             <Button 
-              onClick={() => exportToCSV(exportData, 'Assigned_Incidents')} 
+              onClick={() => exportToCSV(exportData, 'Assigned_Incidents_Report')} 
               variant="outline" size="icon" className="h-8 w-8 border-zinc-200 bg-white hover:bg-zinc-100 cursor-pointer rounded-xl" title="Download CSV"
             >
               <Download className="h-3.5 w-3.5 text-zinc-700" />
             </Button>
             <Button 
-              onClick={() => exportToExcel(exportData, 'Assigned_Incidents', 'Incidents')} 
+              onClick={() => exportToExcel(exportData, 'Assigned_Incidents_Report', 'Assignments')} 
               variant="outline" size="icon" className="h-8 w-8 border-zinc-200 bg-white hover:bg-zinc-100 cursor-pointer rounded-xl" title="Export Excel"
             >
               <FileText className="h-3.5 w-3.5 text-zinc-700" />
             </Button>
             <Button 
-              onClick={() => exportToPDF(exportData, 'Assigned_Incidents', 'Assigned Behaviour Incidents')} 
-              variant="outline" size="icon" className="h-8 w-8 border-zinc-200 bg-white hover:bg-zinc-100 cursor-pointer rounded-xl" title="Download PDF"
-            >
-              <Download className="h-3.5 w-3.5 text-zinc-700" />
-            </Button>
-            <Button 
-              onClick={() => printData('Assigned Behaviour Incidents', exportData)} 
+              onClick={() => printData('Assigned Student Behaviour Incidents', exportData)} 
               variant="outline" size="icon" className="h-8 w-8 border-zinc-200 bg-white hover:bg-zinc-100 cursor-pointer rounded-xl" title="Print List"
             >
               <Printer className="h-3.5 w-3.5 text-zinc-700" />
@@ -324,25 +391,34 @@ export default function AssignIncidentPage() {
                 <th className="px-5 py-3.5">Date</th>
                 <th className="px-5 py-3.5">Assigned By</th>
                 <th className="px-5 py-3.5">Remarks</th>
-                <th className="px-5 py-3.5 text-right">Action</th>
+                <th className="px-5 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
               {loading ? (
                 <tr>
-                  <td colSpan="9" className="px-5 py-12 text-center text-zinc-400">Loading assignments...</td>
+                  <td colSpan="9" className="px-5 py-16 text-center text-zinc-400">Loading live assigned incidents...</td>
                 </tr>
               ) : filteredList.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="px-5 py-12 text-center text-zinc-500">
-                    <Shield className="w-8 h-8 text-zinc-300 mx-auto mb-2" />
-                    <p className="font-semibold text-zinc-700">No incident assignments recorded.</p>
-                    <p className="text-zinc-400 text-[11px] mt-0.5">Click "Assign New Incident" above to award or deduct points.</p>
+                  <td colSpan="9" className="px-5 py-16 text-center text-zinc-500">
+                    <Shield className="w-10 h-10 text-zinc-300 mx-auto mb-2.5" />
+                    <h4 className="font-bold text-sm text-zinc-800">No Behaviour Records Found</h4>
+                    <p className="text-zinc-400 text-xs mt-1 max-w-sm mx-auto">
+                      Track student achievements, classroom conduct, uniform compliance, or merits by assigning an incident.
+                    </p>
+                    <Button
+                      onClick={() => setShowAssignModal(true)}
+                      className="mt-4 bg-zinc-950 hover:bg-zinc-800 text-white font-bold text-xs h-9 px-4 rounded-xl cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5 mr-1" />
+                      <span style={{ color: '#ffffff' }}>Assign Incident</span>
+                    </Button>
                   </td>
                 </tr>
               ) : (
                 filteredList.map((item, idx) => {
-                  const isPositive = item.point > 0;
+                  const isPositive = item.pointType === 'positive' || item.point > 0;
                   return (
                     <tr key={item._id || idx} className="hover:bg-zinc-50/80 transition-colors">
                       <td className="px-5 py-3.5 font-bold text-zinc-950">{item.admissionNo}</td>
@@ -382,8 +458,8 @@ export default function AssignIncidentPage() {
       {/* Assign Incident Modal */}
       {showAssignModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-          <div className="bg-white border border-zinc-200 rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50">
+          <div className="bg-white border border-zinc-200 rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden max-h-[90vh] flex flex-col">
+            <div className="px-6 py-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50 shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-zinc-950 text-white flex items-center justify-center">
                   <UserCheck className="w-4 h-4" />
@@ -401,54 +477,213 @@ export default function AssignIncidentPage() {
               </button>
             </div>
 
-            <form onSubmit={handleAssignSubmit} className="p-6 space-y-4 text-xs">
-              {/* Select Student */}
-              <div className="space-y-1.5">
-                <Label className="font-bold text-zinc-700">Select Student *</Label>
-                <select
-                  value={modalForm.admissionNo}
-                  onChange={handleStudentSelect}
-                  className="w-full h-9 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-xs font-semibold text-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-950"
-                  required
-                >
-                  {students.map(s => (
-                    <option key={s._id || s.admissionNo} value={s.admissionNo}>
-                      {s.admissionNo} - {s.firstName} {s.lastName || ''} ({s.className || 'Class 1'}, Sec {s.section || 'A'})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Select Incident Template */}
-              <div className="space-y-1.5">
-                <Label className="font-bold text-zinc-700">Select Incident *</Label>
-                <select
-                  value={modalForm.incidentId}
-                  onChange={handleIncidentSelect}
-                  className="w-full h-9 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-xs font-semibold text-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-950"
-                  required
-                >
-                  {incidents.map(inc => (
-                    <option key={inc._id} value={inc._id}>
-                      [{inc.point > 0 ? `+${inc.point}` : inc.point} Pts] {inc.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Point Preview Badge */}
-              <div className="p-3 bg-zinc-50 border border-zinc-200 rounded-xl flex items-center justify-between">
-                <div>
-                  <span className="text-[11px] text-zinc-500 font-medium">Applied Points:</span>
-                  <p className="font-black text-sm text-zinc-950">{modalForm.incidentTitle}</p>
+            <form onSubmit={handleAssignSubmit} className="p-6 space-y-4 text-xs overflow-y-auto flex-1">
+              {/* Class & Section Filter for Student Dropdown */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="font-bold text-zinc-700">Filter By Class</Label>
+                  <select
+                    value={modalClass}
+                    onChange={(e) => {
+                      setModalClass(e.target.value);
+                      const matching = students.find(s => (!e.target.value || s.className === e.target.value) && (!modalSection || s.section === modalSection));
+                      if (matching) {
+                        setModalForm(prev => ({
+                          ...prev,
+                          studentId: matching._id,
+                          studentName: `${matching.firstName || ''} ${matching.lastName || ''}`.trim(),
+                          admissionNo: matching.admissionNo,
+                          className: matching.className,
+                          section: matching.section
+                        }));
+                      }
+                    }}
+                    className="w-full h-9 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-xs font-semibold text-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-950"
+                  >
+                    <option value="">All Classes</option>
+                    {classList.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
                 </div>
-                <span className={`px-3 py-1 rounded-full font-black text-xs ${
-                  modalForm.pointType === 'positive' 
-                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' 
-                    : 'bg-rose-100 text-rose-800 border border-rose-300'
-                }`}>
-                  {modalForm.pointType === 'positive' ? `+${modalForm.point}` : `-${modalForm.point}`} Points
-                </span>
+                <div className="space-y-1.5">
+                  <Label className="font-bold text-zinc-700">Filter By Section</Label>
+                  <select
+                    value={modalSection}
+                    onChange={(e) => setModalSection(e.target.value)}
+                    className="w-full h-9 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-xs font-semibold text-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-950"
+                  >
+                    <option value="">All Sections</option>
+                    {SECTIONS.map(s => <option key={s} value={s}>Section {s}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {/* Student Selection */}
+              {isManualStudent ? (
+                <div className="space-y-3 p-3 bg-zinc-50 border border-zinc-200 rounded-xl">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-zinc-800">Manual Student Entry</span>
+                    <button
+                      type="button"
+                      onClick={() => setIsManualStudent(false)}
+                      className="text-[11px] text-zinc-600 hover:text-zinc-950 font-semibold"
+                    >
+                      ← Select from Registered Students
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label className="font-bold text-zinc-700">Student Name *</Label>
+                      <Input
+                        placeholder="e.g. Zain Ahmed"
+                        value={modalForm.studentName}
+                        onChange={(e) => setModalForm(prev => ({ ...prev, studentName: e.target.value }))}
+                        required
+                        className="bg-white border-zinc-200 text-xs h-9 rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="font-bold text-zinc-700">Admission No</Label>
+                      <Input
+                        placeholder="e.g. ADM-2026-088"
+                        value={modalForm.admissionNo}
+                        onChange={(e) => setModalForm(prev => ({ ...prev, admissionNo: e.target.value }))}
+                        className="bg-white border-zinc-200 text-xs h-9 rounded-xl"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label className="font-bold text-zinc-700">Select Student *</Label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsManualStudent(true);
+                        setModalForm(prev => ({ ...prev, studentName: '', admissionNo: '' }));
+                      }}
+                      className="text-[11px] text-indigo-600 hover:underline font-semibold"
+                    >
+                      + Manual Entry
+                    </button>
+                  </div>
+                  <select
+                    value={modalForm.admissionNo}
+                    onChange={handleStudentSelect}
+                    className="w-full h-9 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-xs font-semibold text-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-950"
+                    required
+                  >
+                    <option value="">-- Choose student ({filteredModalStudents.length} available) --</option>
+                    {filteredModalStudents.map(s => (
+                      <option key={s._id || s.admissionNo} value={s.admissionNo}>
+                        {s.admissionNo} - {s.firstName} {s.lastName || ''} ({s.className || 'Class 1'}, Sec {s.section || 'A'})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Incident Selection */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label className="font-bold text-zinc-700">Incident Template / Rule *</Label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCustomIncident(!isCustomIncident);
+                      if (!isCustomIncident) {
+                        setModalForm(prev => ({
+                          ...prev,
+                          incidentId: '',
+                          incidentTitle: '',
+                          point: 5,
+                          pointType: 'positive'
+                        }));
+                      }
+                    }}
+                    className="text-[11px] text-indigo-600 hover:underline font-semibold"
+                  >
+                    {isCustomIncident ? '← Pick from Templates' : '+ Custom Conduct Incident'}
+                  </button>
+                </div>
+
+                {isCustomIncident ? (
+                  <div className="space-y-2 p-3 bg-zinc-50 border border-zinc-200 rounded-xl">
+                    <Input
+                      placeholder="Enter custom incident title (e.g. Science Fair Winner, Disrespect to Staff)..."
+                      value={modalForm.incidentTitle}
+                      onChange={(e) => setModalForm(prev => ({ ...prev, incidentTitle: e.target.value }))}
+                      required
+                      className="bg-white border-zinc-200 text-xs h-9 rounded-xl"
+                    />
+                    <div className="flex items-center gap-4 text-xs font-semibold pt-1">
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="modalPointType"
+                          checked={modalForm.pointType === 'positive'}
+                          onChange={() => setModalForm(prev => ({ ...prev, pointType: 'positive' }))}
+                          className="text-emerald-600 focus:ring-emerald-500"
+                        />
+                        <span className="text-emerald-700 font-bold flex items-center gap-1">
+                          <PlusCircle className="w-3.5 h-3.5" /> Positive Merit (+)
+                        </span>
+                      </label>
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="modalPointType"
+                          checked={modalForm.pointType === 'negative'}
+                          onChange={() => setModalForm(prev => ({ ...prev, pointType: 'negative' }))}
+                          className="text-rose-600 focus:ring-rose-500"
+                        />
+                        <span className="text-rose-700 font-bold flex items-center gap-1">
+                          <MinusCircle className="w-3.5 h-3.5" /> Negative Infraction (-)
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                ) : (
+                  <select
+                    value={modalForm.incidentId}
+                    onChange={handleIncidentSelect}
+                    className="w-full h-9 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-xs font-semibold text-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-950"
+                    required
+                  >
+                    <option value="">-- Choose an Incident Template --</option>
+                    {incidents.map(inc => (
+                      <option key={inc._id} value={inc._id}>
+                        [{inc.point > 0 ? `+${inc.point}` : inc.point} Pts] {inc.title}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              {/* Point Adjustment & Live Preview */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="font-bold text-zinc-700">Point Value *</Label>
+                  <Input 
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={modalForm.point}
+                    onChange={(e) => setModalForm(prev => ({ ...prev, point: Math.max(1, Number(e.target.value) || 1) }))}
+                    required
+                    className="bg-zinc-50 border-zinc-200 text-xs h-9 rounded-xl font-bold"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="font-bold text-zinc-700">Point Effect</Label>
+                  <div className={`h-9 px-3 rounded-xl flex items-center font-black text-xs border ${
+                    modalForm.pointType === 'positive' 
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
+                      : 'bg-rose-50 border-rose-200 text-rose-700'
+                  }`}>
+                    {modalForm.pointType === 'positive' ? `+${modalForm.point} Merit Points` : `-${modalForm.point} Penalties`}
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -476,7 +711,7 @@ export default function AssignIncidentPage() {
                 <Label className="font-bold text-zinc-700">Remarks / Observation Details</Label>
                 <textarea 
                   rows={3}
-                  placeholder="Enter detailed observation, witness info, or notes..."
+                  placeholder="Enter detailed observation, witness info, or counseling notes..."
                   value={modalForm.remarks}
                   onChange={(e) => setModalForm({ ...modalForm, remarks: e.target.value })}
                   className="w-full rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-950 resize-none"

@@ -11,12 +11,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 import behaviourService from '@/services/behaviourService';
+import api from '@/services/api';
 
-const CLASSES = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'];
+const DEFAULT_CLASSES = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'];
 const SECTIONS = ['A', 'B', 'C', 'D'];
 
 export default function StudentIncidentReportPage() {
   const [reportList, setReportList] = useState([]);
+  const [classList, setClassList] = useState(DEFAULT_CLASSES);
   const [loading, setLoading] = useState(true);
 
   // Filters
@@ -26,6 +28,18 @@ export default function StudentIncidentReportPage() {
 
   // Selected Student for History Modal
   const [selectedStudent, setSelectedStudent] = useState(null);
+
+  useEffect(() => {
+    // Fetch dynamic classes
+    api.get('/class')
+      .then(res => {
+        if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
+          const names = res.data.map(c => c.name || c.className).filter(Boolean);
+          if (names.length > 0) setClassList(names);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -120,7 +134,7 @@ export default function StudentIncidentReportPage() {
               className="w-full h-9 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-xs text-zinc-950 font-medium focus:outline-none focus:ring-2 focus:ring-zinc-950"
             >
               <option value="">All Classes</option>
-              {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
+              {classList.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
 

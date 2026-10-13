@@ -357,7 +357,7 @@ export default function StudentListPage() {
                     className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm text-zinc-950 font-medium focus:outline-none focus:ring-2 focus:ring-zinc-600"
                   >
                     <option value="">Select Section</option>
-                    {(classes.find(c => c.name === (formData?.class || formData?.className || (typeof classVal !== 'undefined' ? classVal : '')))?.sections || []).map(s => <option key={s} value={s}>{s}</option>)}
+                    {(classes.find(c => c.name === editStudent.className)?.sections || ['A', 'B', 'C', 'D']).map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
                 <div className="space-y-1.5">

@@ -14,6 +14,7 @@ import api from '@/services/api';
 const LOCAL_STORAGE_TOPICS_KEY = 'stoofi_lesson_plan_topics';
 
 export default function TopicOverviewPage() {
+  const [rawClasses, setRawClasses] = useState([]);
   const [classesList, setClassesList] = useState([]);
   const [sectionsList, setSectionsList] = useState([]);
   const [subjectsList, setSubjectsList] = useState([]);
@@ -30,12 +31,15 @@ export default function TopicOverviewPage() {
   useEffect(() => {
     api.get('/class').then(r => {
       if (r && r.success && Array.isArray(r.data) && r.data.length > 0) {
+        setRawClasses(r.data);
         const mapped = r.data.map(c => ({ label: c.name, value: c.name }));
         setClassesList(sortClassesAcademic(mapped, { ensureStandardClasses: true }));
       } else {
+        setRawClasses([]);
         setClassesList(sortClassesAcademic([], { ensureStandardClasses: true }));
       }
     }).catch(() => {
+      setRawClasses([]);
       setClassesList(sortClassesAcademic([], { ensureStandardClasses: true }));
     });
 
@@ -103,6 +107,16 @@ export default function TopicOverviewPage() {
     );
   }, [filteredResults, tableSearch]);
 
+  const availableSections = useMemo(() => {
+    if (selectedClass) {
+      const cls = rawClasses.find(c => c.name === selectedClass);
+      if (cls?.sections && Array.isArray(cls.sections) && cls.sections.length > 0) {
+        return cls.sections.map(s => ({ label: s, value: s }));
+      }
+    }
+    return sectionsList.length > 0 ? sectionsList : STANDARD_SECTIONS_LIST.map(s => ({ label: s, value: s }));
+  }, [selectedClass, rawClasses, sectionsList]);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -124,7 +138,11 @@ export default function TopicOverviewPage() {
             <SearchableSelect 
               name="class"
               value={selectedClass}
-              onChange={(v) => setSelectedClass(v?.target ? v.target.value : v)}
+              onChange={(v) => {
+                const val = v?.target ? v.target.value : v;
+                setSelectedClass(val);
+                setSelectedSection('');
+              }}
               placeholder="Select Class"
               options={[{ label: 'All Classes', value: '' }, ...classesList]}
             />
@@ -136,7 +154,7 @@ export default function TopicOverviewPage() {
               value={selectedSection}
               onChange={(v) => setSelectedSection(v?.target ? v.target.value : v)}
               placeholder="Select Section"
-              options={[{ label: 'All Sections', value: '' }, ...sectionsList]}
+              options={[{ label: 'All Sections', value: '' }, ...availableSections]}
             />
           </div>
           <div className="space-y-1.5">

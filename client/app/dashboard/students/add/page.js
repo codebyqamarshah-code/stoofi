@@ -246,10 +246,13 @@ const [formData, setFormData] = useState({
 
   const getFilteredSections = () => {
     const selectedClass = classes.find(c => c.name === formData.className);
-      if (selectedClass && selectedClass.sections && selectedClass.sections.length > 0) {
-        return selectedClass.sections.map(s => ({ label: s, value: s }));
-      }
-      return [];
+    if (selectedClass && selectedClass.sections && selectedClass.sections.length > 0) {
+      return selectedClass.sections.map(s => ({ label: s, value: s }));
+    }
+    return (sections.length > 0 ? sections : ['A', 'B', 'C', 'D']).map(s => {
+      const val = typeof s === 'string' ? s : s.name;
+      return { label: val, value: val };
+    });
   };
 
   const handleSave = async (e) => {

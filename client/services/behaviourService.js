@@ -1,5 +1,4 @@
 import api from '@/services/api';
-import { mockStudents } from '@/services/mockData';
 
 const INCIDENTS_KEY = 'stoofi_behaviour_incidents_v2';
 const ASSIGNED_KEY = 'stoofi_behaviour_assigned_v2';
@@ -18,106 +17,7 @@ export const DEFAULT_INCIDENTS = [
   { _id: 'inc-10', title: 'Verbal Dispute or Disrespect to Peers', point: -10, pointType: 'negative', description: 'Using offensive language, bullying, or quarreling with fellow students.' }
 ];
 
-export const DEFAULT_ASSIGNED = [
-  {
-    _id: 'asg-1',
-    studentId: 'stu-1',
-    studentName: 'Muhammad Ali',
-    admissionNo: 'ADM-2026-001',
-    className: 'Class 1',
-    section: 'A',
-    incidentTitle: 'Academic Excellence & High Test Score',
-    point: 10,
-    pointType: 'positive',
-    incidentDate: '2026-10-10',
-    assignedBy: 'Syed Qamar Abbas',
-    remarks: 'Achieved 98% in Mid-term Mathematics quiz.'
-  },
-  {
-    _id: 'asg-2',
-    studentId: 'stu-1',
-    studentName: 'Muhammad Ali',
-    admissionNo: 'ADM-2026-001',
-    className: 'Class 1',
-    section: 'A',
-    incidentTitle: 'Helpful Peer & Good Classroom Conduct',
-    point: 5,
-    pointType: 'positive',
-    incidentDate: '2026-10-08',
-    assignedBy: 'Mr. Tariq Mehmood',
-    remarks: 'Helped new student settle in and shared stationery.'
-  },
-  {
-    _id: 'asg-3',
-    studentId: 'stu-2',
-    studentName: 'Ayesha Khan',
-    admissionNo: 'ADM-2026-002',
-    className: 'Class 1',
-    section: 'B',
-    incidentTitle: 'Perfect Attendance & Punctuality Award',
-    point: 10,
-    pointType: 'positive',
-    incidentDate: '2026-10-11',
-    assignedBy: 'Syed Qamar Abbas',
-    remarks: 'Maintained 100% attendance during whole month.'
-  },
-  {
-    _id: 'asg-4',
-    studentId: 'stu-2',
-    studentName: 'Ayesha Khan',
-    admissionNo: 'ADM-2026-002',
-    className: 'Class 1',
-    section: 'B',
-    incidentTitle: 'Late Arrival / Unexcused Tardiness',
-    point: -3,
-    pointType: 'negative',
-    incidentDate: '2026-10-05',
-    assignedBy: 'Gate Incharge',
-    remarks: 'Arrived 15 minutes after morning bell.'
-  },
-  {
-    _id: 'asg-5',
-    studentId: 'stu-3',
-    studentName: 'Bilal Ahmed',
-    admissionNo: 'ADM-2026-003',
-    className: 'Class 2',
-    section: 'A',
-    incidentTitle: 'Disruptive Classroom Behaviour',
-    point: -5,
-    pointType: 'negative',
-    incidentDate: '2026-10-09',
-    assignedBy: 'Mrs. Fatima',
-    remarks: 'Distracted class during Science experiment.'
-  },
-  {
-    _id: 'asg-6',
-    studentId: 'stu-4',
-    studentName: 'Fatima Zahra',
-    admissionNo: 'ADM-2026-004',
-    className: 'Class 2',
-    section: 'B',
-    incidentTitle: 'Outstanding Sportsmanship & Activity Participation',
-    point: 5,
-    pointType: 'positive',
-    incidentDate: '2026-10-07',
-    assignedBy: 'Coach Aslam',
-    remarks: 'Captain of girls badminton team, excellent conduct.'
-  },
-  {
-    _id: 'asg-7',
-    studentId: 'stu-5',
-    studentName: 'Hamza Tariq',
-    admissionNo: 'ADM-2026-005',
-    className: 'Class 3',
-    section: 'A',
-    incidentTitle: 'Incomplete Homework / Assignment Neglect',
-    point: -5,
-    pointType: 'negative',
-    incidentDate: '2026-10-06',
-    assignedBy: 'Mr. Usman',
-    remarks: 'Did not bring English workbook for third consecutive day.'
-  }
-];
+export const DEFAULT_ASSIGNED = [];
 
 export const DEFAULT_SETTINGS = {
   commentOption: 'Optional',
@@ -228,12 +128,12 @@ export const behaviourService = {
   async getAssignedIncidents(filters = {}) {
     try {
       const res = await api.get('/behaviour/assign', { params: filters });
-      if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
+      if (res?.success && Array.isArray(res.data)) {
         setLocal(ASSIGNED_KEY, res.data);
         return res.data;
       }
     } catch (_) {}
-    return getLocal(ASSIGNED_KEY, DEFAULT_ASSIGNED);
+    return getLocal(ASSIGNED_KEY, []);
   },
 
   async assignIncident(data) {
@@ -259,9 +159,11 @@ export const behaviourService = {
       if (res?.success && res.data) {
         newAssigned._id = res.data._id || newAssigned._id;
       }
-    } catch (_) {}
+    } catch (err) {
+      console.warn('Backend assign sync error:', err.message);
+    }
 
-    const current = getLocal(ASSIGNED_KEY, DEFAULT_ASSIGNED);
+    const current = getLocal(ASSIGNED_KEY, []);
     const updated = [newAssigned, ...current];
     setLocal(ASSIGNED_KEY, updated);
     return newAssigned;
@@ -270,9 +172,11 @@ export const behaviourService = {
   async deleteAssignedIncident(id) {
     try {
       await api.delete(`/behaviour/assign/${id}`);
-    } catch (_) {}
+    } catch (err) {
+      console.warn('Backend delete sync error:', err.message);
+    }
 
-    const current = getLocal(ASSIGNED_KEY, DEFAULT_ASSIGNED);
+    const current = getLocal(ASSIGNED_KEY, []);
     const updated = current.filter(item => item._id !== id);
     setLocal(ASSIGNED_KEY, updated);
     return true;
@@ -289,21 +193,19 @@ export const behaviourService = {
       if (list.length > 0) return list;
     } catch (_) {}
 
-    if (typeof window !== 'undefined') {
-      try {
-        const raw = localStorage.getItem('mockDB_student');
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-        }
-      } catch (_) {}
-    }
-    return mockStudents;
+    return [];
   },
 
   // --- REPORTS ---
   async getStudentReport(filters = {}) {
-    const assigned = await this.getAssignedIncidents();
+    try {
+      const res = await api.get('/behaviour/reports/student', { params: filters });
+      if (res?.success && Array.isArray(res.data)) {
+        return res.data;
+      }
+    } catch (_) {}
+
+    const assigned = await this.getAssignedIncidents(filters);
     const studentMap = {};
 
     assigned.forEach(item => {
@@ -345,6 +247,13 @@ export const behaviourService = {
   },
 
   async getClassSectionReport() {
+    try {
+      const res = await api.get('/behaviour/reports/class-section');
+      if (res?.success && Array.isArray(res.data)) {
+        return res.data;
+      }
+    } catch (_) {}
+
     const assigned = await this.getAssignedIncidents();
     const classMap = {};
 
@@ -381,6 +290,13 @@ export const behaviourService = {
   },
 
   async getIncidentWiseReport() {
+    try {
+      const res = await api.get('/behaviour/reports/incident-wise');
+      if (res?.success && Array.isArray(res.data)) {
+        return res.data;
+      }
+    } catch (_) {}
+
     const assigned = await this.getAssignedIncidents();
     const incidentMap = {};
 

@@ -51,6 +51,8 @@ const TEACHER_ALLOWED = [
   '/dashboard/dormitory',
   '/dashboard/module',
   '/dashboard/virtual-class',
+  '/dashboard/behaviour',
+  '/dashboard/teachers',
 ];
 
 /**

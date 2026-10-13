@@ -1,7 +1,8 @@
 'use client';
 
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import Link from 'next/link';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronRight, Search, BookOpen, CheckCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -10,6 +11,7 @@ import { sortClassesAcademic, STANDARD_SUBJECTS_LIST, STANDARD_SECTIONS_LIST } f
 import api from '@/services/api';
 
 export default function LessonPlanOverviewPage() {
+  const [rawClasses, setRawClasses] = useState([]);
   const [teachersList, setTeachersList] = useState([]);
   const [classesList, setClassesList] = useState([]);
   const [sectionsList, setSectionsList] = useState([]);
@@ -60,12 +62,15 @@ export default function LessonPlanOverviewPage() {
     // 2. Classes
     api.get('/class').then(r => {
       if (r && r.success && Array.isArray(r.data) && r.data.length > 0) {
+        setRawClasses(r.data);
         const mapped = r.data.map(c => ({ label: c.name, value: c.name }));
         setClassesList(sortClassesAcademic(mapped, { ensureStandardClasses: true }));
       } else {
+        setRawClasses([]);
         setClassesList(sortClassesAcademic([], { ensureStandardClasses: true }));
       }
     }).catch(() => {
+      setRawClasses([]);
       setClassesList(sortClassesAcademic([], { ensureStandardClasses: true }));
     });
 
@@ -100,9 +105,25 @@ export default function LessonPlanOverviewPage() {
     }).catch(() => {});
   }, []);
 
+  const availableSections = useMemo(() => {
+    if (formData.class) {
+      const cls = rawClasses.find(c => c.name === formData.class);
+      if (cls?.sections && Array.isArray(cls.sections) && cls.sections.length > 0) {
+        return cls.sections.map(s => ({ label: s, value: s }));
+      }
+    }
+    return sectionsList.length > 0 ? sectionsList : STANDARD_SECTIONS_LIST.map(s => ({ label: s, value: s }));
+  }, [formData.class, rawClasses, sectionsList]);
+
   const handleSelectChange = (name, value) => {
     const finalValue = value?.target ? value.target.value : value;
-    setFormData(prev => ({ ...prev, [name]: finalValue }));
+    setFormData(prev => {
+      const updated = { ...prev, [name]: finalValue };
+      if (name === 'class') {
+        updated.section = '';
+      }
+      return updated;
+    });
   };
 
   const handleSearch = () => {
@@ -159,7 +180,7 @@ export default function LessonPlanOverviewPage() {
               value={formData.section}
               onChange={(v) => handleSelectChange('section', v)}
               placeholder="Select Section *"
-              options={sectionsList}
+              options={availableSections}
             />
           </div>
           <div className="space-y-1.5">
@@ -181,15 +202,21 @@ export default function LessonPlanOverviewPage() {
       </div>
 
       {searched && (
-        <div className="bg-white border border-zinc-200 rounded-xl p-6 shadow-xs space-y-4">
-          <div className="flex items-center justify-between border-b border-zinc-100 pb-4">
-            <h2 className="text-base font-bold text-zinc-950">Lesson Plan Status & Syllabus Coverage</h2>
-            <span className="text-xs font-semibold px-2.5 py-1 bg-zinc-100 rounded-md text-zinc-700">
-              {formData.class || 'All Classes'} &bull; {formData.subject || 'All Subjects'}
-            </span>
+        <div className="bg-white border border-zinc-200 rounded-xl p-6 shadow-xs space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-100 pb-4 gap-2">
+            <div>
+              <h2 className="text-base font-bold text-zinc-950">Lesson Plan Status & Syllabus Coverage</h2>
+              <p className="text-xs text-zinc-500 mt-0.5">Teacher: <span className="font-semibold text-zinc-900">{formData.teacher || 'All'}</span></p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold px-2.5 py-1 bg-zinc-100 rounded-md text-zinc-700">
+                {formData.class || 'All Classes'} &bull; {formData.section ? `Sec ${formData.section}` : 'All Sections'} &bull; {formData.subject || 'All Subjects'}
+              </span>
+              <TableExportToolbar />
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200/80">
               <div className="flex items-center gap-2 text-zinc-500 text-xs font-bold uppercase">
                 <BookOpen className="h-4 w-4 text-blue-600" /> Total Topics
@@ -208,6 +235,53 @@ export default function LessonPlanOverviewPage() {
               </div>
               <div className="text-2xl font-black text-zinc-950 mt-2">0</div>
             </div>
+            <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200/80">
+              <div className="flex items-center gap-2 text-zinc-500 text-xs font-bold uppercase">
+                Coverage
+              </div>
+              <div className="text-2xl font-black text-emerald-600 mt-2">
+                {matchingTopics.length > 0 ? '100%' : '0%'}
+              </div>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto border border-zinc-200 rounded-xl">
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs text-zinc-700 uppercase bg-zinc-50 border-b border-zinc-200 font-bold">
+                <tr>
+                  <th className="px-4 py-3">Class</th>
+                  <th className="px-4 py-3">Section</th>
+                  <th className="px-4 py-3">Subject</th>
+                  <th className="px-4 py-3">Lesson Unit</th>
+                  <th className="px-4 py-3">Topic</th>
+                  <th className="px-4 py-3">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {matchingTopics.length > 0 ? (
+                  matchingTopics.map((t, idx) => (
+                    <tr key={t._id || t.id || idx} className="border-b border-zinc-100 hover:bg-zinc-50/80 transition-colors">
+                      <td className="px-4 py-3.5 font-bold text-zinc-950">{t.class}</td>
+                      <td className="px-4 py-3.5 text-zinc-800">{t.section || 'All'}</td>
+                      <td className="px-4 py-3.5 text-zinc-800">{t.subject}</td>
+                      <td className="px-4 py-3.5 font-medium text-zinc-900">{t.lesson}</td>
+                      <td className="px-4 py-3.5 text-zinc-900">{t.topic}</td>
+                      <td className="px-4 py-3.5">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          Completed
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-8 text-center text-zinc-500 font-medium">
+                      No topics found for the selected criteria.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

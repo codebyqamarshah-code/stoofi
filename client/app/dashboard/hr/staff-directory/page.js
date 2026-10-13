@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { 
   ChevronRight, 
@@ -137,20 +138,31 @@ const SAMPLE_STAFF = [
   }
 ];
 
-export default function StaffDirectoryPage() {
+function StaffDirectoryContent() {
+  const searchParams = useSearchParams();
+  const initialRole = searchParams ? searchParams.get('role') : '';
+
   const [records, setRecords] = useState([]);
   const [designations, setDesignations] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Search & Filter State
-  const [filterRole, setFilterRole] = useState('');
+  const [filterRole, setFilterRole] = useState(initialRole || '');
   const [filterDepartment, setFilterDepartment] = useState('');
   const [filterDesignation, setFilterDesignation] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [filterStaffId, setFilterStaffId] = useState('');
   const [filterName, setFilterName] = useState('');
   const [quickSearch, setQuickSearch] = useState('');
+
+  useEffect(() => {
+    const roleParam = searchParams ? searchParams.get('role') : null;
+    if (roleParam) {
+      setFilterRole(roleParam);
+      setPage(1);
+    }
+  }, [searchParams]);
 
   // Sorting State
   const [sortField, setSortField] = useState('staffNo');
@@ -428,17 +440,41 @@ export default function StaffDirectoryPage() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-950">Staff Directory</h1>
-          <p className="text-sm text-zinc-600 mt-1">Manage teachers, administrative personnel, support staff, and designations.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-950">
+            {filterRole === 'Teacher' ? 'Teachers Directory' : 'Staff Directory'}
+          </h1>
+          <p className="text-sm text-zinc-600 mt-1">
+            {filterRole === 'Teacher' 
+              ? 'View and manage all registered school teachers and faculty members.' 
+              : 'Manage teachers, administrative personnel, support staff, and designations.'}
+          </p>
         </div>
         <div className="flex items-center text-sm text-zinc-500">
           <Link href="/dashboard" className="hover:text-zinc-900 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <Link href="/dashboard/hr/staff-directory" className="hover:text-zinc-900 transition-colors">Human Resource</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="font-semibold text-zinc-900">Staff Directory</span>
+          <span className="font-semibold text-zinc-900">
+            {filterRole === 'Teacher' ? 'Teachers' : 'Staff Directory'}
+          </span>
         </div>
       </div>
+
+      {filterRole === 'Teacher' && (
+        <div className="bg-sky-50 border border-sky-200 text-sky-950 px-4 py-3 rounded-2xl flex items-center justify-between text-xs font-semibold shadow-xs">
+          <div className="flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#084A86] animate-pulse"></span>
+            <span>Active Filter: <strong>Teachers Only ({filteredRecords.length} Total)</strong></span>
+          </div>
+          <button 
+            type="button"
+            onClick={() => { setFilterRole(''); setPage(1); }}
+            className="text-[#084A86] hover:underline font-bold px-3 py-1 rounded-lg bg-white border border-sky-200"
+          >
+            Show All Staff
+          </button>
+        </div>
+      )}
 
       {/* Criteria Selection Card */}
       <div className="bg-white border border-zinc-200 rounded-2xl p-5 shadow-xs space-y-4">
@@ -920,5 +956,20 @@ export default function StaffDirectoryPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function StaffDirectoryPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-[60vh] items-center justify-center bg-white">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center p-2 relative">
+          <div className="absolute inset-0 border-[3px] rounded-full border-t-transparent animate-spin" style={{ borderColor: '#084A86', borderTopColor: 'transparent' }}></div>
+          <img src="/logo.png" alt="Loading" className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
+        </div>
+      </div>
+    }>
+      <StaffDirectoryContent />
+    </Suspense>
   );
 }

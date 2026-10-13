@@ -89,7 +89,7 @@ export default function UnassignedStudentPage() {
   const handleAssignClassChange = (val) => {
     setAssignClass(val);
     const cls = classes.find(c => c.name === val);
-    setAvailableSections(cls?.sections || []);
+    setAvailableSections(cls?.sections?.length ? cls.sections : ['A', 'B', 'C', 'D']);
     setAssignSection('');
   };
 
@@ -97,7 +97,7 @@ export default function UnassignedStudentPage() {
   const handleBulkClassChange = (val) => {
     setBulkClass(val);
     const cls = classes.find(c => c.name === val);
-    setBulkAvailableSections(cls?.sections || []);
+    setBulkAvailableSections(cls?.sections?.length ? cls.sections : ['A', 'B', 'C', 'D']);
     setBulkSection('');
   };
 

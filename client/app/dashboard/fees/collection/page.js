@@ -21,9 +21,9 @@ import {
   Building2,
   Calendar,
   Layers,
-  ArrowRight
 } from 'lucide-react';
-import { sortClassesAcademic } from '@/lib/academicUtils';
+import { sortClassesAcademic, normalizeClassName } from '@/lib/academicUtils';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import api from '@/services/api';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 import { Button } from '@/components/ui/button';
@@ -138,6 +138,56 @@ export default function FeesCollectionPage() {
       return matchClass && matchSection && matchQuery;
     });
   }, [students, selectedClass, selectedSection, searchStudent]);
+
+  // Dynamic class options sorted academically
+  const classOptions = useMemo(() => {
+    return [
+      { value: '', label: 'All Classes' },
+      ...sortClassesAcademic(classes.map(c => ({ value: c.name, label: c.name })))
+    ];
+  }, [classes]);
+
+  // Dynamic available sections based on selected class
+  const availableSections = useMemo(() => {
+    if (selectedClass) {
+      const selectedClassObj = classes.find(c => 
+        c.name === selectedClass || 
+        normalizeClassName(c.name) === normalizeClassName(selectedClass)
+      );
+      if (selectedClassObj?.sections && Array.isArray(selectedClassObj.sections) && selectedClassObj.sections.length > 0) {
+        return [
+          { value: '', label: 'All Sections' },
+          ...selectedClassObj.sections.map(s => {
+            const raw = typeof s === 'string' ? s : (s.name || '');
+            const clean = raw.replace(/^section\s+/i, '');
+            return { value: raw, label: `Section ${clean}` };
+          })
+        ];
+      }
+    }
+
+    const allSecSet = new Set();
+    (sections || []).forEach(s => {
+      const name = typeof s === 'string' ? s : (s.name || '');
+      if (name) allSecSet.add(name);
+    });
+    (classes || []).forEach(c => {
+      (c.sections || []).forEach(s => {
+        if (s) allSecSet.add(s);
+      });
+    });
+    if (allSecSet.size === 0) {
+      ['A', 'B', 'C', 'D'].forEach(s => allSecSet.add(s));
+    }
+
+    return [
+      { value: '', label: 'All Sections' },
+      ...Array.from(allSecSet).sort().map(s => {
+        const clean = String(s).replace(/^section\s+/i, '');
+        return { value: s, label: `Section ${clean}` };
+      })
+    ];
+  }, [selectedClass, classes, sections]);
 
   // Open Quick Fee Collection Modal for a Student
   const handleOpenCollect = (student) => {
@@ -293,30 +343,29 @@ export default function FeesCollectionPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <div className="space-y-1.5">
             <Label className="text-xs font-bold text-zinc-700 uppercase">Class</Label>
-            <select
+            <SearchableSelect
+              options={classOptions}
               value={selectedClass}
-              onChange={e => setSelectedClass(e.target.value)}
-              className="w-full h-10 rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
-            >
-              <option value="">All Classes</option>
-              {classes.map(c => (
-                <option key={c._id || c.name} value={c.name}>{c.name}</option>
-              ))}
-            </select>
+              onChange={e => {
+                setSelectedClass(e.target.value);
+                setSelectedSection('');
+              }}
+              placeholder="All Classes"
+              name="class"
+              className="w-full h-10 rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium cursor-pointer shadow-xs hover:border-zinc-400"
+            />
           </div>
 
           <div className="space-y-1.5">
             <Label className="text-xs font-bold text-zinc-700 uppercase">Section</Label>
-            <select
+            <SearchableSelect
+              options={availableSections}
               value={selectedSection}
               onChange={e => setSelectedSection(e.target.value)}
-              className="w-full h-10 rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
-            >
-              <option value="">All Sections</option>
-              {sections.map(s => (
-                <option key={s._id || s.name} value={s.name}>{s.name}</option>
-              ))}
-            </select>
+              placeholder="All Sections"
+              name="section"
+              className="w-full h-10 rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium cursor-pointer shadow-xs hover:border-zinc-400"
+            />
           </div>
 
           <div className="space-y-1.5 md:col-span-2">

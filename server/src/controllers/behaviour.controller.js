@@ -2,6 +2,7 @@ const BehaviourIncident = require('../models/BehaviourIncident');
 const AssignedIncident = require('../models/AssignedIncident');
 const BehaviourSetting = require('../models/BehaviourSetting');
 const Student = require('../models/Student');
+const Notification = require('../models/Notification');
 
 // Default initial incidents to seed if empty
 const DEFAULT_INCIDENTS = [
@@ -147,6 +148,47 @@ exports.assignIncident = async (req, res) => {
       remarks: remarks || ''
     });
 
+    // Update student's behaviourPoints and send notification
+    try {
+      let targetStudent = null;
+      if (admissionNo && admissionNo !== 'N/A') {
+        targetStudent = await Student.findOne({ admissionNo });
+      }
+      if (!targetStudent && studentId && studentId.match(/^[0-9a-fA-F]{24}$/)) {
+        targetStudent = await Student.findById(studentId);
+      }
+
+      if (targetStudent) {
+        targetStudent.behaviourPoints = (targetStudent.behaviourPoints || 0) + calculatedPoint;
+        await targetStudent.save();
+
+        // Send notification to student if user account is linked
+        if (targetStudent.user) {
+          const isPos = calculatedPoint >= 0;
+          await Notification.create({
+            title: isPos ? `🌟 Behaviour Merit: ${incidentTitle}` : `⚠️ Behaviour Infraction: ${incidentTitle}`,
+            message: `${isPos ? 'Awarded' : 'Deducted'} ${Math.abs(calculatedPoint)} points on ${incidentDate}. Remarks: ${remarks || 'Evaluated by ' + (assignedBy || 'Administration')}.`,
+            type: 'System',
+            audience: 'Student',
+            recipientId: targetStudent.user,
+            isRead: false
+          }).catch(() => {});
+        }
+      }
+
+      // Audit notification for Super Admin
+      const isPos = calculatedPoint >= 0;
+      await Notification.create({
+        title: `📋 Conduct Incident: ${studentName}`,
+        message: `${incidentTitle} (${isPos ? `+${calculatedPoint}` : calculatedPoint} pts) recorded for ${studentName} (${className} - ${section}) by ${assignedBy || req.user?.fullName || 'Staff'}.`,
+        type: 'System',
+        audience: 'Super Admin',
+        isRead: false
+      }).catch(() => {});
+    } catch (notifErr) {
+      console.warn('Behaviour notification/points error:', notifErr.message);
+    }
+
     res.status(201).json({ success: true, data: assigned });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -158,6 +200,19 @@ exports.deleteAssignedIncident = async (req, res) => {
     const { id } = req.params;
     const deleted = await AssignedIncident.findByIdAndDelete(id);
     if (!deleted) return res.status(404).json({ success: false, message: 'Record not found' });
+
+    // Revert student behaviour points
+    try {
+      if (deleted.admissionNo && deleted.admissionNo !== 'N/A') {
+        await Student.findOneAndUpdate(
+          { admissionNo: deleted.admissionNo },
+          { $inc: { behaviourPoints: -deleted.point } }
+        );
+      }
+    } catch (revertErr) {
+      console.warn('Revert points error:', revertErr.message);
+    }
+
     res.status(200).json({ success: true, message: 'Record deleted successfully' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

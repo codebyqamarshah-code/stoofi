@@ -78,7 +78,8 @@ const schema = new mongoose.Schema({
   characterCertificate: { type: String },
 
   // Custom Fields / Other Info
-  otherInfo: { type: String }
+  otherInfo: { type: String },
+  behaviourPoints: { type: Number, default: 0 }
 
 }, { timestamps: true });
 

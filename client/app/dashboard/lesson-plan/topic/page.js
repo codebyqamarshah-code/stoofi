@@ -17,6 +17,7 @@ const LOCAL_STORAGE_LESSONS_KEY = 'stoofi_lesson_plan_lessons';
 
 export default function TopicPage() {
   const { user } = useAuth();
+  const [rawClasses, setRawClasses] = useState([]);
   const [classesList, setClassesList] = useState([]);
   const [sectionsList, setSectionsList] = useState([]);
   const [subjectsList, setSubjectsList] = useState([]);
@@ -36,12 +37,15 @@ export default function TopicPage() {
     // 1. Classes
     api.get('/class').then(r => {
       if (r && r.success && Array.isArray(r.data) && r.data.length > 0) {
+        setRawClasses(r.data);
         const mapped = r.data.map(c => ({ label: c.name, value: c.name }));
         setClassesList(sortClassesAcademic(mapped, { ensureStandardClasses: true }));
       } else {
+        setRawClasses([]);
         setClassesList(sortClassesAcademic([], { ensureStandardClasses: true }));
       }
     }).catch(() => {
+      setRawClasses([]);
       setClassesList(sortClassesAcademic([], { ensureStandardClasses: true }));
     });
 
@@ -147,9 +151,26 @@ export default function TopicPage() {
     });
   }, [allLessons, formData.class, formData.subject]);
 
+  const availableSections = useMemo(() => {
+    if (formData.class) {
+      const cls = rawClasses.find(c => c.name === formData.class);
+      if (cls?.sections && Array.isArray(cls.sections) && cls.sections.length > 0) {
+        return cls.sections.map(s => ({ label: s, value: s }));
+      }
+    }
+    // Fallback: system-wide sections or standard A, B, C, D
+    return sectionsList.length > 0 ? sectionsList : STANDARD_SECTIONS_LIST.map(s => ({ label: s, value: s }));
+  }, [formData.class, rawClasses, sectionsList]);
+
   const handleSelectChange = (name, value) => {
     const finalValue = value?.target ? value.target.value : value;
-    setFormData(prev => ({ ...prev, [name]: finalValue }));
+    setFormData(prev => {
+      const updated = { ...prev, [name]: finalValue };
+      if (name === 'class') {
+        updated.section = '';
+      }
+      return updated;
+    });
   };
 
   const addTitleRow = () => {
@@ -266,7 +287,7 @@ export default function TopicPage() {
                   value={formData.section}
                   onChange={(v) => handleSelectChange('section', v)}
                   placeholder="Select Section *"
-                  options={sectionsList}
+                  options={availableSections}
                 />
               </div>
 

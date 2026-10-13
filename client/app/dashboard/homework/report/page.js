@@ -54,7 +54,9 @@ export default function HomeworkReportPage() {
             <Label className="text-xs font-semibold text-zinc-700 uppercase font-bold">Section <span className="text-rose-500">*</span></Label>
             <select value={formData.section} onChange={e => setFormData({...formData, section: e.target.value})} className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
               <option value="">Select Section *</option>
-              {(classes.find(c => c.name === formData.class)?.sections || []).map(s => <option key={s} value={s}>{s}</option>)}
+              {((classes.find(c => c.name === formData.class)?.sections?.length 
+                ? classes.find(c => c.name === formData.class).sections 
+                : (sections?.length ? sections.map(s => typeof s === 'string' ? s : s.name) : ['A', 'B', 'C', 'D'])) || []).map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
           <div className="space-y-1.5">
