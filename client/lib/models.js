@@ -1,4 +1,4 @@
-﻿import mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 // User Schema
@@ -125,4 +125,60 @@ const teacherSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 export const Teacher = mongoose.models.Teacher || mongoose.model('Teacher', teacherSchema);
+
+// IDCard Schema
+const idCardSchema = new mongoose.Schema({
+  title: { type: String, required: true, trim: true },
+  role: { type: String, enum: ['Student', 'Teacher', 'Staff'], default: 'Student' },
+  cardLayout: { type: String, enum: ['vertical', 'horizontal'], default: 'vertical' },
+  themeStyle: { type: String, default: 'stoofi-emerald' },
+  headerText: { type: String, default: 'OFFICIAL IDENTITY CARD' },
+  footerText: { type: String, default: 'Principal Signature & Seal' },
+  showPhoto: { type: Boolean, default: true },
+  showAdmissionNo: { type: Boolean, default: true },
+  showRollNo: { type: Boolean, default: true },
+  showClass: { type: Boolean, default: true },
+  showSection: { type: Boolean, default: true },
+  showFatherName: { type: Boolean, default: true },
+  showPhone: { type: Boolean, default: true },
+  showBloodGroup: { type: Boolean, default: true },
+  showDob: { type: Boolean, default: true },
+  showDesignation: { type: Boolean, default: false },
+  showDepartment: { type: Boolean, default: false },
+  showQrBarcode: { type: Boolean, default: true },
+  uploadedBackground: { type: String, default: '' },
+  uploadedLogo: { type: String, default: '' },
+  status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
+  isDefault: { type: Boolean, default: false }
+}, { timestamps: true });
+
+export const IDCard = mongoose.models.IDCard || mongoose.model('IDCard', idCardSchema);
+
+// Class Schema
+const classSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  sections: [{ type: String }]
+}, { timestamps: true });
+
+export const Class = mongoose.models.Class || mongoose.model('Class', classSchema);
+
+// Section Schema
+const sectionSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  capacity: { type: Number }
+}, { timestamps: true });
+
+export const Section = mongoose.models.Section || mongoose.model('Section', sectionSchema);
+
+// Setting Schema
+const settingSchema = new mongoose.Schema({
+  schoolName: { type: String, default: 'Stoofi Public School' },
+  schoolCode: { type: String, default: 'STOOFI-001' },
+  phone: { type: String, default: '+92 300 1234567' },
+  email: { type: String, default: 'info@stoofi.com' },
+  address: { type: String, default: 'Main Campus, Model Town, Lahore, Pakistan' },
+  schoolLogo: { type: String, default: '' }
+}, { timestamps: true });
+
+export const Setting = mongoose.models.Setting || mongoose.model('Setting', settingSchema);
 
