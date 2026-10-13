@@ -73,6 +73,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
+  const [availabilityErrors, setAvailabilityErrors] = useState({});
   const [checkingFields, setCheckingFields] = useState({});
   const [availableFields, setAvailableFields] = useState({});
   const availabilityTimeouts = useRef({});
@@ -324,6 +325,11 @@ export default function RegisterPage() {
   const checkFieldAvailability = async (name, value) => {
     if (!value || !value.trim()) {
       setAvailableFields(prev => ({ ...prev, [name]: false }));
+      setAvailabilityErrors(prev => {
+        const u = { ...prev };
+        delete u[name];
+        return u;
+      });
       return;
     }
 
@@ -331,14 +337,14 @@ export default function RegisterPage() {
 
     // Syntax pre-check before making network request
     if (name === 'phone') {
-      const phoneRegex = /^(\+92|92|0)?3[0-9]{9}$/;
-      if (!phoneRegex.test(trimmed) || isFakePhone(trimmed)) {
+      const digits = trimmed.replace(/\D/g, '');
+      if (digits.length < 10) {
         setAvailableFields(prev => ({ ...prev, [name]: false }));
         return;
       }
     } else if (name === 'email') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(trimmed) || isFakeEmail(trimmed)) {
+      if (!emailRegex.test(trimmed)) {
         setAvailableFields(prev => ({ ...prev, [name]: false }));
         return;
       }
@@ -348,8 +354,8 @@ export default function RegisterPage() {
         return;
       }
     } else if (name === 'cnic') {
-      const cnicRegex = /^[0-9]{5}-[0-9]{7}-[0-9]{1}$|^[0-9]{13}$/;
-      if (!cnicRegex.test(trimmed) || isFakeCnic(trimmed)) {
+      const digits = trimmed.replace(/\D/g, '');
+      if (digits.length !== 13) {
         setAvailableFields(prev => ({ ...prev, [name]: false }));
         return;
       }
@@ -363,19 +369,12 @@ export default function RegisterPage() {
       const res = await api.get(`/auth/check-availability?field=${name}&value=${encodeURIComponent(trimmed)}`);
       if (res && res.success) {
         if (!res.available) {
-          setFieldErrors(prev => ({ ...prev, [name]: res.message }));
+          setAvailabilityErrors(prev => ({ ...prev, [name]: res.message }));
           setAvailableFields(prev => ({ ...prev, [name]: false }));
         } else {
-          setFieldErrors(prev => {
+          setAvailabilityErrors(prev => {
             const updated = { ...prev };
-            if (updated[name] && (
-              updated[name].toLowerCase().includes('already') ||
-              updated[name].toLowerCase().includes('taken') ||
-              updated[name].toLowerCase().includes('registered') ||
-              updated[name].toLowerCase().includes('exists')
-            )) {
-              delete updated[name];
-            }
+            delete updated[name];
             return updated;
           });
           setAvailableFields(prev => ({ ...prev, [name]: true }));
@@ -411,15 +410,22 @@ export default function RegisterPage() {
       validateSingleField('cnic', newForm.cnic, newForm);
     }
 
-    // Live debounce checking for phone, email, username, and cnic
+    // Live fast checking for phone, email, username, and cnic
     if (['phone', 'email', 'username', 'cnic'].includes(name)) {
       setAvailableFields(prev => ({ ...prev, [name]: false }));
+      setAvailabilityErrors(prev => {
+        const u = { ...prev };
+        delete u[name];
+        return u;
+      });
       if (availabilityTimeouts.current[name]) {
         clearTimeout(availabilityTimeouts.current[name]);
       }
+      const digits = value.replace(/\D/g, '');
+      const isFull = (name === 'phone' && digits.length >= 10) || (name === 'cnic' && digits.length === 13);
       availabilityTimeouts.current[name] = setTimeout(() => {
         checkFieldAvailability(name, value);
-      }, 400);
+      }, isFull ? 150 : 350);
     }
   };
 
@@ -540,7 +546,8 @@ export default function RegisterPage() {
     }
 
     // Check if any field already has an active error
-    if (Object.keys(errors).length > 0) {
+    const anyAvailError = availabilityErrors.phone || availabilityErrors.email || availabilityErrors.username || availabilityErrors.cnic;
+    if (Object.keys(errors).length > 0 || anyAvailError) {
       setFieldErrors(prev => ({ ...prev, ...errors }));
       setLoading(false);
       if (typeof window !== 'undefined') {
@@ -570,6 +577,7 @@ export default function RegisterPage() {
         let hasAvailError = false;
         results.forEach(res => {
           if (res && res.success && !res.available && res.field) {
+            setAvailabilityErrors(prev => ({ ...prev, [res.field]: res.message }));
             errors[res.field] = res.message;
             hasAvailError = true;
           }
@@ -701,6 +709,7 @@ export default function RegisterPage() {
 
   const inputClass = "w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm font-medium text-zinc-900 dark:text-white placeholder:text-zinc-400";
   const labelClass = "block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5 uppercase tracking-wide";
+  const getFieldError = (name) => fieldErrors[name] || availabilityErrors[name];
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col justify-center items-center p-4 py-12 transition-colors duration-300">
@@ -816,7 +825,7 @@ export default function RegisterPage() {
                   onBlur={(e) => handleBlur(e.target.name, e.target.value)}
                   placeholder="Enter unique username (e.g. user_123)"
                   className={`${inputClass} pr-10 ${
-                    fieldErrors.username 
+                    getFieldError('username')
                       ? 'border-rose-500 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-200' 
                       : availableFields.username 
                       ? 'border-emerald-500 dark:border-emerald-500 focus:border-emerald-500 focus:ring-emerald-200' 
@@ -828,21 +837,21 @@ export default function RegisterPage() {
                   {checkingFields.username && (
                     <Loader2 className="h-4 w-4 animate-spin text-zinc-400" />
                   )}
-                  {!checkingFields.username && availableFields.username && !fieldErrors.username && (
+                  {!checkingFields.username && availableFields.username && !getFieldError('username') && (
                     <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                   )}
-                  {!checkingFields.username && fieldErrors.username && (
+                  {!checkingFields.username && getFieldError('username') && (
                     <AlertCircle className="h-4 w-4 text-rose-500" />
                   )}
                 </div>
               </div>
-              {fieldErrors.username && (
+              {getFieldError('username') && (
                 <p className="text-rose-500 text-xs font-semibold mt-1.5 flex items-center gap-1 animate-in fade-in">
                   <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                  {fieldErrors.username}
+                  {getFieldError('username')}
                 </p>
               )}
-              {!fieldErrors.username && availableFields.username && formData.username && (
+              {!getFieldError('username') && availableFields.username && formData.username && (
                 <p className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold mt-1.5 flex items-center gap-1 animate-in fade-in">
                   <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
                   Username is available
@@ -861,7 +870,7 @@ export default function RegisterPage() {
                   onBlur={(e) => handleBlur(e.target.name, e.target.value)}
                   placeholder="e.g. admin@school.com"
                   className={`${inputClass} pr-10 ${
-                    fieldErrors.email 
+                    getFieldError('email')
                       ? 'border-rose-500 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-200' 
                       : availableFields.email 
                       ? 'border-emerald-500 dark:border-emerald-500 focus:border-emerald-500 focus:ring-emerald-200' 
@@ -873,21 +882,21 @@ export default function RegisterPage() {
                   {checkingFields.email && (
                     <Loader2 className="h-4 w-4 animate-spin text-zinc-400" />
                   )}
-                  {!checkingFields.email && availableFields.email && !fieldErrors.email && (
+                  {!checkingFields.email && availableFields.email && !getFieldError('email') && (
                     <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                   )}
-                  {!checkingFields.email && fieldErrors.email && (
+                  {!checkingFields.email && getFieldError('email') && (
                     <AlertCircle className="h-4 w-4 text-rose-500" />
                   )}
                 </div>
               </div>
-              {fieldErrors.email && (
+              {getFieldError('email') && (
                 <p className="text-rose-500 text-xs font-semibold mt-1.5 flex items-center gap-1 animate-in fade-in">
                   <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                  {fieldErrors.email}
+                  {getFieldError('email')}
                 </p>
               )}
-              {!fieldErrors.email && availableFields.email && formData.email && (
+              {!getFieldError('email') && availableFields.email && formData.email && (
                 <p className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold mt-1.5 flex items-center gap-1 animate-in fade-in">
                   <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
                   Email is available
@@ -1048,7 +1057,7 @@ export default function RegisterPage() {
                   onBlur={(e) => handleBlur(e.target.name, e.target.value)}
                   placeholder="03351234567"
                   className={`${inputClass} pr-10 ${
-                    fieldErrors.phone 
+                    getFieldError('phone') 
                       ? 'border-rose-500 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-200' 
                       : availableFields.phone 
                       ? 'border-emerald-500 dark:border-emerald-500 focus:border-emerald-500 focus:ring-emerald-200' 
@@ -1060,21 +1069,21 @@ export default function RegisterPage() {
                   {checkingFields.phone && (
                     <Loader2 className="h-4 w-4 animate-spin text-zinc-400" />
                   )}
-                  {!checkingFields.phone && availableFields.phone && !fieldErrors.phone && (
+                  {!checkingFields.phone && availableFields.phone && !getFieldError('phone') && (
                     <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                   )}
-                  {!checkingFields.phone && fieldErrors.phone && (
+                  {!checkingFields.phone && getFieldError('phone') && (
                     <AlertCircle className="h-4 w-4 text-rose-500" />
                   )}
                 </div>
               </div>
-              {fieldErrors.phone && (
+              {getFieldError('phone') && (
                 <p className="text-rose-500 text-xs font-semibold mt-1.5 flex items-center gap-1 animate-in fade-in">
                   <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                  {fieldErrors.phone}
+                  {getFieldError('phone')}
                 </p>
               )}
-              {!fieldErrors.phone && availableFields.phone && formData.phone && (
+              {!getFieldError('phone') && availableFields.phone && formData.phone && (
                 <p className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold mt-1.5 flex items-center gap-1 animate-in fade-in">
                   <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
                   Phone number is available
@@ -1095,7 +1104,7 @@ export default function RegisterPage() {
                   onBlur={(e) => handleBlur(e.target.name, e.target.value)}
                   placeholder="35202-1234567-1"
                   className={`${inputClass} pr-10 ${
-                    fieldErrors.cnic 
+                    getFieldError('cnic') 
                       ? 'border-rose-500 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-200' 
                       : availableFields.cnic 
                       ? 'border-emerald-500 dark:border-emerald-500 focus:border-emerald-500 focus:ring-emerald-200' 
@@ -1106,21 +1115,21 @@ export default function RegisterPage() {
                   {checkingFields.cnic && (
                     <Loader2 className="h-4 w-4 animate-spin text-zinc-400" />
                   )}
-                  {!checkingFields.cnic && availableFields.cnic && !fieldErrors.cnic && (
+                  {!checkingFields.cnic && availableFields.cnic && !getFieldError('cnic') && (
                     <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                   )}
-                  {!checkingFields.cnic && fieldErrors.cnic && (
+                  {!checkingFields.cnic && getFieldError('cnic') && (
                     <AlertCircle className="h-4 w-4 text-rose-500" />
                   )}
                 </div>
               </div>
-              {fieldErrors.cnic && (
+              {getFieldError('cnic') && (
                 <p className="text-rose-500 text-xs font-semibold mt-1.5 flex items-center gap-1 animate-in fade-in">
                   <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                  {fieldErrors.cnic}
+                  {getFieldError('cnic')}
                 </p>
               )}
-              {!fieldErrors.cnic && availableFields.cnic && formData.cnic && (
+              {!getFieldError('cnic') && availableFields.cnic && formData.cnic && (
                 <p className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold mt-1.5 flex items-center gap-1 animate-in fade-in">
                   <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
                   CNIC is available

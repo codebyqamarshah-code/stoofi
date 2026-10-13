@@ -75,12 +75,23 @@ exports.checkAvailability = async (req, res) => {
         const query = {
           $or: [
             { phone: value },
+            ...(digits ? [{ phone: digits }] : []),
             ...(last10 && last10.length >= 9 ? [{ phone: { $regex: last10 + '$' } }] : [])
           ]
         };
         const exists = await User.findOne(query);
         const studentExists = exists ? true : await Student.findOne(query);
-        if (exists || studentExists) {
+        const teacherExists = (exists || studentExists) ? true : await Teacher.findOne(query);
+        const staffExists = (exists || studentExists || teacherExists) ? true : await Staff.findOne({
+          $or: [
+            { phone: value },
+            { mobile: value },
+            ...(digits ? [{ phone: digits }, { mobile: digits }] : []),
+            ...(last10 && last10.length >= 9 ? [{ phone: { $regex: last10 + '$' } }, { mobile: { $regex: last10 + '$' } }] : [])
+          ]
+        });
+
+        if (exists || studentExists || teacherExists || staffExists) {
           return res.status(200).json({
             success: true,
             available: false,
@@ -93,8 +104,12 @@ exports.checkAvailability = async (req, res) => {
 
       if (field === 'email') {
         const emailLower = value.toLowerCase();
-        const exists = await User.findOne({ email: { $regex: `^${emailLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' } });
-        if (exists) {
+        const emailRegex = `^${emailLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`;
+        const exists = await User.findOne({ email: { $regex: emailRegex, $options: 'i' } });
+        const teacherExists = exists ? true : await Teacher.findOne({ email: { $regex: emailRegex, $options: 'i' } });
+        const staffExists = (exists || teacherExists) ? true : await Staff.findOne({ email: { $regex: emailRegex, $options: 'i' } });
+
+        if (exists || teacherExists || staffExists) {
           return res.status(200).json({
             success: true,
             available: false,
@@ -124,11 +139,15 @@ exports.checkAvailability = async (req, res) => {
         const query = {
           $or: [
             { cnic: value },
+            ...(cleanCnic ? [{ cnic: cleanCnic }] : []),
             ...(cleanCnic.length === 13 ? [{ cnic: { $regex: cleanCnic } }] : [])
           ]
         };
         const exists = await User.findOne(query);
-        if (exists) {
+        const teacherExists = exists ? true : await Teacher.findOne(query);
+        const staffExists = (exists || teacherExists) ? true : await Staff.findOne(query);
+
+        if (exists || teacherExists || staffExists) {
           return res.status(200).json({
             success: true,
             available: false,
