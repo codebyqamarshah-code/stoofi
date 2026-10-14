@@ -593,18 +593,6 @@ export default function IdCardPage() {
           </div>
         </div>
 
-        {/* Error State */}
-        {error && (
-          <div className="p-4 bg-rose-50 border-b border-rose-200 flex items-center justify-between text-xs text-rose-800">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-rose-600" />
-              <span>{error}</span>
-            </div>
-            <Button size="sm" variant="outline" onClick={fetchData} className="h-7 text-xs bg-white border-rose-200 text-rose-700 hover:bg-rose-100">
-              Retry
-            </Button>
-          </div>
-        )}
 
         {/* Table View */}
         <div className="overflow-x-auto min-h-[260px]">

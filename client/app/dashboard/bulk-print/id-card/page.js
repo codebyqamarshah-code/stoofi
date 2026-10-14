@@ -35,6 +35,7 @@ import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { sortClassesAcademic, STANDARD_ACADEMIC_CLASSES, STANDARD_SECTIONS_LIST } from '@/lib/academicUtils';
 import api from '@/services/api';
+import { downloadIdCardPDF, downloadBatchIdCardsPDF } from '@/lib/idCardPdf';
 
 // 5 Standard Design Styles Config
 const CARD_DESIGNS = [
@@ -110,6 +111,7 @@ export default function BulkPrintIdCardPage() {
   // Layout & View Options
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
   const [previewCard, setPreviewCard] = useState(null);
+  const [printPortalRecords, setPrintPortalRecords] = useState([]);
 
   // Initial Metadata & Records Fetch
   useEffect(() => {
@@ -365,8 +367,36 @@ export default function BulkPrintIdCardPage() {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrint = (recordsToPrint = null) => {
+    const list = recordsToPrint || (selectedRecords.length > 0 ? selectedRecords : filteredRecords);
+    if (!list || list.length === 0) return;
+    setPrintPortalRecords(list);
+    setTimeout(() => {
+      window.print();
+    }, 150);
+  };
+
+  const handlePrintSingle = (rec) => {
+    if (!rec) return;
+    setPrintPortalRecords([rec]);
+    setTimeout(() => {
+      window.print();
+    }, 150);
+  };
+
+  const handleDownloadSinglePDF = (rec) => {
+    if (!rec) return;
+    downloadIdCardPDF(rec, schoolSetting, activeDesignId);
+  };
+
+  const handleDownloadBatchPDF = () => {
+    const list = selectedRecords.length > 0 ? selectedRecords : filteredRecords;
+    if (!list || list.length === 0) return;
+    if (list.length === 1) {
+      downloadIdCardPDF(list[0], schoolSetting, activeDesignId);
+    } else {
+      downloadBatchIdCardsPDF(list, schoolSetting, activeDesignId);
+    }
   };
 
   // Filtered records by live search query
@@ -802,12 +832,17 @@ export default function BulkPrintIdCardPage() {
         <form onSubmit={handleSearchSubmit}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {/* Role Filter */}
+            {/* Role Filter */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-zinc-700">Target Role <span className="text-rose-500">*</span></Label>
               <SearchableSelect
                 name="role"
                 value={role} 
-                onChange={e => setRole(e.target.value)} 
+                onChange={e => {
+                  const val = e?.target?.value ?? e;
+                  setRole(val);
+                  executeSearch(val, classFilter, sectionFilter);
+                }} 
                 options={[
                   { value: 'Student', label: 'Student' },
                   { value: 'Teacher', label: 'Teacher' },
@@ -822,7 +857,12 @@ export default function BulkPrintIdCardPage() {
               <SearchableSelect
                 name="selectedTemplateId"
                 value={selectedTemplateId} 
-                onChange={e => setSelectedTemplateId(e.target.value)} 
+                onChange={e => {
+                  const val = e?.target?.value ?? e;
+                  setSelectedTemplateId(val);
+                  const match = CARD_DESIGNS.find(d => d.id === val);
+                  if (match) setActiveDesignId(match.id);
+                }} 
                 options={[
                   ...CARD_DESIGNS.map(d => ({ value: d.id, label: `Design ${d.num}: ${d.name}` }))
                 ]}
@@ -837,7 +877,11 @@ export default function BulkPrintIdCardPage() {
                 <SearchableSelect
                   name="classFilter"
                   value={classFilter} 
-                  onChange={e => setClassFilter(e.target.value)}
+                  onChange={e => {
+                    const val = e?.target?.value ?? e;
+                    setClassFilter(val);
+                    executeSearch(role, val, sectionFilter);
+                  }}
                   options={[{ value: '', label: 'All Classes' }, ...classes.map(c => ({ value: c, label: c }))]}
                   placeholder="All Classes"
                 />
@@ -848,7 +892,10 @@ export default function BulkPrintIdCardPage() {
                 <Input 
                   placeholder="e.g. Science, Admin..."
                   value={classFilter}
-                  onChange={e => setClassFilter(e.target.value)}
+                  onChange={e => {
+                    setClassFilter(e.target.value);
+                    executeSearch(role, e.target.value, sectionFilter);
+                  }}
                   className="h-9 text-xs"
                 />
               </div>
@@ -861,7 +908,11 @@ export default function BulkPrintIdCardPage() {
                 <SearchableSelect
                   name="sectionFilter"
                   value={sectionFilter} 
-                  onChange={e => setSectionFilter(e.target.value)} 
+                  onChange={e => {
+                    const val = e?.target?.value ?? e;
+                    setSectionFilter(val);
+                    executeSearch(role, classFilter, val);
+                  }} 
                   options={[{ value: '', label: 'All Sections' }, ...sections.map(s => ({ value: s, label: `Section ${s}` }))]}
                   placeholder="All Sections"
                 />
@@ -883,10 +934,10 @@ export default function BulkPrintIdCardPage() {
               <Button 
                 type="submit" 
                 disabled={loading}
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold h-9 text-xs shadow-xs flex items-center justify-center gap-1.5"
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-9 text-xs shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <Search className="h-3.5 w-3.5" /> 
-                {loading ? 'Searching...' : 'Search'}
+                <Sparkles className="h-3.5 w-3.5 text-emerald-200" /> 
+                {loading ? 'Generating...' : 'Generate Cards'}
               </Button>
               <Button
                 type="button"
@@ -946,15 +997,28 @@ export default function BulkPrintIdCardPage() {
             </button>
           </div>
 
-          <Button 
-            type="button" 
-            onClick={handlePrint}
-            disabled={selectedIds.length === 0}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-9 text-xs flex items-center gap-2 shadow-xs disabled:opacity-50 cursor-pointer"
-          >
-            <Printer className="h-3.5 w-3.5" />
-            Print Selected ({selectedIds.length})
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button 
+              type="button" 
+              onClick={() => handlePrint()}
+              disabled={filteredRecords.length === 0}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-9 text-xs flex items-center gap-1.5 shadow-xs cursor-pointer"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-emerald-200" />
+              <Printer className="h-3.5 w-3.5" />
+              Print Cards ({selectedIds.length > 0 ? selectedIds.length : filteredRecords.length})
+            </Button>
+            <Button 
+              type="button"
+              variant="outline"
+              onClick={handleDownloadBatchPDF}
+              disabled={filteredRecords.length === 0}
+              className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-bold h-9 text-xs flex items-center gap-1.5 shadow-xs cursor-pointer"
+            >
+              <Download className="h-3.5 w-3.5 text-emerald-600" />
+              Download PDF ({selectedIds.length > 0 ? selectedIds.length : filteredRecords.length})
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -1042,14 +1106,35 @@ export default function BulkPrintIdCardPage() {
                         {rec.phone || rec.mobile || rec.guardianPhone || '—'}
                       </td>
                       <td className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => setPreviewCard(rec)}
-                          className="h-7 text-xs text-zinc-600 hover:text-emerald-700 hover:bg-emerald-50 px-2"
-                        >
-                          <Eye className="h-3.5 w-3.5 mr-1" /> Inspect
-                        </Button>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handlePrintSingle(rec)}
+                            className="h-7 text-xs border-emerald-600 text-emerald-700 hover:bg-emerald-50 px-2 font-bold cursor-pointer"
+                            title="Print Card"
+                          >
+                            <Printer className="h-3 w-3 mr-1" /> Print
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleDownloadSinglePDF(rec)}
+                            className="h-7 text-xs border-zinc-300 text-zinc-700 hover:bg-zinc-100 px-2 font-semibold cursor-pointer"
+                            title="Download PDF"
+                          >
+                            <Download className="h-3 w-3 mr-1 text-emerald-600" /> PDF
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => setPreviewCard(rec)}
+                            className="h-7 text-xs text-zinc-600 hover:text-emerald-700 hover:bg-emerald-50 px-1.5 cursor-pointer"
+                            title="Preview"
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -1099,6 +1184,37 @@ export default function BulkPrintIdCardPage() {
 
                 {/* Render Selected Design Graphic */}
                 {renderCardGraphic(rec, false)}
+
+                {/* Visible Card Action Bar */}
+                <div 
+                  className="mt-3 pt-2.5 border-t border-zinc-200/80 flex items-center justify-between gap-1.5 print:hidden bg-zinc-50/70 p-2 rounded-xl"
+                  onClick={e => e.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    onClick={() => handlePrintSingle(rec)}
+                    className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold shadow-2xs transition-colors cursor-pointer"
+                    title="Print this card only"
+                  >
+                    <Printer className="h-3 w-3" /> Print
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadSinglePDF(rec)}
+                    className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg bg-white hover:bg-zinc-100 text-zinc-800 border border-zinc-300 text-[11px] font-bold transition-colors cursor-pointer"
+                    title="Download card as clean PDF"
+                  >
+                    <Download className="h-3 w-3 text-emerald-700" /> PDF
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewCard(rec)}
+                    className="inline-flex items-center justify-center p-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-600 transition-colors cursor-pointer"
+                    title="Preview card"
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               </div>
             );
           })}
@@ -1131,16 +1247,22 @@ export default function BulkPrintIdCardPage() {
               <Button 
                 variant="outline" 
                 onClick={() => setPreviewCard(null)} 
-                className="h-9 text-xs border-zinc-200 text-zinc-700"
+                className="h-9 text-xs border-zinc-200 text-zinc-700 cursor-pointer"
               >
                 Close
               </Button>
               <Button 
-                onClick={() => {
-                  setSelectedIds([previewCard._id]);
-                  setTimeout(() => window.print(), 200);
-                }}
-                className="h-9 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-1.5"
+                type="button"
+                variant="outline"
+                onClick={() => handleDownloadSinglePDF(previewCard)}
+                className="h-9 text-xs border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <Download className="h-3.5 w-3.5" /> Download PDF
+              </Button>
+              <Button 
+                type="button"
+                onClick={() => handlePrintSingle(previewCard)}
+                className="h-9 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
               >
                 <Printer className="h-3.5 w-3.5" /> Print Single Card
               </Button>
@@ -1149,26 +1271,72 @@ export default function BulkPrintIdCardPage() {
         </div>
       )}
 
+      {/* ── DEDICATED PRINT PORTAL (100% ISOLATED — ONLY THE CARD PRINTS) ── */}
+      <div id="id-card-print-portal" className="hidden">
+        {(printPortalRecords.length > 0 ? printPortalRecords : (selectedRecords.length > 0 ? selectedRecords : filteredRecords)).map((rec, idx) => (
+          <div key={rec._id || idx} className="id-card-print-item mb-6">
+            {renderCardGraphic(rec, true)}
+          </div>
+        ))}
+      </div>
+
       {/* ── PRINT-ONLY OPTIMIZATION STYLESHEET ── */}
       <style jsx global>{`
         @media print {
-          body {
+          html, body {
             background-color: white !important;
             color: black !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: auto !important;
+            overflow: visible !important;
           }
-          nav, aside, header, footer, .sidebar, .navbar, .print\\:hidden {
+
+          /* Hide ALL standard document elements */
+          body * {
+            visibility: hidden !important;
+          }
+
+          /* Show ONLY the print portal and its contents */
+          #id-card-print-portal,
+          #id-card-print-portal * {
+            visibility: visible !important;
+          }
+
+          #id-card-print-portal {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 20px !important;
+            justify-content: center !important;
+            align-items: flex-start !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 10mm !important;
+            background: white !important;
+            z-index: 2147483647 !important;
+          }
+
+          .id-card-print-item {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+            box-shadow: none !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 12px !important;
+          }
+
+          nav, aside, header, footer, .sidebar, .navbar, .print\\:hidden, #stoofi-ai-widget {
             display: none !important;
           }
-          .grid {
-            display: grid !important;
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 16px !important;
-            page-break-inside: avoid;
-          }
-          .rounded-2xl, .rounded-xl {
-            border-radius: 8px !important;
-            box-shadow: none !important;
-            border: 1px solid #d4d4d8 !important;
+
+          @page {
+            margin: 8mm;
+            size: auto;
           }
         }
       `}</style>
