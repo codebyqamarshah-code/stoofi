@@ -330,6 +330,22 @@ export default function BulkPrintIdCardPage() {
 
   // Helper to Render Individual Card in Selected Design
   const renderCardGraphic = (rec, isInspectModal = false) => {
+    const activeTpl = templates.find(t => t._id === selectedTemplateId || t.themeStyle === activeDesignId) || {};
+    const showPhoto = activeTpl.showPhoto !== undefined ? activeTpl.showPhoto : true;
+    const showAdmissionNo = activeTpl.showAdmissionNo !== undefined ? activeTpl.showAdmissionNo : true;
+    const showRollNo = activeTpl.showRollNo !== undefined ? activeTpl.showRollNo : true;
+    const showClass = activeTpl.showClass !== undefined ? activeTpl.showClass : true;
+    const showSection = activeTpl.showSection !== undefined ? activeTpl.showSection : true;
+    const showDob = activeTpl.showDob !== undefined ? activeTpl.showDob : true;
+    const showFatherName = activeTpl.showFatherName !== undefined ? activeTpl.showFatherName : true;
+    const showPhone = activeTpl.showPhone !== undefined ? activeTpl.showPhone : true;
+    const showQrBarcode = activeTpl.showQrBarcode !== undefined ? activeTpl.showQrBarcode : true;
+    const showSignature = activeTpl.showSignature !== undefined ? activeTpl.showSignature : true;
+
+    const brandHeader = activeTpl.headerText || schoolName || 'Stoofi Public School';
+    const brandSubHeader = activeTpl.subHeaderText || schoolAddress || 'Main Campus, Lahore, Pakistan';
+    const brandFooter = activeTpl.footerText || 'Principal Signature';
+
     const name = `${rec.firstName || ''} ${rec.lastName || ''}`.trim() || rec.name || 'Cardholder Name';
     const photo = rec.studentPhoto || rec.photo || rec.staffPhoto;
     const phone = rec.phone || rec.mobile || rec.guardianPhone || schoolPhone;
@@ -364,28 +380,30 @@ export default function BulkPrintIdCardPage() {
             <div className="text-[8.5px] font-black uppercase tracking-widest text-emerald-300 flex items-center justify-center gap-1">
               <Building className="w-3 h-3 text-amber-300" /> STOOFI PUBLIC SCHOOL
             </div>
-            <h3 className="font-black text-xs leading-tight mt-0.5 uppercase tracking-wide truncate">{schoolName}</h3>
-            <p className="text-[8px] text-emerald-100/80 mt-0.5 truncate">{schoolAddress}</p>
+            <h3 className="font-black text-xs leading-tight mt-0.5 uppercase tracking-wide truncate">{brandHeader}</h3>
+            <p className="text-[8px] text-emerald-100/80 mt-0.5 truncate">{brandSubHeader}</p>
           </div>
 
           {/* Photo & Bio */}
           <div className="p-3.5 flex flex-col items-center text-center flex-1 bg-white">
             {/* Portrait Rounded-Rectangular Photo Box */}
-            <div className="relative mt-1">
-              <div className="w-24 h-28 rounded-2xl border-[3px] border-emerald-600 overflow-hidden bg-zinc-100 shadow-md flex items-center justify-center relative">
-                {photoUrl ? (
-                  <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="flex flex-col items-center justify-center text-zinc-400 p-2">
-                    <User className="w-10 h-10 text-zinc-300" />
-                    <span className="text-[9px] font-bold mt-1 text-zinc-400 uppercase">{name.charAt(0)}</span>
-                  </div>
-                )}
+            {showPhoto && (
+              <div className="relative mt-1">
+                <div className="w-24 h-28 rounded-2xl border-[3px] border-emerald-600 overflow-hidden bg-zinc-100 shadow-md flex items-center justify-center relative">
+                  {photoUrl ? (
+                    <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-zinc-400 p-2">
+                      <User className="w-10 h-10 text-zinc-300" />
+                      <span className="text-[9px] font-bold mt-1 text-zinc-400 uppercase">{name.charAt(0)}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs border-2 border-white">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                </div>
               </div>
-              <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs border-2 border-white">
-                <ShieldCheck className="w-3.5 h-3.5" />
-              </div>
-            </div>
+            )}
 
             <div className="mt-2.5 text-center w-full px-2">
               <h4 className="text-sm font-black text-zinc-950 uppercase tracking-tight truncate leading-tight">{name}</h4>
@@ -398,39 +416,59 @@ export default function BulkPrintIdCardPage() {
             <div className="w-full mt-2.5 space-y-1 text-[10.5px] text-left bg-emerald-50/40 p-2.5 rounded-xl border border-emerald-100">
               {role === 'Student' ? (
                 <>
-                  <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">ID No:</span><strong className="font-mono text-zinc-950">{admNo}</strong></div>
-                  <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Class & Sec:</span><strong className="text-emerald-800 font-bold">{className} ({section})</strong></div>
-                  <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Roll Number:</span><strong className="font-mono text-zinc-950">{rollNo}</strong></div>
-                  <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">DOB:</span><span className="text-zinc-800 font-medium">{dob}</span></div>
-                  {fatherName && <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Guardian:</span><span className="font-bold text-zinc-900 truncate max-w-[130px]">{fatherName}</span></div>}
+                  {showAdmissionNo && (
+                    <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">ID No:</span><strong className="font-mono text-zinc-950">{admNo}</strong></div>
+                  )}
+                  {showClass && (
+                    <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Class & Sec:</span><strong className="text-emerald-800 font-bold">{className} {showSection ? `(${section})` : ''}</strong></div>
+                  )}
+                  {showRollNo && (
+                    <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Roll Number:</span><strong className="font-mono text-zinc-950">{rollNo}</strong></div>
+                  )}
+                  {showDob && (
+                    <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">DOB:</span><span className="text-zinc-800 font-medium">{dob}</span></div>
+                  )}
+                  {showFatherName && fatherName && (
+                    <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Guardian:</span><span className="font-bold text-zinc-900 truncate max-w-[130px]">{fatherName}</span></div>
+                  )}
                 </>
               ) : (
                 <>
-                  <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Staff ID:</span><strong className="font-mono text-zinc-950">{admNo}</strong></div>
+                  {showAdmissionNo && (
+                    <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Staff ID:</span><strong className="font-mono text-zinc-950">{admNo}</strong></div>
+                  )}
                   <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Designation:</span><strong className="text-emerald-800 font-bold">{designation}</strong></div>
                   <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Department:</span><strong className="font-bold text-zinc-900">{department}</strong></div>
                 </>
               )}
-              <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Emergency:</span><strong className="font-mono text-zinc-800 text-[9.5px]">{phone}</strong></div>
+              {showPhone && (
+                <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Emergency:</span><strong className="font-mono text-zinc-800 text-[9.5px]">{phone}</strong></div>
+              )}
             </div>
 
             {/* Barcode Lines & Signature */}
-            <div className="w-full mt-2.5 pt-2 border-t border-zinc-200 flex items-center justify-between">
-              <div className="flex flex-col items-start">
-                <div className="flex items-center gap-0.5 h-3.5 mb-0.5">
-                  {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 3, 1, 2, 1, 2, 1, 3, 1].map((w, idx) => (
-                    <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
-                  ))}
-                </div>
-                <span className="font-mono text-[7px] text-zinc-400 tracking-wider">{admNo}</span>
+            {(showQrBarcode || showSignature) && (
+              <div className="w-full mt-2.5 pt-2 border-t border-zinc-200 flex items-center justify-between">
+                {showQrBarcode ? (
+                  <div className="flex flex-col items-start">
+                    <div className="flex items-center gap-0.5 h-3.5 mb-0.5">
+                      {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 3, 1, 2, 1, 2, 1, 3, 1].map((w, idx) => (
+                        <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
+                      ))}
+                    </div>
+                    <span className="font-mono text-[7px] text-zinc-400 tracking-wider">{admNo}</span>
+                  </div>
+                ) : <div />}
+                {showSignature && (
+                  <div className="text-right">
+                    <div className="text-[7.5px] font-bold text-zinc-800 border-b border-zinc-400 pb-0.5 font-serif italic">
+                      {brandFooter}
+                    </div>
+                    <span className="text-[6px] text-zinc-400 uppercase tracking-wider block mt-0.5">Authorized Seal</span>
+                  </div>
+                )}
               </div>
-              <div className="text-right">
-                <div className="text-[7.5px] font-bold text-zinc-800 border-b border-zinc-400 pb-0.5 font-serif italic">
-                  Principal Signature
-                </div>
-                <span className="text-[6px] text-zinc-400 uppercase tracking-wider block mt-0.5">Authorized Seal</span>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Bottom Accent */}
@@ -450,8 +488,8 @@ export default function BulkPrintIdCardPage() {
                 S
               </div>
               <div>
-                <h3 className="font-black text-[11px] leading-tight uppercase tracking-tight text-white">{schoolName}</h3>
-                <p className="text-[8px] text-sky-200 truncate">{schoolAddress}</p>
+                <h3 className="font-black text-[11px] leading-tight uppercase tracking-tight text-white">{brandHeader}</h3>
+                <p className="text-[8px] text-sky-200 truncate">{brandSubHeader}</p>
               </div>
             </div>
             <span className="text-[8.5px] font-black uppercase tracking-wider bg-amber-400 text-sky-950 px-2 py-0.5 rounded shadow-2xs">
@@ -462,37 +500,56 @@ export default function BulkPrintIdCardPage() {
           {/* Body Dual-Column */}
           <div className="p-3 flex items-center gap-3.5 flex-1 bg-white">
             {/* Left: Portrait Photo + Barcode */}
-            <div className="flex flex-col items-center shrink-0">
-              <div className="w-20 h-24 rounded-lg border-2 border-sky-800 overflow-hidden bg-sky-50 shadow-xs flex items-center justify-center">
-                {photoUrl ? (
-                  <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="flex flex-col items-center justify-center text-sky-900">
-                    <User className="w-8 h-8 text-sky-700" />
-                    <span className="text-[8px] font-bold mt-1 uppercase">{name.charAt(0)}</span>
+            {(showPhoto || showQrBarcode) && (
+              <div className="flex flex-col items-center shrink-0">
+                {showPhoto && (
+                  <div className="w-20 h-24 rounded-lg border-2 border-sky-800 overflow-hidden bg-sky-50 shadow-xs flex items-center justify-center">
+                    {photoUrl ? (
+                      <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center text-sky-900">
+                        <User className="w-8 h-8 text-sky-700" />
+                        <span className="text-[8px] font-bold mt-1 uppercase">{name.charAt(0)}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {showQrBarcode && (
+                  <div className="mt-1.5 flex items-center gap-0.5 h-3">
+                    {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 2, 1, 3].map((w, idx) => (
+                      <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
+                    ))}
                   </div>
                 )}
               </div>
-              <div className="mt-1.5 flex items-center gap-0.5 h-3">
-                {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 2, 1, 3].map((w, idx) => (
-                  <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
-                ))}
-              </div>
-            </div>
+            )}
 
             {/* Right: Info Column */}
             <div className="flex-1 min-w-0 text-[10.5px] space-y-1">
               <div className="inline-block px-2 py-0.5 rounded-md bg-amber-400 text-amber-950 font-black text-[8.5px] uppercase tracking-wider shadow-2xs">
-                STUDENT ID CARD
+                {role} ID CARD
               </div>
               <h4 className="font-black text-xs text-sky-950 truncate uppercase">{name}</h4>
 
               <div className="space-y-0.5 text-zinc-700 pt-0.5">
-                <div className="flex"><span className="w-14 text-zinc-400 font-medium">ID No:</span><strong className="text-zinc-950 font-mono">{admNo}</strong></div>
-                <div className="flex"><span className="w-14 text-zinc-400 font-medium">Class:</span><strong className="text-sky-900 font-bold">{className} ({section})</strong></div>
-                <div className="flex"><span className="w-14 text-zinc-400 font-medium">Roll No:</span><strong className="text-zinc-950 font-mono">{rollNo}</strong></div>
-                <div className="flex"><span className="w-14 text-zinc-400 font-medium">DOB:</span><span className="text-zinc-800 font-medium">{dob}</span></div>
-                <div className="flex"><span className="w-14 text-zinc-400 font-medium">Emergency:</span><strong className="text-zinc-950 font-mono text-[9.5px]">{phone}</strong></div>
+                {showAdmissionNo && (
+                  <div className="flex"><span className="w-14 text-zinc-400 font-medium">ID No:</span><strong className="text-zinc-950 font-mono">{admNo}</strong></div>
+                )}
+                {showClass && (
+                  <div className="flex"><span className="w-14 text-zinc-400 font-medium">Class:</span><strong className="text-sky-900 font-bold">{className} {showSection ? `(${section})` : ''}</strong></div>
+                )}
+                {showRollNo && (
+                  <div className="flex"><span className="w-14 text-zinc-400 font-medium">Roll No:</span><strong className="text-zinc-950 font-mono">{rollNo}</strong></div>
+                )}
+                {showDob && (
+                  <div className="flex"><span className="w-14 text-zinc-400 font-medium">DOB:</span><span className="text-zinc-800 font-medium">{dob}</span></div>
+                )}
+                {showFatherName && fatherName && (
+                  <div className="flex"><span className="w-14 text-zinc-400 font-medium">Guardian:</span><span className="text-zinc-900 font-semibold truncate max-w-[120px]">{fatherName}</span></div>
+                )}
+                {showPhone && (
+                  <div className="flex"><span className="w-14 text-zinc-400 font-medium">Emergency:</span><strong className="text-zinc-950 font-mono text-[9.5px]">{phone}</strong></div>
+                )}
               </div>
             </div>
           </div>
@@ -500,7 +557,7 @@ export default function BulkPrintIdCardPage() {
           {/* Footer */}
           <div className="bg-sky-50 px-3.5 py-1.5 text-[8.5px] text-sky-900 flex justify-between items-center border-t border-sky-200">
             <span className="font-mono font-bold">STO-ID-{admNo}</span>
-            <span className="font-bold text-sky-950">Authorized Campus Seal & Sign</span>
+            <span className="font-bold text-sky-950">{showSignature ? brandFooter : 'Authorized Campus Seal'}</span>
           </div>
         </div>
       );
@@ -519,26 +576,28 @@ export default function BulkPrintIdCardPage() {
             <div className="text-[8.5px] font-extrabold uppercase tracking-widest text-purple-200 flex items-center justify-center gap-1">
               <Crown className="w-3 h-3 text-amber-400" /> ACADEMIC EXCELLENCE BADGE
             </div>
-            <h3 className="font-black text-xs leading-tight mt-0.5 uppercase tracking-wide truncate">{schoolName}</h3>
-            <p className="text-[8px] text-purple-200/80 mt-0.5 truncate">{schoolAddress}</p>
+            <h3 className="font-black text-xs leading-tight mt-0.5 uppercase tracking-wide truncate">{brandHeader}</h3>
+            <p className="text-[8px] text-purple-200/80 mt-0.5 truncate">{brandSubHeader}</p>
           </div>
 
           <div className="p-3.5 flex flex-col items-center text-center flex-1 bg-white">
-            <div className="relative mt-1">
-              <div className="w-24 h-28 rounded-2xl border-[3px] border-purple-600 overflow-hidden bg-purple-50 shadow-md flex items-center justify-center relative">
-                {photoUrl ? (
-                  <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="flex flex-col items-center justify-center text-purple-900">
-                    <User className="w-10 h-10 text-purple-300" />
-                    <span className="text-[9px] font-bold mt-1 text-purple-700 uppercase">{name.charAt(0)}</span>
-                  </div>
-                )}
+            {showPhoto && (
+              <div className="relative mt-1">
+                <div className="w-24 h-28 rounded-2xl border-[3px] border-purple-600 overflow-hidden bg-purple-50 shadow-md flex items-center justify-center relative">
+                  {photoUrl ? (
+                    <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-purple-900">
+                      <User className="w-10 h-10 text-purple-300" />
+                      <span className="text-[9px] font-bold mt-1 text-purple-700 uppercase">{name.charAt(0)}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-purple-700 text-amber-300 flex items-center justify-center shadow-xs border-2 border-white">
+                  <Crown className="w-3.5 h-3.5" />
+                </div>
               </div>
-              <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-purple-700 text-amber-300 flex items-center justify-center shadow-xs border-2 border-white">
-                <Crown className="w-3.5 h-3.5" />
-              </div>
-            </div>
+            )}
 
             <div className="mt-2.5 text-center w-full px-2">
               <h4 className="text-sm font-black text-zinc-950 uppercase tracking-tight truncate leading-tight">{name}</h4>
@@ -550,38 +609,58 @@ export default function BulkPrintIdCardPage() {
             <div className="w-full mt-2.5 space-y-1 text-[10.5px] text-left bg-purple-50/40 p-2.5 rounded-xl border border-purple-100">
               {role === 'Student' ? (
                 <>
-                  <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">ID No:</span><strong className="font-mono text-zinc-950">{admNo}</strong></div>
-                  <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Class:</span><strong className="text-purple-900 font-bold">{className} ({section})</strong></div>
-                  <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Roll No:</span><strong className="font-mono text-zinc-950">{rollNo}</strong></div>
-                  <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">DOB:</span><span className="text-zinc-800 font-medium">{dob}</span></div>
-                  {fatherName && <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Guardian:</span><span className="font-bold text-zinc-900 truncate max-w-[130px]">{fatherName}</span></div>}
+                  {showAdmissionNo && (
+                    <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">ID No:</span><strong className="font-mono text-zinc-950">{admNo}</strong></div>
+                  )}
+                  {showClass && (
+                    <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Class:</span><strong className="text-purple-900 font-bold">{className} {showSection ? `(${section})` : ''}</strong></div>
+                  )}
+                  {showRollNo && (
+                    <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Roll No:</span><strong className="font-mono text-zinc-950">{rollNo}</strong></div>
+                  )}
+                  {showDob && (
+                    <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">DOB:</span><span className="text-zinc-800 font-medium">{dob}</span></div>
+                  )}
+                  {showFatherName && fatherName && (
+                    <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Guardian:</span><span className="font-bold text-zinc-900 truncate max-w-[130px]">{fatherName}</span></div>
+                  )}
                 </>
               ) : (
                 <>
-                  <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Staff ID:</span><strong className="font-mono text-zinc-950">{admNo}</strong></div>
+                  {showAdmissionNo && (
+                    <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Staff ID:</span><strong className="font-mono text-zinc-950">{admNo}</strong></div>
+                  )}
                   <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Designation:</span><strong className="text-purple-900 font-bold">{designation}</strong></div>
                   <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Department:</span><strong className="font-bold text-zinc-900">{department}</strong></div>
                 </>
               )}
-              <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Emergency:</span><strong className="font-mono text-zinc-800 text-[9.5px]">{phone}</strong></div>
+              {showPhone && (
+                <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Emergency:</span><strong className="font-mono text-zinc-800 text-[9.5px]">{phone}</strong></div>
+              )}
             </div>
 
-            <div className="w-full mt-2.5 pt-2 border-t border-zinc-200 flex items-center justify-between">
-              <div className="flex flex-col items-start">
-                <div className="flex items-center gap-0.5 h-3.5 mb-0.5">
-                  {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 3, 1, 2, 1].map((w, idx) => (
-                    <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
-                  ))}
-                </div>
-                <span className="font-mono text-[7px] text-zinc-400 tracking-wider">PASS-{admNo}</span>
+            {(showQrBarcode || showSignature) && (
+              <div className="w-full mt-2.5 pt-2 border-t border-zinc-200 flex items-center justify-between">
+                {showQrBarcode ? (
+                  <div className="flex flex-col items-start">
+                    <div className="flex items-center gap-0.5 h-3.5 mb-0.5">
+                      {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 3, 1, 2, 1].map((w, idx) => (
+                        <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
+                      ))}
+                    </div>
+                    <span className="font-mono text-[7px] text-zinc-400 tracking-wider">PASS-{admNo}</span>
+                  </div>
+                ) : <div />}
+                {showSignature && (
+                  <div className="text-right">
+                    <div className="text-[7.5px] font-bold text-zinc-800 border-b border-zinc-400 pb-0.5 font-serif italic">
+                      {brandFooter}
+                    </div>
+                    <span className="text-[6px] text-zinc-400 uppercase tracking-wider block mt-0.5">Official Seal</span>
+                  </div>
+                )}
               </div>
-              <div className="text-right">
-                <div className="text-[7.5px] font-bold text-zinc-800 border-b border-zinc-400 pb-0.5 font-serif italic">
-                  Registrar Signature
-                </div>
-                <span className="text-[6px] text-zinc-400 uppercase tracking-wider block mt-0.5">Official Seal</span>
-              </div>
-            </div>
+            )}
           </div>
 
           <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-950 h-2 w-full" />
@@ -602,26 +681,28 @@ export default function BulkPrintIdCardPage() {
             <div className="text-[8.5px] font-extrabold uppercase tracking-widest text-emerald-400 flex items-center justify-center gap-1">
               <BadgeCheck className="w-3.5 h-3.5 text-emerald-400" /> DIGITAL SMART CARD
             </div>
-            <h3 className="font-black text-xs leading-tight mt-0.5 uppercase tracking-wide truncate text-white">{schoolName}</h3>
-            <p className="text-[8px] text-zinc-400 mt-0.5 truncate">{schoolAddress}</p>
+            <h3 className="font-black text-xs leading-tight mt-0.5 uppercase tracking-wide truncate text-white">{brandHeader}</h3>
+            <p className="text-[8px] text-zinc-400 mt-0.5 truncate">{brandSubHeader}</p>
           </div>
 
           <div className="p-3.5 flex flex-col items-center text-center flex-1 bg-zinc-900/90">
-            <div className="relative mt-1">
-              <div className="w-24 h-28 rounded-2xl border-[3px] border-emerald-500/80 overflow-hidden bg-zinc-950 shadow-inner flex items-center justify-center relative">
-                {photoUrl ? (
-                  <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="flex flex-col items-center justify-center text-emerald-400">
-                    <User className="w-10 h-10 text-zinc-600" />
-                    <span className="text-[9px] font-bold mt-1 uppercase text-emerald-400">{name.charAt(0)}</span>
-                  </div>
-                )}
+            {showPhoto && (
+              <div className="relative mt-1">
+                <div className="w-24 h-28 rounded-2xl border-[3px] border-emerald-500/80 overflow-hidden bg-zinc-950 shadow-inner flex items-center justify-center relative">
+                  {photoUrl ? (
+                    <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-emerald-400">
+                      <User className="w-10 h-10 text-zinc-600" />
+                      <span className="text-[9px] font-bold mt-1 uppercase text-emerald-400">{name.charAt(0)}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-emerald-600 text-zinc-950 flex items-center justify-center shadow-xs border-2 border-zinc-900">
+                  <BadgeCheck className="w-3.5 h-3.5 text-zinc-950" />
+                </div>
               </div>
-              <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-emerald-600 text-zinc-950 flex items-center justify-center shadow-xs border-2 border-zinc-900">
-                <BadgeCheck className="w-3.5 h-3.5 text-zinc-950" />
-              </div>
-            </div>
+            )}
 
             <div className="mt-2.5 text-center w-full px-2">
               <h4 className="text-sm font-black text-white uppercase tracking-tight truncate leading-tight">{name}</h4>
@@ -633,38 +714,58 @@ export default function BulkPrintIdCardPage() {
             <div className="w-full mt-2.5 space-y-1 text-[10.5px] text-left bg-zinc-950/80 p-2.5 rounded-xl border border-zinc-800">
               {role === 'Student' ? (
                 <>
-                  <div className="flex justify-between items-center"><span className="text-zinc-400 font-medium">ID No:</span><strong className="font-mono text-white">{admNo}</strong></div>
-                  <div className="flex justify-between items-center"><span className="text-zinc-400 font-medium">Class & Sec:</span><strong className="text-emerald-400 font-bold">{className} ({section})</strong></div>
-                  <div className="flex justify-between items-center"><span className="text-zinc-400 font-medium">Roll No:</span><strong className="font-mono text-white">{rollNo}</strong></div>
-                  <div className="flex justify-between items-center"><span className="text-zinc-400 font-medium">DOB:</span><span className="text-zinc-300 font-medium">{dob}</span></div>
-                  {fatherName && <div className="flex justify-between items-center"><span className="text-zinc-400 font-medium">Guardian:</span><span className="font-bold text-zinc-200 truncate max-w-[130px]">{fatherName}</span></div>}
+                  {showAdmissionNo && (
+                    <div className="flex justify-between items-center"><span className="text-zinc-400 font-medium">ID No:</span><strong className="font-mono text-white">{admNo}</strong></div>
+                  )}
+                  {showClass && (
+                    <div className="flex justify-between items-center"><span className="text-zinc-400 font-medium">Class & Sec:</span><strong className="text-emerald-400 font-bold">{className} {showSection ? `(${section})` : ''}</strong></div>
+                  )}
+                  {showRollNo && (
+                    <div className="flex justify-between items-center"><span className="text-zinc-400 font-medium">Roll No:</span><strong className="font-mono text-white">{rollNo}</strong></div>
+                  )}
+                  {showDob && (
+                    <div className="flex justify-between items-center"><span className="text-zinc-400 font-medium">DOB:</span><span className="text-zinc-300 font-medium">{dob}</span></div>
+                  )}
+                  {showFatherName && fatherName && (
+                    <div className="flex justify-between items-center"><span className="text-zinc-400 font-medium">Guardian:</span><span className="font-bold text-zinc-200 truncate max-w-[130px]">{fatherName}</span></div>
+                  )}
                 </>
               ) : (
                 <>
-                  <div className="flex justify-between items-center"><span className="text-zinc-400 font-medium">Staff ID:</span><strong className="font-mono text-white">{admNo}</strong></div>
+                  {showAdmissionNo && (
+                    <div className="flex justify-between items-center"><span className="text-zinc-400 font-medium">Staff ID:</span><strong className="font-mono text-white">{admNo}</strong></div>
+                  )}
                   <div className="flex justify-between items-center"><span className="text-zinc-400 font-medium">Designation:</span><strong className="text-emerald-400 font-bold">{designation}</strong></div>
                   <div className="flex justify-between items-center"><span className="text-zinc-400 font-medium">Department:</span><strong className="font-bold text-zinc-200">{department}</strong></div>
                 </>
               )}
-              <div className="flex justify-between items-center"><span className="text-zinc-400 font-medium">Emergency:</span><strong className="font-mono text-emerald-400 text-[9.5px]">{phone}</strong></div>
+              {showPhone && (
+                <div className="flex justify-between items-center"><span className="text-zinc-400 font-medium">Emergency:</span><strong className="font-mono text-emerald-400 text-[9.5px]">{phone}</strong></div>
+              )}
             </div>
 
-            <div className="w-full mt-2.5 pt-2 border-t border-zinc-800 flex items-center justify-between">
-              <div className="flex flex-col items-start">
-                <div className="flex items-center gap-0.5 h-3.5 mb-0.5">
-                  {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 3, 1, 2].map((w, idx) => (
-                    <span key={idx} className="bg-emerald-400 h-full inline-block" style={{ width: `${w}px` }} />
-                  ))}
-                </div>
-                <span className="font-mono text-[7px] text-zinc-500 tracking-wider">SMART-{admNo}</span>
+            {(showQrBarcode || showSignature) && (
+              <div className="w-full mt-2.5 pt-2 border-t border-zinc-800 flex items-center justify-between">
+                {showQrBarcode ? (
+                  <div className="flex flex-col items-start">
+                    <div className="flex items-center gap-0.5 h-3.5 mb-0.5">
+                      {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 3, 1, 2].map((w, idx) => (
+                        <span key={idx} className="bg-emerald-400 h-full inline-block" style={{ width: `${w}px` }} />
+                      ))}
+                    </div>
+                    <span className="font-mono text-[7px] text-zinc-500 tracking-wider">SMART-{admNo}</span>
+                  </div>
+                ) : <div />}
+                {showSignature && (
+                  <div className="text-right">
+                    <div className="text-[7.5px] font-bold text-zinc-300 border-b border-zinc-700 pb-0.5 font-serif italic">
+                      {brandFooter}
+                    </div>
+                    <span className="text-[6px] text-emerald-400 uppercase tracking-wider block mt-0.5">Verified Chip</span>
+                  </div>
+                )}
               </div>
-              <div className="text-right">
-                <div className="text-[7.5px] font-bold text-zinc-300 border-b border-zinc-700 pb-0.5 font-serif italic">
-                  Digital Seal
-                </div>
-                <span className="text-[6px] text-emerald-400 uppercase tracking-wider block mt-0.5">Verified Chip</span>
-              </div>
-            </div>
+            )}
           </div>
 
           <div className="bg-emerald-600 h-1.5 w-full" />
@@ -682,28 +783,30 @@ export default function BulkPrintIdCardPage() {
 
         <div className="bg-gradient-to-r from-rose-950 via-rose-900 to-amber-950 pt-3 pb-3 px-4 text-center text-white border-b-2 border-amber-500 relative">
           <div className="text-[8.5px] font-black uppercase tracking-widest text-amber-300 flex items-center justify-center gap-1">
-            <Award className="w-3 h-3 text-amber-300" /> INSTITUTIONAL CREST BADGE
+            <Award className="w-3 3 text-amber-300" /> INSTITUTIONAL CREST BADGE
           </div>
-          <h3 className="font-black text-xs leading-tight mt-0.5 uppercase tracking-wide truncate text-white">{schoolName}</h3>
-          <p className="text-[8px] text-amber-200/80 mt-0.5 truncate">{schoolAddress}</p>
+          <h3 className="font-black text-xs leading-tight mt-0.5 uppercase tracking-wide truncate text-white">{brandHeader}</h3>
+          <p className="text-[8px] text-amber-200/80 mt-0.5 truncate">{brandSubHeader}</p>
         </div>
 
         <div className="p-3.5 flex flex-col items-center text-center flex-1 bg-white">
-          <div className="relative mt-1">
-            <div className="w-24 h-28 rounded-2xl border-[3px] border-amber-600 overflow-hidden bg-amber-50/50 shadow-md flex items-center justify-center relative">
-              {photoUrl ? (
-                <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
-              ) : (
-                <div className="flex flex-col items-center justify-center text-rose-950">
-                  <User className="w-10 h-10 text-amber-300" />
-                  <span className="text-[9px] font-bold mt-1 uppercase text-rose-950">{name.charAt(0)}</span>
-                </div>
-              )}
+          {showPhoto && (
+            <div className="relative mt-1">
+              <div className="w-24 h-28 rounded-2xl border-[3px] border-amber-600 overflow-hidden bg-amber-50/50 shadow-md flex items-center justify-center relative">
+                {photoUrl ? (
+                  <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-rose-950">
+                    <User className="w-10 h-10 text-amber-300" />
+                    <span className="text-[9px] font-bold mt-1 uppercase text-rose-950">{name.charAt(0)}</span>
+                  </div>
+                )}
+              </div>
+              <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-amber-500 text-rose-950 flex items-center justify-center shadow-xs border-2 border-white">
+                <Award className="w-3.5 h-3.5 text-rose-950" />
+              </div>
             </div>
-            <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-amber-500 text-rose-950 flex items-center justify-center shadow-xs border-2 border-white">
-              <Award className="w-3.5 h-3.5 text-rose-950" />
-            </div>
-          </div>
+          )}
 
           <div className="mt-2.5 text-center w-full px-2">
             <h4 className="text-sm font-black text-zinc-950 uppercase tracking-tight truncate leading-tight">{name}</h4>
@@ -715,38 +818,58 @@ export default function BulkPrintIdCardPage() {
           <div className="w-full mt-2.5 space-y-1 text-[10.5px] text-left bg-amber-50/30 p-2.5 rounded-xl border border-amber-200">
             {role === 'Student' ? (
               <>
-                <div className="flex justify-between items-center"><span className="text-zinc-600 font-medium">ID No:</span><strong className="font-mono text-zinc-950">{admNo}</strong></div>
-                <div className="flex justify-between items-center"><span className="text-zinc-600 font-medium">Class & Sec:</span><strong className="text-rose-900 font-bold">{className} ({section})</strong></div>
-                <div className="flex justify-between items-center"><span className="text-zinc-600 font-medium">Roll No:</span><strong className="font-mono text-zinc-950">{rollNo}</strong></div>
-                <div className="flex justify-between items-center"><span className="text-zinc-600 font-medium">DOB:</span><span className="text-zinc-800 font-medium">{dob}</span></div>
-                {fatherName && <div className="flex justify-between items-center"><span className="text-zinc-600 font-medium">Guardian:</span><span className="font-bold text-zinc-950 truncate max-w-[130px]">{fatherName}</span></div>}
+                {showAdmissionNo && (
+                  <div className="flex justify-between items-center"><span className="text-zinc-600 font-medium">ID No:</span><strong className="font-mono text-zinc-950">{admNo}</strong></div>
+                )}
+                {showClass && (
+                  <div className="flex justify-between items-center"><span className="text-zinc-600 font-medium">Class & Sec:</span><strong className="text-rose-900 font-bold">{className} {showSection ? `(${section})` : ''}</strong></div>
+                )}
+                {showRollNo && (
+                  <div className="flex justify-between items-center"><span className="text-zinc-600 font-medium">Roll No:</span><strong className="font-mono text-zinc-950">{rollNo}</strong></div>
+                )}
+                {showDob && (
+                  <div className="flex justify-between items-center"><span className="text-zinc-600 font-medium">DOB:</span><span className="text-zinc-800 font-medium">{dob}</span></div>
+                )}
+                {showFatherName && fatherName && (
+                  <div className="flex justify-between items-center"><span className="text-zinc-600 font-medium">Guardian:</span><span className="font-bold text-zinc-950 truncate max-w-[130px]">{fatherName}</span></div>
+                )}
               </>
             ) : (
               <>
-                <div className="flex justify-between items-center"><span className="text-zinc-600 font-medium">Staff ID:</span><strong className="font-mono text-zinc-950">{admNo}</strong></div>
+                {showAdmissionNo && (
+                  <div className="flex justify-between items-center"><span className="text-zinc-600 font-medium">Staff ID:</span><strong className="font-mono text-zinc-950">{admNo}</strong></div>
+                )}
                 <div className="flex justify-between items-center"><span className="text-zinc-600 font-medium">Designation:</span><strong className="text-rose-900 font-bold">{designation}</strong></div>
                 <div className="flex justify-between items-center"><span className="text-zinc-600 font-medium">Department:</span><strong className="font-bold text-zinc-950">{department}</strong></div>
               </>
             )}
-            <div className="flex justify-between items-center"><span className="text-zinc-600 font-medium">Emergency:</span><strong className="font-mono text-zinc-950 text-[9.5px]">{phone}</strong></div>
+            {showPhone && (
+              <div className="flex justify-between items-center"><span className="text-zinc-600 font-medium">Emergency:</span><strong className="font-mono text-zinc-950 text-[9.5px]">{phone}</strong></div>
+            )}
           </div>
 
-          <div className="w-full mt-2.5 pt-2 border-t border-amber-200 flex items-center justify-between">
-            <div className="flex flex-col items-start">
-              <div className="flex items-center gap-0.5 h-3.5 mb-0.5">
-                {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 3, 1].map((w, idx) => (
-                  <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
-                ))}
-              </div>
-              <span className="font-mono text-[7px] text-amber-900 tracking-wider">CREST-{admNo}</span>
+          {(showQrBarcode || showSignature) && (
+            <div className="w-full mt-2.5 pt-2 border-t border-amber-200 flex items-center justify-between">
+              {showQrBarcode ? (
+                <div className="flex flex-col items-start">
+                  <div className="flex items-center gap-0.5 h-3.5 mb-0.5">
+                    {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 3, 1].map((w, idx) => (
+                      <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
+                    ))}
+                  </div>
+                  <span className="font-mono text-[7px] text-amber-900 tracking-wider">CREST-{admNo}</span>
+                </div>
+              ) : <div />}
+              {showSignature && (
+                <div className="text-right">
+                  <div className="text-[7.5px] font-bold text-rose-950 border-b border-amber-400 pb-0.5 font-serif italic">
+                    {brandFooter}
+                  </div>
+                  <span className="text-[6px] text-amber-700 uppercase tracking-wider block mt-0.5">Presidential Seal</span>
+                </div>
+              )}
             </div>
-            <div className="text-right">
-              <div className="text-[7.5px] font-bold text-rose-950 border-b border-amber-400 pb-0.5 font-serif italic">
-                Head of Institution
-              </div>
-              <span className="text-[6px] text-amber-700 uppercase tracking-wider block mt-0.5">Presidential Seal</span>
-            </div>
-          </div>
+          )}
         </div>
 
         <div className="bg-gradient-to-r from-rose-950 via-amber-700 to-rose-950 h-2 w-full" />

@@ -29,6 +29,11 @@ const idCardSchema = new mongoose.Schema({
     trim: true,
     default: 'OFFICIAL IDENTITY CARD'
   },
+  subHeaderText: { 
+    type: String, 
+    trim: true,
+    default: 'Main Campus, Model Town, Lahore'
+  },
   footerText: { 
     type: String, 
     trim: true,
@@ -42,11 +47,12 @@ const idCardSchema = new mongoose.Schema({
   showSection: { type: Boolean, default: true },
   showFatherName: { type: Boolean, default: true },
   showPhone: { type: Boolean, default: true },
-  showBloodGroup: { type: Boolean, default: true },
+  showBloodGroup: { type: Boolean, default: false },
   showDob: { type: Boolean, default: true },
   showDesignation: { type: Boolean, default: true },
   showDepartment: { type: Boolean, default: true },
   showQrBarcode: { type: Boolean, default: true },
+  showSignature: { type: Boolean, default: true },
   uploadedBackground: { type: String, default: '' },
   uploadedLogo: { type: String, default: '' },
   status: { 

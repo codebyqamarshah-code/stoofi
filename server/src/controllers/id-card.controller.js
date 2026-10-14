@@ -313,6 +313,7 @@ exports.create = async (req, res) => {
       cardLayout: cardLayout || 'vertical',
       themeStyle: themeStyle || 'stoofi-emerald',
       headerText: (headerText || 'OFFICIAL IDENTITY CARD').trim(),
+      subHeaderText: (subHeaderText || 'Main Campus, Model Town, Lahore').trim(),
       footerText: (footerText || 'Principal Signature & Seal').trim(),
       showPhoto: showPhoto !== undefined ? showPhoto : true,
       showAdmissionNo: showAdmissionNo !== undefined ? showAdmissionNo : true,
@@ -321,11 +322,12 @@ exports.create = async (req, res) => {
       showSection: showSection !== undefined ? showSection : true,
       showFatherName: showFatherName !== undefined ? showFatherName : true,
       showPhone: showPhone !== undefined ? showPhone : true,
-      showBloodGroup: showBloodGroup !== undefined ? showBloodGroup : true,
+      showBloodGroup: false,
       showDob: showDob !== undefined ? showDob : true,
       showDesignation: showDesignation !== undefined ? showDesignation : true,
       showDepartment: showDepartment !== undefined ? showDepartment : true,
       showQrBarcode: showQrBarcode !== undefined ? showQrBarcode : true,
+      showSignature: showSignature !== undefined ? showSignature : true,
       status: status || 'Active'
     });
 
@@ -349,6 +351,7 @@ exports.update = async (req, res) => {
       cardLayout, 
       themeStyle, 
       headerText, 
+      subHeaderText,
       footerText,
       showPhoto,
       showAdmissionNo,
@@ -357,11 +360,11 @@ exports.update = async (req, res) => {
       showSection,
       showFatherName,
       showPhone,
-      showBloodGroup,
       showDob,
       showDesignation,
       showDepartment,
       showQrBarcode,
+      showSignature,
       status 
     } = req.body;
 
@@ -370,6 +373,7 @@ exports.update = async (req, res) => {
     if (cardLayout) card.cardLayout = cardLayout;
     if (themeStyle) card.themeStyle = themeStyle;
     if (headerText !== undefined) card.headerText = (headerText || '').trim();
+    if (subHeaderText !== undefined) card.subHeaderText = (subHeaderText || '').trim();
     if (footerText !== undefined) card.footerText = (footerText || '').trim();
     if (showPhoto !== undefined) card.showPhoto = showPhoto;
     if (showAdmissionNo !== undefined) card.showAdmissionNo = showAdmissionNo;
@@ -378,11 +382,12 @@ exports.update = async (req, res) => {
     if (showSection !== undefined) card.showSection = showSection;
     if (showFatherName !== undefined) card.showFatherName = showFatherName;
     if (showPhone !== undefined) card.showPhone = showPhone;
-    if (showBloodGroup !== undefined) card.showBloodGroup = showBloodGroup;
+    card.showBloodGroup = false;
     if (showDob !== undefined) card.showDob = showDob;
     if (showDesignation !== undefined) card.showDesignation = showDesignation;
     if (showDepartment !== undefined) card.showDepartment = showDepartment;
     if (showQrBarcode !== undefined) card.showQrBarcode = showQrBarcode;
+    if (showSignature !== undefined) card.showSignature = showSignature;
     if (status) card.status = status;
 
     const updated = await card.save();

@@ -30,7 +30,15 @@ import {
   Upload,
   Camera,
   Image as ImageIcon,
-  QrCode
+  QrCode,
+  Palette,
+  Layout,
+  Award,
+  FileText,
+  Check,
+  CheckSquare,
+  Square,
+  SlidersHorizontal
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -170,6 +178,8 @@ export default function IdCardPage() {
   const [viewingCard, setViewingCard] = useState(null);
   const [printPortalRecord, setPrintPortalRecord] = useState(null);
 
+  const [templateModalTab, setTemplateModalTab] = useState('design'); // 'design' | 'fields'
+
   // Template Form State
   const [formData, setFormData] = useState({
     title: '',
@@ -177,6 +187,7 @@ export default function IdCardPage() {
     cardLayout: 'vertical',
     themeStyle: 'stoofi-emerald',
     headerText: 'OFFICIAL IDENTITY CARD',
+    subHeaderText: 'Main Campus, Model Town, Lahore',
     footerText: 'Principal Signature & Seal',
     showPhoto: true,
     showAdmissionNo: true,
@@ -186,9 +197,10 @@ export default function IdCardPage() {
     showFatherName: true,
     showPhone: true,
     showDob: true,
+    showQrBarcode: true,
+    showSignature: true,
     showDesignation: false,
     showDepartment: false,
-    showQrBarcode: true,
     status: 'Active'
   });
 
@@ -368,12 +380,14 @@ export default function IdCardPage() {
   // Open Template Modal
   const handleOpenCreateTemplate = () => {
     setEditingId(null);
+    setTemplateModalTab('design');
     setFormData({
       title: '',
       role: 'Student',
       cardLayout: 'vertical',
       themeStyle: 'stoofi-emerald',
       headerText: 'OFFICIAL IDENTITY CARD',
+      subHeaderText: 'Main Campus, Model Town, Lahore',
       footerText: 'Principal Signature & Seal',
       showPhoto: true,
       showAdmissionNo: true,
@@ -383,9 +397,10 @@ export default function IdCardPage() {
       showFatherName: true,
       showPhone: true,
       showDob: true,
+      showQrBarcode: true,
+      showSignature: true,
       showDesignation: false,
       showDepartment: false,
-      showQrBarcode: true,
       uploadedBackground: '',
       status: 'Active'
     });
@@ -394,12 +409,14 @@ export default function IdCardPage() {
 
   const handleEditTemplate = (card) => {
     setEditingId(card._id);
+    setTemplateModalTab('design');
     setFormData({
       title: card.title || '',
       role: card.role || 'Student',
       cardLayout: card.cardLayout || 'vertical',
       themeStyle: card.themeStyle || 'stoofi-emerald',
       headerText: card.headerText || 'OFFICIAL IDENTITY CARD',
+      subHeaderText: card.subHeaderText || 'Main Campus, Model Town, Lahore',
       footerText: card.footerText || 'Principal Signature & Seal',
       showPhoto: card.showPhoto !== undefined ? card.showPhoto : true,
       showAdmissionNo: card.showAdmissionNo !== undefined ? card.showAdmissionNo : true,
@@ -409,9 +426,10 @@ export default function IdCardPage() {
       showFatherName: card.showFatherName !== undefined ? card.showFatherName : true,
       showPhone: card.showPhone !== undefined ? card.showPhone : true,
       showDob: card.showDob !== undefined ? card.showDob : true,
+      showQrBarcode: card.showQrBarcode !== undefined ? card.showQrBarcode : true,
+      showSignature: card.showSignature !== undefined ? card.showSignature : true,
       showDesignation: card.showDesignation !== undefined ? card.showDesignation : true,
       showDepartment: card.showDepartment !== undefined ? card.showDepartment : true,
-      showQrBarcode: card.showQrBarcode !== undefined ? card.showQrBarcode : true,
       uploadedBackground: card.uploadedBackground || '',
       status: card.status || 'Active'
     });
@@ -431,6 +449,7 @@ export default function IdCardPage() {
         ...formData,
         title: formData.title.trim(),
         headerText: formData.headerText.trim(),
+        subHeaderText: (formData.subHeaderText || 'Main Campus, Model Town, Lahore').trim(),
         footerText: formData.footerText.trim()
       };
 
@@ -488,9 +507,31 @@ export default function IdCardPage() {
     });
   }, [studentsList, studentSearch, studentClassFilter, studentSectionFilter]);
 
-  // ── ULTRA-PROFESSIONAL REAL STUDENT ID CARD RENDERER (Matching User Reference Images) ──
-  const renderCardGraphic = (rec) => {
-    const theme = THEME_STYLES.find(t => t.id === (rec.cardTemplate || rec.themeStyle)) || THEME_STYLES[0];
+  // ── ULTRA-PROFESSIONAL REAL STUDENT ID CARD RENDERER (Matching User Reference Images & Template Settings) ──
+  const renderCardGraphic = (rec, tplOverride = null) => {
+    const activeTpl = tplOverride || cards.find(c => c._id === rec.cardTemplate || c.themeStyle === rec.cardTemplate) || {};
+    
+    const themeKey = tplOverride?.themeStyle || rec.cardTemplate || rec.themeStyle || 'stoofi-emerald';
+    const theme = THEME_STYLES.find(t => t.id === themeKey) || THEME_STYLES[0];
+    const isHorizontal = (tplOverride?.cardLayout || rec.cardLayout || activeTpl.cardLayout) === 'horizontal' || themeKey === 'classic-navy';
+
+    // Field visibility flags (strictly honors template overrides or saved template flags)
+    const showPhoto = tplOverride ? tplOverride.showPhoto : (rec.showPhoto !== undefined ? rec.showPhoto : (activeTpl.showPhoto !== undefined ? activeTpl.showPhoto : true));
+    const showAdmissionNo = tplOverride ? tplOverride.showAdmissionNo : (rec.showAdmissionNo !== undefined ? rec.showAdmissionNo : (activeTpl.showAdmissionNo !== undefined ? activeTpl.showAdmissionNo : true));
+    const showRollNo = tplOverride ? tplOverride.showRollNo : (rec.showRollNo !== undefined ? rec.showRollNo : (activeTpl.showRollNo !== undefined ? activeTpl.showRollNo : true));
+    const showClass = tplOverride ? tplOverride.showClass : (rec.showClass !== undefined ? rec.showClass : (activeTpl.showClass !== undefined ? activeTpl.showClass : true));
+    const showSection = tplOverride ? tplOverride.showSection : (rec.showSection !== undefined ? rec.showSection : (activeTpl.showSection !== undefined ? activeTpl.showSection : true));
+    const showDob = tplOverride ? tplOverride.showDob : (rec.showDob !== undefined ? rec.showDob : (activeTpl.showDob !== undefined ? activeTpl.showDob : true));
+    const showFatherName = tplOverride ? tplOverride.showFatherName : (rec.showFatherName !== undefined ? rec.showFatherName : (activeTpl.showFatherName !== undefined ? activeTpl.showFatherName : true));
+    const showPhone = tplOverride ? tplOverride.showPhone : (rec.showPhone !== undefined ? rec.showPhone : (activeTpl.showPhone !== undefined ? activeTpl.showPhone : true));
+    const showQrBarcode = tplOverride ? tplOverride.showQrBarcode : (rec.showQrBarcode !== undefined ? rec.showQrBarcode : (activeTpl.showQrBarcode !== undefined ? activeTpl.showQrBarcode : true));
+    const showSignature = tplOverride ? tplOverride.showSignature : (rec.showSignature !== undefined ? rec.showSignature : (activeTpl.showSignature !== undefined ? activeTpl.showSignature : true));
+
+    const headerText = tplOverride?.headerText || rec.headerText || activeTpl.headerText || 'OFFICIAL IDENTITY CARD';
+    const subHeaderText = tplOverride?.subHeaderText || rec.subHeaderText || activeTpl.subHeaderText || 'Main Campus, Model Town, Lahore';
+    const footerText = tplOverride?.footerText || rec.footerText || activeTpl.footerText || 'Principal Signature & Seal';
+    const roleBadge = (tplOverride?.role || rec.role || 'Student').toUpperCase();
+
     const initial = (rec.firstName || 'S').charAt(0).toUpperCase();
     const fullName = `${rec.firstName || 'Student'} ${rec.lastName || 'Name'}`.trim();
     const admNo = rec.admissionNo || 'ADM-2026-001';
@@ -502,7 +543,7 @@ export default function IdCardPage() {
     const dob = rec.dob || '14/05/2008';
 
     // Horizontal Card Format (Design 2 Classic Navy or explicit horizontal)
-    if (rec.cardTemplate === 'classic-navy' || rec.cardLayout === 'horizontal') {
+    if (isHorizontal) {
       return (
         <div className="w-[340px] h-[215px] mx-auto bg-[#faf8f5] rounded-xl overflow-hidden border-2 border-zinc-300 shadow-md flex flex-col justify-between text-zinc-900 font-sans select-none relative">
           {/* Top Brand Bar */}
@@ -511,52 +552,78 @@ export default function IdCardPage() {
               <div className="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center font-black text-[10px] text-amber-300">
                 S
               </div>
-              <span className="font-extrabold text-[11px] tracking-wide uppercase">Stoofi Public School & College</span>
+              <span className="font-extrabold text-[11px] tracking-wide uppercase truncate max-w-[200px]">{headerText}</span>
             </div>
-            <span className="text-[8px] opacity-80">Lahore Campus</span>
+            <span className="text-[8px] opacity-80 truncate max-w-[100px]">{subHeaderText}</span>
           </div>
 
           {/* Body Dual-Column */}
           <div className="p-3 flex items-center gap-3.5 flex-1 bg-white">
             {/* Left: Portrait Photo Box + Barcode */}
-            <div className="flex flex-col items-center shrink-0">
-              <div className="w-20 h-24 rounded-xl border-2 border-[#084A86] overflow-hidden bg-zinc-100 shadow-xs flex items-center justify-center relative">
-                {rec.studentPhoto ? (
-                  <img src={rec.studentPhoto} alt={fullName} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="flex flex-col items-center justify-center text-zinc-400">
-                    <User className="w-8 h-8 text-zinc-400" />
-                    <span className="text-[8px] font-bold mt-1 uppercase text-zinc-500">{initial}</span>
+            {(showPhoto || showQrBarcode) && (
+              <div className="flex flex-col items-center shrink-0">
+                {showPhoto && (
+                  <div className="w-20 h-24 rounded-xl border-2 border-[#084A86] overflow-hidden bg-zinc-100 shadow-xs flex items-center justify-center relative">
+                    {rec.studentPhoto ? (
+                      <img src={rec.studentPhoto} alt={fullName} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center text-zinc-400">
+                        <User className="w-8 h-8 text-zinc-400" />
+                        <span className="text-[8px] font-bold mt-1 uppercase text-zinc-500">{initial}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {/* Barcode representation */}
+                {showQrBarcode && (
+                  <div className="mt-1.5 flex items-center gap-0.5 h-3">
+                    {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 2, 1, 3, 1, 2].map((w, idx) => (
+                      <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
+                    ))}
                   </div>
                 )}
               </div>
-              {/* Barcode representation */}
-              <div className="mt-1.5 flex items-center gap-0.5 h-3">
-                {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 2, 1, 3, 1, 2].map((w, idx) => (
-                  <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
-                ))}
-              </div>
-            </div>
+            )}
 
             {/* Right: Info */}
             <div className="flex-1 min-w-0 text-[10.5px] space-y-1">
               <div className="inline-block px-2.5 py-0.5 rounded-md bg-amber-400 text-amber-950 font-black text-[9px] uppercase tracking-wider mb-0.5 shadow-2xs">
-                STUDENT ID CARD
+                {roleBadge} ID CARD
               </div>
               <h4 className="font-black text-xs text-zinc-950 truncate uppercase">{fullName}</h4>
 
               <div className="space-y-0.5 text-zinc-700 pt-1">
-                <div className="flex"><span className="w-14 text-zinc-400 font-semibold">ID No:</span><strong className="font-mono text-zinc-950">{admNo}</strong></div>
-                <div className="flex"><span className="w-14 text-zinc-400 font-semibold">Class:</span><strong className="text-[#084A86] font-bold">{className} ({section})</strong></div>
-                <div className="flex"><span className="w-14 text-zinc-400 font-semibold">Roll No:</span><strong className="font-mono text-zinc-950">{rollNo}</strong></div>
-                <div className="flex"><span className="w-14 text-zinc-400 font-semibold">DOB:</span><span className="text-zinc-800 font-medium">{dob}</span></div>
-                <div className="flex"><span className="w-14 text-zinc-400 font-semibold">Emergency:</span><strong className="font-mono text-zinc-800 text-[9.5px]">{phone}</strong></div>
+                {showAdmissionNo && (
+                  <div className="flex"><span className="w-14 text-zinc-400 font-semibold">ID No:</span><strong className="font-mono text-zinc-950">{admNo}</strong></div>
+                )}
+                {showClass && (
+                  <div className="flex"><span className="w-14 text-zinc-400 font-semibold">Class:</span><strong className="text-[#084A86] font-bold">{className} {showSection ? `(${section})` : ''}</strong></div>
+                )}
+                {showRollNo && (
+                  <div className="flex"><span className="w-14 text-zinc-400 font-semibold">Roll No:</span><strong className="font-mono text-zinc-950">{rollNo}</strong></div>
+                )}
+                {showDob && (
+                  <div className="flex"><span className="w-14 text-zinc-400 font-semibold">DOB:</span><span className="text-zinc-800 font-medium">{dob}</span></div>
+                )}
+                {showFatherName && fatherName && (
+                  <div className="flex"><span className="w-14 text-zinc-400 font-semibold">Guardian:</span><span className="text-zinc-800 font-medium truncate max-w-[120px]">{fatherName}</span></div>
+                )}
+                {showPhone && (
+                  <div className="flex"><span className="w-14 text-zinc-400 font-semibold">Emergency:</span><strong className="font-mono text-zinc-800 text-[9.5px]">{phone}</strong></div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Bottom Accent Bar */}
-          <div className="bg-[#084A86] h-1.5 w-full" />
+          {/* Bottom Footer Bar */}
+          <div className="bg-[#084A86] px-3.5 py-1 text-white flex justify-between items-center text-[8px]">
+            <span className="font-mono opacity-80">{admNo}</span>
+            {showSignature ? (
+              <span className="font-semibold italic">{footerText}</span>
+            ) : (
+              <span className="font-semibold">Official Identity Card</span>
+            )}
+          </div>
         </div>
       );
     }
@@ -570,96 +637,111 @@ export default function IdCardPage() {
         </div>
 
         {/* Top Angled Geometric Header */}
-        <div className={`bg-gradient-to-r ${theme.headerBg} pt-3 pb-4 px-4 text-white text-center relative overflow-hidden`}>
-          {/* Subtle geometric background angle */}
+        <div className={`bg-gradient-to-r ${theme.headerBg} pt-3 pb-3.5 px-4 text-white text-center relative overflow-hidden`}>
           <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-white/10 rounded-full blur-xs pointer-events-none" />
           <div className="flex items-center justify-center gap-1.5 mb-0.5">
             <Building className="w-3.5 h-3.5 text-amber-300" />
-            <span className="text-[9px] tracking-widest font-extrabold uppercase text-amber-300">STOOFI PUBLIC SCHOOL</span>
+            <span className="text-[9px] tracking-widest font-extrabold uppercase text-amber-300">{headerText}</span>
           </div>
-          <h3 className="text-xs font-black tracking-wide leading-tight uppercase">CAMPUS IDENTITY BADGE</h3>
-          <p className="text-[8px] text-white/70 mt-0.5">Main Campus, Model Town, Lahore</p>
+          <h3 className="text-xs font-black tracking-wide leading-tight uppercase">{roleBadge} BADGE</h3>
+          <p className="text-[8px] text-white/70 mt-0.5">{subHeaderText}</p>
         </div>
 
         {/* Card Body */}
         <div className="p-4 flex flex-col items-center flex-1 bg-white">
           {/* Portrait Rounded-Rectangular Photo Box (Matching Reference Image 2) */}
-          <div className="relative mt-1">
-            <div className={`w-24 h-28 rounded-2xl border-[3px] ${theme.border} overflow-hidden bg-zinc-100 shadow-md flex items-center justify-center relative`}>
-              {rec.studentPhoto ? (
-                <img src={rec.studentPhoto} alt={fullName} className="w-full h-full object-cover" />
-              ) : (
-                <div className="flex flex-col items-center justify-center text-zinc-400 p-2">
-                  <User className="w-10 h-10 text-zinc-300" />
-                  <span className="text-[9px] font-bold mt-1 text-zinc-400 uppercase">No Photo</span>
-                </div>
-              )}
+          {showPhoto && (
+            <div className="relative mt-1">
+              <div className={`w-24 h-28 rounded-2xl border-[3px] ${theme.border} overflow-hidden bg-zinc-100 shadow-md flex items-center justify-center relative`}>
+                {rec.studentPhoto ? (
+                  <img src={rec.studentPhoto} alt={fullName} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-zinc-400 p-2">
+                    <User className="w-10 h-10 text-zinc-300" />
+                    <span className="text-[9px] font-bold mt-1 text-zinc-400 uppercase">{initial}</span>
+                  </div>
+                )}
+              </div>
+              <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs border-2 border-white">
+                <ShieldCheck className="w-3.5 h-3.5" />
+              </div>
             </div>
-            {/* Verified badge icon */}
-            <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs border-2 border-white">
-              <ShieldCheck className="w-3.5 h-3.5" />
-            </div>
-          </div>
+          )}
 
           {/* Student Name & Role Badge */}
-          <div className="mt-3 text-center w-full px-2">
+          <div className="mt-2.5 text-center w-full px-2">
             <h4 className="text-sm font-black text-zinc-950 uppercase tracking-tight truncate leading-tight">
               {fullName}
             </h4>
             <div className="inline-block mt-1 px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-black uppercase tracking-wider border border-emerald-300">
-              STUDENT
+              {roleBadge}
             </div>
           </div>
 
           {/* Detailed Info Grid */}
           <div className="w-full mt-3 space-y-1 text-[10.5px] bg-zinc-50/90 p-2.5 rounded-xl border border-zinc-200">
-            <div className="flex justify-between items-center">
-              <span className="text-zinc-400 font-semibold">ID No:</span>
-              <strong className="font-mono text-zinc-950 font-bold">{admNo}</strong>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-zinc-400 font-semibold">Class & Sec:</span>
-              <strong className="text-emerald-800 font-bold">{className} ({section})</strong>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-zinc-400 font-semibold">Roll Number:</span>
-              <strong className="font-mono text-zinc-950 font-bold">{rollNo}</strong>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-zinc-400 font-semibold">DOB:</span>
-              <span className="text-zinc-800 font-medium">{dob}</span>
-            </div>
-            {fatherName && (
+            {showAdmissionNo && (
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-400 font-semibold">ID No:</span>
+                <strong className="font-mono text-zinc-950 font-bold">{admNo}</strong>
+              </div>
+            )}
+            {showClass && (
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-400 font-semibold">Class & Sec:</span>
+                <strong className="text-emerald-800 font-bold">{className} {showSection ? `(${section})` : ''}</strong>
+              </div>
+            )}
+            {showRollNo && (
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-400 font-semibold">Roll Number:</span>
+                <strong className="font-mono text-zinc-950 font-bold">{rollNo}</strong>
+              </div>
+            )}
+            {showDob && (
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-400 font-semibold">DOB:</span>
+                <span className="text-zinc-800 font-medium">{dob}</span>
+              </div>
+            )}
+            {showFatherName && fatherName && (
               <div className="flex justify-between items-center">
                 <span className="text-zinc-400 font-semibold">Guardian:</span>
                 <span className="text-zinc-900 font-semibold truncate max-w-[130px]">{fatherName}</span>
               </div>
             )}
-            <div className="flex justify-between items-center">
-              <span className="text-zinc-400 font-semibold">Emergency:</span>
-              <strong className="font-mono text-zinc-800 font-bold">{phone}</strong>
-            </div>
+            {showPhone && (
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-400 font-semibold">Emergency:</span>
+                <strong className="font-mono text-zinc-800 font-bold">{phone}</strong>
+              </div>
+            )}
           </div>
 
           {/* Barcode & Security Section */}
-          <div className="w-full mt-3 pt-2 border-t border-zinc-200/80 flex items-center justify-between">
-            <div className="flex flex-col items-start">
-              {/* Realistic Barcode Lines */}
-              <div className="flex items-center gap-0.5 h-4 mb-0.5">
-                {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 3, 1, 2, 1, 2, 1, 3, 1, 2, 1, 1, 2].map((w, idx) => (
-                  <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
-                ))}
-              </div>
-              <span className="font-mono text-[7px] text-zinc-400 tracking-widest">{admNo}</span>
-            </div>
+          {(showQrBarcode || showSignature) && (
+            <div className="w-full mt-3 pt-2 border-t border-zinc-200/80 flex items-center justify-between">
+              {showQrBarcode ? (
+                <div className="flex flex-col items-start">
+                  <div className="flex items-center gap-0.5 h-4 mb-0.5">
+                    {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 3, 1, 2, 1, 2, 1, 3, 1, 2, 1, 1, 2].map((w, idx) => (
+                      <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
+                    ))}
+                  </div>
+                  <span className="font-mono text-[7px] text-zinc-400 tracking-widest">{admNo}</span>
+                </div>
+              ) : <div />}
 
-            <div className="text-right">
-              <div className="text-[8px] font-bold text-zinc-800 border-b border-zinc-400 pb-0.5 font-serif italic">
-                Principal Signature
-              </div>
-              <span className="text-[6.5px] text-zinc-400 uppercase tracking-wider block mt-0.5">Authorized Seal</span>
+              {showSignature && (
+                <div className="text-right">
+                  <div className="text-[8px] font-bold text-zinc-800 border-b border-zinc-400 pb-0.5 font-serif italic">
+                    {footerText}
+                  </div>
+                  <span className="text-[6.5px] text-zinc-400 uppercase tracking-wider block mt-0.5">Authorized Seal</span>
+                </div>
+              )}
             </div>
-          </div>
+          )}
         </div>
 
         {/* Bottom Accent Slash Bar */}
@@ -1382,116 +1464,437 @@ export default function IdCardPage() {
         </div>
       )}
 
-      {/* ── TEMPLATE DESIGN MODAL (Manage Templates) ── */}
+      {/* ── TEMPLATE DESIGN & FIELD SETTINGS MODAL (Manage Templates) ── */}
       {showFormModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-white rounded-xl shadow-2xl border border-zinc-200 max-w-2xl w-full my-8 max-h-[90vh] flex flex-col overflow-hidden">
-            <div className="p-4 border-b border-zinc-200 bg-zinc-50 flex justify-between items-center shrink-0">
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-zinc-900" />
-                <h2 className="text-base font-bold text-zinc-950">
-                  {editingId ? 'Edit ID Card Template Design' : 'Create New ID Card Template Design'}
-                </h2>
+          <div className="bg-white rounded-2xl shadow-2xl border border-zinc-200 max-w-5xl w-full my-6 max-h-[92vh] flex flex-col overflow-hidden">
+            {/* Modal Top Header */}
+            <div className="p-4 sm:px-6 border-b border-zinc-200 bg-zinc-50 flex justify-between items-center shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-zinc-950 flex items-center justify-center text-white">
+                  <SlidersHorizontal className="w-4 h-4 text-emerald-400" />
+                </div>
+                <div>
+                  <h2 className="text-sm sm:text-base font-bold text-zinc-950 flex items-center gap-2">
+                    {editingId ? 'Edit ID Card Template & Settings' : 'Create New ID Card Template & Settings'}
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                      Live Customizer
+                    </span>
+                  </h2>
+                  <p className="text-[11px] text-zinc-500">
+                    Configure card layout, theme colors, branding text, and customize which student fields are visible on the card.
+                  </p>
+                </div>
               </div>
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={() => setShowFormModal(false)} 
-                className="text-zinc-400 hover:text-zinc-700 h-7 w-7 p-0"
+                className="text-zinc-400 hover:text-zinc-700 h-8 w-8 p-0 rounded-lg cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </Button>
             </div>
 
-            <form onSubmit={handleSaveTemplate} className="p-5 space-y-4 overflow-y-auto flex-1 text-xs">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5 md:col-span-2">
-                  <Label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
-                    Template Title <span className="text-rose-500">*</span>
-                  </Label>
-                  <Input 
-                    value={formData.title} 
-                    onChange={e => setFormData({ ...formData, title: e.target.value })} 
-                    placeholder="e.g. Official Student Smart ID Card 2026" 
-                    className="bg-white border-zinc-300 text-zinc-950 text-xs" 
-                    required 
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
-                    Target Role <span className="text-rose-500">*</span>
-                  </Label>
-                  <select 
-                    value={formData.role} 
-                    onChange={e => setFormData({ ...formData, role: e.target.value })} 
-                    className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-zinc-950 text-xs focus:outline-none focus:ring-1 focus:ring-zinc-900 font-semibold" 
-                    required
+            {/* Modal Body: 2-Column Split View (Form on Left, Live Card Preview on Right) */}
+            <div className="flex-1 overflow-y-auto grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-zinc-200">
+              {/* Left Column: Settings Form */}
+              <div className="lg:col-span-7 p-4 sm:p-6 flex flex-col justify-between space-y-4">
+                {/* Setting Navigation Tabs */}
+                <div className="flex items-center rounded-xl bg-zinc-100 p-1 border border-zinc-200">
+                  <button
+                    type="button"
+                    onClick={() => setTemplateModalTab('design')}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      templateModalTab === 'design'
+                        ? 'bg-white text-zinc-950 shadow-xs'
+                        : 'text-zinc-500 hover:text-zinc-900'
+                    }`}
                   >
-                    <option value="Student">Student</option>
-                    <option value="Teacher">Teacher / Faculty</option>
-                    <option value="Staff">Staff / Employee</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
-                    Theme Color
-                  </Label>
-                  <select 
-                    value={formData.themeStyle} 
-                    onChange={e => setFormData({ ...formData, themeStyle: e.target.value })} 
-                    className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-zinc-950 text-xs focus:outline-none focus:ring-1 focus:ring-zinc-900" 
+                    <Palette className="w-3.5 h-3.5 text-emerald-600" />
+                    1. Layout & Styling
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTemplateModalTab('fields')}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      templateModalTab === 'fields'
+                        ? 'bg-white text-zinc-950 shadow-xs'
+                        : 'text-zinc-500 hover:text-zinc-900'
+                    }`}
                   >
-                    {THEME_STYLES.map(t => (
-                      <option key={t.id} value={t.id}>{t.label}</option>
-                    ))}
-                  </select>
+                    <SlidersHorizontal className="w-3.5 h-3.5 text-emerald-600" />
+                    2. Card Fields Visibility
+                  </button>
                 </div>
 
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
-                    Card Header Text
-                  </Label>
-                  <Input 
-                    value={formData.headerText} 
-                    onChange={e => setFormData({ ...formData, headerText: e.target.value })} 
-                    placeholder="e.g. OFFICIAL IDENTITY CARD" 
-                    className="bg-white border-zinc-300 text-zinc-950 text-xs uppercase" 
-                  />
-                </div>
+                <form id="template-customizer-form" onSubmit={handleSaveTemplate} className="space-y-4 text-xs">
+                  {/* ── TAB 1: DESIGN & STYLING ── */}
+                  {templateModalTab === 'design' && (
+                    <div className="space-y-4 animate-in fade-in duration-150">
+                      {/* Template Title & Target Role */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="sm:col-span-2 space-y-1.5">
+                          <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wide">
+                            Template Title <span className="text-rose-500">*</span>
+                          </Label>
+                          <Input 
+                            value={formData.title} 
+                            onChange={e => setFormData({ ...formData, title: e.target.value })} 
+                            placeholder="e.g. Official Student Smart Badge 2026" 
+                            className="bg-white border-zinc-300 text-zinc-950 text-xs h-9" 
+                            required 
+                          />
+                        </div>
 
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
-                    Card Footer Text
-                  </Label>
-                  <Input 
-                    value={formData.footerText} 
-                    onChange={e => setFormData({ ...formData, footerText: e.target.value })} 
-                    placeholder="e.g. Principal Signature & Seal" 
-                    className="bg-white border-zinc-300 text-zinc-950 text-xs" 
-                  />
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wide">
+                            Target Role <span className="text-rose-500">*</span>
+                          </Label>
+                          <select 
+                            value={formData.role} 
+                            onChange={e => setFormData({ ...formData, role: e.target.value })} 
+                            className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-2.5 py-1 text-zinc-950 text-xs font-bold cursor-pointer" 
+                            required
+                          >
+                            <option value="Student">Student</option>
+                            <option value="Teacher">Teacher / Faculty</option>
+                            <option value="Staff">Staff / Employee</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Card Orientation / Layout Switcher */}
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wide">
+                          Card Orientation / Format
+                        </Label>
+                        <div className="grid grid-cols-2 gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, cardLayout: 'vertical' })}
+                            className={`p-3 rounded-xl border-2 text-left transition-all flex items-center gap-3 cursor-pointer ${
+                              formData.cardLayout === 'vertical'
+                                ? 'border-emerald-600 bg-emerald-50/50 shadow-xs'
+                                : 'border-zinc-200 bg-white hover:border-zinc-300'
+                            }`}
+                          >
+                            <div className="w-7 h-10 rounded-md border-2 border-zinc-400 bg-zinc-100 flex flex-col justify-between p-0.5 shrink-0">
+                              <div className="w-full h-1.5 bg-zinc-400 rounded-2xs" />
+                              <div className="w-3 h-3 rounded-full bg-zinc-300 mx-auto" />
+                              <div className="w-full h-2 bg-zinc-200 rounded-2xs" />
+                            </div>
+                            <div>
+                              <div className="font-bold text-xs text-zinc-950">Vertical Lanyard Badge</div>
+                              <div className="text-[10px] text-zinc-500">Standard portrait badge with top lanyard slot</div>
+                            </div>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, cardLayout: 'horizontal' })}
+                            className={`p-3 rounded-xl border-2 text-left transition-all flex items-center gap-3 cursor-pointer ${
+                              formData.cardLayout === 'horizontal'
+                                ? 'border-emerald-600 bg-emerald-50/50 shadow-xs'
+                                : 'border-zinc-200 bg-white hover:border-zinc-300'
+                            }`}
+                          >
+                            <div className="w-10 h-7 rounded-md border-2 border-zinc-400 bg-zinc-100 flex items-center justify-between p-0.5 shrink-0">
+                              <div className="w-3 h-4 rounded-xs bg-zinc-300" />
+                              <div className="w-4 h-3 bg-zinc-200 rounded-2xs" />
+                            </div>
+                            <div>
+                              <div className="font-bold text-xs text-zinc-950">Horizontal Smart Card</div>
+                              <div className="text-[10px] text-zinc-500">Landscape card with dual-column photo & bio</div>
+                            </div>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Theme Style & Color Palette */}
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wide">
+                          Theme Color & Style (5 Palettes)
+                        </Label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {THEME_STYLES.map(t => {
+                            const isSelected = formData.themeStyle === t.id;
+                            return (
+                              <button
+                                key={t.id}
+                                type="button"
+                                onClick={() => setFormData({ ...formData, themeStyle: t.id })}
+                                className={`p-2.5 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer ${
+                                  isSelected
+                                    ? 'border-emerald-600 bg-emerald-50/60 ring-2 ring-emerald-500/20'
+                                    : 'border-zinc-200 bg-white hover:border-zinc-300'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <div className={`w-6 h-6 rounded-lg bg-gradient-to-r ${t.headerBg} shrink-0 shadow-2xs border border-white`} />
+                                  <span className="font-bold text-xs text-zinc-900 truncate">{t.label}</span>
+                                </div>
+                                {isSelected && (
+                                  <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Branding Text Customization */}
+                      <div className="pt-2 border-t border-zinc-200 space-y-3">
+                        <span className="text-[11px] font-bold text-zinc-600 uppercase tracking-wider block">
+                          Card Header & Signatory Branding
+                        </span>
+
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-bold text-zinc-700">Card Header Title</Label>
+                          <Input 
+                            value={formData.headerText} 
+                            onChange={e => setFormData({ ...formData, headerText: e.target.value })} 
+                            placeholder="e.g. OFFICIAL IDENTITY CARD" 
+                            className="bg-white border-zinc-300 text-zinc-950 text-xs uppercase h-8" 
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-bold text-zinc-700">Campus / Sub-Header Line</Label>
+                          <Input 
+                            value={formData.subHeaderText} 
+                            onChange={e => setFormData({ ...formData, subHeaderText: e.target.value })} 
+                            placeholder="e.g. Main Campus, Model Town, Lahore" 
+                            className="bg-white border-zinc-300 text-zinc-950 text-xs h-8" 
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-bold text-zinc-700">Signature / Footer Text</Label>
+                          <Input 
+                            value={formData.footerText} 
+                            onChange={e => setFormData({ ...formData, footerText: e.target.value })} 
+                            placeholder="e.g. Principal Signature & Authorized Seal" 
+                            className="bg-white border-zinc-300 text-zinc-950 text-xs h-8" 
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── TAB 2: VISIBLE CARD FIELDS (CARD MAI KYA SHOW HO, KYA HIDE HO) ── */}
+                  {templateModalTab === 'fields' && (
+                    <div className="space-y-4 animate-in fade-in duration-150">
+                      {/* Presets Bar */}
+                      <div className="bg-zinc-50 border border-zinc-200 p-2.5 rounded-xl flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-[11px] font-bold text-zinc-700">Quick Field Presets:</span>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setFormData({
+                              ...formData,
+                              showPhoto: true,
+                              showAdmissionNo: true,
+                              showRollNo: true,
+                              showClass: true,
+                              showSection: true,
+                              showDob: true,
+                              showFatherName: true,
+                              showPhone: true,
+                              showQrBarcode: true,
+                              showSignature: true
+                            })}
+                            className="px-2.5 py-1 text-[10px] font-bold bg-white text-emerald-800 border border-emerald-300 rounded-md hover:bg-emerald-50 cursor-pointer shadow-2xs"
+                          >
+                            Show All Fields
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setFormData({
+                              ...formData,
+                              showPhoto: true,
+                              showAdmissionNo: true,
+                              showRollNo: false,
+                              showClass: true,
+                              showSection: true,
+                              showDob: false,
+                              showFatherName: false,
+                              showPhone: true,
+                              showQrBarcode: true,
+                              showSignature: true
+                            })}
+                            className="px-2.5 py-1 text-[10px] font-bold bg-white text-zinc-700 border border-zinc-300 rounded-md hover:bg-zinc-50 cursor-pointer shadow-2xs"
+                          >
+                            Minimal Badge
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Field Toggles Grid */}
+                      <div className="space-y-2">
+                        {[
+                          { key: 'showPhoto', label: 'Student Profile Photo', desc: 'Display portrait photo frame on the ID card', icon: Camera },
+                          { key: 'showAdmissionNo', label: 'Admission No / ID Number', desc: 'Official student registration or staff ID', icon: FileText },
+                          { key: 'showRollNo', label: 'Examination Roll Number', desc: 'Assigned classroom roll number', icon: Award },
+                          { key: 'showClass', label: 'Class Grade', desc: 'Current enrolled academic class', icon: GraduationCap },
+                          { key: 'showSection', label: 'Section', desc: 'Specific section badge (e.g. Section A)', icon: Layers },
+                          { key: 'showDob', label: 'Date of Birth (DOB)', desc: 'Official student date of birth', icon: Calendar },
+                          { key: 'showFatherName', label: 'Guardian / Father Name', desc: 'Parent or legal guardian name', icon: Users },
+                          { key: 'showPhone', label: 'Emergency Contact Phone', desc: 'Campus emergency telephone number', icon: Phone },
+                          { key: 'showQrBarcode', label: 'Barcode / Security Code', desc: 'Scannable barcode lines representation', icon: QrCode },
+                          { key: 'showSignature', label: 'Principal Signature & Seal', desc: 'Institutional seal and signature line', icon: ShieldCheck }
+                        ].map((fld) => {
+                          const isEnabled = formData[fld.key] !== false;
+                          const IconComp = fld.icon;
+                          return (
+                            <div
+                              key={fld.key}
+                              onClick={() => setFormData({ ...formData, [fld.key]: !isEnabled })}
+                              className={`p-3 rounded-xl border transition-all flex items-center justify-between cursor-pointer select-none ${
+                                isEnabled 
+                                  ? 'bg-emerald-50/40 border-emerald-300' 
+                                  : 'bg-zinc-50/70 border-zinc-200 opacity-60 hover:opacity-90'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                                  isEnabled ? 'bg-emerald-600 text-white' : 'bg-zinc-200 text-zinc-500'
+                                }`}>
+                                  <IconComp className="w-4 h-4" />
+                                </div>
+                                <div>
+                                  <div className="font-bold text-xs text-zinc-950 flex items-center gap-1.5">
+                                    {fld.label}
+                                    {isEnabled && (
+                                      <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded">
+                                        Visible
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-[10px] text-zinc-500">{fld.desc}</p>
+                                </div>
+                              </div>
+
+                              {/* Toggle switch visual */}
+                              <div className={`w-10 h-5 rounded-full transition-colors p-0.5 flex items-center ${
+                                isEnabled ? 'bg-emerald-600 justify-end' : 'bg-zinc-300 justify-start'
+                              }`}>
+                                <div className="w-4 h-4 rounded-full bg-white shadow-xs" />
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        {/* Extra Staff Fields if Role != Student */}
+                        {formData.role !== 'Student' && (
+                          <div className="pt-2 border-t border-zinc-200 space-y-2">
+                            <span className="text-[10px] font-bold text-zinc-500 uppercase">Staff / Faculty Fields:</span>
+                            {[
+                              { key: 'showDesignation', label: 'Designation / Rank', desc: 'Academic or admin position' },
+                              { key: 'showDepartment', label: 'Department', desc: 'Faculty department division' }
+                            ].map((fld) => {
+                              const isEnabled = formData[fld.key] !== false;
+                              return (
+                                <div
+                                  key={fld.key}
+                                  onClick={() => setFormData({ ...formData, [fld.key]: !isEnabled })}
+                                  className={`p-3 rounded-xl border transition-all flex items-center justify-between cursor-pointer select-none ${
+                                    isEnabled ? 'bg-emerald-50/40 border-emerald-300' : 'bg-zinc-50/70 border-zinc-200 opacity-60'
+                                  }`}
+                                >
+                                  <div>
+                                    <div className="font-bold text-xs text-zinc-950">{fld.label}</div>
+                                    <p className="text-[10px] text-zinc-500">{fld.desc}</p>
+                                  </div>
+                                  <div className={`w-10 h-5 rounded-full transition-colors p-0.5 flex items-center ${
+                                    isEnabled ? 'bg-emerald-600 justify-end' : 'bg-zinc-300 justify-start'
+                                  }`}>
+                                    <div className="w-4 h-4 rounded-full bg-white shadow-xs" />
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </form>
+
+                {/* Form Footer Buttons */}
+                <div className="pt-4 border-t border-zinc-200 flex items-center justify-between">
+                  <span className="text-[10px] text-zinc-400">
+                    Changes reflect live on the preview card
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => setShowFormModal(false)}
+                      className="h-9 text-xs border-zinc-300 text-zinc-700 cursor-pointer"
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      type="submit" 
+                      form="template-customizer-form"
+                      disabled={submitting}
+                      className="h-9 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 rounded-lg shadow-xs cursor-pointer"
+                    >
+                      {submitting ? (
+                        <span className="flex items-center gap-1.5">
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving Template...
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5" /> Save Template Design
+                        </span>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
 
-              <div className="p-4 border-t border-zinc-200 flex justify-end gap-2.5">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setShowFormModal(false)}
-                  className="h-8 text-xs border-zinc-300"
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  type="submit" 
-                  disabled={submitting}
-                  className="h-8 text-xs bg-zinc-950 hover:bg-zinc-800 text-white font-semibold"
-                >
-                  {submitting ? 'Saving Design...' : 'Save Template'}
-                </Button>
+              {/* Right Column: Live Real-Time Card Preview */}
+              <div className="lg:col-span-5 bg-zinc-100/70 p-5 flex flex-col items-center justify-center shrink-0">
+                <div className="w-full flex items-center justify-between pb-3 mb-3 border-b border-zinc-200/80">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-zinc-700 flex items-center gap-1.5">
+                    <Eye className="w-3.5 h-3.5 text-emerald-600" />
+                    Live Card Preview
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" /> Live
+                  </span>
+                </div>
+
+                <div className="py-2 w-full flex items-center justify-center">
+                  {renderCardGraphic({
+                    firstName: 'Muhammad',
+                    lastName: 'Ali',
+                    admissionNo: 'ADM-2026-089',
+                    rollNo: '24',
+                    className: 'Class 10',
+                    section: 'Section A',
+                    dob: '14/05/2008',
+                    fatherName: 'Syed Tariq Shah',
+                    phone: '+92 300 9876543',
+                    designation: 'Senior Faculty',
+                    department: 'Computer Science',
+                    role: formData.role || 'Student',
+                    studentPhoto: studentForm.studentPhoto || ''
+                  }, formData)}
+                </div>
+
+                <div className="mt-4 p-3 bg-white border border-zinc-200 rounded-xl w-full text-center">
+                  <div className="text-[10px] font-bold text-zinc-800">
+                    Layout: {formData.cardLayout === 'horizontal' ? 'Horizontal Smart Card' : 'Vertical Lanyard Badge'}
+                  </div>
+                  <p className="text-[9.5px] text-zinc-500 mt-0.5">
+                    As you toggle fields or change colors on the left, this ID card updates immediately.
+                  </p>
+                </div>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
