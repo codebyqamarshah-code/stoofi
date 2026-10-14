@@ -3,8 +3,21 @@ import axios from 'axios';
 const isProd = process.env.NODE_ENV === 'production';
 const envApiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-// Base URL configuration - default to relative '/api' if NEXT_PUBLIC_API_URL is omitted in production
-let baseURL = envApiUrl || (isProd ? '/api' : 'http://localhost:5000/api');
+// Base URL configuration - safely default to relative '/api' on live web deployments
+let baseURL = envApiUrl;
+
+if (typeof window !== 'undefined') {
+  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  if (!isLocalhost) {
+    if (!baseURL || baseURL.includes('localhost') || baseURL.includes('127.0.0.1') || (window.location.protocol === 'https:' && baseURL.startsWith('http:'))) {
+      baseURL = '/api';
+    }
+  }
+}
+
+if (!baseURL) {
+  baseURL = isProd ? '/api' : 'http://localhost:5000/api';
+}
 
 const api = axios.create({
   baseURL,
@@ -17,6 +30,11 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isLocalhost && (config.baseURL?.includes('localhost') || config.baseURL?.includes('127.0.0.1') || (window.location.protocol === 'https:' && config.baseURL?.startsWith('http:')))) {
+      config.baseURL = '/api';
+    }
+
     let token = sessionStorage.getItem('token') || localStorage.getItem('token');
     if (!token) {
       try {

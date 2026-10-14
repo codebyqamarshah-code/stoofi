@@ -182,3 +182,116 @@ const settingSchema = new mongoose.Schema({
 
 export const Setting = mongoose.models.Setting || mongoose.model('Setting', settingSchema);
 
+// Attendance Schema
+const attendanceSchema = new mongoose.Schema({
+  date: { type: Date, required: true },
+  userType: { type: String, enum: ['Student', 'Staff', 'Teacher'], default: 'Student' },
+  recordId: { type: mongoose.Schema.Types.ObjectId },
+  name: { type: String },
+  status: { type: String, enum: ['Present', 'Absent', 'Late', 'Half Day'], default: 'Present' }
+}, { timestamps: true });
+
+export const Attendance = mongoose.models.Attendance || mongoose.model('Attendance', attendanceSchema);
+
+// Expense Schema
+const expenseSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  amount: { type: Number, required: true },
+  category: { type: String, default: 'General' },
+  date: { type: Date, default: Date.now },
+  description: { type: String },
+  paymentMethod: { type: String, default: 'Cash' },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+}, { timestamps: true });
+
+export const Expense = mongoose.models.Expense || mongoose.model('Expense', expenseSchema);
+
+// FeePayment Schema
+const feePaymentSchema = new mongoose.Schema({
+  student: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
+  studentName: { type: String, required: true },
+  amount: { type: Number, required: true },
+  fine: { type: Number, default: 0 },
+  discount: { type: Number, default: 0 },
+  netAmount: { type: Number, required: true },
+  paymentMethod: { type: String, default: 'Cash' },
+  date: { type: Date, default: Date.now },
+  note: { type: String },
+  collectedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+}, { timestamps: true });
+
+export const FeePayment = mongoose.models.FeePayment || mongoose.model('FeePayment', feePaymentSchema);
+
+// Notice Schema
+const noticeSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String },
+  date: { type: Date, default: Date.now },
+  published: { type: Boolean, default: true },
+  audience: { type: String, enum: ['All', 'Students', 'Teachers', 'Parents', 'Staff'], default: 'All' },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+}, { timestamps: true });
+
+export const Notice = mongoose.models.Notice || mongoose.model('Notice', noticeSchema);
+
+// Event Schema
+const eventSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  eventFor: { type: String, default: 'All' },
+  audience: { type: String, default: 'All' },
+  category: { type: String, default: 'Event' },
+  startDate: { type: String, default: () => new Date().toISOString().split('T')[0] },
+  endDate: { type: String, default: () => new Date().toISOString().split('T')[0] },
+  date: { type: String, default: () => new Date().toISOString().split('T')[0] },
+  location: { type: String, default: 'Main Campus' },
+  description: { type: String, default: '' },
+  status: { type: String, enum: ['Upcoming', 'Ongoing', 'Completed'], default: 'Upcoming' },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+}, { timestamps: true });
+
+export const Event = mongoose.models.Event || mongoose.model('Event', eventSchema);
+
+// Todo Schema
+const todoSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  completed: { type: Boolean, default: false },
+  dueDate: { type: Date },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+}, { timestamps: true });
+
+export const Todo = mongoose.models.Todo || mongoose.model('Todo', todoSchema);
+
+// Notification Schema
+const notificationSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  message: { type: String, required: true },
+  type: { type: String, enum: ['Registration', 'Login', 'System', 'Event'], default: 'System' },
+  isRead: { type: Boolean, default: false },
+  audience: { type: String, default: 'Super Admin' },
+  recipientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
+}, { timestamps: true });
+
+export const Notification = mongoose.models.Notification || mongoose.model('Notification', notificationSchema);
+
+// ExamType Schema
+const examTypeSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  isAveragePassing: { type: Boolean, default: true }
+}, { timestamps: true });
+
+export const ExamType = mongoose.models.ExamType || mongoose.model('ExamType', examTypeSchema);
+
+// Subject Schema
+const subjectSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  code: { type: String, default: '' },
+  type: { type: String, enum: ['Theory', 'Practical', 'Both'], default: 'Theory' },
+  category: { type: String, default: 'Compulsory' },
+  author: { type: String, default: '' },
+  className: { type: String, default: '' },
+  section: { type: String, default: '' },
+  isOptional: { type: Boolean, default: false }
+}, { timestamps: true });
+
+export const Subject = mongoose.models.Subject || mongoose.model('Subject', subjectSchema);
+
