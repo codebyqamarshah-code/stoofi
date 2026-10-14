@@ -19,36 +19,35 @@ import {
   Eye,
   Download,
   Printer,
-  FileCheck,
   RefreshCw,
   Sparkles,
   Layers,
   GraduationCap,
   Calendar,
   Phone,
-  Droplet,
   Building,
-  ShieldCheck
+  ShieldCheck,
+  Upload,
+  Camera,
+  Image as ImageIcon,
+  QrCode
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import api from '@/services/api';
-import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 import { downloadIdCardPDF } from '@/lib/idCardPdf';
 
 const THEME_STYLES = [
-  { id: 'stoofi-emerald', label: 'Modern Emerald Badge', headerBg: 'bg-emerald-800', border: 'border-emerald-600', text: 'text-emerald-900', accent: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
-  { id: 'classic-navy', label: 'Executive Navy Horizontal', headerBg: 'bg-sky-950', border: 'border-sky-800', text: 'text-sky-950', accent: 'bg-sky-50 text-sky-900 border-sky-200' },
-  { id: 'royal-purple', label: 'Royal Purple Academic', headerBg: 'bg-indigo-900', border: 'border-indigo-700', text: 'text-indigo-900', accent: 'bg-indigo-50 text-indigo-900 border-indigo-200' },
-  { id: 'dark-slate', label: 'Dark Luxury Obsidian', headerBg: 'bg-zinc-950', border: 'border-zinc-800', text: 'text-zinc-950', accent: 'bg-zinc-900 text-emerald-400 border-zinc-700' },
-  { id: 'crimson-gold', label: 'Heritage Crimson & Gold', headerBg: 'bg-rose-950', border: 'border-amber-600', text: 'text-rose-950', accent: 'bg-amber-50 text-amber-900 border-amber-300' },
-  { id: 'modern-slate', label: 'Modern Slate', headerBg: 'bg-zinc-900', border: 'border-zinc-700', text: 'text-zinc-900', accent: 'bg-zinc-100 text-zinc-800 border-zinc-300' }
+  { id: 'stoofi-emerald', label: '1. Emerald & Deep Navy Lanyard Badge', headerBg: 'from-emerald-700 via-teal-800 to-sky-950', border: 'border-emerald-600', accent: 'bg-emerald-50 text-emerald-800 border-emerald-300' },
+  { id: 'classic-navy', label: '2. Executive Navy Horizontal Pass', headerBg: 'from-sky-950 via-sky-900 to-indigo-950', border: 'border-sky-800', accent: 'bg-sky-50 text-sky-900 border-sky-300' },
+  { id: 'royal-purple', label: '3. Royal Purple Academic Badge', headerBg: 'from-purple-900 via-indigo-900 to-purple-950', border: 'border-purple-600', accent: 'bg-purple-50 text-purple-900 border-purple-300' },
+  { id: 'dark-slate', label: '4. Dark Luxury Obsidian Smart Card', headerBg: 'from-zinc-950 via-zinc-900 to-black', border: 'border-zinc-700', accent: 'bg-zinc-900 text-emerald-400 border-zinc-700' },
+  { id: 'crimson-gold', label: '5. Heritage Crimson & Gold Crest', headerBg: 'from-rose-950 via-rose-900 to-amber-950', border: 'border-amber-600', accent: 'bg-amber-50 text-amber-900 border-amber-300' }
 ];
 
 const STANDARD_CLASSES = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'];
 const STANDARD_SECTIONS = ['Section A', 'Section B', 'Section C', 'Section D'];
-const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
 
 const FALLBACK_TEMPLATES = [
   {
@@ -66,7 +65,6 @@ const FALLBACK_TEMPLATES = [
     showSection: true,
     showFatherName: true,
     showPhone: true,
-    showBloodGroup: true,
     showDob: true,
     showDesignation: false,
     showDepartment: false,
@@ -79,7 +77,7 @@ const FALLBACK_TEMPLATES = [
     title: 'Staff & Employee Identity Card',
     role: 'Staff',
     cardLayout: 'vertical',
-    themeStyle: 'modern-slate',
+    themeStyle: 'dark-slate',
     headerText: 'STAFF IDENTITY CARD',
     footerText: 'HR & Administrative Seal',
     showPhoto: true,
@@ -89,7 +87,6 @@ const FALLBACK_TEMPLATES = [
     showSection: false,
     showFatherName: false,
     showPhone: true,
-    showBloodGroup: true,
     showDob: false,
     showDesignation: true,
     showDepartment: true,
@@ -112,7 +109,6 @@ const FALLBACK_TEMPLATES = [
     showSection: false,
     showFatherName: false,
     showPhone: true,
-    showBloodGroup: true,
     showDob: false,
     showDesignation: true,
     showDepartment: true,
@@ -165,7 +161,6 @@ export default function IdCardPage() {
     fatherName: '',
     phone: '',
     gender: 'Male',
-    bloodGroup: 'B+',
     dob: '2008-05-14',
     studentPhoto: '',
     cardTemplate: 'stoofi-emerald'
@@ -190,7 +185,6 @@ export default function IdCardPage() {
     showSection: true,
     showFatherName: true,
     showPhone: true,
-    showBloodGroup: true,
     showDob: true,
     showDesignation: false,
     showDepartment: false,
@@ -297,12 +291,32 @@ export default function IdCardPage() {
       fatherName: '',
       phone: '',
       gender: 'Male',
-      bloodGroup: 'B+',
       dob: '2008-05-14',
       studentPhoto: '',
       cardTemplate: 'stoofi-emerald'
     });
     setShowCreateStudentModal(true);
+  };
+
+  // Handle Photo Upload
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('Photo size must be less than 5MB', true);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setStudentForm(prev => ({ ...prev, studentPhoto: reader.result }));
+        showToast('Profile photo uploaded successfully!');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemovePhoto = () => {
+    setStudentForm(prev => ({ ...prev, studentPhoto: '' }));
   };
 
   // Submit & Save Student ID Card to Database
@@ -368,7 +382,6 @@ export default function IdCardPage() {
       showSection: true,
       showFatherName: true,
       showPhone: true,
-      showBloodGroup: true,
       showDob: true,
       showDesignation: false,
       showDepartment: false,
@@ -395,7 +408,6 @@ export default function IdCardPage() {
       showSection: card.showSection !== undefined ? card.showSection : true,
       showFatherName: card.showFatherName !== undefined ? card.showFatherName : true,
       showPhone: card.showPhone !== undefined ? card.showPhone : true,
-      showBloodGroup: card.showBloodGroup !== undefined ? card.showBloodGroup : true,
       showDob: card.showDob !== undefined ? card.showDob : true,
       showDesignation: card.showDesignation !== undefined ? card.showDesignation : true,
       showDepartment: card.showDepartment !== undefined ? card.showDepartment : true,
@@ -476,75 +488,182 @@ export default function IdCardPage() {
     });
   }, [studentsList, studentSearch, studentClassFilter, studentSectionFilter]);
 
-  // Card Graphic Renderer for Preview
+  // ── ULTRA-PROFESSIONAL REAL STUDENT ID CARD RENDERER (Matching User Reference Images) ──
   const renderCardGraphic = (rec) => {
     const theme = THEME_STYLES.find(t => t.id === (rec.cardTemplate || rec.themeStyle)) || THEME_STYLES[0];
     const initial = (rec.firstName || 'S').charAt(0).toUpperCase();
+    const fullName = `${rec.firstName || 'Student'} ${rec.lastName || 'Name'}`.trim();
+    const admNo = rec.admissionNo || 'ADM-2026-001';
+    const rollNo = rec.rollNo || '101';
+    const className = rec.className || 'Class 10';
+    const section = rec.section || 'Section A';
+    const phone = rec.phone || '+92 300 9876543';
+    const fatherName = rec.fatherName || 'Syed Ali Shah';
+    const dob = rec.dob || '14/05/2008';
 
+    // Horizontal Card Format (Design 2 Classic Navy or explicit horizontal)
+    if (rec.cardTemplate === 'classic-navy' || rec.cardLayout === 'horizontal') {
+      return (
+        <div className="w-[340px] h-[215px] mx-auto bg-[#faf8f5] rounded-xl overflow-hidden border-2 border-zinc-300 shadow-md flex flex-col justify-between text-zinc-900 font-sans select-none relative">
+          {/* Top Brand Bar */}
+          <div className="bg-[#084A86] px-3.5 py-1.5 flex items-center justify-between text-white">
+            <div className="flex items-center gap-1.5">
+              <div className="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center font-black text-[10px] text-amber-300">
+                S
+              </div>
+              <span className="font-extrabold text-[11px] tracking-wide uppercase">Stoofi Public School & College</span>
+            </div>
+            <span className="text-[8px] opacity-80">Lahore Campus</span>
+          </div>
+
+          {/* Body Dual-Column */}
+          <div className="p-3 flex items-center gap-3.5 flex-1 bg-white">
+            {/* Left: Portrait Photo Box + Barcode */}
+            <div className="flex flex-col items-center shrink-0">
+              <div className="w-20 h-24 rounded-xl border-2 border-[#084A86] overflow-hidden bg-zinc-100 shadow-xs flex items-center justify-center relative">
+                {rec.studentPhoto ? (
+                  <img src={rec.studentPhoto} alt={fullName} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-zinc-400">
+                    <User className="w-8 h-8 text-zinc-400" />
+                    <span className="text-[8px] font-bold mt-1 uppercase text-zinc-500">{initial}</span>
+                  </div>
+                )}
+              </div>
+              {/* Barcode representation */}
+              <div className="mt-1.5 flex items-center gap-0.5 h-3">
+                {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 2, 1, 3, 1, 2].map((w, idx) => (
+                  <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
+                ))}
+              </div>
+            </div>
+
+            {/* Right: Info */}
+            <div className="flex-1 min-w-0 text-[10.5px] space-y-1">
+              <div className="inline-block px-2.5 py-0.5 rounded-md bg-amber-400 text-amber-950 font-black text-[9px] uppercase tracking-wider mb-0.5 shadow-2xs">
+                STUDENT ID CARD
+              </div>
+              <h4 className="font-black text-xs text-zinc-950 truncate uppercase">{fullName}</h4>
+
+              <div className="space-y-0.5 text-zinc-700 pt-1">
+                <div className="flex"><span className="w-14 text-zinc-400 font-semibold">ID No:</span><strong className="font-mono text-zinc-950">{admNo}</strong></div>
+                <div className="flex"><span className="w-14 text-zinc-400 font-semibold">Class:</span><strong className="text-[#084A86] font-bold">{className} ({section})</strong></div>
+                <div className="flex"><span className="w-14 text-zinc-400 font-semibold">Roll No:</span><strong className="font-mono text-zinc-950">{rollNo}</strong></div>
+                <div className="flex"><span className="w-14 text-zinc-400 font-semibold">DOB:</span><span className="text-zinc-800 font-medium">{dob}</span></div>
+                <div className="flex"><span className="w-14 text-zinc-400 font-semibold">Emergency:</span><strong className="font-mono text-zinc-800 text-[9.5px]">{phone}</strong></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Accent Bar */}
+          <div className="bg-[#084A86] h-1.5 w-full" />
+        </div>
+      );
+    }
+
+    // Vertical Modern Lanyard Badge (Matching Image 2 Reference)
     return (
-      <div className={`w-[260px] mx-auto bg-white rounded-2xl overflow-hidden border-2 ${theme.border} shadow-md text-zinc-900 font-sans`}>
-        {/* Header */}
-        <div className={`${theme.headerBg} p-3 text-white text-center`}>
-          <div className="text-[9px] tracking-wider font-extrabold uppercase opacity-90">OFFICIAL STUDENT IDENTITY</div>
-          <div className="text-xs font-black tracking-wide mt-0.5">Stoofi Public School</div>
-          <div className="text-[8px] opacity-75">Main Campus, Lahore</div>
+      <div className={`w-[270px] mx-auto bg-white rounded-3xl overflow-hidden border-2 ${theme.border} shadow-xl text-zinc-900 font-sans select-none relative flex flex-col`}>
+        {/* Lanyard Hole Cutout Representation */}
+        <div className="pt-2 pb-1 bg-white text-center">
+          <div className="w-12 h-2.5 rounded-full bg-zinc-200 border border-zinc-300 mx-auto shadow-inner" />
         </div>
 
-        {/* Photo Box */}
-        <div className="p-3.5 flex flex-col items-center">
-          <div className={`w-16 h-16 rounded-full border-2 ${theme.border} bg-zinc-100 flex items-center justify-center text-lg font-black ${theme.text} shadow-xs`}>
-            {rec.studentPhoto ? (
-              <img src={rec.studentPhoto} alt={rec.firstName} className="w-full h-full object-cover rounded-full" />
-            ) : (
-              initial
-            )}
+        {/* Top Angled Geometric Header */}
+        <div className={`bg-gradient-to-r ${theme.headerBg} pt-3 pb-4 px-4 text-white text-center relative overflow-hidden`}>
+          {/* Subtle geometric background angle */}
+          <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-white/10 rounded-full blur-xs pointer-events-none" />
+          <div className="flex items-center justify-center gap-1.5 mb-0.5">
+            <Building className="w-3.5 h-3.5 text-amber-300" />
+            <span className="text-[9px] tracking-widest font-extrabold uppercase text-amber-300">STOOFI PUBLIC SCHOOL</span>
+          </div>
+          <h3 className="text-xs font-black tracking-wide leading-tight uppercase">CAMPUS IDENTITY BADGE</h3>
+          <p className="text-[8px] text-white/70 mt-0.5">Main Campus, Model Town, Lahore</p>
+        </div>
+
+        {/* Card Body */}
+        <div className="p-4 flex flex-col items-center flex-1 bg-white">
+          {/* Portrait Rounded-Rectangular Photo Box (Matching Reference Image 2) */}
+          <div className="relative mt-1">
+            <div className={`w-24 h-28 rounded-2xl border-[3px] ${theme.border} overflow-hidden bg-zinc-100 shadow-md flex items-center justify-center relative`}>
+              {rec.studentPhoto ? (
+                <img src={rec.studentPhoto} alt={fullName} className="w-full h-full object-cover" />
+              ) : (
+                <div className="flex flex-col items-center justify-center text-zinc-400 p-2">
+                  <User className="w-10 h-10 text-zinc-300" />
+                  <span className="text-[9px] font-bold mt-1 text-zinc-400 uppercase">No Photo</span>
+                </div>
+              )}
+            </div>
+            {/* Verified badge icon */}
+            <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs border-2 border-white">
+              <ShieldCheck className="w-3.5 h-3.5" />
+            </div>
           </div>
 
-          <div className="mt-2 text-center">
-            <h4 className="text-sm font-black text-zinc-950 capitalize">{rec.firstName} {rec.lastName}</h4>
-            <span className="inline-block mt-0.5 px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[9px] font-extrabold rounded-full tracking-wider uppercase">
+          {/* Student Name & Role Badge */}
+          <div className="mt-3 text-center w-full px-2">
+            <h4 className="text-sm font-black text-zinc-950 uppercase tracking-tight truncate leading-tight">
+              {fullName}
+            </h4>
+            <div className="inline-block mt-1 px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-black uppercase tracking-wider border border-emerald-300">
               STUDENT
-            </span>
+            </div>
           </div>
 
-          {/* Details Table */}
-          <div className="w-full mt-3 space-y-1 text-[10px] bg-zinc-50 p-2.5 rounded-xl border border-zinc-200">
-            <div className="flex justify-between">
-              <span className="text-zinc-500 font-semibold">Admission:</span>
-              <span className="font-bold font-mono text-zinc-900">{rec.admissionNo || 'ADM-2026-001'}</span>
+          {/* Detailed Info Grid */}
+          <div className="w-full mt-3 space-y-1 text-[10.5px] bg-zinc-50/90 p-2.5 rounded-xl border border-zinc-200">
+            <div className="flex justify-between items-center">
+              <span className="text-zinc-400 font-semibold">ID No:</span>
+              <strong className="font-mono text-zinc-950 font-bold">{admNo}</strong>
             </div>
-            <div className="flex justify-between">
-              <span className="text-zinc-500 font-semibold">Class & Sec:</span>
-              <span className="font-bold text-zinc-900">{rec.className} ({rec.section})</span>
+            <div className="flex justify-between items-center">
+              <span className="text-zinc-400 font-semibold">Class & Sec:</span>
+              <strong className="text-emerald-800 font-bold">{className} ({section})</strong>
             </div>
-            <div className="flex justify-between">
-              <span className="text-zinc-500 font-semibold">Roll Number:</span>
-              <span className="font-bold font-mono text-zinc-900">{rec.rollNo || '101'}</span>
+            <div className="flex justify-between items-center">
+              <span className="text-zinc-400 font-semibold">Roll Number:</span>
+              <strong className="font-mono text-zinc-950 font-bold">{rollNo}</strong>
             </div>
-            {rec.fatherName && (
-              <div className="flex justify-between">
-                <span className="text-zinc-500 font-semibold">Father Name:</span>
-                <span className="font-bold text-zinc-900">{rec.fatherName}</span>
+            <div className="flex justify-between items-center">
+              <span className="text-zinc-400 font-semibold">DOB:</span>
+              <span className="text-zinc-800 font-medium">{dob}</span>
+            </div>
+            {fatherName && (
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-400 font-semibold">Guardian:</span>
+                <span className="text-zinc-900 font-semibold truncate max-w-[130px]">{fatherName}</span>
               </div>
             )}
-            <div className="flex justify-between">
-              <span className="text-zinc-500 font-semibold">Blood Group:</span>
-              <span className="font-black text-rose-600">{rec.bloodGroup || 'B+'}</span>
+            <div className="flex justify-between items-center">
+              <span className="text-zinc-400 font-semibold">Emergency:</span>
+              <strong className="font-mono text-zinc-800 font-bold">{phone}</strong>
             </div>
-            {rec.phone && (
-              <div className="flex justify-between">
-                <span className="text-zinc-500 font-semibold">Emergency:</span>
-                <span className="font-bold font-mono text-zinc-900">{rec.phone}</span>
+          </div>
+
+          {/* Barcode & Security Section */}
+          <div className="w-full mt-3 pt-2 border-t border-zinc-200/80 flex items-center justify-between">
+            <div className="flex flex-col items-start">
+              {/* Realistic Barcode Lines */}
+              <div className="flex items-center gap-0.5 h-4 mb-0.5">
+                {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 3, 1, 2, 1, 2, 1, 3, 1, 2, 1, 1, 2].map((w, idx) => (
+                  <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
+                ))}
               </div>
-            )}
+              <span className="font-mono text-[7px] text-zinc-400 tracking-widest">{admNo}</span>
+            </div>
+
+            <div className="text-right">
+              <div className="text-[8px] font-bold text-zinc-800 border-b border-zinc-400 pb-0.5 font-serif italic">
+                Principal Signature
+              </div>
+              <span className="text-[6.5px] text-zinc-400 uppercase tracking-wider block mt-0.5">Authorized Seal</span>
+            </div>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="bg-zinc-100 px-3 py-1.5 text-[8px] text-zinc-600 flex justify-between items-center border-t border-zinc-200 font-semibold">
-          <span>Session: 2026</span>
-          <span className="text-zinc-800 font-bold">Principal Signature</span>
-        </div>
+        {/* Bottom Accent Slash Bar */}
+        <div className={`bg-gradient-to-r ${theme.headerBg} h-2 w-full`} />
       </div>
     );
   };
@@ -576,7 +695,7 @@ export default function IdCardPage() {
             ID Card Management & Issuance
           </h1>
           <p className="text-xs text-zinc-500 mt-0.5">
-            Create official student ID cards, configure design templates, and print ID badges
+            Create official student ID cards, upload profile photos, configure design templates, and print ID badges
           </p>
         </div>
 
@@ -585,7 +704,7 @@ export default function IdCardPage() {
           <Button 
             onClick={handleOpenCreateStudent}
             className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-9 text-xs flex items-center gap-1.5 shadow-xs px-4 rounded-xl cursor-pointer"
-            title="Create an ID card with student info"
+            title="Create an ID card with student info & photo"
           >
             <Plus className="h-4 w-4" />
             CREATE ID CARD
@@ -659,7 +778,7 @@ export default function IdCardPage() {
         </div>
       </div>
 
-      {/* Tabs Switcher: Issued Student Cards vs Design Templates */}
+      {/* Tabs Switcher */}
       <div className="flex border-b border-zinc-200 gap-2">
         <button
           type="button"
@@ -760,12 +879,12 @@ export default function IdCardPage() {
                 <thead className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold bg-zinc-50/80 border-b border-zinc-200">
                   <tr>
                     <th className="px-4 py-3 font-semibold w-12 text-center">SL</th>
+                    <th className="px-4 py-3 font-semibold">Photo</th>
                     <th className="px-4 py-3 font-semibold">Student Name</th>
                     <th className="px-4 py-3 font-semibold">Admission / Roll No</th>
                     <th className="px-4 py-3 font-semibold">Class & Section</th>
-                    <th className="px-4 py-3 font-semibold">Father Name</th>
-                    <th className="px-4 py-3 font-semibold">Blood Group</th>
-                    <th className="px-4 py-3 font-semibold">Emergency Phone</th>
+                    <th className="px-4 py-3 font-semibold">DOB</th>
+                    <th className="px-4 py-3 font-semibold">Guardian / Phone</th>
                     <th className="px-4 py-3 font-semibold w-40 text-right">Actions</th>
                   </tr>
                 </thead>
@@ -774,15 +893,17 @@ export default function IdCardPage() {
                     <tr key={st._id || idx} className="hover:bg-zinc-50/80 transition-colors">
                       <td className="px-4 py-3 text-center text-zinc-400 font-mono">{idx + 1}</td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs">
-                            {st.firstName?.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <span className="font-bold text-zinc-950 capitalize">{st.firstName} {st.lastName}</span>
-                            <span className="block text-[10px] text-zinc-400 font-medium">{st.gender || 'Student'}</span>
-                          </div>
+                        <div className="w-9 h-11 rounded-lg border border-emerald-600 overflow-hidden bg-zinc-100 flex items-center justify-center shadow-2xs">
+                          {st.studentPhoto ? (
+                            <img src={st.studentPhoto} alt={st.firstName} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="font-black text-xs text-emerald-800">{st.firstName?.charAt(0).toUpperCase()}</span>
+                          )}
                         </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="font-bold text-zinc-950 capitalize">{st.firstName} {st.lastName}</span>
+                        <span className="block text-[10px] text-zinc-400 font-medium">{st.gender || 'Student'}</span>
                       </td>
                       <td className="px-4 py-3">
                         <span className="font-mono text-zinc-700 font-semibold">{st.admissionNo || '-'}</span>
@@ -792,13 +913,11 @@ export default function IdCardPage() {
                         <span className="font-bold text-zinc-800">{st.className}</span>
                         <span className="block text-[10px] text-zinc-500 font-medium">{st.section}</span>
                       </td>
-                      <td className="px-4 py-3 font-medium text-zinc-700">{st.fatherName || '-'}</td>
+                      <td className="px-4 py-3 font-medium text-zinc-600">{st.dob || '-'}</td>
                       <td className="px-4 py-3">
-                        <span className="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 font-black text-[10px] border border-rose-200">
-                          {st.bloodGroup || 'B+'}
-                        </span>
+                        <span className="text-zinc-800 font-medium">{st.fatherName || '-'}</span>
+                        <span className="block font-mono text-[10px] text-zinc-500">{st.phone || '-'}</span>
                       </td>
-                      <td className="px-4 py-3 font-mono text-zinc-600">{st.phone || '-'}</td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <Button
@@ -839,7 +958,7 @@ export default function IdCardPage() {
                 <CreditCard className="w-10 h-10 mx-auto mb-2 text-zinc-300" />
                 <p className="font-bold text-zinc-800 text-sm">No Student ID Cards Found</p>
                 <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto">
-                  Click the &ldquo;CREATE ID CARD&rdquo; button above to create and issue an official card with student details.
+                  Click the &ldquo;CREATE ID CARD&rdquo; button above to create and issue an official card with student details and photo.
                 </p>
                 <div className="mt-4">
                   <Button 
@@ -977,7 +1096,7 @@ export default function IdCardPage() {
         </div>
       )}
 
-      {/* ── CREATE / ISSUE STUDENT ID CARD MODAL ── */}
+      {/* ── CREATE / ISSUE STUDENT ID CARD MODAL (WITH PHOTO UPLOAD) ── */}
       {showCreateStudentModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl border border-zinc-200 max-w-4xl w-full my-6 max-h-[92vh] flex flex-col overflow-hidden">
@@ -987,7 +1106,7 @@ export default function IdCardPage() {
                 <div className="w-3 h-3 rounded-full bg-emerald-600" />
                 <div>
                   <h2 className="text-base font-bold text-zinc-950">Create & Issue Student ID Card</h2>
-                  <p className="text-[11px] text-zinc-500">Enter student details and choose a design template to generate an official ID card</p>
+                  <p className="text-[11px] text-zinc-500">Upload profile photo, enter student info, and choose card template</p>
                 </div>
               </div>
               <Button 
@@ -1004,6 +1123,49 @@ export default function IdCardPage() {
             <div className="flex-1 overflow-y-auto p-5 grid grid-cols-1 lg:grid-cols-12 gap-6 text-xs">
               {/* Left Column: Form */}
               <form onSubmit={handleCreateStudentSubmit} className="lg:col-span-7 space-y-4">
+                {/* ── PROFILE PHOTO UPLOAD BOX ── */}
+                <div className="p-3.5 bg-emerald-50/60 border border-emerald-200 rounded-2xl flex items-center gap-4">
+                  <div className="w-16 h-20 rounded-xl border-2 border-emerald-600 overflow-hidden bg-white shadow-2xs shrink-0 flex items-center justify-center relative">
+                    {studentForm.studentPhoto ? (
+                      <img src={studentForm.studentPhoto} alt="Uploaded" className="w-full h-full object-cover" />
+                    ) : (
+                      <Camera className="w-6 h-6 text-emerald-600" />
+                    )}
+                  </div>
+
+                  <div className="flex-1">
+                    <span className="text-xs font-bold text-zinc-900 block">Student Profile Picture</span>
+                    <p className="text-[11px] text-zinc-500 mt-0.5">Upload a clear passport-style portrait photo (PNG, JPG up to 5MB).</p>
+
+                    <div className="flex items-center gap-2 mt-2">
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        id="student-photo-upload" 
+                        className="hidden" 
+                        onChange={handlePhotoUpload} 
+                      />
+                      <label 
+                        htmlFor="student-photo-upload"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold rounded-lg cursor-pointer shadow-2xs transition-colors"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                        {studentForm.studentPhoto ? 'Change Photo' : 'Upload Photo'}
+                      </label>
+
+                      {studentForm.studentPhoto && (
+                        <button
+                          type="button"
+                          onClick={handleRemovePhoto}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-white hover:bg-rose-50 text-rose-600 text-[11px] font-semibold border border-rose-200 rounded-lg cursor-pointer transition-colors"
+                        >
+                          <Trash2 className="w-3 h-3" /> Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div className="space-y-1">
                     <Label className="text-xs font-bold text-zinc-800">
@@ -1012,7 +1174,7 @@ export default function IdCardPage() {
                     <Input 
                       value={studentForm.firstName} 
                       onChange={e => setStudentForm({ ...studentForm, firstName: e.target.value })} 
-                      placeholder="e.g. Qamar" 
+                      placeholder="e.g. Syed Qamar" 
                       className="bg-white border-zinc-300 text-xs" 
                       required 
                     />
@@ -1091,14 +1253,13 @@ export default function IdCardPage() {
                   </div>
 
                   <div className="space-y-1">
-                    <Label className="text-xs font-bold text-zinc-800">Blood Group</Label>
-                    <select
-                      value={studentForm.bloodGroup}
-                      onChange={e => setStudentForm({ ...studentForm, bloodGroup: e.target.value })}
-                      className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs font-bold text-rose-700"
-                    >
-                      {BLOOD_GROUPS.map(bg => <option key={bg} value={bg}>{bg}</option>)}
-                    </select>
+                    <Label className="text-xs font-bold text-zinc-800">Date of Birth</Label>
+                    <Input 
+                      type="date"
+                      value={studentForm.dob} 
+                      onChange={e => setStudentForm({ ...studentForm, dob: e.target.value })} 
+                      className="bg-white border-zinc-300 text-xs" 
+                    />
                   </div>
 
                   <div className="space-y-1">
@@ -1158,13 +1319,13 @@ export default function IdCardPage() {
               </form>
 
               {/* Right Column: Live Card Preview */}
-              <div className="lg:col-span-5 bg-zinc-50 border border-zinc-200 rounded-xl p-4 flex flex-col items-center justify-center">
+              <div className="lg:col-span-5 bg-zinc-50 border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center">
                 <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-3">
                   Live Card Preview
                 </span>
                 {renderCardGraphic(studentForm)}
                 <p className="text-[10px] text-zinc-400 mt-3 text-center">
-                  Updates in real time as you fill out the student details.
+                  Updates in real time as you fill out details & upload photo.
                 </p>
               </div>
             </div>

@@ -107,7 +107,7 @@ export async function POST(req) {
       fatherName: fatherName || '',
       phone: phone || '',
       gender: gender || 'Male',
-      bloodGroup: bloodGroup || 'B+',
+      bloodGroup: bloodGroup || '',
       dob: dob || '2008-01-01',
       studentPhoto: studentPhoto || '',
       cardTemplate: cardTemplate || 'stoofi-emerald',
