@@ -81,6 +81,8 @@ const studentSchema = new mongoose.Schema({
   caste: { type: String },
   fatherName: { type: String },
   phone: { type: String },
+  bloodGroup: { type: String, default: 'B+' },
+  cardTemplate: { type: String, default: 'stoofi-emerald' },
   currentAddress: { type: String },
   permanentAddress: { type: String },
   academicYear: { type: String, default: '2026' },

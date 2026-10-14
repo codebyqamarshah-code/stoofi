@@ -237,101 +237,8 @@ export default function BulkPrintIdCardPage() {
         if (Array.isArray(res)) list = res;
         else if (Array.isArray(res?.data)) list = res.data;
       }
-
-      // If no records in database for this specific filter, provide demo cardholders so ID cards can always be generated and tested
-      if (!list || list.length === 0) {
-        if (selectedRole === 'Student') {
-          list = [
-            {
-              _id: 'std-live-01',
-              firstName: 'Qamar',
-              lastName: 'Abbas',
-              admissionNo: 'ADM-1791540935480',
-              rollNo: '101',
-              className: selectedClass && selectedClass !== 'All Classes' ? selectedClass : 'Class 10',
-              section: selectedSection && selectedSection !== 'All Sections' ? selectedSection : 'A',
-              gender: 'Male',
-              dob: '2008-05-14',
-              phone: '+92 300 9876543',
-              fatherName: 'Syed Ali Shah',
-              bloodGroup: 'B+',
-              studentPhoto: ''
-            },
-            {
-              _id: 'std-live-02',
-              firstName: 'Ayesha',
-              lastName: 'Khan',
-              admissionNo: 'ADM-1791540935481',
-              rollNo: '102',
-              className: selectedClass && selectedClass !== 'All Classes' ? selectedClass : 'Class 10',
-              section: selectedSection && selectedSection !== 'All Sections' ? selectedSection : 'A',
-              gender: 'Female',
-              dob: '2008-09-21',
-              phone: '+92 321 8765432',
-              fatherName: 'Tariq Khan',
-              bloodGroup: 'A+',
-              studentPhoto: ''
-            },
-            {
-              _id: 'std-live-03',
-              firstName: 'Zain',
-              lastName: 'Ul Abideen',
-              admissionNo: 'ADM-1791540935482',
-              rollNo: '103',
-              className: selectedClass && selectedClass !== 'All Classes' ? selectedClass : 'Class 10',
-              section: selectedSection && selectedSection !== 'All Sections' ? selectedSection : 'B',
-              gender: 'Male',
-              dob: '2008-11-03',
-              phone: '+92 333 4567890',
-              fatherName: 'Haider Ali',
-              bloodGroup: 'O+',
-              studentPhoto: ''
-            }
-          ];
-        } else if (selectedRole === 'Teacher') {
-          list = [
-            {
-              _id: 'tch-live-01',
-              firstName: 'Prof. Muhammad',
-              lastName: 'Raza',
-              staffNo: 'FAC-2026-01',
-              designation: 'Senior Faculty / HOD Physics',
-              department: 'Science & Mathematics',
-              phone: '+92 301 5556677',
-              bloodGroup: 'AB+',
-              photo: ''
-            },
-            {
-              _id: 'tch-live-02',
-              firstName: 'Dr. Fatima',
-              lastName: 'Noor',
-              staffNo: 'FAC-2026-02',
-              designation: 'Associate Professor of Chemistry',
-              department: 'Department of Chemistry',
-              phone: '+92 302 6667788',
-              bloodGroup: 'O+',
-              photo: ''
-            }
-          ];
-        } else {
-          list = [
-            {
-              _id: 'stf-live-01',
-              firstName: 'Kamran',
-              lastName: 'Akhtar',
-              staffNo: 'STF-2026-10',
-              designation: 'Administrative Officer',
-              department: 'Administration & Admissions',
-              phone: '+92 312 9998877',
-              bloodGroup: 'B+',
-              photo: ''
-            }
-          ];
-        }
-      }
-
-      setRecords(list);
-      setSelectedIds(list.map(r => r._id));
+      setRecords(list || []);
+      setSelectedIds((list || []).map(r => r._id));
     } catch (error) {
       console.error('Error fetching records for ID cards:', error);
       setRecords([]);
@@ -1031,8 +938,16 @@ export default function BulkPrintIdCardPage() {
       ) : filteredRecords.length === 0 ? (
         <div className="bg-white border border-zinc-200 rounded-2xl p-12 text-center text-zinc-500">
           <CreditCard className="h-10 w-10 mx-auto mb-3 text-zinc-300" />
-          <h3 className="text-sm font-bold text-zinc-800">No Records Found</h3>
-          <p className="text-xs text-zinc-500 mt-1">Try searching with a different class, section, or keyword filter.</p>
+          <h3 className="text-sm font-bold text-zinc-800">No ID Cards Found</h3>
+          <p className="text-xs text-zinc-500 mt-1 max-w-sm mx-auto">No records found for the selected filters. You can create a new student ID card from the ID Card creation page.</p>
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <Link 
+              href="/dashboard/admin/id-card"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-xs transition-colors"
+            >
+              <Sparkles className="h-3.5 w-3.5" /> Create ID Card
+            </Link>
+          </div>
         </div>
       ) : viewMode === 'table' ? (
         /* Table View */

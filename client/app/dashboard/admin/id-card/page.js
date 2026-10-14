@@ -20,13 +20,14 @@ import {
   Download,
   Printer,
   FileCheck,
-  FileText,
   RefreshCw,
   Sparkles,
   Layers,
-  CheckSquare,
-  Square,
-  QrCode,
+  GraduationCap,
+  Calendar,
+  Phone,
+  Droplet,
+  Building,
   ShieldCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -34,15 +35,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import api from '@/services/api';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
+import { downloadIdCardPDF } from '@/lib/idCardPdf';
 
 const THEME_STYLES = [
-  { id: 'stoofi-emerald', label: '1. Modern Emerald Badge', headerBg: 'bg-emerald-800', border: 'border-emerald-600', text: 'text-emerald-900', accent: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
-  { id: 'classic-navy', label: '2. Executive Navy Horizontal', headerBg: 'bg-sky-950', border: 'border-sky-800', text: 'text-sky-950', accent: 'bg-sky-50 text-sky-900 border-sky-200' },
-  { id: 'royal-purple', label: '3. Royal Purple Academic', headerBg: 'bg-indigo-900', border: 'border-indigo-700', text: 'text-indigo-900', accent: 'bg-indigo-50 text-indigo-900 border-indigo-200' },
-  { id: 'dark-slate', label: '4. Dark Luxury Obsidian', headerBg: 'bg-zinc-950', border: 'border-zinc-800', text: 'text-zinc-950', accent: 'bg-zinc-900 text-emerald-400 border-zinc-700' },
-  { id: 'crimson-gold', label: '5. Heritage Crimson & Gold', headerBg: 'bg-rose-950', border: 'border-amber-600', text: 'text-rose-950', accent: 'bg-amber-50 text-amber-900 border-amber-300' },
+  { id: 'stoofi-emerald', label: 'Modern Emerald Badge', headerBg: 'bg-emerald-800', border: 'border-emerald-600', text: 'text-emerald-900', accent: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+  { id: 'classic-navy', label: 'Executive Navy Horizontal', headerBg: 'bg-sky-950', border: 'border-sky-800', text: 'text-sky-950', accent: 'bg-sky-50 text-sky-900 border-sky-200' },
+  { id: 'royal-purple', label: 'Royal Purple Academic', headerBg: 'bg-indigo-900', border: 'border-indigo-700', text: 'text-indigo-900', accent: 'bg-indigo-50 text-indigo-900 border-indigo-200' },
+  { id: 'dark-slate', label: 'Dark Luxury Obsidian', headerBg: 'bg-zinc-950', border: 'border-zinc-800', text: 'text-zinc-950', accent: 'bg-zinc-900 text-emerald-400 border-zinc-700' },
+  { id: 'crimson-gold', label: 'Heritage Crimson & Gold', headerBg: 'bg-rose-950', border: 'border-amber-600', text: 'text-rose-950', accent: 'bg-amber-50 text-amber-900 border-amber-300' },
   { id: 'modern-slate', label: 'Modern Slate', headerBg: 'bg-zinc-900', border: 'border-zinc-700', text: 'text-zinc-900', accent: 'bg-zinc-100 text-zinc-800 border-zinc-300' }
 ];
+
+const STANDARD_CLASSES = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'];
+const STANDARD_SECTIONS = ['Section A', 'Section B', 'Section C', 'Section D'];
+const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
 
 const FALLBACK_TEMPLATES = [
   {
@@ -117,27 +123,59 @@ const FALLBACK_TEMPLATES = [
 ];
 
 export default function IdCardPage() {
+  // Navigation Tabs: 'students' (Issued Student Cards) or 'templates' (Card Templates)
+  const [activeTab, setActiveTab] = useState('students');
+
+  // Real Database Students
+  const [studentsList, setStudentsList] = useState([]);
+  const [loadingStudents, setLoadingStudents] = useState(false);
+  const [studentSearch, setStudentSearch] = useState('');
+  const [studentClassFilter, setStudentClassFilter] = useState('All');
+  const [studentSectionFilter, setStudentSectionFilter] = useState('All');
+
+  // Templates State
   const [cards, setCards] = useState(FALLBACK_TEMPLATES);
   const [stats, setStats] = useState({ total: 3, studentCards: 1, staffCards: 2, activeCards: 3 });
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
-  // Filters & Search
+  // Template Filters & Search
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ total: 3, totalPages: 1, limit: 10 });
 
-  // Modals
+  // Template Form Modal
   const [showFormModal, setShowFormModal] = useState(false);
-  const [viewingCard, setViewingCard] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [deleteConfirmItem, setDeleteConfirmItem] = useState(null);
 
-  // Form State
+  // Create Student ID Card Modal
+  const [showCreateStudentModal, setShowCreateStudentModal] = useState(false);
+  const [creatingStudentCard, setCreatingStudentCard] = useState(false);
+  const [studentForm, setStudentForm] = useState({
+    firstName: '',
+    lastName: '',
+    className: 'Class 10',
+    section: 'Section A',
+    rollNo: '',
+    admissionNo: '',
+    fatherName: '',
+    phone: '',
+    gender: 'Male',
+    bloodGroup: 'B+',
+    dob: '2008-05-14',
+    studentPhoto: '',
+    cardTemplate: 'stoofi-emerald'
+  });
+
+  // Preview Card Modal (for both student cards & templates)
+  const [viewingCard, setViewingCard] = useState(null);
+  const [printPortalRecord, setPrintPortalRecord] = useState(null);
+
+  // Template Form State
   const [formData, setFormData] = useState({
     title: '',
     role: 'Student',
@@ -165,11 +203,30 @@ export default function IdCardPage() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
+  // 1. Fetch Real Students from Database
+  const fetchStudents = async () => {
+    try {
+      setLoadingStudents(true);
+      const res = await api.get('/student?limit=200').catch(() => null);
+      if (Array.isArray(res?.data)) {
+        setStudentsList(res.data);
+      } else if (Array.isArray(res)) {
+        setStudentsList(res);
+      } else {
+        setStudentsList([]);
+      }
+    } catch (err) {
+      console.error('Error fetching students:', err);
+      setStudentsList([]);
+    } finally {
+      setLoadingStudents(false);
+    }
+  };
+
+  // 2. Fetch Templates & Stats
   const fetchData = async () => {
     try {
       setLoading(true);
-      setError(null);
-
       const queryParams = new URLSearchParams({
         page: String(page),
         limit: '10',
@@ -190,7 +247,6 @@ export default function IdCardPage() {
           setPagination(res.pagination);
         }
       } else {
-        // Fallback filter
         let filteredFallback = [...FALLBACK_TEMPLATES];
         if (roleFilter !== 'All') filteredFallback = filteredFallback.filter(t => t.role === roleFilter);
         if (statusFilter !== 'All') filteredFallback = filteredFallback.filter(t => t.status === statusFilter);
@@ -215,10 +271,8 @@ export default function IdCardPage() {
         });
       }
     } catch (err) {
-      console.warn('ID Card templates loaded from offline cache:', err);
+      console.warn('ID Card templates loaded from fallback:', err);
       setCards(FALLBACK_TEMPLATES);
-      setStats({ total: 3, studentCards: 1, staffCards: 2, activeCards: 3 });
-      setError(null);
     } finally {
       setLoading(false);
     }
@@ -226,34 +280,79 @@ export default function IdCardPage() {
 
   useEffect(() => {
     fetchData();
+    fetchStudents();
   }, [page, roleFilter, statusFilter]);
 
-  // Debounced search
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setPage(1);
-      fetchData();
-    }, 350);
-    return () => clearTimeout(handler);
-  }, [searchQuery]);
+  // Open "Create Student ID Card" Modal
+  const handleOpenCreateStudent = () => {
+    const nextRoll = 100 + studentsList.length + 1;
+    const nextAdm = `ADM-${Date.now()}`;
+    setStudentForm({
+      firstName: '',
+      lastName: '',
+      className: 'Class 10',
+      section: 'Section A',
+      rollNo: String(nextRoll),
+      admissionNo: nextAdm,
+      fatherName: '',
+      phone: '',
+      gender: 'Male',
+      bloodGroup: 'B+',
+      dob: '2008-05-14',
+      studentPhoto: '',
+      cardTemplate: 'stoofi-emerald'
+    });
+    setShowCreateStudentModal(true);
+  };
 
-  const handleBackgroundUpload = (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        showToast('Image size should be less than 2MB', true);
-        return;
+  // Submit & Save Student ID Card to Database
+  const handleCreateStudentSubmit = async (e) => {
+    e.preventDefault();
+    if (!studentForm.firstName.trim()) {
+      showToast('Student First Name is required.', true);
+      return;
+    }
+
+    try {
+      setCreatingStudentCard(true);
+      const res = await api.post('/student', studentForm);
+      if (res?.success) {
+        showToast(`ID Card generated successfully for ${studentForm.firstName} ${studentForm.lastName}!`);
+        setShowCreateStudentModal(false);
+        fetchStudents();
+        fetchData();
+        setActiveTab('students');
+      } else {
+        showToast(res?.message || 'Failed to generate ID Card.', true);
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, uploadedBackground: reader.result }));
-        showToast('Custom template background image loaded!');
-      };
-      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('Error creating student ID card:', err);
+      showToast(err?.response?.data?.message || err?.message || 'Failed to create student card.', true);
+    } finally {
+      setCreatingStudentCard(false);
     }
   };
 
-  const handleOpenCreate = () => {
+  // Print Single Card
+  const handlePrintStudentCard = (student) => {
+    setPrintPortalRecord(student);
+    setTimeout(() => {
+      window.print();
+    }, 250);
+  };
+
+  // Download Single PDF
+  const handleDownloadStudentPDF = (student) => {
+    downloadIdCardPDF(student, {
+      schoolName: 'Stoofi Public School & College',
+      address: 'Main Campus, Model Town, Lahore, Pakistan',
+      phone: '+92 300 1234567'
+    }, student.cardTemplate || 'stoofi-emerald');
+    showToast(`PDF downloaded for ${student.firstName} ${student.lastName}`);
+  };
+
+  // Open Template Modal
+  const handleOpenCreateTemplate = () => {
     setEditingId(null);
     setFormData({
       title: '',
@@ -280,7 +379,7 @@ export default function IdCardPage() {
     setShowFormModal(true);
   };
 
-  const handleEdit = (card) => {
+  const handleEditTemplate = (card) => {
     setEditingId(card._id);
     setFormData({
       title: card.title || '',
@@ -307,14 +406,10 @@ export default function IdCardPage() {
     setShowFormModal(true);
   };
 
-  const handleSave = async (e) => {
+  const handleSaveTemplate = async (e) => {
     e.preventDefault();
     if (!formData.title.trim()) {
       showToast('Template title is required.', true);
-      return;
-    }
-    if (!formData.role.trim()) {
-      showToast('Target role is required.', true);
       return;
     }
 
@@ -344,74 +439,114 @@ export default function IdCardPage() {
       setShowFormModal(false);
       setEditingId(null);
     } catch (err) {
-      console.error('Failed to save ID card template:', err);
+      console.error('Failed to save template:', err);
       showToast(err?.response?.data?.message || err?.message || 'Failed to save template.', true);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleToggleStatus = async (card) => {
-    try {
-      const res = await api.patch(`/id-card/${card._id}/status`);
-      if (res?.success) {
-        setCards(prev => prev.map(c => c._id === card._id ? { ...c, status: res.data.status } : c));
-        showToast(res.message || `Status updated to ${res.data.status}`);
-        const statsRes = await api.get('/id-card/stats').catch(() => null);
-        if (statsRes?.success) setStats(statsRes.stats);
-      }
-    } catch (err) {
-      console.error('Failed to toggle status:', err);
-      showToast('Failed to toggle status.', true);
-    }
-  };
-
-  const handleDelete = async () => {
+  const handleDeleteTemplate = async () => {
     if (!deleteConfirmItem) return;
     try {
-      const res = await api.delete(`/id-card/${deleteConfirmItem._id}`);
-      if (res?.success) {
-        showToast('ID card template deleted successfully.');
-        setDeleteConfirmItem(null);
-        fetchData();
-      }
+      await api.delete(`/id-card/${deleteConfirmItem._id}`);
+      showToast('Template deleted successfully!');
+      fetchData();
     } catch (err) {
       console.error('Failed to delete template:', err);
-      showToast(err?.response?.data?.message || 'Failed to delete template.', true);
+      showToast('Failed to delete template.', true);
+    } finally {
+      setDeleteConfirmItem(null);
     }
   };
 
-  const handleExport = (type) => {
-    if (cards.length === 0) {
-      showToast('No templates available to export.', true);
-      return;
-    }
+  // Filtered Students List
+  const filteredStudents = useMemo(() => {
+    return studentsList.filter(st => {
+      const fullName = `${st.firstName || ''} ${st.lastName || ''}`.toLowerCase();
+      const adm = String(st.admissionNo || '').toLowerCase();
+      const roll = String(st.rollNo || '').toLowerCase();
+      const q = studentSearch.trim().toLowerCase();
 
-    const exportData = cards.map((item, index) => ({
-      'SL': (page - 1) * 10 + index + 1,
-      'Card Title': item.title,
-      'Target Role': item.role,
-      'Layout': item.cardLayout,
-      'Theme Style': item.themeStyle,
-      'Status': item.status,
-      'Updated Date': item.updatedAt ? new Date(item.updatedAt).toLocaleDateString('en-GB') : '-'
-    }));
+      const matchesSearch = !q || fullName.includes(q) || adm.includes(q) || roll.includes(q);
+      const matchesClass = studentClassFilter === 'All' || st.className === studentClassFilter;
+      const matchesSection = studentSectionFilter === 'All' || st.section === studentSectionFilter;
 
-    const headers = Object.keys(exportData[0] || {});
-    const filename = `ID_Card_Templates_${Date.now()}`;
+      return matchesSearch && matchesClass && matchesSection;
+    });
+  }, [studentsList, studentSearch, studentClassFilter, studentSectionFilter]);
 
-    if (type === 'Print') {
-      printData(exportData, headers, 'Stoofi ERP - ID Card Templates');
-    } else if (type === 'CSV') {
-      exportToCSV(exportData, filename);
-      showToast('CSV export downloaded successfully!');
-    } else if (type === 'Excel') {
-      exportToExcel(exportData, filename, 'IDCards');
-      showToast('Excel export downloaded successfully!');
-    } else if (type === 'PDF') {
-      exportToPDF(exportData, headers, 'ID Card Templates Register', filename);
-      showToast('PDF summary downloaded successfully!');
-    }
+  // Card Graphic Renderer for Preview
+  const renderCardGraphic = (rec) => {
+    const theme = THEME_STYLES.find(t => t.id === (rec.cardTemplate || rec.themeStyle)) || THEME_STYLES[0];
+    const initial = (rec.firstName || 'S').charAt(0).toUpperCase();
+
+    return (
+      <div className={`w-[260px] mx-auto bg-white rounded-2xl overflow-hidden border-2 ${theme.border} shadow-md text-zinc-900 font-sans`}>
+        {/* Header */}
+        <div className={`${theme.headerBg} p-3 text-white text-center`}>
+          <div className="text-[9px] tracking-wider font-extrabold uppercase opacity-90">OFFICIAL STUDENT IDENTITY</div>
+          <div className="text-xs font-black tracking-wide mt-0.5">Stoofi Public School</div>
+          <div className="text-[8px] opacity-75">Main Campus, Lahore</div>
+        </div>
+
+        {/* Photo Box */}
+        <div className="p-3.5 flex flex-col items-center">
+          <div className={`w-16 h-16 rounded-full border-2 ${theme.border} bg-zinc-100 flex items-center justify-center text-lg font-black ${theme.text} shadow-xs`}>
+            {rec.studentPhoto ? (
+              <img src={rec.studentPhoto} alt={rec.firstName} className="w-full h-full object-cover rounded-full" />
+            ) : (
+              initial
+            )}
+          </div>
+
+          <div className="mt-2 text-center">
+            <h4 className="text-sm font-black text-zinc-950 capitalize">{rec.firstName} {rec.lastName}</h4>
+            <span className="inline-block mt-0.5 px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[9px] font-extrabold rounded-full tracking-wider uppercase">
+              STUDENT
+            </span>
+          </div>
+
+          {/* Details Table */}
+          <div className="w-full mt-3 space-y-1 text-[10px] bg-zinc-50 p-2.5 rounded-xl border border-zinc-200">
+            <div className="flex justify-between">
+              <span className="text-zinc-500 font-semibold">Admission:</span>
+              <span className="font-bold font-mono text-zinc-900">{rec.admissionNo || 'ADM-2026-001'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-zinc-500 font-semibold">Class & Sec:</span>
+              <span className="font-bold text-zinc-900">{rec.className} ({rec.section})</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-zinc-500 font-semibold">Roll Number:</span>
+              <span className="font-bold font-mono text-zinc-900">{rec.rollNo || '101'}</span>
+            </div>
+            {rec.fatherName && (
+              <div className="flex justify-between">
+                <span className="text-zinc-500 font-semibold">Father Name:</span>
+                <span className="font-bold text-zinc-900">{rec.fatherName}</span>
+              </div>
+            )}
+            <div className="flex justify-between">
+              <span className="text-zinc-500 font-semibold">Blood Group:</span>
+              <span className="font-black text-rose-600">{rec.bloodGroup || 'B+'}</span>
+            </div>
+            {rec.phone && (
+              <div className="flex justify-between">
+                <span className="text-zinc-500 font-semibold">Emergency:</span>
+                <span className="font-bold font-mono text-zinc-900">{rec.phone}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="bg-zinc-100 px-3 py-1.5 text-[8px] text-zinc-600 flex justify-between items-center border-t border-zinc-200 font-semibold">
+          <span>Session: 2026</span>
+          <span className="text-zinc-800 font-bold">Principal Signature</span>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -438,20 +573,42 @@ export default function IdCardPage() {
         <div>
           <h1 className="text-2xl font-bold text-zinc-950 flex items-center gap-2">
             <CreditCard className="w-6 h-6 text-zinc-900" />
-            ID Card Templates
+            ID Card Management & Issuance
           </h1>
           <p className="text-xs text-zinc-500 mt-0.5">
-            Configure institutional student, teacher, and staff identity card formats, field visibility, and themes
+            Create official student ID cards, configure design templates, and print ID badges
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="hidden md:flex items-center text-xs text-zinc-400 bg-white border border-zinc-200 px-3 py-1.5 rounded-lg">
-            <Link href="/dashboard" className="hover:text-zinc-700 transition-colors">Dashboard</Link>
-            <ChevronRight className="h-3.5 w-3.5 mx-1" />
-            <Link href="/dashboard/admin/admission-query" className="hover:text-zinc-700 transition-colors">Admin Section</Link>
-            <ChevronRight className="h-3.5 w-3.5 mx-1" />
-            <span className="text-zinc-950 font-semibold">ID Card</span>
-          </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button 
+            onClick={handleOpenCreateStudent}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-9 text-xs flex items-center gap-1.5 shadow-xs px-4 rounded-xl cursor-pointer"
+            title="Create an ID card with student info"
+          >
+            <Plus className="h-4 w-4" />
+            CREATE ID CARD
+          </Button>
+
+          <Button 
+            onClick={handleOpenCreateTemplate}
+            variant="outline"
+            className="border-zinc-300 text-zinc-800 hover:bg-zinc-100 font-semibold h-9 text-xs flex items-center gap-1.5 rounded-xl cursor-pointer"
+            title="Design a new ID card template"
+          >
+            <Layers className="h-4 w-4 text-zinc-600" />
+            Manage Templates
+          </Button>
+
+          <Link 
+            href="/dashboard/admin/generate-id-card"
+            className="inline-flex items-center gap-1.5 h-9 px-3.5 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold rounded-xl shadow-xs transition-colors"
+            title="View all generated cards in bulk view"
+          >
+            <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+            View Generated Cards
+          </Link>
         </div>
       </div>
 
@@ -459,149 +616,299 @@ export default function IdCardPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Total Cards</span>
+            <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Issued Cards</span>
             <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center text-zinc-800">
               <CreditCard className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-zinc-950 mt-2">{stats.total}</div>
-          <p className="text-[11px] text-zinc-400 mt-0.5">Configured card designs</p>
+          <div className="text-2xl font-bold text-zinc-950 mt-2">{studentsList.length}</div>
+          <p className="text-[11px] text-zinc-400 mt-0.5">Enrolled student cards</p>
         </div>
 
         <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Student Cards</span>
+            <span className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Active Students</span>
             <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-700">
-              <User className="w-4 h-4" />
+              <GraduationCap className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-emerald-700 mt-2">{stats.studentCards}</div>
-          <p className="text-[11px] text-zinc-400 mt-0.5">For enrolled students</p>
+          <div className="text-2xl font-bold text-emerald-700 mt-2">{studentsList.length}</div>
+          <p className="text-[11px] text-zinc-400 mt-0.5">Ready for instant print</p>
         </div>
 
         <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-700 uppercase tracking-wider">Staff / Faculty</span>
+            <span className="text-xs font-semibold text-zinc-700 uppercase tracking-wider">Design Templates</span>
             <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center text-zinc-700">
-              <Users className="w-4 h-4" />
+              <Layers className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-zinc-900 mt-2">{stats.staffCards}</div>
-          <p className="text-[11px] text-zinc-400 mt-0.5">Faculty & Employee cards</p>
+          <div className="text-2xl font-bold text-zinc-900 mt-2">{cards.length}</div>
+          <p className="text-[11px] text-zinc-400 mt-0.5">Card themes & styles</p>
         </div>
 
         <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Active Status</span>
-            <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center text-zinc-800">
+            <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">System Status</span>
+            <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-700">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-zinc-950 mt-2">{stats.activeCards}</div>
-          <p className="text-[11px] text-zinc-400 mt-0.5">Available for generation</p>
+          <div className="text-2xl font-bold text-zinc-950 mt-2">Active</div>
+          <p className="text-[11px] text-zinc-400 mt-0.5">Live database synchronization</p>
         </div>
       </div>
 
-      {/* Main List Container */}
-      <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden flex flex-col">
-        {/* Table Toolbar - Single Clean Professional Line */}
-        <div className="p-3.5 sm:p-4 border-b border-zinc-200 flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-zinc-50/50">
-          {/* Left: Create Button & Records Count Badge */}
-          <div className="flex items-center gap-2.5 shrink-0">
-            <Button 
-              onClick={handleOpenCreate}
-              className="bg-zinc-950 hover:bg-zinc-800 text-white font-semibold h-8 text-xs flex items-center gap-1.5 shadow-xs whitespace-nowrap px-3.5 rounded-lg border border-zinc-950 hover:border-zinc-800 transition-all cursor-pointer"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              CREATE ID CARD
-            </Button>
-            <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-white text-zinc-700 border border-zinc-200 shadow-2xs whitespace-nowrap">
-              {pagination.total} {pagination.total === 1 ? 'Template' : 'Templates'}
-            </span>
+      {/* Tabs Switcher: Issued Student Cards vs Design Templates */}
+      <div className="flex border-b border-zinc-200 gap-2">
+        <button
+          type="button"
+          onClick={() => setActiveTab('students')}
+          className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-2 ${
+            activeTab === 'students'
+              ? 'border-emerald-600 text-emerald-700 font-extrabold'
+              : 'border-transparent text-zinc-500 hover:text-zinc-800'
+          }`}
+        >
+          <User className="h-4 w-4" />
+          Issued Student ID Cards ({studentsList.length})
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('templates')}
+          className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-2 ${
+            activeTab === 'templates'
+              ? 'border-emerald-600 text-emerald-700 font-extrabold'
+              : 'border-transparent text-zinc-500 hover:text-zinc-800'
+          }`}
+        >
+          <Layers className="h-4 w-4" />
+          Card Design Templates ({cards.length})
+        </button>
+      </div>
+
+      {/* TAB 1: ISSUED STUDENT ID CARDS */}
+      {activeTab === 'students' && (
+        <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden flex flex-col">
+          {/* Toolbar */}
+          <div className="p-3.5 sm:p-4 border-b border-zinc-200 flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-zinc-50/50">
+            <div className="flex items-center gap-2.5">
+              <Button 
+                onClick={handleOpenCreateStudent}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-8 text-xs flex items-center gap-1.5 shadow-2xs px-3 rounded-lg cursor-pointer"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                CREATE ID CARD
+              </Button>
+              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-white text-zinc-700 border border-zinc-200 shadow-2xs whitespace-nowrap">
+                {filteredStudents.length} {filteredStudents.length === 1 ? 'Student' : 'Students'}
+              </span>
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
+              <div className="relative w-full sm:w-[200px]">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
+                <Input 
+                  value={studentSearch} 
+                  onChange={e => setStudentSearch(e.target.value)} 
+                  placeholder="Search by student name or roll..." 
+                  className="pl-8 h-8 text-xs bg-white border-zinc-300 text-zinc-950 rounded-lg" 
+                />
+              </div>
+
+              <select
+                value={studentClassFilter}
+                onChange={e => setStudentClassFilter(e.target.value)}
+                className="h-8 rounded-lg border border-zinc-300 bg-white px-2.5 text-xs text-zinc-950 font-medium cursor-pointer shadow-2xs"
+              >
+                <option value="All">All Classes</option>
+                {STANDARD_CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+
+              <select
+                value={studentSectionFilter}
+                onChange={e => setStudentSectionFilter(e.target.value)}
+                className="h-8 rounded-lg border border-zinc-300 bg-white px-2.5 text-xs text-zinc-950 font-medium cursor-pointer shadow-2xs"
+              >
+                <option value="All">All Sections</option>
+                {STANDARD_SECTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+
+              <Button
+                onClick={fetchStudents}
+                variant="outline"
+                size="sm"
+                className="h-8 w-8 p-0 text-zinc-600 border-zinc-300 hover:bg-zinc-100 rounded-lg shrink-0 cursor-pointer"
+                title="Refresh student list"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+              </Button>
+            </div>
           </div>
 
-          {/* Right: Search, Filters & Export Tools */}
-          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 overflow-x-auto">
-            {/* Search */}
-            <div className="relative w-full sm:w-[200px] shrink-0">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
-              <Input 
-                value={searchQuery} 
-                onChange={e => setSearchQuery(e.target.value)} 
-                placeholder="Search templates..." 
-                className="pl-8 h-8 text-xs bg-white border-zinc-300 text-zinc-950 focus-visible:ring-1 focus-visible:ring-zinc-900 rounded-lg" 
-              />
-              {searchQuery && (
-                <button 
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              )}
-            </div>
-
-            {/* Role Filter */}
-            <select
-              value={roleFilter}
-              onChange={e => { setRoleFilter(e.target.value); setPage(1); }}
-              className="h-8 rounded-lg border border-zinc-300 bg-white px-2.5 text-xs text-zinc-950 focus:outline-none focus:ring-1 focus:ring-zinc-900 font-medium shrink-0 cursor-pointer shadow-2xs"
-            >
-              <option value="All">All Roles</option>
-              <option value="Student">Student Cards</option>
-              <option value="Teacher">Teacher Cards</option>
-              <option value="Staff">Staff Cards</option>
-            </select>
-
-            {/* Status Filter */}
-            <select
-              value={statusFilter}
-              onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
-              className="h-8 rounded-lg border border-zinc-300 bg-white px-2.5 text-xs text-zinc-950 focus:outline-none focus:ring-1 focus:ring-zinc-900 font-medium shrink-0 cursor-pointer shadow-2xs"
-            >
-              <option value="All">All Status</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-
-            {/* Export Toolbar */}
-            <div className="flex items-center border border-zinc-200 rounded-lg bg-white overflow-hidden shadow-2xs shrink-0">
-              <button onClick={() => handleExport('Excel')} className="px-2.5 py-1.5 hover:bg-zinc-100 text-zinc-600 text-xs font-medium cursor-pointer transition-colors" title="Export Excel">
-                <Download className="h-3.5 w-3.5 text-emerald-600" />
-              </button>
-              <button onClick={() => handleExport('CSV')} className="px-2.5 py-1.5 hover:bg-zinc-100 text-zinc-600 text-xs font-medium border-l border-zinc-200 cursor-pointer transition-colors" title="Export CSV">
-                <FileCheck className="h-3.5 w-3.5 text-blue-600" />
-              </button>
-              <button onClick={() => handleExport('PDF')} className="px-2.5 py-1.5 hover:bg-zinc-100 text-zinc-600 text-xs font-medium border-l border-zinc-200 cursor-pointer transition-colors" title="Export PDF">
-                <Download className="h-3.5 w-3.5 text-rose-600" />
-              </button>
-              <button onClick={() => handleExport('Print')} className="px-2.5 py-1.5 hover:bg-zinc-100 text-zinc-600 text-xs font-medium border-l border-zinc-200 cursor-pointer transition-colors" title="Print Register">
-                <Printer className="h-3.5 w-3.5 text-zinc-700" />
-              </button>
-            </div>
-
-            {/* Refresh */}
-            <Button
-              onClick={fetchData}
-              variant="outline"
-              size="sm"
-              className="h-8 w-8 p-0 text-zinc-600 border-zinc-300 hover:bg-zinc-100 rounded-lg shrink-0 cursor-pointer"
-              title="Refresh templates"
-            >
-              <RefreshCw className="h-3.5 w-3.5" />
-            </Button>
+          {/* Student ID Cards Table */}
+          <div className="overflow-x-auto min-h-[260px]">
+            {loadingStudents ? (
+              <div className="flex flex-col items-center justify-center py-20 space-y-2">
+                <Loader2 className="w-7 h-7 animate-spin text-emerald-600" />
+                <p className="text-xs text-zinc-500">Loading student ID cards...</p>
+              </div>
+            ) : filteredStudents.length > 0 ? (
+              <table className="w-full text-xs text-left">
+                <thead className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold bg-zinc-50/80 border-b border-zinc-200">
+                  <tr>
+                    <th className="px-4 py-3 font-semibold w-12 text-center">SL</th>
+                    <th className="px-4 py-3 font-semibold">Student Name</th>
+                    <th className="px-4 py-3 font-semibold">Admission / Roll No</th>
+                    <th className="px-4 py-3 font-semibold">Class & Section</th>
+                    <th className="px-4 py-3 font-semibold">Father Name</th>
+                    <th className="px-4 py-3 font-semibold">Blood Group</th>
+                    <th className="px-4 py-3 font-semibold">Emergency Phone</th>
+                    <th className="px-4 py-3 font-semibold w-40 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-200/70">
+                  {filteredStudents.map((st, idx) => (
+                    <tr key={st._id || idx} className="hover:bg-zinc-50/80 transition-colors">
+                      <td className="px-4 py-3 text-center text-zinc-400 font-mono">{idx + 1}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs">
+                            {st.firstName?.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <span className="font-bold text-zinc-950 capitalize">{st.firstName} {st.lastName}</span>
+                            <span className="block text-[10px] text-zinc-400 font-medium">{st.gender || 'Student'}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="font-mono text-zinc-700 font-semibold">{st.admissionNo || '-'}</span>
+                        <span className="block text-[10px] text-zinc-400 font-mono">Roll: {st.rollNo || '-'}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="font-bold text-zinc-800">{st.className}</span>
+                        <span className="block text-[10px] text-zinc-500 font-medium">{st.section}</span>
+                      </td>
+                      <td className="px-4 py-3 font-medium text-zinc-700">{st.fatherName || '-'}</td>
+                      <td className="px-4 py-3">
+                        <span className="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 font-black text-[10px] border border-rose-200">
+                          {st.bloodGroup || 'B+'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 font-mono text-zinc-600">{st.phone || '-'}</td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handlePrintStudentCard(st)}
+                            className="h-7 text-xs border-emerald-600 text-emerald-700 hover:bg-emerald-50 px-2 font-bold cursor-pointer"
+                            title="Print Card"
+                          >
+                            <Printer className="h-3 w-3 mr-1" /> Print
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDownloadStudentPDF(st)}
+                            className="h-7 text-xs border-zinc-300 text-zinc-700 hover:bg-zinc-100 px-2 font-semibold cursor-pointer"
+                            title="Download PDF"
+                          >
+                            <Download className="h-3 w-3 mr-1 text-emerald-600" /> PDF
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setViewingCard(st)}
+                            className="h-7 w-7 p-0 text-zinc-600 hover:text-emerald-700 hover:bg-emerald-50 cursor-pointer"
+                            title="Preview Card"
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="py-16 text-center text-zinc-500">
+                <CreditCard className="w-10 h-10 mx-auto mb-2 text-zinc-300" />
+                <p className="font-bold text-zinc-800 text-sm">No Student ID Cards Found</p>
+                <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto">
+                  Click the &ldquo;CREATE ID CARD&rdquo; button above to create and issue an official card with student details.
+                </p>
+                <div className="mt-4">
+                  <Button 
+                    onClick={handleOpenCreateStudent}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-8 px-4 rounded-lg cursor-pointer"
+                  >
+                    <Plus className="h-3.5 w-3.5 mr-1" /> CREATE ID CARD
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
+      )}
 
-
-        {/* Table View */}
-        <div className="overflow-x-auto min-h-[260px]">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-20 space-y-2">
-              <Loader2 className="w-7 h-7 animate-spin text-zinc-800" />
-              <p className="text-xs text-zinc-500">Loading ID card templates...</p>
+      {/* TAB 2: CARD DESIGN TEMPLATES */}
+      {activeTab === 'templates' && (
+        <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden flex flex-col">
+          {/* Template Toolbar */}
+          <div className="p-3.5 sm:p-4 border-b border-zinc-200 flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-zinc-50/50">
+            <div className="flex items-center gap-2.5">
+              <Button 
+                onClick={handleOpenCreateTemplate}
+                className="bg-zinc-950 hover:bg-zinc-800 text-white font-semibold h-8 text-xs flex items-center gap-1.5 shadow-xs px-3.5 rounded-lg cursor-pointer"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Add New Design
+              </Button>
+              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-white text-zinc-700 border border-zinc-200 shadow-2xs whitespace-nowrap">
+                {cards.length} Templates
+              </span>
             </div>
-          ) : (
+
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
+              <div className="relative w-full sm:w-[200px]">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
+                <Input 
+                  value={searchQuery} 
+                  onChange={e => setSearchQuery(e.target.value)} 
+                  placeholder="Search templates..." 
+                  className="pl-8 h-8 text-xs bg-white border-zinc-300 text-zinc-950 rounded-lg" 
+                />
+              </div>
+
+              <select
+                value={roleFilter}
+                onChange={e => { setRoleFilter(e.target.value); setPage(1); }}
+                className="h-8 rounded-lg border border-zinc-300 bg-white px-2.5 text-xs text-zinc-950 font-medium cursor-pointer shadow-2xs"
+              >
+                <option value="All">All Roles</option>
+                <option value="Student">Student Cards</option>
+                <option value="Teacher">Teacher Cards</option>
+                <option value="Staff">Staff Cards</option>
+              </select>
+
+              <Button
+                onClick={fetchData}
+                variant="outline"
+                size="sm"
+                className="h-8 w-8 p-0 text-zinc-600 border-zinc-300 hover:bg-zinc-100 rounded-lg shrink-0 cursor-pointer"
+                title="Refresh templates"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Templates Table */}
+          <div className="overflow-x-auto min-h-[240px]">
             <table className="w-full text-xs text-left">
               <thead className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold bg-zinc-50/80 border-b border-zinc-200">
                 <tr>
@@ -610,170 +917,319 @@ export default function IdCardPage() {
                   <th className="px-4 py-3 font-semibold">Target Role</th>
                   <th className="px-4 py-3 font-semibold">Theme Style</th>
                   <th className="px-4 py-3 font-semibold">Status</th>
-                  <th className="px-4 py-3 font-semibold">Updated Date</th>
                   <th className="px-4 py-3 font-semibold w-36 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200/70">
-                {cards.length > 0 ? (
-                  cards.map((c, i) => {
-                    const slNo = (page - 1) * 10 + i + 1;
-                    return (
-                      <tr key={c._id} className="hover:bg-zinc-50/80 transition-colors">
-                        <td className="px-4 py-3 text-center text-zinc-500 font-mono">{slNo}</td>
-                        <td className="px-4 py-3">
-                          <div className="font-semibold text-zinc-950 text-xs">{c.title}</div>
-                          <div className="text-[10px] text-zinc-400 mt-0.5">{c.headerText || 'OFFICIAL IDENTITY CARD'}</div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold border ${
-                            c.role === 'Student' 
-                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
-                              : c.role === 'Teacher'
-                              ? 'bg-sky-50 text-sky-900 border-sky-200'
-                              : 'bg-zinc-100 text-zinc-800 border-zinc-300'
-                          }`}>
-                            {c.role}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="capitalize font-mono text-[11px] text-zinc-600">
-                            {c.themeStyle?.replace('-', ' ') || 'Stoofi Emerald'} ({c.cardLayout || 'vertical'})
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <button
-                            onClick={() => handleToggleStatus(c)}
-                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold transition-colors border ${
-                              c.status === 'Active' 
-                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100' 
-                                : 'bg-zinc-100 text-zinc-600 border-zinc-200 hover:bg-zinc-200'
-                            }`}
-                            title="Click to toggle status"
-                          >
-                            <span className={`w-1.5 h-1.5 rounded-full ${c.status === 'Active' ? 'bg-emerald-600' : 'bg-zinc-400'}`} />
-                            {c.status || 'Active'}
-                          </button>
-                        </td>
-                        <td className="px-4 py-3 text-zinc-500">
-                          {c.updatedAt ? new Date(c.updatedAt).toLocaleDateString('en-GB') : '-'}
-                        </td>
-                        <td className="px-4 py-3 text-right whitespace-nowrap">
-                          <div className="flex items-center justify-end gap-1">
-                            <Button 
-                              onClick={() => setViewingCard(c)} 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-7 w-7 p-0 text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100"
-                              title="Preview Card Design"
-                            >
-                              <Eye className="h-3.5 w-3.5" />
-                            </Button>
-                            <Link
-                              href={`/dashboard/admin/generate-id-card?role=${c.role}`}
-                              className="inline-flex items-center justify-center h-7 w-7 rounded-md text-emerald-700 hover:text-emerald-950 hover:bg-emerald-50 transition-colors"
-                              title="Generate with this layout"
-                            >
-                              <Sparkles className="h-3.5 w-3.5" />
-                            </Link>
-                            <Button 
-                              onClick={() => handleEdit(c)} 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-7 w-7 p-0 text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100"
-                              title="Edit Template"
-                            >
-                              <Edit className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button 
-                              onClick={() => setDeleteConfirmItem(c)} 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-7 w-7 p-0 text-rose-500 hover:text-rose-700 hover:bg-rose-50"
-                              title="Delete Template"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan="7" className="px-4 py-16 text-center text-zinc-500">
-                      <div className="flex flex-col items-center justify-center space-y-2">
-                        <CreditCard className="w-10 h-10 text-zinc-300" />
-                        <p className="font-semibold text-zinc-800 text-sm">No ID Card Templates Found</p>
-                        <p className="text-xs text-zinc-400 max-w-sm">
-                          {searchQuery || roleFilter !== 'All' || statusFilter !== 'All'
-                            ? 'No templates match your selected search or filter criteria.' 
-                            : 'Click "+ CREATE ID CARD" to design an ID card layout for students or staff.'}
-                        </p>
+                {cards.map((c, i) => (
+                  <tr key={c._id || i} className="hover:bg-zinc-50/80 transition-colors">
+                    <td className="px-4 py-3 text-center text-zinc-400 font-mono">{i + 1}</td>
+                    <td className="px-4 py-3 font-bold text-zinc-950">{c.title}</td>
+                    <td className="px-4 py-3">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-zinc-100 text-zinc-800">
+                        {c.role}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="capitalize text-zinc-700 font-medium">{c.themeStyle?.replace('-', ' ')}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" /> Active
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button 
+                          onClick={() => setViewingCard(c)} 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-7 w-7 p-0 text-zinc-600 hover:text-emerald-700 hover:bg-emerald-50"
+                          title="Preview Design"
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button 
+                          onClick={() => handleEditTemplate(c)} 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-7 w-7 p-0 text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100"
+                          title="Edit Template"
+                        >
+                          <Edit className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button 
+                          onClick={() => setDeleteConfirmItem(c)} 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-7 w-7 p-0 text-rose-500 hover:text-rose-700 hover:bg-rose-50"
+                          title="Delete Template"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
                       </div>
                     </td>
                   </tr>
-                )}
+                ))}
               </tbody>
             </table>
-          )}
+          </div>
         </div>
+      )}
 
-        {/* Pagination */}
-        {pagination.totalPages > 1 && (
-          <div className="p-4 border-t border-zinc-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-zinc-50/40 text-xs text-zinc-600">
-            <div>
-              Showing <span className="font-semibold text-zinc-950">{(page - 1) * 10 + 1}</span> to <span className="font-semibold text-zinc-950">{Math.min(page * 10, pagination.total)}</span> of <span className="font-semibold text-zinc-950">{pagination.total}</span> templates
+      {/* ── CREATE / ISSUE STUDENT ID CARD MODAL ── */}
+      {showCreateStudentModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl border border-zinc-200 max-w-4xl w-full my-6 max-h-[92vh] flex flex-col overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-4 border-b border-zinc-200 bg-zinc-50 flex justify-between items-center shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-emerald-600" />
+                <div>
+                  <h2 className="text-base font-bold text-zinc-950">Create & Issue Student ID Card</h2>
+                  <p className="text-[11px] text-zinc-500">Enter student details and choose a design template to generate an official ID card</p>
+                </div>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowCreateStudentModal(false)} 
+                className="text-zinc-400 hover:text-zinc-700 h-8 w-8 p-0"
+              >
+                <X className="w-4 h-4" />
+              </Button>
             </div>
-            <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page <= 1}
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                className="h-7 text-xs px-2.5 bg-white border-zinc-300"
-              >
-                Previous
-              </Button>
-              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(p => (
-                <Button
-                  key={p}
-                  variant={p === page ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setPage(p)}
-                  className={`h-7 w-7 p-0 text-xs ${
-                    p === page 
-                      ? 'bg-zinc-950 text-white font-bold' 
-                      : 'bg-white border-zinc-300 text-zinc-700'
-                  }`}
-                >
-                  {p}
-                </Button>
-              ))}
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page >= pagination.totalPages}
-                onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
-                className="h-7 text-xs px-2.5 bg-white border-zinc-300"
-              >
-                Next
-              </Button>
+
+            {/* Modal Body: 2 Columns (Form on left, Live Card Preview on right) */}
+            <div className="flex-1 overflow-y-auto p-5 grid grid-cols-1 lg:grid-cols-12 gap-6 text-xs">
+              {/* Left Column: Form */}
+              <form onSubmit={handleCreateStudentSubmit} className="lg:col-span-7 space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">
+                      First Name <span className="text-rose-500">*</span>
+                    </Label>
+                    <Input 
+                      value={studentForm.firstName} 
+                      onChange={e => setStudentForm({ ...studentForm, firstName: e.target.value })} 
+                      placeholder="e.g. Qamar" 
+                      className="bg-white border-zinc-300 text-xs" 
+                      required 
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Last Name</Label>
+                    <Input 
+                      value={studentForm.lastName} 
+                      onChange={e => setStudentForm({ ...studentForm, lastName: e.target.value })} 
+                      placeholder="e.g. Abbas" 
+                      className="bg-white border-zinc-300 text-xs" 
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Class</Label>
+                    <select
+                      value={studentForm.className}
+                      onChange={e => setStudentForm({ ...studentForm, className: e.target.value })}
+                      className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-950"
+                    >
+                      {STANDARD_CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Section</Label>
+                    <select
+                      value={studentForm.section}
+                      onChange={e => setStudentForm({ ...studentForm, section: e.target.value })}
+                      className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-950"
+                    >
+                      {STANDARD_SECTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Roll Number</Label>
+                    <Input 
+                      value={studentForm.rollNo} 
+                      onChange={e => setStudentForm({ ...studentForm, rollNo: e.target.value })} 
+                      placeholder="e.g. 101" 
+                      className="bg-white border-zinc-300 text-xs font-mono" 
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Admission No</Label>
+                    <Input 
+                      value={studentForm.admissionNo} 
+                      onChange={e => setStudentForm({ ...studentForm, admissionNo: e.target.value })} 
+                      placeholder="e.g. ADM-1791540935480" 
+                      className="bg-white border-zinc-300 text-xs font-mono" 
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Father / Guardian Name</Label>
+                    <Input 
+                      value={studentForm.fatherName} 
+                      onChange={e => setStudentForm({ ...studentForm, fatherName: e.target.value })} 
+                      placeholder="e.g. Syed Ali Shah" 
+                      className="bg-white border-zinc-300 text-xs" 
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Emergency Phone</Label>
+                    <Input 
+                      value={studentForm.phone} 
+                      onChange={e => setStudentForm({ ...studentForm, phone: e.target.value })} 
+                      placeholder="e.g. +92 300 9876543" 
+                      className="bg-white border-zinc-300 text-xs font-mono" 
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Blood Group</Label>
+                    <select
+                      value={studentForm.bloodGroup}
+                      onChange={e => setStudentForm({ ...studentForm, bloodGroup: e.target.value })}
+                      className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs font-bold text-rose-700"
+                    >
+                      {BLOOD_GROUPS.map(bg => <option key={bg} value={bg}>{bg}</option>)}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Gender</Label>
+                    <select
+                      value={studentForm.gender}
+                      onChange={e => setStudentForm({ ...studentForm, gender: e.target.value })}
+                      className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-950"
+                    >
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Choose Design Template */}
+                <div className="space-y-1.5 pt-2 border-t border-zinc-200">
+                  <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wide">
+                    Choose Card Design Style
+                  </Label>
+                  <select 
+                    value={studentForm.cardTemplate} 
+                    onChange={e => setStudentForm({ ...studentForm, cardTemplate: e.target.value })} 
+                    className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-950"
+                  >
+                    {THEME_STYLES.map(t => (
+                      <option key={t.id} value={t.id}>{t.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="pt-3 flex items-center justify-end gap-2.5">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setShowCreateStudentModal(false)}
+                    className="h-9 text-xs border-zinc-300 cursor-pointer"
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    disabled={creatingStudentCard}
+                    className="h-9 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 rounded-lg cursor-pointer"
+                  >
+                    {creatingStudentCard ? (
+                      <span className="flex items-center gap-1.5">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving Card...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5" /> Save & Issue ID Card
+                      </span>
+                    )}
+                  </Button>
+                </div>
+              </form>
+
+              {/* Right Column: Live Card Preview */}
+              <div className="lg:col-span-5 bg-zinc-50 border border-zinc-200 rounded-xl p-4 flex flex-col items-center justify-center">
+                <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-3">
+                  Live Card Preview
+                </span>
+                {renderCardGraphic(studentForm)}
+                <p className="text-[10px] text-zinc-400 mt-3 text-center">
+                  Updates in real time as you fill out the student details.
+                </p>
+              </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* CREATE / EDIT MODAL */}
+      {/* ── CARD PREVIEW MODAL ── */}
+      {viewingCard && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl border border-zinc-200 max-w-sm w-full p-5 space-y-4">
+            <div className="flex justify-between items-center border-b border-zinc-200 pb-3">
+              <h3 className="font-bold text-sm text-zinc-950 flex items-center gap-1.5">
+                <CreditCard className="w-4 h-4 text-emerald-600" />
+                ID Card Preview
+              </h3>
+              <button onClick={() => setViewingCard(null)} className="text-zinc-400 hover:text-zinc-700">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="py-2">
+              {renderCardGraphic(viewingCard)}
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-zinc-200">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setViewingCard(null)}
+                className="text-xs"
+              >
+                Close
+              </Button>
+              <div className="flex items-center gap-2">
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => handleDownloadStudentPDF(viewingCard)}
+                  className="text-xs border-zinc-300 text-zinc-800 hover:bg-zinc-100"
+                >
+                  <Download className="w-3.5 h-3.5 mr-1 text-emerald-600" /> PDF
+                </Button>
+                <Button 
+                  size="sm" 
+                  onClick={() => handlePrintStudentCard(viewingCard)}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold"
+                >
+                  <Printer className="w-3.5 h-3.5 mr-1" /> Print
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TEMPLATE DESIGN MODAL (Manage Templates) ── */}
       {showFormModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
           <div className="bg-white rounded-xl shadow-2xl border border-zinc-200 max-w-2xl w-full my-8 max-h-[90vh] flex flex-col overflow-hidden">
-            {/* Header */}
-            <div className="p-4 border-b border-zinc-200 bg-zinc-50/70 flex justify-between items-center shrink-0">
+            <div className="p-4 border-b border-zinc-200 bg-zinc-50 flex justify-between items-center shrink-0">
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-zinc-900" />
                 <h2 className="text-base font-bold text-zinc-950">
-                  {editingId ? 'Edit ID Card Template' : 'Create ID Card Template'}
+                  {editingId ? 'Edit ID Card Template Design' : 'Create New ID Card Template Design'}
                 </h2>
               </div>
               <Button 
@@ -786,10 +1242,8 @@ export default function IdCardPage() {
               </Button>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSave} className="p-5 space-y-4 overflow-y-auto flex-1 text-xs">
+            <form onSubmit={handleSaveTemplate} className="p-5 space-y-4 overflow-y-auto flex-1 text-xs">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Title */}
                 <div className="space-y-1.5 md:col-span-2">
                   <Label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
                     Template Title <span className="text-rose-500">*</span>
@@ -803,7 +1257,6 @@ export default function IdCardPage() {
                   />
                 </div>
 
-                {/* Target Role */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
                     Target Role <span className="text-rose-500">*</span>
@@ -820,7 +1273,6 @@ export default function IdCardPage() {
                   </select>
                 </div>
 
-                {/* Theme Style */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
                     Theme Color
@@ -836,10 +1288,9 @@ export default function IdCardPage() {
                   </select>
                 </div>
 
-                {/* Header Text */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
-                    Card Header Banner Text
+                    Card Header Text
                   </Label>
                   <Input 
                     value={formData.headerText} 
@@ -849,10 +1300,9 @@ export default function IdCardPage() {
                   />
                 </div>
 
-                {/* Footer Text */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
-                    Card Footer Signature Label
+                    Card Footer Text
                   </Label>
                   <Input 
                     value={formData.footerText} 
@@ -861,189 +1311,23 @@ export default function IdCardPage() {
                     className="bg-white border-zinc-300 text-zinc-950 text-xs" 
                   />
                 </div>
-
-                {/* Upload Custom Background Graphic */}
-                <div className="space-y-1.5 md:col-span-2 pt-2 border-t border-zinc-200">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
-                      Upload Custom Card Background Image (Optional)
-                    </Label>
-                    {formData.uploadedBackground && (
-                      <button
-                        type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, uploadedBackground: '' }))}
-                        className="text-[10px] text-rose-600 hover:underline font-bold"
-                      >
-                        Remove Image
-                      </button>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleBackgroundUpload}
-                      className="block w-full text-xs text-zinc-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-zinc-100 file:text-zinc-700 hover:file:bg-zinc-200 cursor-pointer border border-zinc-300 rounded-lg p-1"
-                    />
-                    {formData.uploadedBackground && (
-                      <div className="w-10 h-10 rounded-lg border border-zinc-300 overflow-hidden shrink-0">
-                        <img src={formData.uploadedBackground} alt="Custom Background" className="w-full h-full object-cover" />
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-[10px] text-zinc-400">Upload high-res PNG/JPG custom school badge frame or card background</p>
-                </div>
               </div>
 
-              {/* Field Visibility Checkbox Matrix */}
-              <div className="p-3.5 bg-zinc-50 rounded-lg border border-zinc-200 space-y-3">
-                <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wide">
-                  Enabled Card Fields & Information
-                </Label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                  <label className="flex items-center gap-2 cursor-pointer text-zinc-700">
-                    <input
-                      type="checkbox"
-                      checked={formData.showPhoto}
-                      onChange={e => setFormData({ ...formData, showPhoto: e.target.checked })}
-                      className="rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5"
-                    />
-                    <span>Profile Photo</span>
-                  </label>
-
-                  {formData.role === 'Student' ? (
-                    <>
-                      <label className="flex items-center gap-2 cursor-pointer text-zinc-700">
-                        <input
-                          type="checkbox"
-                          checked={formData.showAdmissionNo}
-                          onChange={e => setFormData({ ...formData, showAdmissionNo: e.target.checked })}
-                          className="rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5"
-                        />
-                        <span>Admission No</span>
-                      </label>
-                      <label className="flex items-center gap-2 cursor-pointer text-zinc-700">
-                        <input
-                          type="checkbox"
-                          checked={formData.showRollNo}
-                          onChange={e => setFormData({ ...formData, showRollNo: e.target.checked })}
-                          className="rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5"
-                        />
-                        <span>Roll Number</span>
-                      </label>
-                      <label className="flex items-center gap-2 cursor-pointer text-zinc-700">
-                        <input
-                          type="checkbox"
-                          checked={formData.showClass}
-                          onChange={e => setFormData({ ...formData, showClass: e.target.checked })}
-                          className="rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5"
-                        />
-                        <span>Class & Section</span>
-                      </label>
-                      <label className="flex items-center gap-2 cursor-pointer text-zinc-700">
-                        <input
-                          type="checkbox"
-                          checked={formData.showFatherName}
-                          onChange={e => setFormData({ ...formData, showFatherName: e.target.checked })}
-                          className="rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5"
-                        />
-                        <span>Father Name</span>
-                      </label>
-                    </>
-                  ) : (
-                    <>
-                      <label className="flex items-center gap-2 cursor-pointer text-zinc-700">
-                        <input
-                          type="checkbox"
-                          checked={formData.showDesignation}
-                          onChange={e => setFormData({ ...formData, showDesignation: e.target.checked })}
-                          className="rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5"
-                        />
-                        <span>Designation</span>
-                      </label>
-                      <label className="flex items-center gap-2 cursor-pointer text-zinc-700">
-                        <input
-                          type="checkbox"
-                          checked={formData.showDepartment}
-                          onChange={e => setFormData({ ...formData, showDepartment: e.target.checked })}
-                          className="rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5"
-                        />
-                        <span>Department</span>
-                      </label>
-                    </>
-                  )}
-
-                  <label className="flex items-center gap-2 cursor-pointer text-zinc-700">
-                    <input
-                      type="checkbox"
-                      checked={formData.showPhone}
-                      onChange={e => setFormData({ ...formData, showPhone: e.target.checked })}
-                      className="rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5"
-                    />
-                    <span>Emergency Contact</span>
-                  </label>
-
-                  <label className="flex items-center gap-2 cursor-pointer text-zinc-700">
-                    <input
-                      type="checkbox"
-                      checked={formData.showBloodGroup}
-                      onChange={e => setFormData({ ...formData, showBloodGroup: e.target.checked })}
-                      className="rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5"
-                    />
-                    <span>Blood Group</span>
-                  </label>
-
-                  <label className="flex items-center gap-2 cursor-pointer text-zinc-700">
-                    <input
-                      type="checkbox"
-                      checked={formData.showQrBarcode}
-                      onChange={e => setFormData({ ...formData, showQrBarcode: e.target.checked })}
-                      className="rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5"
-                    />
-                    <span>QR Security Badge</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Status */}
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-700 uppercase tracking-wide">
-                  Template Status
-                </Label>
-                <select 
-                  value={formData.status} 
-                  onChange={e => setFormData({ ...formData, status: e.target.value })} 
-                  className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-zinc-950 text-xs focus:outline-none focus:ring-1 focus:ring-zinc-900" 
-                >
-                  <option value="Active">Active (Available in Generator)</option>
-                  <option value="Inactive">Inactive (Hidden)</option>
-                </select>
-              </div>
-
-              {/* Actions */}
-              <div className="flex justify-end gap-2 pt-3 border-t border-zinc-200">
+              <div className="p-4 border-t border-zinc-200 flex justify-end gap-2.5">
                 <Button 
                   type="button" 
                   variant="outline" 
-                  size="sm" 
                   onClick={() => setShowFormModal(false)}
-                  className="text-xs"
+                  className="h-8 text-xs border-zinc-300"
                 >
                   Cancel
                 </Button>
                 <Button 
                   type="submit" 
                   disabled={submitting}
-                  className="bg-zinc-950 hover:bg-zinc-800 text-white font-semibold text-xs px-5 shadow-xs"
+                  className="h-8 text-xs bg-zinc-950 hover:bg-zinc-800 text-white font-semibold"
                 >
-                  {submitting ? (
-                    <span className="flex items-center gap-1.5">
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      Saving...
-                    </span>
-                  ) : (
-                    editingId ? 'UPDATE TEMPLATE' : 'SAVE ID CARD'
-                  )}
+                  {submitting ? 'Saving Design...' : 'Save Template'}
                 </Button>
               </div>
             </form>
@@ -1051,116 +1335,7 @@ export default function IdCardPage() {
         </div>
       )}
 
-      {/* VIEW & PREVIEW MODAL */}
-      {viewingCard && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-white rounded-xl shadow-2xl border border-zinc-200 max-w-lg w-full p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-200 pb-3">
-              <div>
-                <h3 className="font-bold text-sm text-zinc-950">{viewingCard.title}</h3>
-                <p className="text-[11px] text-zinc-500">Live preview with sample institutional identity format</p>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setViewingCard(null)} 
-                className="text-zinc-400 hover:text-zinc-700 h-7 w-7 p-0"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-
-            {/* ID Card Canvas Preview */}
-            <div className="p-6 bg-zinc-100 rounded-xl flex items-center justify-center">
-              <div className="bg-white text-zinc-900 rounded-2xl overflow-hidden shadow-xl border border-zinc-300 w-full max-w-[280px] h-[440px] flex flex-col justify-between">
-                {/* Header */}
-                <div className={`text-white p-3.5 text-center ${
-                  viewingCard.themeStyle === 'stoofi-emerald' ? 'bg-emerald-800' :
-                  viewingCard.themeStyle === 'classic-navy' ? 'bg-sky-950' :
-                  viewingCard.themeStyle === 'royal-purple' ? 'bg-indigo-900' :
-                  'bg-zinc-900'
-                }`}>
-                  <div className="text-[9px] uppercase font-bold tracking-widest text-emerald-200">
-                    {viewingCard.headerText || 'OFFICIAL IDENTITY CARD'}
-                  </div>
-                  <h4 className="font-bold text-sm leading-tight mt-0.5 truncate">Stoofi Public School</h4>
-                  <p className="text-[9px] text-zinc-300 truncate">Main Campus, Lahore</p>
-                </div>
-
-                {/* Body */}
-                <div className="p-3.5 flex flex-col items-center text-center flex-1">
-                  {viewingCard.showPhoto && (
-                    <div className="w-20 h-20 rounded-full border-2 border-zinc-200 overflow-hidden bg-zinc-100 shadow-xs mb-2 flex items-center justify-center">
-                      <User className="w-10 h-10 text-zinc-400" />
-                    </div>
-                  )}
-
-                  <h5 className="font-bold text-base text-zinc-900 leading-tight">
-                    {viewingCard.role === 'Student' ? 'Muhammad Rayyan' : 'Prof. Mudassir Bajwa'}
-                  </h5>
-                  <span className="inline-block mt-0.5 px-2.5 py-0.5 bg-zinc-100 text-zinc-800 text-[10px] font-bold rounded-full uppercase">
-                    {viewingCard.role}
-                  </span>
-
-                  {/* Attributes */}
-                  <div className="w-full mt-3 space-y-1 text-[11px] text-left bg-zinc-50 p-2.5 rounded-lg border border-zinc-200/80">
-                    {viewingCard.role === 'Student' ? (
-                      <>
-                        {viewingCard.showAdmissionNo && (
-                          <div className="flex justify-between"><span className="text-zinc-500">Adm No:</span><span className="font-bold font-mono">ADM-2026-101</span></div>
-                        )}
-                        {viewingCard.showClass && (
-                          <div className="flex justify-between"><span className="text-zinc-500">Class:</span><span className="font-bold">Class 10 (A)</span></div>
-                        )}
-                        {viewingCard.showRollNo && (
-                          <div className="flex justify-between"><span className="text-zinc-500">Roll No:</span><span className="font-bold font-mono">101</span></div>
-                        )}
-                        {viewingCard.showFatherName && (
-                          <div className="flex justify-between"><span className="text-zinc-500">Father:</span><span className="font-bold">Tariq Mehmood</span></div>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        {viewingCard.showDesignation && (
-                          <div className="flex justify-between"><span className="text-zinc-500">Designation:</span><span className="font-bold">Senior Faculty</span></div>
-                        )}
-                        {viewingCard.showDepartment && (
-                          <div className="flex justify-between"><span className="text-zinc-500">Department:</span><span className="font-bold">Academics</span></div>
-                        )}
-                      </>
-                    )}
-                    {viewingCard.showBloodGroup && (
-                      <div className="flex justify-between"><span className="text-zinc-500">Blood Group:</span><span className="font-bold text-rose-600">O+</span></div>
-                    )}
-                    {viewingCard.showPhone && (
-                      <div className="flex justify-between"><span className="text-zinc-500">Emergency:</span><span className="font-bold font-mono">+92 300 1234567</span></div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Footer */}
-                <div className="bg-zinc-50 px-3 py-1.5 text-[9px] text-zinc-500 flex justify-between items-center border-t border-zinc-200">
-                  <span>Session: 2026</span>
-                  <span className="font-bold text-zinc-800">{viewingCard.footerText || 'Authorized Seal'}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end pt-1">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setViewingCard(null)}
-                className="text-xs"
-              >
-                Close Preview
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* DELETE CONFIRMATION MODAL */}
+      {/* ── DELETE CONFIRMATION MODAL ── */}
       {deleteConfirmItem && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-xl shadow-2xl border border-zinc-200 max-w-sm w-full p-5 space-y-4">
@@ -1189,7 +1364,7 @@ export default function IdCardPage() {
               </Button>
               <Button 
                 size="sm" 
-                onClick={handleDelete}
+                onClick={handleDeleteTemplate}
                 className="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold"
               >
                 Delete Record
@@ -1198,6 +1373,51 @@ export default function IdCardPage() {
           </div>
         </div>
       )}
+
+      {/* ── DEDICATED PRINT PORTAL (ISOLATED - ONLY CARD PRINTS) ── */}
+      <div id="id-card-print-portal" className="hidden">
+        {printPortalRecord && renderCardGraphic(printPortalRecord)}
+      </div>
+
+      {/* PRINT-ONLY STYLESHEET */}
+      <style jsx global>{`
+        @media print {
+          html, body {
+            background-color: white !important;
+            color: black !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: auto !important;
+            overflow: visible !important;
+          }
+
+          body * {
+            visibility: hidden !important;
+          }
+
+          #id-card-print-portal,
+          #id-card-print-portal * {
+            visibility: visible !important;
+          }
+
+          #id-card-print-portal {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            padding: 10mm !important;
+            background: white !important;
+            z-index: 2147483647 !important;
+          }
+
+          nav, aside, header, footer, .sidebar, .navbar, .print\\:hidden, #stoofi-ai-widget {
+            display: none !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

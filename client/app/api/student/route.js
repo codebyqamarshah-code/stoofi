@@ -8,7 +8,7 @@ export async function GET(req) {
 
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = parseInt(searchParams.get('limit') || '50', 10);
+    const limit = parseInt(searchParams.get('limit') || '100', 10);
     const search = searchParams.get('search') || '';
     const className = searchParams.get('className') || '';
     const section = searchParams.get('section') || '';
@@ -47,7 +47,7 @@ export async function GET(req) {
 
     return NextResponse.json({
       success: true,
-      data: students,
+      data: students || [],
       pagination: {
         page,
         limit,
@@ -56,27 +56,71 @@ export async function GET(req) {
       }
     });
   } catch (error) {
-    console.error('API /student error:', error);
+    console.error('API /student GET error:', error);
     return NextResponse.json({
       success: true,
-      data: [
-        {
-          _id: 'std-demo-01',
-          firstName: 'Qamar',
-          lastName: 'Abbas',
-          admissionNo: 'ADM-1791540935480',
-          rollNo: '101',
-          className: 'Class 10',
-          section: 'Section A',
-          gender: 'Male',
-          dob: '2008-05-14',
-          phone: '+92 300 9876543',
-          fatherName: 'Syed Ali Shah',
-          studentPhoto: '',
-          bloodGroup: 'B+'
-        }
-      ],
-      pagination: { page: 1, limit: 10, total: 1, totalPages: 1 }
+      data: [],
+      pagination: { page: 1, limit: 10, total: 0, totalPages: 1 }
     });
+  }
+}
+
+export async function POST(req) {
+  try {
+    await connectDB();
+    const body = await req.json();
+    const { 
+      firstName, 
+      lastName, 
+      className, 
+      section, 
+      rollNo, 
+      admissionNo, 
+      fatherName, 
+      phone, 
+      gender, 
+      bloodGroup, 
+      dob, 
+      studentPhoto,
+      cardTemplate
+    } = body;
+
+    if (!firstName || !firstName.trim()) {
+      return NextResponse.json({ success: false, message: 'Student first name is required' }, { status: 400 });
+    }
+
+    const count = await Student.countDocuments();
+    const cleanAdmNo = admissionNo && admissionNo.trim() 
+      ? admissionNo.trim() 
+      : `ADM-${Date.now()}`;
+    const cleanRollNo = rollNo && rollNo.trim() 
+      ? rollNo.trim() 
+      : String(100 + count + 1);
+
+    const student = await Student.create({
+      firstName: firstName.trim(),
+      lastName: (lastName || '').trim(),
+      className: className || 'Class 10',
+      section: section || 'Section A',
+      admissionNo: cleanAdmNo,
+      rollNo: cleanRollNo,
+      fatherName: fatherName || '',
+      phone: phone || '',
+      gender: gender || 'Male',
+      bloodGroup: bloodGroup || 'B+',
+      dob: dob || '2008-01-01',
+      studentPhoto: studentPhoto || '',
+      cardTemplate: cardTemplate || 'stoofi-emerald',
+      status: 'Active'
+    });
+
+    return NextResponse.json({
+      success: true,
+      data: student,
+      message: 'Student ID card created successfully'
+    }, { status: 201 });
+  } catch (error) {
+    console.error('API /student POST error:', error);
+    return NextResponse.json({ success: false, message: error.message || 'Error creating student ID card' }, { status: 500 });
   }
 }
