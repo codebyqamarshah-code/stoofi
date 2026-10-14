@@ -79,8 +79,8 @@ export default function RegisterPage() {
   const availabilityTimeouts = useRef({});
   const [success, setSuccess] = useState(false);
   
-  const [role, setRole] = useState('Student');
-  const [availableRoles, setAvailableRoles] = useState(['Super Admin', 'Admin', 'Teacher', 'Student']);
+  const [role, setRole] = useState('Admin');
+  const [availableRoles, setAvailableRoles] = useState(['Admin', 'Teacher', 'Student']);
   const [statusLoading, setStatusLoading] = useState(true);
 
   useEffect(() => {
@@ -88,23 +88,23 @@ export default function RegisterPage() {
       try {
         const res = await api.get(`/auth/registration-status?t=${Date.now()}`);
         const roles = [];
-        if (!res?.hasSuperAdmin) {
+        // Only include Super Admin if backend explicitly confirms NO Super Admin exists in the database
+        if (res && res.hasSuperAdmin === false) {
           roles.push('Super Admin');
         }
-        if (!res?.hasAdmin) {
+        if (res && res.hasAdmin === false) {
           roles.push('Admin');
         }
         roles.push('Teacher', 'Student');
         setAvailableRoles(roles);
-        if (roles.length > 0) {
+        if (roles.length > 0 && !roles.includes(role)) {
           setRole(roles[0]);
         }
       } catch (e) {
-        const roles = ['Super Admin', 'Admin', 'Teacher', 'Student'];
-        setAvailableRoles(roles);
-        if (roles.length > 0) {
-          setRole(roles[0]);
-        }
+        // Safe fallback: never show Super Admin if error occurs or already registered
+        const fallback = ['Admin', 'Teacher', 'Student'];
+        setAvailableRoles(fallback);
+        setRole('Admin');
       } finally {
         setStatusLoading(false);
       }
@@ -758,21 +758,17 @@ export default function RegisterPage() {
               <label className={labelClass}>Register As <span className="text-rose-500">*</span></label>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {['Super Admin', 'Admin', 'Teacher', 'Student'].map((r) => {
-                const isAvailable = availableRoles.includes(r);
+              {availableRoles.map((r) => {
                 const isSelected = role === r;
                 return (
                   <button
                     key={r}
                     type="button"
-                    disabled={!isAvailable}
                     onClick={() => setRole(r)}
-                    className={`py-3 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                    className={`py-3 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                       isSelected
                         ? 'bg-emerald-600 border-emerald-600 text-white shadow-md'
-                        : isAvailable
-                        ? 'bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
-                        : 'bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-400 opacity-40 cursor-not-allowed'
+                        : 'bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
                     }`}
                   >
                     {r}

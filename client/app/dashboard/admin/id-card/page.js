@@ -162,6 +162,7 @@ export default function IdCardPage() {
   const [studentForm, setStudentForm] = useState({
     firstName: '',
     lastName: '',
+    academicYear: '2026-2027',
     className: 'Class 10',
     section: 'Section A',
     rollNo: '',
@@ -173,6 +174,30 @@ export default function IdCardPage() {
     studentPhoto: '',
     cardTemplate: 'stoofi-emerald'
   });
+
+  // Edit Student ID Card Modal
+  const [showEditStudentModal, setShowEditStudentModal] = useState(false);
+  const [editingStudent, setEditingStudent] = useState(null);
+  const [updatingStudentCard, setUpdatingStudentCard] = useState(false);
+  const [editStudentForm, setEditStudentForm] = useState({
+    firstName: '',
+    lastName: '',
+    academicYear: '2026-2027',
+    className: 'Class 10',
+    section: 'Section A',
+    rollNo: '',
+    admissionNo: '',
+    fatherName: '',
+    phone: '',
+    gender: 'Male',
+    dob: '2008-05-14',
+    studentPhoto: '',
+    cardTemplate: 'stoofi-emerald'
+  });
+
+  // Delete Student ID Card State
+  const [deleteStudentConfirm, setDeleteStudentConfirm] = useState(null);
+  const [deletingStudent, setDeletingStudent] = useState(false);
 
   // Preview Card Modal (for both student cards & templates)
   const [viewingCard, setViewingCard] = useState(null);
@@ -389,6 +414,110 @@ export default function IdCardPage() {
       phone: '+92 300 1234567'
     }, student.cardTemplate || 'stoofi-emerald');
     showToast(`PDF downloaded for ${student.firstName} ${student.lastName}`);
+  };
+
+  // Open Edit Student ID Card Modal
+  const handleOpenEditStudent = (student) => {
+    setEditingStudent(student);
+    setEditStudentForm({
+      firstName: student.firstName || '',
+      lastName: student.lastName || '',
+      academicYear: student.academicYear || `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
+      className: student.className || 'Class 10',
+      section: student.section || 'Section A',
+      rollNo: String(student.rollNo || ''),
+      admissionNo: String(student.admissionNo || ''),
+      fatherName: student.fatherName || '',
+      phone: student.phone || '',
+      gender: student.gender || 'Male',
+      dob: student.dob || '2008-05-14',
+      studentPhoto: student.studentPhoto || student.photo || '',
+      cardTemplate: student.cardTemplate || 'stoofi-emerald'
+    });
+    setShowEditStudentModal(true);
+  };
+
+  // Handle Photo Upload in Edit Modal
+  const handleEditPhotoUpload = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('Photo size must be less than 5MB', true);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditStudentForm(prev => ({ ...prev, studentPhoto: reader.result }));
+        showToast('Profile photo uploaded successfully!');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveEditPhoto = () => {
+    setEditStudentForm(prev => ({ ...prev, studentPhoto: '' }));
+  };
+
+  // Submit Updated Student ID Card
+  const handleEditStudentSubmit = async (e) => {
+    e.preventDefault();
+    if (!editStudentForm.firstName.trim()) {
+      showToast('Student First Name is required.', true);
+      return;
+    }
+
+    try {
+      setUpdatingStudentCard(true);
+      const currentYear = new Date().getFullYear();
+      const payload = {
+        ...editStudentForm,
+        firstName: editStudentForm.firstName.trim(),
+        lastName: (editStudentForm.lastName || '').trim(),
+        academicYear: editStudentForm.academicYear || `${currentYear}-${currentYear + 1}`,
+        className: editStudentForm.className || 'Class 10',
+        section: editStudentForm.section || 'Section A',
+        gender: editStudentForm.gender || 'Male',
+        dob: editStudentForm.dob || '2008-05-14',
+        admissionNo: editStudentForm.admissionNo || `ADM-${currentYear}-${Date.now()}`
+      };
+      const res = await api.put(`/student/${editingStudent._id}`, payload);
+      if (res?.success) {
+        showToast(`ID Card for ${editStudentForm.firstName} ${editStudentForm.lastName} updated successfully!`);
+        setShowEditStudentModal(false);
+        setEditingStudent(null);
+        fetchStudents();
+        fetchData();
+      } else {
+        showToast(res?.message || 'Failed to update ID Card.', true);
+      }
+    } catch (err) {
+      console.error('Error updating student ID card:', err);
+      showToast(err?.response?.data?.message || err?.message || 'Failed to update student card.', true);
+    } finally {
+      setUpdatingStudentCard(false);
+    }
+  };
+
+  // Confirm Delete Student ID Card
+  const handleDeleteStudentSubmit = async () => {
+    if (!deleteStudentConfirm) return;
+    try {
+      setDeletingStudent(true);
+      const res = await api.delete(`/student/${deleteStudentConfirm._id}`);
+      if (res?.success) {
+        showToast('Student ID Card deleted successfully!');
+        setDeleteStudentConfirm(null);
+        fetchStudents();
+        fetchData();
+      } else {
+        showToast(res?.message || 'Failed to delete ID card.', true);
+      }
+    } catch (err) {
+      console.error('Failed to delete student ID card:', err);
+      showToast(err?.response?.data?.message || err?.message || 'Failed to delete student ID card.', true);
+    } finally {
+      setDeletingStudent(false);
+    }
   };
 
   // Open Template Modal
@@ -1043,6 +1172,24 @@ export default function IdCardPage() {
                           >
                             <Eye className="h-3.5 w-3.5" />
                           </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleOpenEditStudent(st)}
+                            className="h-7 w-7 p-0 text-zinc-600 hover:text-sky-700 hover:bg-sky-50 cursor-pointer"
+                            title="Edit Card Details"
+                          >
+                            <Edit className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setDeleteStudentConfirm(st)}
+                            className="h-7 w-7 p-0 text-zinc-600 hover:text-rose-700 hover:bg-rose-50 cursor-pointer"
+                            title="Delete Card"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -1424,6 +1571,302 @@ export default function IdCardPage() {
                   Updates in real time as you fill out details & upload photo.
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── EDIT STUDENT ID CARD MODAL (WITH LIVE PREVIEW & PHOTO EDIT) ── */}
+      {showEditStudentModal && editingStudent && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl border border-zinc-200 max-w-4xl w-full my-6 max-h-[92vh] flex flex-col overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-4 border-b border-zinc-200 bg-zinc-50 flex justify-between items-center shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-sky-600" />
+                <div>
+                  <h2 className="text-base font-bold text-zinc-950">Edit Student ID Card Details</h2>
+                  <p className="text-[11px] text-zinc-500">Update photo, credentials, class, roll number, and card styling</p>
+                </div>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => {
+                  setShowEditStudentModal(false);
+                  setEditingStudent(null);
+                }} 
+                className="text-zinc-400 hover:text-zinc-700 h-8 w-8 p-0 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+
+            {/* Modal Body: 2 Columns (Form on left, Live Card Preview on right) */}
+            <div className="flex-1 overflow-y-auto p-5 grid grid-cols-1 lg:grid-cols-12 gap-6 text-xs">
+              {/* Left Column: Form */}
+              <form onSubmit={handleEditStudentSubmit} className="lg:col-span-7 space-y-4">
+                {/* ── PROFILE PHOTO UPLOAD BOX ── */}
+                <div className="p-3.5 bg-sky-50/60 border border-sky-200 rounded-2xl flex items-center gap-4">
+                  <div className="w-16 h-20 rounded-xl border-2 border-sky-600 overflow-hidden bg-white shadow-2xs shrink-0 flex items-center justify-center relative">
+                    {editStudentForm.studentPhoto ? (
+                      <img src={editStudentForm.studentPhoto} alt="Student" className="w-full h-full object-cover" />
+                    ) : (
+                      <Camera className="w-6 h-6 text-sky-600" />
+                    )}
+                  </div>
+
+                  <div className="flex-1">
+                    <span className="text-xs font-bold text-zinc-900 block">Student Profile Picture</span>
+                    <p className="text-[11px] text-zinc-500 mt-0.5">Upload a clear portrait photo (PNG, JPG up to 5MB).</p>
+
+                    <div className="flex items-center gap-2 mt-2">
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        id="student-edit-photo-upload" 
+                        className="hidden" 
+                        onChange={handleEditPhotoUpload} 
+                      />
+                      <label 
+                        htmlFor="student-edit-photo-upload"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white text-[11px] font-bold rounded-lg cursor-pointer shadow-2xs transition-colors"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                        {editStudentForm.studentPhoto ? 'Change Photo' : 'Upload Photo'}
+                      </label>
+
+                      {editStudentForm.studentPhoto && (
+                        <button
+                          type="button"
+                          onClick={handleRemoveEditPhoto}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-white hover:bg-rose-50 text-rose-600 text-[11px] font-semibold border border-rose-200 rounded-lg cursor-pointer transition-colors"
+                        >
+                          <Trash2 className="w-3 h-3" /> Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">
+                      First Name <span className="text-rose-500">*</span>
+                    </Label>
+                    <Input 
+                      value={editStudentForm.firstName} 
+                      onChange={e => setEditStudentForm({ ...editStudentForm, firstName: e.target.value })} 
+                      placeholder="e.g. Syed Qamar" 
+                      className="bg-white border-zinc-300 text-xs" 
+                      required 
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Last Name</Label>
+                    <Input 
+                      value={editStudentForm.lastName} 
+                      onChange={e => setEditStudentForm({ ...editStudentForm, lastName: e.target.value })} 
+                      placeholder="e.g. Abbas" 
+                      className="bg-white border-zinc-300 text-xs" 
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Class</Label>
+                    <select
+                      value={editStudentForm.className}
+                      onChange={e => setEditStudentForm({ ...editStudentForm, className: e.target.value })}
+                      className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-950"
+                    >
+                      {STANDARD_CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Section</Label>
+                    <select
+                      value={editStudentForm.section}
+                      onChange={e => setEditStudentForm({ ...editStudentForm, section: e.target.value })}
+                      className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-950"
+                    >
+                      {STANDARD_SECTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Roll Number</Label>
+                    <Input 
+                      value={editStudentForm.rollNo} 
+                      onChange={e => setEditStudentForm({ ...editStudentForm, rollNo: e.target.value })} 
+                      placeholder="e.g. 101" 
+                      className="bg-white border-zinc-300 text-xs font-mono" 
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Admission No</Label>
+                    <Input 
+                      value={editStudentForm.admissionNo} 
+                      onChange={e => setEditStudentForm({ ...editStudentForm, admissionNo: e.target.value })} 
+                      placeholder="e.g. ADM-101" 
+                      className="bg-white border-zinc-300 text-xs font-mono" 
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Father / Guardian Name</Label>
+                    <Input 
+                      value={editStudentForm.fatherName} 
+                      onChange={e => setEditStudentForm({ ...editStudentForm, fatherName: e.target.value })} 
+                      placeholder="e.g. Syed Ali Shah" 
+                      className="bg-white border-zinc-300 text-xs" 
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Emergency Phone</Label>
+                    <Input 
+                      value={editStudentForm.phone} 
+                      onChange={e => setEditStudentForm({ ...editStudentForm, phone: e.target.value })} 
+                      placeholder="e.g. +92 300 9876543" 
+                      className="bg-white border-zinc-300 text-xs font-mono" 
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Date of Birth</Label>
+                    <Input 
+                      type="date"
+                      value={editStudentForm.dob} 
+                      onChange={e => setEditStudentForm({ ...editStudentForm, dob: e.target.value })} 
+                      className="bg-white border-zinc-300 text-xs" 
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Gender</Label>
+                    <select
+                      value={editStudentForm.gender}
+                      onChange={e => setEditStudentForm({ ...editStudentForm, gender: e.target.value })}
+                      className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-950"
+                    >
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Choose Design Template */}
+                <div className="space-y-1.5 pt-2 border-t border-zinc-200">
+                  <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wide">
+                    Choose Card Design Style
+                  </Label>
+                  <select 
+                    value={editStudentForm.cardTemplate} 
+                    onChange={e => setEditStudentForm({ ...editStudentForm, cardTemplate: e.target.value })} 
+                    className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-950"
+                  >
+                    {THEME_STYLES.map(t => (
+                      <option key={t.id} value={t.id}>{t.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="pt-3 flex items-center justify-end gap-2.5">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => {
+                      setShowEditStudentModal(false);
+                      setEditingStudent(null);
+                    }}
+                    className="h-9 text-xs border-zinc-300 cursor-pointer"
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    disabled={updatingStudentCard}
+                    className="h-9 text-xs bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 rounded-lg cursor-pointer"
+                  >
+                    {updatingStudentCard ? (
+                      <span className="flex items-center gap-1.5">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving Changes...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5" /> Save Changes
+                      </span>
+                    )}
+                  </Button>
+                </div>
+              </form>
+
+              {/* Right Column: Live Card Preview */}
+              <div className="lg:col-span-5 bg-zinc-50 border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center">
+                <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-3">
+                  Live Card Preview
+                </span>
+                {renderCardGraphic(editStudentForm)}
+                <p className="text-[10px] text-zinc-400 mt-3 text-center">
+                  Updates in real time as you edit details & photo.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── DELETE STUDENT ID CARD MODAL ── */}
+      {deleteStudentConfirm && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-xl shadow-2xl border border-zinc-200 max-w-sm w-full p-5 space-y-4">
+            <div className="flex items-center gap-3 text-rose-600">
+              <div className="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center">
+                <Trash2 className="w-5 h-5 text-rose-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm text-zinc-950">Delete ID Card</h3>
+                <p className="text-xs text-zinc-500">This action cannot be undone.</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-zinc-600 leading-relaxed">
+              Are you sure you want to delete the student ID card for{' '}
+              <strong className="text-zinc-900 font-bold">
+                {deleteStudentConfirm.firstName} {deleteStudentConfirm.lastName}
+              </strong>{' '}
+              ({deleteStudentConfirm.admissionNo || deleteStudentConfirm.rollNo || 'Student'})?
+            </p>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setDeleteStudentConfirm(null)}
+                disabled={deletingStudent}
+                className="text-xs cursor-pointer"
+              >
+                Cancel
+              </Button>
+              <Button 
+                size="sm" 
+                onClick={handleDeleteStudentSubmit}
+                disabled={deletingStudent}
+                className="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold cursor-pointer"
+              >
+                {deletingStudent ? (
+                  <span className="flex items-center gap-1.5">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Deleting...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5">
+                    <Trash2 className="w-3.5 h-3.5" /> Delete ID Card
+                  </span>
+                )}
+              </Button>
             </div>
           </div>
         </div>

@@ -31,7 +31,10 @@ import {
   Medal,
   ShieldCheck,
   QrCode,
-  BadgeCheck
+  BadgeCheck,
+  Camera,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,6 +42,7 @@ import { Label } from '@/components/ui/label';
 import api from '@/services/api';
 import { exportToCSV, exportToExcel, exportToPDF } from '@/lib/exportUtils';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { downloadCertificatePDF, downloadBatchCertificatesPDF } from '@/lib/certificatePdf';
 
 // 5 Standard Certificate Designs Config
 const CERTIFICATE_DESIGNS = [
@@ -112,6 +116,14 @@ function GenerateCertificateContent() {
   const [sessionFilter, setSessionFilter] = useState('2026 [Jan-Dec]');
   const [certDate, setCertDate] = useState(new Date().toISOString().split('T')[0]);
   const [searchStudentText, setSearchStudentText] = useState('');
+
+  // Customizable Wording Overrides
+  const [customWording, setCustomWording] = useState({
+    headerTitle: '',
+    headerSubtitle: '',
+    templateBody: ''
+  });
+  const [showCustomWording, setShowCustomWording] = useState(false);
 
   // Student list & Selection
   const [students, setStudents] = useState([]);
@@ -231,25 +243,63 @@ function GenerateCertificateContent() {
     fetchStudents();
   }, [classFilter, sectionFilter]);
 
-  // Active Template
+  // Active Template with overrides and field visibility flags
   const activeTemplate = useMemo(() => {
+    let base = null;
     if (selectedTemplateId) {
-      const t = templates.find(item => item._id === selectedTemplateId);
-      if (t) return t;
+      base = templates.find(item => item._id === selectedTemplateId);
     }
-    const currentDesign = CERTIFICATE_DESIGNS.find(d => d.id === activeDesignId) || CERTIFICATE_DESIGNS[0];
+    if (!base) {
+      const currentDesign = CERTIFICATE_DESIGNS.find(d => d.id === activeDesignId) || CERTIFICATE_DESIGNS[0];
+      base = {
+        title: currentDesign.name,
+        type: currentDesign.type,
+        headerTitle: currentDesign.name.toUpperCase(),
+        headerSubtitle: 'TO WHOM IT MAY CONCERN',
+        templateBody: 'This is to officially certify that [student_name], Son/Daughter of [father_name], bearing Admission No [admission_no] and Roll No [roll_no], of Class [class_name] (Section [section]) in this institution has achieved commendable academic performance and conduct during the Academic Session [academic_session]. We wish them great success in all future pursuits.',
+        footerLeft: 'Date of Issue',
+        footerCenter: 'Class Teacher',
+        footerRight: 'Principal & Authorized Seal',
+        themeStyle: activeDesignId,
+        showSchoolHeader: true,
+        showStudentPhoto: true,
+        showAdmissionNo: true,
+        showRollNo: true,
+        showClass: true,
+        showSection: true,
+        showFatherName: true,
+        showDob: true,
+        showGender: true,
+        showIssueDate: true,
+        showQrBarcode: true,
+        showSeal: true,
+        showSignatureLeft: true,
+        showSignatureCenter: true,
+        showSignatureRight: true
+      };
+    }
     return {
-      title: currentDesign.name,
-      type: currentDesign.type,
-      headerTitle: currentDesign.name.toUpperCase(),
-      headerSubtitle: 'TO WHOM IT MAY CONCERN',
-      templateBody: 'This is to officially certify that [student_name], Son/Daughter of [father_name], bearing Admission No [admission_no] and Roll No [roll_no], of Class [class_name] (Section [section]) in this institution has achieved commendable academic performance and conduct during the Academic Session [academic_session]. We wish them great success in all future pursuits.',
-      footerLeft: 'Date of Issue',
-      footerCenter: 'Class Teacher',
-      footerRight: 'Principal & Authorized Seal',
-      themeStyle: activeDesignId
+      ...base,
+      headerTitle: customWording.headerTitle || base.headerTitle,
+      headerSubtitle: customWording.headerSubtitle || base.headerSubtitle,
+      templateBody: customWording.templateBody || base.templateBody,
+      showSchoolHeader: base.showSchoolHeader !== false,
+      showStudentPhoto: base.showStudentPhoto !== false,
+      showAdmissionNo: base.showAdmissionNo !== false,
+      showRollNo: base.showRollNo !== false,
+      showClass: base.showClass !== false,
+      showSection: base.showSection !== false,
+      showFatherName: base.showFatherName !== false,
+      showDob: base.showDob !== false,
+      showGender: base.showGender !== false,
+      showIssueDate: base.showIssueDate !== false,
+      showQrBarcode: base.showQrBarcode !== false,
+      showSeal: base.showSeal !== false,
+      showSignatureLeft: base.showSignatureLeft !== false,
+      showSignatureCenter: base.showSignatureCenter !== false,
+      showSignatureRight: base.showSignatureRight !== false
     };
-  }, [templates, selectedTemplateId, activeDesignId]);
+  }, [templates, selectedTemplateId, activeDesignId, customWording]);
 
   const toggleSelectAll = () => {
     if (selectedIds.length === students.length) {
@@ -292,11 +342,17 @@ function GenerateCertificateContent() {
 
     return rawText
       .split('[student_name]').join(stName)
+      .split('{{studentName}}').join(stName)
       .split('[father_name]').join(fName)
+      .split('{{fatherName}}').join(fName)
       .split('[admission_no]').join(admNo)
+      .split('{{admissionNumber}}').join(admNo)
       .split('[roll_no]').join(rollNo)
+      .split('{{rollNumber}}').join(rollNo)
       .split('[class_name]').join(clsName)
+      .split('{{class}}').join(clsName)
       .split('[section]').join(secName)
+      .split('{{section}}').join(secName)
       .split('[academic_session]').join(sessionFilter || '2026 [Jan-Dec]')
       .split('[academic_year]').join(sessionFilter || '2026 [Jan-Dec]')
       .split('[dob]').join(formattedDob)
@@ -308,7 +364,7 @@ function GenerateCertificateContent() {
       .split('[tc_no]').join(`TC-${student.admissionNo || '2026-084'}`);
   };
 
-  // Helper to Render High-Resolution Certificate in Selected Design
+  // Helper to Render High-Resolution Certificate in Selected Design honoring all visibility toggles
   const renderCertificateGraphic = (student, isInspect = false) => {
     const stName = `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.name || 'Muhammad Rayyan';
     const fName = student.fatherName || 'Tariq Mehmood';
@@ -318,6 +374,22 @@ function GenerateCertificateContent() {
     const secName = student.section || 'A';
     const formattedDate = new Date(certDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     const formattedBody = formatCertificateText(activeTemplate.templateBody, student);
+    const photo = student.studentPhoto || student.photo || '';
+
+    // Field visibility flags
+    const showHeader = activeTemplate.showSchoolHeader !== false;
+    const showPhoto = activeTemplate.showStudentPhoto !== false;
+    const showAdm = activeTemplate.showAdmissionNo !== false;
+    const showRoll = activeTemplate.showRollNo !== false;
+    const showClassFld = activeTemplate.showClass !== false;
+    const showSec = activeTemplate.showSection !== false;
+    const showFather = activeTemplate.showFatherName !== false;
+    const showDobFld = activeTemplate.showDob !== false;
+    const showSeal = activeTemplate.showSeal !== false;
+    const showQr = activeTemplate.showQrBarcode !== false;
+    const showSignLeft = activeTemplate.showSignatureLeft !== false;
+    const showSignCenter = activeTemplate.showSignatureCenter !== false;
+    const showSignRight = activeTemplate.showSignatureRight !== false;
 
     // ── DESIGN 1: Imperial Classical Gold Excellence ──
     if (activeDesignId === 'classic-gold') {
@@ -331,14 +403,18 @@ function GenerateCertificateContent() {
 
           {/* Header */}
           <div className="text-center relative z-10">
-            <div className="flex items-center justify-center gap-2 text-amber-700 font-serif text-xs uppercase tracking-widest font-bold mb-1">
-              <Crown className="w-5 h-5 text-amber-600" />
-              <span>{schoolName}</span>
-            </div>
-            <p className="text-[10px] text-zinc-500 tracking-wide">{schoolAddress}</p>
-            <div className="w-32 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto my-3"></div>
+            {showHeader && (
+              <>
+                <div className="flex items-center justify-center gap-2 text-amber-700 font-serif text-xs uppercase tracking-widest font-bold mb-1">
+                  <Crown className="w-5 h-5 text-amber-600" />
+                  <span>{schoolName}</span>
+                </div>
+                <p className="text-[10px] text-zinc-500 tracking-wide">{schoolAddress}</p>
+                <div className="w-32 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto my-3"></div>
+              </>
+            )}
             
-            <h2 className="text-2xl sm:text-3xl font-serif font-extrabold text-amber-950 tracking-wider uppercase">
+            <h2 className="text-2xl sm:text-3xl font-serif font-extrabold text-amber-950 tracking-wider uppercase mt-1">
               {activeTemplate.headerTitle || 'Certificate of Academic Excellence'}
             </h2>
             <p className="text-xs font-semibold text-amber-800/80 uppercase tracking-widest mt-1">
@@ -348,38 +424,66 @@ function GenerateCertificateContent() {
 
           {/* Body */}
           <div className="my-8 text-center space-y-4 relative z-10">
+            {/* Student Photo Badge if enabled */}
+            {showPhoto && (
+              <div className="flex justify-center mb-2">
+                <div className="w-16 h-20 rounded-xl border-2 border-amber-500 p-0.5 bg-white shadow-md overflow-hidden flex items-center justify-center">
+                  {photo ? (
+                    <img src={photo} alt="Student" className="w-full h-full object-cover rounded-lg" />
+                  ) : (
+                    <Camera className="w-6 h-6 text-amber-600" />
+                  )}
+                </div>
+              </div>
+            )}
+
             <p className="text-xs uppercase text-zinc-500 font-bold tracking-widest">This Certificate is Proudly Bestowed Upon</p>
             <div className="text-2xl sm:text-3xl font-serif font-black text-amber-950 underline decoration-amber-400 underline-offset-8 capitalize">
               {stName}
             </div>
-            <p className="text-xs font-semibold text-zinc-600">
-              Son/Daughter of <strong className="text-zinc-900">{fName}</strong> | Admission No: <strong className="text-zinc-900">{admNo}</strong> | Roll No: <strong className="text-zinc-900">{rollNo}</strong>
-            </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-2 text-xs font-semibold text-zinc-600 pt-1">
+              {showFather && <span>Son/Daughter of <strong className="text-zinc-900">{fName}</strong></span>}
+              {showAdm && <span>| Admission No: <strong className="text-zinc-900">{admNo}</strong></span>}
+              {showRoll && <span>| Roll No: <strong className="text-zinc-900">{rollNo}</strong></span>}
+              {showClassFld && <span>| Class: <strong className="text-zinc-900">{clsName}</strong></span>}
+              {showSec && <span>(<strong className="text-zinc-900">{secName}</strong>)</span>}
+              {showDobFld && student.dob && <span>| DOB: <strong className="text-zinc-900">{student.dob}</strong></span>}
+            </div>
+
             <p className="text-sm text-zinc-700 max-w-2xl mx-auto leading-relaxed font-serif pt-2 italic">
-              &quot;{formattedBody}&quot;
+              &ldquo;{formattedBody}&rdquo;
             </p>
           </div>
 
           {/* Footer & Gold Seal */}
           <div className="flex items-end justify-between pt-8 border-t border-amber-200/80 relative z-10">
-            <div className="text-center">
-              <div className="text-xs font-bold text-zinc-800">{formattedDate}</div>
-              <div className="w-28 h-0.5 bg-zinc-400 mt-1 mb-0.5"></div>
-              <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerLeft || 'Date of Issue'}</p>
-            </div>
-
-            {/* Gold Ribbon Seal Graphic */}
-            <div className="flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-600 via-yellow-400 to-amber-700 shadow-md border-2 border-amber-200 flex items-center justify-center text-white font-serif font-bold text-center text-[9px] uppercase leading-tight p-1">
-                Official Seal
+            {showSignLeft && (
+              <div className="text-center">
+                <div className="text-xs font-bold text-zinc-800">{formattedDate}</div>
+                <div className="w-28 h-0.5 bg-zinc-400 mt-1 mb-0.5"></div>
+                <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerLeft || 'Date of Issue'}</p>
               </div>
-            </div>
+            )}
 
-            <div className="text-center">
-              <div className="text-xs font-bold text-amber-950 font-serif italic">Principal Signature</div>
-              <div className="w-36 h-0.5 bg-amber-600 mt-1 mb-0.5"></div>
-              <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Principal & Authorized Seal'}</p>
-            </div>
+            {showSeal && (
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-600 via-yellow-400 to-amber-700 shadow-md border-2 border-amber-200 flex items-center justify-center text-white font-serif font-bold text-center text-[9px] uppercase leading-tight p-1">
+                  Official Seal
+                </div>
+                {showQr && (
+                  <span className="text-[8.5px] font-mono font-bold text-amber-800 mt-1">VERIFIED: {admNo}</span>
+                )}
+              </div>
+            )}
+
+            {showSignRight && (
+              <div className="text-center">
+                <div className="text-xs font-bold text-amber-950 font-serif italic">Principal Signature</div>
+                <div className="w-36 h-0.5 bg-amber-600 mt-1 mb-0.5"></div>
+                <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Principal & Authorized Seal'}</p>
+              </div>
+            )}
           </div>
         </div>
       );
@@ -389,15 +493,18 @@ function GenerateCertificateContent() {
     if (activeDesignId === 'stoofi-emerald') {
       return (
         <div className={`bg-white text-zinc-900 border-4 border-emerald-700 p-8 sm:p-12 rounded-3xl shadow-xl w-full ${isInspect ? 'max-w-4xl' : 'max-w-full'} flex flex-col justify-between relative overflow-hidden select-none certificate-page`}>
-          {/* Emerald Top Stripe */}
           <div className="absolute top-0 left-0 right-0 h-3 bg-gradient-to-r from-emerald-700 to-teal-800"></div>
 
           <div className="text-center relative z-10 pt-2">
-            <div className="text-xs font-black uppercase text-emerald-800 tracking-wider flex items-center justify-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>{schoolName}</span>
-            </div>
-            <p className="text-[10px] text-zinc-500">{schoolAddress}</p>
+            {showHeader && (
+              <>
+                <div className="text-xs font-black uppercase text-emerald-800 tracking-wider flex items-center justify-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>{schoolName}</span>
+                </div>
+                <p className="text-[10px] text-zinc-500">{schoolAddress}</p>
+              </>
+            )}
             
             <h2 className="text-2xl sm:text-3xl font-black text-emerald-950 tracking-tight uppercase mt-3">
               {activeTemplate.headerTitle || 'Character & Conduct Certificate'}
@@ -408,39 +515,58 @@ function GenerateCertificateContent() {
           </div>
 
           <div className="my-8 text-center space-y-3 relative z-10">
+            {showPhoto && (
+              <div className="flex justify-center mb-2">
+                <div className="w-16 h-20 rounded-xl border-2 border-emerald-600 p-0.5 bg-white shadow-md overflow-hidden flex items-center justify-center">
+                  {photo ? (
+                    <img src={photo} alt="Student" className="w-full h-full object-cover rounded-lg" />
+                  ) : (
+                    <Camera className="w-6 h-6 text-emerald-600" />
+                  )}
+                </div>
+              </div>
+            )}
+
             <p className="text-xs uppercase text-zinc-500 font-bold">This is to officially certify that</p>
             <div className="text-2xl sm:text-3xl font-black text-emerald-950 tracking-tight capitalize">
               {stName}
             </div>
-            <div className="inline-flex items-center gap-3 text-xs font-semibold text-zinc-600 bg-emerald-50/60 px-4 py-1.5 rounded-full border border-emerald-100">
-              <span>Adm No: <strong className="text-emerald-950">{admNo}</strong></span>
-              <span>•</span>
-              <span>Class: <strong className="text-emerald-950">{clsName} ({secName})</strong></span>
-              <span>•</span>
-              <span>Session: <strong className="text-emerald-950">{sessionFilter}</strong></span>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-semibold text-zinc-600 bg-emerald-50/60 px-4 py-1.5 rounded-full border border-emerald-100 max-w-xl mx-auto">
+              {showFather && <span>Father: <strong className="text-emerald-950">{fName}</strong></span>}
+              {showAdm && <span>Adm No: <strong className="text-emerald-950">{admNo}</strong></span>}
+              {showRoll && <span>Roll: <strong className="text-emerald-950">{rollNo}</strong></span>}
+              {showClassFld && <span>Class: <strong className="text-emerald-950">{clsName} ({secName})</strong></span>}
             </div>
+
             <p className="text-sm text-zinc-700 max-w-2xl mx-auto leading-relaxed pt-3 font-medium">
               {formattedBody}
             </p>
           </div>
 
           <div className="flex items-end justify-between pt-8 border-t border-emerald-100 relative z-10">
-            <div className="text-center">
-              <div className="text-xs font-bold text-zinc-800">{formattedDate}</div>
-              <div className="w-28 h-0.5 bg-emerald-600 mt-1 mb-0.5"></div>
-              <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerLeft || 'Date of Issue'}</p>
-            </div>
+            {showSignLeft && (
+              <div className="text-center">
+                <div className="text-xs font-bold text-zinc-800">{formattedDate}</div>
+                <div className="w-28 h-0.5 bg-emerald-600 mt-1 mb-0.5"></div>
+                <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerLeft || 'Date of Issue'}</p>
+              </div>
+            )}
 
-            <div className="flex items-center gap-1 text-[10px] font-mono text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
-              <QrCode className="w-4 h-4 text-emerald-700" />
-              <span>VERIFIED STOOFI ID: {admNo}</span>
-            </div>
+            {showQr && (
+              <div className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
+                <QrCode className="w-4 h-4 text-emerald-700" />
+                <span>VERIFIED ID: {admNo}</span>
+              </div>
+            )}
 
-            <div className="text-center">
-              <div className="text-xs font-bold text-emerald-950">Head of Institution</div>
-              <div className="w-36 h-0.5 bg-emerald-700 mt-1 mb-0.5"></div>
-              <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Principal Signature'}</p>
-            </div>
+            {showSignRight && (
+              <div className="text-center">
+                <div className="text-xs font-bold text-emerald-950">Head of Institution</div>
+                <div className="w-36 h-0.5 bg-emerald-700 mt-1 mb-0.5"></div>
+                <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Principal Signature'}</p>
+              </div>
+            )}
           </div>
         </div>
       );
@@ -449,52 +575,77 @@ function GenerateCertificateContent() {
     // ── DESIGN 3: Royal Navy Diploma ──
     if (activeDesignId === 'royal-navy') {
       return (
-        <div className={`bg-[#f9fafc] text-zinc-900 border-6 border-sky-950 p-8 sm:p-12 rounded-2xl shadow-xl w-full ${isInspect ? 'max-w-4xl' : 'max-w-full'} flex flex-col justify-between relative overflow-hidden select-none certificate-page`}>
-          <div className="absolute inset-2 border-2 border-amber-500/80 rounded-lg pointer-events-none"></div>
-
+        <div className={`bg-[#fbfcff] text-zinc-900 border-4 border-sky-900 p-8 sm:p-12 rounded-3xl shadow-xl w-full ${isInspect ? 'max-w-4xl' : 'max-w-full'} flex flex-col justify-between relative overflow-hidden select-none certificate-page`}>
           <div className="text-center relative z-10">
-            <div className="text-xs font-black uppercase text-sky-900 tracking-widest">{schoolName}</div>
-            <p className="text-[10px] text-zinc-500">{schoolAddress}</p>
+            {showHeader && (
+              <>
+                <div className="text-xs font-black uppercase text-sky-950 tracking-wider flex items-center justify-center gap-1.5">
+                  <Award className="w-5 h-5 text-sky-800" />
+                  <span>{schoolName}</span>
+                </div>
+                <p className="text-[10px] text-zinc-500">{schoolAddress}</p>
+              </>
+            )}
             
-            <h2 className="text-2xl sm:text-3xl font-serif font-black text-sky-950 tracking-wider uppercase mt-3">
-              {activeTemplate.headerTitle || 'School Leaving & Transfer Diploma'}
+            <h2 className="text-2xl sm:text-3xl font-serif font-black text-sky-950 tracking-wide uppercase mt-3">
+              {activeTemplate.headerTitle || 'School Leaving & Transfer Certificate'}
             </h2>
-            <p className="text-xs font-semibold text-amber-700 uppercase tracking-widest mt-1">
+            <p className="text-xs font-bold text-sky-800 uppercase tracking-widest mt-1">
               {activeTemplate.headerSubtitle || 'OFFICIAL RECORD OF CLEARANCE & ADVANCEMENT'}
             </p>
           </div>
 
-          <div className="my-8 text-center space-y-3 relative z-10">
-            <p className="text-xs uppercase text-zinc-500 font-bold">This is to certify that</p>
+          <div className="my-8 text-center space-y-4 relative z-10">
+            {showPhoto && (
+              <div className="flex justify-center mb-2">
+                <div className="w-16 h-20 rounded-xl border-2 border-sky-900 p-0.5 bg-white shadow-md overflow-hidden flex items-center justify-center">
+                  {photo ? (
+                    <img src={photo} alt="Student" className="w-full h-full object-cover rounded-lg" />
+                  ) : (
+                    <Camera className="w-6 h-6 text-sky-800" />
+                  )}
+                </div>
+              </div>
+            )}
+
+            <p className="text-xs uppercase text-zinc-500 font-bold font-serif">Record of Student Clearance Bestowed Upon</p>
             <div className="text-2xl sm:text-3xl font-serif font-black text-sky-950 capitalize">
               {stName}
             </div>
-            <p className="text-xs font-semibold text-zinc-600">
-              Father Name: <strong className="text-zinc-900">{fName}</strong> | Class: <strong className="text-sky-900">{clsName} ({secName})</strong>
-            </p>
-            <p className="text-sm text-zinc-700 max-w-2xl mx-auto leading-relaxed pt-2 font-serif">
-              {formattedBody}
+
+            <div className="flex flex-wrap items-center justify-center gap-2 text-xs font-semibold text-zinc-600">
+              {showFather && <span>Father: <strong className="text-zinc-900">{fName}</strong></span>}
+              {showAdm && <span>| Adm No: <strong className="text-zinc-900">{admNo}</strong></span>}
+              {showClassFld && <span>| Class: <strong className="text-zinc-900">{clsName} ({secName})</strong></span>}
+            </div>
+
+            <p className="text-sm text-zinc-700 max-w-2xl mx-auto leading-relaxed pt-2 font-serif italic">
+              &ldquo;{formattedBody}&rdquo;
             </p>
           </div>
 
           <div className="flex items-end justify-between pt-8 border-t border-sky-200 relative z-10">
-            <div className="text-center">
-              <div className="text-xs font-bold text-zinc-800">{formattedDate}</div>
-              <div className="w-28 h-0.5 bg-sky-900 mt-1 mb-0.5"></div>
-              <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerLeft || 'Prepared By / Date'}</p>
-            </div>
+            {showSignLeft && (
+              <div className="text-center">
+                <div className="text-xs font-bold text-zinc-800">{formattedDate}</div>
+                <div className="w-28 h-0.5 bg-sky-900 mt-1 mb-0.5"></div>
+                <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerLeft || 'Date of Record'}</p>
+              </div>
+            )}
 
-            <div className="text-center">
-              <div className="text-xs font-bold text-sky-950 font-serif">Checked by Administration</div>
-              <div className="w-36 h-0.5 bg-sky-900 mt-1 mb-0.5"></div>
-              <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerCenter || 'Administrative Seal'}</p>
-            </div>
+            {showSeal && (
+              <div className="w-14 h-14 rounded-full border-2 border-sky-900 flex items-center justify-center text-[9px] font-bold uppercase text-sky-950 bg-sky-50">
+                Seal
+              </div>
+            )}
 
-            <div className="text-center">
-              <div className="text-xs font-bold text-sky-950 font-serif">Principal & Registrar</div>
-              <div className="w-36 h-0.5 bg-sky-950 mt-1 mb-0.5"></div>
-              <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Authorized Signatory'}</p>
-            </div>
+            {showSignRight && (
+              <div className="text-center">
+                <div className="text-xs font-bold text-sky-950 font-serif">Principal / Registrar</div>
+                <div className="w-36 h-0.5 bg-sky-900 mt-1 mb-0.5"></div>
+                <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Authorized Clearance'}</p>
+              </div>
+            )}
           </div>
         </div>
       );
@@ -505,11 +656,15 @@ function GenerateCertificateContent() {
       return (
         <div className={`bg-[#fffbfb] text-zinc-900 border-4 border-rose-800 p-8 sm:p-12 rounded-3xl shadow-xl w-full ${isInspect ? 'max-w-4xl' : 'max-w-full'} flex flex-col justify-between relative overflow-hidden select-none certificate-page`}>
           <div className="text-center relative z-10">
-            <div className="text-xs font-black uppercase text-rose-900 tracking-wider flex items-center justify-center gap-1.5">
-              <Medal className="w-5 h-5 text-amber-500" />
-              <span>{schoolName}</span>
-            </div>
-            <p className="text-[10px] text-zinc-500">{schoolAddress}</p>
+            {showHeader && (
+              <>
+                <div className="text-xs font-black uppercase text-rose-900 tracking-wider flex items-center justify-center gap-1.5">
+                  <Medal className="w-5 h-5 text-amber-500" />
+                  <span>{schoolName}</span>
+                </div>
+                <p className="text-[10px] text-zinc-500">{schoolAddress}</p>
+              </>
+            )}
             
             <h2 className="text-2xl sm:text-3xl font-black text-rose-950 tracking-tight uppercase mt-3">
               {activeTemplate.headerTitle || 'Certificate of Sports & Merit'}
@@ -520,36 +675,57 @@ function GenerateCertificateContent() {
           </div>
 
           <div className="my-8 text-center space-y-3 relative z-10">
+            {showPhoto && (
+              <div className="flex justify-center mb-2">
+                <div className="w-16 h-20 rounded-xl border-2 border-rose-700 p-0.5 bg-white shadow-md overflow-hidden flex items-center justify-center">
+                  {photo ? (
+                    <img src={photo} alt="Student" className="w-full h-full object-cover rounded-lg" />
+                  ) : (
+                    <Camera className="w-6 h-6 text-rose-700" />
+                  )}
+                </div>
+              </div>
+            )}
+
             <p className="text-xs uppercase text-zinc-500 font-bold">Proudly Awarded to Champion</p>
             <div className="text-2xl sm:text-3xl font-black text-rose-950 capitalize">
               {stName}
             </div>
-            <p className="text-xs font-bold text-rose-900 bg-rose-50 inline-block px-4 py-1 rounded-full border border-rose-200">
-              Admission No: {admNo} | Class: {clsName} ({secName})
-            </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-2 text-xs font-bold text-rose-900">
+              {showAdm && <span>Admission No: {admNo}</span>}
+              {showClassFld && <span>| Class: {clsName} ({secName})</span>}
+            </div>
+
             <p className="text-sm text-zinc-700 max-w-2xl mx-auto leading-relaxed pt-2 font-medium">
               {formattedBody}
             </p>
           </div>
 
           <div className="flex items-end justify-between pt-8 border-t border-rose-200 relative z-10">
-            <div className="text-center">
-              <div className="text-xs font-bold text-zinc-800">{formattedDate}</div>
-              <div className="w-28 h-0.5 bg-rose-800 mt-1 mb-0.5"></div>
-              <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerLeft || 'Date of Event'}</p>
-            </div>
+            {showSignLeft && (
+              <div className="text-center">
+                <div className="text-xs font-bold text-zinc-800">{formattedDate}</div>
+                <div className="w-28 h-0.5 bg-rose-800 mt-1 mb-0.5"></div>
+                <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerLeft || 'Date of Event'}</p>
+              </div>
+            )}
 
-            <div className="text-center">
-              <div className="text-xs font-bold text-rose-950">Sports Coordinator</div>
-              <div className="w-32 h-0.5 bg-rose-800 mt-1 mb-0.5"></div>
-              <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerCenter || 'Sports Director'}</p>
-            </div>
+            {showSignCenter && (
+              <div className="text-center">
+                <div className="text-xs font-bold text-rose-950">Sports Coordinator</div>
+                <div className="w-32 h-0.5 bg-rose-800 mt-1 mb-0.5"></div>
+                <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerCenter || 'Sports Director'}</p>
+              </div>
+            )}
 
-            <div className="text-center">
-              <div className="text-xs font-bold text-rose-950">Principal / Patron</div>
-              <div className="w-36 h-0.5 bg-rose-800 mt-1 mb-0.5"></div>
-              <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Principal Seal'}</p>
-            </div>
+            {showSignRight && (
+              <div className="text-center">
+                <div className="text-xs font-bold text-rose-950">Principal / Patron</div>
+                <div className="w-36 h-0.5 bg-rose-800 mt-1 mb-0.5"></div>
+                <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Principal Seal'}</p>
+              </div>
+            )}
           </div>
         </div>
       );
@@ -559,11 +735,15 @@ function GenerateCertificateContent() {
     return (
       <div className={`bg-white text-zinc-900 border-2 border-zinc-900 p-8 sm:p-12 rounded-2xl shadow-xl w-full ${isInspect ? 'max-w-4xl' : 'max-w-full'} flex flex-col justify-between relative overflow-hidden select-none certificate-page`}>
         <div className="text-center relative z-10">
-          <div className="text-xs font-extrabold uppercase text-zinc-900 tracking-widest flex items-center justify-center gap-1.5">
-            <BadgeCheck className="w-4 h-4 text-emerald-600" />
-            <span>{schoolName}</span>
-          </div>
-          <p className="text-[10px] text-zinc-500">{schoolAddress}</p>
+          {showHeader && (
+            <>
+              <div className="text-xs font-extrabold uppercase text-zinc-900 tracking-widest flex items-center justify-center gap-1.5">
+                <BadgeCheck className="w-4 h-4 text-emerald-600" />
+                <span>{schoolName}</span>
+              </div>
+              <p className="text-[10px] text-zinc-500">{schoolAddress}</p>
+            </>
+          )}
           
           <h2 className="text-2xl sm:text-3xl font-black text-zinc-950 tracking-tight uppercase mt-3">
             {activeTemplate.headerTitle || 'Certificate of Appreciation'}
@@ -574,12 +754,25 @@ function GenerateCertificateContent() {
         </div>
 
         <div className="my-8 text-center space-y-3 relative z-10">
+          {showPhoto && (
+            <div className="flex justify-center mb-2">
+              <div className="w-16 h-20 rounded-xl border border-zinc-400 p-0.5 bg-white shadow-xs overflow-hidden flex items-center justify-center">
+                {photo ? (
+                  <img src={photo} alt="Student" className="w-full h-full object-cover rounded-lg" />
+                ) : (
+                  <Camera className="w-6 h-6 text-zinc-700" />
+                )}
+              </div>
+            </div>
+          )}
+
           <p className="text-xs uppercase text-zinc-400 font-semibold tracking-wider">This credential is presented to</p>
           <div className="text-2xl sm:text-3xl font-black text-zinc-950 tracking-tight capitalize">
             {stName}
           </div>
           <div className="text-xs font-mono text-zinc-600">
-            Admission No: <strong>{admNo}</strong> | Class: <strong>{clsName} ({secName})</strong>
+            {showAdm && <span>Admission No: <strong>{admNo}</strong></span>}
+            {showClassFld && <span> | Class: <strong>{clsName} ({secName})</strong></span>}
           </div>
           <p className="text-sm text-zinc-700 max-w-2xl mx-auto leading-relaxed pt-2">
             {formattedBody}
@@ -587,22 +780,28 @@ function GenerateCertificateContent() {
         </div>
 
         <div className="flex items-end justify-between pt-8 border-t border-zinc-200 relative z-10">
-          <div className="text-center">
-            <div className="text-xs font-bold text-zinc-800 font-mono">{formattedDate}</div>
-            <div className="w-28 h-0.5 bg-zinc-900 mt-1 mb-0.5"></div>
-            <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerLeft || 'Date of Presentation'}</p>
-          </div>
+          {showSignLeft && (
+            <div className="text-center">
+              <div className="text-xs font-bold text-zinc-800 font-mono">{formattedDate}</div>
+              <div className="w-28 h-0.5 bg-zinc-900 mt-1 mb-0.5"></div>
+              <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerLeft || 'Date of Presentation'}</p>
+            </div>
+          )}
 
-          <div className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-700 bg-zinc-50 px-3 py-1.5 rounded-lg border border-zinc-200">
-            <QrCode className="w-4 h-4 text-zinc-900" />
-            <span>ID: STO-CERT-{student._id ? String(student._id).slice(-6).toUpperCase() : '2026-X'}</span>
-          </div>
+          {showQr && (
+            <div className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-700 bg-zinc-50 px-3 py-1.5 rounded-lg border border-zinc-200">
+              <QrCode className="w-4 h-4 text-zinc-900" />
+              <span>ID: STO-CERT-{student._id ? String(student._id).slice(-6).toUpperCase() : '2026-X'}</span>
+            </div>
+          )}
 
-          <div className="text-center">
-            <div className="text-xs font-bold text-zinc-950">Principal & Authorized Seal</div>
-            <div className="w-36 h-0.5 bg-zinc-900 mt-1 mb-0.5"></div>
-            <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Digital Authorized Sign'}</p>
-          </div>
+          {showSignRight && (
+            <div className="text-center">
+              <div className="text-xs font-bold text-zinc-950">Principal & Authorized Seal</div>
+              <div className="w-36 h-0.5 bg-zinc-900 mt-1 mb-0.5"></div>
+              <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Digital Authorized Sign'}</p>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -635,16 +834,16 @@ function GenerateCertificateContent() {
             Generate Certificates
           </h1>
           <p className="text-xs text-zinc-500 mt-0.5">
-            Select from 5 certificate designs, filter enrolled students, and download or print high-resolution certificates.
+            Select certificate design, filter enrolled students, and download or print high-resolution certificates
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Link 
             href="/dashboard/admin/certificate"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 bg-white text-zinc-800 text-xs font-semibold hover:bg-zinc-50 transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-600 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
           >
-            <Settings className="w-3.5 h-3.5 text-zinc-500" />
-            Certificate Templates ({templates.length})
+            <Settings className="w-3.5 h-3.5" />
+            Manage Templates & Field Settings
           </Link>
           <div className="hidden md:flex items-center text-xs text-zinc-400 bg-white border border-zinc-200 px-3 py-1.5 rounded-lg">
             <Link href="/dashboard" className="hover:text-zinc-700 transition-colors">Dashboard</Link>
@@ -656,13 +855,13 @@ function GenerateCertificateContent() {
         </div>
       </div>
 
-      {/* ── 5 INTERACTIVE CERTIFICATE DESIGN SELECTOR TABS ── */}
+      {/* ── 1. 5 INTERACTIVE CERTIFICATE DESIGN SELECTOR TABS ── */}
       <div className="bg-white border border-zinc-200 shadow-xs rounded-2xl p-5 print:hidden">
         <div className="flex items-center justify-between pb-3 mb-3 border-b border-zinc-100">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-amber-600" />
             <h2 className="text-xs font-bold text-zinc-900 uppercase tracking-wider">
-              Step 1: Choose Certificate Design (5 Available Layouts)
+              Step 1: Choose Certificate Design Style (5 Available Layouts)
             </h2>
           </div>
           <span className="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
@@ -713,25 +912,25 @@ function GenerateCertificateContent() {
         </div>
       </div>
 
-      {/* ── SEARCH CRITERIA & FILTERS ── */}
+      {/* ── 2. SEARCH CRITERIA & FILTERS ── */}
       <div className="bg-white border border-zinc-200 shadow-xs rounded-2xl p-5 space-y-4 print:hidden">
         <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
           <h2 className="text-xs font-bold text-zinc-950 uppercase tracking-wider flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-amber-500"></span>
-            Step 2: Filter Students & Issue Date
+            Step 2: Filter Students & Target Class (&ldquo;Kis Ky Liye Hai&rdquo;)
           </h2>
-          <span className="text-xs text-zinc-400">Real-time Student Database</span>
+          <span className="text-xs text-zinc-400">Live Database Records</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Design Template Dropdown */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-zinc-700">Design Template <span className="text-rose-500">*</span></Label>
+            <Label className="text-xs font-semibold text-zinc-700">Certificate Format <span className="text-rose-500">*</span></Label>
             <SearchableSelect
               name="selectedTemplateId"
               value={selectedTemplateId} 
               onChange={e => setSelectedTemplateId(e.target.value)}
-              options={CERTIFICATE_DESIGNS.map(d => ({ value: d.id, label: `Design ${d.num}: ${d.name}` }))}
+              options={templates.map(t => ({ value: t._id, label: t.title }))}
               placeholder="Select Template..."
             />
           </div>
@@ -794,14 +993,73 @@ function GenerateCertificateContent() {
           <Button
             type="button"
             onClick={fetchStudents}
-            className="bg-zinc-900 hover:bg-zinc-800 text-white font-semibold text-xs h-9 px-4 shrink-0"
+            className="bg-zinc-900 hover:bg-zinc-800 text-white font-semibold text-xs h-9 px-4 shrink-0 cursor-pointer"
           >
-            <Search className="w-3.5 h-3.5 mr-1.5" /> Filter
+            <Search className="w-3.5 h-3.5 mr-1.5" /> Filter Students
           </Button>
+        </div>
+
+        {/* ── EXPANDABLE WORDING OVERRIDE (KIA LIKHA HAI) ── */}
+        <div className="pt-3 border-t border-zinc-100">
+          <button
+            type="button"
+            onClick={() => setShowCustomWording(!showCustomWording)}
+            className="flex items-center justify-between w-full p-2.5 bg-zinc-50 hover:bg-zinc-100/80 rounded-xl text-xs font-bold text-zinc-800 transition-colors cursor-pointer"
+          >
+            <span className="flex items-center gap-2">
+              <FileText className="w-4 h-4 text-amber-600" />
+              Customize Certificate Wording & Citation for this Print (&ldquo;Kia Likha Hai&rdquo;)
+            </span>
+            {showCustomWording ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+
+          {showCustomWording && (
+            <div className="mt-3 p-4 bg-zinc-50/60 border border-zinc-200 rounded-xl space-y-3 animate-in fade-in duration-150">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-zinc-700">Header Title</Label>
+                  <Input 
+                    value={customWording.headerTitle} 
+                    onChange={e => setCustomWording({ ...customWording, headerTitle: e.target.value })} 
+                    placeholder={activeTemplate.headerTitle || 'CERTIFICATE OF EXCELLENCE'} 
+                    className="bg-white border-zinc-300 text-xs" 
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-zinc-700">Header Subtitle / Ribbon</Label>
+                  <Input 
+                    value={customWording.headerSubtitle} 
+                    onChange={e => setCustomWording({ ...customWording, headerSubtitle: e.target.value })} 
+                    placeholder={activeTemplate.headerSubtitle || 'TO WHOM IT MAY CONCERN'} 
+                    className="bg-white border-zinc-300 text-xs" 
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-zinc-700">Certificate Body Citation Text</Label>
+                <textarea 
+                  value={customWording.templateBody} 
+                  onChange={e => setCustomWording({ ...customWording, templateBody: e.target.value })} 
+                  placeholder={activeTemplate.templateBody} 
+                  rows={3} 
+                  className="w-full rounded-lg border border-zinc-300 bg-white p-2.5 text-xs text-zinc-950 font-sans leading-relaxed" 
+                />
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setCustomWording({ headerTitle: '', headerSubtitle: '', templateBody: '' })}
+                  className="text-[11px] text-amber-800 hover:underline font-bold cursor-pointer"
+                >
+                  Reset to Template Default
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ── ACTION BAR & PRINT TOOLS ── */}
+      {/* ── 3. ACTION BAR & BATCH TOOLS ── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white border border-zinc-200 shadow-xs rounded-2xl p-4 print:hidden">
         <div className="flex items-center gap-4">
           <button 
@@ -818,11 +1076,24 @@ function GenerateCertificateContent() {
           </button>
           <span className="text-xs text-zinc-300">|</span>
           <span className="text-xs text-zinc-500">
-            Selected for Print: <strong className="text-zinc-950 font-bold">{selectedStudents.length}</strong>
+            Selected for Generation: <strong className="text-zinc-950 font-bold">{selectedStudents.length}</strong>
           </span>
         </div>
 
         <div className="flex items-center gap-2">
+          <Button 
+            onClick={() => {
+              downloadBatchCertificatesPDF(selectedStudents, activeTemplate, schoolSetting);
+              showToast(`Batch PDF Certificate generated for ${selectedStudents.length} students!`);
+            }}
+            disabled={selectedStudents.length === 0}
+            variant="outline"
+            className="border-zinc-300 text-zinc-800 hover:bg-zinc-100 font-bold h-9 text-xs flex items-center gap-1.5 shadow-2xs disabled:opacity-50 cursor-pointer"
+          >
+            <Download className="h-3.5 w-3.5 text-emerald-600" />
+            Download PDF ({selectedStudents.length})
+          </Button>
+
           <Button 
             onClick={handlePrint}
             disabled={selectedStudents.length === 0}
@@ -834,7 +1105,7 @@ function GenerateCertificateContent() {
         </div>
       </div>
 
-      {/* ── STUDENTS LIST TABLE (UI VIEW) ── */}
+      {/* ── 4. STUDENTS LIST TABLE (UI VIEW) ── */}
       {loadingStudents ? (
         <div className="bg-white border border-zinc-200 rounded-2xl p-12 text-center text-zinc-500 print:hidden">
           <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-3 text-amber-600" />
@@ -902,7 +1173,7 @@ function GenerateCertificateContent() {
                           variant="ghost"
                           size="sm"
                           onClick={() => setPreviewStudent(student)}
-                          className="h-7 text-xs text-amber-800 hover:bg-amber-50 hover:text-amber-900 px-2"
+                          className="h-7 text-xs text-amber-800 hover:bg-amber-50 hover:text-amber-900 px-2 cursor-pointer"
                         >
                           <Eye className="w-3.5 h-3.5 mr-1" /> Preview Certificate
                         </Button>
@@ -916,7 +1187,7 @@ function GenerateCertificateContent() {
         </div>
       )}
 
-      {/* ── PRINT RENDERING (HIDDEN ON SCREEN, VISIBLE ON PRINT) ── */}
+      {/* ── 5. PRINT RENDERING (HIDDEN ON SCREEN, VISIBLE ON PRINT) ── */}
       <div className="hidden print:block space-y-12">
         {selectedStudents.map(student => (
           <div key={student._id} className="page-break-after">
@@ -925,7 +1196,7 @@ function GenerateCertificateContent() {
         ))}
       </div>
 
-      {/* ── SINGLE CERTIFICATE PREVIEW MODAL ── */}
+      {/* ── 6. SINGLE CERTIFICATE PREVIEW MODAL ── */}
       {previewStudent && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 print:hidden animate-in fade-in duration-150">
           <div className="bg-white rounded-2xl border border-zinc-200 shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[95vh]">
@@ -939,7 +1210,7 @@ function GenerateCertificateContent() {
               <button 
                 type="button" 
                 onClick={() => setPreviewStudent(null)} 
-                className="text-zinc-400 hover:text-zinc-700 p-1 rounded-md"
+                className="text-zinc-400 hover:text-zinc-700 p-1 rounded-md cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -949,23 +1220,35 @@ function GenerateCertificateContent() {
               {renderCertificateGraphic(previewStudent, true)}
             </div>
 
-            <div className="p-4 border-t border-zinc-100 flex items-center justify-end gap-2 bg-white">
+            <div className="p-4 border-t border-zinc-100 flex items-center justify-between bg-white">
               <Button 
                 variant="outline" 
                 onClick={() => setPreviewStudent(null)} 
-                className="h-9 text-xs border-zinc-200 text-zinc-700"
+                className="h-9 text-xs border-zinc-200 text-zinc-700 cursor-pointer"
               >
                 Close
               </Button>
-              <Button 
-                onClick={() => {
-                  setSelectedIds([previewStudent._id]);
-                  setTimeout(() => window.print(), 200);
-                }}
-                className="h-9 text-xs bg-amber-600 hover:bg-amber-700 text-white font-bold flex items-center gap-1.5"
-              >
-                <Printer className="h-3.5 w-3.5" /> Print This Certificate
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    downloadCertificatePDF(previewStudent, activeTemplate, schoolSetting);
+                    showToast(`PDF downloaded for ${previewStudent.firstName} ${previewStudent.lastName}`);
+                  }}
+                  className="h-9 text-xs border-zinc-300 text-zinc-800 hover:bg-zinc-100 font-bold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Download className="h-3.5 w-3.5 text-emerald-600" /> Download PDF
+                </Button>
+                <Button 
+                  onClick={() => {
+                    setSelectedIds([previewStudent._id]);
+                    setTimeout(() => window.print(), 200);
+                  }}
+                  className="h-9 text-xs bg-amber-600 hover:bg-amber-700 text-white font-bold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Printer className="h-3.5 w-3.5" /> Print This Certificate
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -974,19 +1257,24 @@ function GenerateCertificateContent() {
       {/* ── PRINT-ONLY STYLESHEET ── */}
       <style jsx global>{`
         @media print {
+          @page {
+            size: A4 landscape;
+            margin: 0;
+          }
           body {
             background-color: white !important;
             color: black !important;
           }
-          nav, aside, header, footer, .sidebar, .navbar, .print\\:hidden {
+          nav, aside, header, footer, .sidebar, .navbar, .print\\:hidden, #stoofi-ai-widget {
             display: none !important;
           }
           .certificate-page {
             page-break-inside: avoid !important;
             page-break-after: always !important;
             width: 100% !important;
-            height: 96vh !important;
+            height: 98vh !important;
             box-shadow: none !important;
+            border-radius: 0 !important;
           }
         }
       `}</style>

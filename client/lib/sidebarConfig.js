@@ -183,7 +183,7 @@ export const DEFAULT_MENU_STRUCTURE = [
           { id: 'sub-adm-phone-call', name: 'Phone Call Log', href: '/dashboard/admin/phone-call-log', iconName: 'Phone', visible: true },
           { id: 'sub-adm-id-card', name: 'ID Card', href: '/dashboard/admin/id-card', iconName: 'CreditCard', visible: true },
           { id: 'sub-adm-cert', name: 'Certificate', href: '/dashboard/admin/certificate', iconName: 'Award', visible: true },
-          { id: 'sub-adm-gen-cert', name: 'Generate Certificate', href: '/dashboard/admin/generate-certificate', iconName: 'BadgeCheck', visible: true },
+          { id: 'sub-adm-gen-cert', name: 'Generate Certificate', href: '/dashboard/admin/certificate?action=issue', iconName: 'BadgeCheck', visible: true },
           { id: 'sub-adm-gen-id', name: 'Generate ID Card', href: '/dashboard/admin/generate-id-card', iconName: 'CreditCard', visible: true },
           { id: 'sub-adm-setup', name: 'Admin Setup', href: '/dashboard/admin/setup', iconName: 'Settings', visible: true },
         ]

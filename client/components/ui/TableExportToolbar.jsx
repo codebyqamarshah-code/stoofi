@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   FileText, 
   Download, 
@@ -33,19 +34,63 @@ export default function TableExportToolbar({
   const [density, setDensity] = useState('normal'); // 'compact' | 'normal' | 'relaxed'
   const [activeColumns, setActiveColumns] = useState([]);
   const [toastMsg, setToastMsg] = useState(null);
+  const [dropdownCoords, setDropdownCoords] = useState(null);
   const menuRef = useRef(null);
   const toolbarRef = useRef(null);
+  const dotsButtonRef = useRef(null);
 
-  // Close dropdown on outside click
+  const updateCoords = () => {
+    if (dotsButtonRef.current && typeof window !== 'undefined') {
+      const rect = dotsButtonRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const openUp = spaceBelow < 380 && rect.top > 380;
+      const right = Math.max(16, window.innerWidth - rect.right);
+      setDropdownCoords({
+        top: openUp ? 'auto' : `${rect.bottom + 8}px`,
+        bottom: openUp ? `${window.innerHeight - rect.top + 8}px` : 'auto',
+        right: `${right}px`,
+        openUp
+      });
+    }
+  };
+
+  const handleToggle = () => {
+    if (!isOpen) {
+      updateCoords();
+      setIsOpen(true);
+    } else {
+      setIsOpen(false);
+    }
+  };
+
+  // Close dropdown on outside click or reposition on scroll/resize
   useEffect(() => {
     const handleOutsideClick = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target) && !toolbarRef.current.contains(e.target)) {
+      if (
+        menuRef.current && 
+        !menuRef.current.contains(e.target) && 
+        dotsButtonRef.current && 
+        !dotsButtonRef.current.contains(e.target)
+      ) {
         setIsOpen(false);
       }
     };
+
+    const handleScrollOrResize = () => {
+      if (isOpen) {
+        updateCoords();
+      }
+    };
+
     document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, []);
+    window.addEventListener('resize', handleScrollOrResize);
+    window.addEventListener('scroll', handleScrollOrResize, true);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      window.removeEventListener('resize', handleScrollOrResize);
+      window.removeEventListener('scroll', handleScrollOrResize, true);
+    };
+  }, [isOpen]);
 
   // Show temporary toast
   const showToast = (msg) => {
@@ -302,7 +347,8 @@ export default function TableExportToolbar({
 
         {/* 6. 3-Dots (Column Visibility & Table Actions) */}
         <button
-          onClick={() => setIsOpen(!isOpen)}
+          ref={dotsButtonRef}
+          onClick={handleToggle}
           title="Columns & Table Options"
           className={`relative p-2 text-zinc-700 dark:text-zinc-700 hover:text-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-100 transition-colors cursor-pointer ${
             isOpen ? 'bg-zinc-100 text-[#084A86]' : ''
@@ -316,11 +362,18 @@ export default function TableExportToolbar({
         </button>
       </div>
 
-      {/* 3-Dot Interactive Popover Dropdown */}
-      {isOpen && (
+      {/* 3-Dot Interactive Popover Dropdown (Rendered via Portal to escape overflow-hidden) */}
+      {isOpen && dropdownCoords && typeof document !== 'undefined' && createPortal(
         <div 
           ref={menuRef}
-          className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-300 rounded-2xl shadow-2xl overflow-hidden z-[110] animate-in fade-in zoom-in-95 duration-150"
+          style={{
+            position: 'fixed',
+            top: dropdownCoords.top,
+            bottom: dropdownCoords.bottom,
+            right: dropdownCoords.right,
+            zIndex: 99999
+          }}
+          className="w-72 bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-300 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-50/80 dark:bg-zinc-100/80 border-b border-zinc-200 dark:border-zinc-200">
@@ -440,7 +493,8 @@ export default function TableExportToolbar({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Floating Toast Notification */}

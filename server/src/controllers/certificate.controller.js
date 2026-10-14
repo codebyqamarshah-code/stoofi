@@ -209,7 +209,23 @@ exports.create = async (req, res) => {
       footerCenter, 
       footerRight, 
       themeStyle, 
-      status 
+      status,
+      showStudentPhoto,
+      showAdmissionNo,
+      showRollNo,
+      showClass,
+      showSection,
+      showFatherName,
+      showDob,
+      showGender,
+      showIssueDate,
+      showQrBarcode,
+      showSeal,
+      showSignatureLeft,
+      showSignatureCenter,
+      showSignatureRight,
+      showSchoolHeader,
+      uploadedBackground
     } = req.body;
 
     if (!title || !title.trim()) {
@@ -240,8 +256,24 @@ exports.create = async (req, res) => {
       footerLeft: (footerLeft || 'Date of Issue').trim(),
       footerCenter: (footerCenter || 'Class Teacher / Checked By').trim(),
       footerRight: (footerRight || 'Principal / Authorized Seal').trim(),
-      themeStyle: themeStyle || 'stoofi-emerald',
-      status: status || 'Active'
+      themeStyle: themeStyle || 'classic-gold',
+      status: status || 'Active',
+      showStudentPhoto: showStudentPhoto !== undefined ? showStudentPhoto : true,
+      showAdmissionNo: showAdmissionNo !== undefined ? showAdmissionNo : true,
+      showRollNo: showRollNo !== undefined ? showRollNo : true,
+      showClass: showClass !== undefined ? showClass : true,
+      showSection: showSection !== undefined ? showSection : true,
+      showFatherName: showFatherName !== undefined ? showFatherName : true,
+      showDob: showDob !== undefined ? showDob : true,
+      showGender: showGender !== undefined ? showGender : true,
+      showIssueDate: showIssueDate !== undefined ? showIssueDate : true,
+      showQrBarcode: showQrBarcode !== undefined ? showQrBarcode : true,
+      showSeal: showSeal !== undefined ? showSeal : true,
+      showSignatureLeft: showSignatureLeft !== undefined ? showSignatureLeft : true,
+      showSignatureCenter: showSignatureCenter !== undefined ? showSignatureCenter : true,
+      showSignatureRight: showSignatureRight !== undefined ? showSignatureRight : true,
+      showSchoolHeader: showSchoolHeader !== undefined ? showSchoolHeader : true,
+      uploadedBackground: uploadedBackground || ''
     });
 
     res.status(201).json({ success: true, data: newCert, message: 'Certificate template created successfully' });
@@ -264,7 +296,23 @@ exports.update = async (req, res) => {
       footerCenter, 
       footerRight, 
       themeStyle, 
-      status 
+      status,
+      showStudentPhoto,
+      showAdmissionNo,
+      showRollNo,
+      showClass,
+      showSection,
+      showFatherName,
+      showDob,
+      showGender,
+      showIssueDate,
+      showQrBarcode,
+      showSeal,
+      showSignatureLeft,
+      showSignatureCenter,
+      showSignatureRight,
+      showSchoolHeader,
+      uploadedBackground
     } = req.body;
 
     const cert = await Certificate.findById(req.params.id);
@@ -293,6 +341,22 @@ exports.update = async (req, res) => {
     if (footerRight !== undefined) cert.footerRight = (footerRight || '').trim();
     if (themeStyle) cert.themeStyle = themeStyle;
     if (status) cert.status = status;
+    if (showStudentPhoto !== undefined) cert.showStudentPhoto = showStudentPhoto;
+    if (showAdmissionNo !== undefined) cert.showAdmissionNo = showAdmissionNo;
+    if (showRollNo !== undefined) cert.showRollNo = showRollNo;
+    if (showClass !== undefined) cert.showClass = showClass;
+    if (showSection !== undefined) cert.showSection = showSection;
+    if (showFatherName !== undefined) cert.showFatherName = showFatherName;
+    if (showDob !== undefined) cert.showDob = showDob;
+    if (showGender !== undefined) cert.showGender = showGender;
+    if (showIssueDate !== undefined) cert.showIssueDate = showIssueDate;
+    if (showQrBarcode !== undefined) cert.showQrBarcode = showQrBarcode;
+    if (showSeal !== undefined) cert.showSeal = showSeal;
+    if (showSignatureLeft !== undefined) cert.showSignatureLeft = showSignatureLeft;
+    if (showSignatureCenter !== undefined) cert.showSignatureCenter = showSignatureCenter;
+    if (showSignatureRight !== undefined) cert.showSignatureRight = showSignatureRight;
+    if (showSchoolHeader !== undefined) cert.showSchoolHeader = showSchoolHeader;
+    if (uploadedBackground !== undefined) cert.uploadedBackground = uploadedBackground;
 
     const updated = await cert.save();
     res.status(200).json({ success: true, data: updated, message: 'Certificate template updated successfully' });
@@ -452,7 +516,22 @@ exports.generateCertificates = async (req, res) => {
         _id: template._id,
         title: template.title,
         type: template.type,
-        themeStyle: template.themeStyle
+        themeStyle: template.themeStyle,
+        showStudentPhoto: template.showStudentPhoto !== false,
+        showAdmissionNo: template.showAdmissionNo !== false,
+        showRollNo: template.showRollNo !== false,
+        showClass: template.showClass !== false,
+        showSection: template.showSection !== false,
+        showFatherName: template.showFatherName !== false,
+        showDob: template.showDob !== false,
+        showGender: template.showGender !== false,
+        showIssueDate: template.showIssueDate !== false,
+        showQrBarcode: template.showQrBarcode !== false,
+        showSeal: template.showSeal !== false,
+        showSignatureLeft: template.showSignatureLeft !== false,
+        showSignatureCenter: template.showSignatureCenter !== false,
+        showSignatureRight: template.showSignatureRight !== false,
+        showSchoolHeader: template.showSchoolHeader !== false
       },
       data: generated
     });
