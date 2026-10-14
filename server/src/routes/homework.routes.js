@@ -1,3 +1,4 @@
+const express = require('express');
 const { getAll, create, update, remove, submitHomework, saveEvaluation } = require("../controllers/homework.controller");
 const { protect, authorize } = require("../middleware/auth.middleware");
 const upload = require("../middleware/upload.middleware");

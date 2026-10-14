@@ -82,9 +82,25 @@ exports.getById = async (req, res, next) => {
 exports.create = async (req, res) => {
   try {
     const dataObj = { ...req.body };
+    const currentYear = new Date().getFullYear();
     if (!dataObj.admissionNo) {
       const count = await Student.countDocuments();
-      dataObj.admissionNo = 'ADM-' + new Date().getFullYear() + '-' + String(count + 1).padStart(3, '0');
+      dataObj.admissionNo = 'ADM-' + currentYear + '-' + String(count + 1).padStart(3, '0');
+    }
+    if (!dataObj.academicYear) {
+      dataObj.academicYear = `${currentYear}-${currentYear + 1}`;
+    }
+    if (!dataObj.gender) {
+      dataObj.gender = 'Male';
+    }
+    if (!dataObj.dob) {
+      dataObj.dob = '2010-01-01';
+    }
+    if (!dataObj.className) {
+      dataObj.className = 'Class 10';
+    }
+    if (!dataObj.section) {
+      dataObj.section = 'Section A';
     }
     // Just handle one file for now, or if multiple we'd iterate
     // Handle single req.file or multiple req.files array

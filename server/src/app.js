@@ -197,9 +197,9 @@ app.use('/api/payments', require('./routes/payment.routes'));
 app.use('/api/setting', require('./routes/setting.routes'));
 app.use('/api/virtual-class', require('./routes/virtual-class.routes'));
 
-// Global error handler
-app.get('/', (req, res) => {
-  res.send('School Management ERP API is running');
+// Health check & root endpoints
+app.get(['/', '/health', '/api/health'], (req, res) => {
+  res.json({ success: true, message: 'School Management ERP API is running', timestamp: new Date().toISOString() });
 });
 
 // Error handling middleware

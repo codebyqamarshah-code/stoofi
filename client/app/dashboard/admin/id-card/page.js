@@ -292,10 +292,12 @@ export default function IdCardPage() {
   // Open "Create Student ID Card" Modal
   const handleOpenCreateStudent = () => {
     const nextRoll = 100 + studentsList.length + 1;
-    const nextAdm = `ADM-${Date.now()}`;
+    const currentYear = new Date().getFullYear();
+    const nextAdm = `ADM-${currentYear}-${String(100 + studentsList.length + 1).padStart(3, '0')}`;
     setStudentForm({
       firstName: '',
       lastName: '',
+      academicYear: `${currentYear}-${currentYear + 1}`,
       className: 'Class 10',
       section: 'Section A',
       rollNo: String(nextRoll),
@@ -341,7 +343,19 @@ export default function IdCardPage() {
 
     try {
       setCreatingStudentCard(true);
-      const res = await api.post('/student', studentForm);
+      const currentYear = new Date().getFullYear();
+      const payload = {
+        ...studentForm,
+        firstName: studentForm.firstName.trim(),
+        lastName: (studentForm.lastName || '').trim(),
+        academicYear: studentForm.academicYear || `${currentYear}-${currentYear + 1}`,
+        className: studentForm.className || 'Class 10',
+        section: studentForm.section || 'Section A',
+        gender: studentForm.gender || 'Male',
+        dob: studentForm.dob || '2008-05-14',
+        admissionNo: studentForm.admissionNo || `ADM-${currentYear}-${Date.now()}`
+      };
+      const res = await api.post('/student', payload);
       if (res?.success) {
         showToast(`ID Card generated successfully for ${studentForm.firstName} ${studentForm.lastName}!`);
         setShowCreateStudentModal(false);
