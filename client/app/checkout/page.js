@@ -25,6 +25,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import StoofiLogo from '@/components/StoofiLogo';
 import { useAuth } from '@/hooks/useAuth';
+import api from '@/services/api';
 
 function CheckoutForm() {
   const router = useRouter();
@@ -145,10 +146,6 @@ function CheckoutForm() {
     setErrorMessage('');
 
     try {
-      const rawApi = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const baseApi = rawApi.replace(/\/api\/?$/, '');
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-
       const payload = {
         planKey: selectedPlan,
         billingCycle,
@@ -162,26 +159,13 @@ function CheckoutForm() {
         phone: phone.trim()
       };
 
-      const res = await fetch(`${baseApi}/api/payments/checkout-session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify(payload)
-      });
+      const data = await api.post('/payments/checkout-session', payload);
 
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || 'Failed to initialize payment session with Safepay.');
-      }
-
-      if (data.checkoutUrl) {
+      if (data?.checkoutUrl) {
         // Redirect to Safepay hosted checkout
         window.location.href = data.checkoutUrl;
       } else {
-        throw new Error('No checkout URL returned from payment server.');
+        throw new Error(data?.message || 'No checkout URL returned from payment server.');
       }
     } catch (err) {
       console.error('Safepay checkout error:', err);
@@ -198,10 +182,6 @@ function CheckoutForm() {
     setErrorMessage('');
 
     try {
-      const rawApi = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const baseApi = rawApi.replace(/\/api\/?$/, '');
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-
       const payload = {
         planKey: selectedPlan,
         billingCycle,
@@ -215,19 +195,10 @@ function CheckoutForm() {
         phone: phone.trim()
       };
 
-      const res = await fetch(`${baseApi}/api/payments/start-trial`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify(payload)
-      });
+      const data = await api.post('/payments/start-trial', payload);
 
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || 'Failed to activate 1-Month Free Trial.');
+      if (!data || !data.success) {
+        throw new Error(data?.message || 'Failed to activate 1-Month Free Trial.');
       }
 
       // Route to success page

@@ -55,6 +55,7 @@ import { DEFAULT_MENU_STRUCTURE, ICON_MAP, getStoredSidebar } from '@/lib/sideba
 import { Button } from '@/components/ui/button';
 import { searchRoutes } from '@/lib/searchConfig';
 import { isRouteAllowed } from '@/lib/routeProtection';
+import api from '@/services/api';
 
 
 export default function DashboardLayout({ children }) {
@@ -139,33 +140,22 @@ export default function DashboardLayout({ children }) {
     if (user) {
       const fetchNoticesAndEvents = async () => {
         try {
-          const rawApi = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-          const baseApi = rawApi.replace(/\/api\/?$/, '');
-          const token = localStorage.getItem('token');
-          const headers = { 'Authorization': 'Bearer ' + token };
-
-          // Fetch notices and events in parallel
+          // Fetch notices and events in parallel via centralized api client
           const [noticeRes, eventRes] = await Promise.allSettled([
-            fetch(baseApi + '/api/dashboard/notices', { headers }),
-            fetch(baseApi + '/api/dashboard/events', { headers })
+            api.get('/dashboard/notices'),
+            api.get('/dashboard/events')
           ]);
 
           let combined = [];
 
-          if (noticeRes.status === 'fulfilled') {
-            const result = await noticeRes.value.json();
-            if (result.success && result.data) {
-              const filtered = result.data.filter(n => n.audience === 'All' || n.audience === user.role);
-              combined = [...combined, ...filtered.map(n => ({ ...n, _popupType: 'Notice' }))];
-            }
+          if (noticeRes.status === 'fulfilled' && noticeRes.value?.success && Array.isArray(noticeRes.value?.data)) {
+            const filtered = noticeRes.value.data.filter(n => n.audience === 'All' || n.audience === user.role);
+            combined = [...combined, ...filtered.map(n => ({ ...n, _popupType: 'Notice' }))];
           }
 
-          if (eventRes.status === 'fulfilled') {
-            const result = await eventRes.value.json();
-            if (result.success && result.data) {
-              const filtered = result.data.filter(e => e.eventFor === 'All' || e.eventFor === user.role);
-              combined = [...combined, ...filtered.map(e => ({ ...e, _popupType: 'Event', audience: e.eventFor, date: e.startDate }))];
-            }
+          if (eventRes.status === 'fulfilled' && eventRes.value?.success && Array.isArray(eventRes.value?.data)) {
+            const filtered = eventRes.value.data.filter(e => e.eventFor === 'All' || e.eventFor === user.role);
+            combined = [...combined, ...filtered.map(e => ({ ...e, _popupType: 'Event', audience: e.eventFor, date: e.startDate }))];
           }
 
           // Sort by newest
@@ -193,44 +183,35 @@ export default function DashboardLayout({ children }) {
     if (user) {
       const fetchLiveUpdates = async () => {
         try {
-          let token = '';
-          if (typeof window !== 'undefined') {
-            token = sessionStorage.getItem('token') || localStorage.getItem('token') || '';
-          }
-          const rawApi = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-          const baseApi = rawApi.replace(/\/api\/?$/, '');
-          const res = await fetch(baseApi + '/api/dashboard/live-updates', {
-              headers: { 'Authorization': 'Bearer ' + token }
-            });
-            const result = await res.json();
-            if (result.success) {
-              const apiNotifs = result.data.notifications || [];
-              let deletedIds = [];
-              let readIds = [];
-              if (typeof window !== 'undefined') {
-                try {
-                  deletedIds = JSON.parse(localStorage.getItem('deleted_notifs') || '[]');
-                  readIds = JSON.parse(localStorage.getItem('read_notifs') || '[]');
-                } catch(e){}
-              }
-
-              // Filter out deleted ones
-              const visibleNotifs = apiNotifs.filter(n => !deletedIds.includes(n._id));
-              
-              // Apply read state
-              const processedNotifs = visibleNotifs.map(n => ({
-                ...n,
-                isRead: n.isRead || n.read || readIds.includes(n._id)
-              }));
-              
-              setLiveNotifications(processedNotifs);
-              setActiveStudentsCount(result.data.activeStudents || 0);
-              
-              const hasUnread = processedNotifs.some(n => !n.isRead && !n.read);
-              setHasUnreadNotif(hasUnread);
+          const result = await api.get('/dashboard/live-updates').catch(() => null);
+          if (result && result.success) {
+            const apiNotifs = result.data?.notifications || [];
+            let deletedIds = [];
+            let readIds = [];
+            if (typeof window !== 'undefined') {
+              try {
+                deletedIds = JSON.parse(localStorage.getItem('deleted_notifs') || '[]');
+                readIds = JSON.parse(localStorage.getItem('read_notifs') || '[]');
+              } catch(e){}
             }
-          } catch (error) {
-          console.error('Failed to fetch live updates', error);
+
+            // Filter out deleted ones
+            const visibleNotifs = apiNotifs.filter(n => !deletedIds.includes(n._id));
+            
+            // Apply read state
+            const processedNotifs = visibleNotifs.map(n => ({
+              ...n,
+              isRead: n.isRead || n.read || readIds.includes(n._id)
+            }));
+            
+            setLiveNotifications(processedNotifs);
+            setActiveStudentsCount(result.data?.activeStudents || 0);
+            
+            const hasUnread = processedNotifs.some(n => !n.isRead && !n.read);
+            setHasUnreadNotif(hasUnread);
+          }
+        } catch (error) {
+          // Gracefully handle live update drops without triggering UI errors
         }
       };
       fetchLiveUpdates();

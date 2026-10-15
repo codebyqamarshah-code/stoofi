@@ -20,7 +20,15 @@ const nextConfig = {
   experimental: {
     cpus: 1,
     workerThreads: false,
-  }
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://stoofi-backend.vercel.app/api/:path*',
+      },
+    ];
+  },
 };
 
 export default nextConfig;

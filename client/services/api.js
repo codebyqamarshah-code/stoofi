@@ -1,22 +1,32 @@
 import axios from 'axios';
 
+const REMOTE_BACKEND_URL = 'https://stoofi-backend.vercel.app/api';
+const LOCAL_BACKEND_URL = 'http://localhost:5000/api';
+
 const isProd = process.env.NODE_ENV === 'production';
 const envApiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-// Base URL configuration - safely default to relative '/api' on live web deployments
+// Base URL configuration - dynamically resolve according to client execution environment
 let baseURL = envApiUrl;
 
 if (typeof window !== 'undefined') {
   const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   if (!isLocalhost) {
-    if (!baseURL || baseURL.includes('localhost') || baseURL.includes('127.0.0.1') || (window.location.protocol === 'https:' && baseURL.startsWith('http:'))) {
-      baseURL = '/api';
+    // If accessing from another laptop, mobile, or live web deployment, never attempt localhost:5000!
+    if (!baseURL || baseURL.includes('localhost') || baseURL.includes('127.0.0.1')) {
+      baseURL = REMOTE_BACKEND_URL;
+    }
+  } else {
+    // On localhost, default to local backend unless explicitly pointing elsewhere
+    if (!baseURL) {
+      baseURL = LOCAL_BACKEND_URL;
     }
   }
-}
-
-if (!baseURL) {
-  baseURL = isProd ? '/api' : 'http://localhost:5000/api';
+} else {
+  // Server-side rendering default
+  if (!baseURL || baseURL.includes('localhost')) {
+    baseURL = isProd ? REMOTE_BACKEND_URL : LOCAL_BACKEND_URL;
+  }
 }
 
 const api = axios.create({
@@ -31,8 +41,14 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    if (!isLocalhost && (config.baseURL?.includes('localhost') || config.baseURL?.includes('127.0.0.1') || (window.location.protocol === 'https:' && config.baseURL?.startsWith('http:')))) {
-      config.baseURL = '/api';
+    if (!isLocalhost) {
+      if (!config.baseURL || config.baseURL.includes('localhost') || config.baseURL.includes('127.0.0.1') || config.baseURL === '/api') {
+        config.baseURL = REMOTE_BACKEND_URL;
+      }
+    } else {
+      if (!config.baseURL) {
+        config.baseURL = LOCAL_BACKEND_URL;
+      }
     }
 
     let token = sessionStorage.getItem('token') || localStorage.getItem('token');
