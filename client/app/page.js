@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { translations } from "@/utils/translations";
 import { useAuth } from "@/hooks/useAuth";
+import api from "@/services/api";
 import {
   CheckCircle2, Monitor, Users, GraduationCap,
   ShieldCheck, Menu, X, Star, ArrowRight, Zap, BarChart3,
@@ -250,27 +251,25 @@ export default function LandingPage() {
 
       // 1. Fetch notices (and any combined items)
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/dashboard/notices`);
-        const result = await res.json();
-        if (result.success && Array.isArray(result.data)) {
+        const result = await api.get('/dashboard/notices').catch(() => null);
+        if (result && result.success && Array.isArray(result.data)) {
           const noticesOnly = result.data.filter(item => item.type === "Notice");
           const eventsFromNoticeRoute = result.data.filter(item => item.type === "Event");
           if (noticesOnly.length > 0) fetchedNotices = noticesOnly;
           if (eventsFromNoticeRoute.length > 0) fetchedEvents = eventsFromNoticeRoute;
         }
       } catch (error) {
-        console.error("Failed to fetch public notices:", error);
+        // Safe fallback to default notices
       }
 
       // 2. Fetch events
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/dashboard/events`);
-        const result = await res.json();
-        if (result.success && Array.isArray(result.data)) {
+        const result = await api.get('/dashboard/events').catch(() => null);
+        if (result && result.success && Array.isArray(result.data)) {
           fetchedEvents = [...fetchedEvents, ...result.data];
         }
       } catch (error) {
-        console.error("Failed to fetch public events:", error);
+        // Safe fallback to default events
       }
 
       // 3. Merge with localStorage dashboard_events or dashboard_notices if present

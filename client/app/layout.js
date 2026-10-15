@@ -1,4 +1,4 @@
-﻿import { Poppins } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import "./custom-animations.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -14,10 +14,7 @@ export const metadata = {
   title: "Stoofi ERP - Smarter Education, Simple Management",
   description: "Stoofi School Management System & ERP",
   icons: {
-    icon: [
-      { url: '/stoofi-icon.png', type: 'image/png' },
-      { url: '/favicon.ico', sizes: 'any' },
-    ],
+    icon: '/favicon.ico',
     shortcut: '/stoofi-icon.png',
     apple: '/stoofi-icon.png',
   },
