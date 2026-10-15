@@ -36,6 +36,52 @@ import { SearchableSelect } from '@/components/ui/searchable-select';
 import { sortClassesAcademic, STANDARD_ACADEMIC_CLASSES, STANDARD_SECTIONS_LIST } from '@/lib/academicUtils';
 import api from '@/services/api';
 import { downloadIdCardPDF, downloadBatchIdCardsPDF } from '@/lib/idCardPdf';
+import QRCode from 'qrcode';
+
+// Dynamic Live QR Code Component for Every Student Card
+function StudentCardQR({ rec, isDark = false }) {
+  const [qrSrc, setQrSrc] = useState('');
+  useEffect(() => {
+    if (!rec) return;
+    const admNo = rec.admissionNo || rec.staffNo || 'ADM-2026-001';
+    const name = `${rec.firstName || ''} ${rec.lastName || ''}`.trim() || rec.name || 'Muhammad Abdullah';
+    const cls = rec.className || 'FSC NURSING';
+    const sec = rec.section || 'A';
+    const roll = rec.rollNo || '101';
+    const text = [
+      'PAK ROYAL COLLEGE SHARAQPUR',
+      `ID: ${admNo}`,
+      `Name: ${name}`,
+      `Class: ${cls} (${sec})`,
+      `Roll: ${roll}`,
+      'Status: VERIFIED & ACTIVE',
+      `Verify: https://pakroyalcollege.edu.pk/verify/${encodeURIComponent(admNo)}`
+    ].join('\n');
+
+    QRCode.toDataURL(text, { 
+      margin: 1, 
+      width: 140, 
+      color: { 
+        dark: isDark ? '#ffffff' : '#0f172a', 
+        light: isDark ? '#09090b' : '#ffffff' 
+      } 
+    })
+      .then(setQrSrc)
+      .catch(() => {});
+  }, [rec, isDark]);
+
+  if (!qrSrc) {
+    return <div className="w-10 h-10 bg-zinc-100 rounded border border-zinc-200 animate-pulse" />;
+  }
+  return (
+    <img 
+      src={qrSrc} 
+      alt="Verification QR" 
+      className={`w-9 h-9 object-contain rounded border p-0.5 shadow-2xs ${isDark ? 'border-zinc-700 bg-zinc-900' : 'border-zinc-200 bg-white'}`} 
+      title="Scan to verify student details"
+    />
+  );
+}
 
 // 5 Standard Design Styles Config
 const CARD_DESIGNS = [
@@ -448,29 +494,24 @@ export default function BulkPrintIdCardPage() {
               )}
             </div>
 
-            {/* Barcode Lines & Signature */}
-            {(showQrBarcode || showSignature) && (
-              <div className="w-full mt-2.5 pt-2 border-t border-zinc-200 flex items-center justify-between">
-                {showQrBarcode ? (
-                  <div className="flex flex-col items-start">
-                    <div className="flex items-center gap-0.5 h-3.5 mb-0.5">
-                      {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 3, 1, 2, 1, 2, 1, 3, 1].map((w, idx) => (
-                        <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
-                      ))}
-                    </div>
-                    <span className="font-mono text-[7px] text-zinc-400 tracking-wider">{admNo}</span>
-                  </div>
-                ) : <div />}
-                {showSignature && (
-                  <div className="text-right">
-                    <div className="text-[7.5px] font-bold text-zinc-800 border-b border-zinc-400 pb-0.5 font-serif italic">
-                      {brandFooter}
-                    </div>
-                    <span className="text-[6px] text-zinc-400 uppercase tracking-wider block mt-0.5">Authorized Seal</span>
-                  </div>
-                )}
+            {/* Real Unique Scannable Verification QR Code & Signature */}
+            <div className="w-full mt-2.5 pt-2 border-t border-zinc-200 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <StudentCardQR rec={rec} />
+                <div className="text-left">
+                  <span className="text-[7.5px] font-black text-emerald-800 uppercase tracking-wider block">Scan to Verify</span>
+                  <span className="font-mono text-[8px] font-black text-zinc-800 tracking-tight block">{admNo}</span>
+                </div>
               </div>
-            )}
+              {showSignature && (
+                <div className="text-right">
+                  <div className="text-[7.5px] font-bold text-zinc-800 border-b border-zinc-400 pb-0.5 font-serif italic">
+                    {brandFooter}
+                  </div>
+                  <span className="text-[6px] text-zinc-400 uppercase tracking-wider block mt-0.5">Authorized Seal</span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Bottom Accent */}
@@ -518,10 +559,9 @@ export default function BulkPrintIdCardPage() {
                   </div>
                 )}
                 {showQrBarcode && (
-                  <div className="mt-1.5 flex items-center gap-0.5 h-3">
-                    {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 2, 1, 3].map((w, idx) => (
-                      <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
-                    ))}
+                  <div className="mt-2 flex flex-col items-center">
+                    <StudentCardQR rec={rec} isDark={false} />
+                    <span className="font-mono text-[6.5px] font-bold text-sky-950 tracking-wider mt-0.5 uppercase">VERIFY QR</span>
                   </div>
                 )}
               </div>
@@ -651,13 +691,12 @@ export default function BulkPrintIdCardPage() {
             {(showQrBarcode || showSignature) && (
               <div className="w-full mt-2.5 pt-2 border-t border-zinc-200 flex items-center justify-between">
                 {showQrBarcode ? (
-                  <div className="flex flex-col items-start">
-                    <div className="flex items-center gap-0.5 h-3.5 mb-0.5">
-                      {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 3, 1, 2, 1].map((w, idx) => (
-                        <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
-                      ))}
+                  <div className="flex items-center gap-2">
+                    <StudentCardQR rec={rec} isDark={false} />
+                    <div className="text-left">
+                      <span className="text-[7.5px] font-black text-purple-900 uppercase tracking-wider block">Scan to Verify</span>
+                      <span className="font-mono text-[7.5px] font-bold text-zinc-700 block">{admNo}</span>
                     </div>
-                    <span className="font-mono text-[7px] text-zinc-400 tracking-wider">PASS-{admNo}</span>
                   </div>
                 ) : <div />}
                 {showSignature && (
@@ -758,13 +797,12 @@ export default function BulkPrintIdCardPage() {
             {(showQrBarcode || showSignature) && (
               <div className="w-full mt-2.5 pt-2 border-t border-zinc-800 flex items-center justify-between">
                 {showQrBarcode ? (
-                  <div className="flex flex-col items-start">
-                    <div className="flex items-center gap-0.5 h-3.5 mb-0.5">
-                      {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 3, 1, 2].map((w, idx) => (
-                        <span key={idx} className="bg-emerald-400 h-full inline-block" style={{ width: `${w}px` }} />
-                      ))}
+                  <div className="flex items-center gap-2">
+                    <StudentCardQR rec={rec} isDark={true} />
+                    <div className="text-left">
+                      <span className="text-[7.5px] font-black text-emerald-400 uppercase tracking-wider block">Smart Verified</span>
+                      <span className="font-mono text-[7.5px] font-bold text-zinc-400 block">{admNo}</span>
                     </div>
-                    <span className="font-mono text-[7px] text-zinc-500 tracking-wider">SMART-{admNo}</span>
                   </div>
                 ) : <div />}
                 {showSignature && (
@@ -864,13 +902,12 @@ export default function BulkPrintIdCardPage() {
           {(showQrBarcode || showSignature) && (
             <div className="w-full mt-2.5 pt-2 border-t border-amber-200 flex items-center justify-between">
               {showQrBarcode ? (
-                <div className="flex flex-col items-start">
-                  <div className="flex items-center gap-0.5 h-3.5 mb-0.5">
-                    {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 3, 1].map((w, idx) => (
-                      <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
-                    ))}
+                <div className="flex items-center gap-2">
+                  <StudentCardQR rec={rec} isDark={false} />
+                  <div className="text-left">
+                    <span className="text-[7.5px] font-black text-amber-900 uppercase tracking-wider block">Crest Verified</span>
+                    <span className="font-mono text-[7.5px] font-bold text-zinc-700 block">{admNo}</span>
                   </div>
-                  <span className="font-mono text-[7px] text-amber-900 tracking-wider">CREST-{admNo}</span>
                 </div>
               ) : <div />}
               {showSignature && (
