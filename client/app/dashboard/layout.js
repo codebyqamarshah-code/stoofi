@@ -215,8 +215,28 @@ export default function DashboardLayout({ children }) {
         }
       };
       fetchLiveUpdates();
-      const interval = setInterval(fetchLiveUpdates, 30000);
-      return () => clearInterval(interval);
+
+      const handleVisibilityChange = () => {
+        if (typeof document !== 'undefined' && !document.hidden) {
+          fetchLiveUpdates();
+        }
+      };
+
+      const interval = setInterval(() => {
+        if (typeof document !== 'undefined' && document.hidden) return;
+        fetchLiveUpdates();
+      }, 30000);
+
+      if (typeof document !== 'undefined') {
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+      }
+
+      return () => {
+        clearInterval(interval);
+        if (typeof document !== 'undefined') {
+          document.removeEventListener('visibilitychange', handleVisibilityChange);
+        }
+      };
     }
   }, [user]);
 

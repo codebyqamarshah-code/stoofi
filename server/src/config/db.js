@@ -18,6 +18,7 @@ const connectDB = async () => {
     const conn = await mongoose.connect(uri, {
       bufferCommands: false,
       serverSelectionTimeoutMS: 5000,
+      maxPoolSize: 10,
     });
 
     isConnected = conn.connections[0].readyState === 1;
