@@ -1,8 +1,14 @@
 "use client";
 
+// Custom Cursor & Hover Ring (Temporarily commented out as requested)
+export default function CustomCursor() {
+  return null;
+}
+
+/*
 import { useEffect, useRef, useState } from "react";
 
-export default function CustomCursor() {
+export function CustomCursorOriginal() {
   const dotRef = useRef(null);
   const ringRef = useRef(null);
   const mousePos = useRef({ x: -100, y: -100 });
@@ -89,7 +95,6 @@ export default function CustomCursor() {
       }`}
       aria-hidden="true"
     >
-      {/* Outer Smooth Follower Ring */}
       <div
         ref={ringRef}
         className="fixed top-0 left-0 pointer-events-none will-change-transform -ml-[18px] -mt-[18px]"
@@ -105,7 +110,6 @@ export default function CustomCursor() {
         />
       </div>
 
-      {/* Center Precise Dot */}
       <div
         ref={dotRef}
         className="fixed top-0 left-0 pointer-events-none will-change-transform -ml-[3px] -mt-[3px]"
@@ -119,3 +123,4 @@ export default function CustomCursor() {
     </div>
   );
 }
+*/

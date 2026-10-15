@@ -324,8 +324,8 @@ function GenerateCertificateContent() {
   };
 
   const selectedStudents = students.filter(s => selectedIds.includes(s._id));
-  const schoolName = schoolSetting?.schoolName || 'Stoofi Public School & College';
-  const schoolAddress = schoolSetting?.address || schoolSetting?.city || 'Main Campus, Lahore, Pakistan';
+  const schoolName = schoolSetting?.schoolName || 'Pak Royal College Sharaqpur';
+  const schoolAddress = schoolSetting?.address || schoolSetting?.city || 'Sharaqpur Sharif, Sheikhupura, Punjab, Pakistan';
   const currentDesign = CERTIFICATE_DESIGNS.find(d => d.id === activeDesignId) || CERTIFICATE_DESIGNS[0];
 
   // Helper to replace dynamic placeholders

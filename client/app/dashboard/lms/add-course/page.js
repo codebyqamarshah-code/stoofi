@@ -313,7 +313,7 @@ export default function AddCoursePage() {
           </div>
 
           <div className="flex justify-center pt-4">
-            <Button className="bg-zinc-800 hover:bg-zinc-700 text-zinc-950 font-semibold px-10">
+            <Button type="submit" className="bg-[#084A86] hover:bg-[#073b6b] text-white font-semibold px-10 shadow-sm">
               <Plus className="h-4 w-4 mr-2" /> ADD COURSE
             </Button>
           </div>

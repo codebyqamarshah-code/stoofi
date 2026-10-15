@@ -227,12 +227,23 @@ export default function DashboardLayout({ children }) {
         fetchLiveUpdates();
       }, 30000);
 
+      const handleCustomUpdate = () => {
+        fetchLiveUpdates();
+      };
+
+      if (typeof window !== 'undefined') {
+        window.addEventListener('stoofi_notifications_updated', handleCustomUpdate);
+      }
+
       if (typeof document !== 'undefined') {
         document.addEventListener('visibilitychange', handleVisibilityChange);
       }
 
       return () => {
         clearInterval(interval);
+        if (typeof window !== 'undefined') {
+          window.removeEventListener('stoofi_notifications_updated', handleCustomUpdate);
+        }
         if (typeof document !== 'undefined') {
           document.removeEventListener('visibilitychange', handleVisibilityChange);
         }
@@ -885,89 +896,114 @@ export default function DashboardLayout({ children }) {
 
                 return (
                   <>
-                                          <button 
-                        onClick={() => {
-                          setIsNotifOpen(!isNotifOpen);
-                          if (!isNotifOpen) {
-                            const currentIds = liveNotifications.map(n => n._id).filter(Boolean);
-                            if (typeof window !== 'undefined') {
-                              try {
-                                const readIds = JSON.parse(localStorage.getItem('read_notifs') || '[]');
-                                const newReadIds = [...new Set([...readIds, ...currentIds])];
-                                localStorage.setItem('read_notifs', JSON.stringify(newReadIds));
-                              } catch(e){}
-                            }
-                            setLiveNotifications(prev => prev.map(n => ({ ...n, isRead: true, read: true })));
-                            setHasUnreadNotif(false);
+                    <button 
+                      onClick={() => {
+                        setIsNotifOpen(!isNotifOpen);
+                        if (!isNotifOpen) {
+                          const currentIds = liveNotifications.map(n => n._id).filter(Boolean);
+                          if (typeof window !== 'undefined') {
+                            try {
+                              const readIds = JSON.parse(localStorage.getItem('read_notifs') || '[]');
+                              const newReadIds = [...new Set([...readIds, ...currentIds])];
+                              localStorage.setItem('read_notifs', JSON.stringify(newReadIds));
+                              window.dispatchEvent(new CustomEvent('stoofi_notifications_updated'));
+                            } catch(e){}
                           }
-                        }}
-                        className="relative p-2 rounded-lg bg-zinc-100/40 dark:bg-zinc-50 border border-zinc-300/80 dark:border-zinc-200 text-zinc-950 dark:text-zinc-600 hover:text-zinc-800 hover:border-zinc-950 transition-colors cursor-pointer"
-                      >
-                        <Bell className="h-4 w-4" />
-                        {unreadCount > 0 && (
-                          <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-rose-600 text-[10px] font-bold text-white flex items-center justify-center">
-                            {unreadCount > 9 ? '9+' : unreadCount}
-                          </span>
-                        )}
-                      </button>
-                      {isNotifOpen && (
-                        <div className="absolute top-full right-0 mt-2 w-72 bg-white dark:bg-zinc-50 border border-zinc-300 dark:border-zinc-200 rounded-xl shadow-2xl overflow-hidden z-50">
-                          <div className="p-3 border-b border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white flex justify-between items-center">
-                            <span className="text-xs font-bold text-zinc-900 dark:text-zinc-900">Notifications</span>
-                            <span 
-                              onClick={() => {
-                                const currentIds = liveNotifications.map(n => n._id).filter(Boolean);
-                                if (typeof window !== 'undefined') {
-                                  try {
-                                    const readIds = JSON.parse(localStorage.getItem('read_notifs') || '[]');
-                                    const newReadIds = [...new Set([...readIds, ...currentIds])];
-                                    localStorage.setItem('read_notifs', JSON.stringify(newReadIds));
-                                  } catch(e){}
-                                }
-                                setLiveNotifications(prev => prev.map(n => ({ ...n, isRead: true, read: true })));
-                                setHasUnreadNotif(false);
-                              }} 
-                              className="text-[10px] text-emerald-600 font-bold cursor-pointer hover:underline"
-                            >
-                              Mark all read
-                            </span>
-                          </div>
-                          <div className="max-h-72 overflow-y-auto custom-scrollbar p-2 space-y-1.5">
-                            {liveNotifications.length > 0 ? liveNotifications.map(notif => (
-                              <div key={notif._id || notif.id || Math.random()} className={`p-2.5 rounded-lg border cursor-pointer hover:bg-zinc-100 transition-colors ${notif.isRead || notif.read ? 'bg-zinc-50 dark:bg-zinc-100 border-zinc-200' : 'bg-white dark:bg-white border-zinc-300 shadow-sm'}`}>
-                                <div className="flex items-center justify-between gap-1">
-                                  <span className={`text-xs text-zinc-900 ${notif.isRead || notif.read ? 'font-semibold' : 'font-bold'}`}>{notif.title || 'System Notification'}</span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-[9px] text-zinc-500 font-medium">{notif.createdAt ? new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'}</span>
-                                    <button 
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (notif._id && typeof window !== 'undefined') {
-                                          try {
-                                            const delIds = JSON.parse(localStorage.getItem('deleted_notifs') || '[]');
-                                            delIds.push(notif._id);
-                                            localStorage.setItem('deleted_notifs', JSON.stringify([...new Set(delIds)]));
-                                          } catch(err){}
-                                        }
-                                        setLiveNotifications(prev => prev.filter(n => n._id !== notif._id));
-                                      }}
-                                      className="text-zinc-400 hover:text-rose-600 transition-colors p-0.5 rounded-md hover:bg-rose-50"
-                                      title="Delete notification"
-                                    >
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                    </button>
-                                  </div>
-                                </div>
-                                <div className="text-[11px] text-zinc-600 dark:text-zinc-600 mt-0.5 leading-snug">{notif.message}</div>
-                              </div>
-                            )) : (
-                              <div className="p-6 text-center text-xs text-zinc-500 font-medium">
-                                No new notifications
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                          setLiveNotifications(prev => prev.map(n => ({ ...n, isRead: true, read: true })));
+                          setHasUnreadNotif(false);
+                        }
+                      }}
+                      className="relative p-2 rounded-lg bg-zinc-100/40 dark:bg-zinc-50 border border-zinc-300/80 dark:border-zinc-200 text-zinc-950 dark:text-zinc-600 hover:text-zinc-800 hover:border-zinc-950 transition-colors cursor-pointer"
+                      title="Notifications"
+                    >
+                      <Bell className="h-4 w-4" />
+                      {unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-rose-600 text-[10px] font-bold text-white flex items-center justify-center">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
                       )}
+                    </button>
+                    {isNotifOpen && (
+                      <div className="fixed left-3 right-3 top-16 sm:absolute sm:top-full sm:right-0 sm:left-auto sm:mt-2 sm:w-80 bg-white dark:bg-zinc-50 border border-zinc-300 dark:border-zinc-200 rounded-2xl sm:rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in duration-200">
+                        <div className="p-3 border-b border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white flex justify-between items-center">
+                          <span className="text-xs font-bold text-zinc-900 dark:text-zinc-900">Notifications</span>
+                          <span 
+                            onClick={() => {
+                              const currentIds = liveNotifications.map(n => n._id).filter(Boolean);
+                              if (typeof window !== 'undefined') {
+                                try {
+                                  const readIds = JSON.parse(localStorage.getItem('read_notifs') || '[]');
+                                  const newReadIds = [...new Set([...readIds, ...currentIds])];
+                                  localStorage.setItem('read_notifs', JSON.stringify(newReadIds));
+                                  window.dispatchEvent(new CustomEvent('stoofi_notifications_updated'));
+                                } catch(e){}
+                              }
+                              setLiveNotifications(prev => prev.map(n => ({ ...n, isRead: true, read: true })));
+                              setHasUnreadNotif(false);
+                            }} 
+                            className="text-[10px] text-emerald-600 font-bold cursor-pointer hover:underline"
+                          >
+                            Mark all read
+                          </span>
+                        </div>
+                        <div className="max-h-72 overflow-y-auto custom-scrollbar p-2 space-y-1.5">
+                          {liveNotifications.length > 0 ? liveNotifications.map(notif => (
+                            <div 
+                              key={notif._id || notif.id || Math.random()} 
+                              onClick={() => {
+                                setIsNotifOpen(false);
+                                router.push('/dashboard/settings/general/notification-setting');
+                              }}
+                              className={`p-2.5 rounded-lg border cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-200/60 transition-colors ${notif.isRead || notif.read ? 'bg-zinc-50 dark:bg-zinc-100 border-zinc-200' : 'bg-white dark:bg-white border-zinc-300 shadow-xs'}`}
+                            >
+                              <div className="flex items-center justify-between gap-1">
+                                <span className={`text-xs text-zinc-900 ${notif.isRead || notif.read ? 'font-semibold' : 'font-bold'}`}>{notif.title || 'System Notification'}</span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[9px] text-zinc-500 font-medium">{notif.createdAt ? new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'}</span>
+                                  <button 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (notif._id && typeof window !== 'undefined') {
+                                        try {
+                                          const delIds = JSON.parse(localStorage.getItem('deleted_notifs') || '[]');
+                                          delIds.push(notif._id);
+                                          localStorage.setItem('deleted_notifs', JSON.stringify([...new Set(delIds)]));
+                                          window.dispatchEvent(new CustomEvent('stoofi_notifications_updated'));
+                                        } catch(err){}
+                                      }
+                                      setLiveNotifications(prev => prev.filter(n => n._id !== notif._id));
+                                    }}
+                                    className="text-zinc-400 hover:text-rose-600 transition-colors p-0.5 rounded-md hover:bg-rose-50"
+                                    title="Delete notification"
+                                  >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                  </button>
+                                </div>
+                              </div>
+                              <div className="text-[11px] text-zinc-600 dark:text-zinc-600 mt-0.5 leading-snug">{notif.message}</div>
+                            </div>
+                          )) : (
+                            <div className="p-6 text-center text-xs text-zinc-500 font-medium">
+                              No new notifications
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Footer - Navigate to General Settings Notifications Page */}
+                        <div className="p-2.5 border-t border-zinc-200 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-100 text-center">
+                          <button
+                            onClick={() => {
+                              setIsNotifOpen(false);
+                              router.push('/dashboard/settings/general/notification-setting');
+                            }}
+                            className="text-xs font-bold text-[#084A86] hover:underline flex items-center justify-center gap-1 w-full py-1 cursor-pointer"
+                          >
+                            <span>Manage All in General Settings</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </>
                 );
               })()}

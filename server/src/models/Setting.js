@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const SettingSchema = new mongoose.Schema({
   schoolName: {
     type: String,
-    default: 'Stoofi Public School'
+    default: 'Pak Royal College Sharaqpur'
   },
   schoolCode: {
     type: String,
-    default: 'STOOFI-001'
+    default: 'PRC-001'
   },
   phone: {
     type: String,
@@ -15,11 +15,11 @@ const SettingSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    default: 'info@stoofi.com'
+    default: 'info@pakroyalcollege.edu.pk'
   },
   address: {
     type: String,
-    default: 'Main Campus, Model Town, Lahore, Pakistan'
+    default: 'Sharaqpur Sharif, Sheikhupura, Punjab, Pakistan'
   },
   currency: {
     type: String,
@@ -39,11 +39,11 @@ const SettingSchema = new mongoose.Schema({
   },
   schoolLogo: {
     type: String,
-    default: ''
+    default: '/pak-royal-college-logo.png'
   },
   tagline: {
     type: String,
-    default: 'Smart Education & School Management'
+    default: 'Pak Royal College - Higher Education & Professional Studies'
   },
   footerText: {
     type: String,

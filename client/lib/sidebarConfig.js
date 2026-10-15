@@ -381,13 +381,13 @@ export const DEFAULT_MENU_STRUCTURE = [
         visible: true,
         subItems: [
           { id: 'sub-ex-type', name: 'Exam Type', href: '/dashboard/examination/exam-type', iconName: 'Tag', visible: true },
-          { id: 'sub-ex-setup', name: 'Exam Setup', href: '/dashboard/examination/exam-setup', iconName: 'Settings', visible: true },
           { id: 'sub-ex-sched', name: 'Exam Schedule', href: '/dashboard/examination/exam-schedule', iconName: 'CalendarDays', visible: true },
           { id: 'sub-ex-att', name: 'Exam Attendance', href: '/dashboard/examination/exam-attendance', iconName: 'CalendarCheck', visible: true },
           { id: 'sub-ex-marks', name: 'Marks Register', href: '/dashboard/examination/marks-register', iconName: 'FileSpreadsheet', visible: true },
           { id: 'sub-ex-grade', name: 'Marks Grade', href: '/dashboard/examination/marks-grade', iconName: 'Award', visible: true },
           { id: 'sub-ex-sms', name: 'Send Marks By Sms', href: '/dashboard/examination/send-marks-by-sms', iconName: 'MessagesSquare', visible: true },
           { id: 'sub-ex-sheet', name: 'Marksheet Report', href: '/dashboard/examination/marksheet-report', iconName: 'FileText', visible: true },
+          { id: 'sub-ex-setup', name: 'Exam Setup', href: '/dashboard/examination/exam-setup', iconName: 'Settings', visible: true },
         ]
       },
       {
@@ -1074,8 +1074,8 @@ export const TEACHER_MENU_STRUCTURE = [
         subItems: [
           { id: 'sub-ex-grade', name: 'Marks Grade', href: '/dashboard/examination/marks-grade', iconName: 'Award', visible: true },
           { id: 'sub-ex-type', name: 'Exam Type', href: '/dashboard/examination/exam-type', iconName: 'Tag', visible: true },
-          { id: 'sub-ex-setup', name: 'Exam Setup', href: '/dashboard/examination/exam-setup', iconName: 'Settings', visible: true },
           { id: 'sub-ex-sms', name: 'Send Marks By Sms', href: '/dashboard/examination/send-marks-by-sms', iconName: 'MessagesSquare', visible: true },
+          { id: 'sub-ex-setup', name: 'Exam Setup', href: '/dashboard/examination/exam-setup', iconName: 'Settings', visible: true },
         ],
       },
     ],

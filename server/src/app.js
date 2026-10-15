@@ -136,6 +136,7 @@ app.use('/api/transport-assign', require('./routes/transport-assign.routes'));
 app.use('/api/dormitory-room-type', require('./routes/dormitory-room-type.routes'));
 
 app.use('/api/exam-grade', require('./routes/exam-grade.routes'));
+app.use('/api/marks-grade', require('./routes/exam-grade.routes'));
 
 app.use('/api/exam-type', require('./routes/exam-type.routes'));
 

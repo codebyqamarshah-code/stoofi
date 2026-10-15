@@ -297,20 +297,20 @@ const [formData, setFormData] = useState({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-zinc-950">Student Admission</h1>
-        <div className="flex items-center text-sm text-zinc-400">
-          <Link href="/dashboard" className="hover:text-zinc-500 transition-colors">Dashboard</Link>
-          <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/students" className="hover:text-zinc-500 transition-colors">Student Info</Link>
-          <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-950 font-bold">Student Admission</span>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-4">
+        <h1 className="text-xl sm:text-2xl font-bold text-zinc-950">Student Admission</h1>
+        <div className="flex flex-wrap items-center text-xs sm:text-sm text-zinc-400 gap-y-1">
+          <Link href="/dashboard" className="hover:text-zinc-600 transition-colors">Dashboard</Link>
+          <ChevronRight className="h-3.5 w-3.5 mx-1 shrink-0" />
+          <Link href="/dashboard/students" className="hover:text-zinc-600 transition-colors">Student Info</Link>
+          <ChevronRight className="h-3.5 w-3.5 mx-1 shrink-0" />
+          <span className="text-[#084A86] font-bold">Student Admission</span>
         </div>
       </div>
 
       <div className="bg-white border border-zinc-200 rounded-xl shadow-xs overflow-hidden shadow-lg">
         <div className="p-4 border-b border-zinc-100 bg-zinc-50/50 flex justify-between items-center flex-wrap gap-2">
-          <h2 className="text-lg font-semibold text-zinc-950">Add Student Profile</h2>
+          <h2 className="text-base sm:text-lg font-semibold text-zinc-950">Add Student Profile</h2>
           <div className="flex items-center gap-2">
             <Button 
               type="button" 
@@ -324,24 +324,24 @@ const [formData, setFormData] = useState({
 
         <form onSubmit={handleSave}>
           <div className="p-4 sm:p-6">
-            {/* Tabs */}
-            <div className="flex overflow-x-auto whitespace-nowrap border-b border-zinc-200 dark:border-zinc-200 mb-6 relative custom-scrollbar pb-1">
+            {/* Tabs Ribbon - Scrollable and responsive */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-zinc-200 pb-2 mb-6 scroll-smooth">
               {tabs.map(tab => (
                 <button
                   key={tab}
                   type="button"
                   onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-3 text-xs font-semibold transition-colors border-b-2 uppercase ${
-                      activeTab === tab
-                        ? 'border-emerald-500 text-emerald-600 dark:text-white bg-emerald-50 dark:bg-white font-bold'
-                        : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-50/80'
-                    }`}
+                  className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all whitespace-nowrap shrink-0 uppercase tracking-wide cursor-pointer ${
+                    activeTab === tab
+                      ? 'bg-[#084A86] text-white shadow-sm'
+                      : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900'
+                  }`}
                 >
                   {tab}
                 </button>
               ))}
-              <div className="absolute right-0 bottom-2 hidden sm:block">
-                <Button disabled={submitting} type="submit" className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold py-2 rounded-lg shadow-xs h-8 text-xs cursor-pointer">
+              <div className="ml-auto hidden sm:block shrink-0 pl-2">
+                <Button disabled={submitting} type="submit" className="bg-[#084A86] hover:bg-[#063b6d] text-white font-bold py-2 px-4 rounded-lg shadow-xs h-8 text-xs cursor-pointer">
                   {submitting ? 'SAVING...' : 'SAVE STUDENT'}
                 </Button>
               </div>
@@ -630,7 +630,7 @@ const [formData, setFormData] = useState({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Transfer Certificate (TC) Scan (Original)</Label>
-                      <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'document1')} className="bg-white border-zinc-300 text-zinc-950 text-zinc-950 file:bg-zinc-800 file:text-zinc-950 file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-zinc-700 cursor-pointer" />
+                      <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'document1')} className="bg-white border-zinc-300 text-zinc-950 file:bg-[#084A86] file:text-white file:font-bold file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-[#063b6d] file:rounded-md cursor-pointer" />
                         <DocumentPreview preview={docPreviews.document1} error={docErrors.document1} />
                     </div>
                     <div className="space-y-1.5">
@@ -639,12 +639,12 @@ const [formData, setFormData] = useState({
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">CNIC / B-Form Front (Original)</Label>
-                      <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'cnicFront')} className="bg-white border-zinc-300 text-zinc-950 text-zinc-950 file:bg-zinc-800 file:text-zinc-950 file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-zinc-700 cursor-pointer" />
+                      <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'cnicFront')} className="bg-white border-zinc-300 text-zinc-950 file:bg-[#084A86] file:text-white file:font-bold file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-[#063b6d] file:rounded-md cursor-pointer" />
                         <DocumentPreview preview={docPreviews.cnicFront} error={docErrors.cnicFront} />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">CNIC / B-Form Back (Original)</Label>
-                      <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'cnicBack')} className="bg-white border-zinc-300 text-zinc-950 text-zinc-950 file:bg-zinc-800 file:text-zinc-950 file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-zinc-700 cursor-pointer" />
+                      <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'cnicBack')} className="bg-white border-zinc-300 text-zinc-950 file:bg-[#084A86] file:text-white file:font-bold file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-[#063b6d] file:rounded-md cursor-pointer" />
                         <DocumentPreview preview={docPreviews.cnicBack} error={docErrors.cnicBack} />
                     </div>
                     <div className="space-y-1.5">
@@ -659,7 +659,7 @@ const [formData, setFormData] = useState({
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Qualification Certificate (Original)</Label>
-                      <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'qualificationDocument')} className="bg-white border-zinc-300 text-zinc-950 text-zinc-950 file:bg-zinc-800 file:text-zinc-950 file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-zinc-700 cursor-pointer" />
+                      <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'qualificationDocument')} className="bg-white border-zinc-300 text-zinc-950 file:bg-[#084A86] file:text-white file:font-bold file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-[#063b6d] file:rounded-md cursor-pointer" />
                         <DocumentPreview preview={docPreviews.qualificationDocument} error={docErrors.qualificationDocument} />
                     </div>
                   </div>

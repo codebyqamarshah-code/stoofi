@@ -1,9 +1,10 @@
 import jsPDF from 'jspdf';
+import { PAK_ROYAL_COLLEGE_LOGO } from './pakRoyalCollegeLogo';
 
 /**
  * Generates an official, printable ID Card PDF (Standard CR80 54mm x 86mm badge format)
- * Ultra-professional layout matching real institutional lanyard and horizontal badges.
- * Contains ONLY the card content, badges, school header, student/staff bio, barcode, and verification seal.
+ * Ultra-professional layout for Pak Royal College Sharaqpur.
+ * Contains the official crest badge, college header, student/staff bio, barcode, and principal signature.
  */
 export const downloadIdCardPDF = (rec, schoolSetting = null, designStyle = 'stoofi-emerald') => {
   if (!rec) return;
@@ -48,7 +49,7 @@ export const downloadBatchIdCardsPDF = (recordsList, schoolSetting = null, desig
     renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, designStyle);
   });
 
-  doc.save(`Stoofi_ID_Cards_Batch_${recordsList.length}.pdf`);
+  doc.save(`Pak_Royal_College_ID_Cards_Batch_${recordsList.length}.pdf`);
 };
 
 /**
@@ -58,33 +59,33 @@ function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, designStyle)
   const width = isHorizontal ? 85.6 : 54;
   const height = isHorizontal ? 53.98 : 85.6;
 
-  const schoolName = schoolSetting?.schoolName || 'STOOFI PUBLIC SCHOOL & COLLEGE';
-  const schoolAddress = schoolSetting?.address || schoolSetting?.city || 'Main Campus, Model Town, Lahore';
+  const schoolName = schoolSetting?.schoolName || 'PAK ROYAL COLLEGE SHARAQPUR';
+  const schoolAddress = schoolSetting?.address || schoolSetting?.city || 'Sharaqpur Sharif, Sheikhupura, Punjab';
   const schoolPhone = schoolSetting?.phone || '+92 300 1234567';
 
-  const name = `${rec.firstName || ''} ${rec.lastName || ''}`.trim() || rec.name || 'Cardholder Name';
+  const name = `${rec.firstName || ''} ${rec.lastName || ''}`.trim() || rec.name || 'Muhammad Abdullah';
   const role = rec.role || (rec.admissionNo ? 'Student' : 'Staff');
   const admNo = rec.admissionNo || rec.staffNo || 'ADM-2026-001';
-  const rollNo = rec.rollNo || '101';
-  const className = rec.className || 'Class 10';
+  const rollNo = rec.rollNo || 'FSCNurs010';
+  const className = rec.className || 'FSC NURSING';
   const section = rec.section || 'A';
   const fatherName = rec.fatherName || 'Syed Ali Shah';
-  const dob = rec.dob || '14/05/2008';
+  const dob = rec.dob || '2010-03-01';
   const phone = rec.phone || rec.mobile || rec.guardianPhone || schoolPhone;
   const designation = rec.designation || 'Senior Faculty';
   const department = rec.department || 'Academics';
   const photo = rec.studentPhoto || rec.photo || rec.staffPhoto;
 
   // Theme primary color configuration
-  let primaryR = 8, primaryG = 74, primaryB = 134; // Stoofi Blue
-  if (designStyle === 'stoofi-emerald') {
-    primaryR = 5; primaryG = 150; primaryB = 105; // Emerald
+  let primaryR = 5, primaryG = 150, primaryB = 105; // Emerald
+  if (designStyle === 'classic-navy') {
+    primaryR = 8; primaryG = 74; primaryB = 134; // Royal Navy Blue
   } else if (designStyle === 'royal-purple') {
-    primaryR = 109; primaryG = 40; primaryB = 217; // Royal Purple
+    primaryR = 109; primaryG = 40; primaryB = 217;
   } else if (designStyle === 'dark-slate') {
-    primaryR = 24; primaryG = 24; primaryB = 27; // Obsidian Dark
+    primaryR = 24; primaryG = 24; primaryB = 27;
   } else if (designStyle === 'crimson-gold') {
-    primaryR = 159; primaryG = 18; primaryB = 57; // Crimson
+    primaryR = 159; primaryG = 18; primaryB = 57;
   }
 
   // Card Outer Border
@@ -94,49 +95,60 @@ function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, designStyle)
 
   if (!isHorizontal) {
     // ════════════════════════════════════════════════════════
-    // ── VERTICAL LANYARD BADGE (Matching User Reference Image 2) ──
+    // ── VERTICAL CARD (PAK ROYAL COLLEGE) ──
     // ════════════════════════════════════════════════════════
 
-    // Lanyard Clip Cutout (Punch slot representation)
-    doc.setFillColor(226, 232, 240);
-    doc.setDrawColor(203, 213, 225);
-    doc.setLineWidth(0.3);
-    doc.roundedRect((width - 12) / 2, 2.5, 12, 2, 1, 1, 'FD');
-
-    // Header Banner
+    // Header Banner (Clean, no punch slot)
+    const headerY = 2.2;
+    const headerH = 17.5;
     doc.setFillColor(primaryR, primaryG, primaryB);
-    doc.roundedRect(2, 5.5, width - 4, 15, 2, 2, 'F');
+    doc.roundedRect(2.2, headerY, width - 4.4, headerH, 2.5, 2.5, 'F');
 
+    // Official Pak Royal College Circular Badge (Logo)
+    const logoSize = 13;
+    const logoX = 4;
+    const logoY = headerY + (headerH - logoSize) / 2;
+    try {
+      if (PAK_ROYAL_COLLEGE_LOGO) {
+        doc.addImage(PAK_ROYAL_COLLEGE_LOGO, 'PNG', logoX, logoY, logoSize, logoSize);
+      }
+    } catch (err) {
+      console.warn('Could not add logo to ID Card PDF:', err);
+    }
+
+    // Header College Title Text beside logo
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(5.5);
-    doc.text('OFFICIAL IDENTITY BADGE', width / 2, 9, { align: 'center' });
+    doc.setFontSize(8);
+    doc.text('PAK ROYAL COLLEGE', 19, headerY + 6.2);
 
-    doc.setFontSize(7.5);
-    doc.text(schoolName.toUpperCase().slice(0, 28), width / 2, 13.5, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.2);
+    doc.setTextColor(253, 224, 71); // Gold accent
+    doc.text('SHARAQPUR', 19, headerY + 11);
 
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(5);
+    doc.setFontSize(4.6);
     doc.setTextColor(226, 232, 240);
-    doc.text(schoolAddress.slice(0, 36), width / 2, 17.5, { align: 'center' });
+    doc.text('AFFILIATED & REGISTERED', 19, headerY + 15);
 
-    // Portrait Rounded-Rectangular Photo Box (22mm x 26mm, r: 2.5mm)
-    const photoW = 21;
-    const photoH = 25;
+    // Photo Box Configuration (22mm x 26mm, rounded r: 2.5mm)
+    const photoW = 22;
+    const photoH = 26;
     const photoX = (width - photoW) / 2;
     const photoY = 22;
+    const photoR = 2.5;
 
+    // Fill white/light slate background for photo box
     doc.setFillColor(248, 250, 252);
-    doc.setDrawColor(primaryR, primaryG, primaryB);
-    doc.setLineWidth(0.6);
-    doc.roundedRect(photoX, photoY, photoW, photoH, 2.5, 2.5, 'FD');
+    doc.roundedRect(photoX, photoY, photoW, photoH, photoR, photoR, 'F');
 
-    // Render Student Photo or Initials Placeholder
+    // Render Student Photo
     let photoRendered = false;
     if (photo && (photo.startsWith('data:image') || photo.startsWith('blob:') || photo.startsWith('http'))) {
       try {
         const format = photo.includes('png') ? 'PNG' : 'JPEG';
-        doc.addImage(photo, format, photoX + 0.5, photoY + 0.5, photoW - 1, photoH - 1);
+        doc.addImage(photo, format, photoX, photoY, photoW, photoH);
         photoRendered = true;
       } catch (err) {
         photoRendered = false;
@@ -144,40 +156,54 @@ function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, designStyle)
     }
 
     if (!photoRendered) {
+      // Placeholder with Initial Letter
       doc.setTextColor(primaryR, primaryG, primaryB);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(16);
-      doc.text((rec.firstName || name).charAt(0).toUpperCase(), width / 2, photoY + 16, { align: 'center' });
+      doc.text((rec.firstName || name).charAt(0).toUpperCase(), width / 2, photoY + 17, { align: 'center' });
     }
 
+    // DRAW THE BORDER ON TOP OF THE PHOTO!
+    // This frames the photo cleanly, hides any square edges, and prevents any green sticking out below!
+    doc.setDrawColor(primaryR, primaryG, primaryB);
+    doc.setLineWidth(0.8);
+    doc.roundedRect(photoX, photoY, photoW, photoH, photoR, photoR, 'S');
+
     // Name & Role Badge
+    const nameY = photoY + photoH + 4.2; // 52.2
     doc.setTextColor(15, 23, 42);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8.5);
-    doc.text(name.slice(0, 22).toUpperCase(), width / 2, 51, { align: 'center' });
+    doc.text(name.slice(0, 24).toUpperCase(), width / 2, nameY, { align: 'center' });
 
+    // Role Pill Badge
+    const badgeY = nameY + 2; // 54.2
+    const badgeW = 24;
+    const badgeH = 4.2;
     doc.setFillColor(236, 253, 245);
-    doc.roundedRect((width - 24) / 2, 52.5, 24, 4.2, 2, 2, 'F');
+    doc.roundedRect((width - badgeW) / 2, badgeY, badgeW, badgeH, 2, 2, 'F');
     doc.setTextColor(primaryR, primaryG, primaryB);
     doc.setFontSize(6);
-    doc.text(role.toUpperCase(), width / 2, 55.5, { align: 'center' });
+    doc.text(role.toUpperCase(), width / 2, badgeY + 3.1, { align: 'center' });
 
     // Details Grid Box
+    const boxY = badgeY + badgeH + 2; // 60.4
+    const boxH = 17.5;
     doc.setFillColor(248, 250, 252);
     doc.setDrawColor(226, 232, 240);
     doc.setLineWidth(0.3);
-    doc.roundedRect(3.5, 58, width - 7, 20, 2, 2, 'FD');
+    doc.roundedRect(3.5, boxY, width - 7, boxH, 2, 2, 'FD');
 
     doc.setFontSize(5.2);
-    let y = 61.5;
+    let y = boxY + 3.2;
     const addRow = (label, val, valColor = [15, 23, 42]) => {
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(100, 116, 139);
       doc.text(label, 5.5, y);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(valColor[0], valColor[1], valColor[2]);
-      doc.text(String(val).slice(0, 20), width - 5.5, y, { align: 'right' });
-      y += 3.6;
+      doc.text(String(val).slice(0, 22), width - 5.5, y, { align: 'right' });
+      y += 3.3;
     };
 
     if (role === 'Student') {
@@ -194,7 +220,7 @@ function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, designStyle)
     }
 
     // Realistic Barcode Lines (Bottom Left)
-    const barY = height - 6.5;
+    const barY = height - 5.5;
     const barWidths = [0.4, 0.2, 0.5, 0.2, 0.4, 0.2, 0.2, 0.5, 0.4, 0.2, 0.5, 0.2, 0.4, 0.2, 0.3];
     let curX = 4;
     doc.setFillColor(30, 41, 59);
@@ -218,15 +244,22 @@ function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, designStyle)
     doc.setFillColor(primaryR, primaryG, primaryB);
     doc.roundedRect(2, 2, width - 4, 11, 2, 2, 'F');
 
+    // Add logo to horizontal header
+    try {
+      if (PAK_ROYAL_COLLEGE_LOGO) {
+        doc.addImage(PAK_ROYAL_COLLEGE_LOGO, 'PNG', 4, 2.8, 9.4, 9.4);
+      }
+    } catch (e) {}
+
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8);
-    doc.text(schoolName.toUpperCase().slice(0, 36), width / 2, 6.5, { align: 'center' });
+    doc.text('PAK ROYAL COLLEGE SHARAQPUR', (width + 10) / 2, 6.5, { align: 'center' });
 
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(5);
+    doc.setFontSize(4.8);
     doc.setTextColor(226, 232, 240);
-    doc.text(schoolAddress.slice(0, 48), width / 2, 10, { align: 'center' });
+    doc.text(schoolAddress.slice(0, 48), (width + 10) / 2, 10, { align: 'center' });
 
     // Left: Photo Box (18mm x 22mm)
     const photoW = 18;
@@ -235,15 +268,13 @@ function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, designStyle)
     const photoY = 16;
 
     doc.setFillColor(248, 250, 252);
-    doc.setDrawColor(primaryR, primaryG, primaryB);
-    doc.setLineWidth(0.5);
-    doc.roundedRect(photoX, photoY, photoW, photoH, 2, 2, 'FD');
+    doc.roundedRect(photoX, photoY, photoW, photoH, 2, 2, 'F');
 
     let photoRendered = false;
     if (photo && (photo.startsWith('data:image') || photo.startsWith('blob:') || photo.startsWith('http'))) {
       try {
         const format = photo.includes('png') ? 'PNG' : 'JPEG';
-        doc.addImage(photo, format, photoX + 0.5, photoY + 0.5, photoW - 1, photoH - 1);
+        doc.addImage(photo, format, photoX, photoY, photoW, photoH);
         photoRendered = true;
       } catch (err) {
         photoRendered = false;
@@ -256,6 +287,11 @@ function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, designStyle)
       doc.setFontSize(14);
       doc.text((rec.firstName || name).charAt(0).toUpperCase(), photoX + photoW / 2, photoY + 14, { align: 'center' });
     }
+
+    // Border on top of photo
+    doc.setDrawColor(primaryR, primaryG, primaryB);
+    doc.setLineWidth(0.6);
+    doc.roundedRect(photoX, photoY, photoW, photoH, 2, 2, 'S');
 
     // Barcode under Photo
     const barY = photoY + photoH + 2;
@@ -299,6 +335,7 @@ function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, designStyle)
       addHRow('Class & Sec:', `${className} (${section})`, true);
       addHRow('Roll No:', rollNo);
       addHRow('DOB:', dob);
+      if (fatherName) addHRow('Guardian:', fatherName);
       addHRow('Emergency:', phone);
     } else {
       addHRow('Staff ID:', admNo);

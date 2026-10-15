@@ -47,8 +47,8 @@ function renderCertificateToDoc(doc, student, template, schoolSetting) {
   const height = 210;
 
   const styleId = template.themeStyle || 'classic-gold';
-  const schoolName = schoolSetting?.schoolName || 'Stoofi Public School & College';
-  const schoolAddress = schoolSetting?.address || 'Main Campus, Model Town, Lahore, Pakistan';
+  const schoolName = schoolSetting?.schoolName || 'Pak Royal College Sharaqpur';
+  const schoolAddress = schoolSetting?.address || 'Sharaqpur Sharif, Sheikhupura, Punjab, Pakistan';
   const schoolPhone = schoolSetting?.phone || '+92 300 1234567';
 
   const stName = `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.name || student.studentName || 'Student Name';

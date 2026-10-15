@@ -433,8 +433,8 @@ exports.generateCertificates = async (req, res) => {
       ? new Date(certificateDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
       : new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
-    const schoolName = setting?.schoolName || 'Stoofi Public School & College';
-    const schoolAddress = setting?.address || 'Main Campus, Lahore, Pakistan';
+    const schoolName = setting?.schoolName || 'Pak Royal College Sharaqpur';
+    const schoolAddress = setting?.address || 'Sharaqpur Sharif, Sheikhupura, Punjab, Pakistan';
     const schoolPhone = setting?.phone || '+92 300 1234567';
 
     const currentYear = new Date().getFullYear();

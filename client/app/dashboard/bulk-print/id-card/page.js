@@ -201,11 +201,11 @@ export default function BulkPrintIdCardPage() {
         setSchoolSetting(setRes.data);
       } else {
         setSchoolSetting({
-          schoolName: 'Stoofi Public School & College',
-          schoolCode: 'STOOFI-001',
+          schoolName: 'Pak Royal College Sharaqpur',
+          schoolCode: 'PRC-001',
           phone: '+92 300 1234567',
-          email: 'info@stoofi.com',
-          address: 'Main Campus, Model Town, Lahore, Pakistan'
+          email: 'info@pakroyalcollege.edu.pk',
+          address: 'Sharaqpur Sharif, Sheikhupura, Punjab, Pakistan'
         });
       }
     } catch (err) {
@@ -321,8 +321,8 @@ export default function BulkPrintIdCardPage() {
   }, [records, searchQuery]);
 
   const selectedRecords = filteredRecords.filter(r => selectedIds.includes(r._id));
-  const schoolName = schoolSetting?.schoolName || 'Stoofi Public School & College';
-  const schoolAddress = schoolSetting?.address || schoolSetting?.city || 'Main Campus, Lahore, Pakistan';
+  const schoolName = schoolSetting?.schoolName || 'Pak Royal College Sharaqpur';
+  const schoolAddress = schoolSetting?.address || schoolSetting?.city || 'Sharaqpur Sharif, Punjab, Pakistan';
   const schoolPhone = schoolSetting?.phone || '+92 300 1234567';
 
   // Active Design Object
@@ -342,8 +342,8 @@ export default function BulkPrintIdCardPage() {
     const showQrBarcode = activeTpl.showQrBarcode !== undefined ? activeTpl.showQrBarcode : true;
     const showSignature = activeTpl.showSignature !== undefined ? activeTpl.showSignature : true;
 
-    const brandHeader = activeTpl.headerText || schoolName || 'Stoofi Public School';
-    const brandSubHeader = activeTpl.subHeaderText || schoolAddress || 'Main Campus, Lahore, Pakistan';
+    const brandHeader = activeTpl.headerText || schoolName || 'Pak Royal College Sharaqpur';
+    const brandSubHeader = activeTpl.subHeaderText || schoolAddress || 'Sharaqpur Sharif, Punjab, Pakistan';
     const brandFooter = activeTpl.footerText || 'Principal Signature';
 
     const name = `${rec.firstName || ''} ${rec.lastName || ''}`.trim() || rec.name || 'Cardholder Name';
@@ -370,18 +370,24 @@ export default function BulkPrintIdCardPage() {
     if (activeDesignId === 'stoofi-emerald') {
       return (
         <div className={`bg-white text-zinc-900 rounded-3xl overflow-hidden shadow-xl border-2 border-emerald-600 w-full ${isInspectModal ? 'max-w-[340px]' : ''} flex flex-col justify-between select-none relative`}>
-          {/* Lanyard Hole Cutout Representation */}
-          <div className="pt-2 pb-1 bg-white text-center">
-            <div className="w-12 h-2.5 rounded-full bg-zinc-200 border border-zinc-300 mx-auto shadow-inner" />
-          </div>
-
-          {/* Header Banner */}
-          <div className="bg-gradient-to-r from-emerald-800 to-teal-900 pt-3 pb-3 px-4 text-center text-white relative overflow-hidden">
-            <div className="text-[8.5px] font-black uppercase tracking-widest text-emerald-300 flex items-center justify-center gap-1">
-              <Building className="w-3 h-3 text-amber-300" /> STOOFI PUBLIC SCHOOL
+          {/* Header Banner with Official Pak Royal College Crest */}
+          <div className="bg-gradient-to-r from-emerald-800 via-teal-900 to-emerald-950 p-3 text-white relative overflow-hidden flex items-center gap-3">
+            <img 
+              src="/pak-royal-college-logo.png" 
+              alt="Pak Royal College" 
+              className="w-12 h-12 object-contain drop-shadow-md shrink-0 bg-white/10 rounded-full p-0.5 border border-white/20" 
+            />
+            <div className="min-w-0 text-left">
+              <h3 className="font-black text-xs sm:text-sm leading-tight uppercase tracking-tight text-white drop-shadow-xs truncate">
+                PAK ROYAL COLLEGE
+              </h3>
+              <p className="text-[10px] font-extrabold text-amber-300 uppercase tracking-wider mt-0.5">
+                SHARAQPUR
+              </p>
+              <span className="text-[7.5px] font-medium text-emerald-200/90 tracking-wide uppercase block">
+                Affiliated & Registered
+              </span>
             </div>
-            <h3 className="font-black text-xs leading-tight mt-0.5 uppercase tracking-wide truncate">{brandHeader}</h3>
-            <p className="text-[8px] text-emerald-100/80 mt-0.5 truncate">{brandSubHeader}</p>
           </div>
 
           {/* Photo & Bio */}
@@ -393,14 +399,10 @@ export default function BulkPrintIdCardPage() {
                   {photoUrl ? (
                     <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="flex flex-col items-center justify-center text-zinc-400 p-2">
-                      <User className="w-10 h-10 text-zinc-300" />
-                      <span className="text-[9px] font-bold mt-1 text-zinc-400 uppercase">{name.charAt(0)}</span>
+                    <div className="flex flex-col items-center justify-center text-emerald-700 p-2">
+                      <span className="text-3xl font-black text-emerald-700 uppercase">{name.charAt(0)}</span>
                     </div>
                   )}
-                </div>
-                <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs border-2 border-white">
-                  <ShieldCheck className="w-3.5 h-3.5" />
                 </div>
               </div>
             )}
@@ -484,12 +486,14 @@ export default function BulkPrintIdCardPage() {
           {/* Header Stripe */}
           <div className="bg-gradient-to-r from-sky-950 via-sky-900 to-indigo-950 px-3.5 py-2 flex items-center justify-between border-b-2 border-amber-500 text-white">
             <div className="flex items-center gap-2">
-              <div className="h-6 w-6 rounded-md bg-white/10 flex items-center justify-center font-black text-[11px] uppercase text-amber-400 border border-amber-400/40">
-                S
-              </div>
+              <img 
+                src="/pak-royal-college-logo.png" 
+                alt="Pak Royal College" 
+                className="h-8 w-8 rounded-full object-contain bg-white/10 p-0.5 border border-white/30 shrink-0" 
+              />
               <div>
-                <h3 className="font-black text-[11px] leading-tight uppercase tracking-tight text-white">{brandHeader}</h3>
-                <p className="text-[8px] text-sky-200 truncate">{brandSubHeader}</p>
+                <h3 className="font-black text-xs leading-tight uppercase tracking-tight text-white">PAK ROYAL COLLEGE</h3>
+                <p className="text-[9px] font-bold text-amber-300 uppercase tracking-wider">SHARAQPUR CAMPUS</p>
               </div>
             </div>
             <span className="text-[8.5px] font-black uppercase tracking-wider bg-amber-400 text-sky-950 px-2 py-0.5 rounded shadow-2xs">
@@ -508,8 +512,7 @@ export default function BulkPrintIdCardPage() {
                       <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
                     ) : (
                       <div className="flex flex-col items-center justify-center text-sky-900">
-                        <User className="w-8 h-8 text-sky-700" />
-                        <span className="text-[8px] font-bold mt-1 uppercase">{name.charAt(0)}</span>
+                        <span className="text-xl font-bold uppercase">{name.charAt(0)}</span>
                       </div>
                     )}
                   </div>
@@ -556,7 +559,7 @@ export default function BulkPrintIdCardPage() {
 
           {/* Footer */}
           <div className="bg-sky-50 px-3.5 py-1.5 text-[8.5px] text-sky-900 flex justify-between items-center border-t border-sky-200">
-            <span className="font-mono font-bold">STO-ID-{admNo}</span>
+            <span className="font-mono font-bold">PRC-ID-{admNo}</span>
             <span className="font-bold text-sky-950">{showSignature ? brandFooter : 'Authorized Campus Seal'}</span>
           </div>
         </div>
@@ -567,17 +570,23 @@ export default function BulkPrintIdCardPage() {
     if (activeDesignId === 'royal-purple') {
       return (
         <div className={`bg-white text-zinc-900 rounded-3xl overflow-hidden shadow-xl border-2 border-purple-600 w-full ${isInspectModal ? 'max-w-[340px]' : ''} flex flex-col justify-between select-none`}>
-          {/* Lanyard Hole Cutout Representation */}
-          <div className="pt-2 pb-1 bg-white text-center">
-            <div className="w-12 h-2.5 rounded-full bg-zinc-200 border border-zinc-300 mx-auto shadow-inner" />
-          </div>
-
-          <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-950 pt-3 pb-3 px-4 text-center text-white relative">
-            <div className="text-[8.5px] font-extrabold uppercase tracking-widest text-purple-200 flex items-center justify-center gap-1">
-              <Crown className="w-3 h-3 text-amber-400" /> ACADEMIC EXCELLENCE BADGE
+          <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-950 p-3 text-white relative flex items-center gap-3">
+            <img 
+              src="/pak-royal-college-logo.png" 
+              alt="Pak Royal College" 
+              className="w-12 h-12 object-contain drop-shadow-md shrink-0 bg-white/10 rounded-full p-0.5 border border-white/20" 
+            />
+            <div className="min-w-0 text-left">
+              <h3 className="font-black text-xs sm:text-sm leading-tight uppercase tracking-tight text-white drop-shadow-xs truncate">
+                PAK ROYAL COLLEGE
+              </h3>
+              <p className="text-[10px] font-extrabold text-amber-300 uppercase tracking-wider mt-0.5">
+                SHARAQPUR
+              </p>
+              <span className="text-[7.5px] font-medium text-purple-200/90 tracking-wide uppercase block">
+                Academic Excellence Pass
+              </span>
             </div>
-            <h3 className="font-black text-xs leading-tight mt-0.5 uppercase tracking-wide truncate">{brandHeader}</h3>
-            <p className="text-[8px] text-purple-200/80 mt-0.5 truncate">{brandSubHeader}</p>
           </div>
 
           <div className="p-3.5 flex flex-col items-center text-center flex-1 bg-white">
@@ -672,17 +681,23 @@ export default function BulkPrintIdCardPage() {
     if (activeDesignId === 'dark-slate') {
       return (
         <div className={`bg-zinc-950 text-white rounded-3xl overflow-hidden shadow-2xl border-2 border-zinc-700 w-full ${isInspectModal ? 'max-w-[340px]' : ''} flex flex-col justify-between select-none`}>
-          {/* Lanyard Hole Cutout Representation */}
-          <div className="pt-2 pb-1 bg-zinc-950 text-center">
-            <div className="w-12 h-2.5 rounded-full bg-zinc-800 border border-zinc-700 mx-auto shadow-inner" />
-          </div>
-
-          <div className="bg-gradient-to-r from-zinc-900 to-black pt-3 pb-3 px-4 text-center border-b border-zinc-800 text-white relative">
-            <div className="text-[8.5px] font-extrabold uppercase tracking-widest text-emerald-400 flex items-center justify-center gap-1">
-              <BadgeCheck className="w-3.5 h-3.5 text-emerald-400" /> DIGITAL SMART CARD
+          <div className="bg-gradient-to-r from-zinc-900 to-black p-3 border-b border-zinc-800 text-white relative flex items-center gap-3">
+            <img 
+              src="/pak-royal-college-logo.png" 
+              alt="Pak Royal College" 
+              className="w-12 h-12 object-contain drop-shadow-md shrink-0 bg-white/10 rounded-full p-0.5 border border-white/20" 
+            />
+            <div className="min-w-0 text-left">
+              <h3 className="font-black text-xs sm:text-sm leading-tight uppercase tracking-tight text-white drop-shadow-xs truncate">
+                PAK ROYAL COLLEGE
+              </h3>
+              <p className="text-[10px] font-extrabold text-emerald-400 uppercase tracking-wider mt-0.5">
+                SHARAQPUR
+              </p>
+              <span className="text-[7.5px] font-medium text-zinc-400 tracking-wide uppercase block">
+                Digital Smart ID Card
+              </span>
             </div>
-            <h3 className="font-black text-xs leading-tight mt-0.5 uppercase tracking-wide truncate text-white">{brandHeader}</h3>
-            <p className="text-[8px] text-zinc-400 mt-0.5 truncate">{brandSubHeader}</p>
           </div>
 
           <div className="p-3.5 flex flex-col items-center text-center flex-1 bg-zinc-900/90">
@@ -693,13 +708,9 @@ export default function BulkPrintIdCardPage() {
                     <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
                   ) : (
                     <div className="flex flex-col items-center justify-center text-emerald-400">
-                      <User className="w-10 h-10 text-zinc-600" />
-                      <span className="text-[9px] font-bold mt-1 uppercase text-emerald-400">{name.charAt(0)}</span>
+                      <span className="text-3xl font-black uppercase text-emerald-400">{name.charAt(0)}</span>
                     </div>
                   )}
-                </div>
-                <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-emerald-600 text-zinc-950 flex items-center justify-center shadow-xs border-2 border-zinc-900">
-                  <BadgeCheck className="w-3.5 h-3.5 text-zinc-950" />
                 </div>
               </div>
             )}
@@ -776,17 +787,23 @@ export default function BulkPrintIdCardPage() {
     // ── DESIGN 5: Heritage Crimson & Gold Crest Badge ──
     return (
       <div className={`bg-white text-zinc-900 rounded-3xl overflow-hidden shadow-xl border-3 border-amber-600 w-full ${isInspectModal ? 'max-w-[340px]' : ''} flex flex-col justify-between select-none`}>
-        {/* Lanyard Hole Cutout Representation */}
-        <div className="pt-2 pb-1 bg-white text-center">
-          <div className="w-12 h-2.5 rounded-full bg-zinc-200 border border-zinc-300 mx-auto shadow-inner" />
-        </div>
-
-        <div className="bg-gradient-to-r from-rose-950 via-rose-900 to-amber-950 pt-3 pb-3 px-4 text-center text-white border-b-2 border-amber-500 relative">
-          <div className="text-[8.5px] font-black uppercase tracking-widest text-amber-300 flex items-center justify-center gap-1">
-            <Award className="w-3 3 text-amber-300" /> INSTITUTIONAL CREST BADGE
+        <div className="bg-gradient-to-r from-rose-950 via-rose-900 to-amber-950 p-3 text-white border-b-2 border-amber-500 relative flex items-center gap-3">
+          <img 
+            src="/pak-royal-college-logo.png" 
+            alt="Pak Royal College" 
+            className="w-12 h-12 object-contain drop-shadow-md shrink-0 bg-white/10 rounded-full p-0.5 border border-white/20" 
+          />
+          <div className="min-w-0 text-left">
+            <h3 className="font-black text-xs sm:text-sm leading-tight uppercase tracking-tight text-white drop-shadow-xs truncate">
+              PAK ROYAL COLLEGE
+            </h3>
+            <p className="text-[10px] font-extrabold text-amber-300 uppercase tracking-wider mt-0.5">
+              SHARAQPUR
+            </p>
+            <span className="text-[7.5px] font-medium text-amber-200/80 tracking-wide uppercase block">
+              Institutional Heritage Pass
+            </span>
           </div>
-          <h3 className="font-black text-xs leading-tight mt-0.5 uppercase tracking-wide truncate text-white">{brandHeader}</h3>
-          <p className="text-[8px] text-amber-200/80 mt-0.5 truncate">{brandSubHeader}</p>
         </div>
 
         <div className="p-3.5 flex flex-col items-center text-center flex-1 bg-white">
@@ -797,13 +814,9 @@ export default function BulkPrintIdCardPage() {
                   <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
                 ) : (
                   <div className="flex flex-col items-center justify-center text-rose-950">
-                    <User className="w-10 h-10 text-amber-300" />
-                    <span className="text-[9px] font-bold mt-1 uppercase text-rose-950">{name.charAt(0)}</span>
+                    <span className="text-3xl font-black uppercase text-rose-950">{name.charAt(0)}</span>
                   </div>
                 )}
-              </div>
-              <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-amber-500 text-rose-950 flex items-center justify-center shadow-xs border-2 border-white">
-                <Award className="w-3.5 h-3.5 text-rose-950" />
               </div>
             </div>
           )}

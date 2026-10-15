@@ -34,8 +34,143 @@ export default function StoofiAiFloating() {
   const [conversationId, setConversationId] = useState(null);
   const [copiedMessageId, setCopiedMessageId] = useState(null);
 
+  // Draggable state for the floating launcher button (desktop + mobile)
+  const [position, setPosition] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragRef = useRef({
+    startX: 0,
+    startY: 0,
+    initialX: 0,
+    initialY: 0,
+    moved: false,
+    isDragging: false,
+    pointerId: null
+  });
+
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Load saved position or initialize bottom-right default
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const saved = localStorage.getItem('stoofi_ai_btn_pos');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (typeof parsed?.x === 'number' && typeof parsed?.y === 'number') {
+          const maxX = Math.max(10, window.innerWidth - 68);
+          const maxY = Math.max(10, window.innerHeight - 68);
+          setPosition({
+            x: Math.max(10, Math.min(maxX, parsed.x)),
+            y: Math.max(10, Math.min(maxY, parsed.y))
+          });
+          return;
+        }
+      }
+    } catch (e) {}
+
+    const defX = Math.max(10, window.innerWidth - 76);
+    const defY = Math.max(10, window.innerHeight - 84);
+    setPosition({ x: defX, y: defY });
+  }, []);
+
+  // Keep within bounds on window resize
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleResize = () => {
+      setPosition(prev => {
+        if (!prev) return prev;
+        const maxX = Math.max(10, window.innerWidth - 68);
+        const maxY = Math.max(10, window.innerHeight - 68);
+        return {
+          x: Math.max(10, Math.min(maxX, prev.x)),
+          y: Math.max(10, Math.min(maxY, prev.y))
+        };
+      });
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handlePointerDown = (e) => {
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+
+    const currentX = position?.x ?? (window.innerWidth - 76);
+    const currentY = position?.y ?? (window.innerHeight - 84);
+
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initialX: currentX,
+      initialY: currentY,
+      moved: false,
+      isDragging: true,
+      pointerId: e.pointerId
+    };
+
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch (err) {}
+  };
+
+  const handlePointerMove = (e) => {
+    if (!dragRef.current.isDragging) return;
+
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+
+    if (!dragRef.current.moved && Math.hypot(dx, dy) > 5) {
+      dragRef.current.moved = true;
+      setIsDragging(true);
+    }
+
+    if (dragRef.current.moved) {
+      const maxX = Math.max(10, window.innerWidth - 68);
+      const maxY = Math.max(10, window.innerHeight - 68);
+      const newX = Math.max(10, Math.min(maxX, dragRef.current.initialX + dx));
+      const newY = Math.max(10, Math.min(maxY, dragRef.current.initialY + dy));
+      setPosition({ x: newX, y: newY });
+    }
+  };
+
+  const handlePointerUp = (e) => {
+    if (!dragRef.current.isDragging) return;
+
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch (err) {}
+
+    const wasMoved = dragRef.current.moved;
+    dragRef.current.isDragging = false;
+
+    if (wasMoved) {
+      setPosition(curr => {
+        if (curr) {
+          try {
+            localStorage.setItem('stoofi_ai_btn_pos', JSON.stringify(curr));
+          } catch (err) {}
+        }
+        return curr;
+      });
+      setTimeout(() => {
+        setIsDragging(false);
+        dragRef.current.moved = false;
+      }, 80);
+    } else {
+      setIsDragging(false);
+      setIsOpen(true);
+      setIsMinimized(false);
+    }
+  };
+
+  const handlePointerCancel = (e) => {
+    if (!dragRef.current.isDragging) return;
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch (err) {}
+    dragRef.current.isDragging = false;
+    setIsDragging(false);
+  };
 
   // If user is not authenticated or already on full chat-box page, don't show floating panel
   const isFullChatPage = pathname === '/dashboard/utilities/chat/chat-box' || 
@@ -174,24 +309,56 @@ export default function StoofiAiFloating() {
           1. Floating Action Button (Always Visible across Dashboards)
       ────────────────────────────────────────────────────────────── */}
       {!isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 group">
+        <div 
+          className="fixed z-50 group select-none touch-none"
+          style={
+            position
+              ? { left: `${position.x}px`, top: `${position.y}px`, right: 'auto', bottom: 'auto' }
+              : { right: '1.5rem', bottom: '1.5rem' }
+          }
+        >
           <button
-            onClick={() => { setIsOpen(true); setIsMinimized(false); }}
-            aria-label="Ask Stoofi AI"
-            className="relative flex items-center justify-center w-14 h-14 rounded-full bg-white shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 border-2 group/btn"
-            style={{borderColor:'#084A86'}}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerCancel}
+            aria-label="Ask Stoofi AI (Drag anywhere)"
+            title="Drag to move, click to chat"
+            className={`relative flex items-center justify-center w-14 h-14 rounded-full bg-white shadow-xl hover:shadow-2xl border-2 group/btn cursor-grab active:cursor-grabbing select-none touch-none ${
+              isDragging 
+                ? 'scale-110 shadow-2xl ring-4 ring-[#084A86]/25' 
+                : 'hover:scale-105 active:scale-95 transition-transform duration-200'
+            }`}
+            style={{ borderColor: '#084A86' }}
           >
             <img 
               src="/stoofi-icon.png" 
               alt="Stoofi AI" 
-              className="w-9 h-9 object-contain group-hover/btn:scale-110 transition-transform duration-300" 
+              draggable={false}
+              className="w-9 h-9 object-contain group-hover/btn:scale-110 pointer-events-none select-none" 
             />
+
+            {/* Subtle drag dot badge */}
+            <span 
+              className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#084A86] rounded-full border-2 border-white flex items-center justify-center pointer-events-none"
+              title="Draggable"
+            >
+              <span className="w-1 h-1 bg-white rounded-full"></span>
+            </span>
           </button>
 
-          {/* Hover Tooltip */}
-          <div className="absolute right-16 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center px-3 py-1.5 rounded-lg bg-zinc-950 text-white text-xs font-semibold whitespace-nowrap shadow-lg animate-in fade-in slide-in-from-right-2 duration-200">
-            Ask Stoofi AI ✨
-          </div>
+          {/* Hover Tooltip (hidden during drag) */}
+          {!isDragging && (
+            <div 
+              className={`absolute top-1/2 -translate-y-1/2 hidden group-hover:flex items-center px-3 py-1.5 rounded-lg bg-zinc-950 text-white text-xs font-semibold whitespace-nowrap shadow-lg animate-in fade-in duration-200 pointer-events-none ${
+                position && position.x < 140 
+                  ? 'left-16 slide-in-from-left-2' 
+                  : 'right-16 slide-in-from-right-2'
+              }`}
+            >
+              Ask Stoofi AI ✨
+            </div>
+          )}
         </div>
       )}
 

@@ -236,16 +236,16 @@ export default function LoginPage() {
           </button>
           <ThemeToggle />
         </div>
-        <div className="w-full max-w-[440px] bg-white dark:bg-zinc-900 rounded-2xl p-8 sm:p-10 border border-zinc-200 dark:border-zinc-800 shadow-xl text-center">
-          <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <ShieldCheck className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+        <div className="w-full max-w-[440px] bg-white dark:bg-zinc-900 rounded-2xl p-5 sm:p-8 md:p-10 border border-zinc-200 dark:border-zinc-800 shadow-xl text-center mx-auto">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-emerald-100 dark:bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-5 sm:mb-6">
+            <ShieldCheck className="w-7 h-7 sm:w-8 sm:h-8 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">2-Step Verification</h2>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
-            We have sent a 6-digit verification code to <br/><span className="font-bold text-zinc-800 dark:text-zinc-200">{pendingEmail}</span>
+          <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white mb-2">2-Step Verification</h2>
+          <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mb-6 px-1">
+            We have sent a 6-digit verification code to <br/><span className="font-bold text-zinc-800 dark:text-zinc-200 break-all">{pendingEmail}</span>
           </p>
 
-          <div className="mb-6">
+          <div className="mb-6 w-full flex justify-center">
             <OtpInput
               length={6}
               value={otpCode}
@@ -255,11 +255,11 @@ export default function LoginPage() {
           </div>
 
           {/* Timer Display */}
-          <div className="mb-6 flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 font-medium px-1">
-            <span className="flex items-center gap-1.5">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500 dark:text-zinc-400 font-medium px-1">
+            <span className="flex items-center gap-1.5 shrink-0">
               <Timer size={14} className={otpTimer > 0 ? "text-emerald-500 animate-pulse" : "text-rose-500"} />
               {otpTimer > 0 ? (
-                <>Code expires in <span className="font-bold text-zinc-800 dark:text-zinc-200">00:{String(otpTimer).padStart(2, '0')}</span></>
+                <>Code expires in <span className="font-bold text-zinc-800 dark:text-zinc-200 ml-1">00:{String(otpTimer).padStart(2, '0')}</span></>
               ) : (
                 <span className="text-rose-500 font-bold">Code has expired</span>
               )}
@@ -269,7 +269,7 @@ export default function LoginPage() {
               type="button"
               disabled={!canResendOtp || resendingOtp}
               onClick={handleResendOtpCode}
-              className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline disabled:opacity-40 disabled:no-underline transition-all"
+              className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline disabled:opacity-40 disabled:no-underline transition-all whitespace-nowrap ml-auto"
             >
               {resendingOtp ? "Resending..." : "Resend Code"}
             </button>

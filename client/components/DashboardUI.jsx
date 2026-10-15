@@ -951,7 +951,7 @@ export default function DashboardUI({ user }) {
                 <h1 className="text-2xl lg:text-3xl font-extrabold text-zinc-950 dark:text-zinc-900 tracking-tight">
                   {user?.role === 'Admin' ? 'Admin Dashboard' : user?.role === 'Teacher' ? 'Teacher Dashboard' : user?.role === 'Accountant' ? 'Finance Dashboard' : 'Super Admin Dashboard'}
                 </h1>
-                <span className="bg-zinc-950 text-white font-bold text-[10px] uppercase px-2.5 py-1 rounded-full tracking-wider shadow-xs shrink-0">
+                <span className="bg-zinc-950 font-bold text-[10px] uppercase px-2.5 py-1 rounded-full tracking-wider shadow-xs shrink-0" style={{ color: '#ffffff' }}>
                   {user?.role || 'SUPER ADMIN'}
                 </span>
               </div>
@@ -1203,7 +1203,7 @@ export default function DashboardUI({ user }) {
 
         <Card 
           className="bg-white dark:bg-zinc-50 border border-zinc-300/80 dark:border-zinc-200 p-5 hover:border-zinc-950/60 transition-all cursor-pointer shadow-xs rounded-2xl"
-          onClick={() => router.push('/dashboard/hr/staff-directory?role=Teacher')}
+          onClick={() => router.push('/dashboard/teachers')}
         >
           <div className="flex items-center gap-4">
             <div className="h-12 w-12 rounded-xl bg-zinc-100 dark:bg-zinc-100 border border-zinc-300/80 dark:border-zinc-200 flex items-center justify-center text-zinc-950 dark:text-zinc-900">
@@ -1740,33 +1740,36 @@ export default function DashboardUI({ user }) {
               </div>
 
               {/* Filter Tabs */}
-              <div className="flex rounded-lg bg-white dark:bg-white p-1 border border-zinc-200 dark:border-zinc-200 mt-4 text-xs">
+              <div className="grid grid-cols-3 gap-1.5 rounded-xl bg-slate-100/90 dark:bg-zinc-800 p-1 border border-slate-200 dark:border-zinc-700 mt-4 text-[11px] sm:text-xs">
                 <button
+                  type="button"
                   onClick={() => setTodoTab('all')}
-                  className={`flex-1 py-1 rounded-md font-semibold text-center uppercase tracking-wider transition-colors ${
+                  className={`py-1.5 px-1 rounded-lg font-bold text-center tracking-wide transition-all truncate ${
                     todoTab === 'all'
-                      ? 'bg-zinc-800 text-zinc-900 dark:text-zinc-900 shadow'
-                      : 'text-zinc-600 dark:text-zinc-600 hover:text-zinc-950 dark:text-zinc-800 font-bold'
+                      ? 'bg-[#084A86] text-white shadow-sm'
+                      : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 hover:bg-white/70'
                   }`}
                 >
                   ALL
                 </button>
                 <button
+                  type="button"
                   onClick={() => setTodoTab('incomplete')}
-                  className={`flex-1 py-1 rounded-md font-semibold text-center uppercase tracking-wider transition-colors ${
+                  className={`py-1.5 px-1 rounded-lg font-bold text-center tracking-wide transition-all truncate ${
                     todoTab === 'incomplete'
-                      ? 'bg-zinc-800 text-zinc-900 dark:text-zinc-900 shadow'
-                      : 'text-zinc-600 dark:text-zinc-600 hover:text-zinc-950 dark:text-zinc-800 font-bold'
+                      ? 'bg-[#084A86] text-white shadow-sm'
+                      : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 hover:bg-white/70'
                   }`}
                 >
                   INCOMPLETE
                 </button>
                 <button
+                  type="button"
                   onClick={() => setTodoTab('completed')}
-                  className={`flex-1 py-1 rounded-md font-semibold text-center uppercase tracking-wider transition-colors ${
+                  className={`py-1.5 px-1 rounded-lg font-bold text-center tracking-wide transition-all truncate ${
                     todoTab === 'completed'
-                      ? 'bg-zinc-800 text-zinc-900 dark:text-zinc-900 shadow'
-                      : 'text-zinc-600 dark:text-zinc-600 hover:text-zinc-950 dark:text-zinc-800 font-bold'
+                      ? 'bg-[#084A86] text-white shadow-sm'
+                      : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 hover:bg-white/70'
                   }`}
                 >
                   COMPLETED

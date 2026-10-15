@@ -73,19 +73,19 @@ export default function OtpInput({ length = 6, value, onChange, disabled }) {
   };
 
   return (
-    <div className="flex items-center justify-between gap-2">
+    <div className="flex items-center justify-center gap-1.5 sm:gap-2.5 w-full max-w-full">
       {Array.from({ length }).map((_, index) => (
         <input
           key={index}
           ref={el => inputsRef.current[index] = el}
           type="text"
           inputMode="numeric"
-          maxLength={length}
+          maxLength={1}
           disabled={disabled}
           value={value[index] || ''}
           onChange={(e) => handleChange(e, index)}
           onKeyDown={(e) => handleKeyDown(e, index)}
-          className="w-12 h-14 text-center text-xl font-bold bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all disabled:opacity-50 text-zinc-900 dark:text-white"
+          className="w-10 h-12 sm:w-12 sm:h-14 flex-1 min-w-0 max-w-[46px] text-center text-lg sm:text-xl font-bold bg-zinc-50 dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-700 rounded-xl focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all disabled:opacity-50 text-zinc-900 dark:text-white shadow-xs"
         />
       ))}
     </div>
