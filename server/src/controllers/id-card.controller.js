@@ -2,11 +2,12 @@ const IDCard = require('../models/IDCard');
 
 const DEFAULT_ID_CARDS = [
   {
-    title: 'Modern Emerald Vertical Badge',
+    title: 'Executive Navy Horizontal Smart Pass',
     role: 'Student',
-    cardLayout: 'vertical',
-    themeStyle: 'stoofi-emerald',
-    headerText: 'OFFICIAL STUDENT ID CARD',
+    cardLayout: 'horizontal',
+    themeStyle: 'classic-navy',
+    headerText: 'PAK ROYAL COLLEGE',
+    subHeaderText: 'Sharaqpur Sharif Campus',
     footerText: 'Principal Signature & Seal',
     showPhoto: true,
     showAdmissionNo: true,
@@ -24,12 +25,13 @@ const DEFAULT_ID_CARDS = [
     isDefault: true
   },
   {
-    title: 'Executive Navy Horizontal Smart Card',
+    title: 'Modern Emerald Vertical Badge',
     role: 'Student',
-    cardLayout: 'horizontal',
-    themeStyle: 'classic-navy',
-    headerText: 'INSTITUTIONAL IDENTITY CARD',
-    footerText: 'Authorized Signature',
+    cardLayout: 'vertical',
+    themeStyle: 'stoofi-emerald',
+    headerText: 'PAK ROYAL COLLEGE',
+    subHeaderText: 'Sharaqpur Sharif Campus',
+    footerText: 'Principal Signature & Seal',
     showPhoto: true,
     showAdmissionNo: true,
     showRollNo: true,

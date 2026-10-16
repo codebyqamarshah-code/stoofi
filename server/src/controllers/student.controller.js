@@ -494,6 +494,11 @@ exports.bulkCreate = async (req, res) => {
       if (studentObj.currentAddress) studentObj.currentAddress = String(studentObj.currentAddress).trim();
       if (studentObj.permanentAddress) studentObj.permanentAddress = String(studentObj.permanentAddress).trim();
 
+      // Ensure Executive Navy Horizontal card defaults for imported students
+      if (!studentObj.cardTemplate) studentObj.cardTemplate = 'classic-navy';
+      if (!studentObj.cardLayout) studentObj.cardLayout = 'horizontal';
+      if (!studentObj.themeStyle) studentObj.themeStyle = 'classic-navy';
+
       prepared.push(studentObj);
     }
 

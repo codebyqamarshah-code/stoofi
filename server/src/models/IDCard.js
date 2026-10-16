@@ -17,22 +17,22 @@ const idCardSchema = new mongoose.Schema({
   cardLayout: { 
     type: String, 
     enum: ['vertical', 'horizontal'],
-    default: 'vertical'
+    default: 'horizontal'
   },
   themeStyle: { 
     type: String, 
     enum: ['stoofi-emerald', 'classic-navy', 'royal-purple', 'dark-slate', 'crimson-gold', 'modern-slate'],
-    default: 'stoofi-emerald'
+    default: 'classic-navy'
   },
   headerText: { 
     type: String, 
     trim: true,
-    default: 'OFFICIAL IDENTITY CARD'
+    default: 'PAK ROYAL COLLEGE'
   },
   subHeaderText: { 
     type: String, 
     trim: true,
-    default: 'Main Campus, Model Town, Lahore'
+    default: 'Sharaqpur Sharif Campus'
   },
   footerText: { 
     type: String, 

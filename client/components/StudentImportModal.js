@@ -237,16 +237,13 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
            return;
         }
 
+        const studentsToLoad = mapped.slice(0, 50);
+        setParsedStudents(studentsToLoad);
         if (mapped.length > 50) {
-           setErrorMsg(`Maximum limit exceeded. You can only import up to 50 students at a time. The uploaded file contains ${mapped.length} students.`);
-           setParsedStudents([]);
-           setFile(null);
-           setParsing(false);
-           if (fileInputRef.current) fileInputRef.current.value = '';
-           return;
+          setErrorMsg(`Note: Loaded first 50 students for this batch (file contains ${mapped.length} records).`);
+        } else {
+          setErrorMsg('');
         }
-
-        setParsedStudents(mapped);
       } catch (err) {
         console.error('File parsing error:', err);
         setErrorMsg('Failed to parse file. Please upload a valid .xlsx, .xls or .csv file containing student data.');
@@ -270,34 +267,59 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
       return;
     }
 
-    if (parsedStudents.length > 50) {
-      setErrorMsg('Maximum limit exceeded. You can only import up to 50 students at a time.');
-      return;
-    }
+    const studentsToImport = parsedStudents.slice(0, 50);
 
     setImporting(true);
     setImportProgress(0);
     setErrorMsg('');
 
     try {
-      setImportProgress(20);
+      setImportProgress(25);
       // Remove temporary frontend _id so it doesn't conflict with MongoDB ObjectId
-      const payload = parsedStudents.map(stu => {
+      const payload = studentsToImport.map(stu => {
         const { _id, ...rest } = stu;
-        return rest;
+        return {
+          ...rest,
+          cardTemplate: rest.cardTemplate || 'classic-navy',
+          cardLayout: rest.cardLayout || 'horizontal',
+          themeStyle: rest.themeStyle || 'classic-navy'
+        };
       });
-      const res = await api.post('/student/bulk', { students: payload });
+
+      // Explicitly extract auth token from all possible client storage locations
+      let token = null;
+      if (typeof window !== 'undefined') {
+        token = sessionStorage.getItem('token') || localStorage.getItem('token');
+        if (!token) {
+          try {
+            const raw = sessionStorage.getItem('auth-storage') || localStorage.getItem('auth-storage');
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              token = parsed?.state?.token;
+            }
+          } catch (_) {}
+        }
+        if (!token) {
+          const match = document.cookie.match(new RegExp('(^| )token=([^;]+)'));
+          if (match) token = match[2];
+        }
+      }
+
+      const headers = (token && token !== 'null' && token !== 'undefined') ? { Authorization: `Bearer ${token}` } : {};
+
+      setImportProgress(50);
+      const res = await api.post('/student/bulk', { students: payload }, { headers });
       setImportProgress(100);
 
       if (res && res.success !== false) {
         setImportStats({
-          totalParsed: parsedStudents.length,
-          addedCount: res.count || res.data?.length || parsedStudents.length,
+          totalParsed: studentsToImport.length,
+          addedCount: res.count || res.data?.length || studentsToImport.length,
           duplicatesSkipped: 0
         });
 
         if (onSuccess) {
-          onSuccess(res.data || parsedStudents);
+          onSuccess(res.data || studentsToImport);
         }
 
         setTimeout(() => {

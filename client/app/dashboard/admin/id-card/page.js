@@ -45,10 +45,76 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import api from '@/services/api';
 import { downloadIdCardPDF } from '@/lib/idCardPdf';
+import QRCode from 'qrcode';
+
+// Dynamic Real Scannable Verification QR Code Component for Every ID Card
+function StudentCardQR({ rec, size = 52 }) {
+  const [dataUrl, setDataUrl] = useState('');
+
+  const qrText = useMemo(() => {
+    if (!rec) return 'PAK ROYAL COLLEGE SHARAQPUR';
+    const adm = rec.admissionNo || rec.staffNo || 'PRC-001';
+    const name = `${rec.firstName || ''} ${rec.lastName || ''}`.trim() || rec.name || 'Student';
+    const roll = rec.rollNo || '';
+    const cls = rec.className ? `${rec.className}${rec.section ? ` (${rec.section})` : ''}` : '';
+    const guardian = rec.fatherName || '';
+    const phone = rec.phone || '';
+    return [
+      'PAK ROYAL COLLEGE SHARAQPUR',
+      `ID: ${adm}`,
+      `Name: ${name}`,
+      cls ? `Class: ${cls}` : null,
+      roll ? `Roll No: ${roll}` : null,
+      guardian ? `Guardian: ${guardian}` : null,
+      phone ? `Phone: ${phone}` : null,
+      'Status: VERIFIED & ACTIVE',
+      `Verify: https://pakroyalcollege.edu.pk/verify/${encodeURIComponent(adm)}`
+    ].filter(Boolean).join('\n');
+  }, [rec]);
+
+  useEffect(() => {
+    let isMounted = true;
+    QRCode.toDataURL(qrText, {
+      margin: 0,
+      width: size * 2,
+      errorCorrectionLevel: 'M',
+      color: {
+        dark: '#084A86',
+        light: '#ffffff'
+      }
+    }).then(url => {
+      if (isMounted) setDataUrl(url);
+    }).catch(err => {
+      console.warn('QR Code generation error:', err);
+    });
+    return () => { isMounted = false; };
+  }, [qrText, size]);
+
+  if (!dataUrl) {
+    return (
+      <div 
+        style={{ width: size, height: size }} 
+        className="bg-white rounded border border-zinc-200 flex items-center justify-center animate-pulse"
+      >
+        <QrCode className="w-4 h-4 text-zinc-300" />
+      </div>
+    );
+  }
+
+  return (
+    <img 
+      src={dataUrl} 
+      alt="Verification QR Code" 
+      style={{ width: size, height: size }} 
+      className="rounded bg-white p-0.5 border border-zinc-200 shadow-2xs shrink-0" 
+      title="Scan to verify student details"
+    />
+  );
+}
 
 const THEME_STYLES = [
-  { id: 'stoofi-emerald', label: '1. Emerald & Deep Navy Lanyard Badge', headerBg: 'from-emerald-700 via-teal-800 to-sky-950', border: 'border-emerald-600', accent: 'bg-emerald-50 text-emerald-800 border-emerald-300' },
-  { id: 'classic-navy', label: '2. Executive Navy Horizontal Pass', headerBg: 'from-sky-950 via-sky-900 to-indigo-950', border: 'border-sky-800', accent: 'bg-sky-50 text-sky-900 border-sky-300' },
+  { id: 'classic-navy', label: '1. Executive Navy Horizontal Pass (Pak Royal College)', headerBg: 'from-[#06335d] via-[#084A86] to-[#0a58a0]', border: 'border-[#084A86]', accent: 'bg-sky-50 text-sky-900 border-sky-300' },
+  { id: 'stoofi-emerald', label: '2. Emerald & Deep Navy Lanyard Badge (Vertical)', headerBg: 'from-emerald-700 via-teal-800 to-sky-950', border: 'border-emerald-600', accent: 'bg-emerald-50 text-emerald-800 border-emerald-300' },
   { id: 'royal-purple', label: '3. Royal Purple Academic Badge', headerBg: 'from-purple-900 via-indigo-900 to-purple-950', border: 'border-purple-600', accent: 'bg-purple-50 text-purple-900 border-purple-300' },
   { id: 'dark-slate', label: '4. Dark Luxury Obsidian Smart Card', headerBg: 'from-zinc-950 via-zinc-900 to-black', border: 'border-zinc-700', accent: 'bg-zinc-900 text-emerald-400 border-zinc-700' },
   { id: 'crimson-gold', label: '5. Heritage Crimson & Gold Crest', headerBg: 'from-rose-950 via-rose-900 to-amber-950', border: 'border-amber-600', accent: 'bg-amber-50 text-amber-900 border-amber-300' }
@@ -60,11 +126,12 @@ const STANDARD_SECTIONS = ['Section A', 'Section B', 'Section C', 'Section D'];
 const FALLBACK_TEMPLATES = [
   {
     _id: 'default-student-tpl',
-    title: 'Official Student Identity Card',
+    title: 'Executive Navy Horizontal Smart Pass',
     role: 'Student',
-    cardLayout: 'vertical',
-    themeStyle: 'stoofi-emerald',
-    headerText: 'OFFICIAL IDENTITY CARD',
+    cardLayout: 'horizontal',
+    themeStyle: 'classic-navy',
+    headerText: 'PAK ROYAL COLLEGE',
+    subHeaderText: 'Sharaqpur Sharif Campus',
     footerText: 'Principal Signature & Seal',
     showPhoto: true,
     showAdmissionNo: true,
@@ -77,6 +144,7 @@ const FALLBACK_TEMPLATES = [
     showDesignation: false,
     showDepartment: false,
     showQrBarcode: true,
+    showSignature: true,
     status: 'Active',
     isDefault: true
   },
@@ -86,7 +154,8 @@ const FALLBACK_TEMPLATES = [
     role: 'Staff',
     cardLayout: 'vertical',
     themeStyle: 'dark-slate',
-    headerText: 'STAFF IDENTITY CARD',
+    headerText: 'PAK ROYAL COLLEGE',
+    subHeaderText: 'Sharaqpur Sharif Campus',
     footerText: 'HR & Administrative Seal',
     showPhoto: true,
     showAdmissionNo: false,
@@ -99,6 +168,7 @@ const FALLBACK_TEMPLATES = [
     showDesignation: true,
     showDepartment: true,
     showQrBarcode: true,
+    showSignature: true,
     status: 'Active',
     isDefault: true
   },
@@ -106,9 +176,10 @@ const FALLBACK_TEMPLATES = [
     _id: 'default-teacher-tpl',
     title: 'Faculty & Teacher Smart ID Card',
     role: 'Teacher',
-    cardLayout: 'vertical',
+    cardLayout: 'horizontal',
     themeStyle: 'classic-navy',
-    headerText: 'FACULTY IDENTITY CARD',
+    headerText: 'PAK ROYAL COLLEGE',
+    subHeaderText: 'Faculty of Academics - Sharaqpur',
     footerText: 'Director of Academics',
     showPhoto: true,
     showAdmissionNo: false,
@@ -121,6 +192,7 @@ const FALLBACK_TEMPLATES = [
     showDesignation: true,
     showDepartment: true,
     showQrBarcode: true,
+    showSignature: true,
     status: 'Active',
     isDefault: true
   }
@@ -172,7 +244,7 @@ export default function IdCardPage() {
     gender: 'Male',
     dob: '2008-05-14',
     studentPhoto: '',
-    cardTemplate: 'stoofi-emerald'
+    cardTemplate: 'classic-navy'
   });
 
   // Edit Student ID Card Modal
@@ -192,7 +264,7 @@ export default function IdCardPage() {
     gender: 'Male',
     dob: '2008-05-14',
     studentPhoto: '',
-    cardTemplate: 'stoofi-emerald'
+    cardTemplate: 'classic-navy'
   });
 
   // Delete Student ID Card State
@@ -209,10 +281,10 @@ export default function IdCardPage() {
   const [formData, setFormData] = useState({
     title: '',
     role: 'Student',
-    cardLayout: 'vertical',
-    themeStyle: 'stoofi-emerald',
-    headerText: 'OFFICIAL IDENTITY CARD',
-    subHeaderText: 'Main Campus, Model Town, Lahore',
+    cardLayout: 'horizontal',
+    themeStyle: 'classic-navy',
+    headerText: 'PAK ROYAL COLLEGE',
+    subHeaderText: 'Sharaqpur Sharif Campus',
     footerText: 'Principal Signature & Seal',
     showPhoto: true,
     showAdmissionNo: true,
@@ -332,7 +404,7 @@ export default function IdCardPage() {
       gender: 'Male',
       dob: '2008-05-14',
       studentPhoto: '',
-      cardTemplate: 'stoofi-emerald'
+      cardTemplate: 'classic-navy'
     });
     setShowCreateStudentModal(true);
   };
@@ -371,6 +443,9 @@ export default function IdCardPage() {
       const currentYear = new Date().getFullYear();
       const payload = {
         ...studentForm,
+        cardTemplate: studentForm.cardTemplate || 'classic-navy',
+        cardLayout: studentForm.cardTemplate === 'classic-navy' ? 'horizontal' : 'vertical',
+        themeStyle: studentForm.cardTemplate || 'classic-navy',
         firstName: studentForm.firstName.trim(),
         lastName: (studentForm.lastName || '').trim(),
         academicYear: studentForm.academicYear || `${currentYear}-${currentYear + 1}`,
@@ -409,10 +484,10 @@ export default function IdCardPage() {
   // Download Single PDF
   const handleDownloadStudentPDF = (student) => {
     downloadIdCardPDF(student, {
-      schoolName: 'Stoofi Public School & College',
-      address: 'Main Campus, Model Town, Lahore, Pakistan',
+      schoolName: 'PAK ROYAL COLLEGE SHARAQPUR',
+      address: 'Sharaqpur Sharif Campus, Sheikhupura, Punjab',
       phone: '+92 300 1234567'
-    }, student.cardTemplate || 'stoofi-emerald');
+    }, student.cardTemplate || student.themeStyle || 'classic-navy');
     showToast(`PDF downloaded for ${student.firstName} ${student.lastName}`);
   };
 
@@ -432,7 +507,7 @@ export default function IdCardPage() {
       gender: student.gender || 'Male',
       dob: student.dob || '2008-05-14',
       studentPhoto: student.studentPhoto || student.photo || '',
-      cardTemplate: student.cardTemplate || 'stoofi-emerald'
+      cardTemplate: student.cardTemplate || student.themeStyle || 'classic-navy'
     });
     setShowEditStudentModal(true);
   };
@@ -471,6 +546,9 @@ export default function IdCardPage() {
       const currentYear = new Date().getFullYear();
       const payload = {
         ...editStudentForm,
+        cardTemplate: editStudentForm.cardTemplate || 'classic-navy',
+        cardLayout: editStudentForm.cardTemplate === 'classic-navy' ? 'horizontal' : 'vertical',
+        themeStyle: editStudentForm.cardTemplate || 'classic-navy',
         firstName: editStudentForm.firstName.trim(),
         lastName: (editStudentForm.lastName || '').trim(),
         academicYear: editStudentForm.academicYear || `${currentYear}-${currentYear + 1}`,
@@ -527,10 +605,10 @@ export default function IdCardPage() {
     setFormData({
       title: '',
       role: 'Student',
-      cardLayout: 'vertical',
-      themeStyle: 'stoofi-emerald',
-      headerText: 'OFFICIAL IDENTITY CARD',
-      subHeaderText: 'Main Campus, Model Town, Lahore',
+      cardLayout: 'horizontal',
+      themeStyle: 'classic-navy',
+      headerText: 'PAK ROYAL COLLEGE',
+      subHeaderText: 'Sharaqpur Sharif Campus',
       footerText: 'Principal Signature & Seal',
       showPhoto: true,
       showAdmissionNo: true,
@@ -556,10 +634,10 @@ export default function IdCardPage() {
     setFormData({
       title: card.title || '',
       role: card.role || 'Student',
-      cardLayout: card.cardLayout || 'vertical',
-      themeStyle: card.themeStyle || 'stoofi-emerald',
-      headerText: card.headerText || 'OFFICIAL IDENTITY CARD',
-      subHeaderText: card.subHeaderText || 'Main Campus, Model Town, Lahore',
+      cardLayout: card.cardLayout || 'horizontal',
+      themeStyle: card.themeStyle || 'classic-navy',
+      headerText: card.headerText || 'PAK ROYAL COLLEGE',
+      subHeaderText: card.subHeaderText || 'Sharaqpur Sharif Campus',
       footerText: card.footerText || 'Principal Signature & Seal',
       showPhoto: card.showPhoto !== undefined ? card.showPhoto : true,
       showAdmissionNo: card.showAdmissionNo !== undefined ? card.showAdmissionNo : true,
@@ -592,7 +670,7 @@ export default function IdCardPage() {
         ...formData,
         title: formData.title.trim(),
         headerText: formData.headerText.trim(),
-        subHeaderText: (formData.subHeaderText || 'Main Campus, Model Town, Lahore').trim(),
+        subHeaderText: (formData.subHeaderText || 'Sharaqpur Sharif Campus').trim(),
         footerText: formData.footerText.trim()
       };
 
@@ -650,13 +728,19 @@ export default function IdCardPage() {
     });
   }, [studentsList, studentSearch, studentClassFilter, studentSectionFilter]);
 
-  // ── ULTRA-PROFESSIONAL REAL STUDENT ID CARD RENDERER (Matching User Reference Images & Template Settings) ──
+  // ── ULTRA-PROFESSIONAL REAL STUDENT ID CARD RENDERER (Pak Royal College Sharaqpur) ──
   const renderCardGraphic = (rec, tplOverride = null) => {
     const activeTpl = tplOverride || cards.find(c => c._id === rec.cardTemplate || c.themeStyle === rec.cardTemplate) || {};
     
-    const themeKey = tplOverride?.themeStyle || rec.cardTemplate || rec.themeStyle || 'stoofi-emerald';
+    // Default to classic-navy horizontal if unspecified
+    const themeKey = tplOverride?.themeStyle || rec.cardTemplate || rec.themeStyle || activeTpl.themeStyle || 'classic-navy';
     const theme = THEME_STYLES.find(t => t.id === themeKey) || THEME_STYLES[0];
-    const isHorizontal = (tplOverride?.cardLayout || rec.cardLayout || activeTpl.cardLayout) === 'horizontal' || themeKey === 'classic-navy';
+    
+    // Check horizontal layout
+    const isHorizontal = (tplOverride?.cardLayout || rec.cardLayout || activeTpl.cardLayout) === 'horizontal' || 
+                         themeKey === 'classic-navy' || 
+                         rec.cardTemplate === 'classic-navy' ||
+                         !rec.cardTemplate;
 
     // Field visibility flags (strictly honors template overrides or saved template flags)
     const showPhoto = tplOverride ? tplOverride.showPhoto : (rec.showPhoto !== undefined ? rec.showPhoto : (activeTpl.showPhoto !== undefined ? activeTpl.showPhoto : true));
@@ -670,108 +754,126 @@ export default function IdCardPage() {
     const showQrBarcode = tplOverride ? tplOverride.showQrBarcode : (rec.showQrBarcode !== undefined ? rec.showQrBarcode : (activeTpl.showQrBarcode !== undefined ? activeTpl.showQrBarcode : true));
     const showSignature = tplOverride ? tplOverride.showSignature : (rec.showSignature !== undefined ? rec.showSignature : (activeTpl.showSignature !== undefined ? activeTpl.showSignature : true));
 
-    const headerText = tplOverride?.headerText || rec.headerText || activeTpl.headerText || 'OFFICIAL IDENTITY CARD';
-    const subHeaderText = tplOverride?.subHeaderText || rec.subHeaderText || activeTpl.subHeaderText || 'Main Campus, Model Town, Lahore';
+    const headerText = tplOverride?.headerText || rec.headerText || activeTpl.headerText || 'PAK ROYAL COLLEGE';
+    const subHeaderText = tplOverride?.subHeaderText || rec.subHeaderText || activeTpl.subHeaderText || 'Sharaqpur Sharif Campus';
     const footerText = tplOverride?.footerText || rec.footerText || activeTpl.footerText || 'Principal Signature & Seal';
     const roleBadge = (tplOverride?.role || rec.role || 'Student').toUpperCase();
 
     const initial = (rec.firstName || 'S').charAt(0).toUpperCase();
     const fullName = `${rec.firstName || 'Student'} ${rec.lastName || 'Name'}`.trim();
     const admNo = rec.admissionNo || 'ADM-2026-001';
-    const rollNo = rec.rollNo || '101';
+    const rollNo = rec.rollNo || 'PRC260001';
     const className = rec.className || 'Class 10';
     const section = rec.section || 'Section A';
-    const phone = rec.phone || '+92 300 9876543';
-    const fatherName = rec.fatherName || 'Syed Ali Shah';
+    const phone = rec.phone || '+92 300 1234567';
+    const fatherName = rec.fatherName || '';
     const dob = rec.dob || '14/05/2008';
 
-    // Horizontal Card Format (Design 2 Classic Navy or explicit horizontal)
+    // Horizontal Card Format (Executive Navy Horizontal Pass)
     if (isHorizontal) {
       return (
-        <div className="w-[340px] h-[215px] mx-auto bg-[#faf8f5] rounded-xl overflow-hidden border-2 border-zinc-300 shadow-md flex flex-col justify-between text-zinc-900 font-sans select-none relative">
+        <div className="w-[365px] h-[225px] mx-auto bg-white rounded-2xl overflow-hidden border-2 border-[#084A86] shadow-xl flex flex-col justify-between text-zinc-900 font-sans select-none relative">
           {/* Top Brand Bar */}
-          <div className="bg-[#084A86] px-3.5 py-1.5 flex items-center justify-between text-white">
-            <div className="flex items-center gap-1.5">
-              <div className="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center font-black text-[10px] text-amber-300">
-                S
+          <div className="bg-gradient-to-r from-[#06335d] via-[#084A86] to-[#0a58a0] px-3 py-1.5 flex items-center justify-between text-white border-b-2 border-amber-400">
+            <div className="flex items-center gap-2">
+              <img 
+                src="/pak-royal-badge.png" 
+                alt="Pak Royal College Crest" 
+                className="w-8 h-8 rounded-full bg-white object-contain shadow-xs border border-white shrink-0" 
+              />
+              <div className="leading-tight">
+                <span className="font-black text-[12px] tracking-wide uppercase text-white block">
+                  {headerText}
+                </span>
+                <span className="text-[8px] text-amber-300 font-bold tracking-wider block">
+                  {subHeaderText}
+                </span>
               </div>
-              <span className="font-extrabold text-[11px] tracking-wide uppercase truncate max-w-[200px]">{headerText}</span>
             </div>
-            <span className="text-[8px] opacity-80 truncate max-w-[100px]">{subHeaderText}</span>
+            <div className="text-right shrink-0">
+              <span className="text-[7px] text-slate-200 font-semibold uppercase tracking-wider block">Session</span>
+              <span className="text-[8.5px] font-black text-amber-300 font-mono block">2026-2027</span>
+            </div>
           </div>
 
-          {/* Body Dual-Column */}
-          <div className="p-3 flex items-center gap-3.5 flex-1 bg-white">
-            {/* Left: Portrait Photo Box + Barcode */}
-            {(showPhoto || showQrBarcode) && (
-              <div className="flex flex-col items-center shrink-0">
-                {showPhoto && (
-                  <div className="w-20 h-24 rounded-xl border-2 border-[#084A86] overflow-hidden bg-zinc-100 shadow-xs flex items-center justify-center relative">
-                    {rec.studentPhoto ? (
-                      <img src={rec.studentPhoto} alt={fullName} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="flex flex-col items-center justify-center text-zinc-400">
-                        <User className="w-8 h-8 text-zinc-400" />
-                        <span className="text-[8px] font-bold mt-1 uppercase text-zinc-500">{initial}</span>
-                      </div>
-                    )}
+          {/* Body Dual-Column + QR Code */}
+          <div className="p-2.5 flex items-stretch gap-2.5 flex-1 bg-gradient-to-b from-white to-slate-50/70">
+            {/* Left: Portrait Photo Box */}
+            {showPhoto && (
+              <div className="flex flex-col items-center justify-center shrink-0">
+                <div className="w-[78px] h-[96px] rounded-xl border-2 border-[#084A86] overflow-hidden bg-slate-100 shadow-xs flex items-center justify-center relative">
+                  {rec.studentPhoto ? (
+                    <img src={rec.studentPhoto} alt={fullName} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-zinc-400 p-1">
+                      <User className="w-8 h-8 text-[#084A86]/60" />
+                      <span className="text-[8px] font-black mt-1 uppercase text-[#084A86]">{initial}</span>
+                    </div>
+                  )}
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs border border-white">
+                    <ShieldCheck className="w-3 h-3" />
                   </div>
-                )}
-                {/* Barcode representation */}
-                {showQrBarcode && (
-                  <div className="mt-1.5 flex items-center gap-0.5 h-3">
-                    {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 2, 1, 3, 1, 2].map((w, idx) => (
-                      <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
-                    ))}
-                  </div>
-                )}
+                </div>
               </div>
             )}
 
-            {/* Right: Info */}
-            <div className="flex-1 min-w-0 text-[10.5px] space-y-1">
-              <div className="inline-block px-2.5 py-0.5 rounded-md bg-amber-400 text-amber-950 font-black text-[9px] uppercase tracking-wider mb-0.5 shadow-2xs">
-                {roleBadge} ID CARD
+            {/* Middle: Details */}
+            <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+              <div>
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-400/90 text-amber-950 font-black text-[8px] uppercase tracking-wider shadow-2xs mb-1">
+                  <Award className="w-2.5 h-2.5" />
+                  <span>{roleBadge} IDENTITY PASS</span>
+                </div>
+                <h4 className="font-black text-[12px] text-zinc-950 uppercase tracking-tight truncate leading-tight">
+                  {fullName}
+                </h4>
               </div>
-              <h4 className="font-black text-xs text-zinc-950 truncate uppercase">{fullName}</h4>
 
-              <div className="space-y-0.5 text-zinc-700 pt-1">
+              <div className="space-y-0.5 text-[9.5px] text-zinc-700 pt-1 border-t border-zinc-200/70">
                 {showAdmissionNo && (
-                  <div className="flex"><span className="w-14 text-zinc-400 font-semibold">ID No:</span><strong className="font-mono text-zinc-950">{admNo}</strong></div>
+                  <div className="flex items-center"><span className="w-13 text-zinc-400 font-semibold text-[8.5px]">ID No:</span><strong className="font-mono text-zinc-950 font-black">{admNo}</strong></div>
                 )}
                 {showClass && (
-                  <div className="flex"><span className="w-14 text-zinc-400 font-semibold">Class:</span><strong className="text-[#084A86] font-bold">{className} {showSection ? `(${section})` : ''}</strong></div>
+                  <div className="flex items-center"><span className="w-13 text-zinc-400 font-semibold text-[8.5px]">Class:</span><strong className="text-[#084A86] font-extrabold">{className} {showSection ? `(${section})` : ''}</strong></div>
                 )}
                 {showRollNo && (
-                  <div className="flex"><span className="w-14 text-zinc-400 font-semibold">Roll No:</span><strong className="font-mono text-zinc-950">{rollNo}</strong></div>
-                )}
-                {showDob && (
-                  <div className="flex"><span className="w-14 text-zinc-400 font-semibold">DOB:</span><span className="text-zinc-800 font-medium">{dob}</span></div>
+                  <div className="flex items-center"><span className="w-13 text-zinc-400 font-semibold text-[8.5px]">Roll No:</span><strong className="font-mono text-zinc-950 font-bold">{rollNo}</strong></div>
                 )}
                 {showFatherName && fatherName && (
-                  <div className="flex"><span className="w-14 text-zinc-400 font-semibold">Guardian:</span><span className="text-zinc-800 font-medium truncate max-w-[120px]">{fatherName}</span></div>
+                  <div className="flex items-center"><span className="w-13 text-zinc-400 font-semibold text-[8.5px]">Guardian:</span><span className="text-zinc-800 font-bold truncate max-w-[95px]">{fatherName}</span></div>
                 )}
                 {showPhone && (
-                  <div className="flex"><span className="w-14 text-zinc-400 font-semibold">Emergency:</span><strong className="font-mono text-zinc-800 text-[9.5px]">{phone}</strong></div>
+                  <div className="flex items-center"><span className="w-13 text-zinc-400 font-semibold text-[8.5px]">Contact:</span><strong className="font-mono text-zinc-800 text-[8.5px]">{phone}</strong></div>
                 )}
               </div>
             </div>
+
+            {/* Right: Real Working Scannable QR Code */}
+            {showQrBarcode && (
+              <div className="flex flex-col items-center justify-center shrink-0 pl-1 border-l border-zinc-200/80">
+                <StudentCardQR rec={rec} size={54} />
+                <span className="text-[6.5px] font-black text-[#084A86] uppercase tracking-wider mt-1">
+                  Scan to Verify
+                </span>
+                <span className="font-mono text-[6.5px] text-zinc-400">{admNo}</span>
+              </div>
+            )}
           </div>
 
           {/* Bottom Footer Bar */}
-          <div className="bg-[#084A86] px-3.5 py-1 text-white flex justify-between items-center text-[8px]">
-            <span className="font-mono opacity-80">{admNo}</span>
+          <div className="bg-[#084A86] px-3 py-1 text-white flex justify-between items-center text-[8px] border-t border-amber-400/50">
+            <span className="font-mono text-[7.5px] text-slate-200">pakroyalcollege.edu.pk</span>
             {showSignature ? (
-              <span className="font-semibold italic">{footerText}</span>
+              <span className="font-semibold italic font-serif text-[7.5px] text-amber-200">{footerText}</span>
             ) : (
-              <span className="font-semibold">Official Identity Card</span>
+              <span className="font-semibold text-[7.5px]">Official Identity Card</span>
             )}
           </div>
         </div>
       );
     }
 
-    // Vertical Modern Lanyard Badge (Matching Image 2 Reference)
+    // Vertical Modern Lanyard Badge
     return (
       <div className={`w-[270px] mx-auto bg-white rounded-3xl overflow-hidden border-2 ${theme.border} shadow-xl text-zinc-900 font-sans select-none relative flex flex-col`}>
         {/* Lanyard Hole Cutout Representation */}
@@ -779,28 +881,37 @@ export default function IdCardPage() {
           <div className="w-12 h-2.5 rounded-full bg-zinc-200 border border-zinc-300 mx-auto shadow-inner" />
         </div>
 
-        {/* Top Angled Geometric Header */}
-        <div className={`bg-gradient-to-r ${theme.headerBg} pt-3 pb-3.5 px-4 text-white text-center relative overflow-hidden`}>
-          <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-white/10 rounded-full blur-xs pointer-events-none" />
-          <div className="flex items-center justify-center gap-1.5 mb-0.5">
-            <Building className="w-3.5 h-3.5 text-amber-300" />
-            <span className="text-[9px] tracking-widest font-extrabold uppercase text-amber-300">{headerText}</span>
+        {/* Top Angled Geometric Header with Official Badge */}
+        <div className={`bg-gradient-to-r ${theme.headerBg} pt-2.5 pb-3 px-3 text-white text-center relative overflow-hidden`}>
+          <div className="flex items-center justify-center gap-1.5 mb-1">
+            <img 
+              src="/pak-royal-badge.png" 
+              alt="Pak Royal College Crest" 
+              className="w-7 h-7 rounded-full bg-white object-contain shadow-xs border border-white"
+            />
+            <div className="text-left">
+              <span className="text-[10px] tracking-wider font-extrabold uppercase text-amber-300 block leading-tight">
+                {headerText}
+              </span>
+              <p className="text-[7.5px] text-white/80 leading-none">{subHeaderText}</p>
+            </div>
           </div>
-          <h3 className="text-xs font-black tracking-wide leading-tight uppercase">{roleBadge} BADGE</h3>
-          <p className="text-[8px] text-white/70 mt-0.5">{subHeaderText}</p>
+          <div className="inline-block px-2 py-0.5 rounded-full bg-white/20 text-[8.5px] font-black tracking-wider uppercase">
+            {roleBadge} PASS
+          </div>
         </div>
 
         {/* Card Body */}
-        <div className="p-4 flex flex-col items-center flex-1 bg-white">
-          {/* Portrait Rounded-Rectangular Photo Box (Matching Reference Image 2) */}
+        <div className="p-3.5 flex flex-col items-center flex-1 bg-white">
+          {/* Portrait Photo Box */}
           {showPhoto && (
-            <div className="relative mt-1">
-              <div className={`w-24 h-28 rounded-2xl border-[3px] ${theme.border} overflow-hidden bg-zinc-100 shadow-md flex items-center justify-center relative`}>
+            <div className="relative mt-0.5">
+              <div className={`w-22 h-26 rounded-2xl border-[3px] ${theme.border} overflow-hidden bg-zinc-100 shadow-md flex items-center justify-center relative`}>
                 {rec.studentPhoto ? (
                   <img src={rec.studentPhoto} alt={fullName} className="w-full h-full object-cover" />
                 ) : (
                   <div className="flex flex-col items-center justify-center text-zinc-400 p-2">
-                    <User className="w-10 h-10 text-zinc-300" />
+                    <User className="w-9 h-9 text-zinc-300" />
                     <span className="text-[9px] font-bold mt-1 text-zinc-400 uppercase">{initial}</span>
                   </div>
                 )}
@@ -811,18 +922,15 @@ export default function IdCardPage() {
             </div>
           )}
 
-          {/* Student Name & Role Badge */}
-          <div className="mt-2.5 text-center w-full px-2">
+          {/* Student Name */}
+          <div className="mt-2 text-center w-full px-2">
             <h4 className="text-sm font-black text-zinc-950 uppercase tracking-tight truncate leading-tight">
               {fullName}
             </h4>
-            <div className="inline-block mt-1 px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-black uppercase tracking-wider border border-emerald-300">
-              {roleBadge}
-            </div>
           </div>
 
           {/* Detailed Info Grid */}
-          <div className="w-full mt-3 space-y-1 text-[10.5px] bg-zinc-50/90 p-2.5 rounded-xl border border-zinc-200">
+          <div className="w-full mt-2.5 space-y-1 text-[10px] bg-zinc-50/90 p-2.5 rounded-xl border border-zinc-200">
             {showAdmissionNo && (
               <div className="flex justify-between items-center">
                 <span className="text-zinc-400 font-semibold">ID No:</span>
@@ -832,7 +940,7 @@ export default function IdCardPage() {
             {showClass && (
               <div className="flex justify-between items-center">
                 <span className="text-zinc-400 font-semibold">Class & Sec:</span>
-                <strong className="text-emerald-800 font-bold">{className} {showSection ? `(${section})` : ''}</strong>
+                <strong className="text-[#084A86] font-bold">{className} {showSection ? `(${section})` : ''}</strong>
               </div>
             )}
             {showRollNo && (
@@ -861,17 +969,16 @@ export default function IdCardPage() {
             )}
           </div>
 
-          {/* Barcode & Security Section */}
+          {/* Real QR Code & Security Section */}
           {(showQrBarcode || showSignature) && (
-            <div className="w-full mt-3 pt-2 border-t border-zinc-200/80 flex items-center justify-between">
+            <div className="w-full mt-2.5 pt-2 border-t border-zinc-200/80 flex items-center justify-between">
               {showQrBarcode ? (
-                <div className="flex flex-col items-start">
-                  <div className="flex items-center gap-0.5 h-4 mb-0.5">
-                    {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 3, 1, 2, 1, 2, 1, 3, 1, 2, 1, 1, 2].map((w, idx) => (
-                      <span key={idx} className="bg-zinc-800 h-full inline-block" style={{ width: `${w}px` }} />
-                    ))}
+                <div className="flex items-center gap-1.5">
+                  <StudentCardQR rec={rec} size={42} />
+                  <div className="flex flex-col">
+                    <span className="text-[6.5px] font-black text-[#084A86] uppercase tracking-wider">Scan to Verify</span>
+                    <span className="font-mono text-[6.5px] text-zinc-400">{admNo}</span>
                   </div>
-                  <span className="font-mono text-[7px] text-zinc-400 tracking-widest">{admNo}</span>
                 </div>
               ) : <div />}
 
@@ -1875,18 +1982,18 @@ export default function IdCardPage() {
       {/* ── CARD PREVIEW MODAL ── */}
       {viewingCard && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl border border-zinc-200 max-w-sm w-full p-5 space-y-4">
+          <div className="bg-white rounded-2xl shadow-2xl border border-zinc-200 max-w-lg w-full p-5 space-y-4">
             <div className="flex justify-between items-center border-b border-zinc-200 pb-3">
               <h3 className="font-bold text-sm text-zinc-950 flex items-center gap-1.5">
-                <CreditCard className="w-4 h-4 text-emerald-600" />
-                ID Card Preview
+                <CreditCard className="w-4 h-4 text-[#084A86]" />
+                ID Card Preview - Pak Royal College
               </h3>
               <button onClick={() => setViewingCard(null)} className="text-zinc-400 hover:text-zinc-700">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="py-2">
+            <div className="py-2 flex items-center justify-center">
               {renderCardGraphic(viewingCard)}
             </div>
 
@@ -1911,7 +2018,7 @@ export default function IdCardPage() {
                 <Button 
                   size="sm" 
                   onClick={() => handlePrintStudentCard(viewingCard)}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold"
+                  className="bg-[#084A86] hover:bg-[#06335d] text-white text-xs font-bold"
                 >
                   <Printer className="w-3.5 h-3.5 mr-1" /> Print
                 </Button>
@@ -2111,7 +2218,7 @@ export default function IdCardPage() {
                           <Input 
                             value={formData.headerText} 
                             onChange={e => setFormData({ ...formData, headerText: e.target.value })} 
-                            placeholder="e.g. OFFICIAL IDENTITY CARD" 
+                            placeholder="e.g. PAK ROYAL COLLEGE" 
                             className="bg-white border-zinc-300 text-zinc-950 text-xs uppercase h-8" 
                           />
                         </div>
@@ -2121,7 +2228,7 @@ export default function IdCardPage() {
                           <Input 
                             value={formData.subHeaderText} 
                             onChange={e => setFormData({ ...formData, subHeaderText: e.target.value })} 
-                            placeholder="e.g. Main Campus, Model Town, Lahore" 
+                            placeholder="e.g. Sharaqpur Sharif Campus" 
                             className="bg-white border-zinc-300 text-zinc-950 text-xs h-8" 
                           />
                         </div>

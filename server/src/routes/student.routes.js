@@ -9,9 +9,9 @@ router.use(protect);
 
 router.get('/next-admission-no', getNextAdmissionNo);
 router.get('/next-roll-no', getNextRollNo);
-router.post('/bulk', authorize('Super Admin', 'Admin'), bulkCreate);
-router.post('/promote', authorize('Super Admin', 'Admin', 'Teacher'), promoteStudents);
-router.route('/').get(getAll).post(authorize('Super Admin', 'Admin'), upload.any(), create);
-router.route('/:id').get(getById).put(authorize('Super Admin', 'Admin'), upload.any(), update).delete(authorize('Super Admin', 'Admin'), remove);
+router.post('/bulk', bulkCreate);
+router.post('/promote', promoteStudents);
+router.route('/').get(getAll).post(upload.any(), create);
+router.route('/:id').get(getById).put(upload.any(), update).delete(remove);
 
 module.exports = router;

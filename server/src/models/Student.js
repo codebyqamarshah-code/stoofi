@@ -71,7 +71,12 @@ const schema = new mongoose.Schema({
   // Custom Fields / Other Info
   otherInfo: { type: String },
   behaviourPoints: { type: Number, default: 0 },
-  carryForwardAmount: { type: Number, default: 0 }
+  carryForwardAmount: { type: Number, default: 0 },
+
+  // ID Card Customization
+  cardTemplate: { type: String, default: 'classic-navy' },
+  cardLayout: { type: String, default: 'horizontal' },
+  themeStyle: { type: String, default: 'classic-navy' }
 
 }, { timestamps: true });
 

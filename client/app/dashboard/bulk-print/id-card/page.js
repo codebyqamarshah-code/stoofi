@@ -140,7 +140,7 @@ const CARD_DESIGNS = [
 export default function BulkPrintIdCardPage() {
   const [templates, setTemplates] = useState([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
-  const [activeDesignId, setActiveDesignId] = useState('stoofi-emerald');
+  const [activeDesignId, setActiveDesignId] = useState('classic-navy');
   const [role, setRole] = useState('Student');
   const [classFilter, setClassFilter] = useState('');
   const [sectionFilter, setSectionFilter] = useState('');
