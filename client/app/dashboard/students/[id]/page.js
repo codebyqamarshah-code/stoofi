@@ -7,7 +7,7 @@ import {
   ChevronRight, User, Phone, Mail, MapPin, Calendar, BookOpen,
   GraduationCap, Users, FileText, Download, Printer, ArrowLeft,
   BadgeCheck, Home, Heart, Briefcase, Hash, Clock, Shield,
-  Activity, AlertCircle
+  Activity, AlertCircle, Edit
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import api from '@/services/api';
@@ -356,6 +356,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
 
           {/* Actions */}
           <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <Link href={`/dashboard/students/${id}/edit`}>
+              <Button
+                variant="outline"
+                className="border-zinc-300 text-zinc-800 hover:bg-zinc-100 font-bold text-xs h-9 px-4 flex items-center gap-2 cursor-pointer shadow-xs"
+              >
+                <Edit className="h-3.5 w-3.5 text-zinc-700" /> Edit Profile
+              </Button>
+            </Link>
             <Button
               onClick={handleExportExcel}
               className="bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs h-9 px-4 flex items-center gap-2 cursor-pointer"
