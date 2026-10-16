@@ -669,7 +669,7 @@ export default function AddStudentPage() {
                         value={formData.rollNo} 
                         readOnly 
                         disabled 
-                        placeholder="Auto-assigned (starts from 1)" 
+                        placeholder="Auto-assigned (e.g. PRC260001)" 
                         className="bg-zinc-100 border-zinc-300 text-zinc-950 font-bold cursor-not-allowed select-none shadow-xs text-sm" 
                       />
                       {fieldErrors.rollNo && (

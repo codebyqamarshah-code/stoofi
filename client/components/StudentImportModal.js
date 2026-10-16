@@ -13,6 +13,7 @@ const SAMPLE_TEMPLATE_DATA = [
     'Last Name': 'Ali',
     'Class': 'Class 1',
     'Section': 'A',
+    'Roll No': 'PRC260001',
     'Gender': 'Male',
     'Date of Birth': '2016-04-15',
     'Father Name': 'Tariq Mehmood',
@@ -35,6 +36,7 @@ const SAMPLE_TEMPLATE_DATA = [
     'Last Name': 'Khan',
     'Class': 'Class 1',
     'Section': 'B',
+    'Roll No': 'PRC260002',
     'Gender': 'Female',
     'Date of Birth': '2016-07-22',
     'Father Name': 'Nasir Khan',
@@ -150,6 +152,8 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
 
         // Map columns intelligently
         const currentYear = new Date().getFullYear();
+        const currentYear2Digits = String(currentYear).slice(-2);
+        const defaultRollPrefix = `PRC${currentYear2Digits}`;
         const randSeed = Math.floor(Math.random() * 800) + 100;
 
         const mapped = data.map((row, idx) => {
@@ -157,7 +161,8 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
           const lastName = getVal(row, ['lastName', 'last name', 'lastname', 'surname', 'last']) || '';
           const admissionNo = getVal(row, ['admissionNo', 'admission no', 'admission number', 'adm no', 'registration no', 'reg no']) ||
             `ADM-${currentYear}-${String(randSeed + idx).padStart(3, '0')}`;
-          // rollNo intentionally left empty — backend auto-assigns from 1
+          const fileRollNo = getVal(row, ['rollNo', 'roll no', 'roll number', 'roll']);
+          const rollNo = fileRollNo ? String(fileRollNo).trim() : `${defaultRollPrefix}${String(idx + 1).padStart(4, '0')}`;
           const className = getVal(row, ['className', 'class', 'grade', 'standard']) || defaultClass || '';
           const section = getVal(row, ['section', 'sec']) || defaultSection || '';
           const gender = getVal(row, ['gender', 'sex']) || '';
@@ -190,7 +195,7 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
             firstName,
             lastName,
             admissionNo,
-            rollNo: '', // Auto-assigned by backend
+            rollNo,
             className,
             section,
             gender,
@@ -417,6 +422,7 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
                       <thead className="bg-zinc-100 text-zinc-700 font-semibold border-b border-zinc-200 uppercase">
                         <tr>
                           <th className="p-2.5">Admission No</th>
+                          <th className="p-2.5">Roll No</th>
                           <th className="p-2.5">Name</th>
                           <th className="p-2.5">Class (Sec)</th>
                           <th className="p-2.5">Gender</th>
@@ -429,6 +435,7 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
                         {parsedStudents.slice(0, 5).map((stu, i) => (
                           <tr key={i} className="hover:bg-zinc-50">
                             <td className="p-2.5 font-medium text-zinc-950">{stu.admissionNo}</td>
+                            <td className="p-2.5 font-bold font-mono text-zinc-950">{stu.rollNo}</td>
                             <td className="p-2.5 font-semibold text-zinc-900">{stu.firstName} {stu.lastName}</td>
                             <td className="p-2.5">{stu.className} ({stu.section})</td>
                             <td className="p-2.5">{stu.gender}</td>
