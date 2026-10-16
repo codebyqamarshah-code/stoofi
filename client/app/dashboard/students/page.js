@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import Link from 'next/link';
 import { sortClassesAcademic } from '@/lib/academicUtils';
+import { formatDateDMY } from '@/lib/utils';
 import api from '@/services/api';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 import dynamic from 'next/dynamic';
@@ -566,7 +567,7 @@ export default function StudentListPage() {
                       </Link>
                     </td>
                     <td className="px-4 py-3.5 text-zinc-700">{student.fatherName || '-'}</td>
-                    <td className="px-4 py-3.5 text-zinc-700">{student.dob || '-'}</td>
+                    <td className="px-4 py-3.5 text-zinc-700">{formatDateDMY(student.dob)}</td>
                     <td className="px-4 py-3.5 text-zinc-800 font-semibold">{student.className}({student.section})</td>
                     <td className="px-4 py-3.5 text-zinc-700">{student.gender || '-'}</td>
                     <td className="px-4 py-3.5 text-zinc-700">Regular</td>
@@ -623,12 +624,7 @@ export default function StudentListPage() {
                         >
                           <Download className="h-4 w-4" />
                         </Button>
-                        <Button onClick={() => openEdit(student)} variant="ghost" size="icon" className="h-8 w-8 text-zinc-700 hover:text-zinc-950 hover:bg-zinc-200 cursor-pointer" title="Edit Student">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button onClick={() => handleDelete(student._id)} variant="ghost" size="icon" className="h-8 w-8 text-rose-600 hover:text-rose-700 hover:bg-rose-50 cursor-pointer" title="Delete Student">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        
                       </div>
                     </td>
                   </tr>

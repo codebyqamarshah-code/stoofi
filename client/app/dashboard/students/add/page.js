@@ -2,16 +2,16 @@
 
 import Link from 'next/link';
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronRight, Plus, Calendar as CalendarIcon, Upload } from 'lucide-react';
+import { ChevronRight, Plus, Calendar as CalendarIcon, Upload, CheckCircle2, AlertTriangle, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { DayMonthYearInput } from '@/components/ui/DayMonthYearInput';
 import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 import { useRouter } from 'next/navigation';
 import StudentImportModal from '@/components/StudentImportModal';
-
 
 const QUALIFICATION_LEVELS = [
   { label: 'Primary (Class 1-5)', value: 'Primary' },
@@ -45,6 +45,8 @@ const BLOOD_GROUPS = [
   { label: 'AB-', value: 'AB-' },
   { label: 'O+', value: 'O+' },
   { label: 'O-', value: 'O-' },
+  { label: 'NA', value: 'NA' },
+  { label: 'N/A (Not Available / Unknown)', value: 'N/A' },
 ];
 
 const STUDENT_TYPES = [
@@ -54,7 +56,6 @@ const STUDENT_TYPES = [
   { label: 'Hostelite', value: 'Hostelite' },
   { label: 'Day Scholar', value: 'Day Scholar' }
 ];
-
 
 const DocumentPreview = ({ preview, error }) => {
   if (error) return <p className="text-rose-500 text-xs mt-1 font-semibold">{error}</p>;
@@ -79,39 +80,41 @@ export default function AddStudentPage() {
   const [selectedPhotoName, setSelectedPhotoName] = useState('');
   const fileInputRef = useRef(null);
 
+  // Roll Number Validation State
+  const [usedRolls, setUsedRolls] = useState([]);
+  const [rollDuplicate, setRollDuplicate] = useState(false);
+  const [loadingRoll, setLoadingRoll] = useState(false);
+
   const [docFiles, setDocFiles] = useState({ cnicFront: null, cnicBack: null, document1: null, qualificationDocument: null, previousSchoolDocument: null });
-  
   const [docPreviews, setDocPreviews] = useState({ cnicFront: null, cnicBack: null, document1: null, qualificationDocument: null, previousSchoolDocument: null });
   const [docErrors, setDocErrors] = useState({ cnicFront: '', cnicBack: '', document1: '', qualificationDocument: '', previousSchoolDocument: '' });
-  
+
   const handleDocChange = (e, docType) => {
     const file = e.target.files && e.target.files[0];
     if (file) {
-      // Validate real document (basic MIME and size)
       const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf'];
       if (!validTypes.includes(file.type)) {
-        setDocErrors(prev => ({...prev, [docType]: 'Fake or invalid document. Only JPG, PNG, or PDF allowed.'}));
-        setDocPreviews(prev => ({...prev, [docType]: null}));
-        setDocFiles(prev => ({...prev, [docType]: null}));
+        setDocErrors(prev => ({ ...prev, [docType]: 'Fake or invalid document. Only JPG, PNG, or PDF allowed.' }));
+        setDocPreviews(prev => ({ ...prev, [docType]: null }));
+        setDocFiles(prev => ({ ...prev, [docType]: null }));
         return;
       }
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        setDocErrors(prev => ({...prev, [docType]: 'File too large. Max 5MB allowed.'}));
-        setDocPreviews(prev => ({...prev, [docType]: null}));
-        setDocFiles(prev => ({...prev, [docType]: null}));
+      if (file.size > 5 * 1024 * 1024) {
+        setDocErrors(prev => ({ ...prev, [docType]: 'File too large. Max 5MB allowed.' }));
+        setDocPreviews(prev => ({ ...prev, [docType]: null }));
+        setDocFiles(prev => ({ ...prev, [docType]: null }));
         return;
       }
 
-      setDocErrors(prev => ({...prev, [docType]: ''}));
-      setDocFiles(prev => ({...prev, [docType]: file}));
+      setDocErrors(prev => ({ ...prev, [docType]: '' }));
+      setDocFiles(prev => ({ ...prev, [docType]: file }));
       
-      // Create preview
       const previewUrl = URL.createObjectURL(file);
-      setDocPreviews(prev => ({...prev, [docType]: { url: previewUrl, type: file.type }}));
+      setDocPreviews(prev => ({ ...prev, [docType]: { url: previewUrl, type: file.type } }));
     }
   };
 
-const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     academicYear: '2026',
     className: '',
     section: '',
@@ -155,6 +158,8 @@ const [formData, setFormData] = useState({
     previousSchool: '',
     previousSchoolName: '',
     previousSchoolAddress: '',
+    qualificationLevel: '',
+    instituteType: '',
 
     tcNo: '',
     remarks: '',
@@ -170,58 +175,67 @@ const [formData, setFormData] = useState({
   ];
 
   const [classes, setClasses] = useState([]);
-  useEffect(() => {
-    const fetchDynamicClasses = async () => {
-      try {
-        const res = await api.get('/class');
-        if (res && res.success) {
-          setClasses(res.data);
-        }
-      } catch (err) {
-        console.error('Failed to load classes', err);
-      }
-    };
-    fetchDynamicClasses();
-  }, []);
-
   const [sections, setSections] = useState([]);
   const [groups, setGroups] = useState([]);
 
-  React.useEffect(() => {
+  // Fetch Next Admission Number
+  const fetchNextAdmissionNumber = async () => {
+    try {
+      const res = await api.get('/student/next-admission-no');
+      if (res?.success && res.nextAdmissionNo) {
+        setFormData(prev => ({ ...prev, admissionNo: res.nextAdmissionNo }));
+      }
+    } catch (e) {
+      const currYear = new Date().getFullYear();
+      setFormData(prev => ({ ...prev, admissionNo: `ADM-${currYear}-001` }));
+    }
+  };
+
+  // Fetch Next Roll Number for selected class and section
+  const fetchNextRollNumber = async (cls, sec) => {
+    if (!cls) return;
+    try {
+      setLoadingRoll(true);
+      const res = await api.get('/student/next-roll-no', {
+        params: { className: cls, section: sec || '' }
+      });
+      if (res?.success) {
+        setFormData(prev => ({ ...prev, rollNo: res.nextRollNo }));
+        setUsedRolls(res.usedRollNumbers || []);
+        setRollDuplicate(false);
+      }
+    } catch (e) {
+      console.error('Error fetching next roll no:', e);
+    } finally {
+      setLoadingRoll(false);
+    }
+  };
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
-        const classRes = await api.get('/class');
-        if (classRes?.success && Array.isArray(classRes.data) && classRes.data.length > 0) {
-          const sortedClasses = classRes.data.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+        const [classRes, secRes, grpRes] = await Promise.allSettled([
+          api.get('/class'),
+          api.get('/section'),
+          api.get('/student-group')
+        ]);
+
+        if (classRes.status === 'fulfilled' && classRes.value?.success && Array.isArray(classRes.value.data)) {
+          const sortedClasses = sortClassesAcademic(classRes.value.data);
           setClasses(sortedClasses);
-        } else {
-          setClasses([]);
-        }
-        
-        const secRes = await api.get('/section');
-        if (secRes?.success && Array.isArray(secRes.data) && secRes.data.length > 0) {
-          setSections(secRes.data);
-        } else {
-          setSections([]);
         }
 
-        const grpRes = await api.get('/student-group');
-        if (grpRes?.success && Array.isArray(grpRes.data) && grpRes.data.length > 0) {
-          setGroups(grpRes.data);
-        } else {
-          setGroups([]);
+        if (secRes.status === 'fulfilled' && secRes.value?.success && Array.isArray(secRes.value.data)) {
+          setSections(secRes.value.data);
         }
 
-        // Auto-generate next admission number
-        const stRes = await api.get('/student', { params: { limit: 1 } });
-        if (stRes?.pagination?.total !== undefined) {
-          const nextAdm = `ADM-2026-${String(stRes.pagination.total + 1).padStart(3, '0')}`;
-          setFormData(prev => ({ ...prev, admissionNo: prev.admissionNo || nextAdm }));
+        if (grpRes.status === 'fulfilled' && grpRes.value?.success && Array.isArray(grpRes.value.data)) {
+          setGroups(grpRes.value.data);
         }
+
+        await fetchNextAdmissionNumber();
       } catch (err) {
-        console.error(err);
-        setClasses([]);
-        setSections([]);
+        console.error('Initial data fetch error:', err);
       }
     };
     fetchData();
@@ -231,10 +245,24 @@ const [formData, setFormData] = useState({
     const { name, value } = e.target;
     if (name === 'className') {
       setFormData(prev => ({ ...prev, className: value, section: '' }));
+      fetchNextRollNumber(value, '');
+    } else if (name === 'section') {
+      setFormData(prev => ({ ...prev, section: value }));
+      fetchNextRollNumber(formData.className, value);
     } else if (name === 'currentAddress') {
       setFormData(prev => ({ ...prev, currentAddress: value, address: value }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleRollChange = (e) => {
+    const val = e.target.value;
+    setFormData(prev => ({ ...prev, rollNo: val }));
+    if (val && usedRolls.includes(val.trim())) {
+      setRollDuplicate(true);
+    } else {
+      setRollDuplicate(false);
     }
   };
 
@@ -255,10 +283,52 @@ const [formData, setFormData] = useState({
     });
   };
 
+  // Tab Navigation Handling
+  const handleNextTab = () => {
+    const currentIndex = tabs.indexOf(activeTab);
+    if (activeTab === 'PERSONAL INFO') {
+      if (!formData.className || !formData.section) {
+        alert("Please select Class and Section before moving to next step.");
+        return;
+      }
+      if (!formData.firstName || !formData.firstName.trim()) {
+        alert("Please enter Student First Name.");
+        return;
+      }
+      if (!formData.dob) {
+        alert("Please select Date of Birth (Day, Month, Year).");
+        return;
+      }
+      if (rollDuplicate) {
+        alert(`Yeh Roll Number (${formData.rollNo}) pehle se is Class / Section mein use ho chuka hai. Doosra Roll Number enter karein.`);
+        return;
+      }
+    }
+    if (currentIndex < tabs.length - 1) {
+      setActiveTab(tabs[currentIndex + 1]);
+      window.scrollTo({ top: 120, behavior: 'smooth' });
+    }
+  };
+
+  const handlePrevTab = () => {
+    const currentIndex = tabs.indexOf(activeTab);
+    if (currentIndex > 0) {
+      setActiveTab(tabs[currentIndex - 1]);
+      window.scrollTo({ top: 120, behavior: 'smooth' });
+    }
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     if (!formData.academicYear || !formData.className || !formData.section || !formData.firstName || !formData.gender || !formData.dob) {
+      setActiveTab('PERSONAL INFO');
       alert("Please fill all required fields in Personal Info (Class, Section, First Name, Gender, Date of Birth).");
+      return;
+    }
+
+    if (rollDuplicate) {
+      setActiveTab('PERSONAL INFO');
+      alert(`Yeh Roll Number (${formData.rollNo}) pehle se Class ${formData.className} (${formData.section}) mein kisi student ko assign hai. Doosra Roll Number enter karein.`);
       return;
     }
 
@@ -266,7 +336,14 @@ const [formData, setFormData] = useState({
       setSubmitting(true);
       const dataToSubmit = new FormData();
       Object.keys(formData).forEach(key => {
-        if (formData[key] !== undefined && formData[key] !== null) {
+        // Skip studentGroup if not chosen (100% optional, prevents Mongoose cast error)
+        if (key === 'studentGroup') {
+          if (formData[key] && String(formData[key]).trim() !== '') {
+            dataToSubmit.append('studentGroup', formData[key]);
+          }
+          return;
+        }
+        if (formData[key] !== undefined && formData[key] !== null && formData[key] !== '') {
           dataToSubmit.append(key, formData[key]);
         }
       });
@@ -289,11 +366,13 @@ const [formData, setFormData] = useState({
         alert(res?.message || "Failed to save student.");
       }
     } catch (error) {
-      alert(error.message || 'Error saving student');
+      alert(error.response?.data?.message || error.message || 'Error saving student');
     } finally {
       setSubmitting(false);
     }
   };
+
+  const currentTabIndex = tabs.indexOf(activeTab);
 
   return (
     <div className="space-y-6">
@@ -322,56 +401,48 @@ const [formData, setFormData] = useState({
           </div>
         </div>
 
-        <form onSubmit={handleSave}>
-          <div className="p-4 sm:p-6">
-            {/* Tabs Ribbon - Scrollable and responsive */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-zinc-200 pb-2 mb-6 scroll-smooth">
-              {tabs.map(tab => (
+        <form onSubmit={handleSave} className="p-4 sm:p-6">
+          <div className="space-y-6">
+            {/* Tabs Bar */}
+            <div className="flex border-b border-zinc-200 overflow-x-auto gap-2 pb-2 scrollbar-none">
+              {tabs.map((tab, idx) => (
                 <button
                   key={tab}
                   type="button"
                   onClick={() => setActiveTab(tab)}
-                  className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all whitespace-nowrap shrink-0 uppercase tracking-wide cursor-pointer ${
+                  className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all whitespace-nowrap shrink-0 uppercase tracking-wide cursor-pointer flex items-center gap-1.5 ${
                     activeTab === tab
                       ? 'bg-[#084A86] text-white shadow-sm'
                       : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900'
                   }`}
                 >
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${activeTab === tab ? 'bg-white text-[#084A86]' : 'bg-zinc-300 text-zinc-700'}`}>
+                    {idx + 1}
+                  </span>
                   {tab}
                 </button>
               ))}
-              <div className="ml-auto hidden sm:block shrink-0 pl-2">
-                <Button disabled={submitting} type="submit" className="bg-[#084A86] hover:bg-[#063b6d] text-white font-bold py-2 px-4 rounded-lg shadow-xs h-8 text-xs cursor-pointer">
-                  {submitting ? 'SAVING...' : 'SAVE STUDENT'}
-                </Button>
-              </div>
             </div>
 
-            {/* Tab Content: Personal Info */}
+            {/* Tab 1: Personal Info */}
             {activeTab === 'PERSONAL INFO' && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Left Column */}
-                <div className="space-y-6">
-                  {/* Academic Information */}
-                  <div>
-                    <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2 mb-4">ACADEMIC INFORMATION</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Left Column: Academic Placement */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2">ACADEMIC PLACEMENT</h3>
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Academic Year <span className="text-rose-500">*</span></Label>
+                      <SearchableSelect 
+                        name="academicYear" 
+                        value={formData.academicYear} 
+                        onChange={handleInputChange} 
+                        options={ACADEMIC_YEARS} 
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Academic Year <span className="text-rose-500">*</span></Label>
-                        <SearchableSelect 
-                          name="academicYear" 
-                          value={formData.academicYear} 
-                          onChange={handleInputChange} 
-                          options={ACADEMIC_YEARS} 
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <div className="flex justify-between items-center">
-                          <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Class <span className="text-rose-500">*</span></Label>
-                          <Link href="/dashboard/academics/class" className="text-xs font-bold text-emerald-500 hover:text-emerald-400 hover:underline flex items-center gap-1">
-                            + Add Class
-                          </Link>
-                        </div>
+                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Class <span className="text-rose-500">*</span></Label>
                         <SearchableSelect 
                           name="className" 
                           value={formData.className} 
@@ -390,10 +461,12 @@ const [formData, setFormData] = useState({
                           options={getFilteredSections()} 
                         />
                       </div>
+                      
+                      {/* Student Group (100% Optional) */}
                       <div className="space-y-1.5">
                         <div className="flex justify-between items-center">
                           <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Student Group</Label>
-                          <Link href="/dashboard/students/groups" className="text-xs font-bold text-emerald-500 hover:text-emerald-400 hover:underline flex items-center gap-1">
+                          <Link href="/dashboard/students/groups" className="text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline flex items-center gap-1">
                             + Add Group
                           </Link>
                         </div>
@@ -402,21 +475,85 @@ const [formData, setFormData] = useState({
                           value={formData.studentGroup} 
                           onChange={handleInputChange} 
                           placeholder="Select Group (Optional)"
-                          options={groups.map(g => ({ label: g.name, value: g._id }))} 
+                          options={[
+                            { label: 'None / No Group (Optional)', value: '' },
+                            ...groups.map(g => ({ label: g.name, value: g._id }))
+                          ]} 
                         />
                       </div>
+
+                      {/* Admission Number (Auto-Increment, Fixed, Read-Only) */}
                       <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Admission Number <span className="text-rose-500">*</span></Label>
-                        <Input name="admissionNo" value={formData.admissionNo} onChange={handleInputChange} placeholder="e.g. ADM-2026-001" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
+                            Admission Number <span className="text-rose-500">*</span>
+                          </Label>
+                          <span className="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-full border border-emerald-300">
+                            AUTO-ASSIGNED (FIXED)
+                          </span>
+                        </div>
+                        <Input 
+                          name="admissionNo" 
+                          value={formData.admissionNo} 
+                          readOnly 
+                          disabled 
+                          className="bg-zinc-100 border-zinc-300 text-zinc-950 font-bold cursor-not-allowed select-none shadow-xs text-sm" 
+                        />
+                        <p className="text-[11px] text-zinc-500 font-medium">Auto-generated sequential number.</p>
                       </div>
-                      <div className="space-y-1.5">
+
+                      {/* Admission Date (Day / Month / Year Format) */}
+                      <div className="space-y-1.5 sm:col-span-2">
                         <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Admission Date</Label>
-                        <Input type="date" name="admissionDate" value={formData.admissionDate} onChange={handleInputChange} className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
+                        <DayMonthYearInput 
+                          name="admissionDate" 
+                          value={formData.admissionDate} 
+                          onChange={handleInputChange} 
+                          minYear={2020} 
+                          maxYear={2030} 
+                        />
                       </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Roll Number</Label>
-                        <Input name="rollNo" value={formData.rollNo} onChange={handleInputChange} placeholder="e.g. 101" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
+
+                      {/* Roll Number (Auto-Increment & Duplicate Detection) */}
+                      <div className="space-y-1.5 sm:col-span-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
+                            Roll Number
+                          </Label>
+                          {loadingRoll ? (
+                            <span className="text-[10px] text-zinc-500 font-medium">Checking...</span>
+                          ) : rollDuplicate ? (
+                            <span className="text-[10px] bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded border border-rose-300 flex items-center gap-1">
+                              <AlertTriangle className="h-3 w-3" /> ALREADY USED
+                            </span>
+                          ) : (
+                            <span className="text-[10px] bg-blue-50 text-[#084A86] font-bold px-2 py-0.5 rounded border border-blue-200">
+                              AUTO-INCREMENT
+                            </span>
+                          )}
+                        </div>
+                        <Input 
+                          name="rollNo" 
+                          value={formData.rollNo} 
+                          onChange={handleRollChange} 
+                          placeholder="e.g. 101" 
+                          className={`bg-white font-medium ${
+                            rollDuplicate 
+                              ? 'border-rose-500 focus-visible:ring-rose-500 bg-rose-50/30 text-rose-950' 
+                              : 'border-zinc-300 text-zinc-950 focus-visible:ring-zinc-400'
+                          }`} 
+                        />
+                        {rollDuplicate ? (
+                          <p className="text-xs text-rose-600 font-bold flex items-center gap-1 mt-1">
+                            ⚠️ Yeh Roll Number ({formData.rollNo}) pehle se is Class / Section mein use ho chuka hai!
+                          </p>
+                        ) : (
+                          <p className="text-[11px] text-zinc-500 font-medium">
+                            Class منتخب کرنے پر نیا Roll Number خود بخود آ جائے گا۔
+                          </p>
+                        )}
                       </div>
+
                       <div className="space-y-1.5 sm:col-span-2">
                         <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Student Type</Label>
                         <SearchableSelect 
@@ -428,52 +565,13 @@ const [formData, setFormData] = useState({
                       </div>
                     </div>
                   </div>
-
-                  {/* Contact Information */}
-                  <div>
-                    <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2 mb-4">CONTACT INFORMATION</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Student Phone</Label>
-                        <Input name="phone" value={formData.phone} onChange={handleInputChange} placeholder="0300-1234567" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Student Email</Label>
-                        <Input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="student@example.com" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">City</Label>
-                        <Input name="city" value={formData.city} onChange={handleInputChange} placeholder="Enter city name" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Emergency Contact</Label>
-                        <Input name="emergencyContact" value={formData.emergencyContact} onChange={handleInputChange} placeholder="0321-7654321" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Student Address Info */}
-                  <div>
-                    <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2 mb-4">STUDENT ADDRESS</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Current Address</Label>
-                        <textarea name="currentAddress" value={formData.currentAddress} onChange={handleInputChange} placeholder="House / Street / Area..." className="flex min-h-[80px] w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 resize-none"></textarea>
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Permanent Address</Label>
-                        <textarea name="permanentAddress" value={formData.permanentAddress} onChange={handleInputChange} placeholder="Permanent home town address..." className="flex min-h-[80px] w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 resize-none"></textarea>
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
-                {/* Right Column */}
-                <div className="space-y-6">
-                  {/* Personal Info */}
-                  <div>
-                    <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2 mb-4">PERSONAL DETAILS</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Right Column: Personal Bio Details */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2">PERSONAL PROFILE</h3>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-1.5">
                         <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">First Name <span className="text-rose-500">*</span></Label>
                         <Input name="firstName" value={formData.firstName} onChange={handleInputChange} placeholder="First name" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
@@ -496,10 +594,20 @@ const [formData, setFormData] = useState({
                           ]} 
                         />
                       </div>
+
+                      {/* Date of Birth (Day / Month / Year Format) */}
                       <div className="space-y-1.5">
                         <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Date of Birth <span className="text-rose-500">*</span></Label>
-                        <Input type="date" name="dob" value={formData.dob} onChange={handleInputChange} className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
+                        <DayMonthYearInput 
+                          name="dob" 
+                          value={formData.dob} 
+                          onChange={handleInputChange} 
+                          minYear={1990} 
+                          maxYear={2026} 
+                          required={true}
+                        />
                       </div>
+
                       <div className="space-y-1.5">
                         <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Religion</Label>
                         <SearchableSelect 
@@ -515,6 +623,8 @@ const [formData, setFormData] = useState({
                           ]} 
                         />
                       </div>
+
+                      {/* Blood Group with NA & N/A Options */}
                       <div className="space-y-1.5">
                         <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Blood Group</Label>
                         <SearchableSelect 
@@ -525,6 +635,7 @@ const [formData, setFormData] = useState({
                           options={BLOOD_GROUPS} 
                         />
                       </div>
+
                       <div className="space-y-1.5">
                         <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Nationality</Label>
                         <Input name="nationality" value={formData.nationality} onChange={handleInputChange} placeholder="Pakistani" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
@@ -555,7 +666,7 @@ const [formData, setFormData] = useState({
               </div>
             )}
 
-            {/* Parents & Guardian Info */}
+            {/* Tab 2: Parents & Guardian Info */}
             {activeTab === 'PARENTS & GUARDIAN INFO' && (
               <div className="space-y-6">
                 <div>
@@ -573,7 +684,7 @@ const [formData, setFormData] = useState({
                       <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Father Occupation</Label>
                       <Input name="fatherOccupation" value={formData.fatherOccupation} onChange={handleInputChange} placeholder="e.g. Businessman / Doctor" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
                     </div>
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5 sm:col-span-3">
                       <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Father CNIC</Label>
                       <Input name="fatherCnic" value={formData.fatherCnic} onChange={handleInputChange} placeholder="35201-1234567-1" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
                     </div>
@@ -615,14 +726,14 @@ const [formData, setFormData] = useState({
                     </div>
                     <div className="space-y-1.5 sm:col-span-3">
                       <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Guardian Address</Label>
-                      <textarea name="guardianAddress" value={formData.guardianAddress} onChange={handleInputChange} placeholder="Guardian complete address..." className="flex min-h-[80px] w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 resize-none"></textarea>
+                      <textarea name="guardianAddress" value={formData.guardianAddress} onChange={handleInputChange} placeholder="Guardian complete address..." className="flex min-h-[80px] w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 resize-none"></textarea>
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Document Info */}
+            {/* Tab 3: Document Info */}
             {activeTab === 'DOCUMENT INFO' && (
               <div className="space-y-6">
                 <div>
@@ -631,7 +742,7 @@ const [formData, setFormData] = useState({
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Transfer Certificate (TC) Scan (Original)</Label>
                       <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'document1')} className="bg-white border-zinc-300 text-zinc-950 file:bg-[#084A86] file:text-white file:font-bold file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-[#063b6d] file:rounded-md cursor-pointer" />
-                        <DocumentPreview preview={docPreviews.document1} error={docErrors.document1} />
+                      <DocumentPreview preview={docPreviews.document1} error={docErrors.document1} />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Transfer Certificate (TC) Number</Label>
@@ -640,12 +751,12 @@ const [formData, setFormData] = useState({
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">CNIC / B-Form Front (Original)</Label>
                       <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'cnicFront')} className="bg-white border-zinc-300 text-zinc-950 file:bg-[#084A86] file:text-white file:font-bold file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-[#063b6d] file:rounded-md cursor-pointer" />
-                        <DocumentPreview preview={docPreviews.cnicFront} error={docErrors.cnicFront} />
+                      <DocumentPreview preview={docPreviews.cnicFront} error={docErrors.cnicFront} />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">CNIC / B-Form Back (Original)</Label>
                       <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'cnicBack')} className="bg-white border-zinc-300 text-zinc-950 file:bg-[#084A86] file:text-white file:font-bold file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-[#063b6d] file:rounded-md cursor-pointer" />
-                        <DocumentPreview preview={docPreviews.cnicBack} error={docErrors.cnicBack} />
+                      <DocumentPreview preview={docPreviews.cnicBack} error={docErrors.cnicBack} />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Previous Qualification</Label>
@@ -660,66 +771,65 @@ const [formData, setFormData] = useState({
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Qualification Certificate (Original)</Label>
                       <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'qualificationDocument')} className="bg-white border-zinc-300 text-zinc-950 file:bg-[#084A86] file:text-white file:font-bold file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-[#063b6d] file:rounded-md cursor-pointer" />
-                        <DocumentPreview preview={docPreviews.qualificationDocument} error={docErrors.qualificationDocument} />
+                      <DocumentPreview preview={docPreviews.qualificationDocument} error={docErrors.qualificationDocument} />
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Previous School Info */}
+            {/* Tab 4: Previous School Info */}
             {activeTab === 'PREVIOUS SCHOOL INFORMATION' && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-950 border-b border-zinc-200 dark:border-zinc-200 pb-2 mb-4">PREVIOUS SCHOOL DETAILS</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-semibold text-zinc-500 dark:text-zinc-700 uppercase font-bold">Qualification Covered</Label>
-                        <SearchableSelect 
-                          name="qualificationLevel" 
-                          value={formData.qualificationLevel || ''} 
-                          onChange={handleInputChange} 
-                          placeholder="Select Qualification (e.g., Matric)"
-                          options={QUALIFICATION_LEVELS} 
-                        />
-                      </div>
+                  <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-200 pb-2 mb-4">PREVIOUS SCHOOL DETAILS</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-zinc-700 uppercase">Qualification Covered</Label>
+                      <SearchableSelect 
+                        name="qualificationLevel" 
+                        value={formData.qualificationLevel || ''} 
+                        onChange={handleInputChange} 
+                        placeholder="Select Qualification (e.g., Matric)"
+                        options={QUALIFICATION_LEVELS} 
+                      />
+                    </div>
 
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-semibold text-zinc-500 dark:text-zinc-700 uppercase font-bold">Institute Type</Label>
-                        <SearchableSelect 
-                          name="instituteType" 
-                          value={formData.instituteType || ''} 
-                          onChange={handleInputChange} 
-                          placeholder="Select Institute Type"
-                          options={[
-                            { label: 'School', value: 'School' },
-                            { label: 'College', value: 'College' },
-                            { label: 'University', value: 'University' },
-                            { label: 'Institute', value: 'Institute' },
-                            { label: 'Academy', value: 'Academy' }
-                          ]} 
-                        />
-                      </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-zinc-700 uppercase">Institute Type</Label>
+                      <SearchableSelect 
+                        name="instituteType" 
+                        value={formData.instituteType || ''} 
+                        onChange={handleInputChange} 
+                        placeholder="Select Institute Type"
+                        options={[
+                          { label: 'School', value: 'School' },
+                          { label: 'College', value: 'College' },
+                          { label: 'University', value: 'University' },
+                          { label: 'Institute', value: 'Institute' },
+                          { label: 'Academy', value: 'Academy' }
+                        ]} 
+                      />
+                    </div>
 
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-semibold text-zinc-500 dark:text-zinc-700 uppercase font-bold">Institute Name</Label>
-                        <Input name="previousSchoolName" value={formData.previousSchoolName} onChange={(e) => {
-                          handleInputChange(e);
-                          setFormData(prev => ({ ...prev, previousSchool: e.target.value }));
-                        }} placeholder="e.g. Army Public School" className="bg-white dark:bg-white border-zinc-300 dark:border-zinc-200 focus-visible:ring-emerald-500" />
-                      </div>
-                      
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-semibold text-zinc-500 dark:text-zinc-700 uppercase font-bold">Institute Address</Label>
-                        <Input name="previousSchoolAddress" value={formData.previousSchoolAddress} onChange={handleInputChange} placeholder="City, Campus address" className="bg-white dark:bg-white border-zinc-300 dark:border-zinc-200 focus-visible:ring-emerald-500" />
-                      </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-zinc-700 uppercase">Institute Name</Label>
+                      <Input name="previousSchoolName" value={formData.previousSchoolName} onChange={(e) => {
+                        handleInputChange(e);
+                        setFormData(prev => ({ ...prev, previousSchool: e.target.value }));
+                      }} placeholder="e.g. Army Public School" className="bg-white border-zinc-300 focus-visible:ring-emerald-500" />
+                    </div>
+                    
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-zinc-700 uppercase">Institute Address</Label>
+                      <Input name="previousSchoolAddress" value={formData.previousSchoolAddress} onChange={handleInputChange} placeholder="City, Campus address" className="bg-white border-zinc-300 focus-visible:ring-emerald-500" />
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
-            {/* Other Info */}
+            {/* Tab 5: Other Info */}
             {activeTab === 'OTHER INFO' && (
               <div className="space-y-6">
                 <div>
@@ -727,21 +837,54 @@ const [formData, setFormData] = useState({
                   <div className="grid grid-cols-1 gap-4">
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Medical History / Allergies</Label>
-                      <Input name="medicalHistory" value={formData.medicalHistory} onChange={handleInputChange} placeholder="e.g. Asthmatic, No allergies, etc." className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
+                      <Input name="medicalHistory" value={formData.medicalHistory} onChange={handleInputChange} placeholder="e.g. Asthmatic, No allergies, etc." className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Additional Remarks / Notes</Label>
-                      <textarea name="otherInfo" value={formData.otherInfo} onChange={handleInputChange} placeholder="Special instructions or student history..." className="flex min-h-[120px] w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-950 font-medium text-sm placeholder:text-zinc-950 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 resize-none"></textarea>
+                      <textarea name="otherInfo" value={formData.otherInfo} onChange={handleInputChange} placeholder="Special instructions or student history..." className="flex min-h-[120px] w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-950 font-medium text-sm placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 resize-none"></textarea>
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="mt-8 flex justify-end">
-              <Button disabled={submitting} type="submit" className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold px-8 py-2.5 rounded-lg cursor-pointer shadow-xs">
-                {submitting ? 'SAVING...' : 'SAVE STUDENT RECORD'}
-              </Button>
+            {/* Step Shift Buttons Bar */}
+            <div className="mt-8 pt-4 border-t border-zinc-200 flex items-center justify-between flex-wrap gap-3">
+              <div>
+                {currentTabIndex > 0 ? (
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handlePrevTab}
+                    className="border-zinc-300 hover:bg-zinc-100 text-zinc-800 font-bold px-5 py-2.5 rounded-lg flex items-center gap-2 cursor-pointer text-xs"
+                  >
+                    <ArrowLeft className="h-4 w-4" /> PREVIOUS STEP
+                  </Button>
+                ) : (
+                  <span className="text-xs text-zinc-400 font-medium">Step 1 of 5: Personal & Academic</span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3">
+                {currentTabIndex < tabs.length - 1 ? (
+                  <Button 
+                    type="button" 
+                    onClick={handleNextTab}
+                    className="bg-[#084A86] hover:bg-[#063866] text-white font-bold px-6 py-2.5 rounded-lg flex items-center gap-2 cursor-pointer text-xs shadow-xs"
+                  >
+                    NEXT: {tabs[currentTabIndex + 1]} <ArrowRight className="h-4 w-4" />
+                  </Button>
+                ) : null}
+
+                <Button 
+                  disabled={submitting} 
+                  type="submit" 
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-2.5 rounded-lg cursor-pointer shadow-sm text-xs flex items-center gap-2"
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  {submitting ? 'SAVING RECORD...' : 'SAVE STUDENT RECORD'}
+                </Button>
+              </div>
             </div>
           </div>
         </form>
@@ -758,4 +901,3 @@ const [formData, setFormData] = useState({
     </div>
   );
 }
-

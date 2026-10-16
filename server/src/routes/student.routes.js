@@ -1,5 +1,5 @@
 const express = require('express');
-const { getAll, getById, create, update, remove, bulkCreate, promoteStudents } = require('../controllers/student.controller');
+const { getAll, getById, create, update, remove, bulkCreate, promoteStudents, getNextAdmissionNo, getNextRollNo } = require('../controllers/student.controller');
 const { protect, authorize } = require('../middleware/auth.middleware');
 const upload = require('../middleware/upload.middleware');
 
@@ -7,6 +7,8 @@ const router = express.Router();
 
 router.use(protect);
 
+router.get('/next-admission-no', getNextAdmissionNo);
+router.get('/next-roll-no', getNextRollNo);
 router.post('/bulk', authorize('Super Admin', 'Admin'), bulkCreate);
 router.post('/promote', authorize('Super Admin', 'Admin', 'Teacher'), promoteStudents);
 router.route('/').get(getAll).post(authorize('Super Admin', 'Admin'), upload.any(), create);

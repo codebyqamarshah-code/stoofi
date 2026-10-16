@@ -79,14 +79,133 @@ exports.getById = async (req, res, next) => {
   }
 };
 
+exports.getNextAdmissionNo = async (req, res) => {
+  try {
+    const currentYear = new Date().getFullYear();
+    const students = await Student.find({}, 'admissionNo').lean();
+    let maxNum = 0;
+    students.forEach(s => {
+      if (s.admissionNo) {
+        const match = String(s.admissionNo).match(/(\d+)$/);
+        if (match) {
+          const num = parseInt(match[1], 10);
+          if (!isNaN(num) && num > maxNum) maxNum = num;
+        }
+      }
+    });
+    const nextNum = maxNum + 1;
+    const nextAdmissionNo = `ADM-${currentYear}-${String(nextNum).padStart(3, '0')}`;
+    res.status(200).json({ success: true, nextAdmissionNo, nextNum });
+  } catch (error) {
+    const currentYear = new Date().getFullYear();
+    res.status(200).json({ success: true, nextAdmissionNo: `ADM-${currentYear}-001`, nextNum: 1 });
+  }
+};
+
+exports.getNextRollNo = async (req, res) => {
+  try {
+    const { className, section } = req.query;
+    const query = {};
+    if (className && className !== 'All Classes' && className !== 'All' && className.trim()) {
+      const c = className.replace(/^Class\s+/i, '').trim();
+      query.className = { $regex: '^(' + className + '|' + c + '|Class\\s*' + c + ')$', $options: 'i' };
+    }
+    if (section && section !== 'All Sections' && section !== 'All' && section.trim()) {
+      const sec = section.replace(/^Section\s+/i, '').trim();
+      query.section = { $regex: '^(' + section + '|' + sec + '|Section\\s*' + sec + ')$', $options: 'i' };
+    }
+
+    const students = await Student.find(query, 'rollNo firstName lastName admissionNo').lean();
+    let maxRoll = 0;
+    const usedRolls = [];
+    students.forEach(s => {
+      if (s.rollNo) {
+        const rStr = String(s.rollNo).trim();
+        usedRolls.push({
+          rollNo: rStr,
+          studentName: `${s.firstName || ''} ${s.lastName || ''}`.trim() || 'Student',
+          admissionNo: s.admissionNo || ''
+        });
+        const num = parseInt(rStr, 10);
+        if (!isNaN(num) && num > maxRoll) {
+          maxRoll = num;
+        }
+      }
+    });
+
+    const nextRollNo = maxRoll > 0 ? String(maxRoll + 1) : '101';
+    res.status(200).json({ 
+      success: true, 
+      nextRollNo, 
+      usedRollNumbers: usedRolls.map(u => u.rollNo),
+      usedRolls 
+    });
+  } catch (err) {
+    res.status(200).json({ success: true, nextRollNo: '101', usedRollNumbers: [], usedRolls: [] });
+  }
+};
+
 exports.create = async (req, res) => {
   try {
     const dataObj = { ...req.body };
     const currentYear = new Date().getFullYear();
-    if (!dataObj.admissionNo) {
-      const count = await Student.countDocuments();
-      dataObj.admissionNo = 'ADM-' + currentYear + '-' + String(count + 1).padStart(3, '0');
+
+    // Clean up empty ObjectId / optional fields so Mongoose doesn't fail on cast
+    if (!dataObj.studentGroup || dataObj.studentGroup === '' || dataObj.studentGroup === 'undefined' || dataObj.studentGroup === 'null') {
+      delete dataObj.studentGroup;
     }
+    if (!dataObj.classId || dataObj.classId === '' || dataObj.classId === 'undefined' || dataObj.classId === 'null') {
+      delete dataObj.classId;
+    }
+
+    // Auto-generate or ensure unique sequential admission number
+    if (!dataObj.admissionNo || dataObj.admissionNo.trim() === '') {
+      const students = await Student.find({}, 'admissionNo').lean();
+      let maxNum = 0;
+      students.forEach(s => {
+        if (s.admissionNo) {
+          const match = String(s.admissionNo).match(/(\d+)$/);
+          if (match) {
+            const num = parseInt(match[1], 10);
+            if (!isNaN(num) && num > maxNum) maxNum = num;
+          }
+        }
+      });
+      dataObj.admissionNo = `ADM-${currentYear}-${String(maxNum + 1).padStart(3, '0')}`;
+    } else {
+      const existingAdm = await Student.findOne({ admissionNo: dataObj.admissionNo.trim() });
+      if (existingAdm) {
+        const students = await Student.find({}, 'admissionNo').lean();
+        let maxNum = 0;
+        students.forEach(s => {
+          if (s.admissionNo) {
+            const match = String(s.admissionNo).match(/(\d+)$/);
+            if (match) {
+              const num = parseInt(match[1], 10);
+              if (!isNaN(num) && num > maxNum) maxNum = num;
+            }
+          }
+        });
+        dataObj.admissionNo = `ADM-${currentYear}-${String(maxNum + 1).padStart(3, '0')}`;
+      }
+    }
+
+    // Check duplicate roll number in class and section
+    if (dataObj.rollNo && String(dataObj.rollNo).trim() && dataObj.className && dataObj.section) {
+      const rollStr = String(dataObj.rollNo).trim();
+      const existingRoll = await Student.findOne({
+        className: { $regex: '^' + dataObj.className.trim() + '$', $options: 'i' },
+        section: { $regex: '^' + dataObj.section.trim() + '$', $options: 'i' },
+        rollNo: rollStr
+      });
+      if (existingRoll) {
+        return res.status(400).json({
+          success: false,
+          message: `Yeh Roll Number (${rollStr}) pehle se Class ${dataObj.className} (${dataObj.section}) mein mojood hai.`
+        });
+      }
+    }
+
     if (!dataObj.academicYear) {
       dataObj.academicYear = `${currentYear}-${currentYear + 1}`;
     }
@@ -102,7 +221,6 @@ exports.create = async (req, res) => {
     if (!dataObj.section) {
       dataObj.section = 'Section A';
     }
-    // Just handle one file for now, or if multiple we'd iterate
     // Handle single req.file or multiple req.files array
     if (req.file) {
       if (req.file.fieldname === 'file') dataObj.studentPhoto = '/uploads/' + req.file.filename;
@@ -114,7 +232,7 @@ exports.create = async (req, res) => {
         else dataObj[f.fieldname] = '/uploads/' + f.filename;
       });
     }
-        const data = await Student.create(dataObj);
+    const data = await Student.create(dataObj);
     
     // Create Notification for Super Admin and Admin
     try {
@@ -145,6 +263,32 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const dataObj = { ...req.body };
+
+    // Clean up empty ObjectId / optional fields
+    if (!dataObj.studentGroup || dataObj.studentGroup === '' || dataObj.studentGroup === 'undefined' || dataObj.studentGroup === 'null') {
+      delete dataObj.studentGroup;
+    }
+    if (!dataObj.classId || dataObj.classId === '' || dataObj.classId === 'undefined' || dataObj.classId === 'null') {
+      delete dataObj.classId;
+    }
+
+    // Check duplicate roll number in class and section on update
+    if (dataObj.rollNo && String(dataObj.rollNo).trim() && dataObj.className && dataObj.section) {
+      const rollStr = String(dataObj.rollNo).trim();
+      const existingRoll = await Student.findOne({
+        _id: { $ne: req.params.id },
+        className: { $regex: '^' + dataObj.className.trim() + '$', $options: 'i' },
+        section: { $regex: '^' + dataObj.section.trim() + '$', $options: 'i' },
+        rollNo: rollStr
+      });
+      if (existingRoll) {
+        return res.status(400).json({
+          success: false,
+          message: `Yeh Roll Number (${rollStr}) pehle se Class ${dataObj.className} (${dataObj.section}) mein mojood hai.`
+        });
+      }
+    }
+
     // Handle single req.file or multiple req.files array
     if (req.file) {
       if (req.file.fieldname === 'file') dataObj.studentPhoto = '/uploads/' + req.file.filename;
