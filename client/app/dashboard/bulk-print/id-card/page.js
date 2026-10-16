@@ -60,7 +60,8 @@ function StudentCardQR({ rec, isDark = false }) {
 
     QRCode.toDataURL(text, { 
       margin: 1, 
-      width: 140, 
+      width: 200, 
+      errorCorrectionLevel: 'H',
       color: { 
         dark: isDark ? '#ffffff' : '#0f172a', 
         light: isDark ? '#09090b' : '#ffffff' 
@@ -71,13 +72,13 @@ function StudentCardQR({ rec, isDark = false }) {
   }, [rec, isDark]);
 
   if (!qrSrc) {
-    return <div className="w-10 h-10 bg-zinc-100 rounded border border-zinc-200 animate-pulse" />;
+    return <div className="w-14 h-14 bg-zinc-100 rounded border border-zinc-200 animate-pulse" />;
   }
   return (
     <img 
       src={qrSrc} 
       alt="Verification QR" 
-      className={`w-9 h-9 object-contain rounded border p-0.5 shadow-2xs ${isDark ? 'border-zinc-700 bg-zinc-900' : 'border-zinc-200 bg-white'}`} 
+      className={`w-14 h-14 object-contain rounded border p-0.5 shadow-2xs ${isDark ? 'border-zinc-700 bg-zinc-900' : 'border-zinc-200 bg-white'}`} 
       title="Scan to verify student details"
     />
   );
