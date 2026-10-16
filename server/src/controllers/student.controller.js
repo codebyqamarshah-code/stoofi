@@ -55,9 +55,10 @@ exports.getAll = async (req, res) => {
     const skip = (pageNumber - 1) * limitNumber;
 
     // Execute query with pagination
+    // Sort by rollNo ascending (Roll No 1 first), then by createdAt ascending (first enrolled first)
     const data = await Student.find(query)
       .lean()
-      .sort({ createdAt: -1 })
+      .sort({ rollNo: 1, createdAt: 1 })
       .skip(skip)
       .limit(limitNumber);
 
