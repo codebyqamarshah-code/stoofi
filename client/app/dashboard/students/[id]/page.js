@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
@@ -12,16 +12,9 @@ import {
 import { Button } from '@/components/ui/button';
 import api from '@/services/api';
 import { exportToExcel } from '@/lib/exportUtils';
+import { getPhotoUrl } from '@/lib/utils';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
-const getPhotoUrl = (student) => {
-  if (!student?.photo && !student?.studentPhoto) return null;
-  const p = student.photo || student.studentPhoto;
-  if (p.startsWith('data:') || p.startsWith('http')) return p;
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || '';
-  return `${baseUrl}${p.startsWith('/') ? '' : '/'}${p}`;
-};
-
 const getInitials = (student) => {
   const f = student?.firstName?.charAt(0) || '';
   const l = student?.lastName?.charAt(0) || '';

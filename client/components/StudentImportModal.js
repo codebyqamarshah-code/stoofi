@@ -20,6 +20,9 @@ const SAMPLE_TEMPLATE_DATA = [
     'Mother Name': 'Fatima Bibi',
     'Guardian Name': 'Tariq Mehmood',
     'Phone': '03001234567',
+    'Email': 'muhammad.ali@example.com',
+    'City': 'Islamabad',
+    'Emergency Contact': '03001234567',
     'Current Address': 'House 14, St 5, Sector G-9, Islamabad',
     'Academic Year': '2026 [Jan-Dec]',
     'Religion': 'Islam',
@@ -39,6 +42,9 @@ const SAMPLE_TEMPLATE_DATA = [
     'Mother Name': 'Zainab Begum',
     'Guardian Name': 'Nasir Khan',
     'Phone': '03219876543',
+    'Email': 'ayesha.khan@example.com',
+    'City': 'Rawalpindi',
+    'Emergency Contact': '03219876543',
     'Current Address': 'Plot 42, Bahria Town Phase 4, Rawalpindi',
     'Academic Year': '2026 [Jan-Dec]',
     'Religion': 'Islam',
@@ -169,6 +175,12 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
           const caste = getVal(row, ['caste', 'tribe']) || '';
           const guardianName = getVal(row, ['guardianName', 'guardian name', 'guardian']) || '';
           const guardianPhone = getVal(row, ['guardianPhone', 'guardian phone', 'guardian mobile']) || '';
+          const email = getVal(row, ['email', 'email address', 'e-mail']) || '';
+          const city = getVal(row, ['city', 'town']) || '';
+          const emergencyContact = getVal(row, ['emergencyContact', 'emergency contact', 'emergency']) || '';
+          const motherPhone = getVal(row, ['motherPhone', 'mother phone', 'mother mobile']) || '';
+          const fatherOccupation = getVal(row, ['fatherOccupation', 'father occupation', 'occupation']) || '';
+          const fatherCnic = getVal(row, ['fatherCnic', 'father cnic', 'father id']) || '';
 
           // Skip completely empty rows
           if (!firstName && !lastName && !getVal(row, ['admissionNo', 'admission no'])) return null;
@@ -185,8 +197,14 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
             dob,
             fatherName,
             fatherPhone,
+            fatherOccupation,
+            fatherCnic,
             motherName,
+            motherPhone,
             phone,
+            email,
+            city,
+            emergencyContact,
             currentAddress: address,
             permanentAddress: address,
             academicYear,
@@ -401,9 +419,9 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
                           <th className="p-2.5">Admission No</th>
                           <th className="p-2.5">Name</th>
                           <th className="p-2.5">Class (Sec)</th>
-                          <th className="p-2.5">Roll No</th>
                           <th className="p-2.5">Gender</th>
                           <th className="p-2.5">Father Name</th>
+                          <th className="p-2.5">CNIC</th>
                           <th className="p-2.5">Phone</th>
                         </tr>
                       </thead>
@@ -413,9 +431,9 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
                             <td className="p-2.5 font-medium text-zinc-950">{stu.admissionNo}</td>
                             <td className="p-2.5 font-semibold text-zinc-900">{stu.firstName} {stu.lastName}</td>
                             <td className="p-2.5">{stu.className} ({stu.section})</td>
-                            <td className="p-2.5">{stu.rollNo}</td>
                             <td className="p-2.5">{stu.gender}</td>
                             <td className="p-2.5">{stu.fatherName}</td>
+                            <td className="p-2.5 font-mono text-[11px]">{stu.cnic || '—'}</td>
                             <td className="p-2.5">{stu.phone}</td>
                           </tr>
                         ))}

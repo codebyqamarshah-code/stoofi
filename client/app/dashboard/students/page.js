@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import Link from 'next/link';
 import { sortClassesAcademic } from '@/lib/academicUtils';
-import { formatDateDMY } from '@/lib/utils';
+import { formatDateDMY, getPhotoUrl } from '@/lib/utils';
 import api from '@/services/api';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 import dynamic from 'next/dynamic';
@@ -555,7 +555,7 @@ export default function StudentListPage() {
                         <div className="h-8 w-8 rounded-full bg-zinc-100 text-zinc-900 overflow-hidden border border-zinc-200 flex items-center justify-center shrink-0">
                           {student.photo || student.studentPhoto ? (
                             <img 
-                              src={(student.photo || student.studentPhoto).startsWith('http') || (student.photo || student.studentPhoto).startsWith('data:') ? (student.photo || student.studentPhoto) : `${process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || ''}/${student.photo || student.studentPhoto}`} 
+                              src={getPhotoUrl(student)} 
                               alt={student.firstName} 
                               className="h-full w-full object-cover" 
                             />

@@ -560,7 +560,7 @@ export default function AddStudentPage() {
                 {/* Left Column: Academic Placement */}
                 <div className="space-y-4">
                   <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2">ACADEMIC PLACEMENT</h3>
-                  <div className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Academic Year <span className="text-rose-500">*</span></Label>
                       <SearchableSelect 
@@ -570,137 +570,137 @@ export default function AddStudentPage() {
                         options={ACADEMIC_YEARS} 
                       />
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Class <span className="text-rose-500">*</span></Label>
-                        <SearchableSelect 
-                          name="className" 
-                          value={formData.className} 
-                          onChange={handleInputChange} 
-                          placeholder="Select Class *"
-                          options={classes.map(c => ({ label: c.name, value: c.name }))} 
-                          className={fieldErrors.className ? "border-rose-500 ring-1 ring-rose-500" : ""}
-                        />
-                        {fieldErrors.className && (
-                          <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
-                            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                            {fieldErrors.className}
-                          </p>
-                        )}
-                      </div>
 
-                      {/* Section (100% Optional) */}
-                      <div className="space-y-1.5">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Class <span className="text-rose-500">*</span></Label>
+                      <SearchableSelect 
+                        name="className" 
+                        value={formData.className} 
+                        onChange={handleInputChange} 
+                        placeholder="Select Class *"
+                        options={classes.map(c => ({ label: c.name, value: c.name }))} 
+                        className={fieldErrors.className ? "border-rose-500 ring-1 ring-rose-500" : ""}
+                      />
+                      {fieldErrors.className && (
+                        <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
+                          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                          {fieldErrors.className}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Section (100% Optional) */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
+                        Section <span className="text-zinc-400 font-normal normal-case">(Optional)</span>
+                      </Label>
+                      <SearchableSelect 
+                        name="section" 
+                        value={formData.section} 
+                        onChange={handleInputChange} 
+                        placeholder="Select Section (Optional)"
+                        options={[
+                          { label: 'None / Default Section', value: '' },
+                          ...getFilteredSections()
+                        ]} 
+                      />
+                    </div>
+                    
+                    {/* Student Group (100% Optional) */}
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between items-center">
                         <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
-                          Section <span className="text-zinc-400 font-normal normal-case">(Optional)</span>
+                          Student Group <span className="text-zinc-400 font-normal normal-case">(Optional)</span>
                         </Label>
-                        <SearchableSelect 
-                          name="section" 
-                          value={formData.section} 
-                          onChange={handleInputChange} 
-                          placeholder="Select Section (Optional)"
-                          options={[
-                            { label: 'None / Default Section', value: '' },
-                            ...getFilteredSections()
-                          ]} 
-                        />
+                        <Link href="/dashboard/students/groups" className="text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline flex items-center gap-1">
+                          + Add Group
+                        </Link>
                       </div>
-                      
-                      {/* Student Group (100% Optional) */}
-                      <div className="space-y-1.5">
-                        <div className="flex justify-between items-center">
-                          <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
-                            Student Group <span className="text-zinc-400 font-normal normal-case">(Optional)</span>
-                          </Label>
-                          <Link href="/dashboard/students/groups" className="text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline flex items-center gap-1">
-                            + Add Group
-                          </Link>
-                        </div>
-                        <SearchableSelect 
-                          name="studentGroup" 
-                          value={formData.studentGroup} 
-                          onChange={handleInputChange} 
-                          placeholder="Select Group (Optional)"
-                          options={[
-                            { label: 'None / No Group (Optional)', value: '' },
-                            ...groups.map(g => ({ label: g.name, value: g._id }))
-                          ]} 
-                        />
-                        {fieldErrors.studentGroup && (
-                          <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
-                            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                            {fieldErrors.studentGroup}
-                          </p>
-                        )}
-                      </div>
+                      <SearchableSelect 
+                        name="studentGroup" 
+                        value={formData.studentGroup} 
+                        onChange={handleInputChange} 
+                        placeholder="Select Group (Optional)"
+                        options={[
+                          { label: 'None / No Group (Optional)', value: '' },
+                          ...groups.map(g => ({ label: g.name, value: g._id }))
+                        ]} 
+                      />
+                      {fieldErrors.studentGroup && (
+                        <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
+                          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                          {fieldErrors.studentGroup}
+                        </p>
+                      )}
+                    </div>
 
-                      {/* Admission Number */}
-                      <div className="space-y-1.5">
+                    {/* Admission Number */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
+                        Admission Number <span className="text-rose-500">*</span>
+                      </Label>
+                      <Input 
+                        name="admissionNo" 
+                        value={formData.admissionNo} 
+                        readOnly 
+                        disabled 
+                        className="bg-zinc-100 border-zinc-300 text-zinc-950 font-bold cursor-not-allowed select-none shadow-xs text-sm" 
+                      />
+                      {fieldErrors.admissionNo && (
+                        <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
+                          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                          {fieldErrors.admissionNo}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Roll Number (Auto-assigned, Read-Only, Starts from 1) */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
                         <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
-                          Admission Number <span className="text-rose-500">*</span>
+                          Roll Number
                         </Label>
-                        <Input 
-                          name="admissionNo" 
-                          value={formData.admissionNo} 
-                          readOnly 
-                          disabled 
-                          className="bg-zinc-100 border-zinc-300 text-zinc-950 font-bold cursor-not-allowed select-none shadow-xs text-sm" 
-                        />
-                        {fieldErrors.admissionNo && (
-                          <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
-                            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                            {fieldErrors.admissionNo}
-                          </p>
+                        {loadingRoll && (
+                          <span className="text-[10px] text-zinc-500 font-medium">Checking next roll...</span>
                         )}
                       </div>
+                      <Input 
+                        name="rollNo" 
+                        value={formData.rollNo} 
+                        readOnly 
+                        disabled 
+                        placeholder="Auto-assigned (starts from 1)" 
+                        className="bg-zinc-100 border-zinc-300 text-zinc-950 font-bold cursor-not-allowed select-none shadow-xs text-sm" 
+                      />
+                      {fieldErrors.rollNo && (
+                        <p className="text-xs text-rose-600 font-bold flex items-center gap-1 mt-1 animate-in fade-in">
+                          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                          {fieldErrors.rollNo}
+                        </p>
+                      )}
+                    </div>
 
-                      {/* Admission Date (Day / Month / Year Format) */}
-                      <div className="space-y-1.5 sm:col-span-2">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Admission Date</Label>
-                        <DayMonthYearInput 
-                          name="admissionDate" 
-                          value={formData.admissionDate} 
-                          onChange={handleInputChange} 
-                          minYear={2020} 
-                          maxYear={2030} 
-                        />
-                      </div>
+                    {/* Admission Date (Day / Month / Year Format) */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Admission Date</Label>
+                      <DayMonthYearInput 
+                        name="admissionDate" 
+                        value={formData.admissionDate} 
+                        onChange={handleInputChange} 
+                        minYear={2020} 
+                        maxYear={2030} 
+                      />
+                    </div>
 
-                      {/* Roll Number (Auto-assigned, Read-Only, Starts from 1) */}
-                      <div className="space-y-1.5 sm:col-span-2">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
-                            Roll Number
-                          </Label>
-                          {loadingRoll && (
-                            <span className="text-[10px] text-zinc-500 font-medium">Checking next roll...</span>
-                          )}
-                        </div>
-                        <Input 
-                          name="rollNo" 
-                          value={formData.rollNo} 
-                          readOnly 
-                          disabled 
-                          placeholder="Auto-assigned (starts from 1)" 
-                          className="bg-zinc-100 border-zinc-300 text-zinc-950 font-bold cursor-not-allowed select-none shadow-xs text-sm" 
-                        />
-                        {fieldErrors.rollNo && (
-                          <p className="text-xs text-rose-600 font-bold flex items-center gap-1 mt-1 animate-in fade-in">
-                            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                            {fieldErrors.rollNo}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-1.5 sm:col-span-2">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Student Type</Label>
-                        <SearchableSelect 
-                          name="type" 
-                          value={formData.type} 
-                          onChange={handleInputChange} 
-                          options={STUDENT_TYPES} 
-                        />
-                      </div>
+                    {/* Student Type */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Student Type</Label>
+                      <SearchableSelect 
+                        name="type" 
+                        value={formData.type} 
+                        onChange={handleInputChange} 
+                        options={STUDENT_TYPES} 
+                      />
                     </div>
                   </div>
                 </div>
@@ -1068,6 +1068,38 @@ export default function AddStudentPage() {
             {/* Tab 5: Other Info */}
             {activeTab === 'OTHER INFO' && (
               <div className="space-y-6">
+                {/* Contact Information */}
+                <div>
+                  <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2 mb-4">CONTACT INFORMATION</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Phone Number</Label>
+                      <Input name="phone" value={formData.phone} onChange={handleInputChange} placeholder="03001234567" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Email Address <span className="text-zinc-400 font-normal normal-case">(Optional)</span></Label>
+                      <Input name="email" value={formData.email} onChange={handleInputChange} placeholder="student@example.com" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">City</Label>
+                      <Input name="city" value={formData.city} onChange={handleInputChange} placeholder="e.g. Lahore, Islamabad" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Emergency Contact</Label>
+                      <Input name="emergencyContact" value={formData.emergencyContact} onChange={handleInputChange} placeholder="03001234567" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
+                    </div>
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Current Address</Label>
+                      <textarea name="currentAddress" value={formData.currentAddress} onChange={handleInputChange} placeholder="House No, Street, Area, City" className="flex min-h-[80px] w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-950 font-medium text-sm placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 resize-none"></textarea>
+                    </div>
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Permanent Address <span className="text-zinc-400 font-normal normal-case">(If different)</span></Label>
+                      <textarea name="permanentAddress" value={formData.permanentAddress} onChange={handleInputChange} placeholder="Permanent residential address" className="flex min-h-[80px] w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-950 font-medium text-sm placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 resize-none"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Health & Additional Notes */}
                 <div>
                   <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2 mb-4">HEALTH & ADDITIONAL NOTES</h3>
                   <div className="grid grid-cols-1 gap-4">
