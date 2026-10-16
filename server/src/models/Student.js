@@ -4,9 +4,9 @@ const schema = new mongoose.Schema({
   // Link to User account (set when student logs in or is registered via auth)
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   // Personal Info
-  academicYear: { type: String, required: true },
+  academicYear: { type: String, default: () => `${new Date().getFullYear()}` },
   classId: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' },
-  className: { type: String, required: true },
+  className: { type: String, default: 'Class 1' },
   section: { type: String, default: 'A' },
   studentGroup: { type: mongoose.Schema.Types.ObjectId, ref: 'StudentGroup', default: null },
   admissionNo: { type: String, required: true, unique: true },
@@ -14,31 +14,22 @@ const schema = new mongoose.Schema({
   joiningDate: { type: String },
   rollNo: { type: String },
   type: { type: String, default: 'Regular' },
-  phone: { 
-    type: String,
-    match: [/^((\+92)|(0092)|(0))?3[0-9]{9}$|^(\+?[1-9]\d{1,14})$/, 'Please enter a valid phone number (e.g. 03351234567 or +923351234567)']
-  },
-  email: { 
-    type: String,
-    match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Please enter a valid real email address']
-  },
+  phone: { type: String, trim: true },
+  email: { type: String, trim: true },
   city: { type: String },
   address: { type: String },
   currentAddress: { type: String },
   permanentAddress: { type: String },
   
   firstName: { type: String, required: true },
-  lastName: { type: String },
-  gender: { type: String, required: true },
-  dob: { type: String, required: true },
+  lastName: { type: String, default: '' },
+  gender: { type: String, default: 'Male' },
+  dob: { type: String, default: '2015-01-01' },
   religion: { type: String },
   caste: { type: String },
   bloodGroup: { type: String },
   nationality: { type: String, default: 'Pakistani' },
-  cnic: { 
-    type: String,
-    match: [/^[0-9]{5}-[0-9]{7}-[0-9]{1}$|^[0-9]{13}$/, 'Please enter a valid CNIC number (e.g. 35202-1234567-1)']
-  },
+  cnic: { type: String, trim: true },
   bForm: { type: String },
   studentPhoto: { type: String },
   photo: { type: String },

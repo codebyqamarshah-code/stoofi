@@ -462,8 +462,11 @@ export default function StudentExportPage() {
       <StudentImportModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
-        onSuccess={(updatedList) => {
-          setStudents(updatedList);
+        onSuccess={async (updatedList) => {
+          if (Array.isArray(updatedList) && updatedList.length > 0) {
+            setStudents(prev => [...updatedList, ...prev]);
+          }
+          await fetchStudents();
         }}
         availableClasses={classes}
       />

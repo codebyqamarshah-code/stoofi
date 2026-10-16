@@ -168,16 +168,16 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
             `ADM-${currentYear}-${String(randSeed + idx).padStart(3, '0')}`;
           const fileRollNo = getVal(row, ['rollNo', 'roll no', 'roll number', 'roll']);
           const rollNo = fileRollNo ? String(fileRollNo).trim() : `${defaultRollPrefix}${String(idx + 1).padStart(4, '0')}`;
-          const className = getVal(row, ['className', 'class', 'grade', 'standard']) || defaultClass || '';
-          const section = getVal(row, ['section', 'sec']) || defaultSection || '';
-          const gender = getVal(row, ['gender', 'sex']) || '';
-          const dob = getVal(row, ['dob', 'date of birth', 'birth date', 'birthday', 'age']) || '';
-          const fatherName = getVal(row, ['fatherName', 'father name', 'father']) || '';
+          const className = getVal(row, ['className', 'class', 'grade', 'standard']) || defaultClass || 'Class 1';
+          const section = getVal(row, ['section', 'sec']) || defaultSection || 'A';
+          const gender = getVal(row, ['gender', 'sex']) || 'Male';
+          const dob = getVal(row, ['dob', 'date of birth', 'birth date', 'birthday', 'age']) || '2015-01-01';
+          const fatherName = getVal(row, ['fatherName', 'father name', 'father', "father's name", 'guardian']) || '';
           const fatherPhone = getVal(row, ['fatherPhone', 'father phone', 'father mobile', 'parent phone']) || '';
           const motherName = getVal(row, ['motherName', 'mother name', 'mother']) || '';
-          const phone = getVal(row, ['phone', 'mobile', 'cell', 'contact', 'guardian phone']) || fatherPhone || '';
-          const address = getVal(row, ['currentAddress', 'address', 'residential address', 'permanent address', 'current address']) || '';
-          const academicYear = getVal(row, ['academicYear', 'academic year', 'session', 'year']) || defaultAcademicYear;
+          const phone = getVal(row, ['phone', 'mobile', 'cell', 'contact', 'guardian phone', 'phone number', 'contact no', 'mobile no']) || fatherPhone || '';
+          const address = getVal(row, ['currentAddress', 'address', 'residential address', 'permanent address', 'current address', 'home address']) || '';
+          const academicYear = getVal(row, ['academicYear', 'academic year', 'session', 'year']) || defaultAcademicYear || `${currentYear}`;
           const religion = getVal(row, ['religion']) || '';
           const cnic = getVal(row, ['cnic', 'b-form', 'b form', 'cnic number', 'bform', 'id number']) || '';
           const bloodGroup = getVal(row, ['bloodGroup', 'blood group', 'blood']) || '';
@@ -281,13 +281,18 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
 
     try {
       setImportProgress(20);
-      const res = await api.post('/student/bulk', { students: parsedStudents });
+      // Remove temporary frontend _id so it doesn't conflict with MongoDB ObjectId
+      const payload = parsedStudents.map(stu => {
+        const { _id, ...rest } = stu;
+        return rest;
+      });
+      const res = await api.post('/student/bulk', { students: payload });
       setImportProgress(100);
 
       if (res && res.success !== false) {
         setImportStats({
           totalParsed: parsedStudents.length,
-          addedCount: res.count || parsedStudents.length,
+          addedCount: res.count || res.data?.length || parsedStudents.length,
           duplicatesSkipped: 0
         });
 
@@ -298,13 +303,14 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
         setTimeout(() => {
           onClose();
           handleReset();
-        }, 2000);
+        }, 1500);
       } else {
         throw new Error(res?.message || 'Bulk import failed');
       }
     } catch (err) {
       console.error('Import error:', err);
-      setErrorMsg('An error occurred during import: ' + err.message);
+      const msg = err.response?.data?.message || err.message || 'Bulk import failed';
+      setErrorMsg('An error occurred during import: ' + msg);
       setImporting(false);
     }
   };

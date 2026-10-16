@@ -368,38 +368,105 @@ exports.bulkCreate = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No students provided for import.' });
     }
 
-    let count = await Student.countDocuments();
     const currentYear = new Date().getFullYear();
     const currentYear2Digits = String(currentYear).slice(-2);
     const rollPrefix = `PRC${currentYear2Digits}`;
 
-    // Pre-load existing max roll sequence from DB
-    const existingStudentsWithRoll = await Student.find({}, 'rollNo').lean();
+    // 1. Pre-load existing students' roll numbers and admission numbers
+    const existingStudents = await Student.find({}, 'rollNo admissionNo').lean();
+    
     let maxRollSeq = 0;
+    let maxAdmNum = 0;
     const assignedRolls = new Set();
-    existingStudentsWithRoll.forEach(st => {
+    const assignedAdmissionNos = new Set();
+
+    existingStudents.forEach(st => {
       if (st.rollNo) {
         assignedRolls.add(String(st.rollNo).trim().toLowerCase());
         const seq = extractRollSeq(st.rollNo);
         if (seq > maxRollSeq) maxRollSeq = seq;
       }
+      if (st.admissionNo) {
+        assignedAdmissionNos.add(String(st.admissionNo).trim().toLowerCase());
+        const match = String(st.admissionNo).match(/(\d+)$/);
+        if (match) {
+          const num = parseInt(match[1], 10);
+          if (!isNaN(num) && num > maxAdmNum) maxAdmNum = num;
+        }
+      }
     });
 
     let nextRollSeq = maxRollSeq;
+    let nextAdmNum = maxAdmNum;
 
-    const prepared = await Promise.all(rawList.map(async (s, idx) => {
+    // 2. Prepare and sanitize each student record
+    const prepared = [];
+
+    for (let idx = 0; idx < rawList.length; idx++) {
+      const s = rawList[idx];
+      if (!s || typeof s !== 'object') continue;
+
       const studentObj = { ...s };
 
-      // Auto-generate admission number if missing
-      if (!studentObj.admissionNo) {
-        studentObj.admissionNo = `ADM-${currentYear}-${String(count + idx + 1).padStart(3, '0')}`;
+      // CRITICAL: Delete any client-provided pseudo _id (e.g. "stu-17721...") so MongoDB assigns a valid ObjectId
+      delete studentObj._id;
+
+      // Delete invalid ObjectIds
+      if (!studentObj.classId || String(studentObj.classId).length !== 24) delete studentObj.classId;
+      if (!studentObj.studentGroup || String(studentObj.studentGroup).length !== 24) delete studentObj.studentGroup;
+      if (!studentObj.user || String(studentObj.user).length !== 24) delete studentObj.user;
+
+      // Parse Name
+      if (studentObj.fullName || studentObj.name || studentObj.studentName) {
+        const full = String(studentObj.fullName || studentObj.name || studentObj.studentName).trim();
+        if (!studentObj.firstName) studentObj.firstName = full;
       }
-      if (!studentObj.academicYear) {
-        studentObj.academicYear = `${currentYear} [Jan-Dec]`;
+      if (studentObj.firstName && (!studentObj.lastName || !String(studentObj.lastName).trim())) {
+        const parts = String(studentObj.firstName).trim().split(/\s+/);
+        if (parts.length > 1) {
+          studentObj.firstName = parts[0];
+          studentObj.lastName = parts.slice(1).join(' ');
+        }
+      }
+      if (!studentObj.firstName || !String(studentObj.firstName).trim()) {
+        studentObj.firstName = `Student ${idx + 1}`;
+      } else {
+        studentObj.firstName = String(studentObj.firstName).trim();
+      }
+      if (studentObj.lastName) {
+        studentObj.lastName = String(studentObj.lastName).trim();
+      } else {
+        studentObj.lastName = '';
       }
 
-      // Auto-assign roll number starting from PRC260001 if not provided
-      if (!studentObj.rollNo || String(studentObj.rollNo).trim() === '') {
+      // Sensible defaults for required fields
+      studentObj.gender = studentObj.gender && String(studentObj.gender).trim() ? String(studentObj.gender).trim() : 'Male';
+      studentObj.dob = studentObj.dob && String(studentObj.dob).trim() ? String(studentObj.dob).trim() : '2015-01-01';
+      studentObj.className = studentObj.className && String(studentObj.className).trim() ? String(studentObj.className).trim() : 'Class 1';
+      studentObj.section = studentObj.section && String(studentObj.section).trim() ? String(studentObj.section).trim() : 'A';
+      studentObj.academicYear = studentObj.academicYear && String(studentObj.academicYear).trim() ? String(studentObj.academicYear).trim() : `${currentYear}`;
+      studentObj.type = studentObj.type && String(studentObj.type).trim() ? String(studentObj.type).trim() : 'Regular';
+
+      // Unique Admission Number
+      const rawAdm = studentObj.admissionNo ? String(studentObj.admissionNo).trim() : '';
+      if (!rawAdm || assignedAdmissionNos.has(rawAdm.toLowerCase())) {
+        do {
+          nextAdmNum += 1;
+          const candidateAdm = `ADM-${currentYear}-${String(nextAdmNum).padStart(3, '0')}`;
+          if (!assignedAdmissionNos.has(candidateAdm.toLowerCase())) {
+            studentObj.admissionNo = candidateAdm;
+            assignedAdmissionNos.add(candidateAdm.toLowerCase());
+            break;
+          }
+        } while (true);
+      } else {
+        studentObj.admissionNo = rawAdm;
+        assignedAdmissionNos.add(rawAdm.toLowerCase());
+      }
+
+      // Unique Roll Number (PRC26XXXX format, starting from PRC260001)
+      const rawRoll = studentObj.rollNo ? String(studentObj.rollNo).trim() : '';
+      if (!rawRoll || assignedRolls.has(rawRoll.toLowerCase())) {
         do {
           nextRollSeq += 1;
           const candidateRoll = `${rollPrefix}${String(nextRollSeq).padStart(4, '0')}`;
@@ -410,12 +477,29 @@ exports.bulkCreate = async (req, res) => {
           }
         } while (true);
       } else {
-        studentObj.rollNo = String(studentObj.rollNo).trim();
-        assignedRolls.add(studentObj.rollNo.toLowerCase());
+        studentObj.rollNo = rawRoll;
+        assignedRolls.add(rawRoll.toLowerCase());
       }
 
-      return studentObj;
-    }));
+      // Clean string fields
+      if (studentObj.phone) studentObj.phone = String(studentObj.phone).trim();
+      if (studentObj.email) studentObj.email = String(studentObj.email).trim();
+      if (studentObj.fatherPhone) studentObj.fatherPhone = String(studentObj.fatherPhone).trim();
+      if (studentObj.motherPhone) studentObj.motherPhone = String(studentObj.motherPhone).trim();
+      if (studentObj.guardianPhone) studentObj.guardianPhone = String(studentObj.guardianPhone).trim();
+      if (studentObj.emergencyContact) studentObj.emergencyContact = String(studentObj.emergencyContact).trim();
+      if (studentObj.cnic) studentObj.cnic = String(studentObj.cnic).trim();
+      if (studentObj.city) studentObj.city = String(studentObj.city).trim();
+      if (studentObj.address) studentObj.address = String(studentObj.address).trim();
+      if (studentObj.currentAddress) studentObj.currentAddress = String(studentObj.currentAddress).trim();
+      if (studentObj.permanentAddress) studentObj.permanentAddress = String(studentObj.permanentAddress).trim();
+
+      prepared.push(studentObj);
+    }
+
+    if (!prepared.length) {
+      return res.status(400).json({ success: false, message: 'No valid student rows to import.' });
+    }
 
     const result = await Student.insertMany(prepared, { ordered: false });
     res.status(201).json({
@@ -428,7 +512,7 @@ exports.bulkCreate = async (req, res) => {
     if (error.insertedDocs && error.insertedDocs.length > 0) {
       return res.status(201).json({
         success: true,
-        message: `Partially imported ${error.insertedDocs.length} students.`,
+        message: `Successfully imported ${error.insertedDocs.length} students.`,
         count: error.insertedDocs.length,
         data: error.insertedDocs
       });
