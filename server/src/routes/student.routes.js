@@ -1,9 +1,13 @@
 const express = require('express');
-const { getAll, getById, create, update, remove, bulkCreate, bulkDelete, promoteStudents, getNextAdmissionNo, getNextRollNo } = require('../controllers/student.controller');
+const { getAll, getById, create, update, remove, bulkCreate, bulkDelete, promoteStudents, getNextAdmissionNo, getNextRollNo, publicVerify } = require('../controllers/student.controller');
 const { protect, authorize } = require('../middleware/auth.middleware');
 const upload = require('../middleware/upload.middleware');
 
 const router = express.Router();
+
+// Public student verification for scannable QR codes (No login required)
+router.get('/public-verify/:identifier', publicVerify);
+router.get('/verify/:identifier', publicVerify);
 
 router.use(protect);
 

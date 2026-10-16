@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
 import { PAK_ROYAL_COLLEGE_LOGO } from './pakRoyalCollegeLogo';
+import { formatDateDMY } from './utils';
 
 /**
  * Generates an official, printable ID Card PDF (Standard CR80 54mm x 86mm badge format)
@@ -71,30 +72,24 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
   const className = rec.className || 'FSC NURSING';
   const section = rec.section || 'A';
   const fatherName = rec.fatherName || 'Syed Ali Shah';
-  const dob = rec.dob || '2010-03-01';
+  const dob = formatDateDMY(rec.dob || '2010-03-01');
   const phone = rec.phone || rec.mobile || rec.guardianPhone || schoolPhone;
   const designation = rec.designation || 'Senior Faculty';
   const department = rec.department || 'Academics';
   const photo = rec.studentPhoto || rec.photo || rec.staffPhoto;
 
-  // Generate unique scannable verification QR Code
+  // Generate unique scannable verification QR Code pointing directly to public verify portal
   let qrDataUrl = null;
   try {
-    const qrPayload = [
-      'PAK ROYAL COLLEGE SHARAQPUR',
-      `ID: ${admNo}`,
-      `Name: ${name}`,
-      `Role: ${role}`,
-      `Class: ${className}${section ? ` (${section})` : ''}`,
-      `Roll No: ${rollNo}`,
-      `Guardian: ${fatherName}`,
-      'Status: VERIFIED & ACTIVE',
-      `Verify: https://pakroyalcollege.edu.pk/verify/${encodeURIComponent(admNo)}`
-    ].join('\n');
+    const identifier = admNo || rollNo || rec._id || 'PRC260001';
+    const baseUrl = typeof window !== 'undefined' && window.location.origin 
+      ? window.location.origin 
+      : 'https://stoofi.vercel.app';
+    const qrPayload = `${baseUrl}/verify/student/${encodeURIComponent(identifier)}`;
 
     qrDataUrl = await QRCode.toDataURL(qrPayload, {
       margin: 0,
-      width: 140,
+      width: 180,
       errorCorrectionLevel: 'M',
       color: {
         dark: '#0f172a',

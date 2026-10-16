@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Notification = require('../models/Notification');
 const Student = require('../models/Student');
 
@@ -616,6 +617,64 @@ exports.bulkDelete = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.publicVerify = async (req, res) => {
+  try {
+    const { identifier } = req.params;
+    if (!identifier) {
+      return res.status(400).json({ success: false, message: 'Identifier is required' });
+    }
+
+    const clean = String(identifier).trim();
+    let student = null;
+
+    if (mongoose.Types.ObjectId.isValid(clean)) {
+      student = await Student.findById(clean).lean();
+    }
+
+    if (!student) {
+      student = await Student.findOne({
+        $or: [
+          { admissionNo: { $regex: '^' + clean + '$', $options: 'i' } },
+          { rollNo: { $regex: '^' + clean + '$', $options: 'i' } }
+        ]
+      }).lean();
+    }
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: 'No student record found for verification ID: ' + clean
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      verified: true,
+      college: 'Pak Royal College Sharaqpur',
+      data: {
+        _id: student._id,
+        firstName: student.firstName,
+        lastName: student.lastName,
+        name: `${student.firstName || ''} ${student.lastName || ''}`.trim(),
+        admissionNo: student.admissionNo,
+        rollNo: student.rollNo,
+        className: student.className,
+        section: student.section,
+        fatherName: student.fatherName,
+        gender: student.gender,
+        dob: student.dob,
+        joiningDate: student.joiningDate || student.admissionDate,
+        cnic: student.cnic || student.bForm,
+        type: student.type || 'Regular',
+        studentPhoto: student.studentPhoto,
+        status: student.status || 'Active'
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 

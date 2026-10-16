@@ -36,32 +36,24 @@ import { SearchableSelect } from '@/components/ui/searchable-select';
 import { sortClassesAcademic, STANDARD_ACADEMIC_CLASSES, STANDARD_SECTIONS_LIST } from '@/lib/academicUtils';
 import api from '@/services/api';
 import { downloadIdCardPDF, downloadBatchIdCardsPDF } from '@/lib/idCardPdf';
+import { formatDateDMY } from '@/lib/utils';
 import QRCode from 'qrcode';
 
-// Dynamic Live QR Code Component for Every Student Card
+// Dynamic Live QR Code Component for Every Student Card (Scannable on all phones)
 function StudentCardQR({ rec, isDark = false }) {
   const [qrSrc, setQrSrc] = useState('');
   useEffect(() => {
     if (!rec) return;
-    const admNo = rec.admissionNo || rec.staffNo || 'ADM-2026-001';
-    const name = `${rec.firstName || ''} ${rec.lastName || ''}`.trim() || rec.name || 'Muhammad Abdullah';
-    const cls = rec.className || 'FSC NURSING';
-    const sec = rec.section || 'A';
-    const roll = rec.rollNo || '101';
-    const text = [
-      'PAK ROYAL COLLEGE SHARAQPUR',
-      `ID: ${admNo}`,
-      `Name: ${name}`,
-      `Class: ${cls} (${sec})`,
-      `Roll: ${roll}`,
-      'Status: VERIFIED & ACTIVE',
-      `Verify: https://pakroyalcollege.edu.pk/verify/${encodeURIComponent(admNo)}`
-    ].join('\n');
+    const identifier = rec.admissionNo || rec.rollNo || rec._id || 'PRC260001';
+    const baseUrl = typeof window !== 'undefined' && window.location.origin 
+      ? window.location.origin 
+      : 'https://stoofi.vercel.app';
+    const verifyUrl = `${baseUrl}/verify/student/${encodeURIComponent(identifier)}`;
 
-    QRCode.toDataURL(text, { 
+    QRCode.toDataURL(verifyUrl, { 
       margin: 1, 
-      width: 200, 
-      errorCorrectionLevel: 'H',
+      width: 220, 
+      errorCorrectionLevel: 'M',
       color: { 
         dark: isDark ? '#ffffff' : '#0f172a', 
         light: isDark ? '#09090b' : '#ffffff' 
@@ -401,7 +393,7 @@ export default function BulkPrintIdCardPage() {
     const className = rec.className || 'Class 10';
     const section = rec.section || 'A';
     const fatherName = rec.fatherName || 'Guardian / Father';
-    const dob = rec.dob || '14/05/2008';
+    const dob = formatDateDMY(rec.dob) || '14/05/2008';
     const designation = rec.designation || (role === 'Teacher' ? 'Senior Faculty' : 'Staff Member');
     const department = rec.department || 'Academics';
 

@@ -524,7 +524,7 @@ export default function StudentListPage() {
                                 'Full Name': `${student.firstName || ''} ${student.lastName || ''}`.trim(),
                                 'Father Name': student.fatherName || '—',
                                 'Mother Name': student.motherName || '—',
-                                'Date of Birth': student.dob || '—',
+                                'Date of Birth': formatDateDMY(student.dob),
                                 'Class': student.className || '—',
                                 'Section': student.section || '—',
                                 'Gender': student.gender || '—',
@@ -537,7 +537,7 @@ export default function StudentListPage() {
                                 'Roll No': student.rollNo || '—',
                                 'Father Phone': student.fatherPhone || '—',
                                 'Emergency Contact': student.emergencyContact || '—',
-                                'Joining Date': student.joiningDate || student.admissionDate || '—',
+                                'Joining Date': formatDateDMY(student.joiningDate || student.admissionDate),
                                 'CNIC / B-Form': student.cnic || student.bForm || '—',
                               };
                               exportToExcel([row], `Student_${student.firstName}_${student.admissionNo || 'export'}`, 'Student Profile');

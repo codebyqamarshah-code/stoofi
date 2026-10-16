@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import api from '@/services/api';
 import { exportToExcel } from '@/lib/exportUtils';
-import { getPhotoUrl } from '@/lib/utils';
+import { getPhotoUrl, formatDateDMY } from '@/lib/utils';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 const getInitials = (student) => {
@@ -21,42 +21,7 @@ const getInitials = (student) => {
   return (f + l).toUpperCase() || 'S';
 };
 
-const fmtDate = (d) => {
-  if (!d) return '—';
-  if (typeof d !== 'string' && !(d instanceof Date)) return String(d);
-  const str = String(d).trim();
-  if (!str || str === '—' || str === '-') return '—';
-
-  // Handle DD-MM-YYYY or DD/MM/YYYY
-  const dmyMatch = str.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
-  if (dmyMatch) {
-    const day = parseInt(dmyMatch[1], 10);
-    const month = parseInt(dmyMatch[2], 10) - 1;
-    const year = parseInt(dmyMatch[3], 10);
-    const dt = new Date(year, month, day);
-    if (!isNaN(dt.getTime())) {
-      return dt.toLocaleDateString('en-PK', { day: '2-digit', month: 'long', year: 'numeric' });
-    }
-  }
-
-  // Handle YYYY-MM-DD
-  const ymdMatch = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
-  if (ymdMatch) {
-    const year = parseInt(ymdMatch[1], 10);
-    const month = parseInt(ymdMatch[2], 10) - 1;
-    const day = parseInt(ymdMatch[3], 10);
-    const dt = new Date(year, month, day);
-    if (!isNaN(dt.getTime())) {
-      return dt.toLocaleDateString('en-PK', { day: '2-digit', month: 'long', year: 'numeric' });
-    }
-  }
-
-  const parsed = new Date(str);
-  if (!isNaN(parsed.getTime())) {
-    return parsed.toLocaleDateString('en-PK', { day: '2-digit', month: 'long', year: 'numeric' });
-  }
-  return str;
-};
+const fmtDate = (d) => formatDateDMY(d);
 
 const formatCnic = (val) => {
   if (!val) return '';
@@ -134,7 +99,7 @@ export default function StudentProfilePage() {
       'Father Occupation':  student.fatherOccupation || '—',
       'Mother Name':        student.motherName || '—',
       'Mother Occupation':  student.motherOccupation || '—',
-      'Date of Birth':      student.dob || '—',
+      'Date of Birth':      formatDateDMY(student.dob),
       'Gender':             student.gender || '—',
       'Religion':           student.religion || 'Islam',
       'Blood Group':        student.bloodGroup || '—',
@@ -151,7 +116,7 @@ export default function StudentProfilePage() {
       'Father Phone':       student.fatherPhone || '—',
       'Mother Phone':       student.motherPhone || '—',
       'Emergency Contact':  student.emergencyContact || '—',
-      'Joining Date':       student.joiningDate || student.admissionDate || '—',
+      'Joining Date':       formatDateDMY(student.joiningDate || student.admissionDate),
       'Previous School':    student.previousSchool || student.previousSchoolName || '—',
       'CNIC / B-Form':      formatCnic(student.cnic || student.bForm) || student.cnic || student.bForm || '—',
       'Medical History':    student.medicalHistory || '—',
