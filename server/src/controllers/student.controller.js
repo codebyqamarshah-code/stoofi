@@ -216,4 +216,58 @@ exports.bulkCreate = async (req, res) => {
   }
 };
 
+exports.promoteStudents = async (req, res) => {
+  try {
+    const { promotions, promoteSession, promoteClass, promoteSection } = req.body;
+
+    let updatedCount = 0;
+    const updatedIds = [];
+
+    if (Array.isArray(promotions) && promotions.length > 0) {
+      for (const item of promotions) {
+        if (!item.studentId) continue;
+        const student = await Student.findById(item.studentId);
+        if (student) {
+          const updateFields = {
+            previousClassCovered: student.className,
+            className: item.promoteClass || promoteClass || student.className,
+            section: item.promoteSection || promoteSection || student.section,
+            academicYear: item.promoteSession || promoteSession || student.academicYear
+          };
+          if (item.rollNo) updateFields.rollNo = item.rollNo;
+          await Student.findByIdAndUpdate(item.studentId, updateFields);
+          updatedCount++;
+          updatedIds.push(item.studentId);
+        }
+      }
+    } else if (Array.isArray(req.body.studentIds) && req.body.studentIds.length > 0) {
+      for (const id of req.body.studentIds) {
+        const student = await Student.findById(id);
+        if (student) {
+          await Student.findByIdAndUpdate(id, {
+            previousClassCovered: student.className,
+            className: promoteClass || student.className,
+            section: promoteSection || student.section,
+            academicYear: promoteSession || student.academicYear
+          });
+          updatedCount++;
+          updatedIds.push(id);
+        }
+      }
+    } else {
+      return res.status(400).json({ success: false, message: 'No student promotions provided.' });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully promoted ${updatedCount} student(s).`,
+      count: updatedCount,
+      updatedIds
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
 
