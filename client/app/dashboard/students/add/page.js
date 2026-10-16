@@ -2,7 +2,10 @@
 
 import Link from 'next/link';
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronRight, Plus, Calendar as CalendarIcon, Upload, CheckCircle2, AlertTriangle, ArrowRight, ArrowLeft } from 'lucide-react';
+import { 
+  ChevronRight, Plus, Calendar as CalendarIcon, Upload, CheckCircle2, 
+  AlertTriangle, AlertCircle, ArrowRight, ArrowLeft, X 
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -57,6 +60,19 @@ const STUDENT_TYPES = [
   { label: 'Day Scholar', value: 'Day Scholar' }
 ];
 
+// Helper to auto-format Pakistani CNIC (12345-1234567-1)
+function formatCnic(val) {
+  if (!val) return '';
+  const digits = String(val).replace(/\D/g, '').slice(0, 13);
+  if (digits.length <= 5) {
+    return digits;
+  }
+  if (digits.length <= 12) {
+    return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+  }
+  return `${digits.slice(0, 5)}-${digits.slice(5, 12)}-${digits.slice(12, 13)}`;
+}
+
 const DocumentPreview = ({ preview, error }) => {
   if (error) return <p className="text-rose-500 text-xs mt-1 font-semibold">{error}</p>;
   if (!preview) return null;
@@ -79,6 +95,11 @@ export default function AddStudentPage() {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [selectedPhotoName, setSelectedPhotoName] = useState('');
   const fileInputRef = useRef(null);
+
+  // Field-level inline errors state (displays directly under fields)
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [formGeneralError, setFormGeneralError] = useState('');
+  const [formSuccess, setFormSuccess] = useState(false);
 
   // Roll Number Validation State
   const [usedRolls, setUsedRolls] = useState([]);
@@ -243,6 +264,11 @@ export default function AddStudentPage() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    // Clear inline error on change
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => ({ ...prev, [name]: '' }));
+    }
+
     if (name === 'className') {
       setFormData(prev => ({ ...prev, className: value, section: '' }));
       fetchNextRollNumber(value, '');
@@ -256,13 +282,33 @@ export default function AddStudentPage() {
     }
   };
 
+  // CNIC input handler with automatic hyphens (XXXXX-XXXXXXX-X)
+  const handleCnicChange = (e) => {
+    const formatted = formatCnic(e.target.value);
+    setFormData(prev => ({ ...prev, cnic: formatted }));
+    if (fieldErrors.cnic) {
+      if (formatted.length === 15 && /^\d{5}-\d{7}-\d{1}$/.test(formatted)) {
+        setFieldErrors(prev => ({ ...prev, cnic: '' }));
+      }
+    }
+  };
+
+  const handleFatherCnicChange = (e) => {
+    const formatted = formatCnic(e.target.value);
+    setFormData(prev => ({ ...prev, fatherCnic: formatted }));
+  };
+
   const handleRollChange = (e) => {
     const val = e.target.value;
     setFormData(prev => ({ ...prev, rollNo: val }));
     if (val && usedRolls.includes(val.trim())) {
       setRollDuplicate(true);
+      setFieldErrors(prev => ({ ...prev, rollNo: `یہ Roll Number (${val}) پہلے سے استعمال ہو چکا ہے۔` }));
     } else {
       setRollDuplicate(false);
+      if (fieldErrors.rollNo) {
+        setFieldErrors(prev => ({ ...prev, rollNo: '' }));
+      }
     }
   };
 
@@ -283,26 +329,72 @@ export default function AddStudentPage() {
     });
   };
 
+  // Frontend Validation logic — populates inline field errors
+  const validatePersonalInfo = () => {
+    const errors = {};
+    if (!formData.className || !formData.className.trim()) {
+      errors.className = 'Class منتخب کرنا لازمی ہے۔';
+    }
+    if (!formData.firstName || !formData.firstName.trim()) {
+      errors.firstName = 'First Name درج کرنا لازمی ہے۔';
+    }
+    if (!formData.gender) {
+      errors.gender = 'Gender منتخب کرنا لازمی ہے۔';
+    }
+    if (!formData.dob) {
+      errors.dob = 'تاریخ پیدائش (Day, Month, Year) درج کرنا لازمی ہے۔';
+    }
+    // CNIC is strictly required and must follow XXXXX-XXXXXXX-X format
+    if (!formData.cnic || !formData.cnic.trim()) {
+      errors.cnic = 'CNIC / B-Form نمبر درج کرنا لازمی ہے۔';
+    } else if (!/^\d{5}-\d{7}-\d{1}$/.test(formData.cnic.trim())) {
+      errors.cnic = 'CNIC فارمیٹ درست نہیں ہے۔ فارمیٹ 12345-1234567-1 (13 ہندسے) ہونا چاہیے۔';
+    }
+    if (rollDuplicate) {
+      errors.rollNo = `یہ Roll Number (${formData.rollNo}) پہلے سے استعمال ہو چکا ہے۔`;
+    }
+    return errors;
+  };
+
+  // Handle Backend Error mapping into field-level inline errors
+  const handleBackendError = (msg) => {
+    const errMap = {};
+    if (typeof msg === 'string') {
+      if (msg.includes('studentGroup')) {
+        errMap.studentGroup = 'Student Group invalid hai. Isay None par rehne dein.';
+      }
+      if (msg.includes('rollNo') || msg.includes('Roll Number') || msg.includes('roll')) {
+        errMap.rollNo = 'Yeh Roll Number pehle se assign ho chuka hai.';
+      }
+      if (msg.includes('cnic') || msg.includes('CNIC')) {
+        errMap.cnic = 'Yeh CNIC number invalid hai ya pehle se registered hai.';
+      }
+      if (msg.includes('admissionNo') || msg.includes('Admission Number')) {
+        errMap.admissionNo = 'Admission number pehle se mojood hai.';
+      }
+      if (msg.includes('className') || msg.includes('class')) {
+        errMap.className = 'Class lazmi hai.';
+      }
+    }
+    setFieldErrors(prev => ({ ...prev, ...errMap }));
+    setFormGeneralError(typeof msg === 'string' ? msg : 'Error saving student record.');
+    setActiveTab('PERSONAL INFO');
+    window.scrollTo({ top: 120, behavior: 'smooth' });
+  };
+
   // Tab Navigation Handling
   const handleNextTab = () => {
     const currentIndex = tabs.indexOf(activeTab);
     if (activeTab === 'PERSONAL INFO') {
-      if (!formData.className || !formData.section) {
-        alert("Please select Class and Section before moving to next step.");
+      const errs = validatePersonalInfo();
+      if (Object.keys(errs).length > 0) {
+        setFieldErrors(errs);
+        setFormGeneralError('براہِ کرم سرخ رنگ میں واضح کردہ لازمی فیلڈز کو مکمل کریں۔');
+        window.scrollTo({ top: 120, behavior: 'smooth' });
         return;
       }
-      if (!formData.firstName || !formData.firstName.trim()) {
-        alert("Please enter Student First Name.");
-        return;
-      }
-      if (!formData.dob) {
-        alert("Please select Date of Birth (Day, Month, Year).");
-        return;
-      }
-      if (rollDuplicate) {
-        alert(`Yeh Roll Number (${formData.rollNo}) pehle se is Class / Section mein use ho chuka hai. Doosra Roll Number enter karein.`);
-        return;
-      }
+      setFieldErrors({});
+      setFormGeneralError('');
     }
     if (currentIndex < tabs.length - 1) {
       setActiveTab(tabs[currentIndex + 1]);
@@ -320,30 +412,36 @@ export default function AddStudentPage() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!formData.academicYear || !formData.className || !formData.section || !formData.firstName || !formData.gender || !formData.dob) {
+    const errs = validatePersonalInfo();
+    if (Object.keys(errs).length > 0) {
+      setFieldErrors(errs);
       setActiveTab('PERSONAL INFO');
-      alert("Please fill all required fields in Personal Info (Class, Section, First Name, Gender, Date of Birth).");
+      setFormGeneralError('براہِ کرم سرخ رنگ میں واضح کردہ لازمی فیلڈز کو مکمل کریں۔');
+      window.scrollTo({ top: 120, behavior: 'smooth' });
       return;
     }
-
-    if (rollDuplicate) {
-      setActiveTab('PERSONAL INFO');
-      alert(`Yeh Roll Number (${formData.rollNo}) pehle se Class ${formData.className} (${formData.section}) mein kisi student ko assign hai. Doosra Roll Number enter karein.`);
-      return;
-    }
+    setFieldErrors({});
+    setFormGeneralError('');
 
     try {
       setSubmitting(true);
       const dataToSubmit = new FormData();
       Object.keys(formData).forEach(key => {
-        // Skip studentGroup if not chosen (100% optional, prevents Mongoose cast error)
+        // NEVER send studentGroup if empty or null (prevents Mongoose CastError on any backend)
         if (key === 'studentGroup') {
-          if (formData[key] && String(formData[key]).trim() !== '') {
-            dataToSubmit.append('studentGroup', formData[key]);
+          if (formData.studentGroup && String(formData.studentGroup).trim() !== '' && formData.studentGroup !== 'undefined' && formData.studentGroup !== 'null') {
+            dataToSubmit.append('studentGroup', String(formData.studentGroup).trim());
           }
           return;
         }
-        if (formData[key] !== undefined && formData[key] !== null && formData[key] !== '') {
+        // Section is optional
+        if (key === 'section') {
+          if (formData.section && String(formData.section).trim() !== '') {
+            dataToSubmit.append('section', String(formData.section).trim());
+          }
+          return;
+        }
+        if (formData[key] !== undefined && formData[key] !== null && String(formData[key]).trim() !== '') {
           dataToSubmit.append(key, formData[key]);
         }
       });
@@ -360,13 +458,17 @@ export default function AddStudentPage() {
 
       const res = await api.post('/student', dataToSubmit);
       if (res && res.success !== false) {
-        alert("Student saved successfully!");
-        router.push('/dashboard/students');
+        setFormSuccess(true);
+        setTimeout(() => {
+          router.push('/dashboard/students');
+        }, 1200);
       } else {
-        alert(res?.message || "Failed to save student.");
+        const msg = res?.message || "Failed to save student.";
+        handleBackendError(msg);
       }
     } catch (error) {
-      alert(error.response?.data?.message || error.message || 'Error saving student');
+      const msg = error.response?.data?.message || error.message || 'Error saving student';
+      handleBackendError(msg);
     } finally {
       setSubmitting(false);
     }
@@ -386,6 +488,30 @@ export default function AddStudentPage() {
           <span className="text-[#084A86] font-bold">Student Admission</span>
         </div>
       </div>
+
+      {/* Top Notification Banners */}
+      {formGeneralError && (
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center justify-between shadow-xs animate-in fade-in">
+          <div className="flex items-center gap-2.5">
+            <AlertCircle className="h-5 w-5 text-rose-600 shrink-0" />
+            <span>{formGeneralError}</span>
+          </div>
+          <button 
+            type="button" 
+            onClick={() => setFormGeneralError('')} 
+            className="text-rose-600 hover:text-rose-900 font-extrabold text-sm p-1 cursor-pointer"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
+      {formSuccess && (
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2.5 shadow-xs animate-in fade-in">
+          <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+          <span>Student record saved successfully! Redirecting to student list...</span>
+        </div>
+      )}
 
       <div className="bg-white border border-zinc-200 rounded-xl shadow-xs overflow-hidden shadow-lg">
         <div className="p-4 border-b border-zinc-100 bg-zinc-50/50 flex justify-between items-center flex-wrap gap-2">
@@ -449,23 +575,39 @@ export default function AddStudentPage() {
                           onChange={handleInputChange} 
                           placeholder="Select Class *"
                           options={classes.map(c => ({ label: c.name, value: c.name }))} 
+                          className={fieldErrors.className ? "border-rose-500 ring-1 ring-rose-500" : ""}
                         />
+                        {fieldErrors.className && (
+                          <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
+                            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                            {fieldErrors.className}
+                          </p>
+                        )}
                       </div>
+
+                      {/* Section (100% Optional) */}
                       <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Section <span className="text-rose-500">*</span></Label>
+                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
+                          Section <span className="text-zinc-400 font-normal normal-case">(Optional)</span>
+                        </Label>
                         <SearchableSelect 
                           name="section" 
                           value={formData.section} 
                           onChange={handleInputChange} 
-                          placeholder={formData.className ? "Select Section *" : "Select Class first"}
-                          options={getFilteredSections()} 
+                          placeholder="Select Section (Optional)"
+                          options={[
+                            { label: 'None / Default Section', value: '' },
+                            ...getFilteredSections()
+                          ]} 
                         />
                       </div>
                       
                       {/* Student Group (100% Optional) */}
                       <div className="space-y-1.5">
                         <div className="flex justify-between items-center">
-                          <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Student Group</Label>
+                          <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
+                            Student Group <span className="text-zinc-400 font-normal normal-case">(Optional)</span>
+                          </Label>
                           <Link href="/dashboard/students/groups" className="text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline flex items-center gap-1">
                             + Add Group
                           </Link>
@@ -480,6 +622,12 @@ export default function AddStudentPage() {
                             ...groups.map(g => ({ label: g.name, value: g._id }))
                           ]} 
                         />
+                        {fieldErrors.studentGroup && (
+                          <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
+                            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                            {fieldErrors.studentGroup}
+                          </p>
+                        )}
                       </div>
 
                       {/* Admission Number (Auto-Increment, Fixed, Read-Only) */}
@@ -499,6 +647,12 @@ export default function AddStudentPage() {
                           disabled 
                           className="bg-zinc-100 border-zinc-300 text-zinc-950 font-bold cursor-not-allowed select-none shadow-xs text-sm" 
                         />
+                        {fieldErrors.admissionNo && (
+                          <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
+                            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                            {fieldErrors.admissionNo}
+                          </p>
+                        )}
                         <p className="text-[11px] text-zinc-500 font-medium">Auto-generated sequential number.</p>
                       </div>
 
@@ -538,16 +692,18 @@ export default function AddStudentPage() {
                           onChange={handleRollChange} 
                           placeholder="e.g. 101" 
                           className={`bg-white font-medium ${
-                            rollDuplicate 
+                            rollDuplicate || fieldErrors.rollNo
                               ? 'border-rose-500 focus-visible:ring-rose-500 bg-rose-50/30 text-rose-950' 
                               : 'border-zinc-300 text-zinc-950 focus-visible:ring-zinc-400'
                           }`} 
                         />
-                        {rollDuplicate ? (
-                          <p className="text-xs text-rose-600 font-bold flex items-center gap-1 mt-1">
-                            ⚠️ Yeh Roll Number ({formData.rollNo}) pehle se is Class / Section mein use ho chuka hai!
+                        {(rollDuplicate || fieldErrors.rollNo) && (
+                          <p className="text-xs text-rose-600 font-bold flex items-center gap-1 mt-1 animate-in fade-in">
+                            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                            {fieldErrors.rollNo || `یہ Roll Number (${formData.rollNo}) پہلے سے اس Class / Section میں استعمال ہو چکا ہے!`}
                           </p>
-                        ) : (
+                        )}
+                        {!rollDuplicate && !fieldErrors.rollNo && (
                           <p className="text-[11px] text-zinc-500 font-medium">
                             Class منتخب کرنے پر نیا Roll Number خود بخود آ جائے گا۔
                           </p>
@@ -574,12 +730,26 @@ export default function AddStudentPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-1.5">
                         <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">First Name <span className="text-rose-500">*</span></Label>
-                        <Input name="firstName" value={formData.firstName} onChange={handleInputChange} placeholder="First name" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
+                        <Input 
+                          name="firstName" 
+                          value={formData.firstName} 
+                          onChange={handleInputChange} 
+                          placeholder="First name" 
+                          className={`bg-white text-zinc-950 font-medium ${fieldErrors.firstName ? 'border-rose-500 ring-1 ring-rose-500' : 'border-zinc-300'}`} 
+                        />
+                        {fieldErrors.firstName && (
+                          <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
+                            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                            {fieldErrors.firstName}
+                          </p>
+                        )}
                       </div>
+
                       <div className="space-y-1.5">
                         <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Last Name</Label>
                         <Input name="lastName" value={formData.lastName} onChange={handleInputChange} placeholder="Last name" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
                       </div>
+
                       <div className="space-y-1.5">
                         <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Gender <span className="text-rose-500">*</span></Label>
                         <SearchableSelect 
@@ -592,7 +762,14 @@ export default function AddStudentPage() {
                             { label: 'Female', value: 'Female' },
                             { label: 'Other', value: 'Other' }
                           ]} 
+                          className={fieldErrors.gender ? "border-rose-500 ring-1 ring-rose-500" : ""}
                         />
+                        {fieldErrors.gender && (
+                          <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
+                            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                            {fieldErrors.gender}
+                          </p>
+                        )}
                       </div>
 
                       {/* Date of Birth (Day / Month / Year Format) */}
@@ -606,6 +783,41 @@ export default function AddStudentPage() {
                           maxYear={2026} 
                           required={true}
                         />
+                        {fieldErrors.dob && (
+                          <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
+                            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                            {fieldErrors.dob}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* CNIC / B-Form with Hyphens (Required) */}
+                      <div className="space-y-1.5 sm:col-span-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
+                            CNIC / B-Form Number <span className="text-rose-500">*</span>
+                          </Label>
+                          <span className="text-[10px] text-zinc-500 font-mono">12345-1234567-1</span>
+                        </div>
+                        <Input 
+                          name="cnic" 
+                          value={formData.cnic} 
+                          onChange={handleCnicChange} 
+                          placeholder="35201-1234567-1" 
+                          maxLength={15}
+                          className={`bg-white font-mono text-zinc-950 font-semibold tracking-wider ${
+                            fieldErrors.cnic ? 'border-rose-500 ring-1 ring-rose-500 bg-rose-50/20' : 'border-zinc-300 focus-visible:ring-zinc-400'
+                          }`} 
+                        />
+                        {fieldErrors.cnic && (
+                          <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
+                            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                            {fieldErrors.cnic}
+                          </p>
+                        )}
+                        {!fieldErrors.cnic && (
+                          <p className="text-[11px] text-zinc-500 font-medium">13 ہندسے مع ڈیش (-) خودکار درج ہوتے ہیں۔</p>
+                        )}
                       </div>
 
                       <div className="space-y-1.5">
@@ -640,14 +852,15 @@ export default function AddStudentPage() {
                         <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Nationality</Label>
                         <Input name="nationality" value={formData.nationality} onChange={handleInputChange} placeholder="Pakistani" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
                       </div>
+
+                      {/* Caste (100% Optional) */}
                       <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">CNIC / B-Form Number</Label>
-                        <Input name="cnic" value={formData.cnic} onChange={handleInputChange} placeholder="e.g. 35201-1234567-1" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
+                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
+                          Caste <span className="text-zinc-400 font-normal normal-case">(Optional)</span>
+                        </Label>
+                        <Input name="caste" value={formData.caste} onChange={handleInputChange} placeholder="e.g. Rajput, Arain, etc." className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
                       </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Caste</Label>
-                        <Input name="caste" value={formData.caste} onChange={handleInputChange} placeholder="Caste" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
-                      </div>
+
                       <div className="space-y-1.5 sm:col-span-2">
                         <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Student Photo</Label>
                         <div className="flex">
@@ -686,7 +899,14 @@ export default function AddStudentPage() {
                     </div>
                     <div className="space-y-1.5 sm:col-span-3">
                       <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Father CNIC</Label>
-                      <Input name="fatherCnic" value={formData.fatherCnic} onChange={handleInputChange} placeholder="35201-1234567-1" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
+                      <Input 
+                        name="fatherCnic" 
+                        value={formData.fatherCnic} 
+                        onChange={handleFatherCnicChange} 
+                        placeholder="35201-1234567-1" 
+                        maxLength={15}
+                        className="bg-white border-zinc-300 text-zinc-950 font-mono tracking-wider focus-visible:ring-zinc-400 font-medium" 
+                      />
                     </div>
                   </div>
                 </div>
