@@ -157,8 +157,13 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
         const randSeed = Math.floor(Math.random() * 800) + 100;
 
         const mapped = data.map((row, idx) => {
-          const firstName = getVal(row, ['firstName', 'first name', 'firstname', 'student name', 'name', 'first']) || '';
-          const lastName = getVal(row, ['lastName', 'last name', 'lastname', 'surname', 'last']) || '';
+          let firstName = getVal(row, ['fullName', 'full name', 'student name', 'name', 'firstName', 'first name', 'firstname', 'first']) || '';
+          let lastName = getVal(row, ['lastName', 'last name', 'lastname', 'surname', 'last']) || '';
+          if (firstName && !lastName && firstName.trim().includes(' ')) {
+            const parts = firstName.trim().split(/\s+/);
+            firstName = parts[0];
+            lastName = parts.slice(1).join(' ');
+          }
           const admissionNo = getVal(row, ['admissionNo', 'admission no', 'admission number', 'adm no', 'registration no', 'reg no']) ||
             `ADM-${currentYear}-${String(randSeed + idx).padStart(3, '0')}`;
           const fileRollNo = getVal(row, ['rollNo', 'roll no', 'roll number', 'roll']);

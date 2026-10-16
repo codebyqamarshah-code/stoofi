@@ -164,6 +164,20 @@ exports.create = async (req, res) => {
       delete dataObj.classId;
     }
 
+    // Parse Full Name if single name field was submitted
+    if (dataObj.name || dataObj.fullName) {
+      const rawName = String(dataObj.fullName || dataObj.name).trim();
+      if (!dataObj.firstName) dataObj.firstName = rawName;
+    }
+    if (dataObj.firstName && (!dataObj.lastName || !dataObj.lastName.trim())) {
+      const trimmed = String(dataObj.firstName).trim();
+      const parts = trimmed.split(/\s+/);
+      if (parts.length > 1) {
+        dataObj.firstName = parts[0];
+        dataObj.lastName = parts.slice(1).join(' ');
+      }
+    }
+
     // Auto-generate or ensure unique sequential admission number
     if (!dataObj.admissionNo || dataObj.admissionNo.trim() === '') {
       const students = await Student.find({}, 'admissionNo').lean();
@@ -286,6 +300,20 @@ exports.update = async (req, res) => {
     }
     if (!dataObj.classId || dataObj.classId === '' || dataObj.classId === 'undefined' || dataObj.classId === 'null') {
       delete dataObj.classId;
+    }
+
+    // Parse Full Name if single name field was submitted
+    if (dataObj.name || dataObj.fullName) {
+      const rawName = String(dataObj.fullName || dataObj.name).trim();
+      if (!dataObj.firstName) dataObj.firstName = rawName;
+    }
+    if (dataObj.firstName && (!dataObj.lastName || !dataObj.lastName.trim())) {
+      const trimmed = String(dataObj.firstName).trim();
+      const parts = trimmed.split(/\s+/);
+      if (parts.length > 1) {
+        dataObj.firstName = parts[0];
+        dataObj.lastName = parts.slice(1).join(' ');
+      }
     }
 
     // Check duplicate roll number on update

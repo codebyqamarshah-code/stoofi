@@ -340,7 +340,7 @@ export default function AddStudentPage() {
       errors.className = 'Class is required.';
     }
     if (!formData.firstName || !formData.firstName.trim()) {
-      errors.firstName = 'First Name is required.';
+      errors.firstName = 'Full Name is required.';
     }
     if (!formData.gender) {
       errors.gender = 'Gender is required.';
@@ -556,7 +556,8 @@ export default function AddStudentPage() {
 
             {/* Tab 1: Personal Info */}
             {activeTab === 'PERSONAL INFO' && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="space-y-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Left Column: Academic Placement */}
                 <div className="space-y-4">
                   <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2">ACADEMIC PLACEMENT</h3>
@@ -710,13 +711,13 @@ export default function AddStudentPage() {
                   <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2">PERSONAL PROFILE</h3>
                   <div className="space-y-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">First Name <span className="text-rose-500">*</span></Label>
+                      <div className="space-y-1.5 sm:col-span-2">
+                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Full Name <span className="text-rose-500">*</span></Label>
                         <Input 
                           name="firstName" 
                           value={formData.firstName} 
                           onChange={handleInputChange} 
-                          placeholder="First name" 
+                          placeholder="Student Full Name (e.g. Muhammad Ali)" 
                           className={`bg-white text-zinc-950 font-medium ${fieldErrors.firstName ? 'border-rose-500 ring-1 ring-rose-500' : 'border-zinc-300'}`} 
                         />
                         {fieldErrors.firstName && (
@@ -725,11 +726,6 @@ export default function AddStudentPage() {
                             {fieldErrors.firstName}
                           </p>
                         )}
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Last Name</Label>
-                        <Input name="lastName" value={formData.lastName} onChange={handleInputChange} placeholder="Last name" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
                       </div>
 
                       <div className="space-y-1.5">
@@ -889,6 +885,37 @@ export default function AddStudentPage() {
                           <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
                         </div>
                       </div>
+                    </div>
+                  </div>
+                </div>
+</div>
+                {/* Contact & Residential Information */}
+                <div className="pt-6 border-t border-zinc-200">
+                  <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2 mb-4">CONTACT & RESIDENTIAL INFORMATION</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Student Phone</Label>
+                      <Input name="phone" value={formData.phone} onChange={handleInputChange} placeholder="03001234567" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Email Address <span className="text-zinc-400 font-normal normal-case">(Optional)</span></Label>
+                      <Input name="email" value={formData.email} onChange={handleInputChange} placeholder="student@example.com" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">City</Label>
+                      <Input name="city" value={formData.city} onChange={handleInputChange} placeholder="e.g. Lahore, Islamabad" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Emergency Contact</Label>
+                      <Input name="emergencyContact" value={formData.emergencyContact} onChange={handleInputChange} placeholder="03001234567" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
+                    </div>
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Current Residential Address</Label>
+                      <textarea name="currentAddress" value={formData.currentAddress} onChange={handleInputChange} placeholder="House No, Street, Area, City" className="flex min-h-[75px] w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-950 font-medium text-sm placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 resize-none"></textarea>
+                    </div>
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Permanent Address <span className="text-zinc-400 font-normal normal-case">(If different)</span></Label>
+                      <textarea name="permanentAddress" value={formData.permanentAddress} onChange={handleInputChange} placeholder="Permanent residential address" className="flex min-h-[75px] w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-950 font-medium text-sm placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 resize-none"></textarea>
                     </div>
                   </div>
                 </div>
