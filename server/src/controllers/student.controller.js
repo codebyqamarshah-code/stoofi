@@ -489,10 +489,31 @@ exports.bulkCreate = async (req, res) => {
       if (studentObj.guardianPhone) studentObj.guardianPhone = String(studentObj.guardianPhone).trim();
       if (studentObj.emergencyContact) studentObj.emergencyContact = String(studentObj.emergencyContact).trim();
       if (studentObj.cnic) studentObj.cnic = String(studentObj.cnic).trim();
+      if (studentObj.bForm) studentObj.bForm = String(studentObj.bForm).trim();
+      if (!studentObj.bForm && studentObj.cnic) studentObj.bForm = studentObj.cnic;
+      if (!studentObj.cnic && studentObj.bForm) studentObj.cnic = studentObj.bForm;
+
+      if (studentObj.joiningDate) studentObj.joiningDate = String(studentObj.joiningDate).trim();
+      if (studentObj.admissionDate) studentObj.admissionDate = String(studentObj.admissionDate).trim();
+      if (!studentObj.admissionDate && studentObj.joiningDate) studentObj.admissionDate = studentObj.joiningDate;
+      if (!studentObj.joiningDate && studentObj.admissionDate) studentObj.joiningDate = studentObj.admissionDate;
+
+      if (studentObj.fatherOccupation) studentObj.fatherOccupation = String(studentObj.fatherOccupation).trim();
+      if (studentObj.motherOccupation) studentObj.motherOccupation = String(studentObj.motherOccupation).trim();
+      if (studentObj.fatherCnic) studentObj.fatherCnic = String(studentObj.fatherCnic).trim();
+      if (studentObj.fatherName) studentObj.fatherName = String(studentObj.fatherName).trim();
+      if (studentObj.motherName) studentObj.motherName = String(studentObj.motherName).trim();
+      if (studentObj.bloodGroup) studentObj.bloodGroup = String(studentObj.bloodGroup).trim();
+      if (studentObj.religion) studentObj.religion = String(studentObj.religion).trim();
+      if (studentObj.type) studentObj.type = String(studentObj.type).trim();
+
       if (studentObj.city) studentObj.city = String(studentObj.city).trim();
       if (studentObj.address) studentObj.address = String(studentObj.address).trim();
       if (studentObj.currentAddress) studentObj.currentAddress = String(studentObj.currentAddress).trim();
       if (studentObj.permanentAddress) studentObj.permanentAddress = String(studentObj.permanentAddress).trim();
+      if (!studentObj.address && studentObj.currentAddress) studentObj.address = studentObj.currentAddress;
+      if (!studentObj.currentAddress && studentObj.address) studentObj.currentAddress = studentObj.address;
+      if (!studentObj.permanentAddress && studentObj.currentAddress) studentObj.permanentAddress = studentObj.currentAddress;
 
       // Ensure Executive Navy Horizontal card defaults for imported students
       if (!studentObj.cardTemplate) studentObj.cardTemplate = 'classic-navy';
@@ -573,6 +594,24 @@ exports.promoteStudents = async (req, res) => {
       message: `Successfully promoted ${updatedCount} student(s).`,
       count: updatedCount,
       updatedIds
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.bulkDelete = async (req, res) => {
+  try {
+    const rawIds = req.body?.ids || req.body?.studentIds || req.body;
+    const ids = Array.isArray(rawIds) ? rawIds : [];
+    if (!ids.length) {
+      return res.status(400).json({ success: false, message: 'No student IDs provided for deletion.' });
+    }
+    const result = await Student.deleteMany({ _id: { $in: ids } });
+    res.status(200).json({
+      success: true,
+      message: `Successfully deleted ${result.deletedCount} student(s).`,
+      deletedCount: result.deletedCount
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

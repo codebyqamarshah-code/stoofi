@@ -23,8 +23,48 @@ const getInitials = (student) => {
 
 const fmtDate = (d) => {
   if (!d) return '—';
-  try { return new Date(d).toLocaleDateString('en-PK', { day: '2-digit', month: 'long', year: 'numeric' }); }
-  catch { return d; }
+  if (typeof d !== 'string' && !(d instanceof Date)) return String(d);
+  const str = String(d).trim();
+  if (!str || str === '—' || str === '-') return '—';
+
+  // Handle DD-MM-YYYY or DD/MM/YYYY
+  const dmyMatch = str.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+  if (dmyMatch) {
+    const day = parseInt(dmyMatch[1], 10);
+    const month = parseInt(dmyMatch[2], 10) - 1;
+    const year = parseInt(dmyMatch[3], 10);
+    const dt = new Date(year, month, day);
+    if (!isNaN(dt.getTime())) {
+      return dt.toLocaleDateString('en-PK', { day: '2-digit', month: 'long', year: 'numeric' });
+    }
+  }
+
+  // Handle YYYY-MM-DD
+  const ymdMatch = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+  if (ymdMatch) {
+    const year = parseInt(ymdMatch[1], 10);
+    const month = parseInt(ymdMatch[2], 10) - 1;
+    const day = parseInt(ymdMatch[3], 10);
+    const dt = new Date(year, month, day);
+    if (!isNaN(dt.getTime())) {
+      return dt.toLocaleDateString('en-PK', { day: '2-digit', month: 'long', year: 'numeric' });
+    }
+  }
+
+  const parsed = new Date(str);
+  if (!isNaN(parsed.getTime())) {
+    return parsed.toLocaleDateString('en-PK', { day: '2-digit', month: 'long', year: 'numeric' });
+  }
+  return str;
+};
+
+const formatCnic = (val) => {
+  if (!val) return '';
+  const digits = String(val).replace(/\D/g, '');
+  if (digits.length === 13) {
+    return `${digits.slice(0, 5)}-${digits.slice(5, 12)}-${digits.slice(12)}`;
+  }
+  return String(val);
 };
 
 // ─── Reusable InfoRow ────────────────────────────────────────────────────────
@@ -90,7 +130,10 @@ export default function StudentProfilePage() {
       'Last Name':          student.lastName || '—',
       'Full Name':          `${student.firstName || ''} ${student.lastName || ''}`.trim(),
       'Father Name':        student.fatherName || '—',
+      'Father CNIC':        formatCnic(student.fatherCnic) || student.fatherCnic || '—',
+      'Father Occupation':  student.fatherOccupation || '—',
       'Mother Name':        student.motherName || '—',
+      'Mother Occupation':  student.motherOccupation || '—',
       'Date of Birth':      student.dob || '—',
       'Gender':             student.gender || '—',
       'Religion':           student.religion || 'Islam',
@@ -102,16 +145,15 @@ export default function StudentProfilePage() {
       'Type':               student.type || 'Regular',
       'Phone':              student.phone || '—',
       'Email':              student.email || '—',
-      'Address':            student.address || student.currentAddress || '—',
+      'Present Address':    student.currentAddress || student.address || '—',
       'Permanent Address':  student.permanentAddress || '—',
       'City':               student.city || '—',
-      'Father Occupation':  student.fatherOccupation || '—',
       'Father Phone':       student.fatherPhone || '—',
       'Mother Phone':       student.motherPhone || '—',
       'Emergency Contact':  student.emergencyContact || '—',
       'Joining Date':       student.joiningDate || student.admissionDate || '—',
       'Previous School':    student.previousSchool || student.previousSchoolName || '—',
-      'CNIC / B-Form':      student.cnic || student.bForm || '—',
+      'CNIC / B-Form':      formatCnic(student.cnic || student.bForm) || student.cnic || student.bForm || '—',
       'Medical History':    student.medicalHistory || '—',
       'Remarks':            student.remarks || student.otherInfo || '—',
     };
@@ -130,9 +172,11 @@ export default function StudentProfilePage() {
     if (!win) { alert('Pop-up blocked. Please allow pop-ups.'); return; }
     const now = new Date().toLocaleString();
     const yr  = new Date().getFullYear();
-    const address = student.address || student.currentAddress || '—';
+    const address = student.currentAddress || student.address || '—';
+    const permAddress = student.permanentAddress || '—';
     const prevSchool = student.previousSchool || student.previousSchoolName || '—';
-    const cnicVal = student.cnic || student.bForm || '—';
+    const cnicVal = formatCnic(student.cnic || student.bForm) || student.cnic || student.bForm || '—';
+    const fatherCnicVal = formatCnic(student.fatherCnic) || student.fatherCnic || '—';
     const joining = student.joiningDate || student.admissionDate || '—';
 
     win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Student Profile - ${fullName}</title>
@@ -169,7 +213,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
 </div>
 <div class="section-title">Personal Information</div>
 <div class="grid2">
-  <div class="row"><span class="lbl">Date of Birth</span><span class="val">${student.dob||'—'}</span></div>
+  <div class="row"><span class="lbl">Date of Birth</span><span class="val">${fmtDate(student.dob)}</span></div>
   <div class="row"><span class="lbl">Gender</span><span class="val">${student.gender||'—'}</span></div>
   <div class="row"><span class="lbl">Religion</span><span class="val">${student.religion||'Islam'}</span></div>
   <div class="row"><span class="lbl">Blood Group</span><span class="val">${student.bloodGroup||'—'}</span></div>
@@ -181,7 +225,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
   <div class="row"><span class="lbl">Phone</span><span class="val">${student.phone||'—'}</span></div>
   <div class="row"><span class="lbl">Email</span><span class="val">${student.email||'—'}</span></div>
   <div class="row"><span class="lbl">City</span><span class="val">${student.city||'—'}</span></div>
-  <div class="row"><span class="lbl">Address</span><span class="val">${address}</span></div>
+  <div class="row"><span class="lbl">Present Address</span><span class="val">${address}</span></div>
+  <div class="row"><span class="lbl">Permanent Address</span><span class="val">${permAddress}</span></div>
 </div>
 <div class="section-title">Academic Information</div>
 <div class="grid2">
@@ -191,15 +236,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
   <div class="row"><span class="lbl">Admission No</span><span class="val">${student.admissionNo||'—'}</span></div>
   <div class="row"><span class="lbl">Academic Year</span><span class="val">${student.academicYear||'2026'}</span></div>
   <div class="row"><span class="lbl">Student Type</span><span class="val">${student.type||'Regular'}</span></div>
-  <div class="row"><span class="lbl">Joining Date</span><span class="val">${joining}</span></div>
+  <div class="row"><span class="lbl">Joining Date</span><span class="val">${fmtDate(joining)}</span></div>
   <div class="row"><span class="lbl">Previous School</span><span class="val">${prevSchool}</span></div>
 </div>
 <div class="section-title">Parent / Guardian Information</div>
 <div class="grid2">
   <div class="row"><span class="lbl">Father Name</span><span class="val">${student.fatherName||'—'}</span></div>
-  <div class="row"><span class="lbl">Mother Name</span><span class="val">${student.motherName||'—'}</span></div>
+  <div class="row"><span class="lbl">Father CNIC</span><span class="val">${fatherCnicVal}</span></div>
   <div class="row"><span class="lbl">Father Occupation</span><span class="val">${student.fatherOccupation||'—'}</span></div>
   <div class="row"><span class="lbl">Father Phone</span><span class="val">${student.fatherPhone||'—'}</span></div>
+  <div class="row"><span class="lbl">Mother Name</span><span class="val">${student.motherName||'—'}</span></div>
+  <div class="row"><span class="lbl">Mother Occupation</span><span class="val">${student.motherOccupation||'—'}</span></div>
   <div class="row"><span class="lbl">Mother Phone</span><span class="val">${student.motherPhone||'—'}</span></div>
   <div class="row"><span class="lbl">Emergency Contact</span><span class="val">${student.emergencyContact||'—'}</span></div>
 </div>
@@ -244,9 +291,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
 
   const fullName = `${student.firstName || ''} ${student.lastName || ''}`.trim();
   const photoUrl = getPhotoUrl(student);
-  const address = student.address || student.currentAddress || student.permanentAddress;
+  const presentAddress = student.currentAddress || student.address;
+  const permanentAddress = student.permanentAddress;
   const prevSchool = student.previousSchool || student.previousSchoolName;
-  const cnicVal = student.cnic || student.bForm;
+  const cnicVal = formatCnic(student.cnic || student.bForm) || student.cnic || student.bForm || '—';
+  const fatherCnicVal = formatCnic(student.fatherCnic) || student.fatherCnic || '—';
   const joining = student.joiningDate || student.admissionDate;
   const remarksVal = student.remarks || student.otherInfo;
 
@@ -347,10 +396,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
           </SectionCard>
 
           <SectionCard title="Contact Information" icon={Phone}>
-            <InfoRow icon={Phone}  label="Phone"   value={student.phone} highlight />
-            <InfoRow icon={Mail}   label="Email"   value={student.email} />
-            <InfoRow icon={MapPin} label="Address" value={address} />
-            <InfoRow icon={Home}   label="City"    value={student.city} />
+            <InfoRow icon={Phone}  label="Phone"             value={student.phone} highlight />
+            <InfoRow icon={Mail}   label="Email"             value={student.email} />
+            <InfoRow icon={MapPin} label="Present Address"   value={presentAddress} />
+            <InfoRow icon={Home}   label="Permanent Address" value={permanentAddress} />
+            <InfoRow icon={Home}   label="City"              value={student.city} />
+            <InfoRow icon={Phone}  label="Emergency Contact" value={student.emergencyContact} />
           </SectionCard>
         </div>
 
@@ -372,9 +423,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
         <div className="space-y-6">
           <SectionCard title="Parent / Guardian Info" icon={Users}>
             <InfoRow icon={User}      label="Father Name"       value={student.fatherName} highlight />
-            <InfoRow icon={User}      label="Mother Name"       value={student.motherName} />
+            <InfoRow icon={FileText}  label="Father CNIC"       value={fatherCnicVal} />
             <InfoRow icon={Briefcase} label="Father Occupation" value={student.fatherOccupation} />
             <InfoRow icon={Phone}     label="Father Phone"      value={student.fatherPhone} />
+            <InfoRow icon={User}      label="Mother Name"       value={student.motherName} />
+            <InfoRow icon={Briefcase} label="Mother Occupation" value={student.motherOccupation} />
             <InfoRow icon={Phone}     label="Mother Phone"      value={student.motherPhone} />
             <InfoRow icon={Phone}     label="Emergency Contact" value={student.emergencyContact} />
           </SectionCard>

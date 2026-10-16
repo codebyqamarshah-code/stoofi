@@ -96,6 +96,46 @@ export default function StudentListPage() {
   // Import modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
+  // Selection & Bulk Action state
+  const [selectedStudentIds, setSelectedStudentIds] = useState([]);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
+  const isAllSelected = students.length > 0 && students.every(s => selectedStudentIds.includes(s._id));
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedStudentIds([]);
+    } else {
+      setSelectedStudentIds(students.map(s => s._id));
+    }
+  };
+
+  const toggleSelectStudent = (id) => {
+    setSelectedStudentIds(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = async () => {
+    if (!selectedStudentIds.length) return;
+    const count = selectedStudentIds.length;
+    if (!window.confirm(`Are you sure you want to permanently delete ${count} selected student${count > 1 ? 's' : ''}? This action cannot be undone.`)) {
+      return;
+    }
+    setBulkDeleting(true);
+    try {
+      await api.post('/student/bulk-delete', { ids: selectedStudentIds });
+      setStudents(prev => prev.filter(s => !selectedStudentIds.includes(s._id)));
+      setSelectedStudentIds([]);
+      await fetchData();
+    } catch (err) {
+      console.error('Bulk delete error:', err);
+      alert('Failed to delete selected students: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
   const fetchData = async (overrideFilters) => {
     setLoading(true);
     const active = overrideFilters || appliedFilters;
@@ -180,6 +220,7 @@ export default function StudentListPage() {
       try {
         await api.delete(`/student/${id}`);
         setStudents(prev => prev.filter(s => s._id !== id));
+        setSelectedStudentIds(prev => prev.filter(item => item !== id));
       } catch (error) {
         console.error('API delete error:', error.message);
         alert('Failed to delete student.');
@@ -522,10 +563,48 @@ export default function StudentListPage() {
           </div>
         </div>
         
+        {/* Bulk Action Bar */}
+        {selectedStudentIds.length > 0 && (
+          <div className="px-4 py-2.5 bg-rose-50 border-b border-rose-200 flex items-center justify-between gap-4 flex-wrap">
+            <span className="text-xs font-bold text-rose-700 flex items-center gap-1.5">
+              <span className="h-5 w-5 rounded-full bg-rose-600 text-white text-[10px] flex items-center justify-center font-black">{selectedStudentIds.length}</span>
+              {selectedStudentIds.length === 1 ? 'Student Selected' : 'Students Selected'}
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setSelectedStudentIds([])}
+                className="text-xs text-zinc-500 hover:text-zinc-900 h-8 px-3 cursor-pointer"
+              >
+                Clear Selection
+              </Button>
+              <Button
+                type="button"
+                onClick={handleBulkDelete}
+                disabled={bulkDeleting}
+                className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs h-8 px-4 flex items-center gap-2 cursor-pointer"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                {bulkDeleting ? 'Deleting...' : `Delete Selected (${selectedStudentIds.length})`}
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div className="flex-1 overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead className="text-xs text-zinc-600 uppercase bg-zinc-100/70 border-b border-zinc-200 font-bold">
               <tr>
+                <th className="px-3 py-3.5 w-10">
+                  <input
+                    type="checkbox"
+                    checked={isAllSelected}
+                    onChange={toggleSelectAll}
+                    className="h-4 w-4 rounded border-zinc-300 accent-zinc-900 cursor-pointer"
+                    title={isAllSelected ? 'Deselect All' : 'Select All'}
+                  />
+                </th>
                 <th className="px-4 py-3.5">Admission No</th>
                 <th className="px-4 py-3.5">Name</th>
                 <th className="px-4 py-3.5">Father Name</th>
@@ -540,95 +619,108 @@ export default function StudentListPage() {
             <tbody className="divide-y divide-zinc-100 font-medium">
               {loading ? (
                 <tr>
-                  <td colSpan="9" className="px-4 py-8 text-center text-zinc-500">Loading...</td>
+                  <td colSpan="10" className="px-4 py-8 text-center text-zinc-500">Loading...</td>
                 </tr>
               ) : students.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td>
+                  <td colSpan="10" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td>
                 </tr>
               ) : (
-                students.map((student) => (
-                  <tr key={student._id} className="hover:bg-zinc-50/80 transition-colors">
-                    <td className="px-4 py-3.5 font-bold text-zinc-900">{student.admissionNo || '-'}</td>
-                    <td className="px-4 py-3.5">
-                      <Link href={`/dashboard/students/${student._id}`} className="flex items-center gap-3 group">
-                        <div className="h-8 w-8 rounded-full bg-zinc-100 text-zinc-900 overflow-hidden border border-zinc-200 flex items-center justify-center shrink-0">
-                          {student.photo || student.studentPhoto ? (
-                            <img 
-                              src={getPhotoUrl(student)} 
-                              alt={student.firstName} 
-                              className="h-full w-full object-cover" 
-                            />
-                          ) : (
-                            <div className="h-full w-full flex items-center justify-center text-xs font-bold text-zinc-800 uppercase">{student.firstName?.charAt(0)}</div>
-                          )}
-                        </div>
-                        <span className="font-bold text-zinc-900 group-hover:text-emerald-700 cursor-pointer">{student.firstName} {student.lastName}</span>
-                      </Link>
-                    </td>
-                    <td className="px-4 py-3.5 text-zinc-700">{student.fatherName || '-'}</td>
-                    <td className="px-4 py-3.5 text-zinc-700">{formatDateDMY(student.dob)}</td>
-                    <td className="px-4 py-3.5 text-zinc-800 font-semibold">{student.className}({student.section})</td>
-                    <td className="px-4 py-3.5 text-zinc-700">{student.gender || '-'}</td>
-                    <td className="px-4 py-3.5 text-zinc-700">Regular</td>
-                    <td className="px-4 py-3.5 text-zinc-700">{student.phone || '-'}</td>
-                    <td className="px-4 py-3.5 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Link href={`/dashboard/students/${student._id}`}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 cursor-pointer rounded-lg" title="View Profile">
-                            <FileText className="h-4 w-4" />
-                          </Button>
+                students.map((student) => {
+                  const isSelected = selectedStudentIds.includes(student._id);
+                  return (
+                    <tr key={student._id} className={`hover:bg-zinc-50/80 transition-colors ${isSelected ? 'bg-zinc-100/80 border-l-2 border-l-zinc-900' : ''}`}>
+                      <td className="px-3 py-3.5">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelectStudent(student._id)}
+                          className="h-4 w-4 rounded border-zinc-300 accent-zinc-900 cursor-pointer"
+                        />
+                      </td>
+                      <td className="px-4 py-3.5 font-bold text-zinc-900">{student.admissionNo || '-'}</td>
+                      <td className="px-4 py-3.5">
+                        <Link href={`/dashboard/students/${student._id}`} className="flex items-center gap-3 group">
+                          <div className="h-8 w-8 rounded-full bg-zinc-100 text-zinc-900 overflow-hidden border border-zinc-200 flex items-center justify-center shrink-0">
+                            {student.photo || student.studentPhoto ? (
+                              <img
+                                src={getPhotoUrl(student)}
+                                alt={student.firstName}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="h-full w-full flex items-center justify-center text-xs font-bold text-zinc-800 uppercase">{student.firstName?.charAt(0)}</div>
+                            )}
+                          </div>
+                          <span className="font-bold text-zinc-900 group-hover:text-emerald-700 cursor-pointer">{student.firstName} {student.lastName}</span>
                         </Link>
-                        <Button
-                          onClick={() => openEdit(student)}
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-zinc-500 hover:text-emerald-600 hover:bg-zinc-100 cursor-pointer rounded-lg"
-                          title="Edit Student"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          onClick={() => handleDelete(student._id)}
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-zinc-500 hover:text-rose-600 hover:bg-zinc-100 cursor-pointer rounded-lg"
-                          title="Delete Student"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          onClick={() => {
-                            const row = {
-                              'Admission No': student.admissionNo || '—',
-                              'Full Name': `${student.firstName || ''} ${student.lastName || ''}`.trim(),
-                              'Father Name': student.fatherName || '—',
-                              'Mother Name': student.motherName || '—',
-                              'Date of Birth': student.dob || '—',
-                              'Class': student.className || '—',
-                              'Section': student.section || '—',
-                              'Gender': student.gender || '—',
-                              'Type': student.type || 'Regular',
-                              'Phone': student.phone || '—',
-                              'Email': student.email || '—',
-                              'Address': student.address || '—',
-                              'Blood Group': student.bloodGroup || '—',
-                              'Religion': student.religion || '—',
-                              'Roll No': student.rollNo || '—',
-                              'Father Phone': student.fatherPhone || '—',
-                              'Emergency Contact': student.emergencyContact || '—',
-                            };
-                            exportToExcel([row], `Student_${student.firstName}_${student.admissionNo || 'export'}`, 'Student Profile');
-                          }}
-                          variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-200 cursor-pointer" title="Export to Excel"
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                        
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                      <td className="px-4 py-3.5 text-zinc-700">{student.fatherName || '-'}</td>
+                      <td className="px-4 py-3.5 text-zinc-700">{formatDateDMY(student.dob)}</td>
+                      <td className="px-4 py-3.5 text-zinc-800 font-semibold">{student.className}({student.section})</td>
+                      <td className="px-4 py-3.5 text-zinc-700">{student.gender || '-'}</td>
+                      <td className="px-4 py-3.5 text-zinc-700">{student.type || 'Regular'}</td>
+                      <td className="px-4 py-3.5 text-zinc-700">{student.phone || '-'}</td>
+                      <td className="px-4 py-3.5 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Link href={`/dashboard/students/${student._id}`}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 cursor-pointer rounded-lg" title="View Profile">
+                              <FileText className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                          <Button
+                            onClick={() => openEdit(student)}
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-zinc-500 hover:text-emerald-600 hover:bg-zinc-100 cursor-pointer rounded-lg"
+                            title="Edit Student"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={() => handleDelete(student._id)}
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-zinc-500 hover:text-rose-600 hover:bg-zinc-100 cursor-pointer rounded-lg"
+                            title="Delete Student"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              const row = {
+                                'Admission No': student.admissionNo || '—',
+                                'Full Name': `${student.firstName || ''} ${student.lastName || ''}`.trim(),
+                                'Father Name': student.fatherName || '—',
+                                'Mother Name': student.motherName || '—',
+                                'Date of Birth': student.dob || '—',
+                                'Class': student.className || '—',
+                                'Section': student.section || '—',
+                                'Gender': student.gender || '—',
+                                'Type': student.type || 'Regular',
+                                'Phone': student.phone || '—',
+                                'Email': student.email || '—',
+                                'Address': student.currentAddress || student.address || '—',
+                                'Blood Group': student.bloodGroup || '—',
+                                'Religion': student.religion || '—',
+                                'Roll No': student.rollNo || '—',
+                                'Father Phone': student.fatherPhone || '—',
+                                'Emergency Contact': student.emergencyContact || '—',
+                                'Joining Date': student.joiningDate || student.admissionDate || '—',
+                                'CNIC / B-Form': student.cnic || student.bForm || '—',
+                              };
+                              exportToExcel([row], `Student_${student.firstName}_${student.admissionNo || 'export'}`, 'Student Profile');
+                            }}
+                            variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-zinc-950 hover:bg-zinc-200 cursor-pointer" title="Export to Excel"
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
