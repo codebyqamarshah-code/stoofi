@@ -663,6 +663,7 @@ exports.publicVerify = async (req, res) => {
         rollNo: student.rollNo,
         className: student.className,
         section: student.section,
+        academicYear: student.academicYear,
         fatherName: student.fatherName,
         gender: student.gender,
         dob: student.dob,
