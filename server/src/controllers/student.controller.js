@@ -133,7 +133,7 @@ exports.getNextRollNo = async (req, res) => {
       }
     });
 
-    const nextRollNo = maxRoll > 0 ? String(maxRoll + 1) : '101';
+    const nextRollNo = maxRoll > 0 ? String(maxRoll + 1) : '1';
     res.status(200).json({ 
       success: true, 
       nextRollNo, 
@@ -141,7 +141,7 @@ exports.getNextRollNo = async (req, res) => {
       usedRolls 
     });
   } catch (err) {
-    res.status(200).json({ success: true, nextRollNo: '101', usedRollNumbers: [], usedRolls: [] });
+    res.status(200).json({ success: true, nextRollNo: '1', usedRollNumbers: [], usedRolls: [] });
   }
 };
 
@@ -190,8 +190,28 @@ exports.create = async (req, res) => {
       }
     }
 
-    // Check duplicate roll number in class and section
-    if (dataObj.rollNo && String(dataObj.rollNo).trim() && dataObj.className && dataObj.section) {
+    // Auto-assign roll number starting from 1 if not provided
+    if (!dataObj.rollNo || String(dataObj.rollNo).trim() === '') {
+      const q = {};
+      if (dataObj.className) {
+        const c = dataObj.className.replace(/^Class\s+/i, '').trim();
+        q.className = { $regex: '^(' + dataObj.className + '|' + c + '|Class\\s*' + c + ')$', $options: 'i' };
+      }
+      if (dataObj.section) {
+        const sec = dataObj.section.replace(/^Section\s+/i, '').trim();
+        q.section = { $regex: '^(' + dataObj.section + '|' + sec + '|Section\\s*' + sec + ')$', $options: 'i' };
+      }
+      const existingStudents = await Student.find(q, 'rollNo').lean();
+      let maxRoll = 0;
+      existingStudents.forEach(s => {
+        if (s.rollNo) {
+          const num = parseInt(String(s.rollNo).trim(), 10);
+          if (!isNaN(num) && num > maxRoll) maxRoll = num;
+        }
+      });
+      dataObj.rollNo = maxRoll > 0 ? String(maxRoll + 1) : '1';
+    } else if (dataObj.className && dataObj.section) {
+      // Check duplicate roll number in class and section
       const rollStr = String(dataObj.rollNo).trim();
       const existingRoll = await Student.findOne({
         className: { $regex: '^' + dataObj.className.trim() + '$', $options: 'i' },
@@ -201,7 +221,7 @@ exports.create = async (req, res) => {
       if (existingRoll) {
         return res.status(400).json({
           success: false,
-          message: `Yeh Roll Number (${rollStr}) pehle se Class ${dataObj.className} (${dataObj.section}) mein mojood hai.`
+          message: `Roll Number (${rollStr}) is already assigned in Class ${dataObj.className} (${dataObj.section}).`
         });
       }
     }
@@ -284,7 +304,7 @@ exports.update = async (req, res) => {
       if (existingRoll) {
         return res.status(400).json({
           success: false,
-          message: `Yeh Roll Number (${rollStr}) pehle se Class ${dataObj.className} (${dataObj.section}) mein mojood hai.`
+          message: `Roll Number (${rollStr}) is already assigned in Class ${dataObj.className} (${dataObj.section}).`
         });
       }
     }
@@ -329,16 +349,49 @@ exports.bulkCreate = async (req, res) => {
     let count = await Student.countDocuments();
     const currentYear = new Date().getFullYear();
 
-    const prepared = rawList.map((s, idx) => {
+    // Pre-load existing max roll numbers per class+section
+    const rollCounters = {};
+
+    const prepared = await Promise.all(rawList.map(async (s, idx) => {
       const studentObj = { ...s };
+
+      // Auto-generate admission number if missing
       if (!studentObj.admissionNo) {
         studentObj.admissionNo = `ADM-${currentYear}-${String(count + idx + 1).padStart(3, '0')}`;
       }
       if (!studentObj.academicYear) {
         studentObj.academicYear = `${currentYear} [Jan-Dec]`;
       }
+
+      // Auto-assign roll number starting from 1 if not provided
+      if (!studentObj.rollNo || String(studentObj.rollNo).trim() === '') {
+        const cls = (studentObj.className || '').trim().toLowerCase();
+        const sec = (studentObj.section || '').trim().toLowerCase();
+        const key = `${cls}|${sec}`;
+
+        if (rollCounters[key] === undefined) {
+          // Find max existing roll number for this class+section
+          const existingStudents = await Student.find({
+            ...(studentObj.className ? { className: { $regex: '^' + (studentObj.className || '').trim() + '$', $options: 'i' } } : {}),
+            ...(studentObj.section ? { section: { $regex: '^' + (studentObj.section || '').trim() + '$', $options: 'i' } } : {})
+          }, 'rollNo').lean();
+
+          let maxRoll = 0;
+          existingStudents.forEach(st => {
+            if (st.rollNo) {
+              const num = parseInt(String(st.rollNo).trim(), 10);
+              if (!isNaN(num) && num > maxRoll) maxRoll = num;
+            }
+          });
+          rollCounters[key] = maxRoll;
+        }
+
+        rollCounters[key] += 1;
+        studentObj.rollNo = String(rollCounters[key]);
+      }
+
       return studentObj;
-    });
+    }));
 
     const result = await Student.insertMany(prepared, { ordered: false });
     res.status(201).json({

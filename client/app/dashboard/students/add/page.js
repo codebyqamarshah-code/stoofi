@@ -94,6 +94,7 @@ export default function AddStudentPage() {
   const [submitting, setSubmitting] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [selectedPhotoName, setSelectedPhotoName] = useState('');
+  const [photoPreview, setPhotoPreview] = useState(null);
   const fileInputRef = useRef(null);
 
   // Field-level inline errors state (displays directly under fields)
@@ -303,7 +304,7 @@ export default function AddStudentPage() {
     setFormData(prev => ({ ...prev, rollNo: val }));
     if (val && usedRolls.includes(val.trim())) {
       setRollDuplicate(true);
-      setFieldErrors(prev => ({ ...prev, rollNo: `یہ Roll Number (${val}) پہلے سے استعمال ہو چکا ہے۔` }));
+      setFieldErrors(prev => ({ ...prev, rollNo: `Roll Number (${val}) is already assigned in this Class / Section.` }));
     } else {
       setRollDuplicate(false);
       if (fieldErrors.rollNo) {
@@ -314,7 +315,10 @@ export default function AddStudentPage() {
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedPhotoName(e.target.files[0].name);
+      const file = e.target.files[0];
+      setSelectedPhotoName(file.name);
+      const previewUrl = URL.createObjectURL(file);
+      setPhotoPreview(previewUrl);
     }
   };
 
@@ -333,25 +337,25 @@ export default function AddStudentPage() {
   const validatePersonalInfo = () => {
     const errors = {};
     if (!formData.className || !formData.className.trim()) {
-      errors.className = 'Class منتخب کرنا لازمی ہے۔';
+      errors.className = 'Class is required.';
     }
     if (!formData.firstName || !formData.firstName.trim()) {
-      errors.firstName = 'First Name درج کرنا لازمی ہے۔';
+      errors.firstName = 'First Name is required.';
     }
     if (!formData.gender) {
-      errors.gender = 'Gender منتخب کرنا لازمی ہے۔';
+      errors.gender = 'Gender is required.';
     }
     if (!formData.dob) {
-      errors.dob = 'تاریخ پیدائش (Day, Month, Year) درج کرنا لازمی ہے۔';
+      errors.dob = 'Date of birth is required.';
     }
     // CNIC is strictly required and must follow XXXXX-XXXXXXX-X format
     if (!formData.cnic || !formData.cnic.trim()) {
-      errors.cnic = 'CNIC / B-Form نمبر درج کرنا لازمی ہے۔';
+      errors.cnic = 'CNIC / B-Form number is required.';
     } else if (!/^\d{5}-\d{7}-\d{1}$/.test(formData.cnic.trim())) {
-      errors.cnic = 'CNIC فارمیٹ درست نہیں ہے۔ فارمیٹ 12345-1234567-1 (13 ہندسے) ہونا چاہیے۔';
+      errors.cnic = 'Invalid CNIC format. Required format: 12345-1234567-1 (13 digits).';
     }
     if (rollDuplicate) {
-      errors.rollNo = `یہ Roll Number (${formData.rollNo}) پہلے سے استعمال ہو چکا ہے۔`;
+      errors.rollNo = `Roll Number (${formData.rollNo}) is already assigned in this Class / Section.`;
     }
     return errors;
   };
@@ -361,19 +365,19 @@ export default function AddStudentPage() {
     const errMap = {};
     if (typeof msg === 'string') {
       if (msg.includes('studentGroup')) {
-        errMap.studentGroup = 'Student Group invalid hai. Isay None par rehne dein.';
+        errMap.studentGroup = 'Student Group is invalid. Leave it as None.';
       }
       if (msg.includes('rollNo') || msg.includes('Roll Number') || msg.includes('roll')) {
-        errMap.rollNo = 'Yeh Roll Number pehle se assign ho chuka hai.';
+        errMap.rollNo = 'This Roll Number is already assigned.';
       }
       if (msg.includes('cnic') || msg.includes('CNIC')) {
-        errMap.cnic = 'Yeh CNIC number invalid hai ya pehle se registered hai.';
+        errMap.cnic = 'This CNIC number is invalid or already registered.';
       }
       if (msg.includes('admissionNo') || msg.includes('Admission Number')) {
-        errMap.admissionNo = 'Admission number pehle se mojood hai.';
+        errMap.admissionNo = 'Admission number already exists.';
       }
       if (msg.includes('className') || msg.includes('class')) {
-        errMap.className = 'Class lazmi hai.';
+        errMap.className = 'Class is required.';
       }
     }
     setFieldErrors(prev => ({ ...prev, ...errMap }));
@@ -389,7 +393,7 @@ export default function AddStudentPage() {
       const errs = validatePersonalInfo();
       if (Object.keys(errs).length > 0) {
         setFieldErrors(errs);
-        setFormGeneralError('براہِ کرم سرخ رنگ میں واضح کردہ لازمی فیلڈز کو مکمل کریں۔');
+        setFormGeneralError('Please fill in all required fields highlighted in red.');
         window.scrollTo({ top: 120, behavior: 'smooth' });
         return;
       }
@@ -416,7 +420,7 @@ export default function AddStudentPage() {
     if (Object.keys(errs).length > 0) {
       setFieldErrors(errs);
       setActiveTab('PERSONAL INFO');
-      setFormGeneralError('براہِ کرم سرخ رنگ میں واضح کردہ لازمی فیلڈز کو مکمل کریں۔');
+      setFormGeneralError('Please fill in all required fields highlighted in red.');
       window.scrollTo({ top: 120, behavior: 'smooth' });
       return;
     }
@@ -630,16 +634,11 @@ export default function AddStudentPage() {
                         )}
                       </div>
 
-                      {/* Admission Number (Auto-Increment, Fixed, Read-Only) */}
+                      {/* Admission Number */}
                       <div className="space-y-1.5">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
-                            Admission Number <span className="text-rose-500">*</span>
-                          </Label>
-                          <span className="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-full border border-emerald-300">
-                            AUTO-ASSIGNED (FIXED)
-                          </span>
-                        </div>
+                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
+                          Admission Number <span className="text-rose-500">*</span>
+                        </Label>
                         <Input 
                           name="admissionNo" 
                           value={formData.admissionNo} 
@@ -653,7 +652,6 @@ export default function AddStudentPage() {
                             {fieldErrors.admissionNo}
                           </p>
                         )}
-                        <p className="text-[11px] text-zinc-500 font-medium">Auto-generated sequential number.</p>
                       </div>
 
                       {/* Admission Date (Day / Month / Year Format) */}
@@ -668,44 +666,28 @@ export default function AddStudentPage() {
                         />
                       </div>
 
-                      {/* Roll Number (Auto-Increment & Duplicate Detection) */}
+                      {/* Roll Number (Auto-assigned, Read-Only, Starts from 1) */}
                       <div className="space-y-1.5 sm:col-span-2">
                         <div className="flex items-center justify-between">
                           <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
                             Roll Number
                           </Label>
-                          {loadingRoll ? (
-                            <span className="text-[10px] text-zinc-500 font-medium">Checking...</span>
-                          ) : rollDuplicate ? (
-                            <span className="text-[10px] bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded border border-rose-300 flex items-center gap-1">
-                              <AlertTriangle className="h-3 w-3" /> ALREADY USED
-                            </span>
-                          ) : (
-                            <span className="text-[10px] bg-blue-50 text-[#084A86] font-bold px-2 py-0.5 rounded border border-blue-200">
-                              AUTO-INCREMENT
-                            </span>
+                          {loadingRoll && (
+                            <span className="text-[10px] text-zinc-500 font-medium">Checking next roll...</span>
                           )}
                         </div>
                         <Input 
                           name="rollNo" 
                           value={formData.rollNo} 
-                          onChange={handleRollChange} 
-                          placeholder="e.g. 101" 
-                          className={`bg-white font-medium ${
-                            rollDuplicate || fieldErrors.rollNo
-                              ? 'border-rose-500 focus-visible:ring-rose-500 bg-rose-50/30 text-rose-950' 
-                              : 'border-zinc-300 text-zinc-950 focus-visible:ring-zinc-400'
-                          }`} 
+                          readOnly 
+                          disabled 
+                          placeholder="Auto-assigned (starts from 1)" 
+                          className="bg-zinc-100 border-zinc-300 text-zinc-950 font-bold cursor-not-allowed select-none shadow-xs text-sm" 
                         />
-                        {(rollDuplicate || fieldErrors.rollNo) && (
+                        {fieldErrors.rollNo && (
                           <p className="text-xs text-rose-600 font-bold flex items-center gap-1 mt-1 animate-in fade-in">
                             <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                            {fieldErrors.rollNo || `یہ Roll Number (${formData.rollNo}) پہلے سے اس Class / Section میں استعمال ہو چکا ہے!`}
-                          </p>
-                        )}
-                        {!rollDuplicate && !fieldErrors.rollNo && (
-                          <p className="text-[11px] text-zinc-500 font-medium">
-                            Class منتخب کرنے پر نیا Roll Number خود بخود آ جائے گا۔
+                            {fieldErrors.rollNo}
                           </p>
                         )}
                       </div>
@@ -815,9 +797,6 @@ export default function AddStudentPage() {
                             {fieldErrors.cnic}
                           </p>
                         )}
-                        {!fieldErrors.cnic && (
-                          <p className="text-[11px] text-zinc-500 font-medium">13 ہندسے مع ڈیش (-) خودکار درج ہوتے ہیں۔</p>
-                        )}
                       </div>
 
                       <div className="space-y-1.5">
@@ -861,15 +840,52 @@ export default function AddStudentPage() {
                         <Input name="caste" value={formData.caste} onChange={handleInputChange} placeholder="e.g. Rajput, Arain, etc." className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
                       </div>
 
-                      <div className="space-y-1.5 sm:col-span-2">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Student Photo</Label>
-                        <div className="flex">
-                          <div className="flex-1 bg-white border border-zinc-200 shadow-xs rounded-l-md px-3 py-2 text-sm text-zinc-950 flex items-center truncate">
-                            {selectedPhotoName || 'Upload Photo (JPG, PNG)'}
+                      {/* Student Photo */}
+                      <div className="space-y-2 sm:col-span-2">
+                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Student Photo <span className="text-zinc-400 font-normal normal-case">(Optional)</span></Label>
+                        <div className="flex items-center gap-4">
+                          {/* Photo preview circle */}
+                          <div
+                            onClick={() => fileInputRef.current?.click()}
+                            className="relative h-24 w-24 shrink-0 rounded-full border-2 border-dashed border-zinc-300 hover:border-[#084A86] bg-zinc-50 hover:bg-blue-50/30 overflow-hidden flex items-center justify-center cursor-pointer transition-all group"
+                          >
+                            {photoPreview ? (
+                              <img src={photoPreview} alt="Student Photo" className="h-full w-full object-cover rounded-full" />
+                            ) : (
+                              <div className="flex flex-col items-center gap-1 text-zinc-400 group-hover:text-[#084A86]">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                <span className="text-[10px] font-bold">Upload</span>
+                              </div>
+                            )}
                           </div>
-                          <Button type="button" onClick={() => fileInputRef.current?.click()} className="rounded-l-none bg-zinc-950 hover:bg-zinc-800 text-white font-bold py-2 rounded-lg shadow-xs cursor-pointer">
-                            BROWSE
-                          </Button>
+                          {/* Right side info */}
+                          <div className="flex-1 space-y-2">
+                            <p className="text-xs text-zinc-500">
+                              {photoPreview ? (
+                                <span className="text-emerald-600 font-semibold">✓ Photo selected: {selectedPhotoName}</span>
+                              ) : (
+                                'Click the circle to upload a student photo (JPG, PNG). Max 5MB.'
+                              )}
+                            </p>
+                            <div className="flex gap-2">
+                              <Button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="bg-[#084A86] hover:bg-[#063b6d] text-white font-bold text-xs h-8 px-4 cursor-pointer"
+                              >
+                                {photoPreview ? 'Change Photo' : 'Browse Photo'}
+                              </Button>
+                              {photoPreview && (
+                                <Button
+                                  type="button"
+                                  onClick={() => { setPhotoPreview(null); setSelectedPhotoName(''); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+                                  className="bg-rose-100 text-rose-700 hover:bg-rose-200 border border-rose-300 font-bold text-xs h-8 px-3 cursor-pointer"
+                                >
+                                  Remove
+                                </Button>
+                              )}
+                            </div>
+                          </div>
                           <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
                         </div>
                       </div>
