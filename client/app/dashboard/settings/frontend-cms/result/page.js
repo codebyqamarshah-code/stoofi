@@ -28,7 +28,7 @@ export default function FrontResultPage() {
   const fileRef = useRef();
 
   const handleAdd = () => {
-    if (!title) return alert('Please enter Result Title');
+    if (!title) return alert('Please enter Title');
     const newResult = {
       id: Date.now(),
       sl: results.length + 1,
@@ -50,53 +50,55 @@ export default function FrontResultPage() {
   const filtered = results.filter(r => r.title.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <div className="space-y-6 space-y-6">
+    <div className="space-y-6 p-6">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-1 text-xs text-zinc-400">
+      <div className="flex items-center gap-1 text-xs text-zinc-400 mb-4">
         <span>Dashboard</span>
         <ChevronRight className="w-3 h-3" />
         <span>Frontend CMS</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-zinc-950 font-bold">Result</span>
+        <span className="text-zinc-950 font-bold">Front Result</span>
       </div>
 
-      <h1 className="text-xl font-bold text-zinc-950">Result</h1>
+      <h1 className="text-xl font-bold text-zinc-950 mb-6">Front Result</h1>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Left Form: Add Result */}
-        <div className="bg-white border border-zinc-200 rounded-xl shadow-xs p-6 space-y-4">
-          <h2 className="text-sm font-semibold text-zinc-950">Front Result</h2>
-
+        {/* Left: Add Result Form */}
+        <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-6 space-y-4">
+          <h2 className="text-sm font-bold text-zinc-950 uppercase tracking-wider">Front Result</h2>
+          
           <div>
-            <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1">TITLE *</label>
+            <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1.5">TITLE *</label>
             <input
               type="text"
               value={title}
               onChange={e => setTitle(e.target.value)}
-              className="w-full bg-white border border-zinc-300 text-zinc-950 font-medium text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+              placeholder="Enter result title..."
+              className="w-full bg-white border border-zinc-300 text-zinc-900 font-medium text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#009966] focus:ring-2 focus:ring-[#009966]/20 transition-all shadow-xs"
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1">PUBLISH DATE *</label>
+            <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1.5">PUBLISH DATE *</label>
             <input
               type="date"
               value={publishDate}
               onChange={e => setPublishDate(e.target.value)}
-              className="w-full bg-white border border-zinc-300 text-zinc-950 font-medium text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+              className="w-full bg-white border border-zinc-300 text-zinc-900 font-medium text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#009966] focus:ring-2 focus:ring-[#009966]/20 transition-all shadow-xs"
             />
           </div>
 
+          {/* Result File Upload */}
           <div>
-            <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1">RESULT FILE *</label>
+            <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1.5">RESULT FILE *</label>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-zinc-700 border border-zinc-200 rounded px-3 py-2 bg-zinc-800 flex-1 truncate">
+              <span className="text-sm font-medium text-zinc-600 border border-zinc-300 rounded-xl px-3.5 py-2.5 bg-zinc-50 flex-1 truncate shadow-xs">
                 {file ? file.name : 'Result File *'}
               </span>
               <button
                 type="button"
                 onClick={() => fileRef.current.click()}
-                className="bg-zinc-700 hover:bg-zinc-600 text-zinc-950 text-sm font-semibold px-4 py-2 rounded cursor-pointer"
+                className="bg-[#084A86] hover:bg-[#063866] text-white text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-xl shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98] cursor-pointer shrink-0"
               >
                 BROWSE
               </button>
@@ -116,41 +118,41 @@ export default function FrontResultPage() {
           <button
             type="button"
             onClick={handleAdd}
-            className="w-full bg-zinc-950 hover:bg-zinc-800 text-white font-bold py-2 rounded-lg shadow-xs text-sm py-2 rounded flex items-center justify-center gap-2 mt-4 cursor-pointer"
+            className="w-full bg-[#009966] hover:bg-[#008055] text-white font-bold text-sm py-2.5 rounded-xl flex items-center justify-center gap-2 mt-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.98] cursor-pointer"
           >
             <Plus className="w-4 h-4" /> ADD
           </button>
         </div>
 
         {/* Right Table */}
-        <div className="xl:col-span-2 bg-white border border-zinc-200 rounded-xl shadow-xs p-6">
+        <div className="xl:col-span-2 bg-white border border-zinc-200 shadow-sm rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-zinc-950">Front Result List</h2>
+            <h2 className="text-sm font-bold text-zinc-950 uppercase tracking-wider">Front Result List</h2>
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 border border-zinc-200 rounded px-2 py-1">
-                <Search className="w-3 h-3 text-zinc-400" />
+              <div className="flex items-center gap-1 border border-zinc-300 rounded-xl px-3 py-1.5 bg-white">
+                <Search className="w-3.5 h-3.5 text-zinc-400" />
                 <input
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   placeholder="SEARCH"
-                  className="bg-transparent text-xs text-zinc-950 outline-none w-28"
+                  className="bg-transparent text-xs text-zinc-900 outline-none w-28"
                 />
               </div>
               <TableExportToolbar />
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto rounded-xl border border-zinc-200">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-100">
-                  <th className="text-left py-2 px-3 text-zinc-700 font-medium text-xs">↓ SL</th>
-                  <th className="text-left py-2 px-3 text-zinc-700 font-medium text-xs">↓ Title</th>
-                  <th className="text-left py-2 px-3 text-zinc-700 font-medium text-xs">↓ Date</th>
-                  <th className="text-left py-2 px-3 text-zinc-700 font-medium text-xs">↓ Action</th>
+                <tr className="border-b border-zinc-200 bg-zinc-50">
+                  <th className="text-left py-2.5 px-3.5 text-zinc-800 font-bold text-xs uppercase tracking-wider">↓ SL</th>
+                  <th className="text-left py-2.5 px-3.5 text-zinc-800 font-bold text-xs uppercase tracking-wider">↓ Title</th>
+                  <th className="text-left py-2.5 px-3.5 text-zinc-800 font-bold text-xs uppercase tracking-wider">↓ Date</th>
+                  <th className="text-left py-2.5 px-3.5 text-zinc-800 font-bold text-xs uppercase tracking-wider">↓ Action</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-zinc-200">
                 {filtered.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="py-10 text-center text-zinc-500 text-sm">
@@ -158,44 +160,34 @@ export default function FrontResultPage() {
                     </td>
                   </tr>
                 ) : (
-                  filtered.map((item, idx) => (
-                    <tr key={item.id} className="border-b border-zinc-100/50 hover:bg-zinc-50/80">
-                      <td className="py-3 px-3 text-zinc-600 font-medium">{idx + 1}</td>
-                      <td className="py-3 px-3 text-zinc-200 font-medium">{item.title}</td>
-                      <td className="py-3 px-3 text-zinc-700">{item.date}</td>
-                      <td className="py-3 px-3 relative">
-                        <div className="relative inline-block text-left">
-                          <button
-                            onClick={() => setOpenDropdownId(openDropdownId === item.id ? null : item.id)}
-                            className="border border-zinc-300 bg-white text-zinc-800 text-xs px-3 py-1 rounded-md font-bold flex items-center gap-1 hover:bg-zinc-100 cursor-pointer"
-                          >
-                            SELECT <ChevronDown className="w-3 h-3" />
-                          </button>
-                          {openDropdownId === item.id && (
-                            <div className="absolute right-0 mt-1 w-28 bg-white border border-zinc-200 rounded-lg shadow-xl z-20 py-1">
-                              <button
-                                onClick={() => handleDelete(item.id)}
-                                className="w-full text-left px-3 py-1.5 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 cursor-pointer"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" /> Delete
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                  filtered.map((r, i) => (
+                    <tr key={r.id} className="border-b border-zinc-100 hover:bg-zinc-50/80 transition-colors">
+                      <td className="py-2.5 px-3.5 text-zinc-900 font-semibold">{r.sl || i + 1}</td>
+                      <td className="py-2.5 px-3.5 text-zinc-900 font-medium">{r.title}</td>
+                      <td className="py-2.5 px-3.5 text-zinc-600">{r.date}</td>
+                      <td className="py-2.5 px-3.5 relative">
+                        <button
+                          onClick={() => setOpenDropdownId(openDropdownId === r.id ? null : r.id)}
+                          className="flex items-center gap-1 border border-zinc-300 hover:border-[#009966] text-xs font-semibold px-2.5 py-1 rounded-lg bg-white text-zinc-700 hover:text-[#009966] transition-all cursor-pointer"
+                        >
+                          Select <ChevronDown className="w-3 h-3" />
+                        </button>
+                        {openDropdownId === r.id && (
+                          <div className="absolute right-0 top-8 z-10 bg-white border border-zinc-200 rounded-xl shadow-lg p-1 min-w-[100px]">
+                            <button
+                              onClick={() => handleDelete(r.id)}
+                              className="w-full text-left px-3 py-1.5 text-xs text-rose-600 hover:bg-rose-50 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer font-medium"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" /> Delete
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
-          </div>
-
-          <div className="flex items-center justify-between mt-4 text-xs text-zinc-400">
-            <span>Showing 0 to {filtered.length} of {filtered.length} entries</span>
-            <div className="flex items-center gap-1">
-              <button className="px-2 py-1 border border-zinc-200 rounded hover:bg-zinc-100 text-zinc-700 font-bold">←</button>
-              <button className="px-2 py-1 border border-zinc-200 rounded hover:bg-zinc-100 text-zinc-700 font-bold">→</button>
-            </div>
           </div>
         </div>
       </div>

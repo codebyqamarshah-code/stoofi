@@ -30,7 +30,27 @@ export default function SendEmailSmsPage() {
     if (!title.trim()) { alert('Please enter a Subject / Title.'); return; }
     if (!message.trim()) { alert('Please write a Message body.'); return; }
 
-    setStatusMsg(`Broadcast dispatched successfully to ${recipientGroup === 'Specific Class' ? selectedClass : recipientGroup} via ${channel.toUpperCase()}!`);
+    const targetAudience = recipientGroup === 'Specific Class' ? selectedClass : recipientGroup;
+    
+    // Save to localStorage broadcast logs
+    try {
+      const existing = JSON.parse(localStorage.getItem('stoofi_email_sms_logs') || '[]');
+      const newLog = {
+        id: `LOG-${Date.now()}`,
+        title,
+        message,
+        channel: channel.toUpperCase(),
+        receiverGroup: targetAudience,
+        sender: 'Admin Office',
+        sentDate: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        deliveredCount: 42,
+        totalCount: 42,
+        status: 'Delivered'
+      };
+      localStorage.setItem('stoofi_email_sms_logs', JSON.stringify([newLog, ...existing]));
+    } catch (_) {}
+
+    setStatusMsg(`Broadcast dispatched successfully to ${targetAudience} via ${channel.toUpperCase()}!`);
     setTitle('');
     setMessage('');
     setScheduledTime('');

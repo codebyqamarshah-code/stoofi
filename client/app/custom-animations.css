@@ -12,27 +12,62 @@
 }
 
 /* ==========================================================================
-   1. UNIVERSAL BUTTON SYSTEM (Every button in Stoofi)
+   1. UNIVERSAL BUTTON SYSTEM & HOME-STYLE HOVER ANIMATION
    ========================================================================== */
 button,
 [role="button"],
-[data-slot="button"] {
-  transition: transform 300ms var(--ease-smooth), box-shadow 350ms var(--ease-smooth),
-    background-color 350ms var(--ease-smooth), border-color 350ms var(--ease-smooth),
-    color 350ms var(--ease-smooth) !important;
+[data-slot="button"],
+.btn-primary,
+.btn-stoofi {
+  position: relative;
+  transition: transform 250ms var(--ease-smooth), box-shadow 280ms var(--ease-smooth),
+    background-color 250ms var(--ease-smooth), border-color 250ms var(--ease-smooth),
+    color 250ms var(--ease-smooth) !important;
+}
+
+/* Universal hover lift on all clickable buttons */
+button:not(:disabled):hover,
+[role="button"]:not(:disabled):hover,
+[data-slot="button"]:not(:disabled):hover,
+.btn-primary:not(:disabled):hover,
+.btn-stoofi:not(:disabled):hover {
+  transform: translateY(-2px) !important;
+}
+
+/* Primary Logo Green Buttons: Glow & Elevation */
+:is(
+  button[class*="bg-[#009966]"],
+  button[class*="bg-emerald-6"],
+  button[class*="bg-emerald-5"],
+  .btn-primary,
+  .btn-stoofi
+):not(:disabled):hover {
+  background-color: #008055 !important;
+  box-shadow: 0 10px 24px -3px rgba(0, 153, 102, 0.42), 0 4px 10px -2px rgba(0, 153, 102, 0.22) !important;
+}
+
+/* Secondary Logo Navy Buttons: Glow & Elevation */
+:is(
+  button[class*="bg-[#084A86]"],
+  button[class*="bg-[#0c2436]"],
+  button[class*="bg-sky-900"]
+):not(:disabled):hover {
+  background-color: #063866 !important;
+  box-shadow: 0 10px 24px -3px rgba(8, 74, 134, 0.38), 0 4px 10px -2px rgba(8, 74, 134, 0.18) !important;
 }
 
 button:not(:disabled):active,
 [role="button"]:not(:disabled):active,
 [data-slot="button"]:not(:disabled):active {
-  transform: scale(0.98) !important;
+  transform: scale(0.97) translateY(0) !important;
 }
 
-/* Base icon transition inside buttons */
-button svg,
-[role="button"] svg,
-[data-slot="button"] svg {
-  transition: transform 260ms var(--ease-smooth), color 300ms var(--ease-smooth) !important;
+/* Base icon micro-bounce inside buttons */
+button:not(:disabled):hover svg,
+[role="button"]:not(:disabled):hover svg,
+[data-slot="button"]:not(:disabled):hover svg {
+  transform: scale(1.1) !important;
+  transition: transform 220ms var(--ease-smooth) !important;
 }
 
 /* ==========================================================================
@@ -46,37 +81,12 @@ button svg,
   button[class*="hover:bg-emerald-50"],
   button[class*="hover:bg-zinc-50"],
   button[class*="hover:border-zinc-"]
-):not([class*="bg-zinc-8"]):not([class*="bg-zinc-9"]):not([class*="bg-emerald-6"]):not([class*="bg-[#084A86]"]):not([class*="bg-rose-"]):not([class*="bg-blue-6"]) {
-  transition: all 300ms var(--ease-smooth) !important;
-}
-
-:is(
-  button[class*="rounded-full"],
-  button[class*="bg-white"],
-  button[class*="dark:bg-white"],
-  button[class*="border-zinc-"],
-  button[class*="hover:bg-emerald-50"],
-  button[class*="hover:bg-zinc-50"],
-  button[class*="hover:border-zinc-"]
-):not([class*="bg-zinc-8"]):not([class*="bg-zinc-9"]):not([class*="bg-emerald-6"]):not([class*="bg-[#084A86]"]):not([class*="bg-rose-"]):not([class*="bg-blue-6"]):not(:disabled):hover {
-  transform: translateY(-1.5px) !important;
+):not([class*="bg-[#009966]"]):not([class*="bg-emerald-6"]):not([class*="bg-[#084A86]"]):not([class*="bg-rose-"]):not([class*="bg-blue-6"]):not(:disabled):hover {
+  transform: translateY(-2px) !important;
   background-color: var(--stoofi-green-soft) !important;
   border-color: var(--stoofi-green) !important;
   color: var(--stoofi-green) !important;
   box-shadow: 0 8px 18px -3px var(--stoofi-green-glow), 0 2px 6px -1px rgba(0, 0, 0, 0.04) !important;
-}
-
-:is(
-  button[class*="rounded-full"],
-  button[class*="bg-white"],
-  button[class*="dark:bg-white"],
-  button[class*="border-zinc-"],
-  button[class*="hover:bg-emerald-50"],
-  button[class*="hover:bg-zinc-50"],
-  button[class*="hover:border-zinc-"]
-):not([class*="bg-zinc-8"]):not([class*="bg-zinc-9"]):not([class*="bg-emerald-6"]):not([class*="bg-[#084A86]"]):not([class*="bg-rose-"]):not([class*="bg-blue-6"]):not(:disabled):hover svg {
-  transform: scale(1.12) !important;
-  color: var(--stoofi-green) !important;
 }
 
 /* ==========================================================================
@@ -177,10 +187,10 @@ button svg,
   content: "";
   position: absolute;
   left: 0;
-  top: 20%;
-  bottom: 20%;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
+  top: 15%;
+  bottom: 15%;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
   background: var(--stoofi-green);
   transform: scaleY(0);
   opacity: 0;

@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
 import { PAK_ROYAL_COLLEGE_LOGO } from './pakRoyalCollegeLogo';
-import { formatDateDMY, getPublicVerificationUrl } from './utils';
+import { formatDateDMY, getPublicVerificationUrl, formatStudentRollNo } from './utils';
 
 /**
  * Generates an official, printable ID Card PDF (Standard CR80 54mm x 86mm badge format)
@@ -264,38 +264,53 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
 
   } else {
     // ════════════════════════════════════════════════════════
-    // ── HORIZONTAL CARD (Matching User Reference Image 3) ──
+    // ── HORIZONTAL CARD (Matching User Reference Specifications) ──
     // ════════════════════════════════════════════════════════
 
-    // Header Stripe (Blue top bar)
+    // Sharp outer border (CR80 standard card - no rounded corners on outer card)
+    doc.setDrawColor(primaryR, primaryG, primaryB);
+    doc.setLineWidth(0.8);
+    doc.rect(1.5, 1.5, width - 3, height - 3, 'S');
+
+    // Header Stripe (Blue top bar with sharp corners)
     doc.setFillColor(primaryR, primaryG, primaryB);
-    doc.roundedRect(1.5, 1.5, width - 3, 11, 2, 2, 'F');
+    doc.rect(1.5, 1.5, width - 3, 11, 'F');
+
+    // Circular white ring/circle around logo badge
+    const logoX = 3.6;
+    const logoY = 2.2;
+    const logoSize = 9.6;
+    doc.setFillColor(255, 255, 255);
+    doc.circle(logoX + logoSize / 2, logoY + logoSize / 2, (logoSize / 2) + 0.3, 'F');
+    doc.setDrawColor(255, 255, 255);
+    doc.setLineWidth(0.3);
+    doc.circle(logoX + logoSize / 2, logoY + logoSize / 2, (logoSize / 2) + 0.6, 'S');
 
     // Add logo to horizontal header
     try {
       if (PAK_ROYAL_COLLEGE_LOGO) {
-        doc.addImage(PAK_ROYAL_COLLEGE_LOGO, 'PNG', 3.5, 2.3, 9.4, 9.4);
+        doc.addImage(PAK_ROYAL_COLLEGE_LOGO, 'PNG', logoX, logoY, logoSize, logoSize);
       }
     } catch (e) {}
 
     // Institutional Title & Subtitle in Header
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8);
-    doc.text('INSTITUTIONAL IDENTITY CARD', 15, 6.2);
+    doc.setFontSize(8.2);
+    doc.text('PAK ROYAL COLLEGE', 15.5, 6.0);
 
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(4.5);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(4.3);
     doc.setTextColor(253, 224, 71); // Amber/Gold accent
-    doc.text('Main Campus, Model Town, Lahore', 15, 9.8);
+    doc.text('Sharaqpur Sharif, Distt. Sheikhupura', 15.5, 9.6);
 
     // Session on Right of Header
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(3.8);
+    doc.setFontSize(3.6);
     doc.setTextColor(226, 232, 240);
-    doc.text('SESSION', width - 4.5, 5.5, { align: 'right' });
+    doc.text('SESSION', width - 4.5, 5.3, { align: 'right' });
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(4.8);
+    doc.setFontSize(4.6);
     doc.setTextColor(253, 224, 71);
     doc.text('2026–2027', width - 4.5, 9.2, { align: 'right' });
 
@@ -304,11 +319,11 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     doc.setLineWidth(0.4);
     doc.line(1.5, 12.5, width - 1.5, 12.5);
 
-    // Left: Photo Box (20mm x 25mm)
+    // Left: Photo Box (20mm x 25mm) with rounded corners & blue border
     const photoW = 20;
     const photoH = 25;
     const photoX = 4.5;
-    const photoY = 15;
+    const photoY = 14.8;
 
     doc.setFillColor(248, 250, 252);
     doc.roundedRect(photoX, photoY, photoW, photoH, 2.5, 2.5, 'F');
@@ -331,62 +346,62 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
       doc.text((rec.firstName || name).charAt(0).toUpperCase(), photoX + photoW / 2, photoY + 16, { align: 'center' });
     }
 
-    // Border on top of photo
+    // Border on top of photo (rounded r: 2.5mm)
     doc.setDrawColor(primaryR, primaryG, primaryB);
     doc.setLineWidth(0.6);
     doc.roundedRect(photoX, photoY, photoW, photoH, 2.5, 2.5, 'S');
 
     // Middle: Student Details
-    // Gold Student Pass Pill Badge
+    // Gold Student Card Pill Badge
     const badgeX = 27.5;
-    const badgeY = 15;
+    const badgeY = 14.8;
     doc.setFillColor(251, 191, 36);
-    doc.roundedRect(badgeX, badgeY, 32, 4, 1.5, 1.5, 'F');
+    doc.roundedRect(badgeX, badgeY, 34, 4.2, 1.5, 1.5, 'F');
     doc.setTextColor(120, 53, 15);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(5.2);
-    doc.text(`${role.toUpperCase()} IDENTITY PASS`, badgeX + 16, badgeY + 2.8, { align: 'center' });
+    doc.setFontSize(5.0);
+    doc.text('STUDENT IDENTITY CARD', badgeX + 17, badgeY + 2.9, { align: 'center' });
 
     // Full Name
     doc.setTextColor(15, 23, 42);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.5);
+    doc.setFontSize(8.2);
     doc.text(name.slice(0, 24).toUpperCase(), badgeX, badgeY + 8.5);
 
-    // Detail rows (ID, Class, Roll No, Guardian, Contact)
-    doc.setFontSize(5.2);
-    let hy = badgeY + 12.2;
+    // Detail rows (Name, Father's Name, Class, Roll No)
+    doc.setFontSize(5.0);
+    let hy = badgeY + 12.0;
     const addHRow = (label, val, highlight = false) => {
-      doc.setFont('helvetica', 'normal');
+      doc.setFont('helvetica', 'bold');
       doc.setTextColor(100, 116, 139);
       doc.text(label, badgeX, hy);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(highlight ? primaryR : 15, highlight ? primaryG : 23, highlight ? primaryB : 42);
-      doc.text(String(val).slice(0, 22), badgeX + 14, hy);
-      hy += 3.3;
+      doc.text(String(val).slice(0, 22), badgeX + 18, hy);
+      hy += 3.4;
     };
 
+    const formattedRoll = formatStudentRollNo(rollNo);
     if (role === 'Student') {
-      addHRow('ID No:', admNo);
+      addHRow('Name:', name);
+      addHRow("Father's Name:", fatherName || '—');
       addHRow('Class:', `${className} ${section ? `(${section})` : ''}`, true);
-      addHRow('Roll No:', rollNo);
-      addHRow('Guardian:', fatherName || 'Father');
-      addHRow('Contact:', phone);
+      addHRow('Roll No:', formattedRoll);
     } else {
-      addHRow('Staff ID:', admNo);
+      addHRow('Name:', name);
       addHRow('Designation:', designation, true);
       addHRow('Department:', department);
-      addHRow('Emergency:', phone);
+      addHRow('Staff ID:', formattedRoll);
     }
 
     // Right: Vertical Divider & Real Scannable Verification QR Code (Right Side!)
     doc.setDrawColor(226, 232, 240);
     doc.setLineWidth(0.3);
-    doc.line(67, 16, 67, 43);
+    doc.line(67, 15.5, 67, 43.5);
 
     const qrSize = 13.5;
     const qrX = 69.5;
-    const qrY = 16.5;
+    const qrY = 16.0;
 
     if (qrDataUrl) {
       doc.addImage(qrDataUrl, 'PNG', qrX, qrY, qrSize, qrSize);
@@ -394,30 +409,48 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
 
     // QR Verification Labels under QR Code on Right
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(4.2);
+    doc.setFontSize(4.0);
     doc.setTextColor(primaryR, primaryG, primaryB);
     doc.text('SCAN TO VERIFY', qrX + qrSize / 2, qrY + qrSize + 2.5, { align: 'center' });
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(3.6);
     doc.setTextColor(148, 163, 184);
-    doc.text(admNo, qrX + qrSize / 2, qrY + qrSize + 5.2, { align: 'center' });
+    doc.text(formattedRoll, qrX + qrSize / 2, qrY + qrSize + 5.2, { align: 'center' });
 
-    // Bottom Footer Bar
+    // Bottom Footer Bar (Sharp rectangular bottom)
+    const footerY = height - 7.5;
+    const footerH = 6.0;
     doc.setFillColor(primaryR, primaryG, primaryB);
-    doc.rect(1.5, height - 6.5, width - 3, 5, 'F');
+    doc.rect(1.5, footerY, width - 3, footerH, 'F');
     doc.setDrawColor(251, 191, 36);
     doc.setLineWidth(0.3);
-    doc.line(1.5, height - 6.5, width - 1.5, height - 6.5);
+    doc.line(1.5, footerY, width - 1.5, footerY);
 
+    // Left: Website
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(4.5);
+    doc.setFontSize(3.6);
     doc.setTextColor(241, 245, 249);
-    doc.text('pakroyalcollege.edu.pk', 4.5, height - 3.2);
+    doc.text('pakroyalcollege.edu.pk', 3.5, footerY + 3.8);
+
+    // Center: Instruction box
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(3.2);
+    doc.setTextColor(255, 255, 255);
+    doc.text('Property of Pak Royal College. If found, please return.', width / 2, footerY + 2.4, { align: 'center' });
+    doc.setTextColor(253, 224, 71);
+    doc.text('Helpline: 03 111 444 810', width / 2, footerY + 4.7, { align: 'center' });
+
+    // Right: Signature M. Umer W & Authorized Signature
+    doc.setFont('helvetica', 'bolditalic');
+    doc.setFontSize(4.6);
+    doc.setTextColor(253, 224, 71);
+    doc.text('M. Umer W', width - 4.0, footerY + 2.5, { align: 'right' });
 
     doc.setFont('helvetica', 'italic');
-    doc.setFontSize(5);
-    doc.setTextColor(253, 224, 71);
-    doc.text('Authorized Signature', width - 4.5, height - 3.2, { align: 'right' });
+    doc.setFontSize(3.0);
+    doc.setTextColor(226, 232, 240);
+    doc.text('Authorized Signature', width - 4.0, footerY + 4.8, { align: 'right' });
+
   }
 }

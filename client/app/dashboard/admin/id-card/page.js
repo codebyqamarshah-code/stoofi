@@ -45,7 +45,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import api from '@/services/api';
 import { downloadIdCardPDF } from '@/lib/idCardPdf';
-import { getPublicVerificationUrl } from '@/lib/utils';
+import { getPublicVerificationUrl, formatStudentRollNo } from '@/lib/utils';
 import QRCode from 'qrcode';
 
 // Dynamic Real Scannable Verification QR Code Component for Every ID Card
@@ -740,15 +740,15 @@ export default function IdCardPage() {
     const showQrBarcode = tplOverride ? tplOverride.showQrBarcode : (rec.showQrBarcode !== undefined ? rec.showQrBarcode : (activeTpl.showQrBarcode !== undefined ? activeTpl.showQrBarcode : true));
     const showSignature = tplOverride ? tplOverride.showSignature : (rec.showSignature !== undefined ? rec.showSignature : (activeTpl.showSignature !== undefined ? activeTpl.showSignature : true));
 
-    const headerText = tplOverride?.headerText || rec.headerText || activeTpl.headerText || 'PAK ROYAL COLLEGE';
-    const subHeaderText = tplOverride?.subHeaderText || rec.subHeaderText || activeTpl.subHeaderText || 'Sharaqpur Sharif Campus';
-    const footerText = tplOverride?.footerText || rec.footerText || activeTpl.footerText || 'Principal Signature & Seal';
+    const headerText = 'PAK ROYAL COLLEGE';
+    const subHeaderText = 'Sharaqpur Sharif, Distt. Sheikhupura';
+    const footerText = 'M. Umer W';
     const roleBadge = (tplOverride?.role || rec.role || 'Student').toUpperCase();
 
     const initial = (rec.firstName || 'S').charAt(0).toUpperCase();
     const fullName = `${rec.firstName || 'Student'} ${rec.lastName || 'Name'}`.trim();
     const admNo = rec.admissionNo || 'ADM-2026-001';
-    const rollNo = rec.rollNo || 'PRC260001';
+    const rollNo = formatStudentRollNo(rec.rollNo || rec.admissionNo);
     const className = rec.className || 'Class 10';
     const section = rec.section || 'Section A';
     const phone = rec.phone || '+92 300 1234567';
@@ -758,27 +758,30 @@ export default function IdCardPage() {
     // Horizontal Card Format (Executive Navy Horizontal Pass)
     if (isHorizontal) {
       return (
-        <div className="w-[365px] h-[225px] mx-auto bg-white rounded-2xl overflow-hidden border-2 border-[#084A86] shadow-xl flex flex-col justify-between text-zinc-900 font-sans select-none relative">
+        <div className="w-[365px] h-[225px] mx-auto bg-white rounded-none overflow-hidden border-2 border-[#084A86] shadow-xl flex flex-col justify-between text-zinc-900 font-sans select-none relative">
           {/* Top Brand Bar */}
           <div className="bg-gradient-to-r from-[#06335d] via-[#084A86] to-[#0a58a0] px-3 py-1.5 flex items-center justify-between text-white border-b-2 border-amber-400">
-            <div className="flex items-center gap-2">
-              <img 
-                src="/pak-royal-badge.png" 
-                alt="Pak Royal College Crest" 
-                className="w-8 h-8 rounded-full bg-white object-contain shadow-xs border border-white shrink-0" 
-              />
+            <div className="flex items-center gap-2.5">
+              {/* Badge with White Circular Ring */}
+              <div className="rounded-full ring-2 ring-white/95 p-0.5 bg-white/20 shrink-0">
+                <img 
+                  src="/pak-royal-badge.png" 
+                  alt="Pak Royal College Crest" 
+                  className="w-8 h-8 rounded-full bg-white object-contain shadow-xs border border-white" 
+                />
+              </div>
               <div className="leading-tight">
                 <span className="font-black text-[12px] tracking-wide uppercase text-white block">
                   {headerText}
                 </span>
-                <span className="text-[8px] text-amber-300 font-bold tracking-wider block">
+                <span className="text-[7.5px] text-amber-300 font-bold tracking-wider block">
                   {subHeaderText}
                 </span>
               </div>
             </div>
             <div className="text-right shrink-0">
-              <span className="text-[7px] text-slate-200 font-semibold uppercase tracking-wider block">Session</span>
-              <span className="text-[8.5px] font-black text-amber-300 font-mono block">2026-2027</span>
+              <span className="text-[7px] text-slate-200 font-semibold uppercase tracking-wider block">SESSION</span>
+              <span className="text-[8.5px] font-black text-amber-300 font-mono block">2026–2027</span>
             </div>
           </div>
 
@@ -787,7 +790,7 @@ export default function IdCardPage() {
             {/* Left: Portrait Photo Box */}
             {showPhoto && (
               <div className="flex flex-col items-center justify-center shrink-0">
-                <div className="w-[78px] h-[96px] rounded-xl border-2 border-[#084A86] overflow-hidden bg-slate-100 shadow-xs flex items-center justify-center relative">
+                <div className="w-[78px] h-[98px] rounded-2xl border-[2.5px] border-[#084A86] overflow-hidden bg-slate-100 shadow-xs flex items-center justify-center relative">
                   {rec.studentPhoto ? (
                     <img src={rec.studentPhoto} alt={fullName} className="w-full h-full object-cover" />
                   ) : (
@@ -806,9 +809,9 @@ export default function IdCardPage() {
             {/* Middle: Details */}
             <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
               <div>
-                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-400/90 text-amber-950 font-black text-[8px] uppercase tracking-wider shadow-2xs mb-1">
+                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400 text-amber-950 font-black text-[8px] uppercase tracking-wider shadow-2xs mb-1">
                   <Award className="w-2.5 h-2.5" />
-                  <span>{roleBadge} IDENTITY PASS</span>
+                  <span>STUDENT IDENTITY CARD</span>
                 </div>
                 <h4 className="font-black text-[12px] text-zinc-950 uppercase tracking-tight truncate leading-tight">
                   {fullName}
@@ -816,48 +819,66 @@ export default function IdCardPage() {
               </div>
 
               <div className="space-y-0.5 text-[9.5px] text-zinc-700 pt-1 border-t border-zinc-200/70">
-                {showAdmissionNo && (
-                  <div className="flex items-center"><span className="w-13 text-zinc-400 font-semibold text-[8.5px]">ID No:</span><strong className="font-mono text-zinc-950 font-black">{admNo}</strong></div>
-                )}
-                {showClass && (
-                  <div className="flex items-center"><span className="w-13 text-zinc-400 font-semibold text-[8.5px]">Class:</span><strong className="text-[#084A86] font-extrabold">{className} {showSection ? `(${section})` : ''}</strong></div>
-                )}
-                {showRollNo && (
-                  <div className="flex items-center"><span className="w-13 text-zinc-400 font-semibold text-[8.5px]">Roll No:</span><strong className="font-mono text-zinc-950 font-bold">{rollNo}</strong></div>
-                )}
-                {showFatherName && fatherName && (
-                  <div className="flex items-center"><span className="w-13 text-zinc-400 font-semibold text-[8.5px]">Guardian:</span><span className="text-zinc-800 font-bold truncate max-w-[95px]">{fatherName}</span></div>
-                )}
-                {showPhone && (
-                  <div className="flex items-center"><span className="w-13 text-zinc-400 font-semibold text-[8.5px]">Contact:</span><strong className="font-mono text-zinc-800 text-[8.5px]">{phone}</strong></div>
-                )}
+                <div className="flex items-center">
+                  <span className="w-20 text-zinc-400 font-semibold text-[8.5px]">Name:</span>
+                  <span className="text-zinc-950 font-black truncate">{fullName}</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-20 text-zinc-400 font-semibold text-[8.5px]">Father's Name:</span>
+                  <span className="text-zinc-800 font-bold truncate max-w-[110px]">{fatherName || '—'}</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-20 text-zinc-400 font-semibold text-[8.5px]">Class:</span>
+                  <strong className="text-[#084A86] font-extrabold">{className} {showSection ? `(${section})` : ''}</strong>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-20 text-zinc-400 font-semibold text-[8.5px]">Roll No:</span>
+                  <strong className="font-mono text-zinc-950 font-bold">{rollNo}</strong>
+                </div>
               </div>
             </div>
 
             {/* Right: Real Working Scannable QR Code */}
             {showQrBarcode && (
               <div className="flex flex-col items-center justify-center shrink-0 pl-1 border-l border-zinc-200/80">
-                <StudentCardQR rec={rec} size={54} />
+                <StudentCardQR rec={rec} size={52} />
                 <span className="text-[6.5px] font-black text-[#084A86] uppercase tracking-wider mt-1">
                   Scan to Verify
                 </span>
-                <span className="font-mono text-[6.5px] text-zinc-400">{admNo}</span>
+                <span className="font-mono text-[6.5px] text-zinc-400 font-bold">{rollNo}</span>
               </div>
             )}
           </div>
 
           {/* Bottom Footer Bar */}
-          <div className="bg-[#084A86] px-3 py-1 text-white flex justify-between items-center text-[8px] border-t border-amber-400/50">
-            <span className="font-mono text-[7.5px] text-slate-200">pakroyalcollege.edu.pk</span>
-            {showSignature ? (
-              <span className="font-semibold italic font-serif text-[7.5px] text-amber-200">{footerText}</span>
-            ) : (
-              <span className="font-semibold text-[7.5px]">Official Identity Card</span>
-            )}
+          <div className="bg-[#084A86] px-2.5 py-1 text-white flex justify-between items-center text-[7.5px] border-t-2 border-amber-400">
+            <span className="font-mono text-[7px] text-slate-200">pakroyalcollege.edu.pk</span>
+
+            {/* Middle Instruction Box */}
+            <div className="text-center px-1.5 py-0.5 rounded bg-white/10 border border-white/20 max-w-[175px] leading-tight">
+              <span className="text-[6.5px] text-white font-medium block">
+                Property of Pak Royal College. If found, please return.
+              </span>
+              <span className="text-[6.5px] text-amber-300 font-bold font-mono block">
+                Helpline: 03 111 444 810
+              </span>
+            </div>
+
+            {/* Right: Signature */}
+            <div className="text-right shrink-0">
+              <div 
+                className="font-serif italic text-amber-300 font-bold tracking-wider leading-none" 
+                style={{ fontFamily: "'Brush Script MT', 'Dancing Script', 'Caveat', cursive", fontSize: "11px" }}
+              >
+                M. Umer W
+              </div>
+              <span className="font-semibold text-[6.5px] text-slate-200 block">Authorized Signature</span>
+            </div>
           </div>
         </div>
       );
     }
+
 
     // Vertical Modern Lanyard Badge
     return (

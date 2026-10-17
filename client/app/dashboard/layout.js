@@ -559,11 +559,13 @@ export default function DashboardLayout({ children }) {
                       const visibleSubItems = (item.subItems || []).filter(s => s.visible !== false);
                       if (visibleSubItems.length === 0) return null;
 
+                      const hasActiveChild = visibleSubItems.some(sub => pathname === sub.href || (sub.href !== '/dashboard' && pathname.startsWith(sub.href + '/')));
+
                       return (
                         <div key={item.id || iIdx} className="space-y-1">
                           <button
                             onClick={() => toggleSubmenu(item.name)}
-                            className={`w-full flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold cursor-pointer sidebar-item ${isOpen ? "active" : ""}`}
+                            className={`w-full flex items-center justify-between rounded-2xl px-3 py-2 text-xs font-semibold cursor-pointer sidebar-item ${isOpen || hasActiveChild ? "active" : ""}`}
                           >
                             <div className="flex items-center space-x-3">
                               {item.iconImg ? (
@@ -585,31 +587,45 @@ export default function DashboardLayout({ children }) {
                             </div>
                           </button>
 
-                          {/* Smooth animated accordion dropdown */}
+                          {/* Smooth animated accordion dropdown with tree branch guideline */}
                           <div
                             className={`overflow-hidden transition-all duration-300 ease-in-out ${
                               isOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
                             }`}
                           >
-                            <div className="pl-7 pr-2 py-1 space-y-0.5 border-l border-zinc-200 dark:border-zinc-200 ml-5 my-1">
+                            <div className="relative pl-6 pr-2 py-1 space-y-1.5 border-l border-zinc-200/90 dark:border-zinc-200/90 ml-6 my-1">
                               {visibleSubItems.map((sub, sIdx) => {
                                 const SubIcon = (sub.iconName && ICON_MAP[sub.iconName]) || null;
+                                const isSubActive = pathname === sub.href || (sub.href !== '/dashboard' && pathname.startsWith(sub.href + '/'));
                                 return (
-                                  <Link
-                                    key={sub.id || sIdx}
-                                    href={sub.href}
-                                    prefetch={true}
-                                    onMouseEnter={() => router.prefetch(sub.href)}
-                                    onClick={() => setSidebarOpen(false)}
-                                    className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer sidebar-subitem ${pathname === sub.href ? "active" : ""}`}
-                                  >
-                                    {sub.iconImg ? (
-                                      <img src={sub.iconImg} alt={sub.name} className="h-3.5 w-3.5 object-contain shrink-0 sidebar-icon" />
-                                    ) : SubIcon ? (
-                                      <SubIcon className="h-3.5 w-3.5 shrink-0 sidebar-icon" />
-                                    ) : null}
-                                    <span>{sub.name}</span>
-                                  </Link>
+                                  <div key={sub.id || sIdx} className="relative flex items-center group">
+                                    {/* Tree branch connector node dot */}
+                                    <span
+                                      className={`absolute -left-[29px] w-2 h-2 rounded-full transition-all duration-200 pointer-events-none z-10 ${
+                                        isSubActive
+                                          ? 'bg-[#009966] ring-4 ring-[#009966]/20 scale-125'
+                                          : 'bg-zinc-300 dark:bg-zinc-300 group-hover:bg-[#009966]/60'
+                                      }`}
+                                    />
+                                    <Link
+                                      href={sub.href}
+                                      prefetch={true}
+                                      onMouseEnter={() => router.prefetch(sub.href)}
+                                      onClick={() => setSidebarOpen(false)}
+                                      className={`w-full flex items-center gap-2.5 rounded-2xl px-3 py-2 text-xs font-semibold cursor-pointer sidebar-subitem transition-all duration-200 ${
+                                        isSubActive 
+                                          ? "active" 
+                                          : "text-[#084A86] dark:text-[#084A86] hover:text-[#009966]"
+                                      }`}
+                                    >
+                                      {sub.iconImg ? (
+                                        <img src={sub.iconImg} alt={sub.name} className="h-4 w-4 object-contain shrink-0 sidebar-icon" />
+                                      ) : SubIcon ? (
+                                        <SubIcon className={`h-4 w-4 shrink-0 sidebar-icon ${isSubActive ? 'text-[#009966]' : 'text-[#084A86]'}`} />
+                                      ) : null}
+                                      <span className="truncate">{sub.name}</span>
+                                    </Link>
+                                  </div>
                                 );
                               })}
                             </div>

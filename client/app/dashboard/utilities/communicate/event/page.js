@@ -21,10 +21,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-const getToken = () => typeof window !== 'undefined' ? localStorage.getItem('token') : '';
-const authHeaders = () => ({ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() });
+import api from '@/services/api';
 
 export default function EventPage() {
   const [records, setRecords] = useState([]);
@@ -51,10 +48,9 @@ export default function EventPage() {
 
   const fetchEvents = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/dashboard/events`, { headers: authHeaders() });
-      const result = await res.json();
-      if (result.success) {
-        setRecords(result.data);
+      const res = await api.get('/dashboard/events');
+      if (res && res.success && Array.isArray(res.data)) {
+        setRecords(res.data);
       }
     } catch (err) {
       console.error('Fetch events error:', err);
@@ -90,25 +86,16 @@ export default function EventPage() {
     try {
       let res;
       if (editId) {
-        res = await fetch(`${API_BASE}/api/dashboard/events/${editId}`, {
-          method: 'PUT',
-          headers: authHeaders(),
-          body: JSON.stringify(form)
-        });
+        res = await api.put(`/dashboard/events/${editId}`, form);
       } else {
-        res = await fetch(`${API_BASE}/api/dashboard/events`, {
-          method: 'POST',
-          headers: authHeaders(),
-          body: JSON.stringify(form)
-        });
+        res = await api.post('/dashboard/events', form);
       }
-      const result = await res.json();
-      if (result.success) {
+      if (res && res.success) {
         setSuccessMsg(editId ? 'Event updated successfully!' : 'New event scheduled successfully!');
         resetForm();
         fetchEvents();
       } else {
-        alert(result.message || 'Error saving event');
+        alert(res?.message || 'Error saving event');
       }
     } catch (err) {
       alert(err.message || 'Error saving event');
@@ -135,18 +122,14 @@ export default function EventPage() {
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this event?')) return;
     try {
-      const res = await fetch(`${API_BASE}/api/dashboard/events/${id}`, {
-        method: 'DELETE',
-        headers: authHeaders()
-      });
-      const result = await res.json();
-      if (result.success) {
+      const res = await api.delete(`/dashboard/events/${id}`);
+      if (res && res.success) {
         if (editId === id) resetForm();
         setSuccessMsg('Event deleted.');
         fetchEvents();
         setTimeout(() => setSuccessMsg(''), 3000);
       } else {
-        alert(result.message || 'Error deleting event');
+        alert(res?.message || 'Error deleting event');
       }
     } catch (err) {
       alert(err.message || 'Error deleting event');

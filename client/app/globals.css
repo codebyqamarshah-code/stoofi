@@ -85,24 +85,26 @@ a.bg-black,
 :root a.bg-zinc-900,
 :root a.bg-zinc-800,
 :root a.bg-black {
-  background-color: #084A86 !important;
+  background-color: #009966 !important; /* Stoofi Logo Primary Green */
   color: #ffffff !important;
-  border-color: #084A86 !important;
+  border-color: #009966 !important;
+  box-shadow: 0 2px 6px rgba(0, 153, 102, 0.2) !important;
+  transition: transform 250ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 250ms cubic-bezier(0.22, 1, 0.36, 1), background-color 250ms ease !important;
 }
 
 /* Ensure inner icons inside normal dark buttons are white */
-button.bg-zinc-950:not(:hover) svg:not(.text-emerald-400):not(.text-emerald-500):not(.text-rose-500),
-button.bg-zinc-900:not(:hover) svg:not(.text-emerald-400):not(.text-emerald-500):not(.text-rose-500),
-button.bg-zinc-800:not(:hover) svg:not(.text-emerald-400):not(.text-emerald-500):not(.text-rose-500),
-button.bg-black:not(:hover) svg:not(.text-emerald-400):not(.text-emerald-500):not(.text-rose-500),
-a.bg-zinc-950:not(:hover) svg:not(.text-emerald-400):not(.text-emerald-500):not(.text-rose-500),
-a.bg-zinc-900:not(:hover) svg:not(.text-emerald-400):not(.text-emerald-500):not(.text-rose-500),
-a.bg-zinc-800:not(:hover) svg:not(.text-emerald-400):not(.text-emerald-500):not(.text-rose-500),
-a.bg-black:not(:hover) svg:not(.text-emerald-400):not(.text-emerald-500):not(.text-rose-500) {
+button.bg-zinc-950:not(:hover) svg,
+button.bg-zinc-900:not(:hover) svg,
+button.bg-zinc-800:not(:hover) svg,
+button.bg-black:not(:hover) svg,
+a.bg-zinc-950:not(:hover) svg,
+a.bg-zinc-900:not(:hover) svg,
+a.bg-zinc-800:not(:hover) svg,
+a.bg-black:not(:hover) svg {
   color: #ffffff !important;
 }
 
-/* On hover: clean white background with crisp dark text & border (matching image 4) */
+/* Home-style hover animation: lift, glow shadow, and rich darker green */
 button.bg-zinc-950:hover,
 button.bg-zinc-900:hover,
 button.bg-zinc-800:hover,
@@ -119,10 +121,11 @@ a.bg-black:hover,
 :root a.bg-zinc-900:hover,
 :root a.bg-zinc-800:hover,
 :root a.bg-black:hover {
-  background-color: #ffffff !important;
-  color: #084A86 !important;
-  border: 1px solid #084A86 !important;
-  box-shadow: 0 1px 3px rgba(8,74,134,0.12) !important;
+  background-color: #008055 !important;
+  color: #ffffff !important;
+  border-color: #008055 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 22px -3px rgba(0, 153, 102, 0.4), 0 4px 10px -2px rgba(0, 153, 102, 0.2) !important;
 }
 
 button.bg-zinc-950:hover *,
@@ -141,8 +144,18 @@ a.bg-black:hover *,
 :root a.bg-zinc-900:hover *,
 :root a.bg-zinc-800:hover *,
 :root a.bg-black:hover * {
-  color: #09090b !important;
-  stroke: #09090b !important;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+/* LIGHT MODE: Fix accidental pitch black bg-zinc-800 containers & inputs */
+:root:not(.dark) span.bg-zinc-800,
+:root:not(.dark) div.bg-zinc-800:not(.badge):not([class*="text-white"]),
+:root:not(.dark) input.bg-zinc-800 {
+  background-color: #f4f4f5 !important;
+  color: #18181b !important;
+  border-color: #d4d4d8 !important;
+}
 }
 
 /* LIGHT MODE: Universal Soft & Clean Hover for table rows and cards */

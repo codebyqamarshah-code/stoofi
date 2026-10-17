@@ -119,8 +119,7 @@ exports.getNextAdmissionNo = async (req, res) => {
 
 exports.getNextRollNo = async (req, res) => {
   try {
-    const currentYear2Digits = String(new Date().getFullYear()).slice(-2);
-    const prefix = `PRC${currentYear2Digits}`;
+    const prefix = 'PRC';
 
     const allStudents = await Student.find({}, 'rollNo firstName lastName admissionNo').lean();
     let maxRoll = 0;
@@ -148,8 +147,7 @@ exports.getNextRollNo = async (req, res) => {
       usedRolls 
     });
   } catch (err) {
-    const currentYear2Digits = String(new Date().getFullYear()).slice(-2);
-    res.status(200).json({ success: true, nextRollNo: `PRC${currentYear2Digits}0001`, usedRollNumbers: [], usedRolls: [] });
+    res.status(200).json({ success: true, nextRollNo: 'PRC0001', usedRollNumbers: [], usedRolls: [] });
   }
 };
 
@@ -212,10 +210,9 @@ exports.create = async (req, res) => {
       }
     }
 
-    const currentYear2Digits = String(currentYear).slice(-2);
-    const rollPrefix = `PRC${currentYear2Digits}`;
+    const rollPrefix = 'PRC';
 
-    // Auto-assign roll number starting from PRC260001 if not provided
+    // Auto-assign roll number starting from PRC0001 if not provided
     if (!dataObj.rollNo || String(dataObj.rollNo).trim() === '') {
       const allStudents = await Student.find({}, 'rollNo').lean();
       let maxRollSeq = 0;
@@ -370,9 +367,7 @@ exports.bulkCreate = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No students provided for import.' });
     }
 
-    const currentYear = new Date().getFullYear();
-    const currentYear2Digits = String(currentYear).slice(-2);
-    const rollPrefix = `PRC${currentYear2Digits}`;
+    const rollPrefix = 'PRC';
 
     // 1. Pre-load existing students' roll numbers and admission numbers
     const existingStudents = await Student.find({}, 'rollNo admissionNo').lean();

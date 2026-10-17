@@ -1,7 +1,7 @@
 'use client';
 
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   ChevronRight, 
@@ -15,29 +15,89 @@ import {
   Trash2, 
   Mail, 
   MessageSquare,
-  Send
+  Send,
+  CheckCircle2
 } from 'lucide-react';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 
+const SAMPLE_LOGS = [
+  {
+    id: 'LOG-001',
+    title: 'Fee Voucher Notice for Fall Term 2026',
+    message: 'Dear Parents, please be informed that academic fee vouchers for Fall Term 2026 have been generated. Kindly clear dues before the 10th of next month.',
+    channel: 'BOTH',
+    receiverGroup: 'Parents',
+    sender: 'Accounts Office',
+    sentDate: '2026-10-15 10:30',
+    deliveredCount: 148,
+    totalCount: 150,
+    status: 'Delivered'
+  },
+  {
+    id: 'LOG-002',
+    title: 'Parent-Teacher Meeting Schedule',
+    message: 'PTM is scheduled for Saturday, 24th October from 09:00 AM to 01:00 PM. All parents are cordially invited to discuss student progress.',
+    channel: 'SMS',
+    receiverGroup: 'Parents',
+    sender: 'Principal Office',
+    sentDate: '2026-10-14 14:15',
+    deliveredCount: 320,
+    totalCount: 325,
+    status: 'Delivered'
+  },
+  {
+    id: 'LOG-003',
+    title: 'Science Fair & Innovation Expo Registration',
+    message: 'Students from Class 6 to 10 can submit their science and AI project abstracts before Monday to the Innovation Lab.',
+    channel: 'EMAIL',
+    receiverGroup: 'Students',
+    sender: 'Science Department',
+    sentDate: '2026-10-12 11:00',
+    deliveredCount: 280,
+    totalCount: 280,
+    status: 'Delivered'
+  }
+];
+
 export default function EmailSmsLogPage() {
   const [logs, setLogs] = useState([]);
-
   const [search, setSearch] = useState('');
   const [filterChannel, setFilterChannel] = useState('All');
   const [selectedLog, setSelectedLog] = useState(null);
 
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('stoofi_email_sms_logs');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setLogs(parsed);
+          return;
+        }
+      }
+      setLogs(SAMPLE_LOGS);
+      localStorage.setItem('stoofi_email_sms_logs', JSON.stringify(SAMPLE_LOGS));
+    } catch (_) {
+      setLogs(SAMPLE_LOGS);
+    }
+  }, []);
+
   const handleDelete = (id) => {
     if (confirm('Delete this dispatch log record?')) {
-      setLogs(logs.filter(l => l.id !== id));
+      const updated = logs.filter(l => l.id !== id);
+      setLogs(updated);
+      try {
+        localStorage.setItem('stoofi_email_sms_logs', JSON.stringify(updated));
+      } catch (_) {}
     }
   };
 
   const filteredLogs = useMemo(() => logs.filter(item => {
     const matchChannel = filterChannel === 'All' || item.channel === filterChannel;
     const matchSearch = !search || 
-      item.title.toLowerCase().includes(search.toLowerCase()) || 
-      item.receiverGroup.toLowerCase().includes(search.toLowerCase()) ||
-      item.sender.toLowerCase().includes(search.toLowerCase());
+      (item.title || '').toLowerCase().includes(search.toLowerCase()) || 
+      (item.receiverGroup || '').toLowerCase().includes(search.toLowerCase()) ||
+      (item.sender || '').toLowerCase().includes(search.toLowerCase());
     return matchChannel && matchSearch;
   }), [logs, filterChannel, search]);
 
@@ -79,6 +139,7 @@ export default function EmailSmsLogPage() {
               <option value="All">All Channels</option>
               <option value="SMS">SMS</option>
               <option value="EMAIL">Email</option>
+              <option value="BOTH">Both</option>
             </select>
             <div className="relative min-w-[180px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
@@ -88,8 +149,7 @@ export default function EmailSmsLogPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-900 placeholder-zinc-400 outline-none focus:ring-1 focus:ring-zinc-600"
-              >
-              </input>
+              />
             </div>
             <TableExportToolbar />
           </div>
@@ -97,7 +157,7 @@ export default function EmailSmsLogPage() {
 
         <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-200">
           <table className="w-full text-xs text-left">
-            <thead className="text-[11px] font-bold text-zinc-900 font-bold dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-50/50 border-b border-zinc-200 dark:border-zinc-200">
+            <thead className="text-[11px] font-bold text-zinc-900 dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-50/50 border-b border-zinc-200 dark:border-zinc-200">
               <tr>
                 <th className="px-3.5 py-3">SL</th>
                 <th className="px-3.5 py-3">Subject / Title</th>
@@ -120,7 +180,13 @@ export default function EmailSmsLogPage() {
                     <div className="text-[10px] text-zinc-400">By: {item.sender}</div>
                   </td>
                   <td className="px-3.5 py-3">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${item.channel === 'SMS' ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400'}`}>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                      item.channel === 'SMS' 
+                        ? 'bg-amber-100 text-amber-700' 
+                        : item.channel === 'EMAIL' 
+                        ? 'bg-blue-100 text-blue-700' 
+                        : 'bg-emerald-100 text-emerald-800'
+                    }`}>
                       {item.channel}
                     </span>
                   </td>
@@ -131,7 +197,7 @@ export default function EmailSmsLogPage() {
                   </td>
                   <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap">{item.sentDate}</td>
                   <td className="px-3.5 py-3">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-200 text-zinc-800 dark:bg-zinc-100 dark:text-zinc-900">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                       {item.status}
                     </span>
                   </td>
@@ -139,11 +205,11 @@ export default function EmailSmsLogPage() {
                     <div className="flex items-center justify-end gap-1.5">
                       <button
                         onClick={() => setSelectedLog(item)}
-                        className="px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-800 rounded text-[11px] font-medium inline-flex items-center gap-1 transition-colors"
+                        className="px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-800 rounded text-[11px] font-medium inline-flex items-center gap-1 transition-colors cursor-pointer"
                       >
                         <Eye className="h-3 w-3" /> View
                       </button>
-                      <button onClick={() => handleDelete(item.id)} className="p-1 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-rose-600 rounded transition-colors" title="Delete">
+                      <button onClick={() => handleDelete(item.id)} className="p-1 hover:bg-rose-50 text-rose-600 rounded transition-colors cursor-pointer" title="Delete">
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
@@ -161,7 +227,7 @@ export default function EmailSmsLogPage() {
           <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
             <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-200 pb-3">
               <h3 className="font-bold text-base text-zinc-900 dark:text-zinc-900">Broadcast Message Details</h3>
-              <button onClick={() => setSelectedLog(null)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-950 font-bold text-sm">✕</button>
+              <button onClick={() => setSelectedLog(null)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-950 font-bold text-sm cursor-pointer">✕</button>
             </div>
             <div className="space-y-3 text-xs">
               <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-200">
@@ -184,7 +250,7 @@ export default function EmailSmsLogPage() {
               </div>
             </div>
             <div className="flex justify-end pt-2">
-              <button onClick={() => setSelectedLog(null)} className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-950 rounded-lg text-xs font-semibold">
+              <button onClick={() => setSelectedLog(null)} className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg text-xs font-semibold cursor-pointer">
                 Close
               </button>
             </div>

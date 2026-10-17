@@ -119,3 +119,19 @@ export function getPublicVerificationUrl(identifier) {
   return `${baseUrl}/verify/student/${cleanId}`;
 }
 
+// Formats Roll No to start with PRC followed by 4 digits (e.g. PRC0001, PRC0002)
+export function formatStudentRollNo(rollNo, fallbackIndex = 1) {
+  if (!rollNo && !fallbackIndex) return 'PRC0001';
+  const raw = String(rollNo || fallbackIndex).trim();
+  if (!raw || raw === '—' || raw === '-') return `PRC${String(fallbackIndex || 1).padStart(4, '0')}`;
+  
+  // Extract number from string (e.g. "PRC260001" -> 1, "PRC0001" -> 1, "1" -> 1)
+  const numMatch = raw.match(/\d+/);
+  if (numMatch) {
+    const num = parseInt(numMatch[0], 10);
+    // If the number was a large concatenated timestamp/code like 260001, take sequence
+    const finalNum = num > 9999 ? (num % 10000 || fallbackIndex || 1) : num;
+    return `PRC${String(finalNum).padStart(4, '0')}`;
+  }
+  return `PRC${String(fallbackIndex || 1).padStart(4, '0')}`;
+}

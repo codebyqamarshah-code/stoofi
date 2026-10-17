@@ -11,6 +11,14 @@ import {
   Trash2,
   CheckCircle2
 } from 'lucide-react';
+import api from '@/services/api';
+
+const DEFAULT_CALENDAR_EVENTS = [
+  { id: 1, title: 'Term Examination Begins', date: '2026-09-08', type: 'Exam', time: '09:00 AM', color: 'bg-rose-600' },
+  { id: 2, title: 'Milad-un-Nabi Holiday', date: '2026-09-15', type: 'Holiday', time: 'All Day', color: 'bg-amber-600' },
+  { id: 3, title: 'Annual Sports Gala Day', date: '2026-09-22', type: 'Event', time: '10:00 AM', color: 'bg-[#009966]' },
+  { id: 4, title: 'Parent-Teacher Conference', date: '2026-09-26', type: 'Meeting', time: '09:30 AM', color: 'bg-blue-600' }
+];
 
 export default function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState('September 2026');
@@ -22,6 +30,28 @@ export default function CalendarPage() {
     type: 'Event',
     time: '10:00 AM'
   });
+
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        const res = await api.get('/dashboard/events');
+        if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+          const mapped = res.data.map((e, idx) => ({
+            id: e._id || idx,
+            title: e.title,
+            date: e.startDate ? e.startDate.split('T')[0] : '2026-09-10',
+            type: e.type || 'Event',
+            time: e.time || '10:00 AM',
+            color: e.type === 'Exam' ? 'bg-rose-600' : e.type === 'Holiday' ? 'bg-amber-600' : e.type === 'Meeting' ? 'bg-blue-600' : 'bg-[#009966]'
+          }));
+          setEvents(mapped);
+          return;
+        }
+      } catch (_) {}
+      setEvents(DEFAULT_CALENDAR_EVENTS);
+    };
+    loadEvents();
+  }, []);
 
   const handleAdd = (e) => {
     e.preventDefault();

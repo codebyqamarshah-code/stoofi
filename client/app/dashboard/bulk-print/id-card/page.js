@@ -36,7 +36,7 @@ import { SearchableSelect } from '@/components/ui/searchable-select';
 import { sortClassesAcademic, STANDARD_ACADEMIC_CLASSES, STANDARD_SECTIONS_LIST } from '@/lib/academicUtils';
 import api from '@/services/api';
 import { downloadIdCardPDF, downloadBatchIdCardsPDF } from '@/lib/idCardPdf';
-import { formatDateDMY, getPublicVerificationUrl } from '@/lib/utils';
+import { formatDateDMY, getPublicVerificationUrl, formatStudentRollNo } from '@/lib/utils';
 import QRCode from 'qrcode';
 
 // Dynamic Live QR Code Component for Every Student Card (Scannable on all phones)
@@ -511,90 +511,126 @@ export default function BulkPrintIdCardPage() {
     }
 
     // ── DESIGN 2: Executive Navy Horizontal Smart Card (Matching Reference Image 3) ──
+    // ── DESIGN 2: Executive Navy Horizontal Smart Card (Matching Reference Image 3) ──
     if (activeDesignId === 'classic-navy') {
       return (
-        <div className={`bg-white text-zinc-900 rounded-xl overflow-hidden shadow-md border-2 border-sky-900 w-full ${isInspectModal ? 'max-w-[420px]' : ''} flex flex-col justify-between select-none`}>
+        <div className={`bg-white text-zinc-900 rounded-none overflow-hidden shadow-xl border-2 border-[#084A86] w-full ${isInspectModal ? 'max-w-[420px]' : ''} flex flex-col justify-between select-none relative`}>
           {/* Header Stripe */}
-          <div className="bg-gradient-to-r from-sky-950 via-sky-900 to-indigo-950 px-3.5 py-2 flex items-center justify-between border-b-2 border-amber-500 text-white">
-            <div className="flex items-center gap-2">
-              <img 
-                src="/pak-royal-college-logo.png" 
-                alt="Pak Royal College" 
-                className="h-8 w-8 rounded-full object-contain bg-white/10 p-0.5 border border-white/30 shrink-0" 
-              />
-              <div>
-                <h3 className="font-black text-xs leading-tight uppercase tracking-tight text-white">PAK ROYAL COLLEGE</h3>
-                <p className="text-[9px] font-bold text-amber-300 uppercase tracking-wider">SHARAQPUR CAMPUS</p>
+          <div className="bg-gradient-to-r from-[#06335d] via-[#084A86] to-[#0a58a0] px-3.5 py-1.5 flex items-center justify-between border-b-2 border-amber-400 text-white">
+            <div className="flex items-center gap-2.5">
+              {/* Badge with White Circular Ring */}
+              <div className="rounded-full ring-2 ring-white/95 p-0.5 bg-white/20 shrink-0">
+                <img 
+                  src="/pak-royal-badge.png" 
+                  alt="Pak Royal College Crest" 
+                  className="w-8 h-8 rounded-full bg-white object-contain shadow-xs border border-white" 
+                />
+              </div>
+              <div className="leading-tight">
+                <h3 className="font-black text-[12px] tracking-wide uppercase text-white block">PAK ROYAL COLLEGE</h3>
+                <p className="text-[7.5px] text-amber-300 font-bold tracking-wider block">Sharaqpur Sharif, Distt. Sheikhupura</p>
               </div>
             </div>
-            <span className="text-[8.5px] font-black uppercase tracking-wider bg-amber-400 text-sky-950 px-2 py-0.5 rounded shadow-2xs">
-              {role}
-            </span>
+            <div className="text-right shrink-0">
+              <span className="text-[7px] text-slate-200 font-semibold uppercase tracking-wider block">SESSION</span>
+              <span className="text-[8.5px] font-black text-amber-300 font-mono block">2026–2027</span>
+            </div>
           </div>
 
           {/* Body Dual-Column */}
-          <div className="p-3 flex items-center gap-3.5 flex-1 bg-white">
-            {/* Left: Portrait Photo + Barcode */}
-            {(showPhoto || showQrBarcode) && (
-              <div className="flex flex-col items-center shrink-0">
-                {showPhoto && (
-                  <div className="w-20 h-24 rounded-lg border-2 border-sky-800 overflow-hidden bg-sky-50 shadow-xs flex items-center justify-center">
-                    {photoUrl ? (
-                      <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="flex flex-col items-center justify-center text-sky-900">
-                        <span className="text-xl font-bold uppercase">{name.charAt(0)}</span>
-                      </div>
-                    )}
+          <div className="p-2.5 flex items-stretch gap-2.5 flex-1 bg-gradient-to-b from-white to-slate-50/70">
+            {/* Left: Portrait Photo Box */}
+            {showPhoto && (
+              <div className="flex flex-col items-center justify-center shrink-0">
+                <div className="w-[78px] h-[98px] rounded-2xl border-[2.5px] border-[#084A86] overflow-hidden bg-slate-100 shadow-xs flex items-center justify-center relative">
+                  {photoUrl ? (
+                    <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-zinc-400 p-1">
+                      <User className="w-8 h-8 text-[#084A86]/60" />
+                      <span className="text-[8px] font-black mt-1 uppercase text-[#084A86]">{name.charAt(0)}</span>
+                    </div>
+                  )}
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs border border-white">
+                    <ShieldCheck className="w-3 h-3" />
                   </div>
-                )}
-                {showQrBarcode && (
-                  <div className="mt-2 flex flex-col items-center">
-                    <StudentCardQR rec={rec} isDark={false} />
-                    <span className="font-mono text-[6.5px] font-bold text-sky-950 tracking-wider mt-0.5 uppercase">VERIFY QR</span>
-                  </div>
-                )}
+                </div>
               </div>
             )}
 
-            {/* Right: Info Column */}
-            <div className="flex-1 min-w-0 text-[10.5px] space-y-1">
-              <div className="inline-block px-2 py-0.5 rounded-md bg-amber-400 text-amber-950 font-black text-[8.5px] uppercase tracking-wider shadow-2xs">
-                {role} ID CARD
+            {/* Middle: Details */}
+            <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+              <div>
+                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400 text-amber-950 font-black text-[8px] uppercase tracking-wider shadow-2xs mb-1">
+                  <Award className="w-2.5 h-2.5" />
+                  <span>STUDENT IDENTITY CARD</span>
+                </div>
+                <h4 className="font-black text-[12.5px] text-zinc-950 uppercase tracking-tight truncate leading-tight">
+                  {name}
+                </h4>
               </div>
-              <h4 className="font-black text-xs text-sky-950 truncate uppercase">{name}</h4>
 
-              <div className="space-y-0.5 text-zinc-700 pt-0.5">
-                {showAdmissionNo && (
-                  <div className="flex"><span className="w-14 text-zinc-400 font-medium">ID No:</span><strong className="text-zinc-950 font-mono">{admNo}</strong></div>
-                )}
-                {showClass && (
-                  <div className="flex"><span className="w-14 text-zinc-400 font-medium">Class:</span><strong className="text-sky-900 font-bold">{className} {showSection ? `(${section})` : ''}</strong></div>
-                )}
-                {showRollNo && (
-                  <div className="flex"><span className="w-14 text-zinc-400 font-medium">Roll No:</span><strong className="text-zinc-950 font-mono">{rollNo}</strong></div>
-                )}
-                {showDob && (
-                  <div className="flex"><span className="w-14 text-zinc-400 font-medium">DOB:</span><span className="text-zinc-800 font-medium">{dob}</span></div>
-                )}
-                {showFatherName && fatherName && (
-                  <div className="flex"><span className="w-14 text-zinc-400 font-medium">Guardian:</span><span className="text-zinc-900 font-semibold truncate max-w-[120px]">{fatherName}</span></div>
-                )}
-                {showPhone && (
-                  <div className="flex"><span className="w-14 text-zinc-400 font-medium">Emergency:</span><strong className="text-zinc-950 font-mono text-[9.5px]">{phone}</strong></div>
-                )}
+              <div className="space-y-0.5 text-[9.5px] text-zinc-700 pt-1 border-t border-zinc-200/70">
+                <div className="flex items-center">
+                  <span className="w-20 text-zinc-400 font-semibold text-[8.5px]">Name:</span>
+                  <span className="text-zinc-950 font-black truncate">{name}</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-20 text-zinc-400 font-semibold text-[8.5px]">Father's Name:</span>
+                  <span className="text-zinc-800 font-bold truncate max-w-[110px]">{fatherName || '—'}</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-20 text-zinc-400 font-semibold text-[8.5px]">Class:</span>
+                  <strong className="text-[#084A86] font-extrabold">{className} {showSection ? `(${section})` : ''}</strong>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-20 text-zinc-400 font-semibold text-[8.5px]">Roll No:</span>
+                  <strong className="font-mono text-zinc-950 font-bold">{rollNo}</strong>
+                </div>
               </div>
             </div>
+
+            {/* Right: Scannable Verification QR Code */}
+            {showQrBarcode && (
+              <div className="flex flex-col items-center justify-center shrink-0 pl-1 border-l border-zinc-200/80">
+                <StudentCardQR rec={rec} isDark={false} />
+                <span className="text-[6.5px] font-black text-[#084A86] uppercase tracking-wider mt-1">
+                  Scan to Verify
+                </span>
+                <span className="font-mono text-[6.5px] text-zinc-400 font-bold">{rollNo}</span>
+              </div>
+            )}
           </div>
 
-          {/* Footer */}
-          <div className="bg-sky-50 px-3.5 py-1.5 text-[8.5px] text-sky-900 flex justify-between items-center border-t border-sky-200">
-            <span className="font-mono font-bold">PRC-ID-{admNo}</span>
-            <span className="font-bold text-sky-950">{showSignature ? brandFooter : 'Authorized Campus Seal'}</span>
+          {/* Footer Bar */}
+          <div className="bg-[#084A86] px-2.5 py-1 text-white flex justify-between items-center text-[7.5px] border-t-2 border-amber-400">
+            <span className="font-mono text-[7px] text-slate-200">pakroyalcollege.edu.pk</span>
+
+            {/* Middle Instruction Box */}
+            <div className="text-center px-1.5 py-0.5 rounded bg-white/10 border border-white/20 max-w-[175px] leading-tight">
+              <span className="text-[6.5px] text-white font-medium block">
+                Property of Pak Royal College. If found, please return.
+              </span>
+              <span className="text-[6.5px] text-amber-300 font-bold font-mono block">
+                Helpline: 03 111 444 810
+              </span>
+            </div>
+
+            {/* Right: Signature */}
+            <div className="text-right shrink-0">
+              <div 
+                className="font-serif italic text-amber-300 font-bold tracking-wider leading-none" 
+                style={{ fontFamily: "'Brush Script MT', 'Dancing Script', 'Caveat', cursive", fontSize: "11px" }}
+              >
+                M. Umer W
+              </div>
+              <span className="font-semibold text-[6.5px] text-slate-200 block">Authorized Signature</span>
+            </div>
           </div>
         </div>
       );
     }
+
 
     // ── DESIGN 3: Royal Purple Academic Pass ──
     if (activeDesignId === 'royal-purple') {

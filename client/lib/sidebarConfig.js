@@ -1161,6 +1161,7 @@ export const STUDENT_MENU_STRUCTURE = [
     items: [
       { id: 'st-dash', name: 'Dashboard', href: '/dashboard/student', iconName: 'LayoutDashboard', visible: true },
       { id: 'st-profile', name: 'Student Info', href: '/dashboard/student/profile', iconName: 'User', visible: true },
+      { id: 'st-routine', name: 'Class Routine', href: '/dashboard/student/class-routine', iconName: 'CalendarDays', visible: true },
       {
         id: 'st-lms',
         name: 'LMS',

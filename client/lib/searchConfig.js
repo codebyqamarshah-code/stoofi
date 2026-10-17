@@ -14,6 +14,7 @@ const SYNONYMS_MAP = {
   '/dashboard/academics/assign-subject': ['assign subject', 'teacher subject', 'subject allocation'],
   '/dashboard/academics/classroom': ['class room', 'classroom', 'rooms', 'hall', 'kamra'],
   '/dashboard/academics/routine': ['class routine', 'routine', 'time table', 'timetable', 'schedule', 'periods'],
+  '/dashboard/student/class-routine': ['student routine', 'my routine', 'student timetable', 'class routine', 'my timetable', 'daily routine', 'periods schedule', 'student schedule'],
 
   // Administration
   '/dashboard/admin/admission-query': ['admission query', 'admission enquiry', 'new admission', 'inquiry', 'dakhla enquiry', 'lead'],
