@@ -63,3 +63,45 @@ export function getPhotoUrl(photoPath) {
   return `${baseUrl}${cleanPath}`;
 }
 
+// Generates or retrieves a persistent unique Device ID for browser/system recognition
+export function getClientDeviceId() {
+  if (typeof window === 'undefined') return 'server';
+  try {
+    let id = localStorage.getItem('stoofi_device_id');
+    if (!id) {
+      // Create a unique persistent fingerprint
+      const rnd = Math.random().toString(36).substring(2, 12);
+      const time = Date.now().toString(36);
+      id = `dev_${time}_${rnd}`;
+      localStorage.setItem('stoofi_device_id', id);
+    }
+    return id;
+  } catch (e) {
+    return 'browser_unknown';
+  }
+}
+
+// Friendly device name from user-agent
+export function getClientDeviceName() {
+  if (typeof window === 'undefined') return 'Web Client';
+  try {
+    const ua = navigator.userAgent;
+    let browser = 'Browser';
+    if (ua.includes('Edg/')) browser = 'Edge';
+    else if (ua.includes('Chrome/')) browser = 'Chrome';
+    else if (ua.includes('Safari/')) browser = 'Safari';
+    else if (ua.includes('Firefox/')) browser = 'Firefox';
+
+    let os = 'OS';
+    if (ua.includes('Windows')) os = 'Windows';
+    else if (ua.includes('Macintosh') || ua.includes('Mac OS')) os = 'macOS';
+    else if (ua.includes('Android')) os = 'Android';
+    else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+    else if (ua.includes('Linux')) os = 'Linux';
+
+    return `${browser} on ${os}`;
+  } catch (e) {
+    return 'Web Browser';
+  }
+}
+

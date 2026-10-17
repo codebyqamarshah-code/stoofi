@@ -32,7 +32,7 @@ export default function LoginPage() {
   const [pendingPass, setPendingPass] = useState("");
   const [otpError, setOtpError] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
-  const [otpTimer, setOtpTimer] = useState(60);
+  const [otpTimer, setOtpTimer] = useState(300);
   const [canResendOtp, setCanResendOtp] = useState(false);
   const [resendingOtp, setResendingOtp] = useState(false);
   const [resendSuccess, setResendSuccess] = useState("");
@@ -60,7 +60,7 @@ export default function LoginPage() {
       const res = await api.post("/auth/resend-otp", { email: pendingEmail });
       if (res && res.success) {
         setResendSuccess("A new 6-digit verification code has been sent.");
-        setOtpTimer(60);
+        setOtpTimer(300);
         setCanResendOtp(false);
       } else {
         setOtpError(res?.message || "Failed to resend code.");
@@ -259,7 +259,7 @@ export default function LoginPage() {
             <span className="flex items-center gap-1.5 shrink-0">
               <Timer size={14} className={otpTimer > 0 ? "text-emerald-500 animate-pulse" : "text-rose-500"} />
               {otpTimer > 0 ? (
-                <>Code expires in <span className="font-bold text-zinc-800 dark:text-zinc-200 ml-1">00:{String(otpTimer).padStart(2, '0')}</span></>
+                <>Code expires in <span className="font-bold text-zinc-800 dark:text-zinc-200 ml-1">{String(Math.floor(otpTimer / 60)).padStart(2, '0')}:{String(otpTimer % 60).padStart(2, '0')}</span></>
               ) : (
                 <span className="text-rose-500 font-bold">Code has expired</span>
               )}

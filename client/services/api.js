@@ -68,6 +68,15 @@ api.interceptors.request.use((config) => {
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    try {
+      let devId = localStorage.getItem('stoofi_device_id');
+      if (!devId) {
+        devId = `dev_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 10)}`;
+        localStorage.setItem('stoofi_device_id', devId);
+      }
+      config.headers['X-Device-Id'] = devId;
+    } catch (_) {}
   }
 
   if (typeof FormData !== 'undefined' && config.data instanceof FormData) {

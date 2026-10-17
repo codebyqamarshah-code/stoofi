@@ -442,7 +442,7 @@ exports.getRegistrationStatus = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
   try {
-    const { email, password, otp } = req.body;
+    const { email, password, otp, deviceId, deviceName } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Please provide email and password' });
@@ -533,12 +533,20 @@ exports.login = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Account is inactive' });
     }
 
+    // Check if the current device/browser is already a verified trusted device
+    const isDeviceTrusted = Boolean(
+      deviceId && 
+      Array.isArray(user.trustedDevices) && 
+      user.trustedDevices.some(d => d.deviceId === deviceId)
+    );
+
     // --- OTP VERIFICATION FLOW ---
-    if (!otp) {
-      // Step 1: Generate and Send OTP (Expires in 60 seconds / 1 minute)
+    // If the device is NOT already trusted and no OTP is provided yet, require Email OTP Verification
+    if (!isDeviceTrusted && !otp) {
+      // Step 1: Generate and Send OTP (Expires in 5 minutes / 300 seconds)
       const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
       user.emailOtp = otpCode;
-      user.otpExpires = new Date(Date.now() + 60 * 1000); // 1 minute (60 seconds)
+      user.otpExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes validity
       await user.save({ validateBeforeSave: false });
       
       try {
@@ -551,10 +559,10 @@ exports.login = async (req, res, next) => {
         success: true, 
         requireOtp: true, 
         email: user.email, 
-        message: 'A 6-digit verification code has been sent to your email.' 
+        message: 'New device/browser detected. A 6-digit verification code has been sent to your email.' 
       });
-    } else {
-      // Step 2: Validate OTP
+    } else if (!isDeviceTrusted && otp) {
+      // Step 2: Validate OTP for the new device
       if (user.emailOtp !== otp) {
         return res.status(400).json({ success: false, message: 'Invalid verification code.' });
       }
@@ -563,10 +571,37 @@ exports.login = async (req, res, next) => {
         return res.status(400).json({ success: false, message: 'This verification code has expired. Please request a new code.' });
       }
       
-      // OTP is valid
+      // OTP is valid - register this device as trusted so future logins on this system don't ask again
       user.emailOtp = undefined;
       user.otpExpires = undefined;
       user.isEmailVerified = true;
+      user.lastLogin = Date.now();
+
+      if (deviceId) {
+        if (!Array.isArray(user.trustedDevices)) {
+          user.trustedDevices = [];
+        }
+        const existingIdx = user.trustedDevices.findIndex(d => d.deviceId === deviceId);
+        if (existingIdx >= 0) {
+          user.trustedDevices[existingIdx].lastUsed = new Date();
+        } else {
+          user.trustedDevices.push({
+            deviceId,
+            deviceName: deviceName || 'Web Browser',
+            lastUsed: new Date()
+          });
+        }
+      }
+
+      await user.save({ validateBeforeSave: false });
+    } else if (isDeviceTrusted) {
+      // Device is already trusted! Update lastUsed timestamp and lastLogin without asking OTP
+      if (deviceId && Array.isArray(user.trustedDevices)) {
+        const existingIdx = user.trustedDevices.findIndex(d => d.deviceId === deviceId);
+        if (existingIdx >= 0) {
+          user.trustedDevices[existingIdx].lastUsed = new Date();
+        }
+      }
       user.lastLogin = Date.now();
       await user.save({ validateBeforeSave: false });
     }

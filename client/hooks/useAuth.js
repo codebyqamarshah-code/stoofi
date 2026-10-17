@@ -54,7 +54,23 @@ export const useAuth = create(
         const isAdmin = role === 'Admin' || cleanEmail === 'admin@gmail.com' || cleanEmail === 'admin@gamil.com';
 
         try {
-          const res = await api.post('/auth/login', { email: cleanEmail, password, otp });
+          let deviceId = null;
+          let deviceName = 'Web Browser';
+          if (typeof window !== 'undefined') {
+            try {
+              deviceId = localStorage.getItem('stoofi_device_id');
+              if (!deviceId) {
+                deviceId = `dev_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 10)}`;
+                localStorage.setItem('stoofi_device_id', deviceId);
+              }
+              const ua = navigator.userAgent;
+              let b = ua.includes('Edg') ? 'Edge' : ua.includes('Chrome') ? 'Chrome' : ua.includes('Safari') ? 'Safari' : ua.includes('Firefox') ? 'Firefox' : 'Browser';
+              let os = ua.includes('Windows') ? 'Windows' : ua.includes('Mac') ? 'macOS' : ua.includes('Android') ? 'Android' : ua.includes('iPhone') ? 'iOS' : 'OS';
+              deviceName = `${b} on ${os}`;
+            } catch (_) {}
+          }
+
+          const res = await api.post('/auth/login', { email: cleanEmail, password, otp, deviceId, deviceName });
           if (res && res.success) { if (res.requireOtp) { return { success: true, requireOtp: true }; }
             const finalUser = res.data;
             const finalToken = res.token;
