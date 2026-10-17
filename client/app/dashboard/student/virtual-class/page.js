@@ -16,6 +16,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import api from '@/services/api';
+import { formatDateDMY } from '@/lib/utils';
 
 export default function StudentVirtualClassPage() {
   const [classes, setClasses] = useState([]);
@@ -209,7 +210,7 @@ export default function StudentVirtualClassPage() {
                       <td className="px-3.5 py-3 text-zinc-700 whitespace-nowrap">
                         <div className="font-bold text-zinc-950 flex items-center gap-1">
                           <Calendar className="h-3 w-3 text-zinc-500" />
-                          {item.date}
+                          {formatDateDMY(item.date)}
                         </div>
                         <div className="text-[10px] text-zinc-600 font-semibold flex items-center gap-1 mt-0.5">
                           <Clock className="h-3 w-3 text-zinc-400" />

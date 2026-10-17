@@ -1,522 +1,418 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { 
   ChevronRight, 
   Search, 
-  Copy, 
-  FileSpreadsheet, 
-  FileText, 
-  Printer, 
-  Plus, 
-  Edit, 
-  Trash2, 
   Video, 
+  Plus, 
+  Trash2, 
   ExternalLink,
-  CheckCircle2
+  Radio,
+  PlayCircle,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
-import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { formatDateDMY } from '@/lib/utils';
+import api from '@/services/api';
 
 export default function BBBVirtualClassPage() {
   const [records, setRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState(null);
 
   const [form, setForm] = useState({
     classVal: 'Class 10',
     section: 'A',
-    teacher: 'Mudassir Bajwa',
+    subject: 'General',
+    teacher: 'Muhammad Ali',
     topic: '',
     description: '',
     date: new Date().toISOString().split('T')[0],
-    time: '10:00',
-    duration: '45',
-    maxParticipants: '50',
-    autoRecord: 'Yes',
-    muteOnStart: 'Yes'
+    time: '10:00 AM',
+    duration: 45,
+    maxParticipants: 50,
+    status: 'Scheduled'
   });
 
-  const [editId, setEditId] = useState(null);
   const [search, setSearch] = useState('');
-  const [filterClass, setFilterClass] = useState('All');
+  const classes = ['All Classes', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'];
+  const sections = ['All Sections', 'A', 'B', 'C', 'D'];
+  const teachers = ['Muhammad Ali', 'Fatima Zahra', 'Mudassir Bajwa', 'Ahmed Khan', 'Ayesha Noor', 'Dr. Bilal Siddiqui'];
+  const subjects = ['General', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Urdu', 'Computer Science'];
 
-  const classes = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'];
-  const sections = ['A', 'B', 'C', 'D'];
-  const teachers = ['Mudassir Bajwa', 'Fatima Zahra', 'Muhammad Ali', 'Ahmed Khan', 'Ayesha Noor', 'Dr. Bilal Siddiqui'];
+  const fetchRecords = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get('/virtual-class?type=class');
+      if (res?.success && Array.isArray(res.data)) {
+        const bbbRecords = res.data.filter(r => !r.provider || r.provider === 'bbb');
+        setRecords(bbbRecords.length > 0 ? bbbRecords : res.data);
+      } else {
+        setRecords([]);
+      }
+    } catch (err) {
+      console.error('Error fetching BBB classes:', err);
+      setRecords([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    fetchRecords();
+  }, []);
+
+  const generateRoomUrl = (cls, topicStr) => {
+    const cleanTopic = (topicStr || 'room').toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 15);
+    const roomCode = Math.random().toString(36).substring(2, 7);
+    return `https://demo.bigbluebutton.org/gl/room-${cleanTopic}-${roomCode}`;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.topic.trim()) {
       alert('Please enter a Class Topic.');
       return;
     }
 
-    if (editId) {
-      setRecords(records.map(r => r.id === editId ? { ...r, ...form } : r));
-      setEditId(null);
-    } else {
-      const newRec = {
-        id: Date.now(),
+    try {
+      setSubmitting(true);
+      const roomUrl = generateRoomUrl(form.classVal, form.topic);
+      const payload = {
         ...form,
-        status: 'Scheduled',
-        roomUrl: `https://bbb.stoofi.com/b/stoofi-${encodeURIComponent(form.classVal.toLowerCase().replace(/\s+/g, '-'))}-${Date.now().toString().slice(-4)}`
+        type: 'class',
+        provider: 'bbb',
+        duration: Number(form.duration) || 45,
+        roomUrl: roomUrl,
+        meetCode: roomUrl.split('/').pop(),
+        totalEnrolled: 30
       };
-      setRecords([newRec, ...records]);
-    }
 
-    setForm({
-      classVal: 'Class 10',
-      section: 'A',
-      teacher: 'Mudassir Bajwa',
-      topic: '',
-      description: '',
-      date: new Date().toISOString().split('T')[0],
-      time: '10:00',
-      duration: '45',
-      maxParticipants: '50',
-      autoRecord: 'Yes',
-      muteOnStart: 'Yes'
-    });
-  };
-
-  const handleEdit = (item) => {
-    setEditId(item.id);
-    setForm({
-      classVal: item.classVal,
-      section: item.section,
-      teacher: item.teacher,
-      topic: item.topic,
-      description: item.description || '',
-      date: item.date,
-      time: item.time,
-      duration: item.duration,
-      maxParticipants: item.maxParticipants || '50',
-      autoRecord: item.autoRecord || 'Yes',
-      muteOnStart: item.muteOnStart || 'Yes'
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleDelete = (id) => {
-    if (confirm('Are you sure you want to delete this BBB virtual class?')) {
-      setRecords(records.filter(r => r.id !== id));
-      if (editId === id) setEditId(null);
+      const res = await api.post('/virtual-class', payload);
+      if (res?.success) {
+        setMessage({ type: 'success', text: 'BigBlueButton virtual class scheduled successfully!' });
+        setTimeout(() => setMessage(null), 3000);
+        setForm(prev => ({ ...prev, topic: '', description: '' }));
+        fetchRecords();
+      } else {
+        alert(res?.message || 'Failed to schedule class');
+      }
+    } catch (err) {
+      alert(err.message || 'Error saving virtual class');
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const cancelEdit = () => {
-    setEditId(null);
-    setForm({
-      classVal: 'Class 10',
-      section: 'A',
-      teacher: 'Mudassir Bajwa',
-      topic: '',
-      description: '',
-      date: new Date().toISOString().split('T')[0],
-      time: '10:00',
-      duration: '45',
-      maxParticipants: '50',
-      autoRecord: 'Yes',
-      muteOnStart: 'Yes'
-    });
+  const handleStartInstant = async () => {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const dateStr = now.toISOString().split('T')[0];
+    const roomUrl = generateRoomUrl(form.classVal, 'Instant');
+
+    try {
+      setSubmitting(true);
+      const payload = {
+        topic: `Live BBB Class: ${form.classVal} (${form.subject})`,
+        subject: form.subject,
+        type: 'class',
+        provider: 'bbb',
+        classVal: form.classVal,
+        section: form.section,
+        teacher: form.teacher,
+        date: dateStr,
+        time: timeStr,
+        duration: 45,
+        roomUrl: roomUrl,
+        meetCode: roomUrl.split('/').pop(),
+        status: 'Live',
+        totalEnrolled: 30
+      };
+
+      const res = await api.post('/virtual-class', payload);
+      if (res?.success) {
+        setMessage({ type: 'success', text: 'Live BBB session initiated!' });
+        setTimeout(() => setMessage(null), 3000);
+        window.open(roomUrl, '_blank');
+        fetchRecords();
+      }
+    } catch (err) {
+      alert(err.message || 'Error starting instant class');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (confirm('Are you sure you want to delete this class?')) {
+      try {
+        const res = await api.delete(`/virtual-class/${id}`);
+        if (res?.success) fetchRecords();
+        else alert(res?.message || 'Failed to delete class');
+      } catch (err) {
+        alert(err.message || 'Error deleting class');
+      }
+    }
   };
 
   const filteredRecords = useMemo(() => {
-    return records.filter(rec => {
-      const matchesClass = filterClass === 'All' || rec.classVal === filterClass;
-      const matchesSearch = !search || 
-        rec.topic.toLowerCase().includes(search.toLowerCase()) ||
-        rec.teacher.toLowerCase().includes(search.toLowerCase()) ||
-        rec.classVal.toLowerCase().includes(search.toLowerCase());
-      return matchesClass && matchesSearch;
-    });
-  }, [records, filterClass, search]);
-
-  const handleCopy = () => {
-    const text = filteredRecords.map(r => `${r.classVal} (${r.section}) | ${r.topic} | ${r.teacher} | ${r.date} ${r.time} | ${r.duration} mins | ${r.status}`).join('\n');
-    navigator.clipboard.writeText(text);
-    alert('BBB Virtual class records copied to clipboard!');
-  };
-
-  const handleExportCSV = () => {
-    exportToCSV(filteredRecords, 'BBB_Virtual_Classes');
-  };
-
-  const handleExportExcel = () => {
-    exportToExcel(filteredRecords, 'BBB_Virtual_Classes');
-  };
-
-  const handleExportPDF = () => {
-    exportToPDF(
-      filteredRecords,
-      ['classVal', 'section', 'topic', 'teacher', 'date', 'time', 'duration', 'status'],
-      'BigBlueButton Virtual Classes',
-      'BBB_Virtual_Classes'
+    return records.filter(r => 
+      (r.topic + ' ' + r.teacher + ' ' + (r.classVal || '') + ' ' + (r.subject || '')).toLowerCase().includes(search.toLowerCase())
     );
-  };
+  }, [records, search]);
 
-  const handlePrint = () => {
-    printData(
-      filteredRecords,
-      ['classVal', 'section', 'topic', 'teacher', 'date', 'time', 'duration', 'status'],
-      'BigBlueButton Virtual Classes'
-    );
-  };
+  const liveClasses = records.filter(r => r.status === 'Live');
 
   return (
     <div className="space-y-6">
-      {/* Header & Breadcrumbs */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-900">
-            BigBlueButton Virtual Class
-          </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-600 mt-1">
-            Host live interactive classroom sessions with whiteboard, breakout rooms, and session recording.
-          </p>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-[#0c3559]">BigBlueButton Virtual Class</h1>
+            {liveClasses.length > 0 && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-300 animate-pulse">
+                <Radio className="h-3 w-3 text-emerald-600" />
+                {liveClasses.length} Live Now
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-zinc-500 mt-1">Manage BigBlueButton live video lecture rooms, automated recording, and whiteboards.</p>
         </div>
-        <div className="flex items-center text-sm text-zinc-500 dark:text-zinc-600">
-          <Link href="/dashboard" className="hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">
-            Dashboard
-          </Link>
-          <ChevronRight className="h-4 w-4 mx-1" />
-          <Link href="/dashboard/module/bigbluebutton" className="hover:text-zinc-800 dark:hover:text-zinc-950 transition-colors">
-            BigBlueButton
-          </Link>
-          <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-800 dark:text-zinc-900 font-medium">Virtual Class</span>
+        <div className="flex items-center text-xs text-zinc-400 font-medium">
+          <Link href="/dashboard" className="hover:text-zinc-600 transition-colors">Dashboard</Link>
+          <ChevronRight className="h-3 w-3 mx-1 text-zinc-400" />
+          <span className="text-zinc-500">Module</span>
+          <ChevronRight className="h-3 w-3 mx-1 text-zinc-400" />
+          <span className="text-zinc-700 font-semibold">BigBlueButton</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Left Form: Add / Edit Virtual Class */}
-        <div className="xl:col-span-1">
-          <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl shadow-sm p-6">
-            <div className="flex items-center justify-between pb-4 mb-5 border-b border-zinc-100 dark:border-zinc-200">
-              <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900 uppercase tracking-wider">
-                {editId ? 'Edit BBB Virtual Class' : 'Add BBB Virtual Class'}
-              </h2>
-              {editId && (
-                <button
-                  onClick={cancelEdit}
-                  className="text-xs text-rose-500 hover:text-rose-600 font-medium cursor-pointer"
-                >
-                  Cancel Edit
-                </button>
-              )}
+      {message && (
+        <div className={`p-3 rounded-lg text-xs font-semibold flex items-center gap-2 ${
+          message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'
+        }`}>
+          {message.type === 'success' ? <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" /> : <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />}
+          <span>{message.text}</span>
+        </div>
+      )}
+
+      {/* Instant Start Banner */}
+      <div className="bg-gradient-to-r from-sky-900 to-[#084A86] text-white rounded-2xl p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold bg-white/10 text-sky-100 uppercase tracking-wider">
+            <Radio className="h-3 w-3 text-emerald-400" /> Open Source Classroom
+          </span>
+          <h2 className="text-lg font-bold">Start an Instant BigBlueButton Class</h2>
+          <p className="text-xs text-sky-100">Launch a live session with shared whiteboard, screen-sharing, and breakout rooms.</p>
+        </div>
+        <Button
+          onClick={handleStartInstant}
+          disabled={submitting}
+          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-10 px-5 rounded-xl shadow-md cursor-pointer flex items-center gap-2 shrink-0"
+        >
+          <PlayCircle className="h-4 w-4" />
+          Start Instant BBB Class
+        </Button>
+      </div>
+
+      {/* Main Grid: Form & List */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Schedule Form */}
+        <div className="lg:col-span-4">
+          <div className="bg-white border border-zinc-200 rounded-xl shadow-xs overflow-hidden">
+            <div className="px-5 py-4 border-b border-zinc-100">
+              <h2 className="text-base font-bold text-[#0c3559]">Schedule BBB Class</h2>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
-                    Class <span className="text-rose-500">*</span>
-                  </label>
+            <form onSubmit={handleSubmit} className="p-5 space-y-4">
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">Class Topic *</Label>
+                <Input 
+                  value={form.topic}
+                  onChange={e => setForm({ ...form, topic: e.target.value })}
+                  placeholder="e.g. Chemistry Lab Simulation"
+                  className="h-10 border-zinc-200 rounded-lg text-sm bg-white"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">Class</Label>
                   <select
                     value={form.classVal}
-                    onChange={(e) => setForm({ ...form, classVal: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                    onChange={e => setForm({ ...form, classVal: e.target.value })}
+                    className="w-full h-10 px-3 border border-zinc-200 rounded-lg text-xs bg-white font-medium"
                   >
-                    {classes.map(c => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
+                    {classes.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
-                    Section <span className="text-rose-500">*</span>
-                  </label>
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">Section</Label>
                   <select
                     value={form.section}
-                    onChange={(e) => setForm({ ...form, section: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                    onChange={e => setForm({ ...form, section: e.target.value })}
+                    className="w-full h-10 px-3 border border-zinc-200 rounded-lg text-xs bg-white font-medium"
                   >
-                    {sections.map(s => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
+                    {sections.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
-                  Teacher / Moderator <span className="text-rose-500">*</span>
-                </label>
-                <select
-                  value={form.teacher}
-                  onChange={(e) => setForm({ ...form, teacher: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
-                >
-                  {teachers.map(t => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
-                  Class Topic <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Computer Science - Algorithms & Flowcharts"
-                  value={form.topic}
-                  onChange={(e) => setForm({ ...form, topic: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
-                  Description
-                </label>
-                <textarea
-                  rows={2}
-                  placeholder="Outline syllabus topics or instructions..."
-                  value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors resize-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
-                    Date <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={form.date}
-                    onChange={(e) => setForm({ ...form, date: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
-                    Time <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="time"
-                    required
-                    value={form.time}
-                    onChange={(e) => setForm({ ...form, time: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
-                    Duration (Minutes) <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    min="10"
-                    max="300"
-                    required
-                    value={form.duration}
-                    onChange={(e) => setForm({ ...form, duration: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
-                    Auto-Record Session
-                  </label>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">Subject</Label>
                   <select
-                    value={form.autoRecord}
-                    onChange={(e) => setForm({ ...form, autoRecord: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                    value={form.subject}
+                    onChange={e => setForm({ ...form, subject: e.target.value })}
+                    className="w-full h-10 px-3 border border-zinc-200 rounded-lg text-xs bg-white font-medium"
                   >
-                    <option value="Yes">Yes (Save to Recordings)</option>
-                    <option value="No">No</option>
+                    {subjects.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">Teacher</Label>
+                  <select
+                    value={form.teacher}
+                    onChange={e => setForm({ ...form, teacher: e.target.value })}
+                    className="w-full h-10 px-3 border border-zinc-200 rounded-lg text-xs bg-white font-medium"
+                  >
+                    {teachers.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
               </div>
 
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  className="w-full sm:w-auto px-6 py-2.5 bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
-                >
-                  <CheckCircle2 className="h-4 w-4" />
-                  {editId ? 'Update BBB Class' : 'Save BBB Virtual Class'}
-                </button>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">Date *</Label>
+                  <Input 
+                    type="date"
+                    value={form.date}
+                    onChange={e => setForm({ ...form, date: e.target.value })}
+                    className="h-10 border-zinc-200 rounded-lg text-xs bg-white font-medium"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">Time *</Label>
+                  <Input 
+                    type="time"
+                    value={form.time}
+                    onChange={e => setForm({ ...form, time: e.target.value })}
+                    className="h-10 border-zinc-200 rounded-lg text-xs bg-white font-medium"
+                    required
+                  />
+                </div>
               </div>
+
+              <Button
+                type="submit"
+                disabled={submitting}
+                style={{ backgroundColor: '#084A86' }}
+                className="w-full hover:opacity-95 text-white font-bold h-10 rounded-lg uppercase tracking-wider text-xs cursor-pointer"
+              >
+                {submitting ? 'SAVING...' : 'SAVE BBB CLASS'}
+              </Button>
             </form>
           </div>
         </div>
 
-        {/* Right List: Virtual Class List */}
-        <div className="xl:col-span-2">
-          <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl shadow-sm p-6">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 mb-4 border-b border-zinc-100 dark:border-zinc-200">
-              <div className="flex items-center gap-3">
-                <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900 uppercase tracking-wider">
-                  BBB Virtual Class List
-                </h2>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-200 text-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 border border-zinc-300 dark:border-zinc-200">
-                  {filteredRecords.length}
-                </span>
+        {/* Classes Table */}
+        <div className="lg:col-span-8">
+          <div className="bg-white border border-zinc-200 rounded-xl shadow-xs overflow-hidden">
+            <div className="px-5 py-4 border-b border-zinc-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-base font-bold text-[#0c3559]">BigBlueButton Class List</h2>
+                <p className="text-xs text-zinc-500 mt-0.5">Live database of BBB classes</p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="relative min-w-[200px]">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
-                  <input
-                    type="text"
-                    placeholder="SEARCH"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-900 placeholder-zinc-400 outline-none focus:ring-1 focus:ring-zinc-600"
-                  />
-                </div>
-
-                <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-lg border border-zinc-200 dark:border-zinc-200">
-                  <button
-                    onClick={handleCopy}
-                    title="Copy Table"
-                    className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"
-                  >
-                    <Copy className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    onClick={handleExportExcel}
-                    title="Export Excel"
-                    className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"
-                  >
-                    <FileSpreadsheet className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    onClick={handleExportCSV}
-                    title="Export CSV"
-                    className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"
-                  >
-                    <FileText className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    onClick={handleExportPDF}
-                    title="Export PDF"
-                    className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"
-                  >
-                    <Video className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    onClick={handlePrint}
-                    title="Print"
-                    className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-600 dark:text-zinc-700 transition-colors"
-                  >
-                    <Printer className="h-3.5 w-3.5" />
-                  </button>
-                </div>
+              <div className="relative w-40 sm:w-48">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
+                <Input 
+                  placeholder="SEARCH" 
+                  value={search} 
+                  onChange={e => setSearch(e.target.value)}
+                  className="pl-8.5 h-8.5 text-xs bg-white border-zinc-200 rounded-lg uppercase tracking-wider text-zinc-700"
+                />
               </div>
             </div>
 
-            {/* Quick Filter Bar */}
-            <div className="flex flex-wrap items-center gap-3 mb-4">
-              <div className="flex items-center gap-2 text-xs font-semibold text-zinc-500 uppercase">
-                <span>Filter Class:</span>
-                <select
-                  value={filterClass}
-                  onChange={(e) => setFilterClass(e.target.value)}
-                  className="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-900 text-xs outline-none focus:ring-1 focus:ring-zinc-600"
-                >
-                  <option value="All">All Classes</option>
-                  {classes.map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Table */}
-            <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-200">
+            <div className="overflow-x-auto">
               <table className="w-full text-xs text-left">
-                <thead className="text-[11px] font-bold text-zinc-900 font-bold dark:text-zinc-600 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-50/50 border-b border-zinc-200 dark:border-zinc-200">
+                <thead className="text-[11px] text-[#0c3559] uppercase font-bold bg-[#f8fafc] border-b border-zinc-100">
                   <tr>
-                    <th className="px-3.5 py-3">SL</th>
-                    <th className="px-3.5 py-3">Class (Sec)</th>
-                    <th className="px-3.5 py-3">Topic</th>
-                    <th className="px-3.5 py-3">Moderator</th>
-                    <th className="px-3.5 py-3">Date & Time</th>
-                    <th className="px-3.5 py-3">Duration</th>
-                    <th className="px-3.5 py-3">Status</th>
-                    <th className="px-3.5 py-3 text-right">Action</th>
+                    <th className="px-4 py-3 font-bold w-12">SL</th>
+                    <th className="px-4 py-3 font-bold">TOPIC</th>
+                    <th className="px-4 py-3 font-bold">CLASS</th>
+                    <th className="px-4 py-3 font-bold">TEACHER</th>
+                    <th className="px-4 py-3 font-bold">DATE & TIME</th>
+                    <th className="px-4 py-3 font-bold">STATUS</th>
+                    <th className="px-4 py-3 font-bold text-right">ACTION</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-100">
-                  {filteredRecords.length === 0 ? (
+                <tbody className="divide-y divide-zinc-100">
+                  {loading ? (
                     <tr>
-                      <td colSpan={8} className="px-4 py-8 text-center text-zinc-500">
+                      <td colSpan="7" className="px-4 py-16 text-center text-zinc-400">
+                        <div className="inline-flex items-center gap-2">
+                          <div className="h-4 w-4 rounded-full border-2 border-[#084A86] border-t-transparent animate-spin" />
+                          <span>Loading BBB classes...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : filteredRecords.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" className="px-4 py-16 text-center text-sm font-medium text-zinc-400">
                         No Data Available In Table
                       </td>
                     </tr>
                   ) : (
-                    filteredRecords.map((item, index) => (
-                      <tr
-                        key={item.id}
-                        className="hover:bg-zinc-50/80 dark:hover:bg-zinc-100/40 transition-colors"
-                      >
-                        <td className="px-3.5 py-3 font-medium text-zinc-900 dark:text-zinc-800">
-                          {index + 1}
+                    filteredRecords.map((r, idx) => (
+                      <tr key={r._id || r.id} className="hover:bg-zinc-50/80 transition-colors">
+                        <td className="px-4 py-3 text-zinc-600 font-semibold">{idx + 1}</td>
+                        <td className="px-4 py-3 font-bold text-[#0c3559]">
+                          <div>{r.topic}</div>
+                          {r.subject && <span className="text-[10px] text-zinc-400 font-normal">{r.subject}</span>}
                         </td>
-                        <td className="px-3.5 py-3 whitespace-nowrap">
-                          <span className="font-semibold text-zinc-900 dark:text-zinc-900">
-                            {item.classVal}
-                          </span>
-                          <span className="text-zinc-400 ml-1">({item.section})</span>
+                        <td className="px-4 py-3 text-zinc-700 font-medium">
+                          {r.classVal} {r.section ? `(${r.section})` : ''}
                         </td>
-                        <td className="px-3.5 py-3">
-                          <div className="font-semibold text-zinc-900 dark:text-zinc-900 line-clamp-1">
-                            {item.topic}
-                          </div>
-                          {item.description && (
-                            <div className="text-[11px] text-zinc-500 line-clamp-1 mt-0.5">
-                              {item.description}
-                            </div>
+                        <td className="px-4 py-3 text-zinc-800">{r.teacher}</td>
+                        <td className="px-4 py-3 text-zinc-600 font-medium font-mono">
+                          <div>{formatDateDMY(r.date)}</div>
+                          <div className="text-[10px] text-zinc-400">{r.time} ({r.duration}m)</div>
+                        </td>
+                        <td className="px-4 py-3">
+                          {r.status === 'Live' ? (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 animate-pulse">
+                              ● Live Now
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                              {r.status || 'Scheduled'}
+                            </span>
                           )}
                         </td>
-                        <td className="px-3.5 py-3 font-medium text-zinc-700 dark:text-zinc-700 whitespace-nowrap">
-                          {item.teacher}
-                        </td>
-                        <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap">
-                          <div>{item.date}</div>
-                          <div className="text-[10px] text-zinc-400">{item.time}</div>
-                        </td>
-                        <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap">
-                          {item.duration} Mins
-                        </td>
-                        <td className="px-3.5 py-3">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-200 text-zinc-800 dark:bg-zinc-100 dark:text-zinc-900">
-                            {item.status}
-                          </span>
-                        </td>
-                        <td className="px-3.5 py-3 text-right whitespace-nowrap">
+                        <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             <a
-                              href={item.roomUrl}
+                              href={r.roomUrl}
                               target="_blank"
-                              rel="noreferrer"
-                              className="px-2.5 py-1 bg-zinc-950 hover:bg-zinc-800 text-white rounded text-[11px] font-semibold flex items-center gap-1 transition-colors"
+                              rel="noopener noreferrer"
+                              className="px-2.5 py-1 bg-[#084A86] hover:bg-[#063866] text-white rounded-md text-[11px] font-bold inline-flex items-center gap-1 transition shadow-2xs"
                             >
-                              <Video className="h-3 w-3" />
-                              Join BBB
+                              Join <ExternalLink className="h-3 w-3" />
                             </a>
                             <button
-                              onClick={() => handleEdit(item)}
-                              className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-100 text-zinc-600 dark:text-zinc-600 rounded transition-colors"
-                              title="Edit"
-                            >
-                              <Edit className="h-3.5 w-3.5" />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(item.id)}
-                              className="p-1 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-rose-600 rounded transition-colors"
+                              onClick={() => handleDelete(r._id)}
+                              className="p-1 text-zinc-400 hover:text-rose-600 hover:bg-zinc-100 rounded transition"
                               title="Delete"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
@@ -528,32 +424,6 @@ export default function BBBVirtualClassPage() {
                   )}
                 </tbody>
               </table>
-            </div>
-
-            {/* Pagination / Table Meta */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 mt-2 text-xs text-zinc-500">
-              <div>
-                Showing {filteredRecords.length > 0 ? 1 : 0} to {filteredRecords.length} of {records.length} entries
-              </div>
-              <div className="flex items-center gap-1 self-end sm:self-auto">
-                <button
-                  disabled
-                  className="px-2.5 py-1 rounded border border-zinc-200 dark:border-zinc-200 text-zinc-400 opacity-50 cursor-not-allowed"
-                >
-                  &lt;
-                </button>
-                <button
-                  className="px-2.5 py-1 rounded border border-zinc-600 bg-zinc-100 dark:bg-zinc-100 text-zinc-800 dark:text-zinc-900 font-semibold"
-                >
-                  1
-                </button>
-                <button
-                  disabled
-                  className="px-2.5 py-1 rounded border border-zinc-200 dark:border-zinc-200 text-zinc-400 opacity-50 cursor-not-allowed"
-                >
-                  &gt;
-                </button>
-              </div>
             </div>
           </div>
         </div>
