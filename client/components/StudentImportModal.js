@@ -117,6 +117,50 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
     if (droppedFile) processFile(droppedFile);
   };
 
+  // Convert Excel serial number dates (e.g. 37810, 39174) to DD/MM/YYYY format
+  // Excel stores dates as days since 1899-12-30 (with the Lotus 1-2-3 leap year bug)
+  const convertExcelDate = (val) => {
+    if (!val) return '';
+    if (val instanceof Date && !isNaN(val.getTime())) {
+      const dd = String(val.getUTCDate()).padStart(2, '0');
+      const mm = String(val.getUTCMonth() + 1).padStart(2, '0');
+      const yyyy = val.getUTCFullYear();
+      return `${dd}/${mm}/${yyyy}`;
+    }
+    const str = String(val).trim();
+    if (!str) return '';
+
+    // If it's a number (e.g. 37810, 39174, 37810.0), convert Excel serial days to date
+    if (/^\d{4,6}(\.\d+)?$/.test(str)) {
+      const serial = Math.floor(parseFloat(str));
+      if (serial >= 1000 && serial <= 80000) {
+        const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+        const msPerDay = 24 * 60 * 60 * 1000;
+        const date = new Date(excelEpoch.getTime() + serial * msPerDay);
+        if (!isNaN(date.getTime()) && date.getUTCFullYear() > 1900 && date.getUTCFullYear() < 2100) {
+          const dd = String(date.getUTCDate()).padStart(2, '0');
+          const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+          const yyyy = date.getUTCFullYear();
+          return `${dd}/${mm}/${yyyy}`;
+        }
+      }
+    }
+
+    // Handle ISO YYYY-MM-DD
+    const isoMatch = str.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
+    if (isoMatch) {
+      return `${isoMatch[3].padStart(2, '0')}/${isoMatch[2].padStart(2, '0')}/${isoMatch[1]}`;
+    }
+
+    // Handle DMY format DD-MM-YYYY
+    const dmyMatch = str.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
+    if (dmyMatch) {
+      return `${dmyMatch[1].padStart(2, '0')}/${dmyMatch[2].padStart(2, '0')}/${dmyMatch[3]}`;
+    }
+
+    return str;
+  };
+
   const processFile = (fileToParse) => {
     setErrorMsg('');
     setImportStats(null);
@@ -127,10 +171,10 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
     reader.onload = (evt) => {
       try {
         const bstr = evt.target.result;
-        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wb = XLSX.read(bstr, { type: 'binary', cellDates: true, dateNF: 'dd/mm/yyyy' });
         const wsName = wb.SheetNames[0];
         const ws = wb.Sheets[wsName];
-        const data = XLSX.utils.sheet_to_json(ws);
+        const data = XLSX.utils.sheet_to_json(ws, { raw: false, dateNF: 'dd/mm/yyyy' });
 
         if (!data || data.length === 0) {
           setErrorMsg('The selected file does not contain any data rows.');
@@ -157,8 +201,8 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
         // Map columns intelligently
         const currentYear = new Date().getFullYear();
         const currentYear2Digits = String(currentYear).slice(-2);
-        const defaultRollPrefix = `PRC${currentYear2Digits}`;
-        const randSeed = Math.floor(Math.random() * 800) + 100;
+        const defaultAdmPrefix = `ADM${currentYear2Digits}`;
+        const defaultRollPrefix = `PRC`;
 
         const mapped = data.map((row, idx) => {
           let firstName = getVal(row, ['fullName', 'full name', 'student name', 'studentname', 'name', 'firstName', 'first name', 'firstname', 'first']) || '';
@@ -168,14 +212,15 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
             firstName = parts[0];
             lastName = parts.slice(1).join(' ');
           }
-          const admissionNo = getVal(row, ['admissionNo', 'admission no', 'admission number', 'adm no', 'registration no', 'reg no', 'admno']) ||
-            `ADM-${currentYear}-${String(randSeed + idx).padStart(3, '0')}`;
+          const fileAdmNo = getVal(row, ['admissionNo', 'admission no', 'admission number', 'admission', 'adm no', 'admno', 'student id', 'studentid', 'id', 'registration no', 'registration number', 'reg no', 'reg number', 'regno', 'sr no', 'sr. no', 'sr', 'serial no']);
+          const admissionNo = fileAdmNo ? String(fileAdmNo).trim() : `${defaultAdmPrefix}${String(idx + 1).padStart(4, '0')}`;
           const fileRollNo = getVal(row, ['rollNo', 'roll no', 'roll number', 'roll', 'rollno']);
           const rollNo = fileRollNo ? String(fileRollNo).trim() : `${defaultRollPrefix}${String(idx + 1).padStart(4, '0')}`;
           const className = getVal(row, ['className', 'class', 'grade', 'standard']) || defaultClass || 'Class 1';
           const section = getVal(row, ['section', 'sec']) || defaultSection || 'A';
           const gender = getVal(row, ['gender', 'sex']) || 'Male';
-          const dob = getVal(row, ['dob', 'date of birth', 'birth date', 'birthday', 'age', 'birthdate']) || '2015-01-01';
+          const rawDob = getVal(row, ['dob', 'date of birth', 'birth date', 'birthday', 'age', 'birthdate']) || '2015-01-01';
+          const dob = convertExcelDate(rawDob);
           const type = getVal(row, ['type', 'student type', 'admission type', 'studenttype']) || 'Regular';
           const fatherName = getVal(row, ['fatherName', 'father name', 'father', "father's name", 'guardian']) || '';
           const fatherPhone = getVal(row, ['fatherPhone', 'father phone', 'father mobile', 'parent phone']) || '';
@@ -198,8 +243,10 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
           const email = getVal(row, ['email', 'email address', 'e-mail', 'student email']) || '';
           const city = getVal(row, ['city', 'town', 'district']) || '';
           const emergencyContact = getVal(row, ['emergencyContact', 'emergency contact', 'emergency phone', 'emergency no', 'emergency']) || '';
-          const joiningDate = getVal(row, ['joiningDate', 'joining date', 'joiningdate', 'date of joining', 'joining', 'admissionDate', 'admission date', 'admissiondate', 'date of admission']) || '';
-          const admissionDate = getVal(row, ['admissionDate', 'admission date', 'admissiondate', 'date of admission']) || joiningDate || '';
+          const rawJoiningDate = getVal(row, ['joiningDate', 'joining date', 'joiningdate', 'date of joining', 'joining', 'admissionDate', 'admission date', 'admissiondate', 'date of admission']) || '';
+          const joiningDate = convertExcelDate(rawJoiningDate);
+          const rawAdmissionDate = getVal(row, ['admissionDate', 'admission date', 'admissiondate', 'date of admission']) || rawJoiningDate || '';
+          const admissionDate = convertExcelDate(rawAdmissionDate);
 
           // Skip completely empty rows
           if (!firstName && !lastName && !getVal(row, ['admissionNo', 'admission no'])) return null;
@@ -252,13 +299,8 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
            return;
         }
 
-        const studentsToLoad = mapped.slice(0, 50);
-        setParsedStudents(studentsToLoad);
-        if (mapped.length > 50) {
-          setErrorMsg(`Note: Loaded first 50 students for this batch (file contains ${mapped.length} records).`);
-        } else {
-          setErrorMsg('');
-        }
+        setParsedStudents(mapped);
+        setErrorMsg('');
       } catch (err) {
         console.error('File parsing error:', err);
         setErrorMsg('Failed to parse file. Please upload a valid .xlsx, .xls or .csv file containing student data.');
@@ -282,7 +324,7 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
       return;
     }
 
-    const studentsToImport = parsedStudents.slice(0, 50);
+    const studentsToImport = parsedStudents;
 
     setImporting(true);
     setImportProgress(0);

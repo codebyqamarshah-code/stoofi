@@ -5,16 +5,48 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-// Converts any date string (ISO, YYYY-MM-DD, etc.) into Day/Month/Year format (DD/MM/YYYY)
+// Converts any date string (ISO, YYYY-MM-DD, Excel serials, etc.) into Day/Month/Year format (DD/MM/YYYY)
 // Strictly formats as 2-digit Day / 2-digit Month / 4-digit Year (e.g. 15/08/2026)
 export function formatDateDMY(dateInput) {
   if (!dateInput) return '—';
   try {
     const raw = String(dateInput).trim();
     if (!raw || raw === '—' || raw === '-' || raw === 'null' || raw === 'undefined') return '—';
+
+    // Helper to convert Excel serial number to DD/MM/YYYY
+    const excelSerialToDMY = (serial) => {
+      if (serial >= 1000 && serial <= 80000) {
+        const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+        const msPerDay = 24 * 60 * 60 * 1000;
+        const d = new Date(excelEpoch.getTime() + serial * msPerDay);
+        if (!isNaN(d.getTime()) && d.getUTCFullYear() > 1900 && d.getUTCFullYear() < 2100) {
+          const day = String(d.getUTCDate()).padStart(2, '0');
+          const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+          const year = d.getUTCFullYear();
+          return `${day}/${month}/${year}`;
+        }
+      }
+      return null;
+    };
+
+    // 1. Direct serial number check (e.g. 37810, 39174)
+    if (/^\d{4,6}(\.\d+)?$/.test(raw)) {
+      const conv = excelSerialToDMY(Math.floor(parseFloat(raw)));
+      if (conv) return conv;
+    }
+
     const str = raw.split('T')[0].split(' ')[0].trim();
     const parts = str.split(/[-/.]/);
     if (parts.length === 3) {
+      // Check if any component is a serial year > 2100 (e.g. 01/01/37810 or 37810-01-01)
+      for (const p of parts) {
+        const n = parseInt(p, 10);
+        if (n > 2100 && n <= 80000) {
+          const conv = excelSerialToDMY(n);
+          if (conv) return conv;
+        }
+      }
+
       if (parts[0].length === 4) {
         // YYYY-MM-DD -> DD/MM/YYYY
         return `${parts[2].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[0]}`;
@@ -23,8 +55,14 @@ export function formatDateDMY(dateInput) {
         return `${parts[0].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[2]}`;
       }
     }
+
     const d = new Date(raw);
     if (!isNaN(d.getTime())) {
+      // If parsed year is corrupted or huge (e.g. 37810), try Excel serial fallback
+      if (d.getFullYear() > 2100 && d.getFullYear() <= 80000) {
+        const conv = excelSerialToDMY(d.getFullYear());
+        if (conv) return conv;
+      }
       const day = String(d.getDate()).padStart(2, '0');
       const month = String(d.getMonth() + 1).padStart(2, '0');
       const year = d.getFullYear();

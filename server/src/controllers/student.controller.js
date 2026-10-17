@@ -15,6 +15,71 @@ const extractRollSeq = (r) => {
   return 0;
 };
 
+// Cleans date strings and Excel serial date numbers (e.g. 37810 -> 08/07/2003, 01/01/37810 -> 08/07/2003)
+const cleanDateStr = (val) => {
+  if (!val) return '';
+  if (val instanceof Date && !isNaN(val.getTime())) {
+    const dd = String(val.getUTCDate()).padStart(2, '0');
+    const mm = String(val.getUTCMonth() + 1).padStart(2, '0');
+    const yyyy = val.getUTCFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  }
+  const str = String(val).trim();
+  if (!str || str === '—' || str === '-' || str === 'null' || str === 'undefined') return '';
+
+  const excelSerialToDMY = (serial) => {
+    if (serial >= 1000 && serial <= 80000) {
+      const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const date = new Date(excelEpoch.getTime() + serial * msPerDay);
+      if (!isNaN(date.getTime()) && date.getUTCFullYear() > 1900 && date.getUTCFullYear() < 2100) {
+        const dd = String(date.getUTCDate()).padStart(2, '0');
+        const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const yyyy = date.getUTCFullYear();
+        return `${dd}/${mm}/${yyyy}`;
+      }
+    }
+    return null;
+  };
+
+  // Check Excel serial number (e.g. 37810, 39174, 37810.0)
+  if (/^\d{4,6}(\.\d+)?$/.test(str)) {
+    const conv = excelSerialToDMY(Math.floor(parseFloat(str)));
+    if (conv) return conv;
+  }
+
+  const parts = str.split(/[-/.]/);
+  if (parts.length === 3) {
+    for (const p of parts) {
+      const n = parseInt(p, 10);
+      if (n > 2100 && n <= 80000) {
+        const conv = excelSerialToDMY(n);
+        if (conv) return conv;
+      }
+    }
+  }
+
+  // Handle ISO format YYYY-MM-DD
+  const isoMatch = str.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
+  if (isoMatch) {
+    const yyyy = isoMatch[1];
+    const mm = isoMatch[2].padStart(2, '0');
+    const dd = isoMatch[3].padStart(2, '0');
+    return `${dd}/${mm}/${yyyy}`;
+  }
+
+  // Handle DMY format DD-MM-YYYY
+  const dmyMatch = str.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
+  if (dmyMatch) {
+    const dd = dmyMatch[1].padStart(2, '0');
+    const mm = dmyMatch[2].padStart(2, '0');
+    const yyyy = dmyMatch[3];
+    return `${dd}/${mm}/${yyyy}`;
+  }
+
+  return str;
+};
+
 exports.getAll = async (req, res) => {
   try {
     const { page = 1, limit = 50, search = '', className, section, rollNo, name } = req.query;
@@ -56,12 +121,30 @@ exports.getAll = async (req, res) => {
     const skip = (pageNumber - 1) * limitNumber;
 
     // Execute query with pagination
-    // Sort by rollNo ascending (Roll No 1 first), then by createdAt ascending (first enrolled first)
-    const data = await Student.find(query)
-      .lean()
-      .sort({ rollNo: 1, createdAt: 1 })
+    // Sort with numeric collation so ADM260001, ADM260002, ADM260010 are ordered naturally
+    const rawData = await Student.find(query)
+      .collation({ locale: 'en', numericOrdering: true })
+      .sort({ admissionNo: 1, rollNo: 1, createdAt: 1 })
       .skip(skip)
-      .limit(limitNumber);
+      .limit(limitNumber)
+      .lean();
+
+    // Clean dates and ensure sequential natural order
+    const data = rawData.map(st => ({
+      ...st,
+      dob: cleanDateStr(st.dob),
+      admissionDate: cleanDateStr(st.admissionDate),
+      joiningDate: cleanDateStr(st.joiningDate)
+    }));
+
+    data.sort((a, b) => {
+      const admA = String(a.admissionNo || '').trim();
+      const admB = String(b.admissionNo || '').trim();
+      if (admA && admB) {
+        return admA.localeCompare(admB, undefined, { numeric: true, sensitivity: 'base' });
+      }
+      return 0;
+    });
 
     // Get total count for pagination
     const total = await Student.countDocuments(query);
@@ -438,18 +521,18 @@ exports.bulkCreate = async (req, res) => {
 
       // Sensible defaults for required fields
       studentObj.gender = studentObj.gender && String(studentObj.gender).trim() ? String(studentObj.gender).trim() : 'Male';
-      studentObj.dob = studentObj.dob && String(studentObj.dob).trim() ? String(studentObj.dob).trim() : '2015-01-01';
+      studentObj.dob = cleanDateStr(studentObj.dob) || '2010-01-01';
       studentObj.className = studentObj.className && String(studentObj.className).trim() ? String(studentObj.className).trim() : 'Class 1';
       studentObj.section = studentObj.section && String(studentObj.section).trim() ? String(studentObj.section).trim() : 'A';
       studentObj.academicYear = studentObj.academicYear && String(studentObj.academicYear).trim() ? String(studentObj.academicYear).trim() : `${currentYear}`;
       studentObj.type = studentObj.type && String(studentObj.type).trim() ? String(studentObj.type).trim() : 'Regular';
 
-      // Unique Admission Number
+      // Unique Admission Number: if provided in file, preserve it!
       const rawAdm = studentObj.admissionNo ? String(studentObj.admissionNo).trim() : '';
-      if (!rawAdm || assignedAdmissionNos.has(rawAdm.toLowerCase())) {
+      if (!rawAdm) {
         do {
           nextAdmNum += 1;
-          const candidateAdm = `ADM-${currentYear}-${String(nextAdmNum).padStart(3, '0')}`;
+          const candidateAdm = `ADM${String(currentYear).slice(-2)}${String(nextAdmNum).padStart(4, '0')}`;
           if (!assignedAdmissionNos.has(candidateAdm.toLowerCase())) {
             studentObj.admissionNo = candidateAdm;
             assignedAdmissionNos.add(candidateAdm.toLowerCase());
@@ -461,9 +544,9 @@ exports.bulkCreate = async (req, res) => {
         assignedAdmissionNos.add(rawAdm.toLowerCase());
       }
 
-      // Unique Roll Number (PRC26XXXX format, starting from PRC260001)
+      // Unique Roll Number (PRC0001 format)
       const rawRoll = studentObj.rollNo ? String(studentObj.rollNo).trim() : '';
-      if (!rawRoll || assignedRolls.has(rawRoll.toLowerCase())) {
+      if (!rawRoll) {
         do {
           nextRollSeq += 1;
           const candidateRoll = `${rollPrefix}${String(nextRollSeq).padStart(4, '0')}`;
@@ -490,8 +573,8 @@ exports.bulkCreate = async (req, res) => {
       if (!studentObj.bForm && studentObj.cnic) studentObj.bForm = studentObj.cnic;
       if (!studentObj.cnic && studentObj.bForm) studentObj.cnic = studentObj.bForm;
 
-      if (studentObj.joiningDate) studentObj.joiningDate = String(studentObj.joiningDate).trim();
-      if (studentObj.admissionDate) studentObj.admissionDate = String(studentObj.admissionDate).trim();
+      studentObj.joiningDate = cleanDateStr(studentObj.joiningDate);
+      studentObj.admissionDate = cleanDateStr(studentObj.admissionDate);
       if (!studentObj.admissionDate && studentObj.joiningDate) studentObj.admissionDate = studentObj.joiningDate;
       if (!studentObj.joiningDate && studentObj.admissionDate) studentObj.joiningDate = studentObj.admissionDate;
 
@@ -524,22 +607,30 @@ exports.bulkCreate = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No valid student rows to import.' });
     }
 
-    const result = await Student.insertMany(prepared, { ordered: false });
+    // Upsert students by admissionNo so re-importing cleanly updates existing students without conflicts
+    const operations = prepared.map(st => ({
+      updateOne: {
+        filter: { admissionNo: st.admissionNo },
+        update: { $set: st },
+        upsert: true
+      }
+    }));
+    await Student.bulkWrite(operations, { ordered: true });
+
+    const result = await Student.find({
+      admissionNo: { $in: prepared.map(p => p.admissionNo) }
+    })
+      .collation({ locale: 'en', numericOrdering: true })
+      .sort({ admissionNo: 1 })
+      .lean();
+
     res.status(201).json({
       success: true,
-      message: `Successfully imported ${result.length} students.`,
-      count: result.length,
+      message: `Successfully imported ${prepared.length} students.`,
+      count: prepared.length,
       data: result
     });
   } catch (error) {
-    if (error.insertedDocs && error.insertedDocs.length > 0) {
-      return res.status(201).json({
-        success: true,
-        message: `Successfully imported ${error.insertedDocs.length} students.`,
-        count: error.insertedDocs.length,
-        data: error.insertedDocs
-      });
-    }
     res.status(500).json({ success: false, message: error.message });
   }
 };

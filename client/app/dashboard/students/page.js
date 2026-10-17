@@ -89,7 +89,7 @@ export default function StudentListPage() {
 
   // Pagination state
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(50);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
 
@@ -160,6 +160,18 @@ export default function StudentListPage() {
       if (Array.isArray(stuRes?.data)) list = stuRes.data;
       else if (Array.isArray(stuRes?.students)) list = stuRes.students;
       else if (Array.isArray(stuRes)) list = stuRes;
+
+      // Natural sequential sort by admissionNo (ADM260001, ADM260002, ADM260003...)
+      list.sort((a, b) => {
+        const admA = String(a.admissionNo || '').trim();
+        const admB = String(b.admissionNo || '').trim();
+        if (admA && admB) {
+          return admA.localeCompare(admB, undefined, { numeric: true, sensitivity: 'base' });
+        }
+        if (admA) return -1;
+        if (admB) return 1;
+        return 0;
+      });
 
       setStudents(list);
       if (stuRes?.pagination) {
@@ -588,10 +600,8 @@ export default function StudentListPage() {
       <StudentImportModal 
         isOpen={isImportModalOpen} 
         onClose={() => setIsImportModalOpen(false)} 
-        onSuccess={async (updatedList) => {
-          if (Array.isArray(updatedList) && updatedList.length > 0) {
-            setStudents(prev => [...updatedList, ...prev]);
-          }
+        onSuccess={async () => {
+          setPage(1);
           await fetchData();
         }}
         availableClasses={classes}
