@@ -49,10 +49,10 @@ function StudentCardQR({ rec, isDark = false }) {
 
     QRCode.toDataURL(verifyUrl, { 
       margin: 1, 
-      width: 220, 
+      width: 260, 
       errorCorrectionLevel: 'M',
       color: { 
-        dark: isDark ? '#ffffff' : '#084A86', 
+        dark: isDark ? '#ffffff' : '#000000', 
         light: isDark ? '#09090b' : '#ffffff' 
       } 
     })
@@ -542,7 +542,7 @@ export default function BulkPrintIdCardPage() {
             {/* Left: Portrait Photo Box */}
             {showPhoto && (
               <div className="flex flex-col items-center justify-center shrink-0">
-                <div className="w-[78px] h-[98px] rounded-2xl border-[2.5px] border-[#084A86] overflow-hidden bg-slate-100 shadow-xs flex items-center justify-center relative">
+                <div className="w-[78px] h-[98px] rounded-none border-[2px] border-[#084A86] overflow-hidden bg-slate-100 shadow-xs flex items-center justify-center relative">
                   {photoUrl ? (
                     <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
                   ) : (
@@ -612,7 +612,7 @@ export default function BulkPrintIdCardPage() {
                 Property of Pak Royal College. If found, please return.
               </span>
               <span className="text-[6.5px] text-amber-300 font-bold font-mono block">
-                Helpline: 03 111 444 810
+                Contact: 03 111 444 810
               </span>
             </div>
 

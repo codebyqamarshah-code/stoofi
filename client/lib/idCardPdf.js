@@ -81,15 +81,16 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
   // Generate unique scannable verification QR Code pointing directly to public verify portal
   let qrDataUrl = null;
   try {
-    const identifier = admNo || rollNo || rec._id || 'PRC260001';
+    const rawId = admNo || rollNo || rec._id || 'PRC260001';
+    const identifier = String(rawId).trim();
     const qrPayload = getPublicVerificationUrl(identifier);
 
     qrDataUrl = await QRCode.toDataURL(qrPayload, {
-      margin: 0,
-      width: 240,
+      margin: 1,
+      width: 320,
       errorCorrectionLevel: 'M',
       color: {
-        dark: '#084A86',
+        dark: '#000000',
         light: '#ffffff'
       }
     });
@@ -319,14 +320,14 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     doc.setLineWidth(0.4);
     doc.line(1.5, 12.5, width - 1.5, 12.5);
 
-    // Left: Photo Box (20mm x 25mm) with rounded corners & blue border
+    // Left: Photo Box (20mm x 25mm) with sharp corners & blue border
     const photoW = 20;
     const photoH = 25;
     const photoX = 4.5;
     const photoY = 14.8;
 
     doc.setFillColor(248, 250, 252);
-    doc.roundedRect(photoX, photoY, photoW, photoH, 2.5, 2.5, 'F');
+    doc.rect(photoX, photoY, photoW, photoH, 'F');
 
     let photoRendered = false;
     if (photo && (photo.startsWith('data:image') || photo.startsWith('blob:') || photo.startsWith('http'))) {
@@ -346,10 +347,10 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
       doc.text((rec.firstName || name).charAt(0).toUpperCase(), photoX + photoW / 2, photoY + 16, { align: 'center' });
     }
 
-    // Border on top of photo (rounded r: 2.5mm)
+    // Border on top of photo (sharp rectangular corner)
     doc.setDrawColor(primaryR, primaryG, primaryB);
     doc.setLineWidth(0.6);
-    doc.roundedRect(photoX, photoY, photoW, photoH, 2.5, 2.5, 'S');
+    doc.rect(photoX, photoY, photoW, photoH, 'S');
 
     // Middle: Student Details
     // Gold Student Card Pill Badge
@@ -399,9 +400,9 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     doc.setLineWidth(0.3);
     doc.line(67, 15.5, 67, 43.5);
 
-    const qrSize = 13.5;
-    const qrX = 69.5;
-    const qrY = 16.0;
+    const qrSize = 14.5;
+    const qrX = 69.0;
+    const qrY = 15.5;
 
     if (qrDataUrl) {
       doc.addImage(qrDataUrl, 'PNG', qrX, qrY, qrSize, qrSize);
@@ -439,7 +440,7 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     doc.setTextColor(255, 255, 255);
     doc.text('Property of Pak Royal College. If found, please return.', width / 2, footerY + 2.4, { align: 'center' });
     doc.setTextColor(253, 224, 71);
-    doc.text('Helpline: 03 111 444 810', width / 2, footerY + 4.7, { align: 'center' });
+    doc.text('Contact: 03 111 444 810', width / 2, footerY + 4.7, { align: 'center' });
 
     // Right: Signature M. Umer W & Authorized Signature
     doc.setFont('helvetica', 'bolditalic');

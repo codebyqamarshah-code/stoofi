@@ -61,11 +61,11 @@ function StudentCardQR({ rec, size = 52 }) {
   useEffect(() => {
     let isMounted = true;
     QRCode.toDataURL(qrUrl, {
-      margin: 0,
-      width: size * 3,
+      margin: 1,
+      width: Math.max(size * 4, 240),
       errorCorrectionLevel: 'M',
       color: {
-        dark: '#084A86',
+        dark: '#000000',
         light: '#ffffff'
       }
     }).then(url => {
@@ -790,7 +790,7 @@ export default function IdCardPage() {
             {/* Left: Portrait Photo Box */}
             {showPhoto && (
               <div className="flex flex-col items-center justify-center shrink-0">
-                <div className="w-[78px] h-[98px] rounded-2xl border-[2.5px] border-[#084A86] overflow-hidden bg-slate-100 shadow-xs flex items-center justify-center relative">
+                <div className="w-[78px] h-[98px] rounded-none border-[2px] border-[#084A86] overflow-hidden bg-slate-100 shadow-xs flex items-center justify-center relative">
                   {rec.studentPhoto ? (
                     <img src={rec.studentPhoto} alt={fullName} className="w-full h-full object-cover" />
                   ) : (
@@ -841,7 +841,7 @@ export default function IdCardPage() {
             {/* Right: Real Working Scannable QR Code */}
             {showQrBarcode && (
               <div className="flex flex-col items-center justify-center shrink-0 pl-1 border-l border-zinc-200/80">
-                <StudentCardQR rec={rec} size={52} />
+                <StudentCardQR rec={rec} size={54} />
                 <span className="text-[6.5px] font-black text-[#084A86] uppercase tracking-wider mt-1">
                   Scan to Verify
                 </span>
@@ -860,7 +860,7 @@ export default function IdCardPage() {
                 Property of Pak Royal College. If found, please return.
               </span>
               <span className="text-[6.5px] text-amber-300 font-bold font-mono block">
-                Helpline: 03 111 444 810
+                Contact: 03 111 444 810
               </span>
             </div>
 
