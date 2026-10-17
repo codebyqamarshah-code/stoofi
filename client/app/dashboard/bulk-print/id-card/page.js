@@ -36,7 +36,7 @@ import { SearchableSelect } from '@/components/ui/searchable-select';
 import { sortClassesAcademic, STANDARD_ACADEMIC_CLASSES, STANDARD_SECTIONS_LIST } from '@/lib/academicUtils';
 import api from '@/services/api';
 import { downloadIdCardPDF, downloadBatchIdCardsPDF } from '@/lib/idCardPdf';
-import { formatDateDMY } from '@/lib/utils';
+import { formatDateDMY, getPublicVerificationUrl } from '@/lib/utils';
 import QRCode from 'qrcode';
 
 // Dynamic Live QR Code Component for Every Student Card (Scannable on all phones)
@@ -45,17 +45,14 @@ function StudentCardQR({ rec, isDark = false }) {
   useEffect(() => {
     if (!rec) return;
     const identifier = rec.admissionNo || rec.rollNo || rec._id || 'PRC260001';
-    const baseUrl = typeof window !== 'undefined' && window.location.origin 
-      ? window.location.origin 
-      : 'https://stoofi.vercel.app';
-    const verifyUrl = `${baseUrl}/verify/student/${encodeURIComponent(identifier)}`;
+    const verifyUrl = getPublicVerificationUrl(identifier);
 
     QRCode.toDataURL(verifyUrl, { 
       margin: 1, 
       width: 220, 
       errorCorrectionLevel: 'M',
       color: { 
-        dark: isDark ? '#ffffff' : '#0f172a', 
+        dark: isDark ? '#ffffff' : '#084A86', 
         light: isDark ? '#09090b' : '#ffffff' 
       } 
     })

@@ -105,3 +105,17 @@ export function getClientDeviceName() {
   }
 }
 
+// Generate the official scannable verification URL for student ID card QR code
+export function getPublicVerificationUrl(identifier) {
+  if (!identifier) return 'https://pakroyalcollege.edu.pk/verify';
+  const cleanId = encodeURIComponent(String(identifier).trim());
+  let baseUrl = 'https://stoofi.vercel.app';
+  if (typeof window !== 'undefined' && window.location && window.location.origin) {
+    const origin = window.location.origin;
+    if (origin.startsWith('http://') || origin.startsWith('https://')) {
+      baseUrl = origin;
+    }
+  }
+  return `${baseUrl}/verify/student/${cleanId}`;
+}
+

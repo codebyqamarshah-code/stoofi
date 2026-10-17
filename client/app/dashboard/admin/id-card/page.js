@@ -45,38 +45,24 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import api from '@/services/api';
 import { downloadIdCardPDF } from '@/lib/idCardPdf';
+import { getPublicVerificationUrl } from '@/lib/utils';
 import QRCode from 'qrcode';
 
 // Dynamic Real Scannable Verification QR Code Component for Every ID Card
 function StudentCardQR({ rec, size = 52 }) {
   const [dataUrl, setDataUrl] = useState('');
 
-  const qrText = useMemo(() => {
-    if (!rec) return 'PAK ROYAL COLLEGE SHARAQPUR';
-    const adm = rec.admissionNo || rec.staffNo || 'PRC-001';
-    const name = `${rec.firstName || ''} ${rec.lastName || ''}`.trim() || rec.name || 'Student';
-    const roll = rec.rollNo || '';
-    const cls = rec.className ? `${rec.className}${rec.section ? ` (${rec.section})` : ''}` : '';
-    const guardian = rec.fatherName || '';
-    const phone = rec.phone || '';
-    return [
-      'PAK ROYAL COLLEGE SHARAQPUR',
-      `ID: ${adm}`,
-      `Name: ${name}`,
-      cls ? `Class: ${cls}` : null,
-      roll ? `Roll No: ${roll}` : null,
-      guardian ? `Guardian: ${guardian}` : null,
-      phone ? `Phone: ${phone}` : null,
-      'Status: VERIFIED & ACTIVE',
-      `Verify: https://pakroyalcollege.edu.pk/verify/${encodeURIComponent(adm)}`
-    ].filter(Boolean).join('\n');
+  const qrUrl = useMemo(() => {
+    if (!rec) return 'https://pakroyalcollege.edu.pk/verify';
+    const identifier = rec.admissionNo || rec.rollNo || rec._id || rec.staffNo || 'PRC260001';
+    return getPublicVerificationUrl(identifier);
   }, [rec]);
 
   useEffect(() => {
     let isMounted = true;
-    QRCode.toDataURL(qrText, {
+    QRCode.toDataURL(qrUrl, {
       margin: 0,
-      width: size * 2,
+      width: size * 3,
       errorCorrectionLevel: 'M',
       color: {
         dark: '#084A86',
@@ -88,7 +74,7 @@ function StudentCardQR({ rec, size = 52 }) {
       console.warn('QR Code generation error:', err);
     });
     return () => { isMounted = false; };
-  }, [qrText, size]);
+  }, [qrUrl, size]);
 
   if (!dataUrl) {
     return (
