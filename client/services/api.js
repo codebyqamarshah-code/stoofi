@@ -69,14 +69,8 @@ api.interceptors.request.use((config) => {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    try {
-      let devId = localStorage.getItem('stoofi_device_id');
-      if (!devId) {
-        devId = `dev_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 10)}`;
-        localStorage.setItem('stoofi_device_id', devId);
-      }
-      config.headers['X-Device-Id'] = devId;
-    } catch (_) {}
+    // Device ID is passed in request body for /auth/login only (see useAuth.js)
+    // Do NOT send it as a custom header — it triggers CORS preflight on every request
   }
 
   if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
