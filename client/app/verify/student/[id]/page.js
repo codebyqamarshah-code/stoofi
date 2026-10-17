@@ -4,10 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { 
-  GraduationCap, CheckCircle2, User, ChevronDown, ChevronUp, 
+  GraduationCap, CheckCircle2, User, 
   AlertTriangle, ShieldCheck, RefreshCw 
 } from 'lucide-react';
-import { formatDateDMY, getPhotoUrl } from '@/lib/utils';
+import { formatDateDMY, getPhotoUrl, formatStudentRollNo } from '@/lib/utils';
 import api from '@/services/api';
 
 function formatCnic(val) {
@@ -23,6 +23,7 @@ const SAMPLE_DATA = {
   name: 'Muhammad Ahmed',
   firstName: 'Muhammad',
   lastName: 'Ahmed',
+  rollNo: 'PRC0001',
   admissionNo: 'PRC-2026-00125',
   regNo: 'PRC-REG-00125',
   program: 'F.Sc Medical Lab Technology',
@@ -41,7 +42,6 @@ export default function StudentVerifyPage() {
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
     if (!decodedId) {
@@ -222,6 +222,12 @@ export default function StudentVerifyPage() {
             <span className="text-zinc-100 font-mono font-medium">{s.studentId || s.admissionNo || 'PRC-2026-00125'}</span>
           </div>
 
+          {/* Roll No. */}
+          <div className="py-3 flex items-center justify-between">
+            <span className="text-zinc-400">Roll No.</span>
+            <span className="text-amber-400 font-mono font-bold tracking-wider">{formatStudentRollNo(s.rollNo || s.studentId || 1)}</span>
+          </div>
+
           {/* Registration No. */}
           <div className="py-3 flex items-center justify-between">
             <span className="text-zinc-400">Registration No.</span>
@@ -260,47 +266,6 @@ export default function StudentVerifyPage() {
             <span className="text-zinc-100 font-medium">{s.cardExpiry || '31/08/2028'}</span>
           </div>
         </div>
-
-        {/* Optional Collapsible for Additional Database Details (if real student) */}
-        {!s.isSample && (s.fatherName || s.cnic || s.dob) && (
-          <div className="pt-1">
-            <button
-              onClick={() => setShowMore(!showMore)}
-              className="w-full flex items-center justify-between py-2 px-3 rounded-lg bg-zinc-950 border border-zinc-900 text-xs text-zinc-400 hover:text-zinc-200 transition"
-            >
-              <span>More Verified Details (Father, CNIC, DOB)</span>
-              {showMore ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-            </button>
-            {showMore && (
-              <div className="mt-2 p-3 bg-zinc-950 rounded-xl border border-zinc-900 divide-y divide-zinc-900 text-xs">
-                {s.fatherName && (
-                  <div className="py-2 flex justify-between">
-                    <span className="text-zinc-500">Father Name:</span>
-                    <span className="text-zinc-200 font-medium">{s.fatherName}</span>
-                  </div>
-                )}
-                {s.cnic && (
-                  <div className="py-2 flex justify-between">
-                    <span className="text-zinc-500">CNIC / B-Form:</span>
-                    <span className="text-zinc-200 font-mono">{formatCnic(s.cnic)}</span>
-                  </div>
-                )}
-                {s.dob && (
-                  <div className="py-2 flex justify-between">
-                    <span className="text-zinc-500">Date of Birth:</span>
-                    <span className="text-zinc-200 font-mono">{formatDateDMY(s.dob)}</span>
-                  </div>
-                )}
-                {s.joiningDate && (
-                  <div className="py-2 flex justify-between">
-                    <span className="text-zinc-500">Joining Date:</span>
-                    <span className="text-zinc-200 font-mono">{formatDateDMY(s.joiningDate)}</span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Bottom Section matching Screenshot 2 */}
         <div className="text-center pt-2 space-y-2">
