@@ -108,7 +108,7 @@ export default function PaymentReportPage() {
                     ${Number(r.paid || 0).toLocaleString()}
                   </td>
                   <td className="px-4 py-3 text-zinc-600 dark:text-zinc-700 text-xs">
-                    {r.date ? new Date(r.date).toLocaleDateString() : '-'}
+                    {r.date ? new Date(r.date).toLocaleDateString('en-GB') : '-'}
                   </td>
                 </tr>
               ))}

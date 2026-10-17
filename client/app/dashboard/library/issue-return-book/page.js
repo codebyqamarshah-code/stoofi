@@ -195,9 +195,9 @@ export default function IssueReturnBookPage() {
       bookTitle: getBookTitle(i.bookId),
       memberName: getMemberName(i.memberId),
       memberType: getMemberType(i.memberId),
-      issueDate: i.issueDate ? new Date(i.issueDate).toLocaleDateString() : '—',
-      dueDate: i.dueDate ? new Date(i.dueDate).toLocaleDateString() : '—',
-      returnDate: i.returnDate ? new Date(i.returnDate).toLocaleDateString() : '—',
+      issueDate: i.issueDate ? new Date(i.issueDate).toLocaleDateString('en-GB') : '—',
+      dueDate: i.dueDate ? new Date(i.dueDate).toLocaleDateString('en-GB') : '—',
+      returnDate: i.returnDate ? new Date(i.returnDate).toLocaleDateString('en-GB') : '—',
       status: stLabel
     };
   });
@@ -423,11 +423,11 @@ export default function IssueReturnBookPage() {
                             <div className="text-[11px] text-zinc-400 capitalize">{getMemberType(i.memberId)}</div>
                           </td>
                           <td className="px-4 py-3 text-zinc-600 text-xs">
-                            {i.issueDate ? new Date(i.issueDate).toLocaleDateString() : '—'}
+                            {i.issueDate ? new Date(i.issueDate).toLocaleDateString('en-GB') : '—'}
                           </td>
                           <td className="px-4 py-3 text-xs font-semibold">
                             <span className={isOverdue ? 'text-rose-600 font-bold' : 'text-zinc-800'}>
-                              {i.dueDate ? new Date(i.dueDate).toLocaleDateString() : '—'}
+                              {i.dueDate ? new Date(i.dueDate).toLocaleDateString('en-GB') : '—'}
                             </span>
                           </td>
                           <td className="px-4 py-3">

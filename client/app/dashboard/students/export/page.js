@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
@@ -10,6 +10,7 @@ import { SearchableSelect } from '@/components/ui/searchable-select';
 import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
+import { formatDateDMY } from '@/lib/utils';
 import StudentImportModal from '@/components/StudentImportModal';
 
 const ACADEMIC_YEARS = [
@@ -142,7 +143,8 @@ export default function StudentExportPage() {
         'Class': s.className || '-',
         'Section': s.section || '-',
         'Gender': s.gender || '-',
-        'Date of Birth': s.dob || '-',
+        'Date of Birth': formatDateDMY(s.dob),
+        'Joining Date': formatDateDMY(s.joiningDate || s.admissionDate),
       };
 
       if (includeParents) {

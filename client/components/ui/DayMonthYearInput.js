@@ -29,39 +29,73 @@ export function DayMonthYearInput({
   const parseDate = (val) => {
     if (!val) return { d: '', m: '', y: '' };
     const str = String(val).trim();
-    if (str.includes('T')) {
-      const [y, m, d] = str.split('T')[0].split('-');
-      return { 
-        d: d ? String(parseInt(d, 10)).padStart(2, '0') : '', 
-        m: m ? String(parseInt(m, 10)).padStart(2, '0') : '', 
-        y: y || '' 
-      };
+    if (!str || str === '—' || str === '-' || str === 'null' || str === 'undefined') {
+      return { d: '', m: '', y: '' };
     }
-    if (str.includes('-')) {
-      const parts = str.split('-');
+
+    // Excel serial conversion
+    const excelSerialToDMY = (serial) => {
+      if (serial >= 1000 && serial <= 80000) {
+        const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+        const msPerDay = 24 * 60 * 60 * 1000;
+        const d = new Date(excelEpoch.getTime() + serial * msPerDay);
+        if (!isNaN(d.getTime()) && d.getUTCFullYear() > 1900 && d.getUTCFullYear() < 2100) {
+          return {
+            d: String(d.getUTCDate()).padStart(2, '0'),
+            m: String(d.getUTCMonth() + 1).padStart(2, '0'),
+            y: String(d.getUTCFullYear())
+          };
+        }
+      }
+      return null;
+    };
+
+    if (/^\d{4,6}(\.\d+)?$/.test(str)) {
+      const conv = excelSerialToDMY(Math.floor(parseFloat(str)));
+      if (conv) return conv;
+    }
+
+    const clean = str.split('T')[0].split(' ')[0].trim();
+    const parts = clean.split(/[-/.]/);
+    if (parts.length === 3) {
+      for (const p of parts) {
+        const n = parseInt(p, 10);
+        if (n > 2100 && n <= 80000) {
+          const conv = excelSerialToDMY(n);
+          if (conv) return conv;
+        }
+      }
+
       if (parts[0].length === 4) {
-        return { 
-          d: parts[2] ? String(parseInt(parts[2], 10)).padStart(2, '0') : '', 
-          m: parts[1] ? String(parseInt(parts[1], 10)).padStart(2, '0') : '', 
-          y: parts[0] || '' 
+        // YYYY-MM-DD
+        return {
+          d: parts[2] ? String(parseInt(parts[2], 10)).padStart(2, '0') : '',
+          m: parts[1] ? String(parseInt(parts[1], 10)).padStart(2, '0') : '',
+          y: parts[0] || ''
+        };
+      } else {
+        // DD-MM-YYYY or DD/MM/YYYY
+        return {
+          d: parts[0] ? String(parseInt(parts[0], 10)).padStart(2, '0') : '',
+          m: parts[1] ? String(parseInt(parts[1], 10)).padStart(2, '0') : '',
+          y: parts[2] || ''
         };
       }
-      return { 
-        d: parts[0] ? String(parseInt(parts[0], 10)).padStart(2, '0') : '', 
-        m: parts[1] ? String(parseInt(parts[1], 10)).padStart(2, '0') : '', 
-        y: parts[2] || '' 
+    }
+
+    const d = new Date(str);
+    if (!isNaN(d.getTime())) {
+      if (d.getFullYear() > 2100 && d.getFullYear() <= 80000) {
+        const conv = excelSerialToDMY(d.getFullYear());
+        if (conv) return conv;
+      }
+      return {
+        d: String(d.getDate()).padStart(2, '0'),
+        m: String(d.getMonth() + 1).padStart(2, '0'),
+        y: String(d.getFullYear())
       };
     }
-    if (str.includes('/')) {
-      const parts = str.split('/');
-      if (parts[2]?.length === 4) {
-        return { 
-          d: parts[0] ? String(parseInt(parts[0], 10)).padStart(2, '0') : '', 
-          m: parts[1] ? String(parseInt(parts[1], 10)).padStart(2, '0') : '', 
-          y: parts[2] || '' 
-        };
-      }
-    }
+
     return { d: '', m: '', y: '' };
   };
 
@@ -79,8 +113,9 @@ export function DayMonthYearInput({
 
   const emitChange = (d, m, y) => {
     if (d && m && y) {
-      const isoStr = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-      if (onChange) onChange({ target: { name, value: isoStr } });
+      // Pehle Date, Month, Year aayega (DD/MM/YYYY)
+      const dmyStr = `${d.padStart(2, '0')}/${m.padStart(2, '0')}/${y}`;
+      if (onChange) onChange({ target: { name, value: dmyStr } });
     } else if (!d && !m && !y) {
       if (onChange) onChange({ target: { name, value: '' } });
     }

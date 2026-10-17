@@ -44,7 +44,7 @@ export default function Page() {
             id: h._id,
             Subject: h.subject || '-',
             Topic: h.description || '-',
-            Deadline: h.submissionDate ? new Date(h.submissionDate).toLocaleDateString() : 'No deadline',
+            Deadline: h.submissionDate ? new Date(h.submissionDate).toLocaleDateString('en-GB') : 'No deadline',
             Status: <span className={statusClass}>{statusText}</span>,
             Action: isCompleted ? (
               <span className="text-emerald-600 font-bold text-xs bg-emerald-100 px-2 py-1 rounded">Submitted</span>

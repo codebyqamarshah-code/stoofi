@@ -10,6 +10,13 @@ export function cn(...inputs) {
 export function formatDateDMY(dateInput) {
   if (!dateInput) return '—';
   try {
+    if (dateInput instanceof Date && !isNaN(dateInput.getTime())) {
+      const dd = String(dateInput.getDate()).padStart(2, '0');
+      const mm = String(dateInput.getMonth() + 1).padStart(2, '0');
+      const yyyy = dateInput.getFullYear();
+      return `${dd}/${mm}/${yyyy}`;
+    }
+
     const raw = String(dateInput).trim();
     if (!raw || raw === '—' || raw === '-' || raw === 'null' || raw === 'undefined') return '—';
 
@@ -53,6 +60,9 @@ export function formatDateDMY(dateInput) {
       } else if (parts[2].length === 4) {
         // DD-MM-YYYY or DD/MM/YYYY -> DD/MM/YYYY
         return `${parts[0].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[2]}`;
+      } else if (parts[2].length === 2) {
+        const yFull = parseInt(parts[2], 10) > 50 ? `19${parts[2]}` : `20${parts[2]}`;
+        return `${parts[0].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${yFull}`;
       }
     }
 

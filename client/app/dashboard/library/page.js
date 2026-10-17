@@ -85,8 +85,8 @@ export default function LibraryDashboardHub() {
   const exportData = issues.map(i => ({
     bookTitle: getBookTitle(i.bookId),
     memberName: getMemberName(i.memberId),
-    issueDate: i.issueDate ? new Date(i.issueDate).toLocaleDateString() : '—',
-    dueDate: i.dueDate ? new Date(i.dueDate).toLocaleDateString() : '—',
+    issueDate: i.issueDate ? new Date(i.issueDate).toLocaleDateString('en-GB') : '—',
+    dueDate: i.dueDate ? new Date(i.dueDate).toLocaleDateString('en-GB') : '—',
     status: (i.status || '').toLowerCase() === 'returned' ? 'Returned' : 'Issued'
   }));
 
@@ -372,11 +372,11 @@ export default function LibraryDashboardHub() {
                         {getMemberName(i.memberId)}
                       </td>
                       <td className="px-4 py-3.5 text-zinc-600 text-xs">
-                        {i.issueDate ? new Date(i.issueDate).toLocaleDateString() : '—'}
+                        {i.issueDate ? new Date(i.issueDate).toLocaleDateString('en-GB') : '—'}
                       </td>
                       <td className="px-4 py-3.5 text-xs font-semibold">
                         <span className={isOverdue ? 'text-rose-600 font-bold' : 'text-zinc-800'}>
-                          {i.dueDate ? new Date(i.dueDate).toLocaleDateString() : '—'}
+                          {i.dueDate ? new Date(i.dueDate).toLocaleDateString('en-GB') : '—'}
                         </span>
                       </td>
                       <td className="px-4 py-3.5">

@@ -19,7 +19,7 @@ export default function Page() {
 
         if (res?.success && Array.isArray(res.data)) {
           const mapped = res.data.map(record => ({
-            Date: record.date ? new Date(record.date).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '-',
+            Date: record.date ? new Date(record.date).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '-',
             Status: record.status === 'Present'
               ? <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Present</span>
               : record.status === 'Absent'

@@ -130,9 +130,7 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
     const str = String(val).trim();
     if (!str) return '';
 
-    // If it's a number (e.g. 37810, 39174, 37810.0), convert Excel serial days to date
-    if (/^\d{4,6}(\.\d+)?$/.test(str)) {
-      const serial = Math.floor(parseFloat(str));
+    const excelSerialToDMY = (serial) => {
       if (serial >= 1000 && serial <= 80000) {
         const excelEpoch = new Date(Date.UTC(1899, 11, 30));
         const msPerDay = 24 * 60 * 60 * 1000;
@@ -144,15 +142,35 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
           return `${dd}/${mm}/${yyyy}`;
         }
       }
+      return null;
+    };
+
+    // If it's a number (e.g. 37810, 39174, 37810.0), convert Excel serial days to date
+    if (/^\d{4,6}(\.\d+)?$/.test(str)) {
+      const conv = excelSerialToDMY(Math.floor(parseFloat(str)));
+      if (conv) return conv;
     }
 
-    // Handle ISO YYYY-MM-DD
+    // Check if any component is a serial year > 2100 (e.g. 01/01/37810)
+    const cleanStr = str.split('T')[0].split(' ')[0].trim();
+    const parts = cleanStr.split(/[-/.]/);
+    if (parts.length === 3) {
+      for (const p of parts) {
+        const n = parseInt(p, 10);
+        if (n > 2100 && n <= 80000) {
+          const conv = excelSerialToDMY(n);
+          if (conv) return conv;
+        }
+      }
+    }
+
+    // Handle ISO YYYY-MM-DD -> DD/MM/YYYY
     const isoMatch = str.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
     if (isoMatch) {
       return `${isoMatch[3].padStart(2, '0')}/${isoMatch[2].padStart(2, '0')}/${isoMatch[1]}`;
     }
 
-    // Handle DMY format DD-MM-YYYY
+    // Handle DMY format DD-MM-YYYY -> DD/MM/YYYY
     const dmyMatch = str.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
     if (dmyMatch) {
       return `${dmyMatch[1].padStart(2, '0')}/${dmyMatch[2].padStart(2, '0')}/${dmyMatch[3]}`;
@@ -516,6 +534,7 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
                           <th className="p-2.5">Name</th>
                           <th className="p-2.5">Class (Sec)</th>
                           <th className="p-2.5">Gender</th>
+                          <th className="p-2.5">Date of Birth</th>
                           <th className="p-2.5">Father Name</th>
                           <th className="p-2.5">CNIC / B-Form</th>
                           <th className="p-2.5">Joining Date</th>
@@ -530,6 +549,7 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
                             <td className="p-2.5 font-semibold text-zinc-900">{stu.firstName} {stu.lastName}</td>
                             <td className="p-2.5">{stu.className} ({stu.section})</td>
                             <td className="p-2.5">{stu.gender}</td>
+                            <td className="p-2.5 font-semibold text-emerald-800">{stu.dob || '—'}</td>
                             <td className="p-2.5">{stu.fatherName}</td>
                             <td className="p-2.5 font-mono text-[11px] font-bold text-zinc-950">{stu.cnic || stu.bForm || '—'}</td>
                             <td className="p-2.5 font-medium text-zinc-900">{stu.joiningDate || stu.admissionDate || '—'}</td>

@@ -24,7 +24,7 @@ export default function Page() {
           const mapped = mySchedule.map(r => ({
             'Exam Name': r.examName || r.examType || '-',
             Subject: r.subject || '-',
-            Date: r.date ? new Date(r.date).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '-',
+            Date: r.date ? new Date(r.date).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '-',
             Time: r.startTime && r.endTime ? `${r.startTime} - ${r.endTime}` : r.startTime || '-',
             Room: r.room || r.roomNo || '-'
           }));

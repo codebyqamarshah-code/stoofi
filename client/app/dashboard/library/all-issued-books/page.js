@@ -300,15 +300,15 @@ export default function AllIssuedBooksPage() {
                         <div className="text-[11px] text-zinc-400 capitalize">{getMemberType(i.memberId)}</div>
                       </td>
                       <td className="px-4 py-3.5 text-zinc-600 text-xs">
-                        {i.issueDate ? new Date(i.issueDate).toLocaleDateString() : '—'}
+                        {i.issueDate ? new Date(i.issueDate).toLocaleDateString('en-GB') : '—'}
                       </td>
                       <td className="px-4 py-3.5 text-xs font-semibold">
                         <span className={isOverdue ? 'text-rose-600 font-bold' : 'text-zinc-800'}>
-                          {i.dueDate ? new Date(i.dueDate).toLocaleDateString() : '—'}
+                          {i.dueDate ? new Date(i.dueDate).toLocaleDateString('en-GB') : '—'}
                         </span>
                       </td>
                       <td className="px-4 py-3.5 text-zinc-600 text-xs">
-                        {i.returnDate ? new Date(i.returnDate).toLocaleDateString() : '—'}
+                        {i.returnDate ? new Date(i.returnDate).toLocaleDateString('en-GB') : '—'}
                       </td>
                       <td className="px-4 py-3.5">
                         <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${

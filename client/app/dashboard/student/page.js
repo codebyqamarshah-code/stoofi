@@ -19,7 +19,7 @@ function getGreeting() {
 }
 
 function formatDate() {
-  return new Date().toLocaleDateString('en-US', {
+  return new Date().toLocaleDateString('en-GB', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
   });
 }
@@ -376,7 +376,7 @@ export default function StudentDashboardPage() {
                       {hw.subject}
                     </span>
                     <span className="text-[11px] font-semibold text-rose-600">
-                      Due: {hw.submissionDate ? new Date(hw.submissionDate).toLocaleDateString() : 'N/A'}
+                      Due: {hw.submissionDate ? new Date(hw.submissionDate).toLocaleDateString('en-GB') : 'N/A'}
                     </span>
                   </div>
                   <p className="text-xs text-zinc-700 font-medium mt-2 line-clamp-2">

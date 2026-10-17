@@ -34,7 +34,7 @@ export default function Page() {
               : f.status === 'Partial'
               ? <span className="text-amber-500 font-bold">Partial</span>
               : <span className="text-rose-500 font-bold">Unpaid</span>,
-            Date: f.createdAt ? new Date(f.createdAt).toLocaleDateString() : '-'
+            Date: f.createdAt ? new Date(f.createdAt).toLocaleDateString('en-GB') : '-'
           }));
           setData(mapped);
         } else {

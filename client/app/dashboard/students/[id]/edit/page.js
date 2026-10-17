@@ -15,6 +15,7 @@ import { SearchableSelect } from '@/components/ui/searchable-select';
 import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 import { getPhotoUrl } from '@/lib/utils';
+import { DayMonthYearInput } from '@/components/ui/DayMonthYearInput';
 
 const QUALIFICATION_LEVELS = [
   { label: 'Primary (Class 1-5)', value: 'Primary' },
@@ -619,23 +620,23 @@ export default function EditStudentPage() {
 
                       <div className="space-y-1.5">
                         <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Admission Date</Label>
-                        <Input 
+                        <DayMonthYearInput 
                           name="admissionDate" 
-                          type="date"
                           value={formData.admissionDate} 
                           onChange={handleInputChange} 
-                          className="bg-white border-zinc-300 text-zinc-950 font-medium" 
+                          minYear={2015} 
+                          maxYear={2030} 
                         />
                       </div>
 
                       <div className="space-y-1.5">
                         <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Joining Date</Label>
-                        <Input 
+                        <DayMonthYearInput 
                           name="joiningDate" 
-                          type="date"
                           value={formData.joiningDate} 
                           onChange={handleInputChange} 
-                          className="bg-white border-zinc-300 text-zinc-950 font-medium" 
+                          minYear={2015} 
+                          maxYear={2030} 
                         />
                       </div>
 
@@ -707,12 +708,12 @@ export default function EditStudentPage() {
 
                       <div className="space-y-1.5">
                         <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Date of Birth</Label>
-                        <Input 
+                        <DayMonthYearInput 
                           name="dob" 
-                          type="date"
                           value={formData.dob} 
                           onChange={handleInputChange} 
-                          className="bg-white border-zinc-300 text-zinc-950 font-medium" 
+                          minYear={1990} 
+                          maxYear={2026} 
                         />
                       </div>
 

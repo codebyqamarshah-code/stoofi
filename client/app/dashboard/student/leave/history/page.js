@@ -23,8 +23,8 @@ export default function Page() {
           const mapped = myLeaves.map((l, i) => ({
             '#': i + 1,
             'Leave Type': l.leaveType || l.type || '-',
-            From: l.fromDate ? new Date(l.fromDate).toLocaleDateString() : '-',
-            To: l.toDate ? new Date(l.toDate).toLocaleDateString() : '-',
+            From: l.fromDate ? new Date(l.fromDate).toLocaleDateString('en-GB') : '-',
+            To: l.toDate ? new Date(l.toDate).toLocaleDateString('en-GB') : '-',
             Days: l.days || '-',
             Reason: l.reason || '-',
             Status: l.status === 'Approved'

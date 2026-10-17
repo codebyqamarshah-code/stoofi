@@ -105,7 +105,7 @@ export default function FeesDueReportPage() {
                     <span className="bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400 px-2 py-1 rounded text-xs">{r.feeType}</span>
                   </td>
                   <td className="px-4 py-3 font-semibold text-zinc-900 dark:text-zinc-950">${Number(r.balance || 0).toLocaleString()}</td>
-                  <td className="px-4 py-3 text-zinc-600 dark:text-zinc-700 text-xs">{new Date(r.date || r.createdAt).toLocaleDateString()}</td>
+                  <td className="px-4 py-3 text-zinc-600 dark:text-zinc-700 text-xs">{new Date(r.date || r.createdAt).toLocaleDateString('en-GB')}</td>
                 </tr>
               ))}
             </tbody>
