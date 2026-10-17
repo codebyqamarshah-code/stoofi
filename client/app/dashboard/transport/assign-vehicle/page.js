@@ -5,14 +5,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { 
   ChevronRight, 
   Search, 
-  Shuffle, 
-  Plus, 
   Edit, 
   Trash2, 
   X, 
-  Bus, 
-  MapPin, 
-  Users, 
+  Plus,
   CheckCircle2, 
   AlertCircle 
 } from 'lucide-react';
@@ -20,7 +16,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
-import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import api from '@/services/api';
 
 export default function AssignVehiclePage() {
@@ -32,6 +27,7 @@ export default function AssignVehiclePage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [search, setSearch] = useState('');
+  const [message, setMessage] = useState(null);
 
   // Edit Modal State
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -39,17 +35,37 @@ export default function AssignVehiclePage() {
   const [editFormData, setEditFormData] = useState({ routeId: '', vehicleId: '' });
   const [editSaving, setEditSaving] = useState(false);
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [aRes, rRes, vRes] = await Promise.all([
+
+      const [aRes, rRes, vRes] = await Promise.allSettled([
         api.get('/transport-assign'),
         api.get('/transport-route'),
         api.get('/transport-vehicle')
       ]);
-      if (aRes?.success && Array.isArray(aRes.data)) setAssigns(aRes.data);
-      if (rRes?.success && Array.isArray(rRes.data)) setRoutes(rRes.data);
-      if (vRes?.success && Array.isArray(vRes.data)) setVehicles(vRes.data);
+
+      if (aRes.status === 'fulfilled' && aRes.value?.success && Array.isArray(aRes.value.data)) {
+        setAssigns(aRes.value.data);
+      } else {
+        setAssigns([]);
+      }
+
+      if (rRes.status === 'fulfilled' && rRes.value?.success && Array.isArray(rRes.value.data)) {
+        setRoutes(rRes.value.data);
+      } else {
+        setRoutes([]);
+      }
+
+      if (vRes.status === 'fulfilled' && vRes.value?.success && Array.isArray(vRes.value.data)) {
+        setVehicles(vRes.value.data);
+      } else {
+        setVehicles([]);
+      }
     } catch (error) {
       console.error('Error fetching assign data:', error);
     } finally {
@@ -63,14 +79,22 @@ export default function AssignVehiclePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.routeId || !formData.vehicleId) {
-      return alert('Both Route and Vehicle selection are required');
+    if (!formData.routeId) {
+      alert('Please select a Route');
+      return;
     }
+    if (!formData.vehicleId) {
+      alert('Please select a Vehicle');
+      return;
+    }
+
     try {
       setSubmitting(true);
       const res = await api.post('/transport-assign', formData);
       if (res?.success) {
         setFormData({ routeId: '', vehicleId: '' });
+        setMessage({ type: 'success', text: 'Vehicle assigned to route successfully!' });
+        setTimeout(() => setMessage(null), 3000);
         fetchData();
       } else {
         alert(res?.message || 'Failed to save vehicle assignment');
@@ -94,13 +118,15 @@ export default function AssignVehiclePage() {
   const handleSaveEdit = async (e) => {
     e.preventDefault();
     if (!editFormData.routeId || !editFormData.vehicleId) {
-      return alert('Both Route and Vehicle selection are required');
+      return alert('Both Route and Vehicle are required');
     }
     try {
       setEditSaving(true);
       const res = await api.put(`/transport-assign/${editingAssign._id}`, editFormData);
       if (res?.success) {
         setIsEditOpen(false);
+        setMessage({ type: 'success', text: 'Assignment updated successfully!' });
+        setTimeout(() => setMessage(null), 3000);
         fetchData();
       } else {
         alert(res?.message || 'Failed to update assignment');
@@ -116,280 +142,229 @@ export default function AssignVehiclePage() {
     if (confirm('Are you sure you want to remove this vehicle assignment?')) {
       try {
         const res = await api.delete(`/transport-assign/${id}`);
-        if (res?.success) fetchData();
-        else alert(res?.message || 'Failed to delete assignment');
+        if (res?.success) {
+          setMessage({ type: 'success', text: 'Assignment deleted successfully!' });
+          setTimeout(() => setMessage(null), 3000);
+          fetchData();
+        } else {
+          alert(res?.message || 'Failed to delete assignment');
+        }
       } catch (error) {
         alert(error.message || 'Error deleting assignment');
       }
     }
   };
 
-  const getRouteObj = (id) => routes.find(x => x._id === id);
-  const getVehicleObj = (id) => vehicles.find(x => x._id === id);
+  const getRouteObj = (id) => routes.find(x => String(x._id) === String(id));
+  const getVehicleObj = (id) => vehicles.find(x => String(x._id) === String(id));
 
-  // KPIs
-  const totalAssignments = assigns.length;
-  const uniqueRoutesCovered = new Set(assigns.map(a => a.routeId)).size;
-  const uniqueVehiclesDeployed = new Set(assigns.map(a => a.vehicleId)).size;
+  const filteredAssigns = useMemo(() => {
+    return assigns.filter(a => {
+      const r = getRouteObj(a.routeId);
+      const v = getVehicleObj(a.vehicleId);
+      const routeTitle = (r?.title || a.routeTitle || '').toLowerCase();
+      const vehicleNo = (v?.vehicleNo || a.vehicleNo || '').toLowerCase();
+      const driverName = (v?.driverName || a.driverName || '').toLowerCase();
+      const q = search.toLowerCase();
+      return routeTitle.includes(q) || vehicleNo.includes(q) || driverName.includes(q);
+    });
+  }, [assigns, routes, vehicles, search]);
 
-  const filtered = assigns.filter(a => {
-    const route = getRouteObj(a.routeId);
-    const vehicle = getVehicleObj(a.vehicleId);
-    const routeTitle = (route?.title || '').toLowerCase();
-    const vehicleNo = (vehicle?.vehicleNo || '').toLowerCase();
-    const driverName = (vehicle?.driverName || '').toLowerCase();
-    const q = search.toLowerCase();
-    return routeTitle.includes(q) || vehicleNo.includes(q) || driverName.includes(q);
-  });
+  const totalPages = Math.max(1, Math.ceil(filteredAssigns.length / pageSize));
+  const paginatedAssigns = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredAssigns.slice(start, start + pageSize);
+  }, [filteredAssigns, currentPage]);
 
-  const exportData = filtered.map((a, i) => {
-    const r = getRouteObj(a.routeId);
-    const v = getVehicleObj(a.vehicleId);
-    return {
-      sl: i + 1,
-      route: r?.title || 'Unknown Route',
-      fare: r?.fare ? `PKR ${Number(r.fare).toLocaleString()}` : 'N/A',
-      vehicleNo: v?.vehicleNo || 'Unknown Vehicle',
-      driver: v?.driverName || 'Unassigned',
-      capacity: v?.capacity || 'N/A',
-      contact: v?.contact || 'N/A'
-    };
-  });
+  const routeOptions = useMemo(() => {
+    return routes.map(r => ({
+      label: `${r.title} ($${Number(r.fare || 0).toLocaleString()})`,
+      value: String(r._id)
+    }));
+  }, [routes]);
+
+  const vehicleOptions = useMemo(() => {
+    return vehicles.map(v => ({
+      label: `${v.vehicleNo}${v.driverName ? ` (${v.driverName})` : ''}`,
+      value: String(v._id)
+    }));
+  }, [vehicles]);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-950 flex items-center gap-2">
-            <Shuffle className="h-6 w-6 text-[#084A86]" />
-            Assign Vehicle to Route
-          </h1>
-          <p className="text-xs text-zinc-500 mt-1">Map school buses and vans to specific operational transit routes</p>
-        </div>
-        <div className="flex items-center text-sm text-zinc-400">
+      {/* Top Header & Breadcrumbs matching reference screenshot */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <h1 className="text-2xl font-bold text-[#0c3559] tracking-tight">Assign Vehicle</h1>
+        <div className="flex items-center text-xs text-zinc-400 font-medium">
           <Link href="/dashboard" className="hover:text-zinc-600 transition-colors">Dashboard</Link>
-          <ChevronRight className="h-3.5 w-3.5 mx-1" />
-          <Link href="/dashboard/transport" className="hover:text-zinc-600 transition-colors">Transport</Link>
-          <ChevronRight className="h-3.5 w-3.5 mx-1" />
-          <span className="text-zinc-950 font-bold">Assign Vehicle</span>
+          <ChevronRight className="h-3 w-3 mx-1 text-zinc-400" />
+          <Link href="/dashboard/transport/routes" className="hover:text-zinc-600 transition-colors">Transport</Link>
+          <ChevronRight className="h-3 w-3 mx-1 text-zinc-400" />
+          <span className="text-zinc-700 font-semibold">Assign Vehicle</span>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-blue-50 text-[#084A86] flex items-center justify-center font-bold">
-            <Shuffle className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Total Assignments</p>
-            <p className="text-xl font-bold text-zinc-950">{totalAssignments} Active Mappings</p>
-          </div>
+      {message && (
+        <div className={`p-3 rounded-lg text-xs font-semibold flex items-center gap-2 ${
+          message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'
+        }`}>
+          {message.type === 'success' ? <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" /> : <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />}
+          <span>{message.text}</span>
         </div>
+      )}
 
-        <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-            <MapPin className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Routes Covered</p>
-            <p className="text-xl font-bold text-zinc-950">{uniqueRoutesCovered} of {routes.length} Routes</p>
-          </div>
-        </div>
-
-        <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
-            <Bus className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Vehicles Deployed</p>
-            <p className="text-xl font-bold text-zinc-950">{uniqueVehiclesDeployed} of {vehicles.length} Fleet</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Left Form: Assign Vehicle */}
-        <div className="xl:col-span-1">
-          <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-zinc-200 bg-zinc-50/50">
-              <h2 className="text-sm font-bold text-zinc-950 uppercase tracking-wider flex items-center gap-2">
-                <Plus className="h-4 w-4 text-[#084A86]" />
-                New Route Assignment
-              </h2>
+      {/* Main Grid: Add Assign Vehicle (Left) and Assigned Vehicle List (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Add Assign Vehicle Form */}
+        <div className="lg:col-span-4">
+          <div className="bg-white border border-zinc-200 rounded-xl shadow-xs overflow-hidden">
+            <div className="px-5 py-4 border-b border-zinc-100">
+              <h2 className="text-base font-bold text-[#0c3559]">Add Assign Vehicle</h2>
             </div>
 
             <form className="p-5 space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-700 uppercase">
-                  Select Route <span className="text-rose-500">*</span>
-                </Label>
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">
+                    SELECT ROUTE <span className="text-rose-500">*</span>
+                  </Label>
+                  {routes.length === 0 && !loading && (
+                    <Link href="/dashboard/transport/routes" className="text-[11px] font-bold text-blue-600 hover:underline">
+                      + Add Route
+                    </Link>
+                  )}
+                </div>
                 <SearchableSelect 
                   value={formData.routeId} 
                   onChange={(val) => setFormData({ ...formData, routeId: val })}
-                  placeholder="Select Transport Route *"
-                  options={routes.map(r => ({ 
-                    label: `${r.title} (PKR ${Number(r.fare || 0).toLocaleString()})`, 
-                    value: r._id 
-                  }))}
+                  placeholder="Select Route"
+                  options={routeOptions}
                 />
+                {routes.length === 0 && !loading && (
+                  <p className="text-[11px] text-amber-700 bg-amber-50 p-2 rounded-lg border border-amber-200 mt-1">
+                    No routes found. Please create a route in the <strong>Routes</strong> page first.
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-700 uppercase">
-                  Select Vehicle <span className="text-rose-500">*</span>
-                </Label>
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">
+                    SELECT VEHICLE <span className="text-rose-500">*</span>
+                  </Label>
+                  {vehicles.length === 0 && !loading && (
+                    <Link href="/dashboard/transport/vehicle" className="text-[11px] font-bold text-blue-600 hover:underline">
+                      + Add Vehicle
+                    </Link>
+                  )}
+                </div>
                 <SearchableSelect 
                   value={formData.vehicleId} 
                   onChange={(val) => setFormData({ ...formData, vehicleId: val })}
-                  placeholder="Select Fleet Vehicle *"
-                  options={vehicles.map(v => ({ 
-                    label: `${v.vehicleNo} • ${v.capacity || 0} Seats • ${v.driverName || 'No Driver'}`, 
-                    value: v._id 
-                  }))}
+                  placeholder="Select Vehicle"
+                  options={vehicleOptions}
                 />
+                {vehicles.length === 0 && !loading && (
+                  <p className="text-[11px] text-amber-700 bg-amber-50 p-2 rounded-lg border border-amber-200 mt-1">
+                    No vehicles found. Please register a vehicle in the <strong>Vehicle</strong> page first.
+                  </p>
+                )}
               </div>
 
               <Button 
                 disabled={submitting} 
                 type="submit" 
                 style={{ backgroundColor: '#084A86' }}
-                className="w-full hover:opacity-95 text-white font-bold h-10 rounded-xl shadow-xs cursor-pointer mt-2"
+                className="w-full hover:opacity-95 text-white font-bold h-10 rounded-lg shadow-xs cursor-pointer uppercase tracking-wider text-xs"
               >
-                {submitting ? 'Assigning...' : 'Assign Vehicle to Route'}
+                {submitting ? 'SAVING...' : 'SAVE ASSIGN VEHICLE'}
               </Button>
             </form>
           </div>
         </div>
 
-        {/* Right Table: Assigned Vehicle List */}
-        <div className="xl:col-span-2">
-          <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden h-full flex flex-col">
-            <div className="p-4 border-b border-zinc-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-zinc-50/50">
-              <div>
-                <h2 className="text-base font-bold text-zinc-950">Assigned Fleet Directory ({assigns.length})</h2>
-                <p className="text-xs text-zinc-500 mt-0.5">Active route and vehicle pairings across the school fleet</p>
-              </div>
+        {/* Right Column: Assigned Vehicle List Table */}
+        <div className="lg:col-span-8">
+          <div className="bg-white border border-zinc-200 rounded-xl shadow-xs overflow-hidden">
+            <div className="px-5 py-4 border-b border-zinc-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <h2 className="text-base font-bold text-[#0c3559]">Assigned Vehicle List</h2>
 
-              <div className="flex items-center gap-2">
-                <div className="relative w-48 sm:w-56">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
-                  <Input 
-                    placeholder="Search route, vehicle, driver..." 
-                    value={search} 
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="pl-8.5 h-9 bg-white border-zinc-200 text-xs rounded-xl"
-                  />
-                </div>
+              <div className="relative w-full sm:w-56">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
+                <Input 
+                  placeholder="SEARCH" 
+                  value={search} 
+                  onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
+                  className="pl-8.5 h-8.5 text-xs bg-white border-zinc-200 rounded-lg uppercase tracking-wider text-zinc-700 placeholder:text-zinc-400"
+                />
               </div>
             </div>
 
-            <div className="p-3 border-b border-zinc-100 bg-white">
-              <TableExportToolbar 
-                data={exportData}
-                columns={[
-                  { key: 'sl', label: 'SL' },
-                  { key: 'route', label: 'Route Title' },
-                  { key: 'fare', label: 'Monthly Fare' },
-                  { key: 'vehicleNo', label: 'Vehicle No' },
-                  { key: 'driver', label: 'Driver' },
-                  { key: 'capacity', label: 'Capacity' },
-                  { key: 'contact', label: 'Driver Contact' }
-                ]}
-                fileName="Transport_Assigned_Vehicles"
-              />
-            </div>
-            
-            <div className="flex-1 overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="text-[11px] text-zinc-500 uppercase bg-zinc-50/80 border-b border-zinc-200 font-bold tracking-wider">
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left">
+                <thead className="text-[11px] text-[#0c3559] uppercase font-bold bg-[#f8fafc] border-b border-zinc-100">
                   <tr>
-                    <th className="px-4 py-3 w-14">SL</th>
-                    <th className="px-4 py-3">Route Title</th>
-                    <th className="px-4 py-3">Assigned Vehicle</th>
-                    <th className="px-4 py-3">Driver Info</th>
-                    <th className="px-4 py-3">Capacity</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
+                    <th className="px-5 py-3 font-bold w-16">SL</th>
+                    <th className="px-5 py-3 font-bold">ROUTE</th>
+                    <th className="px-5 py-3 font-bold">VEHICLE</th>
+                    <th className="px-5 py-3 font-bold">DRIVER</th>
+                    <th className="px-5 py-3 font-bold text-right w-24">ACTION</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
                   {loading ? (
                     <tr>
-                      <td colSpan="6" className="px-4 py-12 text-center text-zinc-400 font-medium text-xs">
-                        Loading route assignments...
+                      <td colSpan="5" className="px-5 py-16 text-center text-zinc-400">
+                        <div className="inline-flex items-center gap-2">
+                          <div className="h-4 w-4 rounded-full border-2 border-[#084A86] border-t-transparent animate-spin" />
+                          <span>Loading...</span>
+                        </div>
                       </td>
                     </tr>
-                  ) : filtered.length === 0 ? (
+                  ) : filteredAssigns.length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="px-4 py-12 text-center text-zinc-500">
-                        <Shuffle className="h-8 w-8 text-zinc-300 mx-auto mb-2" />
-                        <p className="font-semibold text-sm">No vehicle assignments found</p>
-                        <p className="text-xs text-zinc-400 mt-1">Map a vehicle to a route using the form on the left</p>
+                      <td colSpan="5" className="px-5 py-16 text-center text-sm font-medium text-zinc-400">
+                        No Data Available In Table
                       </td>
                     </tr>
                   ) : (
-                    filtered.map((item, idx) => {
-                      const route = getRouteObj(item.routeId);
-                      const vehicle = getVehicleObj(item.vehicleId);
+                    paginatedAssigns.map((assign, idx) => {
+                      const r = getRouteObj(assign.routeId);
+                      const v = getVehicleObj(assign.vehicleId);
+                      const routeName = r?.title || assign.routeTitle || 'Unknown Route';
+                      const vehicleName = v?.vehicleNo || assign.vehicleNo || 'Unknown Vehicle';
+                      const driver = v?.driverName || assign.driverName || '—';
+
                       return (
-                        <tr key={item._id} className="hover:bg-zinc-50/80 transition-colors">
-                          <td className="px-4 py-3.5 text-zinc-400 font-mono text-xs">
-                            {String(idx + 1).padStart(2, '0')}
+                        <tr key={assign._id} className="hover:bg-zinc-50/80 transition-colors">
+                          <td className="px-5 py-3.5 text-zinc-600 font-semibold">
+                            {(currentPage - 1) * pageSize + idx + 1}
                           </td>
-                          <td className="px-4 py-3.5">
-                            <div className="font-bold text-zinc-950 flex items-center gap-1.5">
-                              <MapPin className="h-3.5 w-3.5 text-[#084A86]" />
-                              {route?.title || <span className="text-zinc-400 italic">Route Deleted</span>}
-                            </div>
-                            {route?.fare && (
-                              <p className="text-[11px] font-mono text-zinc-500 mt-0.5">
-                                PKR {Number(route.fare).toLocaleString()} / month
-                              </p>
-                            )}
+                          <td className="px-5 py-3.5 font-bold text-[#0c3559]">
+                            {routeName}
                           </td>
-                          <td className="px-4 py-3.5">
-                            {vehicle ? (
-                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 text-[#084A86] border border-blue-100 font-mono text-xs font-bold">
-                                <Bus className="h-3 w-3" />
-                                {vehicle.vehicleNo}
-                              </span>
-                            ) : (
-                              <span className="text-rose-600 text-xs italic">Vehicle Removed</span>
-                            )}
+                          <td className="px-5 py-3.5 font-bold text-zinc-800">
+                            {vehicleName}
                           </td>
-                          <td className="px-4 py-3.5 text-zinc-800 text-xs">
-                            <p className="font-semibold text-zinc-950">{vehicle?.driverName || 'Unassigned'}</p>
-                            {vehicle?.contact && (
-                              <p className="text-zinc-500 font-mono text-[11px]">{vehicle.contact}</p>
-                            )}
+                          <td className="px-5 py-3.5 text-zinc-600">
+                            {driver}
                           </td>
-                          <td className="px-4 py-3.5 text-zinc-700">
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-700 text-xs font-semibold">
-                              <Users className="h-3 w-3 text-zinc-500" />
-                              {vehicle?.capacity || 0} Seats
-                            </span>
-                          </td>
-                          <td className="px-4 py-3.5 text-right">
+                          <td className="px-5 py-3.5 text-right">
                             <div className="flex items-center justify-end gap-1">
-                              <Button 
-                                onClick={() => handleOpenEdit(item)}
-                                variant="ghost" 
-                                size="sm" 
-                                className="h-8 w-8 p-0 text-zinc-600 hover:text-[#084A86] hover:bg-blue-50 rounded-lg cursor-pointer"
+                              <button 
+                                onClick={() => handleOpenEdit(assign)}
+                                className="p-1.5 text-zinc-400 hover:text-[#084A86] hover:bg-zinc-100 rounded-md transition"
                                 title="Edit Assignment"
                               >
                                 <Edit className="h-3.5 w-3.5" />
-                              </Button>
-                              <Button 
-                                onClick={() => handleDelete(item._id)} 
-                                variant="ghost" 
-                                size="sm" 
-                                className="h-8 w-8 p-0 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
+                              </button>
+                              <button 
+                                onClick={() => handleDelete(assign._id)}
+                                className="p-1.5 text-zinc-400 hover:text-rose-600 hover:bg-zinc-100 rounded-md transition"
                                 title="Delete Assignment"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
-                              </Button>
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -399,74 +374,82 @@ export default function AssignVehiclePage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination footer with green active circle */}
+            <div className="p-4 border-t border-zinc-100 flex items-center justify-center">
+              <div className="flex items-center gap-1.5">
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentPage(i + 1)}
+                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition ${
+                      currentPage === i + 1 
+                        ? 'border-2 border-emerald-500 bg-white text-emerald-600 shadow-2xs' 
+                        : 'text-zinc-400 hover:text-zinc-600'
+                    }`}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Edit Assignment Modal */}
-      {isEditOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white border border-zinc-200 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="p-4 border-b border-zinc-200 flex items-center justify-between bg-zinc-50/50">
-              <div className="flex items-center gap-2">
-                <Shuffle className="h-5 w-5 text-[#084A86]" />
-                <h3 className="text-base font-bold text-zinc-950">Edit Vehicle Assignment</h3>
-              </div>
+      {/* Edit Assign Vehicle Modal */}
+      {isEditOpen && editingAssign && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-zinc-200 rounded-2xl max-w-sm w-full p-5 text-zinc-950 shadow-2xl relative">
+            <div className="flex items-center justify-between border-b border-zinc-100 pb-3 mb-4">
+              <h3 className="text-sm font-bold text-[#0c3559] uppercase tracking-wider">
+                Edit Assigned Vehicle
+              </h3>
               <button 
                 onClick={() => setIsEditOpen(false)}
-                className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors"
+                className="text-zinc-400 hover:text-zinc-600 p-1 rounded-lg hover:bg-zinc-100"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveEdit} className="p-5 space-y-4">
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-700 uppercase">
-                  Select Route <span className="text-rose-500">*</span>
-                </Label>
+            <form onSubmit={handleSaveEdit} className="space-y-4">
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">SELECT ROUTE *</Label>
                 <SearchableSelect 
-                  value={editFormData.routeId} 
-                  onChange={(val) => setEditFormData({ ...editFormData, routeId: val })}
-                  placeholder="Select Transport Route *"
-                  options={routes.map(r => ({ 
-                    label: `${r.title} (PKR ${Number(r.fare || 0).toLocaleString()})`, 
-                    value: r._id 
-                  }))}
+                  value={editFormData.routeId}
+                  onChange={val => setEditFormData({ ...editFormData, routeId: val })}
+                  placeholder="Select Route"
+                  options={routeOptions}
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-700 uppercase">
-                  Select Vehicle <span className="text-rose-500">*</span>
-                </Label>
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">SELECT VEHICLE *</Label>
                 <SearchableSelect 
-                  value={editFormData.vehicleId} 
-                  onChange={(val) => setEditFormData({ ...editFormData, vehicleId: val })}
-                  placeholder="Select Fleet Vehicle *"
-                  options={vehicles.map(v => ({ 
-                    label: `${v.vehicleNo} • ${v.capacity || 0} Seats • ${v.driverName || 'No Driver'}`, 
-                    value: v._id 
-                  }))}
+                  value={editFormData.vehicleId}
+                  onChange={val => setEditFormData({ ...editFormData, vehicleId: val })}
+                  placeholder="Select Vehicle"
+                  options={vehicleOptions}
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
                 <Button 
                   type="button" 
                   variant="outline" 
                   onClick={() => setIsEditOpen(false)}
-                  className="rounded-xl h-10 px-4 font-semibold text-xs border-zinc-300"
+                  className="text-xs h-9 rounded-lg"
                 >
                   Cancel
                 </Button>
                 <Button 
-                  disabled={editSaving} 
                   type="submit" 
+                  disabled={editSaving}
                   style={{ backgroundColor: '#084A86' }}
-                  className="rounded-xl h-10 px-5 font-bold text-xs text-white hover:opacity-95"
+                  className="hover:opacity-95 text-white font-bold text-xs h-9 px-4 rounded-lg cursor-pointer"
                 >
-                  {editSaving ? 'Updating...' : 'Save Changes'}
+                  {editSaving ? 'Updating...' : 'Update Assignment'}
                 </Button>
               </div>
             </form>

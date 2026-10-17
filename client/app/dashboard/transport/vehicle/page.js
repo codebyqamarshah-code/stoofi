@@ -5,46 +5,65 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { 
   ChevronRight, 
   Search, 
-  Bus, 
-  Plus, 
   Edit, 
   Trash2, 
   X, 
-  Phone, 
-  Users, 
-  ShieldCheck, 
-  CheckCircle2 
+  CheckCircle2, 
+  AlertCircle 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import api from '@/services/api';
 
 export default function VehiclePage() {
   const [vehicles, setVehicles] = useState([]);
   const [formData, setFormData] = useState({ 
-    vehicleNo: '', capacity: '', driverName: '', driverLicense: '', contact: '' 
+    vehicleNo: '', 
+    vehicleModel: '', 
+    yearMade: '', 
+    capacity: '', 
+    driverName: '', 
+    driverLicense: '', 
+    contact: '',
+    note: ''
   });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [search, setSearch] = useState('');
+  const [message, setMessage] = useState(null);
 
   // Edit Modal State
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState(null);
   const [editFormData, setEditFormData] = useState({ 
-    vehicleNo: '', capacity: '', driverName: '', driverLicense: '', contact: '' 
+    vehicleNo: '', 
+    vehicleModel: '', 
+    yearMade: '', 
+    capacity: '', 
+    driverName: '', 
+    driverLicense: '', 
+    contact: '',
+    note: ''
   });
   const [editSaving, setEditSaving] = useState(false);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
   const fetchVehicles = async () => {
     try {
       setLoading(true);
       const res = await api.get('/transport-vehicle');
-      if (res?.success && Array.isArray(res.data)) setVehicles(res.data);
+      if (res?.success && Array.isArray(res.data)) {
+        setVehicles(res.data);
+      } else {
+        setVehicles([]);
+      }
     } catch (error) {
       console.error('Error fetching vehicles:', error);
+      setVehicles([]);
     } finally {
       setLoading(false);
     }
@@ -56,7 +75,11 @@ export default function VehiclePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.vehicleNo.trim()) return alert('Vehicle Number is required');
+    if (!formData.vehicleNo.trim()) {
+      alert('Vehicle Number is required');
+      return;
+    }
+
     try {
       setSubmitting(true);
       const res = await api.post('/transport-vehicle', {
@@ -64,7 +87,18 @@ export default function VehiclePage() {
         capacity: formData.capacity ? Number(formData.capacity) : 0
       });
       if (res?.success) {
-        setFormData({ vehicleNo: '', capacity: '', driverName: '', driverLicense: '', contact: '' });
+        setFormData({ 
+          vehicleNo: '', 
+          vehicleModel: '', 
+          yearMade: '', 
+          capacity: '', 
+          driverName: '', 
+          driverLicense: '', 
+          contact: '',
+          note: ''
+        });
+        setMessage({ type: 'success', text: 'Vehicle registered successfully!' });
+        setTimeout(() => setMessage(null), 3000);
         fetchVehicles();
       } else {
         alert(res?.message || 'Failed to save vehicle');
@@ -80,10 +114,13 @@ export default function VehiclePage() {
     setEditingVehicle(vehicle);
     setEditFormData({
       vehicleNo: vehicle.vehicleNo || '',
+      vehicleModel: vehicle.vehicleModel || '',
+      yearMade: vehicle.yearMade || '',
       capacity: vehicle.capacity || '',
       driverName: vehicle.driverName || '',
       driverLicense: vehicle.driverLicense || '',
-      contact: vehicle.contact || ''
+      contact: vehicle.contact || '',
+      note: vehicle.note || ''
     });
     setIsEditOpen(true);
   };
@@ -99,6 +136,8 @@ export default function VehiclePage() {
       });
       if (res?.success) {
         setIsEditOpen(false);
+        setMessage({ type: 'success', text: 'Vehicle updated successfully!' });
+        setTimeout(() => setMessage(null), 3000);
         fetchVehicles();
       } else {
         alert(res?.message || 'Failed to update vehicle');
@@ -111,159 +150,154 @@ export default function VehiclePage() {
   };
 
   const handleDelete = async (id) => {
-    if (confirm('Are you sure you want to delete this vehicle from the fleet?')) {
+    if (confirm('Are you sure you want to delete this vehicle?')) {
       try {
         const res = await api.delete(`/transport-vehicle/${id}`);
-        if (res?.success) fetchVehicles();
-        else alert(res?.message || 'Failed to delete vehicle');
+        if (res?.success) {
+          setMessage({ type: 'success', text: 'Vehicle deleted successfully!' });
+          setTimeout(() => setMessage(null), 3000);
+          fetchVehicles();
+        } else {
+          alert(res?.message || 'Failed to delete vehicle');
+        }
       } catch (error) {
         alert(error.message || 'Error deleting vehicle');
       }
     }
   };
 
-  // KPIs
-  const totalFleet = vehicles.length;
-  const totalCapacity = useMemo(() => {
-    return vehicles.reduce((sum, v) => sum + (Number(v.capacity) || 0), 0);
-  }, [vehicles]);
-  const driversCount = useMemo(() => {
-    return vehicles.filter(v => v.driverName && v.driverName.trim()).length;
-  }, [vehicles]);
+  const filteredVehicles = useMemo(() => {
+    return vehicles.filter(v => 
+      (v.vehicleNo || '').toLowerCase().includes(search.toLowerCase()) ||
+      (v.driverName || '').toLowerCase().includes(search.toLowerCase()) ||
+      (v.vehicleModel || '').toLowerCase().includes(search.toLowerCase())
+    );
+  }, [vehicles, search]);
 
-  const filtered = vehicles.filter(v => 
-    (v.vehicleNo || '').toLowerCase().includes(search.toLowerCase()) ||
-    (v.driverName || '').toLowerCase().includes(search.toLowerCase()) ||
-    (v.driverLicense || '').toLowerCase().includes(search.toLowerCase()) ||
-    (v.contact || '').includes(search)
-  );
-
-  const exportData = filtered.map((v, i) => ({
-    sl: i + 1,
-    vehicleNo: v.vehicleNo,
-    capacity: v.capacity || 0,
-    driverName: v.driverName || 'Unassigned',
-    driverLicense: v.driverLicense || 'N/A',
-    contact: v.contact || 'N/A'
-  }));
+  const totalPages = Math.max(1, Math.ceil(filteredVehicles.length / pageSize));
+  const paginatedVehicles = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredVehicles.slice(start, start + pageSize);
+  }, [filteredVehicles, currentPage]);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-950 flex items-center gap-2">
-            <Bus className="h-6 w-6 text-[#084A86]" />
-            Fleet Vehicles
-          </h1>
-          <p className="text-xs text-zinc-500 mt-1">Manage school transport buses, passenger capacities, and drivers</p>
-        </div>
-        <div className="flex items-center text-sm text-zinc-400">
+      {/* Top Header & Breadcrumbs matching reference screenshot */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <h1 className="text-2xl font-bold text-[#0c3559] tracking-tight">Vehicle</h1>
+        <div className="flex items-center text-xs text-zinc-400 font-medium">
           <Link href="/dashboard" className="hover:text-zinc-600 transition-colors">Dashboard</Link>
-          <ChevronRight className="h-3.5 w-3.5 mx-1" />
-          <Link href="/dashboard/transport" className="hover:text-zinc-600 transition-colors">Transport</Link>
-          <ChevronRight className="h-3.5 w-3.5 mx-1" />
-          <span className="text-zinc-950 font-bold">Vehicles</span>
+          <ChevronRight className="h-3 w-3 mx-1 text-zinc-400" />
+          <Link href="/dashboard/transport/routes" className="hover:text-zinc-600 transition-colors">Transport</Link>
+          <ChevronRight className="h-3 w-3 mx-1 text-zinc-400" />
+          <span className="text-zinc-700 font-semibold">Vehicle</span>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-blue-50 text-[#084A86] flex items-center justify-center font-bold">
-            <Bus className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Total Fleet</p>
-            <p className="text-xl font-bold text-zinc-950">{totalFleet} Vehicles</p>
-          </div>
+      {message && (
+        <div className={`p-3 rounded-lg text-xs font-semibold flex items-center gap-2 ${
+          message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'
+        }`}>
+          {message.type === 'success' ? <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" /> : <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />}
+          <span>{message.text}</span>
         </div>
+      )}
 
-        <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-            <Users className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Total Capacity</p>
-            <p className="text-xl font-bold text-zinc-950">{totalCapacity} Passengers</p>
-          </div>
-        </div>
-
-        <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
-            <ShieldCheck className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Licensed Drivers</p>
-            <p className="text-xl font-bold text-zinc-950">{driversCount} On Record</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Left Form: Add Vehicle */}
-        <div className="xl:col-span-1">
-          <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-zinc-200 bg-zinc-50/50">
-              <h2 className="text-sm font-bold text-zinc-950 uppercase tracking-wider flex items-center gap-2">
-                <Plus className="h-4 w-4 text-[#084A86]" />
-                Register New Vehicle
-              </h2>
+      {/* Main Grid: Add Vehicle (Left) and Vehicle List (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Add Vehicle Form */}
+        <div className="lg:col-span-4">
+          <div className="bg-white border border-zinc-200 rounded-xl shadow-xs overflow-hidden">
+            <div className="px-5 py-4 border-b border-zinc-100">
+              <h2 className="text-base font-bold text-[#0c3559]">Add Vehicle</h2>
             </div>
 
             <form className="p-5 space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-700 uppercase">
-                  Vehicle No <span className="text-rose-500">*</span>
+                <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">
+                  VEHICLE NUMBER <span className="text-rose-500">*</span>
                 </Label>
                 <Input 
-                  placeholder="e.g. LHR-4592 or BUS-01"
                   value={formData.vehicleNo} 
                   onChange={(e) => setFormData({ ...formData, vehicleNo: e.target.value })}
-                  className="h-10 rounded-xl font-semibold uppercase tracking-wider" 
+                  placeholder="e.g. LHR-4592"
+                  className="h-10 border-zinc-200 rounded-lg text-sm bg-white focus-visible:ring-1 focus-visible:ring-[#084A86]" 
                   required
                 />
               </div>
 
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">
+                    VEHICLE MODEL
+                  </Label>
+                  <Input 
+                    value={formData.vehicleModel} 
+                    onChange={(e) => setFormData({ ...formData, vehicleModel: e.target.value })}
+                    placeholder="Toyota Hiace"
+                    className="h-10 border-zinc-200 rounded-lg text-sm bg-white" 
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">
+                    YEAR MADE
+                  </Label>
+                  <Input 
+                    value={formData.yearMade} 
+                    onChange={(e) => setFormData({ ...formData, yearMade: e.target.value })}
+                    placeholder="2024"
+                    className="h-10 border-zinc-200 rounded-lg text-sm bg-white" 
+                  />
+                </div>
+              </div>
+
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-700 uppercase">Passenger Capacity</Label>
+                <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">
+                  SEAT CAPACITY
+                </Label>
                 <Input 
                   type="number"
-                  min="1"
-                  placeholder="e.g. 35"
+                  min="0"
                   value={formData.capacity} 
                   onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
-                  className="h-10 rounded-xl" 
+                  placeholder="30"
+                  className="h-10 border-zinc-200 rounded-lg text-sm bg-white" 
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-700 uppercase">Driver Name</Label>
+                <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">
+                  DRIVER NAME
+                </Label>
                 <Input 
-                  placeholder="e.g. Muhammad Aslam"
                   value={formData.driverName} 
                   onChange={(e) => setFormData({ ...formData, driverName: e.target.value })}
-                  className="h-10 rounded-xl" 
+                  placeholder="Driver Full Name"
+                  className="h-10 border-zinc-200 rounded-lg text-sm bg-white" 
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-700 uppercase">Driver License Number</Label>
+                <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">
+                  DRIVER LICENSE
+                </Label>
                 <Input 
-                  placeholder="e.g. DL-98234-A"
                   value={formData.driverLicense} 
                   onChange={(e) => setFormData({ ...formData, driverLicense: e.target.value })}
-                  className="h-10 rounded-xl uppercase" 
+                  placeholder="License No"
+                  className="h-10 border-zinc-200 rounded-lg text-sm bg-white" 
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-700 uppercase">Driver Contact Phone</Label>
+                <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">
+                  DRIVER CONTACT
+                </Label>
                 <Input 
-                  placeholder="e.g. 0300-1234567"
                   value={formData.contact} 
                   onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
-                  className="h-10 rounded-xl" 
+                  placeholder="03001234567"
+                  className="h-10 border-zinc-200 rounded-lg text-sm bg-white" 
                 />
               </div>
 
@@ -271,136 +305,93 @@ export default function VehiclePage() {
                 disabled={submitting} 
                 type="submit" 
                 style={{ backgroundColor: '#084A86' }}
-                className="w-full hover:opacity-95 text-white font-bold h-10 rounded-xl shadow-xs cursor-pointer"
+                className="w-full hover:opacity-95 text-white font-bold h-10 rounded-lg shadow-xs cursor-pointer uppercase tracking-wider text-xs"
               >
-                {submitting ? 'Registering...' : 'Save Fleet Vehicle'}
+                {submitting ? 'SAVING...' : 'SAVE VEHICLE'}
               </Button>
             </form>
           </div>
         </div>
 
-        {/* Right Table: Vehicle List */}
-        <div className="xl:col-span-2">
-          <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden h-full flex flex-col">
-            <div className="p-4 border-b border-zinc-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-zinc-50/50">
-              <div>
-                <h2 className="text-base font-bold text-zinc-950">Vehicle Directory ({vehicles.length})</h2>
-                <p className="text-xs text-zinc-500 mt-0.5">List of all registered school buses, vans, and drivers</p>
-              </div>
+        {/* Right Column: Vehicle List Table */}
+        <div className="lg:col-span-8">
+          <div className="bg-white border border-zinc-200 rounded-xl shadow-xs overflow-hidden">
+            <div className="px-5 py-4 border-b border-zinc-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <h2 className="text-base font-bold text-[#0c3559]">Vehicle List</h2>
 
-              <div className="flex items-center gap-2">
-                <div className="relative w-48 sm:w-56">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
-                  <Input 
-                    placeholder="Search vehicle or driver..." 
-                    value={search} 
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="pl-8.5 h-9 bg-white border-zinc-200 text-xs rounded-xl"
-                  />
-                </div>
+              <div className="relative w-full sm:w-56">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
+                <Input 
+                  placeholder="SEARCH" 
+                  value={search} 
+                  onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
+                  className="pl-8.5 h-8.5 text-xs bg-white border-zinc-200 rounded-lg uppercase tracking-wider text-zinc-700 placeholder:text-zinc-400"
+                />
               </div>
             </div>
 
-            <div className="p-3 border-b border-zinc-100 bg-white">
-              <TableExportToolbar 
-                data={exportData}
-                columns={[
-                  { key: 'sl', label: 'SL' },
-                  { key: 'vehicleNo', label: 'Vehicle No' },
-                  { key: 'capacity', label: 'Capacity' },
-                  { key: 'driverName', label: 'Driver Name' },
-                  { key: 'driverLicense', label: 'Driver License' },
-                  { key: 'contact', label: 'Contact Phone' }
-                ]}
-                fileName="Transport_Fleet_Vehicles"
-              />
-            </div>
-            
-            <div className="flex-1 overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="text-[11px] text-zinc-500 uppercase bg-zinc-50/80 border-b border-zinc-200 font-bold tracking-wider">
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left">
+                <thead className="text-[11px] text-[#0c3559] uppercase font-bold bg-[#f8fafc] border-b border-zinc-100">
                   <tr>
-                    <th className="px-4 py-3 w-14">SL</th>
-                    <th className="px-4 py-3">Vehicle No</th>
-                    <th className="px-4 py-3">Capacity</th>
-                    <th className="px-4 py-3">Driver Name</th>
-                    <th className="px-4 py-3">Driver License</th>
-                    <th className="px-4 py-3">Contact</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
+                    <th className="px-5 py-3 font-bold w-16">SL</th>
+                    <th className="px-5 py-3 font-bold">VEHICLE NO</th>
+                    <th className="px-5 py-3 font-bold">MODEL</th>
+                    <th className="px-5 py-3 font-bold">DRIVER</th>
+                    <th className="px-5 py-3 font-bold">CONTACT</th>
+                    <th className="px-5 py-3 font-bold text-right w-24">ACTION</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
                   {loading ? (
                     <tr>
-                      <td colSpan="7" className="px-4 py-12 text-center text-zinc-400 font-medium text-xs">
-                        Loading fleet vehicles...
+                      <td colSpan="6" className="px-5 py-16 text-center text-zinc-400">
+                        <div className="inline-flex items-center gap-2">
+                          <div className="h-4 w-4 rounded-full border-2 border-[#084A86] border-t-transparent animate-spin" />
+                          <span>Loading...</span>
+                        </div>
                       </td>
                     </tr>
-                  ) : filtered.length === 0 ? (
+                  ) : filteredVehicles.length === 0 ? (
                     <tr>
-                      <td colSpan="7" className="px-4 py-12 text-center text-zinc-500">
-                        <Bus className="h-8 w-8 text-zinc-300 mx-auto mb-2" />
-                        <p className="font-semibold text-sm">No vehicles found</p>
-                        <p className="text-xs text-zinc-400 mt-1">Register a new vehicle using the form on the left</p>
+                      <td colSpan="6" className="px-5 py-16 text-center text-sm font-medium text-zinc-400">
+                        No Data Available In Table
                       </td>
                     </tr>
                   ) : (
-                    filtered.map((item, idx) => (
-                      <tr key={item._id} className="hover:bg-zinc-50/80 transition-colors">
-                        <td className="px-4 py-3.5 text-zinc-400 font-mono text-xs">
-                          {String(idx + 1).padStart(2, '0')}
+                    paginatedVehicles.map((vehicle, idx) => (
+                      <tr key={vehicle._id} className="hover:bg-zinc-50/80 transition-colors">
+                        <td className="px-5 py-3.5 text-zinc-600 font-semibold">
+                          {(currentPage - 1) * pageSize + idx + 1}
                         </td>
-                        <td className="px-4 py-3.5 font-bold text-zinc-950">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 text-[#084A86] border border-blue-100 font-mono text-xs">
-                            <Bus className="h-3 w-3" />
-                            {item.vehicleNo}
-                          </span>
+                        <td className="px-5 py-3.5 font-bold text-[#0c3559]">
+                          {vehicle.vehicleNo}
                         </td>
-                        <td className="px-4 py-3.5 text-zinc-700 font-medium">
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-700 text-xs font-semibold">
-                            <Users className="h-3 w-3 text-zinc-500" />
-                            {item.capacity || 0} Seats
-                          </span>
+                        <td className="px-5 py-3.5 text-zinc-700 font-medium">
+                          {vehicle.vehicleModel || '—'} {vehicle.yearMade ? `(${vehicle.yearMade})` : ''}
                         </td>
-                        <td className="px-4 py-3.5 text-zinc-800 font-semibold">
-                          {item.driverName || <span className="text-zinc-400 font-normal italic">Unassigned</span>}
+                        <td className="px-5 py-3.5 text-zinc-800 font-semibold">
+                          {vehicle.driverName || '—'}
                         </td>
-                        <td className="px-4 py-3.5 text-zinc-600 font-mono text-xs">
-                          {item.driverLicense || <span className="text-zinc-400 font-sans italic">N/A</span>}
+                        <td className="px-5 py-3.5 text-zinc-600 font-mono">
+                          {vehicle.contact || '—'}
                         </td>
-                        <td className="px-4 py-3.5 text-zinc-600 text-xs">
-                          {item.contact ? (
-                            <a 
-                              href={`tel:${item.contact}`} 
-                              className="inline-flex items-center gap-1 text-[#084A86] hover:underline font-medium"
-                            >
-                              <Phone className="h-3 w-3" />
-                              {item.contact}
-                            </a>
-                          ) : (
-                            <span className="text-zinc-400 italic">N/A</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3.5 text-right">
+                        <td className="px-5 py-3.5 text-right">
                           <div className="flex items-center justify-end gap-1">
-                            <Button 
-                              onClick={() => handleOpenEdit(item)}
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-8 w-8 p-0 text-zinc-600 hover:text-[#084A86] hover:bg-blue-50 rounded-lg cursor-pointer"
+                            <button 
+                              onClick={() => handleOpenEdit(vehicle)}
+                              className="p-1.5 text-zinc-400 hover:text-[#084A86] hover:bg-zinc-100 rounded-md transition"
                               title="Edit Vehicle"
                             >
                               <Edit className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button 
-                              onClick={() => handleDelete(item._id)} 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-8 w-8 p-0 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
+                            </button>
+                            <button 
+                              onClick={() => handleDelete(vehicle._id)}
+                              className="p-1.5 text-zinc-400 hover:text-rose-600 hover:bg-zinc-100 rounded-md transition"
                               title="Delete Vehicle"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -409,94 +400,109 @@ export default function VehiclePage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination footer with green active circle */}
+            <div className="p-4 border-t border-zinc-100 flex items-center justify-center">
+              <div className="flex items-center gap-1.5">
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentPage(i + 1)}
+                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition ${
+                      currentPage === i + 1 
+                        ? 'border-2 border-emerald-500 bg-white text-emerald-600 shadow-2xs' 
+                        : 'text-zinc-400 hover:text-zinc-600'
+                    }`}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Edit Vehicle Modal */}
-      {isEditOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white border border-zinc-200 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="p-4 border-b border-zinc-200 flex items-center justify-between bg-zinc-50/50">
-              <div className="flex items-center gap-2">
-                <Bus className="h-5 w-5 text-[#084A86]" />
-                <h3 className="text-base font-bold text-zinc-950">Edit Vehicle Information</h3>
-              </div>
+      {isEditOpen && editingVehicle && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-zinc-200 rounded-2xl max-w-sm w-full p-5 text-zinc-950 shadow-2xl relative">
+            <div className="flex items-center justify-between border-b border-zinc-100 pb-3 mb-4">
+              <h3 className="text-sm font-bold text-[#0c3559] uppercase tracking-wider">
+                Edit Vehicle
+              </h3>
               <button 
                 onClick={() => setIsEditOpen(false)}
-                className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors"
+                className="text-zinc-400 hover:text-zinc-600 p-1 rounded-lg hover:bg-zinc-100"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveEdit} className="p-5 space-y-4">
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-700 uppercase">
-                  Vehicle No <span className="text-rose-500">*</span>
-                </Label>
+            <form onSubmit={handleSaveEdit} className="space-y-4">
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">VEHICLE NUMBER *</Label>
                 <Input 
-                  value={editFormData.vehicleNo} 
-                  onChange={(e) => setEditFormData({ ...editFormData, vehicleNo: e.target.value })}
-                  className="h-10 rounded-xl font-semibold uppercase tracking-wider" 
+                  value={editFormData.vehicleNo}
+                  onChange={e => setEditFormData({ ...editFormData, vehicleNo: e.target.value })}
+                  className="h-10 rounded-lg text-sm"
                   required
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-700 uppercase">Passenger Capacity</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">MODEL</Label>
+                  <Input 
+                    value={editFormData.vehicleModel}
+                    onChange={e => setEditFormData({ ...editFormData, vehicleModel: e.target.value })}
+                    className="h-10 rounded-lg text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">YEAR</Label>
+                  <Input 
+                    value={editFormData.yearMade}
+                    onChange={e => setEditFormData({ ...editFormData, yearMade: e.target.value })}
+                    className="h-10 rounded-lg text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">DRIVER NAME</Label>
                 <Input 
-                  type="number"
-                  min="1"
-                  value={editFormData.capacity} 
-                  onChange={(e) => setEditFormData({ ...editFormData, capacity: e.target.value })}
-                  className="h-10 rounded-xl" 
+                  value={editFormData.driverName}
+                  onChange={e => setEditFormData({ ...editFormData, driverName: e.target.value })}
+                  className="h-10 rounded-lg text-sm"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-700 uppercase">Driver Name</Label>
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-[#0c3559] uppercase tracking-wider">DRIVER CONTACT</Label>
                 <Input 
-                  value={editFormData.driverName} 
-                  onChange={(e) => setEditFormData({ ...editFormData, driverName: e.target.value })}
-                  className="h-10 rounded-xl" 
+                  value={editFormData.contact}
+                  onChange={e => setEditFormData({ ...editFormData, contact: e.target.value })}
+                  className="h-10 rounded-lg text-sm"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-700 uppercase">Driver License Number</Label>
-                <Input 
-                  value={editFormData.driverLicense} 
-                  onChange={(e) => setEditFormData({ ...editFormData, driverLicense: e.target.value })}
-                  className="h-10 rounded-xl uppercase" 
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-700 uppercase">Driver Contact Phone</Label>
-                <Input 
-                  value={editFormData.contact} 
-                  onChange={(e) => setEditFormData({ ...editFormData, contact: e.target.value })}
-                  className="h-10 rounded-xl" 
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
                 <Button 
                   type="button" 
                   variant="outline" 
                   onClick={() => setIsEditOpen(false)}
-                  className="rounded-xl h-10 px-4 font-semibold text-xs border-zinc-300"
+                  className="text-xs h-9 rounded-lg"
                 >
                   Cancel
                 </Button>
                 <Button 
-                  disabled={editSaving} 
                   type="submit" 
+                  disabled={editSaving}
                   style={{ backgroundColor: '#084A86' }}
-                  className="rounded-xl h-10 px-5 font-bold text-xs text-white hover:opacity-95"
+                  className="hover:opacity-95 text-white font-bold text-xs h-9 px-4 rounded-lg cursor-pointer"
                 >
-                  {editSaving ? 'Updating...' : 'Save Changes'}
+                  {editSaving ? 'Updating...' : 'Update Vehicle'}
                 </Button>
               </div>
             </form>
