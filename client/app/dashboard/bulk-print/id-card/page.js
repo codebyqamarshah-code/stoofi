@@ -36,7 +36,8 @@ import { SearchableSelect } from '@/components/ui/searchable-select';
 import { sortClassesAcademic, STANDARD_ACADEMIC_CLASSES, STANDARD_SECTIONS_LIST } from '@/lib/academicUtils';
 import api from '@/services/api';
 import { downloadIdCardPDF, downloadBatchIdCardsPDF } from '@/lib/idCardPdf';
-import { formatDateDMY, getPublicVerificationUrl, formatStudentRollNo } from '@/lib/utils';
+import { formatDateDMY, getPublicVerificationUrl, formatStudentRollNo, getPhotoUrl } from '@/lib/utils';
+import StudentAvatar from '@/components/student/StudentAvatar';
 import QRCode from 'qrcode';
 
 // Dynamic Live QR Code Component for Every Student Card (Scannable on all phones)
@@ -394,12 +395,6 @@ export default function BulkPrintIdCardPage() {
     const designation = rec.designation || (role === 'Teacher' ? 'Senior Faculty' : 'Staff Member');
     const department = rec.department || 'Academics';
 
-    const getPhotoUrl = (p) => {
-      if (!p) return null;
-      if (p.startsWith('http') || p.startsWith('data:')) return p;
-      const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/api\/?$/, '');
-      return `${apiBase}${p.startsWith('/') ? '' : '/'}${p}`;
-    };
     const photoUrl = getPhotoUrl(photo);
 
     // ── DESIGN 1: Modern Emerald Vertical Lanyard Badge (Matching Reference Image 2) ──
@@ -544,13 +539,20 @@ export default function BulkPrintIdCardPage() {
               <div className="flex flex-col items-center justify-center shrink-0">
                 <div className="w-[78px] h-[98px] rounded-none border-[2px] border-[#084A86] overflow-hidden bg-slate-100 shadow-xs flex items-center justify-center relative">
                   {photoUrl ? (
-                    <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center text-zinc-400 p-1">
-                      <User className="w-8 h-8 text-[#084A86]/60" />
-                      <span className="text-[8px] font-black mt-1 uppercase text-[#084A86]">{name.charAt(0)}</span>
-                    </div>
-                  )}
+                    <img 
+                      src={photoUrl} 
+                      alt={name} 
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex';
+                      }}
+                      className="w-full h-full object-cover" 
+                    />
+                  ) : null}
+                  <div className={`flex flex-col items-center justify-center text-zinc-400 p-1 ${photoUrl ? 'hidden' : 'flex'}`}>
+                    <User className="w-8 h-8 text-[#084A86]/60" />
+                    <span className="text-[8px] font-black mt-1 uppercase text-[#084A86]">{name.charAt(0)}</span>
+                  </div>
                   <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs border border-white">
                     <ShieldCheck className="w-3 h-3" />
                   </div>
@@ -1303,13 +1305,12 @@ export default function BulkPrintIdCardPage() {
                         </button>
                       </td>
                       <td className="py-3 px-4 font-medium text-zinc-900 flex items-center gap-2.5">
-                        <div className="h-8 w-8 rounded-full bg-zinc-100 border border-zinc-200 overflow-hidden flex items-center justify-center shrink-0">
-                          {photo ? (
-                            <img src={photo.startsWith('http') || photo.startsWith('data:') ? photo : `http://localhost:5000/${photo}`} alt={name} className="h-full w-full object-cover" />
-                          ) : (
-                            <span className="font-bold text-xs text-zinc-600">{name.charAt(0)}</span>
-                          )}
-                        </div>
+                        <StudentAvatar
+                          photo={getPhotoUrl(photo)}
+                          firstName={rec.firstName || name}
+                          lastName={rec.lastName}
+                          size="md"
+                        />
                         <div>
                           <p className="font-bold text-zinc-900">{name}</p>
                           <p className="text-[10px] text-zinc-400">{rec.gender || 'Regular'}</p>

@@ -49,6 +49,7 @@ import { Label } from '@/components/ui/label';
 import api from '@/services/api';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 import { downloadCertificatePDF } from '@/lib/certificatePdf';
+import { getPhotoUrl } from '@/lib/utils';
 
 const CERT_TYPE_OPTIONS = [
   'Character Certificate',
@@ -560,7 +561,7 @@ export default function CertificatePage() {
         section: st.section || 'Section A',
         dob: st.dob || '2008-05-14',
         gender: st.gender || 'Male',
-        studentPhoto: st.studentPhoto || st.photo || ''
+        studentPhoto: getPhotoUrl(st.studentPhoto || st.photo) || ''
       }));
     }
   };
@@ -2056,10 +2057,17 @@ export default function CertificatePage() {
                 <div className="p-3 bg-zinc-50 border border-zinc-200 rounded-xl flex items-center gap-3">
                   <div className="w-14 h-16 rounded-lg border-2 border-amber-500 overflow-hidden bg-white shadow-2xs shrink-0 flex items-center justify-center">
                     {issueForm.studentPhoto ? (
-                      <img src={issueForm.studentPhoto} alt="Student" className="w-full h-full object-cover" />
-                    ) : (
-                      <Camera className="w-5 h-5 text-amber-600" />
-                    )}
+                      <img 
+                        src={issueForm.studentPhoto} 
+                        alt="Student" 
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'block';
+                        }}
+                        className="w-full h-full object-cover" 
+                      />
+                    ) : null}
+                    <Camera className={`w-5 h-5 text-amber-600 ${issueForm.studentPhoto ? 'hidden' : 'block'}`} />
                   </div>
                   <div className="flex-1">
                     <span className="text-xs font-bold text-zinc-900 block">Student Photo on Certificate</span>

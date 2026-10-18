@@ -45,7 +45,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import api from '@/services/api';
 import { downloadIdCardPDF } from '@/lib/idCardPdf';
-import { getPublicVerificationUrl, formatStudentRollNo } from '@/lib/utils';
+import { getPublicVerificationUrl, formatStudentRollNo, getPhotoUrl } from '@/lib/utils';
+import StudentAvatar from '@/components/student/StudentAvatar';
 import QRCode from 'qrcode';
 
 // Dynamic Real Scannable Verification QR Code Component for Every ID Card
@@ -791,14 +792,21 @@ export default function IdCardPage() {
             {showPhoto && (
               <div className="flex flex-col items-center justify-center shrink-0">
                 <div className="w-[78px] h-[98px] rounded-none border-[2px] border-[#084A86] overflow-hidden bg-slate-100 shadow-xs flex items-center justify-center relative">
-                  {rec.studentPhoto ? (
-                    <img src={rec.studentPhoto} alt={fullName} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center text-zinc-400 p-1">
-                      <User className="w-8 h-8 text-[#084A86]/60" />
-                      <span className="text-[8px] font-black mt-1 uppercase text-[#084A86]">{initial}</span>
-                    </div>
-                  )}
+                  {getPhotoUrl(rec.studentPhoto) ? (
+                    <img 
+                      src={getPhotoUrl(rec.studentPhoto)} 
+                      alt={fullName} 
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex';
+                      }}
+                      className="w-full h-full object-cover" 
+                    />
+                  ) : null}
+                  <div className={`flex flex-col items-center justify-center text-zinc-400 p-1 ${getPhotoUrl(rec.studentPhoto) ? 'hidden' : 'flex'}`}>
+                    <User className="w-8 h-8 text-[#084A86]/60" />
+                    <span className="text-[8px] font-black mt-1 uppercase text-[#084A86]">{initial}</span>
+                  </div>
                   <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs border border-white">
                     <ShieldCheck className="w-3 h-3" />
                   </div>
@@ -1232,13 +1240,14 @@ export default function IdCardPage() {
                     <tr key={st._id || idx} className="hover:bg-zinc-50/80 transition-colors">
                       <td className="px-4 py-3 text-center text-zinc-400 font-mono">{idx + 1}</td>
                       <td className="px-4 py-3">
-                        <div className="w-9 h-11 rounded-lg border border-emerald-600 overflow-hidden bg-zinc-100 flex items-center justify-center shadow-2xs">
-                          {st.studentPhoto ? (
-                            <img src={st.studentPhoto} alt={st.firstName} className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="font-black text-xs text-emerald-800">{st.firstName?.charAt(0).toUpperCase()}</span>
-                          )}
-                        </div>
+                        <StudentAvatar
+                          photo={getPhotoUrl(st)}
+                          firstName={st.firstName}
+                          lastName={st.lastName}
+                          size="md"
+                          rounded="rounded-lg"
+                          className="w-9 h-11 border-emerald-600 shadow-2xs"
+                        />
                       </td>
                       <td className="px-4 py-3">
                         <span className="font-bold text-zinc-950 capitalize">{st.firstName} {st.lastName}</span>
