@@ -1,32 +1,67 @@
 'use client';
 
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronRight, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Eye } from 'lucide-react';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
+import { formatDateDMY } from '@/lib/utils';
+import api from '@/services/api';
 
 export default function BBBClassReportsPage() {
-  const [criteria, setCriteria] = useState({ classVal: 'All Classes', section: 'All Sections', fromDate: '2026-09-01', toDate: '2026-09-30' });
+  const [criteria, setCriteria] = useState({ classVal: 'All Classes', section: 'All Sections', fromDate: '', toDate: '' });
   const [activeFilter, setActiveFilter] = useState({ classVal: 'All Classes', section: 'All Sections' });
   const [search, setSearch] = useState('');
   const [selectedReport, setSelectedReport] = useState(null);
+  const [reportsList, setReportsList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const classes = ['All Classes', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'];
-  const sections = ['All Sections','A','B','C','D'];
+  const [classes, setClasses] = useState(['All Classes', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10']);
+  const [sections, setSections] = useState(['All Sections','A','B','C','D']);
 
-  const [, set] = useState([]);
+  const fetchReports = async (crit = criteria) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ type: 'class' });
+      if (crit.classVal && crit.classVal !== 'All Classes') params.append('classVal', crit.classVal);
+      if (crit.section && crit.section !== 'All Sections') params.append('section', crit.section);
+      if (crit.fromDate) params.append('fromDate', crit.fromDate);
+      if (crit.toDate) params.append('toDate', crit.toDate);
+      const res = await api.get(`/virtual-class/reports?${params.toString()}`);
+      if (res?.success && Array.isArray(res.data)) {
+        setReportsList(res.data);
+      } else {
+        setReportsList([]);
+      }
+    } catch (err) {
+      console.error(err);
+      setReportsList([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleSearch = (e) => { e.preventDefault(); setActiveFilter({ classVal: criteria.classVal, section: criteria.section }); };
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setActiveFilter({ classVal: criteria.classVal, section: criteria.section });
+    fetchReports(criteria);
+  };
 
   const filtered = useMemo(() => reportsList.filter(item => {
     const mClass = activeFilter.classVal === 'All Classes' || item.classVal === activeFilter.classVal;
     const mSec = activeFilter.section === 'All Sections' || item.section === activeFilter.section;
-    const mSearch = !search || item.topic.toLowerCase().includes(search.toLowerCase()) || item.teacher.toLowerCase().includes(search.toLowerCase());
+    const mSearch = !search || (item.topic || '').toLowerCase().includes(search.toLowerCase()) || (item.teacher || '').toLowerCase().includes(search.toLowerCase());
     return mClass && mSec && mSearch;
   }), [reportsList, activeFilter, search]);
 
-  const handleCopy = () => { navigator.clipboard.writeText(filtered.map(r => `${r.topic} | ${r.classVal}(${r.section}) | ${r.teacher} | ${r.date} | ${r.attended}/${r.totalEnrolled} (${r.percentage})`).join('\n')); alert('Copied!'); };
+  const handleCopy = () => {
+    navigator.clipboard.writeText(filtered.map(r => `${r.topic} | ${r.classVal}(${r.section}) | ${r.teacher} | ${formatDateDMY(r.date)} | ${r.attended}/${r.totalEnrolled} (${r.percentage})`).join('\n'));
+    alert('Copied!');
+  };
 
   return (
     <div className="space-y-6">
@@ -62,12 +97,12 @@ export default function BBBClassReportsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">From Date <span className="text-rose-500">*</span></label>
-              <input type="date" required value={criteria.fromDate} onChange={(e) => setCriteria({...criteria, fromDate: e.target.value})} className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors" />
+              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">From Date</label>
+              <input type="date" value={criteria.fromDate} onChange={(e) => setCriteria({...criteria, fromDate: e.target.value})} className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">To Date <span className="text-rose-500">*</span></label>
-              <input type="date" required value={criteria.toDate} onChange={(e) => setCriteria({...criteria, toDate: e.target.value})} className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors" />
+              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">To Date</label>
+              <input type="date" value={criteria.toDate} onChange={(e) => setCriteria({...criteria, toDate: e.target.value})} className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors" />
             </div>
           </div>
           <div className="flex justify-end mt-5">
@@ -109,16 +144,25 @@ export default function BBBClassReportsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-200 dark:divide-zinc-100">
-              {filtered.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-8 text-center text-zinc-500">
+                    <div className="inline-flex items-center gap-2">
+                      <div className="h-4 w-4 rounded-full border-2 border-zinc-800 border-t-transparent animate-spin" />
+                      <span>Loading reports...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : filtered.length === 0 ? (
                 <tr><td colSpan={8} className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
               ) : filtered.map((item, index) => (
-                <tr key={item.id} className="hover:bg-zinc-50/80 dark:hover:bg-zinc-100/40 transition-colors">
+                <tr key={item._id || item.id || index} className="hover:bg-zinc-50/80 dark:hover:bg-zinc-100/40 transition-colors">
                   <td className="px-3.5 py-3 font-medium text-zinc-900 dark:text-zinc-800">{index + 1}</td>
                   <td className="px-3.5 py-3 font-semibold text-zinc-900 dark:text-zinc-900">{item.topic}</td>
                   <td className="px-3.5 py-3"><span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-700">{item.classVal} ({item.section})</span></td>
                   <td className="px-3.5 py-3 font-medium text-zinc-700 dark:text-zinc-700">{item.teacher}</td>
-                  <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap"><div>{item.date}</div><div className="text-[10px] text-zinc-400">{item.time}</div></td>
-                  <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap">{item.duration}</td>
+                  <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap"><div>{formatDateDMY(item.date)}</div><div className="text-[10px] text-zinc-400">{item.time}</div></td>
+                  <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap">{item.duration} Mins</td>
                   <td className="px-3.5 py-3 whitespace-nowrap">
                     <div className="flex items-center gap-1.5">
                       <span className="font-semibold text-zinc-900 dark:text-zinc-900">{item.attended}/{item.totalEnrolled}</span>
@@ -157,7 +201,7 @@ export default function BBBClassReportsPage() {
                 <div className="text-zinc-500 mt-1">{selectedReport.classVal} - Section {selectedReport.section} | Teacher: {selectedReport.teacher}</div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200"><span className="text-zinc-500 block">Date & Time:</span><span className="font-semibold text-zinc-800 dark:text-zinc-800">{selectedReport.date} ({selectedReport.time})</span></div>
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200"><span className="text-zinc-500 block">Date & Time:</span><span className="font-semibold text-zinc-800 dark:text-zinc-800">{formatDateDMY(selectedReport.date)} ({selectedReport.time})</span></div>
                 <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200"><span className="text-zinc-500 block">Duration:</span><span className="font-semibold text-zinc-800 dark:text-zinc-800">{selectedReport.duration}</span></div>
                 <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200"><span className="text-zinc-500 block">Attended / Total:</span><span className="font-semibold text-zinc-800">{selectedReport.attended} / {selectedReport.totalEnrolled}</span></div>
                 <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200"><span className="text-zinc-500 block">Attendance Rate:</span><span className="font-semibold text-zinc-800">{selectedReport.percentage}</span></div>

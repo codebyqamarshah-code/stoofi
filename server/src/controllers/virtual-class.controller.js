@@ -24,12 +24,15 @@ function normalizeMeetUrl(codeOrUrl) {
 // GET /api/virtual-class
 exports.getVirtualClasses = async (req, res) => {
   try {
-    const { type, status, classVal, search } = req.query;
+    const { type, status, classVal, host, teacher, audience, search } = req.query;
     const query = {};
 
     if (type) query.type = type;
     if (status && status !== 'All') query.status = status;
     if (classVal && classVal !== 'All' && classVal !== 'All Classes') query.classVal = classVal;
+    if (host && host !== 'All' && host !== 'All Hosts') query.teacher = host;
+    if (teacher && teacher !== 'All' && teacher !== 'All Teachers') query.teacher = teacher;
+    if (audience && audience !== 'All' && audience !== 'All Audiences') query.audience = audience;
 
     if (search) {
       query.$or = [
@@ -45,7 +48,15 @@ exports.getVirtualClasses = async (req, res) => {
     return res.status(200).json({
       success: true,
       count: classes.length,
-      data: classes,
+      data: classes.map(r => {
+        const obj = r.toObject();
+        return {
+          ...obj,
+          id: obj._id,
+          host: obj.teacher,
+          attendeesCount: obj.attendedCount || 0,
+        };
+      }),
     });
   } catch (error) {
     console.error('getVirtualClasses error:', error);
@@ -56,15 +67,35 @@ exports.getVirtualClasses = async (req, res) => {
 // GET /api/virtual-class/reports
 exports.getReports = async (req, res) => {
   try {
-    const { type = 'class', classVal, fromDate, toDate } = req.query;
+    const { type = 'class', classVal, section, host, teacher, audience, fromDate, toDate } = req.query;
     const query = { type };
 
     if (classVal && classVal !== 'All' && classVal !== 'All Classes') {
       query.classVal = classVal;
     }
 
+    if (section && section !== 'All' && section !== 'All Sections') {
+      query.section = section;
+    }
+
+    if (host && host !== 'All' && host !== 'All Hosts') {
+      query.teacher = host;
+    }
+
+    if (teacher && teacher !== 'All' && teacher !== 'All Teachers') {
+      query.teacher = teacher;
+    }
+
+    if (audience && audience !== 'All' && audience !== 'All Audiences') {
+      query.audience = audience;
+    }
+
     if (fromDate && toDate) {
       query.date = { $gte: fromDate, $lte: toDate };
+    } else if (fromDate) {
+      query.date = { $gte: fromDate };
+    } else if (toDate) {
+      query.date = { $lte: toDate };
     }
 
     const records = await VirtualClass.find(query).sort({ date: -1, createdAt: -1 });
@@ -88,10 +119,16 @@ exports.getReports = async (req, res) => {
         totalEnrolled,
         avgAttendance: `${avgAttendance}%`,
       },
-      data: records.map(r => ({
-        ...r.toObject(),
-        percentage: r.totalEnrolled > 0 ? `${((r.attendedCount / r.totalEnrolled) * 100).toFixed(1)}%` : '0%',
-      })),
+      data: records.map(r => {
+        const obj = r.toObject();
+        return {
+          ...obj,
+          id: obj._id,
+          host: obj.teacher,
+          attendeesCount: obj.attendedCount || 0,
+          percentage: obj.totalEnrolled > 0 ? `${((obj.attendedCount / obj.totalEnrolled) * 100).toFixed(1)}%` : '0%',
+        };
+      }),
     });
   } catch (error) {
     console.error('getReports error:', error);
@@ -123,6 +160,7 @@ exports.createVirtualClass = async (req, res) => {
       section = 'A',
       subject = 'General',
       teacher,
+      host,
       hostEmail,
       audience = 'All Students',
       date,
@@ -134,7 +172,9 @@ exports.createVirtualClass = async (req, res) => {
       status = 'Scheduled',
     } = req.body;
 
-    if (!topic || !teacher || !date || !time) {
+    const teacherName = (teacher || host || '').trim();
+
+    if (!topic || !teacherName || !date || !time) {
       return res.status(400).json({
         success: false,
         message: 'Topic, teacher/host, date, and time are required.',
@@ -147,12 +187,12 @@ exports.createVirtualClass = async (req, res) => {
       topic,
       type,
       provider,
-      classVal,
-      section,
-      subject,
-      teacher,
+      classVal: classVal || (type === 'meeting' ? 'General' : 'Class 10'),
+      section: section || (type === 'meeting' ? 'General' : 'A'),
+      subject: subject || 'General',
+      teacher: teacherName,
       hostEmail,
-      audience,
+      audience: audience || (type === 'meeting' ? 'Admin & Management' : 'All Students'),
       date,
       time,
       duration: Number(duration) || 45,
@@ -160,7 +200,7 @@ exports.createVirtualClass = async (req, res) => {
       roomUrl: url,
       description,
       status,
-      totalEnrolled: classVal.includes('All') ? 100 : 35,
+      totalEnrolled: (classVal && classVal.includes('All')) ? 100 : 35,
       attendedCount: 0,
       createdBy: req.user ? req.user.id : null,
     });
@@ -179,8 +219,12 @@ exports.createVirtualClass = async (req, res) => {
 // PUT /api/virtual-class/:id
 exports.updateVirtualClass = async (req, res) => {
   try {
-    const { roomUrl, meetCode } = req.body;
+    const { roomUrl, meetCode, host, teacher } = req.body;
     let updatePayload = { ...req.body };
+
+    if (host && !teacher) {
+      updatePayload.teacher = host;
+    }
 
     if (roomUrl || meetCode) {
       const { code, url } = normalizeMeetUrl(roomUrl || meetCode);

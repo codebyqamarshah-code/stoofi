@@ -1,32 +1,90 @@
 'use client';
 
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronRight, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Eye } from 'lucide-react';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
+import { formatDateDMY } from '@/lib/utils';
+import api from '@/services/api';
 
 export default function BBBMeetingReportsPage() {
-  const [criteria, setCriteria] = useState({ host: 'All Hosts', audience: 'All Audiences', fromDate: '2026-09-01', toDate: '2026-09-30' });
+  const [criteria, setCriteria] = useState({ host: 'All Hosts', audience: 'All Audiences', fromDate: '', toDate: '' });
   const [activeFilter, setActiveFilter] = useState({ host: 'All Hosts', audience: 'All Audiences' });
   const [search, setSearch] = useState('');
   const [selectedReport, setSelectedReport] = useState(null);
+  const [reportsList, setReportsList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const hosts = ['All Hosts','Mudassir Bajwa','Fatima Zahra','Muhammad Ali','Ahmed Khan','Ayesha Noor','Dr. Bilal Siddiqui'];
+  const [hosts, setHosts] = useState(['All Hosts']);
   const audiences = ['All Audiences','All Teachers','Staff Members','Parents','Admin & Management','General'];
 
-  const [, set] = useState([]);
+  const fetchReports = async (crit = criteria) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ type: 'meeting' });
+      if (crit.host && crit.host !== 'All Hosts') params.append('host', crit.host);
+      if (crit.audience && crit.audience !== 'All Audiences') params.append('audience', crit.audience);
+      if (crit.fromDate) params.append('fromDate', crit.fromDate);
+      if (crit.toDate) params.append('toDate', crit.toDate);
+      const res = await api.get(`/virtual-class/reports?${params.toString()}`);
+      if (res?.success && Array.isArray(res.data)) {
+        setReportsList(res.data);
+      } else {
+        setReportsList([]);
+      }
+    } catch (err) {
+      console.error(err);
+      setReportsList([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleSearch = (e) => { e.preventDefault(); setActiveFilter({ host: criteria.host, audience: criteria.audience }); };
+  useEffect(() => {
+    // Dynamic hosts
+    Promise.allSettled([
+      api.get('/teacher?limit=100'),
+      api.get('/staff?limit=100')
+    ]).then(([tRes, sRes]) => {
+      const gathered = new Set();
+      if (tRes.status === 'fulfilled' && Array.isArray(tRes.value?.data)) {
+        tRes.value.data.forEach(t => {
+          const name = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.name;
+          if (name) gathered.add(name);
+        });
+      }
+      if (sRes.status === 'fulfilled' && Array.isArray(sRes.value?.data)) {
+        sRes.value.data.forEach(s => {
+          const name = s.fullName || s.name || `${s.firstName || ''} ${s.lastName || ''}`.trim();
+          if (name) gathered.add(name);
+        });
+      }
+      if (gathered.size > 0) {
+        setHosts(['All Hosts', ...Array.from(gathered)]);
+      }
+    });
+
+    fetchReports();
+  }, []);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setActiveFilter({ host: criteria.host, audience: criteria.audience });
+    fetchReports(criteria);
+  };
 
   const filtered = useMemo(() => reportsList.filter(item => {
     const mHost = activeFilter.host === 'All Hosts' || item.host === activeFilter.host;
     const mAud = activeFilter.audience === 'All Audiences' || item.audience === activeFilter.audience;
-    const mSearch = !search || item.topic.toLowerCase().includes(search.toLowerCase()) || item.host.toLowerCase().includes(search.toLowerCase());
+    const mSearch = !search || (item.topic || '').toLowerCase().includes(search.toLowerCase()) || (item.host || '').toLowerCase().includes(search.toLowerCase());
     return mHost && mAud && mSearch;
   }), [reportsList, activeFilter, search]);
 
-  const handleCopy = () => { navigator.clipboard.writeText(filtered.map(r => `${r.topic} | ${r.host} | ${r.audience} | ${r.date} | ${r.attendeesCount} attendees | ${r.status}`).join('\n')); alert('Copied!'); };
+  const handleCopy = () => {
+    navigator.clipboard.writeText(filtered.map(r => `${r.topic} | ${r.host} | ${r.audience} | ${formatDateDMY(r.date)} | ${r.attendeesCount} attendees | ${r.status}`).join('\n'));
+    alert('Copied!');
+  };
 
   return (
     <div className="space-y-6">
@@ -61,12 +119,12 @@ export default function BBBMeetingReportsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">From Date <span className="text-rose-500">*</span></label>
-              <input type="date" required value={criteria.fromDate} onChange={(e) => setCriteria({...criteria, fromDate: e.target.value})} className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors" />
+              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">From Date</label>
+              <input type="date" value={criteria.fromDate} onChange={(e) => setCriteria({...criteria, fromDate: e.target.value})} className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">To Date <span className="text-rose-500">*</span></label>
-              <input type="date" required value={criteria.toDate} onChange={(e) => setCriteria({...criteria, toDate: e.target.value})} className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors" />
+              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">To Date</label>
+              <input type="date" value={criteria.toDate} onChange={(e) => setCriteria({...criteria, toDate: e.target.value})} className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors" />
             </div>
           </div>
           <div className="flex justify-end mt-5">
@@ -76,7 +134,7 @@ export default function BBBMeetingReportsPage() {
       </div>
 
       <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl shadow-sm p-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 mb-4 border-b border-zinc-100 dark:border-zinc-200">
+        <div className="flex flex-col md:flex-row md:items-md:justify-between gap-4 pb-4 mb-4 border-b border-zinc-100 dark:border-zinc-200">
           <div className="flex items-center gap-3">
             <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-900 uppercase tracking-wider">BBB Meeting Reports Overview</h2>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-200 text-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 border border-zinc-300 dark:border-zinc-200">{filtered.length}</span>
@@ -97,17 +155,26 @@ export default function BBBMeetingReportsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-200 dark:divide-zinc-100">
-              {filtered.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={9} className="px-4 py-8 text-center text-zinc-500">
+                    <div className="inline-flex items-center gap-2">
+                      <div className="h-4 w-4 rounded-full border-2 border-zinc-800 border-t-transparent animate-spin" />
+                      <span>Loading reports...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : filtered.length === 0 ? (
                 <tr><td colSpan={9} className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td></tr>
               ) : filtered.map((item, index) => (
-                <tr key={item.id} className="hover:bg-zinc-50/80 dark:hover:bg-zinc-100/40 transition-colors">
+                <tr key={item._id || item.id || index} className="hover:bg-zinc-50/80 dark:hover:bg-zinc-100/40 transition-colors">
                   <td className="px-3.5 py-3 font-medium text-zinc-900 dark:text-zinc-800">{index + 1}</td>
                   <td className="px-3.5 py-3 font-semibold text-zinc-900 dark:text-zinc-900">{item.topic}</td>
                   <td className="px-3.5 py-3 font-medium text-zinc-700 dark:text-zinc-700">{item.host}</td>
                   <td className="px-3.5 py-3"><span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400">{item.audience}</span></td>
-                  <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap"><div>{item.date}</div><div className="text-[10px] text-zinc-400">{item.time}</div></td>
-                  <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600">{item.duration}</td>
-                  <td className="px-3.5 py-3"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-800">{item.attendeesCount} Joined</span></td>
+                  <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap"><div>{formatDateDMY(item.date)}</div><div className="text-[10px] text-zinc-400">{item.time}</div></td>
+                  <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap">{item.duration} Mins</td>
+                  <td className="px-3.5 py-3"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-800">{item.attendeesCount || 0} Joined</span></td>
                   <td className="px-3.5 py-3"><span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-200 text-zinc-800 dark:bg-zinc-100 dark:text-zinc-900">{item.status}</span></td>
                   <td className="px-3.5 py-3 text-right"><button onClick={() => setSelectedReport(item)} className="px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-800 rounded text-[11px] font-medium inline-flex items-center gap-1 transition-colors"><Eye className="h-3 w-3" />Details</button></td>
                 </tr>
@@ -138,9 +205,9 @@ export default function BBBMeetingReportsPage() {
                 <div className="text-zinc-500 mt-1">Host: {selectedReport.host} | Target: {selectedReport.audience}</div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200"><span className="text-zinc-500 block">Date & Time:</span><span className="font-semibold text-zinc-800 dark:text-zinc-800">{selectedReport.date} ({selectedReport.time})</span></div>
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200"><span className="text-zinc-500 block">Date & Time:</span><span className="font-semibold text-zinc-800 dark:text-zinc-800">{formatDateDMY(selectedReport.date)} ({selectedReport.time})</span></div>
                 <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200"><span className="text-zinc-500 block">Duration:</span><span className="font-semibold text-zinc-800 dark:text-zinc-800">{selectedReport.duration}</span></div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200"><span className="text-zinc-500 block">Attendees:</span><span className="font-semibold text-zinc-800">{selectedReport.attendeesCount} Members</span></div>
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200"><span className="text-zinc-500 block">Attendees:</span><span className="font-semibold text-zinc-800">{selectedReport.attendeesCount || 0} Members</span></div>
                 <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200"><span className="text-zinc-500 block">Status:</span><span className="font-semibold text-zinc-800">{selectedReport.status}</span></div>
               </div>
               {selectedReport.notes && <div className="p-3 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200"><span className="text-zinc-500 block font-semibold mb-1">Notes:</span><p className="text-zinc-700 dark:text-zinc-700 leading-relaxed">{selectedReport.notes}</p></div>}

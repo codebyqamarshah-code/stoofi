@@ -93,11 +93,23 @@ export default function StudentDataTable({
               ) : (
                 data.map((row, i) => (
                   <tr key={i} className="border-b border-zinc-100 hover:bg-zinc-50">
-                    {columns.map((col, j) => (
-                      <td key={j} className="py-3 px-4 text-zinc-700">
-                        {row[col] || '-'}
-                      </td>
-                    ))}
+                    {columns.map((col, j) => {
+                      let cellVal = '-';
+                      if (Array.isArray(row)) {
+                        cellVal = row[j] !== undefined && row[j] !== null ? row[j] : '-';
+                      } else if (typeof row === 'object' && row !== null) {
+                        cellVal = row[col] ?? 
+                          row[col.toLowerCase()] ?? 
+                          row[col.replace(/\s+/g, '')] ?? 
+                          row[col.charAt(0).toLowerCase() + col.slice(1).replace(/\s+/g, '')] ?? 
+                          '-';
+                      }
+                      return (
+                        <td key={j} className="py-3 px-4 text-zinc-700">
+                          {React.isValidElement(cellVal) ? cellVal : String(cellVal)}
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))
               )}
@@ -108,7 +120,7 @@ export default function StudentDataTable({
         {/* Pagination */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 text-sm text-zinc-500">
           <div>
-            Showing 0 to 0 of 0 entries
+            Showing {data.length === 0 ? 0 : 1} to {data.length} of {data.length} entries
           </div>
           <div className="flex items-center gap-1">
             <button className="p-1.5 border border-zinc-200 rounded text-zinc-400 cursor-not-allowed">

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   ChevronRight, 
@@ -17,13 +17,15 @@ import {
   Calendar 
 } from 'lucide-react';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
+import { formatDateDMY } from '@/lib/utils';
+import api from '@/services/api';
 
 export default function VirtualClassReportsPage() {
   const [criteria, setCriteria] = useState({
     classVal: 'All Classes',
     section: 'All Sections',
-    fromDate: '2026-09-01',
-    toDate: '2026-09-30'
+    fromDate: '',
+    toDate: ''
   });
 
   const [activeFilter, setActiveFilter] = useState({
@@ -33,53 +35,68 @@ export default function VirtualClassReportsPage() {
 
   const [search, setSearch] = useState('');
   const [selectedReport, setSelectedReport] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const classes = ['All Classes', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'];
-  const sections = ['All Sections', 'A', 'B', 'C', 'D'];
+  const [classes, setClasses] = useState(['All Classes', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10']);
+  const [sections, setSections] = useState(['All Sections', 'A', 'B', 'C', 'D']);
+  const [reportsList, setReportsList] = useState([]);
 
-  const initialReports = [
-    {
-      id: 1,
-      topic: 'Advanced Calculus & Analytical Geometry',
-      classVal: 'Class 10',
-      section: 'A',
-      teacher: 'Mudassir Bajwa',
-      date: '2026-09-02',
-      time: '09:00 AM',
-      duration: '45 mins',
-      totalEnrolled: 36,
-      attended: 34,
-      percentage: '94.4%'
-    },
-    {
-      id: 2,
-      topic: 'Biology - Cellular Respiration & ATP Cycle',
-      classVal: 'Class 9',
-      section: 'B',
-      teacher: 'Fatima Zahra',
-      date: '2026-09-03',
-      time: '11:00 AM',
-      duration: '60 mins',
-      totalEnrolled: 30,
-      attended: 27,
-      percentage: '90.0%'
-    },
-    {
-      id: 3,
-      topic: 'English Literature - Poetry Analysis & Figures of Speech',
-      classVal: 'Class 10',
-      section: 'B',
-      teacher: 'Ayesha Noor',
-      date: '2026-09-04',
-      time: '10:15 AM',
-      duration: '45 mins',
-      totalEnrolled: 32,
-      attended: 31,
-      percentage: '96.8%'
+  // Fetch live reports from backend
+  const fetchReports = async (customFilter = criteria) => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      params.append('type', 'class');
+      if (customFilter.classVal && customFilter.classVal !== 'All Classes') {
+        params.append('classVal', customFilter.classVal);
+      }
+      if (customFilter.section && customFilter.section !== 'All Sections') {
+        params.append('section', customFilter.section);
+      }
+      if (customFilter.fromDate) {
+        params.append('fromDate', customFilter.fromDate);
+      }
+      if (customFilter.toDate) {
+        params.append('toDate', customFilter.toDate);
+      }
+
+      const res = await api.get(`/virtual-class/reports?${params.toString()}`);
+      if (res?.success && Array.isArray(res.data)) {
+        setReportsList(res.data);
+      } else {
+        setReportsList([]);
+      }
+    } catch (err) {
+      console.error('Error fetching class reports:', err);
+      setReportsList([]);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const [reportsList, setReportsList] = useState(initialReports);
+  useEffect(() => {
+    // Fetch dynamic classes
+    api.get('/class').then(res => {
+      if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
+        const clsNames = res.data.map(c => c.name || c.className).filter(Boolean);
+        if (clsNames.length > 0) {
+          setClasses(['All Classes', ...Array.from(new Set(clsNames))]);
+        }
+      }
+    }).catch(() => {});
+
+    // Fetch dynamic sections
+    api.get('/section').then(res => {
+      if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
+        const secNames = res.data.map(s => s.name || s.sectionName).filter(Boolean);
+        if (secNames.length > 0) {
+          setSections(['All Sections', ...Array.from(new Set(secNames))]);
+        }
+      }
+    }).catch(() => {});
+
+    fetchReports();
+  }, []);
 
   const handleSearchCriteria = (e) => {
     e.preventDefault();
@@ -87,6 +104,7 @@ export default function VirtualClassReportsPage() {
       classVal: criteria.classVal,
       section: criteria.section
     });
+    fetchReports(criteria);
   };
 
   const filteredReports = useMemo(() => {
@@ -313,7 +331,16 @@ export default function VirtualClassReportsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-200 dark:divide-zinc-100">
-              {filteredReports.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-12 text-center text-zinc-500 font-medium">
+                    <div className="inline-flex items-center gap-2">
+                      <div className="h-4 w-4 rounded-full border-2 border-indigo-600 border-t-transparent animate-spin" />
+                      <span>Loading class reports...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredReports.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-4 py-8 text-center text-zinc-500">
                     No Data Available In Table
@@ -322,7 +349,7 @@ export default function VirtualClassReportsPage() {
               ) : (
                 filteredReports.map((item, index) => (
                   <tr
-                    key={item.id}
+                    key={item._id || item.id || index}
                     className="hover:bg-zinc-50/80 dark:hover:bg-zinc-100/40 transition-colors"
                   >
                     <td className="px-3.5 py-3 font-medium text-zinc-900 dark:text-zinc-800">
@@ -340,17 +367,19 @@ export default function VirtualClassReportsPage() {
                       {item.teacher}
                     </td>
                     <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap">
-                      <div>{item.date}</div>
+                      <div>{formatDateDMY(item.date)}</div>
                       <div className="text-[10px] text-zinc-400">{item.time}</div>
                     </td>
                     <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap">
-                      {item.duration}
+                      {typeof item.duration === 'number' ? `${item.duration} mins` : (item.duration || '—')}
                     </td>
                     <td className="px-3.5 py-3 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
-                        <span className="font-semibold text-zinc-900 dark:text-zinc-900">{item.attended}/{item.totalEnrolled}</span>
+                        <span className="font-semibold text-zinc-900 dark:text-zinc-900">
+                          {item.attendedCount ?? item.attended ?? 0}/{item.totalEnrolled || 0}
+                        </span>
                         <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-zinc-200 text-zinc-800 dark:bg-zinc-100 dark:text-zinc-900">
-                          {item.percentage}
+                          {item.percentage || '0%'}
                         </span>
                       </div>
                     </td>
@@ -418,15 +447,15 @@ export default function VirtualClassReportsPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Session Date:</span>
-                  <span className="font-semibold text-zinc-800 dark:text-zinc-800">{selectedReport.date} ({selectedReport.time})</span>
+                  <span className="font-semibold text-zinc-800 dark:text-zinc-800">{formatDateDMY(selectedReport.date)} ({selectedReport.time})</span>
                 </div>
                 <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Duration:</span>
-                  <span className="font-semibold text-zinc-800 dark:text-zinc-800">{selectedReport.duration}</span>
+                  <span className="font-semibold text-zinc-800 dark:text-zinc-800">{typeof selectedReport.duration === 'number' ? `${selectedReport.duration} mins` : (selectedReport.duration || '—')}</span>
                 </div>
                 <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Attended / Total:</span>
-                  <span className="font-semibold text-zinc-800">{selectedReport.attended} / {selectedReport.totalEnrolled} Students</span>
+                  <span className="font-semibold text-zinc-800">{selectedReport.attendedCount ?? selectedReport.attended ?? 0} / {selectedReport.totalEnrolled || 0} Students</span>
                 </div>
                 <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Attendance Rate:</span>

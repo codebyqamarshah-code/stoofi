@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   ChevronRight, 
@@ -15,16 +15,21 @@ import {
   Video, 
   ExternalLink,
   Users,
-  CheckCircle2
+  CheckCircle2,
+  X
 } from 'lucide-react';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
+import { formatDateDMY } from '@/lib/utils';
+import api from '@/services/api';
 
 export default function VirtualMeetingMainPage() {
   const [records, setRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   const [form, setForm] = useState({
     topic: '',
-    host: 'Dr. Bilal Siddiqui',
+    host: '',
     audience: 'Admin & Management',
     description: '',
     date: new Date().toISOString().split('T')[0],
@@ -37,46 +42,145 @@ export default function VirtualMeetingMainPage() {
   const [search, setSearch] = useState('');
   const [filterAudience, setFilterAudience] = useState('All');
 
-  const hosts = ['Mudassir Bajwa', 'Fatima Zahra', 'Muhammad Ali', 'Ahmed Khan', 'Ayesha Noor', 'Dr. Bilal Siddiqui'];
+  // Host / Organizer state
+  const [hosts, setHosts] = useState([]);
+  const [hostsLoading, setHostsLoading] = useState(true);
+  const [showAddHost, setShowAddHost] = useState(false);
+  const [newHostName, setNewHostName] = useState('');
+
   const audiences = ['All Teachers', 'Staff Members', 'Parents', 'Admin & Management', 'General'];
 
-  const handleSubmit = (e) => {
+  // Fetch real meetings from API
+  const fetchRecords = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get('/virtual-class?type=meeting');
+      if (res?.success && Array.isArray(res.data)) {
+        setRecords(res.data);
+      } else {
+        setRecords([]);
+      }
+    } catch (err) {
+      console.error('Failed to fetch virtual meetings:', err);
+      setRecords([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch teachers/staff from API for host dropdown
+  const fetchHosts = async () => {
+    setHostsLoading(true);
+    try {
+      const [tRes, sRes] = await Promise.allSettled([
+        api.get('/teacher?limit=100'),
+        api.get('/staff?limit=100')
+      ]);
+
+      const gatheredNames = new Set();
+
+      if (tRes.status === 'fulfilled' && tRes.value?.data && Array.isArray(tRes.value.data)) {
+        tRes.value.data.forEach(t => {
+          const name = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.name;
+          if (name) gatheredNames.add(name);
+        });
+      }
+
+      if (sRes.status === 'fulfilled' && sRes.value?.data && Array.isArray(sRes.value.data)) {
+        sRes.value.data.forEach(s => {
+          const name = s.fullName || s.name || `${s.firstName || ''} ${s.lastName || ''}`.trim();
+          if (name) gatheredNames.add(name);
+        });
+      }
+
+      const uniqueHosts = Array.from(gatheredNames);
+      setHosts(uniqueHosts);
+      if (uniqueHosts.length > 0) {
+        setForm(prev => prev.host ? prev : { ...prev, host: uniqueHosts[0] });
+      }
+    } catch (err) {
+      console.error('Failed to fetch hosts:', err);
+    } finally {
+      setHostsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchHosts();
+    fetchRecords();
+  }, []);
+
+  // Add a custom host name entered by the user
+  const handleAddNewHost = () => {
+    const trimmed = newHostName.trim();
+    if (!trimmed) return;
+    if (!hosts.includes(trimmed)) {
+      setHosts(prev => [...prev, trimmed]);
+    }
+    setForm(prev => ({ ...prev, host: trimmed }));
+    setNewHostName('');
+    setShowAddHost(false);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.topic.trim()) {
       alert('Please enter a Meeting Topic.');
       return;
     }
-
-    if (editId) {
-      setRecords(records.map(r => r.id === editId ? { ...r, ...form } : r));
-      setEditId(null);
-    } else {
-      const newRec = {
-        id: Date.now(),
-        ...form,
-        status: 'Scheduled',
-        roomUrl: `https://zoom.us/j/${Math.floor(10000000000 + Math.random() * 90000000000)}`
-      };
-      setRecords([newRec, ...records]);
+    if (!form.host.trim()) {
+      alert('Please select or enter a Host / Organizer.');
+      return;
     }
 
-    setForm({
-      topic: '',
-      host: 'Dr. Bilal Siddiqui',
-      audience: 'Admin & Management',
-      description: '',
-      date: new Date().toISOString().split('T')[0],
-      time: '15:00',
-      duration: '60',
-      password: ''
-    });
+    try {
+      setSubmitting(true);
+      const roomUrl = `https://zoom.us/j/${Math.floor(10000000000 + Math.random() * 90000000000)}`;
+      const payload = {
+        topic: form.topic.trim(),
+        type: 'meeting',
+        provider: 'zoom',
+        teacher: form.host.trim(),
+        host: form.host.trim(),
+        audience: form.audience,
+        description: form.description || '',
+        date: form.date,
+        time: form.time,
+        duration: Number(form.duration) || 60,
+        password: form.password || '',
+        status: 'Scheduled',
+        roomUrl: roomUrl,
+        meetCode: roomUrl.split('/').pop()
+      };
+
+      if (editId) {
+        await api.put(`/virtual-class/${editId}`, payload);
+        setEditId(null);
+      } else {
+        await api.post('/virtual-class', payload);
+      }
+
+      setForm(prev => ({
+        ...prev,
+        topic: '',
+        description: '',
+        password: ''
+      }));
+
+      await fetchRecords();
+    } catch (err) {
+      console.error('Error saving meeting:', err);
+      alert(err.message || 'Error saving meeting');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleEdit = (item) => {
-    setEditId(item.id);
+    setEditId(item._id || item.id);
     setForm({
       topic: item.topic,
-      host: item.host,
+      host: item.host || item.teacher || '',
       audience: item.audience,
       description: item.description || '',
       date: item.date,
@@ -87,25 +191,27 @@ export default function VirtualMeetingMainPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this virtual meeting?')) {
-      setRecords(records.filter(r => r.id !== id));
-      if (editId === id) setEditId(null);
+      try {
+        await api.delete(`/virtual-class/${id}`);
+        if (editId === id) setEditId(null);
+        await fetchRecords();
+      } catch (err) {
+        console.error('Error deleting meeting:', err);
+        alert(err.message || 'Error deleting meeting');
+      }
     }
   };
 
   const cancelEdit = () => {
     setEditId(null);
-    setForm({
+    setForm(prev => ({
+      ...prev,
       topic: '',
-      host: 'Dr. Bilal Siddiqui',
-      audience: 'Admin & Management',
       description: '',
-      date: new Date().toISOString().split('T')[0],
-      time: '15:00',
-      duration: '60',
       password: ''
-    });
+    }));
   };
 
   const filteredRecords = useMemo(() => {
@@ -201,43 +307,84 @@ export default function VirtualMeetingMainPage() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Executive Board Quarterly Strategic Review"
+                  placeholder="Enter meeting topic..."
                   value={form.topic}
                   onChange={(e) => setForm({ ...form, topic: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
+              {/* Host / Organizer */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5 h-6">
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider">
                     Host / Organizer <span className="text-rose-500">*</span>
                   </label>
+                  <button
+                    type="button"
+                    onClick={() => { setShowAddHost(v => !v); setNewHostName(''); }}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors cursor-pointer"
+                    title="Add new host"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> {showAddHost ? 'Cancel' : 'Add Custom Host'}
+                  </button>
+                </div>
+                {showAddHost ? (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      autoFocus
+                      placeholder="Enter host / organizer name..."
+                      value={newHostName}
+                      onChange={(e) => setNewHostName(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddNewHost(); } if (e.key === 'Escape') { setShowAddHost(false); setNewHostName(''); } }}
+                      className="flex-1 px-3.5 py-2.5 rounded-lg border border-indigo-400 bg-white text-zinc-900 text-sm focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 outline-none transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddNewHost}
+                      className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer shadow-sm"
+                    >
+                      Add
+                    </button>
+                  </div>
+                ) : (
                   <select
                     value={form.host}
                     onChange={(e) => setForm({ ...form, host: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                    disabled={hostsLoading}
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors disabled:opacity-60"
                   >
-                    {hosts.map(h => (
-                      <option key={h} value={h}>{h}</option>
-                    ))}
+                    {hostsLoading ? (
+                      <option value="">Loading hosts...</option>
+                    ) : hosts.length === 0 ? (
+                      <option value="">No hosts available — click &quot;Add Custom Host&quot;</option>
+                    ) : (
+                      <>
+                        <option value="">-- Select Host / Organizer --</option>
+                        {hosts.map(h => (
+                          <option key={h} value={h}>{h}</option>
+                        ))}
+                      </>
+                    )}
                   </select>
-                </div>
+                )}
+              </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
-                    Audience <span className="text-rose-500">*</span>
-                  </label>
-                  <select
-                    value={form.audience}
-                    onChange={(e) => setForm({ ...form, audience: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
-                  >
-                    {audiences.map(aud => (
-                      <option key={aud} value={aud}>{aud}</option>
-                    ))}
-                  </select>
-                </div>
+              {/* Audience */}
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
+                  Audience <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={form.audience}
+                  onChange={(e) => setForm({ ...form, audience: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
+                >
+                  {audiences.map(aud => (
+                    <option key={aud} value={aud}>{aud}</option>
+                  ))}
+                </select>
               </div>
 
               <div>
@@ -314,10 +461,11 @@ export default function VirtualMeetingMainPage() {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full sm:w-auto px-6 py-2.5 bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
+                  disabled={submitting}
+                  className="w-full sm:w-auto px-6 py-2.5 bg-zinc-950 hover:bg-zinc-800 disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
                 >
                   <CheckCircle2 className="h-4 w-4" />
-                  {editId ? 'Update Meeting' : 'Save Virtual Meeting'}
+                  {submitting ? 'Saving...' : editId ? 'Update Meeting' : 'Save Virtual Meeting'}
                 </button>
               </div>
             </form>
@@ -422,7 +570,16 @@ export default function VirtualMeetingMainPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-200 dark:divide-zinc-100">
-                  {filteredRecords.length === 0 ? (
+                  {loading ? (
+                    <tr>
+                      <td colSpan={8} className="px-4 py-12 text-center text-zinc-500 font-medium">
+                        <div className="inline-flex items-center gap-2">
+                          <div className="h-4 w-4 rounded-full border-2 border-zinc-800 border-t-transparent animate-spin" />
+                          <span>Loading virtual meetings...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : filteredRecords.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="px-4 py-8 text-center text-zinc-500">
                         No Data Available In Table
@@ -431,7 +588,7 @@ export default function VirtualMeetingMainPage() {
                   ) : (
                     filteredRecords.map((item, index) => (
                       <tr
-                        key={item.id}
+                        key={item._id || item.id || index}
                         className="hover:bg-zinc-50/80 dark:hover:bg-zinc-100/40 transition-colors"
                       >
                         <td className="px-3.5 py-3 font-medium text-zinc-900 dark:text-zinc-800">
@@ -448,7 +605,7 @@ export default function VirtualMeetingMainPage() {
                           )}
                         </td>
                         <td className="px-3.5 py-3 font-medium text-zinc-700 dark:text-zinc-700 whitespace-nowrap">
-                          {item.host}
+                          {item.host || item.teacher}
                         </td>
                         <td className="px-3.5 py-3 whitespace-nowrap">
                           <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400">
@@ -456,7 +613,7 @@ export default function VirtualMeetingMainPage() {
                           </span>
                         </td>
                         <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap">
-                          <div>{item.date}</div>
+                          <div>{formatDateDMY(item.date)}</div>
                           <div className="text-[10px] text-zinc-400">{item.time}</div>
                         </td>
                         <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap">
@@ -464,7 +621,7 @@ export default function VirtualMeetingMainPage() {
                         </td>
                         <td className="px-3.5 py-3">
                           <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-200 text-zinc-800 dark:bg-zinc-100 dark:text-zinc-900">
-                            {item.status}
+                            {item.status || 'Scheduled'}
                           </span>
                         </td>
                         <td className="px-3.5 py-3 text-right whitespace-nowrap">
@@ -486,7 +643,7 @@ export default function VirtualMeetingMainPage() {
                               <Edit className="h-3.5 w-3.5" />
                             </button>
                             <button
-                              onClick={() => handleDelete(item.id)}
+                              onClick={() => handleDelete(item._id || item.id)}
                               className="p-1 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-rose-600 rounded transition-colors"
                               title="Delete"
                             >

@@ -39,20 +39,12 @@ export default function VirtualClassModulePage() {
     'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'
   ]);
   const [sections, setSections] = useState(['A', 'B', 'C', 'D']);
-  const [teachers, setTeachers] = useState([
-    'farhan abbas',
-    'Mudassir Bajwa',
-    'Fatima Zahra',
-    'Muhammad Ali',
-    'Ahmed Khan',
-    'Ayesha Noor',
-    'Dr. Bilal Siddiqui'
-  ]);
+  const [teachers, setTeachers] = useState([]);
 
   const [form, setForm] = useState({
     classVal: 'Class 10',
     section: 'A',
-    teacher: 'farhan abbas',
+    teacher: '',
     customTeacher: '',
     topic: '',
     description: '',
@@ -123,7 +115,7 @@ export default function VirtualClassModulePage() {
           api.get('/staff?limit=100')
         ]);
 
-        const gatheredNames = new Set(teachers);
+        const gatheredNames = new Set();
 
         if (tRes.status === 'fulfilled' && tRes.value?.data && Array.isArray(tRes.value.data)) {
           tRes.value.data.forEach(t => {
@@ -142,10 +134,10 @@ export default function VirtualClassModulePage() {
         const uniqueTeachers = Array.from(gatheredNames);
         setTeachers(uniqueTeachers);
 
-        // Ensure form.teacher has a valid default
+        // Ensure form.teacher has a valid default from real data
         setForm(prev => {
-          if (!prev.teacher || !gatheredNames.has(prev.teacher)) {
-            return { ...prev, teacher: uniqueTeachers[0] || 'farhan abbas' };
+          if (!prev.teacher && uniqueTeachers.length > 0) {
+            return { ...prev, teacher: uniqueTeachers[0] };
           }
           return prev;
         });
@@ -557,7 +549,7 @@ export default function VirtualClassModulePage() {
                   <input
                     type="text"
                     required
-                    placeholder="Enter teacher name (e.g. farhan abbas)"
+                    placeholder="Enter teacher name"
                     value={form.customTeacher}
                     onChange={(e) => setForm({ ...form, customTeacher: e.target.value })}
                     className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 bg-white text-zinc-900 text-sm focus:ring-2 focus:ring-[#084A86]/20 focus:border-[#084A86] outline-none font-medium transition-colors"
@@ -568,9 +560,16 @@ export default function VirtualClassModulePage() {
                     onChange={(e) => setForm({ ...form, teacher: e.target.value })}
                     className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 bg-white text-zinc-900 text-sm focus:ring-2 focus:ring-[#084A86]/20 focus:border-[#084A86] outline-none font-medium transition-colors"
                   >
-                    {teachers.map(t => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
+                    {teachers.length === 0 ? (
+                      <option value="">No teachers found — type custom name</option>
+                    ) : (
+                      <>
+                        <option value="">-- Select Teacher --</option>
+                        {teachers.map(t => (
+                          <option key={t} value={t}>{t}</option>
+                        ))}
+                      </>
+                    )}
                   </select>
                 )}
               </div>
@@ -583,7 +582,7 @@ export default function VirtualClassModulePage() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Advanced Calculus & Differential Equations"
+                  placeholder="Enter class topic"
                   value={form.topic}
                   onChange={(e) => setForm({ ...form, topic: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 bg-white text-zinc-900 text-sm focus:ring-2 focus:ring-[#084A86]/20 focus:border-[#084A86] outline-none font-medium transition-colors"

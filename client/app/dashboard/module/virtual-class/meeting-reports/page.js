@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   ChevronRight, 
@@ -16,13 +16,15 @@ import {
   Calendar 
 } from 'lucide-react';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
+import { formatDateDMY } from '@/lib/utils';
+import api from '@/services/api';
 
 export default function VirtualMeetingReportsPage() {
   const [criteria, setCriteria] = useState({
     host: 'All Hosts',
     audience: 'All Audiences',
-    fromDate: '2026-09-01',
-    toDate: '2026-09-30'
+    fromDate: '',
+    toDate: ''
   });
 
   const [activeFilter, setActiveFilter] = useState({
@@ -32,38 +34,83 @@ export default function VirtualMeetingReportsPage() {
 
   const [search, setSearch] = useState('');
   const [selectedReport, setSelectedReport] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const hosts = ['All Hosts', 'Mudassir Bajwa', 'Fatima Zahra', 'Muhammad Ali', 'Ahmed Khan', 'Ayesha Noor', 'Dr. Bilal Siddiqui'];
+  const [hosts, setHosts] = useState(['All Hosts']);
+  const [reportsList, setReportsList] = useState([]);
+
   const audiences = ['All Audiences', 'All Teachers', 'Staff Members', 'Parents', 'Admin & Management', 'General'];
 
-  const initialReports = [
-    {
-      id: 1,
-      topic: 'Executive Board Quarterly Strategic Review',
-      host: 'Dr. Bilal Siddiqui',
-      audience: 'Admin & Management',
-      date: '2026-09-01',
-      time: '03:00 PM',
-      duration: '60 mins',
-      attendeesCount: 12,
-      status: 'Completed',
-      notes: 'Reviewed operational KPIs, annual expansion budgets, and hiring plans.'
-    },
-    {
-      id: 2,
-      topic: 'Faculty Workshop on Digital Pedagogy',
-      host: 'Mudassir Bajwa',
-      audience: 'All Teachers',
-      date: '2026-09-03',
-      time: '02:30 PM',
-      duration: '90 mins',
-      attendeesCount: 35,
-      status: 'Completed',
-      notes: 'Hands-on training session on interactive online whiteboards and formative quizzes.'
-    }
-  ];
+  // Fetch live meeting reports from backend
+  const fetchReports = async (customFilter = criteria) => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      params.append('type', 'meeting');
+      if (customFilter.host && customFilter.host !== 'All Hosts') {
+        params.append('host', customFilter.host);
+      }
+      if (customFilter.audience && customFilter.audience !== 'All Audiences') {
+        params.append('audience', customFilter.audience);
+      }
+      if (customFilter.fromDate) {
+        params.append('fromDate', customFilter.fromDate);
+      }
+      if (customFilter.toDate) {
+        params.append('toDate', customFilter.toDate);
+      }
 
-  const [reportsList, setReportsList] = useState(initialReports);
+      const res = await api.get(`/virtual-class/reports?${params.toString()}`);
+      if (res?.success && Array.isArray(res.data)) {
+        setReportsList(res.data);
+      } else {
+        setReportsList([]);
+      }
+    } catch (err) {
+      console.error('Error fetching meeting reports:', err);
+      setReportsList([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch dynamic hosts (teachers & staff)
+  useEffect(() => {
+    const fetchHostsList = async () => {
+      try {
+        const [tRes, sRes] = await Promise.allSettled([
+          api.get('/teacher?limit=100'),
+          api.get('/staff?limit=100')
+        ]);
+
+        const gatheredNames = new Set();
+
+        if (tRes.status === 'fulfilled' && tRes.value?.data && Array.isArray(tRes.value.data)) {
+          tRes.value.data.forEach(t => {
+            const name = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.name;
+            if (name) gatheredNames.add(name);
+          });
+        }
+
+        if (sRes.status === 'fulfilled' && sRes.value?.data && Array.isArray(sRes.value.data)) {
+          sRes.value.data.forEach(s => {
+            const name = s.fullName || s.name || `${s.firstName || ''} ${s.lastName || ''}`.trim();
+            if (name) gatheredNames.add(name);
+          });
+        }
+
+        const uniqueHosts = Array.from(gatheredNames);
+        if (uniqueHosts.length > 0) {
+          setHosts(['All Hosts', ...uniqueHosts]);
+        }
+      } catch (e) {
+        console.error('Error fetching hosts:', e);
+      }
+    };
+
+    fetchHostsList();
+    fetchReports();
+  }, []);
 
   const handleSearchCriteria = (e) => {
     e.preventDefault();
@@ -71,6 +118,7 @@ export default function VirtualMeetingReportsPage() {
       host: criteria.host,
       audience: criteria.audience
     });
+    fetchReports(criteria);
   };
 
   const filteredReports = useMemo(() => {
@@ -298,7 +346,16 @@ export default function VirtualMeetingReportsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-200 dark:divide-zinc-100">
-              {filteredReports.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={9} className="px-4 py-12 text-center text-zinc-500 font-medium">
+                    <div className="inline-flex items-center gap-2">
+                      <div className="h-4 w-4 rounded-full border-2 border-indigo-600 border-t-transparent animate-spin" />
+                      <span>Loading meeting reports...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredReports.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="px-4 py-8 text-center text-zinc-500">
                     No Data Available In Table
@@ -307,7 +364,7 @@ export default function VirtualMeetingReportsPage() {
               ) : (
                 filteredReports.map((item, index) => (
                   <tr
-                    key={item.id}
+                    key={item._id || item.id || index}
                     className="hover:bg-zinc-50/80 dark:hover:bg-zinc-100/40 transition-colors"
                   >
                     <td className="px-3.5 py-3 font-medium text-zinc-900 dark:text-zinc-800">
@@ -325,20 +382,20 @@ export default function VirtualMeetingReportsPage() {
                       </span>
                     </td>
                     <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap">
-                      <div>{item.date}</div>
+                      <div>{formatDateDMY(item.date)}</div>
                       <div className="text-[10px] text-zinc-400">{item.time}</div>
                     </td>
                     <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap">
-                      {item.duration}
+                      {typeof item.duration === 'number' ? `${item.duration} mins` : (item.duration || '—')}
                     </td>
                     <td className="px-3.5 py-3 whitespace-nowrap">
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-800">
-                        {item.attendeesCount} Joined
+                        {item.attendeesCount ?? 0} Joined
                       </span>
                     </td>
                     <td className="px-3.5 py-3">
                       <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-200 text-zinc-800 dark:bg-zinc-100 dark:text-zinc-900">
-                        {item.status}
+                        {item.status || 'Scheduled'}
                       </span>
                     </td>
                     <td className="px-3.5 py-3 text-right whitespace-nowrap">
@@ -405,25 +462,25 @@ export default function VirtualMeetingReportsPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Date & Time:</span>
-                  <span className="font-semibold text-zinc-800 dark:text-zinc-800">{selectedReport.date} ({selectedReport.time})</span>
+                  <span className="font-semibold text-zinc-800 dark:text-zinc-800">{formatDateDMY(selectedReport.date)} ({selectedReport.time})</span>
                 </div>
                 <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Duration:</span>
-                  <span className="font-semibold text-zinc-800 dark:text-zinc-800">{selectedReport.duration}</span>
+                  <span className="font-semibold text-zinc-800 dark:text-zinc-800">{typeof selectedReport.duration === 'number' ? `${selectedReport.duration} mins` : (selectedReport.duration || '—')}</span>
                 </div>
                 <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Attendees:</span>
-                  <span className="font-semibold text-zinc-800">{selectedReport.attendeesCount} Members Joined</span>
+                  <span className="font-semibold text-zinc-800">{selectedReport.attendeesCount ?? 0} Members Joined</span>
                 </div>
                 <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block">Status:</span>
-                  <span className="font-semibold text-zinc-800">{selectedReport.status}</span>
+                  <span className="font-semibold text-zinc-800">{selectedReport.status || 'Scheduled'}</span>
                 </div>
               </div>
-              {selectedReport.notes && (
+              {(selectedReport.notes || selectedReport.description) && (
                 <div className="p-3 rounded-lg bg-zinc-50 dark:bg-white border border-zinc-200 dark:border-zinc-200">
                   <span className="text-zinc-500 block font-semibold mb-1">Meeting Minutes / Notes:</span>
-                  <p className="text-zinc-700 dark:text-zinc-700 leading-relaxed">{selectedReport.notes}</p>
+                  <p className="text-zinc-700 dark:text-zinc-700 leading-relaxed">{selectedReport.notes || selectedReport.description}</p>
                 </div>
               )}
             </div>

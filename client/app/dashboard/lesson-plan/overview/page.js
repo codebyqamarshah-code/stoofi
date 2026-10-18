@@ -30,34 +30,19 @@ export default function LessonPlanOverviewPage() {
   useEffect(() => {
     // 1. Teachers
     api.get('/teacher').then(r => {
-      if (r && r.success && Array.isArray(r.data) && r.data.length > 0) {
+      if (r?.success && Array.isArray(r.data) && r.data.length > 0) {
         setTeachersList(r.data.map(t => ({ label: t.name, value: t.name })));
       } else {
         api.get('/staff').then(sr => {
-          if (sr && sr.success && Array.isArray(sr.data)) {
-            setTeachersList(sr.data.map(s => ({ label: s.name, value: s.name })));
-          } else {
-            setTeachersList([
-              { label: 'Mudassir Bajwa', value: 'Mudassir Bajwa' },
-              { label: 'Muhammad Ali', value: 'Muhammad Ali' },
-              { label: 'Ayesha Khan', value: 'Ayesha Khan' }
-            ]);
+          if (sr?.success && Array.isArray(sr.data)) {
+            const faculty = sr.data.filter(s => s.role === 'Teacher' || s.designation?.toLowerCase().includes('teacher'));
+            const list = faculty.length > 0 ? faculty : sr.data;
+            setTeachersList(list.map(s => ({ label: s.name || `${s.firstName || ''} ${s.lastName || ''}`.trim(), value: s.name || `${s.firstName || ''} ${s.lastName || ''}`.trim() })));
           }
-        }).catch(() => {
-          setTeachersList([
-            { label: 'Mudassir Bajwa', value: 'Mudassir Bajwa' },
-            { label: 'Muhammad Ali', value: 'Muhammad Ali' },
-            { label: 'Ayesha Khan', value: 'Ayesha Khan' }
-          ]);
-        });
+        }).catch(() => {});
       }
-    }).catch(() => {
-      setTeachersList([
-        { label: 'Mudassir Bajwa', value: 'Mudassir Bajwa' },
-        { label: 'Muhammad Ali', value: 'Muhammad Ali' },
-        { label: 'Ayesha Khan', value: 'Ayesha Khan' }
-      ]);
-    });
+    }).catch(() => {});
+
 
     // 2. Classes
     api.get('/class').then(r => {

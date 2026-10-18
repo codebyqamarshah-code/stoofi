@@ -18,6 +18,7 @@ import {
   X
 } from 'lucide-react';
 import { sortClassesAcademic, normalizeClassName } from '@/lib/academicUtils';
+import { formatDateDMY } from '@/lib/utils';
 import api from '@/services/api';
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { Button } from '@/components/ui/button';
@@ -197,8 +198,8 @@ export default function HomeworkListPage() {
       section: r.section || '—',
       subject: r.subject || '—',
       marks: r.marks || '0',
-      homeworkDate: r.homeworkDate ? new Date(r.homeworkDate).toLocaleDateString() : '—',
-      submissionDate: r.submissionDate ? new Date(r.submissionDate).toLocaleDateString() : '—',
+      homeworkDate: formatDateDMY(r.homeworkDate),
+      submissionDate: formatDateDMY(r.submissionDate),
       status,
       description: r.description || '—'
     };
@@ -416,12 +417,12 @@ export default function HomeworkListPage() {
                       <td className="px-4 py-3.5 font-mono text-xs text-zinc-700">
                         {r.marks || '0'}
                       </td>
-                      <td className="px-4 py-3.5 text-zinc-600 text-xs">
-                        {r.homeworkDate ? new Date(r.homeworkDate).toLocaleDateString() : '—'}
+                      <td className="px-4 py-3.5 text-zinc-600 text-xs font-medium whitespace-nowrap">
+                        {formatDateDMY(r.homeworkDate)}
                       </td>
-                      <td className="px-4 py-3.5 text-xs font-semibold">
+                      <td className="px-4 py-3.5 text-xs font-semibold whitespace-nowrap">
                         <span className={isOverdue ? 'text-rose-600 font-bold' : isDueToday ? 'text-amber-600 font-bold' : 'text-zinc-800'}>
-                          {r.submissionDate ? new Date(r.submissionDate).toLocaleDateString() : '—'}
+                          {formatDateDMY(r.submissionDate)}
                         </span>
                       </td>
                       <td className="px-4 py-3.5 text-xs">
@@ -526,13 +527,13 @@ export default function HomeworkListPage() {
                 <div>
                   <span className="text-zinc-400 block font-semibold uppercase text-[10px]">Assign Date</span>
                   <span className="font-medium text-zinc-800">
-                    {selectedHomework.homeworkDate ? new Date(selectedHomework.homeworkDate).toLocaleDateString() : '—'}
+                    {formatDateDMY(selectedHomework.homeworkDate)}
                   </span>
                 </div>
                 <div>
                   <span className="text-zinc-400 block font-semibold uppercase text-[10px]">Submission Due</span>
                   <span className="font-bold text-rose-600">
-                    {selectedHomework.submissionDate ? new Date(selectedHomework.submissionDate).toLocaleDateString() : '—'}
+                    {formatDateDMY(selectedHomework.submissionDate)}
                   </span>
                 </div>
               </div>

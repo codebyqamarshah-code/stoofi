@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   ChevronRight, 
@@ -14,8 +14,26 @@ import {
   Calendar,
   Layers
 } from 'lucide-react';
+import api from '@/services/api';
 
 export default function VirtualClassHubPage() {
+  const [classCount, setClassCount] = useState(0);
+  const [meetingCount, setMeetingCount] = useState(0);
+
+  useEffect(() => {
+    Promise.allSettled([
+      api.get('/virtual-class?type=class'),
+      api.get('/virtual-class?type=meeting')
+    ]).then(([cRes, mRes]) => {
+      if (cRes.status === 'fulfilled' && cRes.value?.success && Array.isArray(cRes.value.data)) {
+        setClassCount(cRes.value.data.length);
+      }
+      if (mRes.status === 'fulfilled' && mRes.value?.success && Array.isArray(mRes.value.data)) {
+        setMeetingCount(mRes.value.data.length);
+      }
+    }).catch(() => {});
+  }, []);
+
   const cards = [
     {
       title: 'Virtual Class',
@@ -23,7 +41,7 @@ export default function VirtualClassHubPage() {
       href: '/dashboard/module/virtual-class/virtual-class',
       icon: Video,
       actionText: 'Manage Classes',
-      count: '2 Active'
+      count: `${classCount} Classes`
     },
     {
       title: 'Virtual Meeting',
@@ -31,7 +49,7 @@ export default function VirtualClassHubPage() {
       href: '/dashboard/module/virtual-class/virtual-meeting',
       icon: Users,
       actionText: 'Manage Meetings',
-      count: '2 Scheduled'
+      count: `${meetingCount} Meetings`
     },
     {
       title: 'Class Reports',
@@ -39,7 +57,7 @@ export default function VirtualClassHubPage() {
       href: '/dashboard/module/virtual-class/class-reports',
       icon: BarChart3,
       actionText: 'View Class Reports',
-      count: '3 Reports'
+      count: `${classCount} Reports`
     },
     {
       title: 'Meeting Reports',
@@ -47,7 +65,7 @@ export default function VirtualClassHubPage() {
       href: '/dashboard/module/virtual-class/meeting-reports',
       icon: FileText,
       actionText: 'View Meeting Reports',
-      count: '2 Reports'
+      count: `${meetingCount} Reports`
     },
     {
       title: 'Virtual Class Settings',
@@ -91,8 +109,8 @@ export default function VirtualClassHubPage() {
               <Video className="h-5 w-5" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-zinc-900 dark:text-zinc-900 mt-3">2</div>
-          <div className="text-xs text-zinc-400 mt-1">Live classes ready for today</div>
+          <div className="text-3xl font-bold text-zinc-900 dark:text-zinc-900 mt-3">{classCount}</div>
+          <div className="text-xs text-zinc-400 mt-1">Live classes in database</div>
         </div>
 
         <div className="bg-white dark:bg-zinc-50 border border-zinc-200 dark:border-zinc-200 rounded-2xl p-5 shadow-sm">
@@ -102,7 +120,7 @@ export default function VirtualClassHubPage() {
               <Users className="h-5 w-5" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-zinc-900 dark:text-zinc-900 mt-3">2</div>
+          <div className="text-3xl font-bold text-zinc-900 dark:text-zinc-900 mt-3">{meetingCount}</div>
           <div className="text-xs text-zinc-400 mt-1">Staff and institutional conferences</div>
         </div>
 
@@ -114,7 +132,7 @@ export default function VirtualClassHubPage() {
             </div>
           </div>
           <div className="text-3xl font-bold text-zinc-800 mt-3">Ready</div>
-          <div className="text-xs text-zinc-400 mt-1">Zoom Server-to-Server OAuth active</div>
+          <div className="text-xs text-zinc-400 mt-1">Live backend synchronization active</div>
         </div>
       </div>
 

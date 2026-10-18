@@ -33,7 +33,7 @@ export default function JitsiVirtualClassPage() {
     classVal: 'Class 10',
     section: 'A',
     subject: 'General',
-    teacher: 'Muhammad Ali',
+    teacher: '',
     topic: '',
     description: '',
     date: new Date().toISOString().split('T')[0],
@@ -50,7 +50,7 @@ export default function JitsiVirtualClassPage() {
 
   const classes = ['All Classes', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'];
   const sections = ['All Sections', 'A', 'B', 'C', 'D'];
-  const teachers = ['Muhammad Ali', 'Fatima Zahra', 'Mudassir Bajwa', 'Ahmed Khan', 'Ayesha Noor', 'Dr. Bilal Siddiqui'];
+  const [teachers, setTeachers] = useState([]);
   const subjects = ['General', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Urdu', 'Computer Science'];
 
   const fetchRecords = async () => {
@@ -74,6 +74,31 @@ export default function JitsiVirtualClassPage() {
 
   useEffect(() => {
     fetchRecords();
+
+    // Fetch teachers from API
+    Promise.allSettled([
+      api.get('/teacher?limit=100'),
+      api.get('/staff?limit=100')
+    ]).then(([tRes, sRes]) => {
+      const gathered = new Set();
+      if (tRes.status === 'fulfilled' && Array.isArray(tRes.value?.data)) {
+        tRes.value.data.forEach(t => {
+          const name = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.name;
+          if (name) gathered.add(name);
+        });
+      }
+      if (sRes.status === 'fulfilled' && Array.isArray(sRes.value?.data)) {
+        sRes.value.data.forEach(s => {
+          const name = s.fullName || s.name || `${s.firstName || ''} ${s.lastName || ''}`.trim();
+          if (name) gathered.add(name);
+        });
+      }
+      const list = Array.from(gathered);
+      setTeachers(list);
+      if (list.length > 0) {
+        setForm(prev => prev.teacher ? prev : { ...prev, teacher: list[0] });
+      }
+    });
   }, []);
 
   const generateRoomUrl = (cls, topicStr) => {
@@ -314,7 +339,11 @@ export default function JitsiVirtualClassPage() {
                     onChange={e => setForm({ ...form, teacher: e.target.value })}
                     className="w-full h-10 px-3 border border-zinc-200 rounded-lg text-xs bg-white font-medium"
                   >
-                    {teachers.map(t => <option key={t} value={t}>{t}</option>)}
+                    {teachers.length === 0 ? (
+                      <option value="">No teachers found</option>
+                    ) : (
+                      teachers.map(t => <option key={t} value={t}>{t}</option>)
+                    )}
                   </select>
                 </div>
               </div>

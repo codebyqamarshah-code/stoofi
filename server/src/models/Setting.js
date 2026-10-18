@@ -37,6 +37,20 @@ const SettingSchema = new mongoose.Schema({
     type: String,
     default: 'January'
   },
+  academicYears: {
+    type: [{
+      year: { type: String, required: true },
+      title: { type: String, required: true },
+      start: String,
+      end: String,
+      active: { type: Boolean, default: false }
+    }],
+    default: [
+      { year: '2025-2026', title: 'Session 2025-26', start: '2025-04-01', end: '2026-03-31', active: false },
+      { year: '2026-2027', title: 'Session 2026-27', start: '2026-04-01', end: '2027-03-31', active: true }
+    ]
+  },
+
   schoolLogo: {
     type: String,
     default: '/pak-royal-college-logo.png'

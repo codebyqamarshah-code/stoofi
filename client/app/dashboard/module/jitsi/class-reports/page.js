@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   ChevronRight, 
@@ -18,13 +18,15 @@ import {
   Filter
 } from 'lucide-react';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
+import { formatDateDMY } from '@/lib/utils';
+import api from '@/services/api';
 
 export default function JitsiClassReportsPage() {
   const [criteria, setCriteria] = useState({
     classVal: 'All Classes',
     section: 'All Sections',
-    fromDate: '2026-09-01',
-    toDate: '2026-09-30'
+    fromDate: '',
+    toDate: ''
   });
 
   const [activeFilter, setActiveFilter] = useState({
@@ -34,66 +36,66 @@ export default function JitsiClassReportsPage() {
 
   const [search, setSearch] = useState('');
   const [selectedReport, setSelectedReport] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const classes = ['All Classes', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'];
-  const sections = ['All Sections', 'A', 'B', 'C', 'D'];
+  const [classes, setClasses] = useState(['All Classes', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10']);
+  const [sections, setSections] = useState(['All Sections', 'A', 'B', 'C', 'D']);
+  const [reportsList, setReportsList] = useState([]);
 
-  const initialReports = [
-    {
-      id: 1,
-      topic: 'Mathematics - Quadratic Equations Live Session',
-      classVal: 'Class 10',
-      section: 'A',
-      teacher: 'Mudassir Bajwa',
-      date: '2026-09-02',
-      time: '10:00 AM',
-      duration: '45 mins',
-      totalEnrolled: 35,
-      attended: 32,
-      percentage: '91.4%'
-    },
-    {
-      id: 2,
-      topic: 'Physics - Newton Laws Practical Demo',
-      classVal: 'Class 9',
-      section: 'B',
-      teacher: 'Fatima Zahra',
-      date: '2026-09-03',
-      time: '11:30 AM',
-      duration: '60 mins',
-      totalEnrolled: 30,
-      attended: 28,
-      percentage: '93.3%'
-    },
-    {
-      id: 3,
-      topic: 'English - Active & Passive Voice Comprehension',
-      classVal: 'Class 8',
-      section: 'A',
-      teacher: 'Ayesha Noor',
-      date: '2026-09-04',
-      time: '09:00 AM',
-      duration: '40 mins',
-      totalEnrolled: 32,
-      attended: 29,
-      percentage: '90.6%'
-    },
-    {
-      id: 4,
-      topic: 'Chemistry - Periodic Table Trends & Bonding',
-      classVal: 'Class 10',
-      section: 'B',
-      teacher: 'Dr. Bilal Siddiqui',
-      date: '2026-09-04',
-      time: '12:00 PM',
-      duration: '50 mins',
-      totalEnrolled: 34,
-      attended: 33,
-      percentage: '97.0%'
+  // Fetch live reports from backend
+  const fetchReports = async (customFilter = criteria) => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      params.append('type', 'class');
+      if (customFilter.classVal && customFilter.classVal !== 'All Classes') {
+        params.append('classVal', customFilter.classVal);
+      }
+      if (customFilter.section && customFilter.section !== 'All Sections') {
+        params.append('section', customFilter.section);
+      }
+      if (customFilter.fromDate) {
+        params.append('fromDate', customFilter.fromDate);
+      }
+      if (customFilter.toDate) {
+        params.append('toDate', customFilter.toDate);
+      }
+
+      const res = await api.get(`/virtual-class/reports?${params.toString()}`);
+      if (res?.success && Array.isArray(res.data)) {
+        setReportsList(res.data);
+      } else {
+        setReportsList([]);
+      }
+    } catch (err) {
+      console.error('Error fetching jitsi class reports:', err);
+      setReportsList([]);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const [reportsList, setReportsList] = useState(initialReports);
+  useEffect(() => {
+    api.get('/class').then(res => {
+      if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
+        const clsNames = res.data.map(c => c.name || c.className).filter(Boolean);
+        if (clsNames.length > 0) {
+          setClasses(['All Classes', ...Array.from(new Set(clsNames))]);
+        }
+      }
+    }).catch(() => {});
+
+    api.get('/section').then(res => {
+      if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
+        const secNames = res.data.map(s => s.name || s.sectionName).filter(Boolean);
+        if (secNames.length > 0) {
+          setSections(['All Sections', ...Array.from(new Set(secNames))]);
+        }
+      }
+    }).catch(() => {});
+
+    fetchReports();
+  }, []);
 
   const handleSearchCriteria = (e) => {
     e.preventDefault();
@@ -101,6 +103,7 @@ export default function JitsiClassReportsPage() {
       classVal: criteria.classVal,
       section: criteria.section
     });
+    fetchReports(criteria);
   };
 
   const filteredReports = useMemo(() => {
@@ -329,7 +332,16 @@ export default function JitsiClassReportsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-200 dark:divide-zinc-100">
-              {filteredReports.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-12 text-center text-zinc-500 font-medium">
+                    <div className="inline-flex items-center gap-2">
+                      <div className="h-4 w-4 rounded-full border-2 border-indigo-600 border-t-transparent animate-spin" />
+                      <span>Loading class reports...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredReports.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-4 py-8 text-center text-zinc-500">
                     No Data Available In Table
@@ -338,7 +350,7 @@ export default function JitsiClassReportsPage() {
               ) : (
                 filteredReports.map((item, index) => (
                   <tr
-                    key={item.id}
+                    key={item._id || item.id || index}
                     className="hover:bg-zinc-50/80 dark:hover:bg-zinc-100/40 transition-colors"
                   >
                     <td className="px-3.5 py-3 font-medium text-zinc-900 dark:text-zinc-800">
@@ -356,17 +368,19 @@ export default function JitsiClassReportsPage() {
                       {item.teacher}
                     </td>
                     <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap">
-                      <div>{item.date}</div>
+                      <div>{formatDateDMY(item.date)}</div>
                       <div className="text-[10px] text-zinc-400">{item.time}</div>
                     </td>
                     <td className="px-3.5 py-3 text-zinc-600 dark:text-zinc-600 whitespace-nowrap">
-                      {item.duration}
+                      {typeof item.duration === 'number' ? `${item.duration} mins` : (item.duration || '—')}
                     </td>
                     <td className="px-3.5 py-3 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
-                        <span className="font-semibold text-zinc-900 dark:text-zinc-900">{item.attended}/{item.totalEnrolled}</span>
+                        <span className="font-semibold text-zinc-900 dark:text-zinc-900">
+                          {item.attendedCount ?? item.attended ?? 0}/{item.totalEnrolled || 0}
+                        </span>
                         <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-zinc-200 text-zinc-800 dark:bg-zinc-100 dark:text-zinc-900">
-                          {item.percentage}
+                          {item.percentage || '0%'}
                         </span>
                       </div>
                     </td>
