@@ -619,10 +619,10 @@ export default function BulkPrintIdCardPage() {
             {/* Right: Signature */}
             <div className="text-right shrink-0">
               <div 
-                className="text-amber-300 font-bold tracking-wider leading-none select-none" 
-                style={{ fontFamily: "'Dancing Script', 'Caveat', 'Great Vibes', 'Brush Script MT', cursive", fontSize: "14px", fontStyle: "italic" }}
+                className="text-amber-300 font-bold tracking-wider leading-none select-none lowercase" 
+                style={{ fontFamily: "'Dancing Script', 'Caveat', 'Great Vibes', 'Brush Script MT', cursive", fontSize: "16px", fontStyle: "italic" }}
               >
-                M. Umer W
+                m. umer w
               </div>
               <span className="font-semibold text-[6.5px] text-slate-200 block">Authorized Signature</span>
             </div>

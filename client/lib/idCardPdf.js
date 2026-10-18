@@ -442,11 +442,11 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     doc.setTextColor(253, 224, 71);
     doc.text('Contact: 03 111 444 810', width / 2, footerY + 4.7, { align: 'center' });
 
-    // Right: Signature M. Umer W & Authorized Signature
+    // Right: Signature m. umer w & Authorized Signature
     doc.setFont('times', 'bolditalic');
     doc.setFontSize(5.2);
     doc.setTextColor(253, 224, 71);
-    doc.text('M. Umer W', width - 4.0, footerY + 2.5, { align: 'right' });
+    doc.text('m. umer w', width - 4.0, footerY + 2.5, { align: 'right' });
 
     doc.setFont('helvetica', 'italic');
     doc.setFontSize(3.0);
