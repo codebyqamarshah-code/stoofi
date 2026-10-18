@@ -759,10 +759,17 @@ export default function EditStudentPage() {
                   <div className="flex items-center gap-4">
                     <div className="h-20 w-20 rounded-xl border-2 border-zinc-300 bg-white overflow-hidden flex items-center justify-center shrink-0">
                       {photoPreview ? (
-                        <img src={photoPreview} alt="Preview" className="h-full w-full object-cover" />
-                      ) : (
-                        <User className="h-10 w-10 text-zinc-400" />
-                      )}
+                        <img
+                          src={photoPreview}
+                          alt="Preview"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex';
+                          }}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : null}
+                      <User className={`h-10 w-10 text-zinc-400 ${photoPreview ? 'hidden' : 'block'}`} />
                     </div>
                     <div className="space-y-2">
                       <input 

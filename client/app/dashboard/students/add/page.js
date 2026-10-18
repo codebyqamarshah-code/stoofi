@@ -846,13 +846,20 @@ export default function AddStudentPage() {
                             className="relative h-24 w-24 shrink-0 rounded-full border-2 border-dashed border-zinc-300 hover:border-[#084A86] bg-zinc-50 hover:bg-blue-50/30 overflow-hidden flex items-center justify-center cursor-pointer transition-all group"
                           >
                             {photoPreview ? (
-                              <img src={photoPreview} alt="Student Photo" className="h-full w-full object-cover rounded-full" />
-                            ) : (
-                              <div className="flex flex-col items-center gap-1 text-zinc-400 group-hover:text-[#084A86]">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                                <span className="text-[10px] font-bold">Upload</span>
-                              </div>
-                            )}
+                              <img
+                                src={photoPreview}
+                                alt="Student Photo"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex';
+                                }}
+                                className="h-full w-full object-cover rounded-full"
+                              />
+                            ) : null}
+                            <div className={`flex flex-col items-center gap-1 text-zinc-400 group-hover:text-[#084A86] ${photoPreview ? 'hidden' : 'flex'}`}>
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                              <span className="text-[10px] font-bold">Upload</span>
+                            </div>
                           </div>
                           {/* Right side info */}
                           <div className="flex-1 space-y-2">

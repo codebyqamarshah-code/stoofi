@@ -428,11 +428,11 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     doc.setLineWidth(0.3);
     doc.line(1.5, footerY, width - 1.5, footerY);
 
-    // Left: Website
-    doc.setFont('helvetica', 'normal');
+    // Left: Website (Full URL)
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(3.6);
     doc.setTextColor(241, 245, 249);
-    doc.text('pakroyalcollege.edu.pk', 3.5, footerY + 3.8);
+    doc.text('www.pakroyalcollege.edu.pk', 3.5, footerY + 3.8);
 
     // Center: Instruction box
     doc.setFont('helvetica', 'bold');
@@ -443,8 +443,8 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     doc.text('Contact: 03 111 444 810', width / 2, footerY + 4.7, { align: 'center' });
 
     // Right: Signature M. Umer W & Authorized Signature
-    doc.setFont('helvetica', 'bolditalic');
-    doc.setFontSize(4.6);
+    doc.setFont('times', 'bolditalic');
+    doc.setFontSize(5.2);
     doc.setTextColor(253, 224, 71);
     doc.text('M. Umer W', width - 4.0, footerY + 2.5, { align: 'right' });
 

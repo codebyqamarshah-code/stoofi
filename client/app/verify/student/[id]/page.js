@@ -211,14 +211,17 @@ export default function StudentVerifyPage() {
           {photo ? (
             <img 
               src={photo} 
-              alt={fullName} 
+              alt={fullName}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex';
+              }}
               className="w-16 h-16 rounded-full object-cover border-2 border-emerald-500 shadow-md" 
             />
-          ) : (
-            <div className="w-14 h-14 rounded-full border border-zinc-700/80 flex items-center justify-center text-zinc-300">
-              <User className="w-7 h-7 stroke-[1.5]" />
-            </div>
-          )}
+          ) : null}
+          <div className={`w-14 h-14 rounded-full border border-zinc-700/80 items-center justify-center text-zinc-300 ${photo ? 'hidden' : 'flex'}`}>
+            <User className="w-7 h-7 stroke-[1.5]" />
+          </div>
         </div>
 
         {/* Student Name & Subtitle */}

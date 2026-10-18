@@ -91,8 +91,23 @@ export function getPhotoUrl(photoPath) {
   if (!p || typeof p !== 'string') return null;
   const trimmed = p.trim();
   if (!trimmed) return null;
-  if (trimmed.startsWith('data:') || trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('blob:')) {
+  
+  // If it's already a valid base64 data URI, HTTP(S) URL, or blob
+  if (trimmed.startsWith('data:image/') || trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('blob:')) {
     return trimmed;
+  }
+
+  // Reject strings that are obviously not image paths (e.g., 'null', 'undefined', 'none', single letters, etc.)
+  if (trimmed.length < 4 || /^(null|undefined|none|n\/a|na|-|—)$/i.test(trimmed)) {
+    return null;
+  }
+
+  // Check if string has an image-like format or extension
+  const hasImageExt = /\.(jpe?g|png|webp|gif|svg|bmp|avif)$/i.test(trimmed.split('?')[0]);
+  const isUploadPath = trimmed.includes('upload') || trimmed.startsWith('/uploads/');
+
+  if (!hasImageExt && !isUploadPath && !trimmed.startsWith('/')) {
+    return null;
   }
 
   let baseUrl = '';

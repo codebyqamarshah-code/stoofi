@@ -852,7 +852,7 @@ export default function IdCardPage() {
 
           {/* Bottom Footer Bar */}
           <div className="bg-[#084A86] px-2.5 py-1 text-white flex justify-between items-center text-[7.5px] border-t-2 border-amber-400">
-            <span className="font-mono text-[7px] text-slate-200">pakroyalcollege.edu.pk</span>
+            <span className="font-mono text-[7px] text-slate-200 font-semibold tracking-tight">www.pakroyalcollege.edu.pk</span>
 
             {/* Middle Instruction Box */}
             <div className="text-center px-1.5 py-0.5 rounded bg-white/10 border border-white/20 max-w-[175px] leading-tight">
@@ -867,8 +867,8 @@ export default function IdCardPage() {
             {/* Right: Signature */}
             <div className="text-right shrink-0">
               <div 
-                className="font-serif italic text-amber-300 font-bold tracking-wider leading-none" 
-                style={{ fontFamily: "'Brush Script MT', 'Dancing Script', 'Caveat', cursive", fontSize: "11px" }}
+                className="text-amber-300 font-bold tracking-wider leading-none select-none" 
+                style={{ fontFamily: "'Dancing Script', 'Caveat', 'Great Vibes', 'Brush Script MT', cursive", fontSize: "14px", fontStyle: "italic" }}
               >
                 M. Umer W
               </div>

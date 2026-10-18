@@ -12,6 +12,7 @@ import { sortClassesAcademic } from '@/lib/academicUtils';
 import { formatDateDMY, getPhotoUrl } from '@/lib/utils';
 import api from '@/services/api';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
+import StudentAvatar from '@/components/student/StudentAvatar';
 import dynamic from 'next/dynamic';
 
 const StudentImportModal = dynamic(() => import('@/components/StudentImportModal'), { ssr: false });
@@ -483,17 +484,12 @@ export default function StudentListPage() {
                       <td className="px-4 py-3.5 font-bold text-zinc-900">{student.admissionNo || '-'}</td>
                       <td className="px-4 py-3.5">
                         <Link href={`/dashboard/students/${student._id}`} className="flex items-center gap-3 group">
-                          <div className="h-8 w-8 rounded-full bg-zinc-100 text-zinc-900 overflow-hidden border border-zinc-200 flex items-center justify-center shrink-0">
-                            {student.photo || student.studentPhoto ? (
-                              <img
-                                src={getPhotoUrl(student)}
-                                alt={student.firstName}
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <div className="h-full w-full flex items-center justify-center text-xs font-bold text-zinc-800 uppercase">{student.firstName?.charAt(0)}</div>
-                            )}
-                          </div>
+                          <StudentAvatar
+                            photo={getPhotoUrl(student)}
+                            firstName={student.firstName}
+                            lastName={student.lastName}
+                            size="md"
+                          />
                           <span className="font-bold text-zinc-900 group-hover:text-emerald-700 cursor-pointer">{student.firstName} {student.lastName}</span>
                         </Link>
                       </td>

@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import api from '@/services/api';
 import { exportToExcel } from '@/lib/exportUtils';
 import { getPhotoUrl, formatDateDMY } from '@/lib/utils';
+import StudentAvatar from '@/components/student/StudentAvatar';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 const getInitials = (student) => {
@@ -283,13 +284,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
 
           {/* Avatar */}
           <div className="relative shrink-0">
-            <div className="h-24 w-24 rounded-2xl border-4 border-zinc-200 overflow-hidden bg-zinc-900 flex items-center justify-center shadow-sm">
-              {photoUrl ? (
-                <img src={photoUrl} alt={fullName} className="h-full w-full object-cover" />
-              ) : (
-                <span className="text-3xl font-black text-zinc-950">{getInitials(student)}</span>
-              )}
-            </div>
+            <StudentAvatar
+              photo={photoUrl}
+              firstName={student.firstName}
+              lastName={student.lastName}
+              size="xl"
+              rounded="rounded-2xl"
+              className="border-4 border-zinc-200 shadow-sm"
+            />
             <div className="absolute -bottom-1.5 -right-1.5 h-6 w-6 rounded-full bg-white border-2 border-white flex items-center justify-center">
               <BadgeCheck className="h-3.5 w-3.5 text-zinc-950" />
             </div>
