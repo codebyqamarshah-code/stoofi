@@ -677,7 +677,7 @@ export default function CertificatePage() {
     const secName = studentRec.section || 'A';
     const certDate = studentRec.certificateDate ? new Date(studentRec.certificateDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     const formattedBody = formatCertificateText(tpl.templateBody, studentRec);
-    const photo = studentRec.studentPhoto || '';
+    const photo = getPhotoUrl(studentRec.studentPhoto || studentRec.photo) || '';
     const scName = schoolSetting?.schoolName || 'Stoofi Public School & College';
     const scAddr = schoolSetting?.address || 'Main Campus, Lahore, Pakistan';
 

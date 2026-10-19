@@ -63,7 +63,7 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
   const height = isHorizontal ? 53.98 : 85.6;
 
   const schoolName = schoolSetting?.schoolName || 'PAK ROYAL COLLEGE SHARAQPUR';
-  const schoolAddress = schoolSetting?.address || schoolSetting?.city || 'Sharaqpur Sharif, Distt. Sheikhupura';
+  const schoolAddress = schoolSetting?.address || schoolSetting?.city || 'Sharaqpur Sharif, District Sheikhupura';
   const schoolPhone = schoolSetting?.phone || '+92 300 1234567';
 
   const name = `${rec.firstName || ''} ${rec.lastName || ''}`.trim() || rec.name || 'Muhammad Abdullah';
@@ -304,7 +304,7 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(4.3);
     doc.setTextColor(253, 224, 71); // Amber/Gold accent
-    doc.text('Sharaqpur Sharif, Distt. Sheikhupura', 15.5, 9.6);
+    doc.text('Sharaqpur Sharif, District Sheikhupura', 15.5, 9.6);
 
     // Session on Right of Header
     doc.setFont('helvetica', 'normal');

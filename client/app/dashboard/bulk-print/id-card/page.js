@@ -359,7 +359,7 @@ export default function BulkPrintIdCardPage() {
 
   const selectedRecords = filteredRecords.filter(r => selectedIds.includes(r._id));
   const schoolName = schoolSetting?.schoolName || 'Pak Royal College Sharaqpur';
-  const schoolAddress = schoolSetting?.address || schoolSetting?.city || 'Sharaqpur Sharif, Distt. Sheikhupura';
+  const schoolAddress = schoolSetting?.address || schoolSetting?.city || 'Sharaqpur Sharif, District Sheikhupura';
   const schoolPhone = schoolSetting?.phone || '+92 300 1234567';
 
   // Active Design Object
@@ -380,7 +380,7 @@ export default function BulkPrintIdCardPage() {
     const showSignature = activeTpl.showSignature !== undefined ? activeTpl.showSignature : true;
 
     const brandHeader = activeTpl.headerText || schoolName || 'Pak Royal College Sharaqpur';
-    const brandSubHeader = activeTpl.subHeaderText || schoolAddress || 'Sharaqpur Sharif, Distt. Sheikhupura';
+    const brandSubHeader = activeTpl.subHeaderText || schoolAddress || 'Sharaqpur Sharif, District Sheikhupura';
     const brandFooter = activeTpl.footerText || 'Principal Signature';
 
     const name = `${rec.firstName || ''} ${rec.lastName || ''}`.trim() || rec.name || 'Cardholder Name';
@@ -523,7 +523,7 @@ export default function BulkPrintIdCardPage() {
               </div>
               <div className="leading-tight">
                 <h3 className="font-black text-[12px] tracking-wide uppercase text-white block">PAK ROYAL COLLEGE</h3>
-                <p className="text-[7.5px] text-amber-300 font-bold tracking-wider block">Sharaqpur Sharif, Distt. Sheikhupura</p>
+                <p className="text-[7.5px] text-amber-300 font-bold tracking-wider block">Sharaqpur Sharif, District Sheikhupura</p>
               </div>
             </div>
             <div className="text-right shrink-0">

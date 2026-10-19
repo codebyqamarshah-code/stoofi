@@ -472,7 +472,7 @@ export default function IdCardPage() {
   const handleDownloadStudentPDF = (student) => {
     downloadIdCardPDF(student, {
       schoolName: 'PAK ROYAL COLLEGE SHARAQPUR',
-      address: 'Sharaqpur Sharif, Distt. Sheikhupura',
+      address: 'Sharaqpur Sharif, District Sheikhupura',
       phone: '+92 300 1234567'
     }, student.cardTemplate || student.themeStyle || 'classic-navy');
     showToast(`PDF downloaded for ${student.firstName} ${student.lastName}`);
@@ -742,7 +742,7 @@ export default function IdCardPage() {
     const showSignature = tplOverride ? tplOverride.showSignature : (rec.showSignature !== undefined ? rec.showSignature : (activeTpl.showSignature !== undefined ? activeTpl.showSignature : true));
 
     const headerText = 'PAK ROYAL COLLEGE';
-    const subHeaderText = 'Sharaqpur Sharif, Distt. Sheikhupura';
+    const subHeaderText = 'Sharaqpur Sharif, District Sheikhupura';
     const footerText = 'M. Umer W';
     const roleBadge = (tplOverride?.role || rec.role || 'Student').toUpperCase();
 
@@ -926,14 +926,21 @@ export default function IdCardPage() {
           {showPhoto && (
             <div className="relative mt-0.5">
               <div className={`w-22 h-26 rounded-2xl border-[3px] ${theme.border} overflow-hidden bg-zinc-100 shadow-md flex items-center justify-center relative`}>
-                {rec.studentPhoto ? (
-                  <img src={rec.studentPhoto} alt={fullName} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="flex flex-col items-center justify-center text-zinc-400 p-2">
-                    <User className="w-9 h-9 text-zinc-300" />
-                    <span className="text-[9px] font-bold mt-1 text-zinc-400 uppercase">{initial}</span>
-                  </div>
-                )}
+                {getPhotoUrl(rec.studentPhoto) ? (
+                  <img 
+                    src={getPhotoUrl(rec.studentPhoto)} 
+                    alt={fullName} 
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex';
+                    }}
+                    className="w-full h-full object-cover" 
+                  />
+                ) : null}
+                <div className={`flex flex-col items-center justify-center text-zinc-400 p-2 ${getPhotoUrl(rec.studentPhoto) ? 'hidden' : 'flex'}`}>
+                  <User className="w-9 h-9 text-zinc-300" />
+                  <span className="text-[9px] font-bold mt-1 text-zinc-400 uppercase">{initial}</span>
+                </div>
               </div>
               <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs border-2 border-white">
                 <ShieldCheck className="w-3.5 h-3.5" />
@@ -1497,7 +1504,12 @@ export default function IdCardPage() {
                 <div className="p-3.5 bg-emerald-50/60 border border-emerald-200 rounded-2xl flex items-center gap-4">
                   <div className="w-16 h-20 rounded-xl border-2 border-emerald-600 overflow-hidden bg-white shadow-2xs shrink-0 flex items-center justify-center relative">
                     {studentForm.studentPhoto ? (
-                      <img src={studentForm.studentPhoto} alt="Uploaded" className="w-full h-full object-cover" />
+                      <img 
+                        src={getPhotoUrl(studentForm.studentPhoto)} 
+                        alt="Uploaded" 
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }} 
+                        className="w-full h-full object-cover" 
+                      />
                     ) : (
                       <Camera className="w-6 h-6 text-emerald-600" />
                     )}
@@ -1737,7 +1749,12 @@ export default function IdCardPage() {
                 <div className="p-3.5 bg-sky-50/60 border border-sky-200 rounded-2xl flex items-center gap-4">
                   <div className="w-16 h-20 rounded-xl border-2 border-sky-600 overflow-hidden bg-white shadow-2xs shrink-0 flex items-center justify-center relative">
                     {editStudentForm.studentPhoto ? (
-                      <img src={editStudentForm.studentPhoto} alt="Student" className="w-full h-full object-cover" />
+                      <img 
+                        src={getPhotoUrl(editStudentForm.studentPhoto)} 
+                        alt="Student" 
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }} 
+                        className="w-full h-full object-cover" 
+                      />
                     ) : (
                       <Camera className="w-6 h-6 text-sky-600" />
                     )}

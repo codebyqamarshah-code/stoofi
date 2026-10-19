@@ -102,8 +102,8 @@ export function getPhotoUrl(photoPath) {
     return null;
   }
 
-  // Check if string has an image-like format or extension
-  const hasImageExt = /\.(jpe?g|png|webp|gif|svg|bmp|avif)$/i.test(trimmed.split('?')[0]);
+  // Check if string has an image-like format or extension (including .jfif)
+  const hasImageExt = /\.(jpe?g|png|webp|gif|svg|bmp|avif|jfif)$/i.test(trimmed.split('?')[0]);
   const isUploadPath = trimmed.includes('upload') || trimmed.startsWith('/uploads/');
 
   if (!hasImageExt && !isUploadPath && !trimmed.startsWith('/')) {
@@ -122,7 +122,18 @@ export function getPhotoUrl(photoPath) {
     baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || 'https://stoofi-backend.vercel.app';
   }
 
-  const cleanPath = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+  // Format the path cleanly under /uploads/
+  let cleanPath = trimmed;
+  if (cleanPath.startsWith('/uploads/')) {
+    // Already good
+  } else if (cleanPath.startsWith('uploads/')) {
+    cleanPath = `/${cleanPath}`;
+  } else if (cleanPath.startsWith('/')) {
+    cleanPath = `/uploads${cleanPath}`;
+  } else {
+    cleanPath = `/uploads/${cleanPath}`;
+  }
+
   return `${baseUrl}${cleanPath}`;
 }
 

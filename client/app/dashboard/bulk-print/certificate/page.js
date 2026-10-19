@@ -43,6 +43,7 @@ import api from '@/services/api';
 import { exportToCSV, exportToExcel, exportToPDF } from '@/lib/exportUtils';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { downloadCertificatePDF, downloadBatchCertificatesPDF } from '@/lib/certificatePdf';
+import { getPhotoUrl } from '@/lib/utils';
 
 // 5 Standard Certificate Designs Config
 const CERTIFICATE_DESIGNS = [
@@ -374,7 +375,7 @@ function GenerateCertificateContent() {
     const secName = student.section || 'A';
     const formattedDate = new Date(certDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     const formattedBody = formatCertificateText(activeTemplate.templateBody, student);
-    const photo = student.studentPhoto || student.photo || '';
+    const photo = getPhotoUrl(student.studentPhoto || student.photo) || '';
 
     // Field visibility flags
     const showHeader = activeTemplate.showSchoolHeader !== false;
