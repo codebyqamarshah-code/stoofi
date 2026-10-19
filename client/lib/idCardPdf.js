@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
 import { PAK_ROYAL_COLLEGE_LOGO } from './pakRoyalCollegeLogo';
+import { PAK_ROYAL_SIGNATURE_GOLD } from './signatureImage';
 import { formatDateDMY, getPublicVerificationUrl, formatStudentRollNo } from './utils';
 
 /**
@@ -62,7 +63,7 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
   const height = isHorizontal ? 53.98 : 85.6;
 
   const schoolName = schoolSetting?.schoolName || 'PAK ROYAL COLLEGE SHARAQPUR';
-  const schoolAddress = schoolSetting?.address || schoolSetting?.city || 'Sharaqpur Sharif, Sheikhupura, Punjab';
+  const schoolAddress = schoolSetting?.address || schoolSetting?.city || 'Sharaqpur Sharif, Distt. Sheikhupura';
   const schoolPhone = schoolSetting?.phone || '+92 300 1234567';
 
   const name = `${rec.firstName || ''} ${rec.lastName || ''}`.trim() || rec.name || 'Muhammad Abdullah';
@@ -355,23 +356,17 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     // Middle: Student Details
     // Gold Student Card Pill Badge
     const badgeX = 27.5;
-    const badgeY = 14.8;
+    const badgeY = 14.5;
     doc.setFillColor(251, 191, 36);
-    doc.roundedRect(badgeX, badgeY, 34, 4.2, 1.5, 1.5, 'F');
+    doc.roundedRect(badgeX, badgeY, 34, 4.4, 1.5, 1.5, 'F');
     doc.setTextColor(120, 53, 15);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(5.0);
-    doc.text('STUDENT IDENTITY CARD', badgeX + 17, badgeY + 2.9, { align: 'center' });
+    doc.text('STUDENT IDENTITY CARD', badgeX + 17, badgeY + 3.0, { align: 'center' });
 
-    // Full Name
-    doc.setTextColor(15, 23, 42);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.2);
-    doc.text(name.slice(0, 24).toUpperCase(), badgeX, badgeY + 8.5);
-
-    // Detail rows (Name, Father's Name, Class, Roll No)
-    doc.setFontSize(5.0);
-    let hy = badgeY + 12.0;
+    // Detail rows (Name, Father's Name, Class, Roll No) - duplicate upper name removed
+    doc.setFontSize(5.2);
+    let hy = badgeY + 8.2;
     const addHRow = (label, val, highlight = false) => {
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(100, 116, 139);
@@ -379,7 +374,7 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(highlight ? primaryR : 15, highlight ? primaryG : 23, highlight ? primaryB : 42);
       doc.text(String(val).slice(0, 22), badgeX + 18, hy);
-      hy += 3.4;
+      hy += 3.8;
     };
 
     const formattedRoll = formatStudentRollNo(rollNo);
@@ -442,16 +437,22 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     doc.setTextColor(253, 224, 71);
     doc.text('Contact: 03 111 444 810', width / 2, footerY + 4.7, { align: 'center' });
 
-    // Right: Signature m. umer w & Authorized Signature
-    doc.setFont('times', 'bolditalic');
-    doc.setFontSize(5.2);
-    doc.setTextColor(253, 224, 71);
-    doc.text('m. umer w', width - 4.0, footerY + 2.5, { align: 'right' });
+    // Right: Signature m. umer w (Wistania fluid script) & Authorized Signature
+    try {
+      if (PAK_ROYAL_SIGNATURE_GOLD) {
+        doc.addImage(PAK_ROYAL_SIGNATURE_GOLD, 'PNG', width - 20, footerY + 0.6, 16, 3.4);
+      }
+    } catch (e) {
+      doc.setFont('times', 'bolditalic');
+      doc.setFontSize(5.2);
+      doc.setTextColor(253, 224, 71);
+      doc.text('m. umer w', width - 4.0, footerY + 2.5, { align: 'right' });
+    }
 
     doc.setFont('helvetica', 'italic');
     doc.setFontSize(3.0);
     doc.setTextColor(226, 232, 240);
-    doc.text('Authorized Signature', width - 4.0, footerY + 4.8, { align: 'right' });
+    doc.text('Authorized Signature', width - 4.0, footerY + 5.0, { align: 'right' });
 
   }
 }

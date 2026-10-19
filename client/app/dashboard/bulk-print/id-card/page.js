@@ -317,7 +317,7 @@ export default function BulkPrintIdCardPage() {
     setPrintPortalRecords(list);
     setTimeout(() => {
       window.print();
-    }, 150);
+    }, 450);
   };
 
   const handlePrintSingle = (rec) => {
@@ -325,7 +325,7 @@ export default function BulkPrintIdCardPage() {
     setPrintPortalRecords([rec]);
     setTimeout(() => {
       window.print();
-    }, 150);
+    }, 450);
   };
 
   const handleDownloadSinglePDF = (rec) => {
@@ -359,7 +359,7 @@ export default function BulkPrintIdCardPage() {
 
   const selectedRecords = filteredRecords.filter(r => selectedIds.includes(r._id));
   const schoolName = schoolSetting?.schoolName || 'Pak Royal College Sharaqpur';
-  const schoolAddress = schoolSetting?.address || schoolSetting?.city || 'Sharaqpur Sharif, Punjab, Pakistan';
+  const schoolAddress = schoolSetting?.address || schoolSetting?.city || 'Sharaqpur Sharif, Distt. Sheikhupura';
   const schoolPhone = schoolSetting?.phone || '+92 300 1234567';
 
   // Active Design Object
@@ -380,7 +380,7 @@ export default function BulkPrintIdCardPage() {
     const showSignature = activeTpl.showSignature !== undefined ? activeTpl.showSignature : true;
 
     const brandHeader = activeTpl.headerText || schoolName || 'Pak Royal College Sharaqpur';
-    const brandSubHeader = activeTpl.subHeaderText || schoolAddress || 'Sharaqpur Sharif, Punjab, Pakistan';
+    const brandSubHeader = activeTpl.subHeaderText || schoolAddress || 'Sharaqpur Sharif, Distt. Sheikhupura';
     const brandFooter = activeTpl.footerText || 'Principal Signature';
 
     const name = `${rec.firstName || ''} ${rec.lastName || ''}`.trim() || rec.name || 'Cardholder Name';
@@ -561,18 +561,15 @@ export default function BulkPrintIdCardPage() {
             )}
 
             {/* Middle: Details */}
-            <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+            <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
               <div>
-                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400 text-amber-950 font-black text-[8px] uppercase tracking-wider shadow-2xs mb-1">
+                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400 text-amber-950 font-black text-[8px] uppercase tracking-wider shadow-2xs mb-1.5">
                   <Award className="w-2.5 h-2.5" />
                   <span>STUDENT IDENTITY CARD</span>
                 </div>
-                <h4 className="font-black text-[12.5px] text-zinc-950 uppercase tracking-tight truncate leading-tight">
-                  {name}
-                </h4>
               </div>
 
-              <div className="space-y-0.5 text-[9.5px] text-zinc-700 pt-1 border-t border-zinc-200/70">
+              <div className="space-y-1 text-[9.5px] text-zinc-700 pt-1 border-t border-zinc-200/70">
                 <div className="flex items-center">
                   <span className="w-20 text-zinc-400 font-semibold text-[8.5px]">Name:</span>
                   <span className="text-zinc-950 font-black truncate">{name}</span>
@@ -605,28 +602,35 @@ export default function BulkPrintIdCardPage() {
           </div>
 
           {/* Footer Bar */}
-          <div className="bg-[#084A86] px-2.5 py-1 text-white flex justify-between items-center text-[7.5px] border-t-2 border-amber-400">
-            <span className="font-mono text-[7px] text-slate-200 font-semibold tracking-tight">www.pakroyalcollege.edu.pk</span>
+          <div 
+            className="bg-[#084A86] px-3 py-1.5 text-white flex justify-between items-center text-[7.5px] border-t-2 border-amber-400 min-h-[34px]"
+            style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
+          >
+            <span className="font-mono text-[7px] text-slate-100 font-bold tracking-tight shrink-0">
+              www.pakroyalcollege.edu.pk
+            </span>
 
             {/* Middle Instruction Box */}
-            <div className="text-center px-1.5 py-0.5 rounded bg-white/10 border border-white/20 max-w-[175px] leading-tight">
-              <span className="text-[6.5px] text-white font-medium block">
+            <div className="text-center px-2 py-0.5 rounded bg-white/10 border border-white/20 max-w-[170px] leading-tight shrink-0">
+              <span className="text-[6px] text-slate-100 font-medium block">
                 Property of Pak Royal College. If found, please return.
               </span>
-              <span className="text-[6.5px] text-amber-300 font-bold font-mono block">
+              <span className="text-[6px] text-amber-300 font-bold font-mono block">
                 Contact: 03 111 444 810
               </span>
             </div>
 
-            {/* Right: Signature */}
-            <div className="text-right shrink-0">
-              <div 
-                className="text-amber-300 font-bold tracking-wider leading-none select-none lowercase" 
-                style={{ fontFamily: "'Dancing Script', 'Caveat', 'Great Vibes', 'Brush Script MT', cursive", fontSize: "16px", fontStyle: "italic" }}
-              >
-                m. umer w
-              </div>
-              <span className="font-semibold text-[6.5px] text-slate-200 block">Authorized Signature</span>
+            {/* Right: Signature Image */}
+            <div className="flex flex-col items-end justify-center shrink-0">
+              <img 
+                src="/signature-gold.png" 
+                alt="m. umer w" 
+                className="h-4.5 w-auto object-contain filter drop-shadow-xs" 
+                style={{ height: '18px' }}
+              />
+              <span className="font-semibold text-[6px] text-slate-200 block leading-none mt-0.5">
+                Authorized Signature
+              </span>
             </div>
           </div>
         </div>
@@ -1513,6 +1517,12 @@ export default function BulkPrintIdCardPage() {
       {/* ── PRINT-ONLY OPTIMIZATION STYLESHEET ── */}
       <style jsx global>{`
         @media print {
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+
           html, body {
             background-color: white !important;
             color: black !important;
@@ -1531,6 +1541,9 @@ export default function BulkPrintIdCardPage() {
           #id-card-print-portal,
           #id-card-print-portal * {
             visibility: visible !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
           }
 
           #id-card-print-portal {
@@ -1556,8 +1569,10 @@ export default function BulkPrintIdCardPage() {
             print-color-adjust: exact !important;
             color-adjust: exact !important;
             box-shadow: none !important;
-            border: 1px solid #cbd5e1 !important;
-            border-radius: 12px !important;
+            border: none !important;
+            background: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
           }
 
           nav, aside, header, footer, .sidebar, .navbar, .print\\:hidden, #stoofi-ai-widget {
