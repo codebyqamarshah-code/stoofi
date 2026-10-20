@@ -48,6 +48,7 @@ import { downloadIdCardPDF } from '@/lib/idCardPdf';
 import { getPublicVerificationUrl, formatStudentRollNo, getPhotoUrl } from '@/lib/utils';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import QRCode from 'qrcode';
+import { PakRoyalCardFront, PakRoyalCardBack, PakRoyalCardBoth } from '@/components/id-card/PakRoyalSmartCard';
 
 // Dynamic Real Scannable Verification QR Code Component for Every ID Card
 function StudentCardQR({ rec, size = 52 }) {
@@ -260,6 +261,7 @@ export default function IdCardPage() {
 
   // Preview Card Modal (for both student cards & templates)
   const [viewingCard, setViewingCard] = useState(null);
+  const [previewSide, setPreviewSide] = useState('both'); // 'both' | 'front' | 'back'
   const [printPortalRecord, setPrintPortalRecord] = useState(null);
 
   const [templateModalTab, setTemplateModalTab] = useState('design'); // 'design' | 'fields'
@@ -756,139 +758,15 @@ export default function IdCardPage() {
     const fatherName = rec.fatherName || '';
     const dob = rec.dob || '14/05/2008';
 
-    // Horizontal Card Format (Executive Navy Horizontal Pass)
+    // Horizontal Card Format (Executive Navy Smart Card — Front & Back Official Design)
     if (isHorizontal) {
-      return (
-        <div className="w-[365px] h-[225px] mx-auto bg-white rounded-none overflow-hidden border-2 border-[#084A86] shadow-xl flex flex-col justify-between text-zinc-900 font-sans select-none relative">
-          {/* Top Brand Bar */}
-          <div className="bg-gradient-to-r from-[#06335d] via-[#084A86] to-[#0a58a0] px-3 py-1.5 flex items-center justify-between text-white border-b-2 border-amber-400">
-            <div className="flex items-center gap-2.5">
-              {/* Badge with White Circular Ring */}
-              <div className="rounded-full ring-2 ring-white/95 p-0.5 bg-white/20 shrink-0">
-                <img 
-                  src="/pak-royal-badge.png" 
-                  alt="Pak Royal College Crest" 
-                  className="w-8 h-8 rounded-full bg-white object-contain shadow-xs border border-white" 
-                />
-              </div>
-              <div className="leading-tight">
-                <span className="font-black text-[12px] tracking-wide uppercase text-white block">
-                  {headerText}
-                </span>
-                <span className="text-[7.5px] text-amber-300 font-bold tracking-wider block">
-                  {subHeaderText}
-                </span>
-              </div>
-            </div>
-            <div className="text-right shrink-0">
-              <span className="text-[7px] text-slate-200 font-semibold uppercase tracking-wider block">SESSION</span>
-              <span className="text-[8.5px] font-black text-amber-300 font-mono block">2026–2027</span>
-            </div>
-          </div>
-
-          {/* Body Dual-Column + QR Code */}
-          <div className="p-2.5 flex items-stretch gap-2.5 flex-1 bg-gradient-to-b from-white to-slate-50/70">
-            {/* Left: Portrait Photo Box */}
-            {showPhoto && (
-              <div className="flex flex-col items-center justify-center shrink-0">
-                <div className="w-[78px] h-[98px] rounded-none border-[2px] border-[#084A86] overflow-hidden bg-slate-100 shadow-xs flex items-center justify-center relative">
-                  {getPhotoUrl(rec.studentPhoto) ? (
-                    <img 
-                      src={getPhotoUrl(rec.studentPhoto)} 
-                      alt={fullName} 
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex';
-                      }}
-                      className="w-full h-full object-cover" 
-                    />
-                  ) : null}
-                  <div className={`flex flex-col items-center justify-center text-zinc-400 p-1 ${getPhotoUrl(rec.studentPhoto) ? 'hidden' : 'flex'}`}>
-                    <User className="w-8 h-8 text-[#084A86]/60" />
-                    <span className="text-[8px] font-black mt-1 uppercase text-[#084A86]">{initial}</span>
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs border border-white">
-                    <ShieldCheck className="w-3 h-3" />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Middle: Details */}
-            <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-              <div>
-                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400 text-amber-950 font-black text-[8px] uppercase tracking-wider shadow-2xs mb-1.5">
-                  <Award className="w-2.5 h-2.5" />
-                  <span>STUDENT IDENTITY CARD</span>
-                </div>
-              </div>
-
-              <div className="space-y-1 text-[9.5px] text-zinc-700 pt-1 border-t border-zinc-200/70">
-                <div className="flex items-center">
-                  <span className="w-20 text-zinc-400 font-semibold text-[8.5px]">Name:</span>
-                  <span className="text-zinc-950 font-black truncate">{fullName}</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="w-20 text-zinc-400 font-semibold text-[8.5px]">Father's Name:</span>
-                  <span className="text-zinc-800 font-bold truncate max-w-[110px]">{fatherName || '—'}</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="w-20 text-zinc-400 font-semibold text-[8.5px]">Class:</span>
-                  <strong className="text-[#084A86] font-extrabold">{className} {showSection ? `(${section})` : ''}</strong>
-                </div>
-                <div className="flex items-center">
-                  <span className="w-20 text-zinc-400 font-semibold text-[8.5px]">Roll No:</span>
-                  <strong className="font-mono text-zinc-950 font-bold">{rollNo}</strong>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Real Working Scannable QR Code */}
-            {showQrBarcode && (
-              <div className="flex flex-col items-center justify-center shrink-0 pl-1 border-l border-zinc-200/80">
-                <StudentCardQR rec={rec} size={54} />
-                <span className="text-[6.5px] font-black text-[#084A86] uppercase tracking-wider mt-1">
-                  Scan to Verify
-                </span>
-                <span className="font-mono text-[6.5px] text-zinc-400 font-bold">{rollNo}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Bottom Footer Bar */}
-          <div 
-            className="bg-[#084A86] px-3 py-1.5 text-white flex justify-between items-center text-[7.5px] border-t-2 border-amber-400 min-h-[34px]"
-            style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
-          >
-            <span className="font-mono text-[7px] text-slate-100 font-bold tracking-tight shrink-0">
-              www.pakroyalcollege.edu.pk
-            </span>
-
-            {/* Middle Instruction Box */}
-            <div className="text-center px-2 py-0.5 rounded bg-white/10 border border-white/20 max-w-[170px] leading-tight shrink-0">
-              <span className="text-[6px] text-slate-100 font-medium block">
-                Property of Pak Royal College. If found, please return.
-              </span>
-              <span className="text-[6px] text-amber-300 font-bold font-mono block">
-                Contact: 03 111 444 810
-              </span>
-            </div>
-
-            {/* Right: Signature Image */}
-            <div className="flex flex-col items-end justify-center shrink-0">
-              <img 
-                src="/signature-gold.png" 
-                alt="m. umer w" 
-                className="h-4.5 w-auto object-contain filter drop-shadow-xs" 
-                style={{ height: '18px' }}
-              />
-              <span className="font-semibold text-[6px] text-slate-200 block leading-none mt-0.5">
-                Authorized Signature
-              </span>
-            </div>
-          </div>
-        </div>
-      );
+      if (previewSide === 'both') {
+        return <PakRoyalCardBoth rec={rec} />;
+      }
+      if (previewSide === 'back') {
+        return <PakRoyalCardBack rec={rec} />;
+      }
+      return <PakRoyalCardFront rec={rec} />;
     }
 
 
@@ -2019,18 +1897,51 @@ export default function IdCardPage() {
       {/* ── CARD PREVIEW MODAL ── */}
       {viewingCard && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl border border-zinc-200 max-w-lg w-full p-5 space-y-4">
+          <div className="bg-white rounded-2xl shadow-2xl border border-zinc-200 max-w-4xl w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-zinc-200 pb-3">
               <h3 className="font-bold text-sm text-zinc-950 flex items-center gap-1.5">
                 <CreditCard className="w-4 h-4 text-[#084A86]" />
-                ID Card Preview - Pak Royal College
+                ID Card Preview — {viewingCard.firstName} {viewingCard.lastName}
               </h3>
-              <button onClick={() => setViewingCard(null)} className="text-zinc-400 hover:text-zinc-700">
+              <button onClick={() => setViewingCard(null)} className="text-zinc-400 hover:text-zinc-700 cursor-pointer">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="py-2 flex items-center justify-center">
+            {/* Side selector */}
+            <div className="flex justify-center">
+              <div className="flex items-center gap-1 bg-zinc-100 p-1 rounded-xl border border-zinc-200 shadow-2xs">
+                <button
+                  type="button"
+                  onClick={() => setPreviewSide('both')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    previewSide === 'both' ? 'bg-zinc-900 text-white shadow-xs' : 'text-zinc-600 hover:text-zinc-900'
+                  }`}
+                >
+                  Both Sides (Front & Back)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewSide('front')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    previewSide === 'front' ? 'bg-zinc-900 text-white shadow-xs' : 'text-zinc-600 hover:text-zinc-900'
+                  }`}
+                >
+                  Front Side Only
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewSide('back')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    previewSide === 'back' ? 'bg-zinc-900 text-white shadow-xs' : 'text-zinc-600 hover:text-zinc-900'
+                  }`}
+                >
+                  Back Side Only
+                </button>
+              </div>
+            </div>
+
+            <div className="py-2 flex items-center justify-center bg-zinc-50/60 p-4 rounded-xl border border-zinc-100">
               {renderCardGraphic(viewingCard)}
             </div>
 
@@ -2039,7 +1950,7 @@ export default function IdCardPage() {
                 variant="outline" 
                 size="sm" 
                 onClick={() => setViewingCard(null)}
-                className="text-xs"
+                className="text-xs cursor-pointer"
               >
                 Close
               </Button>
@@ -2048,16 +1959,16 @@ export default function IdCardPage() {
                   size="sm" 
                   variant="outline"
                   onClick={() => handleDownloadStudentPDF(viewingCard)}
-                  className="text-xs border-zinc-300 text-zinc-800 hover:bg-zinc-100"
+                  className="text-xs border-zinc-300 text-zinc-800 hover:bg-zinc-100 cursor-pointer"
                 >
-                  <Download className="w-3.5 h-3.5 mr-1 text-emerald-600" /> PDF
+                  <Download className="w-3.5 h-3.5 mr-1 text-emerald-600" /> Download PDF (Front & Back)
                 </Button>
                 <Button 
                   size="sm" 
                   onClick={() => handlePrintStudentCard(viewingCard)}
-                  className="bg-[#084A86] hover:bg-[#06335d] text-white text-xs font-bold"
+                  className="bg-[#084A86] hover:bg-[#06335d] text-white text-xs font-bold cursor-pointer"
                 >
-                  <Printer className="w-3.5 h-3.5 mr-1" /> Print
+                  <Printer className="w-3.5 h-3.5 mr-1" /> Print Card
                 </Button>
               </div>
             </div>
@@ -2541,7 +2452,32 @@ export default function IdCardPage() {
 
       {/* ── DEDICATED PRINT PORTAL (ISOLATED - ONLY CARD PRINTS) ── */}
       <div id="id-card-print-portal" className="hidden">
-        {printPortalRecord && renderCardGraphic(printPortalRecord)}
+        {printPortalRecord && (
+          (printPortalRecord.cardTemplate === 'classic-navy' || !printPortalRecord.cardTemplate || (printPortalRecord.cardLayout || 'horizontal') === 'horizontal') ? (
+            previewSide === 'both' ? (
+              <>
+                <div className="id-card-print-item mb-6">
+                  <PakRoyalCardFront rec={printPortalRecord} isPrint={true} />
+                </div>
+                <div className="id-card-print-item mb-6">
+                  <PakRoyalCardBack rec={printPortalRecord} isPrint={true} />
+                </div>
+              </>
+            ) : previewSide === 'back' ? (
+              <div className="id-card-print-item mb-6">
+                <PakRoyalCardBack rec={printPortalRecord} isPrint={true} />
+              </div>
+            ) : (
+              <div className="id-card-print-item mb-6">
+                <PakRoyalCardFront rec={printPortalRecord} isPrint={true} />
+              </div>
+            )
+          ) : (
+            <div className="id-card-print-item mb-6">
+              {renderCardGraphic(printPortalRecord)}
+            </div>
+          )
+        )}
       </div>
 
       {/* PRINT-ONLY STYLESHEET */}

@@ -63,6 +63,16 @@ if (process.env.VERCEL === '1' || process.env.VERCEL_ENV) {
   app.use('/api/uploads', express.static('/tmp/uploads'));
 }
 
+// Fallback for missing uploads: return clean SVG placeholder avatar with 200 OK to eliminate 404 console errors
+const defaultAvatarSvg = Buffer.from(
+  `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="100%" height="100%" fill="#f8fafc"/><circle cx="12" cy="8" r="4" fill="#cbd5e1" stroke="none"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="#cbd5e1" stroke="none"/></svg>`
+);
+app.use(['/uploads', '/api/uploads'], (req, res) => {
+  res.setHeader('Content-Type', 'image/svg+xml');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.status(200).send(defaultAvatarSvg);
+});
+
 // Routes
 app.use('/api/ai', require('./routes/ai.routes'));
 app.use('/api/auth', require('./routes/auth.routes'));

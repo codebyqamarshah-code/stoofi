@@ -39,6 +39,7 @@ import { downloadIdCardPDF, downloadBatchIdCardsPDF } from '@/lib/idCardPdf';
 import { formatDateDMY, getPublicVerificationUrl, formatStudentRollNo, getPhotoUrl } from '@/lib/utils';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import QRCode from 'qrcode';
+import { PakRoyalCardFront, PakRoyalCardBack, PakRoyalCardBoth } from '@/components/id-card/PakRoyalSmartCard';
 
 // Dynamic Live QR Code Component for Every Student Card (Scannable on all phones)
 function StudentCardQR({ rec, isDark = false }) {
@@ -147,6 +148,7 @@ export default function BulkPrintIdCardPage() {
 
   // Layout & View Options
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
+  const [cardSide, setCardSide] = useState('both'); // 'both' | 'front' | 'back'
   const [previewCard, setPreviewCard] = useState(null);
   const [printPortalRecords, setPrintPortalRecords] = useState([]);
 
@@ -505,136 +507,15 @@ export default function BulkPrintIdCardPage() {
       );
     }
 
-    // ── DESIGN 2: Executive Navy Horizontal Smart Card (Matching Reference Image 3) ──
-    // ── DESIGN 2: Executive Navy Horizontal Smart Card (Matching Reference Image 3) ──
+    // ── DESIGN 2: Executive Navy Horizontal Smart Card (Front & Back Official Design) ──
     if (activeDesignId === 'classic-navy') {
-      return (
-        <div className={`bg-white text-zinc-900 rounded-none overflow-hidden shadow-xl border-2 border-[#084A86] w-full ${isInspectModal ? 'max-w-[420px]' : ''} flex flex-col justify-between select-none relative`}>
-          {/* Header Stripe */}
-          <div className="bg-gradient-to-r from-[#06335d] via-[#084A86] to-[#0a58a0] px-3.5 py-1.5 flex items-center justify-between border-b-2 border-amber-400 text-white">
-            <div className="flex items-center gap-2.5">
-              {/* Badge with White Circular Ring */}
-              <div className="rounded-full ring-2 ring-white/95 p-0.5 bg-white/20 shrink-0">
-                <img 
-                  src="/pak-royal-badge.png" 
-                  alt="Pak Royal College Crest" 
-                  className="w-8 h-8 rounded-full bg-white object-contain shadow-xs border border-white" 
-                />
-              </div>
-              <div className="leading-tight">
-                <h3 className="font-black text-[12px] tracking-wide uppercase text-white block">PAK ROYAL COLLEGE</h3>
-                <p className="text-[7.5px] text-amber-300 font-bold tracking-wider block">Sharaqpur Sharif, District Sheikhupura</p>
-              </div>
-            </div>
-            <div className="text-right shrink-0">
-              <span className="text-[7px] text-slate-200 font-semibold uppercase tracking-wider block">SESSION</span>
-              <span className="text-[8.5px] font-black text-amber-300 font-mono block">2026–2027</span>
-            </div>
-          </div>
-
-          {/* Body Dual-Column */}
-          <div className="p-2.5 flex items-stretch gap-2.5 flex-1 bg-gradient-to-b from-white to-slate-50/70">
-            {/* Left: Portrait Photo Box */}
-            {showPhoto && (
-              <div className="flex flex-col items-center justify-center shrink-0">
-                <div className="w-[78px] h-[98px] rounded-none border-[2px] border-[#084A86] overflow-hidden bg-slate-100 shadow-xs flex items-center justify-center relative">
-                  {photoUrl ? (
-                    <img 
-                      src={photoUrl} 
-                      alt={name} 
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex';
-                      }}
-                      className="w-full h-full object-cover" 
-                    />
-                  ) : null}
-                  <div className={`flex flex-col items-center justify-center text-zinc-400 p-1 ${photoUrl ? 'hidden' : 'flex'}`}>
-                    <User className="w-8 h-8 text-[#084A86]/60" />
-                    <span className="text-[8px] font-black mt-1 uppercase text-[#084A86]">{name.charAt(0)}</span>
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs border border-white">
-                    <ShieldCheck className="w-3 h-3" />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Middle: Details */}
-            <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-              <div>
-                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400 text-amber-950 font-black text-[8px] uppercase tracking-wider shadow-2xs mb-1.5">
-                  <Award className="w-2.5 h-2.5" />
-                  <span>STUDENT IDENTITY CARD</span>
-                </div>
-              </div>
-
-              <div className="space-y-1 text-[9.5px] text-zinc-700 pt-1 border-t border-zinc-200/70">
-                <div className="flex items-center">
-                  <span className="w-20 text-zinc-400 font-semibold text-[8.5px]">Name:</span>
-                  <span className="text-zinc-950 font-black truncate">{name}</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="w-20 text-zinc-400 font-semibold text-[8.5px]">Father's Name:</span>
-                  <span className="text-zinc-800 font-bold truncate max-w-[110px]">{fatherName || '—'}</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="w-20 text-zinc-400 font-semibold text-[8.5px]">Class:</span>
-                  <strong className="text-[#084A86] font-extrabold">{className} {showSection ? `(${section})` : ''}</strong>
-                </div>
-                <div className="flex items-center">
-                  <span className="w-20 text-zinc-400 font-semibold text-[8.5px]">Roll No:</span>
-                  <strong className="font-mono text-zinc-950 font-bold">{rollNo}</strong>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Scannable Verification QR Code */}
-            {showQrBarcode && (
-              <div className="flex flex-col items-center justify-center shrink-0 pl-1 border-l border-zinc-200/80">
-                <StudentCardQR rec={rec} isDark={false} />
-                <span className="text-[6.5px] font-black text-[#084A86] uppercase tracking-wider mt-1">
-                  Scan to Verify
-                </span>
-                <span className="font-mono text-[6.5px] text-zinc-400 font-bold">{rollNo}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Footer Bar */}
-          <div 
-            className="bg-[#084A86] px-3 py-1.5 text-white flex justify-between items-center text-[7.5px] border-t-2 border-amber-400 min-h-[34px]"
-            style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
-          >
-            <span className="font-mono text-[7px] text-slate-100 font-bold tracking-tight shrink-0">
-              www.pakroyalcollege.edu.pk
-            </span>
-
-            {/* Middle Instruction Box */}
-            <div className="text-center px-2 py-0.5 rounded bg-white/10 border border-white/20 max-w-[170px] leading-tight shrink-0">
-              <span className="text-[6px] text-slate-100 font-medium block">
-                Property of Pak Royal College. If found, please return.
-              </span>
-              <span className="text-[6px] text-amber-300 font-bold font-mono block">
-                Contact: 03 111 444 810
-              </span>
-            </div>
-
-            {/* Right: Signature Image */}
-            <div className="flex flex-col items-end justify-center shrink-0">
-              <img 
-                src="/signature-gold.png" 
-                alt="m. umer w" 
-                className="h-4.5 w-auto object-contain filter drop-shadow-xs" 
-                style={{ height: '18px' }}
-              />
-              <span className="font-semibold text-[6px] text-slate-200 block leading-none mt-0.5">
-                Authorized Signature
-              </span>
-            </div>
-          </div>
-        </div>
-      );
+      if (cardSide === 'both') {
+        return <PakRoyalCardBoth rec={rec} schoolSetting={schoolSetting} isInspectModal={isInspectModal} />;
+      }
+      if (cardSide === 'back') {
+        return <PakRoyalCardBack rec={rec} schoolSetting={schoolSetting} isPrint={isInspectModal} />;
+      }
+      return <PakRoyalCardFront rec={rec} schoolSetting={schoolSetting} isPrint={isInspectModal} />;
     }
 
 
@@ -1224,6 +1105,42 @@ export default function BulkPrintIdCardPage() {
             </button>
           </div>
 
+          {/* Side Selector for Classic Navy (Front / Back / Both) */}
+          {activeDesignId === 'classic-navy' && (
+            <div className="flex items-center gap-1 bg-zinc-100 p-1 rounded-xl border border-zinc-200">
+              <button
+                type="button"
+                onClick={() => setCardSide('both')}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  cardSide === 'both' ? 'bg-white text-zinc-950 shadow-xs' : 'text-zinc-600 hover:text-zinc-900'
+                }`}
+                title="View & Print Both Front and Back Sides"
+              >
+                Both Sides (Front & Back)
+              </button>
+              <button
+                type="button"
+                onClick={() => setCardSide('front')}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  cardSide === 'front' ? 'bg-white text-zinc-950 shadow-xs' : 'text-zinc-600 hover:text-zinc-900'
+                }`}
+                title="View & Print Front Side Only"
+              >
+                Front Side
+              </button>
+              <button
+                type="button"
+                onClick={() => setCardSide('back')}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  cardSide === 'back' ? 'bg-white text-zinc-950 shadow-xs' : 'text-zinc-600 hover:text-zinc-900'
+                }`}
+                title="View & Print Back Side Only"
+              >
+                Back Side
+              </button>
+            </div>
+          )}
+
           <div className="flex items-center gap-2">
             <Button 
               type="button" 
@@ -1458,7 +1375,7 @@ export default function BulkPrintIdCardPage() {
       {/* ── SINGLE CARD INSPECTION / DOWNLOAD MODAL ── */}
       {previewCard && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 print:hidden animate-in fade-in duration-150">
-          <div className="bg-white rounded-2xl border border-zinc-200 shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="bg-white rounded-2xl border border-zinc-200 shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="flex items-center justify-between p-4 border-b border-zinc-100 bg-zinc-50">
               <div className="flex items-center gap-2">
                 <CreditCard className="h-5 w-5 text-emerald-600" />
@@ -1467,13 +1384,44 @@ export default function BulkPrintIdCardPage() {
               <button 
                 type="button" 
                 onClick={() => setPreviewCard(null)} 
-                className="text-zinc-400 hover:text-zinc-700 p-1 rounded-md"
+                className="text-zinc-400 hover:text-zinc-700 p-1 rounded-md cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             <div className="p-6 flex flex-col items-center justify-center bg-zinc-100/60 overflow-y-auto">
+              {activeDesignId === 'classic-navy' && (
+                <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-zinc-200 mb-5 shadow-2xs">
+                  <button
+                    type="button"
+                    onClick={() => setCardSide('both')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      cardSide === 'both' ? 'bg-zinc-900 text-white shadow-xs' : 'text-zinc-600 hover:text-zinc-900'
+                    }`}
+                  >
+                    Both Sides (Front & Back)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCardSide('front')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      cardSide === 'front' ? 'bg-zinc-900 text-white shadow-xs' : 'text-zinc-600 hover:text-zinc-900'
+                    }`}
+                  >
+                    Front Side Only
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCardSide('back')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      cardSide === 'back' ? 'bg-zinc-900 text-white shadow-xs' : 'text-zinc-600 hover:text-zinc-900'
+                    }`}
+                  >
+                    Back Side Only
+                  </button>
+                </div>
+              )}
               {renderCardGraphic(previewCard, true)}
             </div>
 
@@ -1491,14 +1439,14 @@ export default function BulkPrintIdCardPage() {
                 onClick={() => handleDownloadSinglePDF(previewCard)}
                 className="h-9 text-xs border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
               >
-                <Download className="h-3.5 w-3.5" /> Download PDF
+                <Download className="h-3.5 w-3.5" /> Download PDF (Front & Back)
               </Button>
               <Button 
                 type="button"
                 onClick={() => handlePrintSingle(previewCard)}
                 className="h-9 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
               >
-                <Printer className="h-3.5 w-3.5" /> Print Single Card
+                <Printer className="h-3.5 w-3.5" /> Print Card
               </Button>
             </div>
           </div>
@@ -1508,9 +1456,32 @@ export default function BulkPrintIdCardPage() {
       {/* ── DEDICATED PRINT PORTAL (100% ISOLATED — ONLY THE CARD PRINTS) ── */}
       <div id="id-card-print-portal" className="hidden">
         {(printPortalRecords.length > 0 ? printPortalRecords : (selectedRecords.length > 0 ? selectedRecords : filteredRecords)).map((rec, idx) => (
-          <div key={rec._id || idx} className="id-card-print-item mb-6">
-            {renderCardGraphic(rec, true)}
-          </div>
+          <React.Fragment key={rec._id || idx}>
+            {activeDesignId === 'classic-navy' ? (
+              cardSide === 'both' ? (
+                <>
+                  <div className="id-card-print-item mb-6">
+                    <PakRoyalCardFront rec={rec} schoolSetting={schoolSetting} isPrint={true} />
+                  </div>
+                  <div className="id-card-print-item mb-6">
+                    <PakRoyalCardBack rec={rec} schoolSetting={schoolSetting} isPrint={true} />
+                  </div>
+                </>
+              ) : cardSide === 'back' ? (
+                <div className="id-card-print-item mb-6">
+                  <PakRoyalCardBack rec={rec} schoolSetting={schoolSetting} isPrint={true} />
+                </div>
+              ) : (
+                <div className="id-card-print-item mb-6">
+                  <PakRoyalCardFront rec={rec} schoolSetting={schoolSetting} isPrint={true} />
+                </div>
+              )
+            ) : (
+              <div className="id-card-print-item mb-6">
+                {renderCardGraphic(rec, true)}
+              </div>
+            )}
+          </React.Fragment>
         ))}
       </div>
 
