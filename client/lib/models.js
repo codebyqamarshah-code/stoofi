@@ -31,6 +31,10 @@ const userSchema = new mongoose.Schema({
     enum: ['Super Admin', 'Admin', 'Teacher', 'Student', 'Parent', 'Accountant', 'Librarian', 'Staff'],
     default: 'Student'
   },
+  canDelete: {
+    type: Boolean,
+    default: true
+  },
   status: {
     type: String,
     enum: ['Active', 'Inactive'],

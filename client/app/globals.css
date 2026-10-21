@@ -724,4 +724,24 @@ body {
   }
 }
 
+/* ========================================================
+   RESTRICTED ADMIN ACCESS (NO DELETE PERMISSION)
+   Automatically hides delete buttons across the application
+   for restricted administrative accounts (e.g. pakroyalcollege@gmail.com)
+   ======================================================== */
+[data-can-delete="false"] button:has(.lucide-trash),
+[data-can-delete="false"] button:has(.lucide-trash-2),
+[data-can-delete="false"] a:has(.lucide-trash),
+[data-can-delete="false"] a:has(.lucide-trash-2),
+[data-can-delete="false"] .btn-delete,
+[data-can-delete="false"] button[title*="Delete" i],
+[data-can-delete="false"] button[aria-label*="Delete" i],
+[data-can-delete="false"] button[data-action="delete"],
+[data-can-delete="false"] .delete-action {
+  display: none !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+
 

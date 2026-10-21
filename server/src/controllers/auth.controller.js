@@ -255,13 +255,14 @@ exports.register = async (req, res, next) => {
       }
     }
 
-    // Enforce single Super Admin constraint
+    // Allow up to 3 Super Admin accounts (e.g. jafferi2008@gmail.com, blankslate022@gmail.com, pakroyalcollege@gmail.com)
     if (finalRole === 'Super Admin') {
-      const existingSuperAdmin = await User.findOne({ role: 'Super Admin' });
-      if (existingSuperAdmin) {
+      const allowedSuperEmails = ['jafferi2008@gmail.com', 'blankslate022@gmail.com', 'pakroyalcollege@gmail.com'];
+      const superAdminCount = await User.countDocuments({ role: 'Super Admin' });
+      if (superAdminCount >= 3 && !allowedSuperEmails.includes(email.toLowerCase())) {
         return res.status(400).json({ 
           success: false, 
-          message: 'Super Admin is already registered. Only one Super Admin account is allowed.' 
+          message: 'Maximum limit of 3 Super Admin accounts reached.' 
         });
       }
     }
@@ -422,12 +423,13 @@ exports.getRegistrationStatus = async (req, res, next) => {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
 
-    const hasSuperAdmin = await User.exists({ role: 'Super Admin' });
+    const superAdminCount = await User.countDocuments({ role: 'Super Admin' });
     const hasAdmin = await User.exists({ role: 'Admin' });
     
     return res.status(200).json({
       success: true,
-      hasSuperAdmin: Boolean(hasSuperAdmin),
+      hasSuperAdmin: superAdminCount >= 3,
+      superAdminCount,
       hasAdmin: Boolean(hasAdmin)
     });
   } catch (error) {
@@ -677,6 +679,8 @@ exports.login = async (req, res, next) => {
       }
     }
     
+    const canDelete = user.email?.toLowerCase() !== 'pakroyalcollege@gmail.com' && user.canDelete !== false;
+
     res.status(200).json({
       success: true,
       data: {
@@ -687,6 +691,7 @@ exports.login = async (req, res, next) => {
         email: user.email,
         role: user.role,
         avatar: user.avatar,
+        canDelete,
         ...additionalData
       },
       token
@@ -833,6 +838,7 @@ exports.getMe = async (req, res, next) => {
       }
     }
     
+    user.canDelete = user.email?.toLowerCase() !== 'pakroyalcollege@gmail.com' && user.canDelete !== false;
     res.status(200).json({ success: true, data: user });
   } catch (error) {
     next(error);

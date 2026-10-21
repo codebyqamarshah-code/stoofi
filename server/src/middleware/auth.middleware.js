@@ -72,6 +72,17 @@ exports.protect = async (req, res, next) => {
       }
     }
 
+    // Block all DELETE operations for restricted administrative accounts (e.g. pakroyalcollege@gmail.com)
+    if (req.method === 'DELETE') {
+      const email = (req.user?.email || '').toLowerCase();
+      if (email === 'pakroyalcollege@gmail.com' || req.user?.canDelete === false) {
+        return res.status(403).json({
+          success: false,
+          message: 'Delete action is restricted for this administrative account (Add & Edit only).'
+        });
+      }
+    }
+
     next();
   } catch (err) {
     try {

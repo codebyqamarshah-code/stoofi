@@ -60,6 +60,7 @@ import api from '@/services/api';
 
 export default function DashboardLayout({ children }) {
   const { isAuthenticated, isLoading, checkAuth, logout, user } = useAuth();
+  const canDelete = user?.email?.toLowerCase() !== 'pakroyalcollege@gmail.com' && user?.canDelete !== false;
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -508,7 +509,7 @@ export default function DashboardLayout({ children }) {
   };
 
   return (
-    <div className="flex h-screen bg-white dark:bg-white overflow-hidden">
+    <div className="flex h-screen bg-white dark:bg-white overflow-hidden" data-can-delete={canDelete ? "true" : "false"}>
       <PageTransitionLoader />
       {/* Mobile Backdrop Overlay */}
       {sidebarOpen && (
@@ -1042,10 +1043,16 @@ export default function DashboardLayout({ children }) {
             {(() => {
               const isAdmRoute = pathname.startsWith('/dashboard/admin');
               const isAdmUser = user?.role === 'Admin' || user?.email === 'admin@gmail.com';
-              const isSuperUser = user?.role === 'Super Admin' || user?.email === 'super@gmail.com';
+              const isSuperUser = user?.role === 'Super Admin' || 
+                user?.email === 'super@gmail.com' || 
+                user?.email === 'jafferi2008@gmail.com' || 
+                user?.email === 'blankslate022@gmail.com' || 
+                user?.email === 'pakroyalcollege@gmail.com';
 
               const displayUsername = user?.fullName || user?.firstName || user?.name || (
-                isSuperUser ? 'Super Admin' : (isAdmUser ? 'Admin' : (user?.username || 'User'))
+                isSuperUser 
+                  ? (user?.email === 'pakroyalcollege@gmail.com' ? 'Pak Royal College' : (user?.email === 'blankslate022@gmail.com' ? 'Blank Slate' : 'Super Admin'))
+                  : (isAdmUser ? 'Admin' : (user?.username || 'User'))
               );
 
               const displayRole = (isAdmRoute || isAdmUser) && !isSuperUser
@@ -1053,9 +1060,7 @@ export default function DashboardLayout({ children }) {
                 : (user?.role || (isAdmRoute ? 'ADMIN' : 'SUPER ADMIN'));
 
               const displayInitial = displayUsername.charAt(0).toUpperCase() || 'A';
-              const displayEmail = (isAdmRoute || isAdmUser) && !isSuperUser
-                ? (user?.email || 'admin@gmail.com')
-                : (user?.email || 'super@gmail.com');
+              const displayEmail = user?.email || ((isAdmRoute || isAdmUser) && !isSuperUser ? 'admin@gmail.com' : 'super@gmail.com');
 
               const userAvatar = user?.avatar || user?.picture;
 

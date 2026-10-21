@@ -28,9 +28,12 @@ export async function GET(req) {
       );
     }
 
+    const userObj = user.toObject ? user.toObject() : { ...user._doc };
+    userObj.canDelete = userObj.email?.toLowerCase() !== 'pakroyalcollege@gmail.com' && userObj.canDelete !== false;
+
     return NextResponse.json({
       success: true,
-      data: user
+      data: userObj
     });
   } catch (error) {
     return NextResponse.json(

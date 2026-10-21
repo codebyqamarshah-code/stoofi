@@ -13,6 +13,10 @@ export const useAuth = create(
       error: null,
 
       setSession: (user, token) => {
+        if (user) {
+          const userEmail = (user.email || '').toLowerCase();
+          user.canDelete = userEmail !== 'pakroyalcollege@gmail.com' && user.canDelete !== false;
+        }
         set({ user, token, isAuthenticated: true, isLoading: false, error: null });
         if (token) {
           Cookies.set('token', token, { path: '/', expires: 7 });
@@ -28,6 +32,7 @@ export const useAuth = create(
             fullName: user.fullName || user.name || user.username,
             email: user.email,
             role: user.role,
+            canDelete: user.canDelete,
             picture: user.picture || user.avatar,
             avatar: user.avatar || user.picture
           };
@@ -38,10 +43,11 @@ export const useAuth = create(
       login: async (email, password, remember = true, roleLabel = null, otp = null) => {
         set({ isLoading: true, error: null });
         const cleanEmail = email?.trim().toLowerCase() || 'super@gmail.com';
+        const superEmails = ['super@gmail.com', 'jafferi2008@gmail.com', 'blankslate022@gmail.com', 'pakroyalcollege@gmail.com'];
         
         let role = roleLabel;
         if (!role) {
-          if (cleanEmail === 'super@gmail.com') {
+          if (superEmails.includes(cleanEmail)) {
             role = 'Super Admin';
           } else if (cleanEmail === 'admin@gmail.com' || cleanEmail === 'admin@gamil.com') {
             role = 'Admin';
@@ -50,7 +56,7 @@ export const useAuth = create(
           }
         }
 
-        const isSuperAdmin = role === 'Super Admin' || cleanEmail === 'super@gmail.com';
+        const isSuperAdmin = role === 'Super Admin' || superEmails.includes(cleanEmail);
         const isAdmin = role === 'Admin' || cleanEmail === 'admin@gmail.com' || cleanEmail === 'admin@gamil.com';
 
         try {
@@ -74,6 +80,9 @@ export const useAuth = create(
           if (res && res.success) { if (res.requireOtp) { return { success: true, requireOtp: true }; }
             const finalUser = res.data;
             const finalToken = res.token;
+            const userEmail = (finalUser.email || cleanEmail || '').toLowerCase();
+            finalUser.canDelete = userEmail !== 'pakroyalcollege@gmail.com' && finalUser.canDelete !== false;
+
             set({
               user: finalUser,
               token: finalToken,
@@ -92,6 +101,7 @@ export const useAuth = create(
                 fullName: finalUser.fullName || finalUser.name || finalUser.username,
                 email: finalUser.email,
                 role: finalUser.role,
+                canDelete: finalUser.canDelete,
                 picture: finalUser.picture || finalUser.avatar,
                 avatar: finalUser.avatar || finalUser.picture
               }));

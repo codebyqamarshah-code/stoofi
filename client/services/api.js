@@ -69,6 +69,24 @@ api.interceptors.request.use((config) => {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    // Client-side guard: Block DELETE requests for restricted accounts (e.g. pakroyalcollege@gmail.com)
+    if (config.method?.toLowerCase() === 'delete') {
+      try {
+        const rawUser = localStorage.getItem('recent_user') || localStorage.getItem('auth-storage');
+        if (rawUser) {
+          const u = JSON.parse(rawUser);
+          const email = (u?.email || u?.state?.user?.email || '').toLowerCase();
+          const canDelete = u?.canDelete !== undefined ? u.canDelete : (u?.state?.user?.canDelete);
+          if (email === 'pakroyalcollege@gmail.com' || canDelete === false) {
+            if (typeof window !== 'undefined') {
+              alert('Delete action is restricted for this administrative account (Add & Edit only).');
+            }
+            return Promise.reject(new Error('Delete action is restricted for this account (Add & Edit only).'));
+          }
+        }
+      } catch (_) {}
+    }
+
     // Device ID is passed in request body for /auth/login only (see useAuth.js)
     // Do NOT send it as a custom header — it triggers CORS preflight on every request
   }

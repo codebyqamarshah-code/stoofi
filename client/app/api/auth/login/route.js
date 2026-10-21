@@ -100,6 +100,7 @@ export async function POST(req) {
         email: user.email,
         role: user.role,
         avatar: user.avatar || '',
+        canDelete: user.email?.toLowerCase() !== 'pakroyalcollege@gmail.com' && user.canDelete !== false,
         referenceId: user.referenceId || null,
         ...profileData
       },
