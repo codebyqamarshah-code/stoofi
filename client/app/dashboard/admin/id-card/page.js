@@ -299,7 +299,7 @@ export default function IdCardPage() {
 
   // Preview Card Modal (for both student cards & templates)
   const [viewingCard, setViewingCard] = useState(null);
-  const [previewSide, setPreviewSide] = useState('both'); // 'both' | 'front' | 'back'
+  const [previewSide, setPreviewSide] = useState('front'); // 'front' | 'back' | 'both'
   const [printPortalRecord, setPrintPortalRecord] = useState(null);
 
   const [templateModalTab, setTemplateModalTab] = useState('design'); // 'design' | 'fields'
@@ -756,7 +756,7 @@ export default function IdCardPage() {
   }, [studentsList, studentSearch, studentClassFilter, studentSectionFilter]);
 
   // ── ULTRA-PROFESSIONAL REAL STUDENT ID CARD RENDERER (Pak Royal College Sharaqpur) ──
-  const renderCardGraphic = (rec, tplOverride = null) => {
+  const renderCardGraphic = (rec, tplOverride = null, sideOverride = null, forceStacked = false) => {
     const activeTpl = tplOverride || cards.find(c => c._id === rec.cardTemplate || c.themeStyle === rec.cardTemplate) || {};
     
     // Default to classic-navy horizontal if unspecified
@@ -796,12 +796,14 @@ export default function IdCardPage() {
     const fatherName = rec.fatherName || '';
     const dob = rec.dob || '14/05/2008';
 
+    const activeSide = sideOverride || previewSide;
+
     // Horizontal Card Format (Executive Navy Smart Card — Front & Back Official Design)
     if (isHorizontal) {
-      if (previewSide === 'both') {
-        return <PakRoyalCardBoth rec={rec} />;
+      if (activeSide === 'both') {
+        return <PakRoyalCardBoth rec={rec} stacked={forceStacked} />;
       }
-      if (previewSide === 'back') {
+      if (activeSide === 'back') {
         return <PakRoyalCardBack rec={rec} />;
       }
       return <PakRoyalCardFront rec={rec} />;
@@ -1392,7 +1394,7 @@ export default function IdCardPage() {
       {/* ── CREATE / ISSUE STUDENT ID CARD MODAL (WITH PHOTO UPLOAD) ── */}
       {showCreateStudentModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl border border-zinc-200 max-w-4xl w-full my-6 max-h-[92vh] flex flex-col overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-2xl border border-zinc-200 max-w-5xl w-full my-6 max-h-[92vh] flex flex-col overflow-hidden">
             {/* Modal Header */}
             <div className="p-4 border-b border-zinc-200 bg-zinc-50 flex justify-between items-center shrink-0">
               <div className="flex items-center gap-2">
@@ -1617,11 +1619,44 @@ export default function IdCardPage() {
               </form>
 
               {/* Right Column: Live Card Preview */}
-              <div className="lg:col-span-5 bg-zinc-50 border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center">
-                <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-3">
-                  Live Card Preview
-                </span>
-                {renderCardGraphic(studentForm)}
+              <div className="lg:col-span-5 bg-zinc-50 border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-start overflow-hidden">
+                <div className="w-full flex items-center justify-between pb-2 mb-3 border-b border-zinc-200 flex-wrap gap-2">
+                  <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">
+                    Live Card Preview
+                  </span>
+                  <div className="flex items-center gap-0.5 bg-white p-0.5 rounded-lg border border-zinc-200 shadow-2xs">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewSide('front')}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                        previewSide === 'front' ? 'bg-zinc-950 text-white shadow-2xs' : 'text-zinc-600 hover:text-zinc-900'
+                      }`}
+                    >
+                      Front
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewSide('back')}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                        previewSide === 'back' ? 'bg-zinc-950 text-white shadow-2xs' : 'text-zinc-600 hover:text-zinc-900'
+                      }`}
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewSide('both')}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                        previewSide === 'both' ? 'bg-zinc-950 text-white shadow-2xs' : 'text-zinc-600 hover:text-zinc-900'
+                      }`}
+                    >
+                      Both
+                    </button>
+                  </div>
+                </div>
+                <div className="w-full flex items-center justify-center py-1 overflow-x-auto">
+                  {renderCardGraphic(studentForm, null, null, true)}
+                </div>
                 <p className="text-[10px] text-zinc-400 mt-3 text-center">
                   Updates in real time as you fill out details & upload photo.
                 </p>
@@ -1634,7 +1669,7 @@ export default function IdCardPage() {
       {/* ── EDIT STUDENT ID CARD MODAL (WITH LIVE PREVIEW & PHOTO EDIT) ── */}
       {showEditStudentModal && editingStudent && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl border border-zinc-200 max-w-4xl w-full my-6 max-h-[92vh] flex flex-col overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-2xl border border-zinc-200 max-w-5xl w-full my-6 max-h-[92vh] flex flex-col overflow-hidden">
             {/* Modal Header */}
             <div className="p-4 border-b border-zinc-200 bg-zinc-50 flex justify-between items-center shrink-0">
               <div className="flex items-center gap-2">
@@ -1865,11 +1900,44 @@ export default function IdCardPage() {
               </form>
 
               {/* Right Column: Live Card Preview */}
-              <div className="lg:col-span-5 bg-zinc-50 border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-center">
-                <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-3">
-                  Live Card Preview
-                </span>
-                {renderCardGraphic(editStudentForm)}
+              <div className="lg:col-span-5 bg-zinc-50 border border-zinc-200 rounded-2xl p-4 flex flex-col items-center justify-start overflow-hidden">
+                <div className="w-full flex items-center justify-between pb-2 mb-3 border-b border-zinc-200 flex-wrap gap-2">
+                  <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">
+                    Live Card Preview
+                  </span>
+                  <div className="flex items-center gap-0.5 bg-white p-0.5 rounded-lg border border-zinc-200 shadow-2xs">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewSide('front')}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                        previewSide === 'front' ? 'bg-zinc-950 text-white shadow-2xs' : 'text-zinc-600 hover:text-zinc-900'
+                      }`}
+                    >
+                      Front
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewSide('back')}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                        previewSide === 'back' ? 'bg-zinc-950 text-white shadow-2xs' : 'text-zinc-600 hover:text-zinc-900'
+                      }`}
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewSide('both')}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                        previewSide === 'both' ? 'bg-zinc-950 text-white shadow-2xs' : 'text-zinc-600 hover:text-zinc-900'
+                      }`}
+                    >
+                      Both
+                    </button>
+                  </div>
+                </div>
+                <div className="w-full flex items-center justify-center py-1 overflow-x-auto">
+                  {renderCardGraphic(editStudentForm, null, null, true)}
+                </div>
                 <p className="text-[10px] text-zinc-400 mt-3 text-center">
                   Updates in real time as you edit details & photo.
                 </p>
@@ -2017,7 +2085,7 @@ export default function IdCardPage() {
       {/* ── TEMPLATE DESIGN & FIELD SETTINGS MODAL (Manage Templates) ── */}
       {showFormModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl border border-zinc-200 max-w-5xl w-full my-6 max-h-[92vh] flex flex-col overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-2xl border border-zinc-200 max-w-6xl w-full my-6 max-h-[92vh] flex flex-col overflow-hidden">
             {/* Modal Top Header */}
             <div className="p-4 sm:px-6 border-b border-zinc-200 bg-zinc-50 flex justify-between items-center shrink-0">
               <div className="flex items-center gap-2.5">
@@ -2406,18 +2474,46 @@ export default function IdCardPage() {
               </div>
 
               {/* Right Column: Live Real-Time Card Preview */}
-              <div className="lg:col-span-5 bg-zinc-100/70 p-5 flex flex-col items-center justify-center shrink-0">
-                <div className="w-full flex items-center justify-between pb-3 mb-3 border-b border-zinc-200/80">
+              <div className="lg:col-span-5 bg-zinc-100/70 p-4 sm:p-5 flex flex-col items-center justify-start shrink-0 overflow-hidden">
+                <div className="w-full flex items-center justify-between pb-3 mb-3 border-b border-zinc-200/80 flex-wrap gap-2">
                   <span className="text-[11px] font-black uppercase tracking-wider text-zinc-700 flex items-center gap-1.5">
                     <Eye className="w-3.5 h-3.5 text-emerald-600" />
                     Live Card Preview
                   </span>
-                  <span className="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" /> Live
-                  </span>
+                  
+                  {/* Side Switcher: Front / Back / Both */}
+                  <div className="flex items-center gap-0.5 bg-white p-0.5 rounded-lg border border-zinc-200 shadow-2xs">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewSide('front')}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                        previewSide === 'front' ? 'bg-zinc-950 text-white shadow-2xs' : 'text-zinc-600 hover:text-zinc-900'
+                      }`}
+                    >
+                      Front
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewSide('back')}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                        previewSide === 'back' ? 'bg-zinc-950 text-white shadow-2xs' : 'text-zinc-600 hover:text-zinc-900'
+                      }`}
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewSide('both')}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                        previewSide === 'both' ? 'bg-zinc-950 text-white shadow-2xs' : 'text-zinc-600 hover:text-zinc-900'
+                      }`}
+                    >
+                      Both
+                    </button>
+                  </div>
                 </div>
 
-                <div className="py-2 w-full flex items-center justify-center">
+                <div className="py-2 w-full flex items-center justify-center overflow-x-auto">
                   {renderCardGraphic({
                     firstName: 'Muhammad',
                     lastName: 'Ali',
@@ -2432,7 +2528,7 @@ export default function IdCardPage() {
                     department: 'Computer Science',
                     role: formData.role || 'Student',
                     studentPhoto: studentForm.studentPhoto || ''
-                  }, formData)}
+                  }, formData, null, true)}
                 </div>
 
                 <div className="mt-4 p-3 bg-white border border-zinc-200 rounded-xl w-full text-center">

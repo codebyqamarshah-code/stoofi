@@ -69,7 +69,7 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
 
   return (
     <div 
-      className={`w-[365px] h-[230px] bg-white rounded-xl overflow-hidden border border-slate-300 shadow-md flex flex-col justify-between select-none relative font-sans text-slate-900 ${className}`}
+      className={`w-[365px] max-w-full h-[230px] bg-white rounded-xl overflow-hidden border border-slate-300 shadow-md flex flex-col justify-between select-none relative font-sans text-slate-900 shrink-0 ${className}`}
       style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
     >
       {/* ── TOP HEADER BAR ── */}
@@ -217,7 +217,7 @@ export function PakRoyalCardBack({ rec, schoolSetting = null, className = '', is
 
   return (
     <div 
-      className={`w-[365px] h-[230px] bg-white rounded-xl overflow-hidden border border-slate-300 shadow-md flex flex-col justify-between select-none relative font-sans text-slate-900 ${className}`}
+      className={`w-[365px] max-w-full h-[230px] bg-white rounded-xl overflow-hidden border border-slate-300 shadow-md flex flex-col justify-between select-none relative font-sans text-slate-900 shrink-0 ${className}`}
       style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
     >
       {/* ── TOP HEADER BAR WITH AUTHORIZED SIGNATURE ON RIGHT ── */}
@@ -341,11 +341,16 @@ export function PakRoyalCardBack({ rec, schoolSetting = null, className = '', is
 /**
  * Pak Royal College Student ID Card — BOTH SIDES (Front & Back)
  */
-export function PakRoyalCardBoth({ rec, schoolSetting = null, className = '', isInspectModal = false }) {
+export function PakRoyalCardBoth({ rec, schoolSetting = null, className = '', isInspectModal = false, stacked = false }) {
   if (!rec) return null;
 
+  const isStacked = stacked || isInspectModal;
+  const layoutClass = isStacked 
+    ? 'flex flex-col items-center justify-center gap-4' 
+    : 'flex flex-col xl:flex-row items-center justify-center gap-4';
+
   return (
-    <div className={`flex flex-col md:flex-row items-center justify-center gap-4 ${className}`}>
+    <div className={`${layoutClass} ${className}`}>
       <div className="flex flex-col items-center">
         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 print:hidden">
           Front Side
