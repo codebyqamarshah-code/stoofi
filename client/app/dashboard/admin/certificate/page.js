@@ -72,7 +72,7 @@ const THEME_STYLES = [
   { id: 'modern-slate', label: 'Modern Slate', border: 'border-zinc-800', bg: 'bg-zinc-50/50', accent: 'text-zinc-900', ribbon: 'bg-zinc-800' }
 ];
 
-const STANDARD_CLASSES = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'];
+const STANDARD_CLASSES = ['BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT'];
 const STANDARD_SECTIONS = ['Section A', 'Section B', 'Section C', 'Section D'];
 
 const PLACEHOLDER_TAGS = [
@@ -115,7 +115,7 @@ const DEFAULT_SAMPLE_STUDENT = {
   fatherName: 'Tariq Mehmood',
   admissionNo: 'ADM-2026-101',
   rollNo: '101',
-  className: 'Class 10',
+  className: 'FSC OTT',
   section: 'Section A',
   academicSession: '2026 [Jan-Dec]',
   dob: '2008-05-14',
@@ -193,7 +193,7 @@ export default function CertificatePage() {
     fatherName: 'Tariq Mehmood',
     admissionNo: 'ADM-2026-101',
     rollNo: '101',
-    className: 'Class 10',
+    className: 'FSC OTT',
     section: 'Section A',
     dob: '2008-05-14',
     gender: 'Male',
@@ -500,7 +500,7 @@ export default function CertificatePage() {
       fatherName: 'Tariq Mehmood',
       admissionNo: 'ADM-2026-101',
       rollNo: '101',
-      className: 'Class 10',
+      className: 'FSC OTT',
       section: 'Section A',
       dob: '2008-05-14',
       gender: 'Male',
@@ -557,7 +557,7 @@ export default function CertificatePage() {
         fatherName: st.fatherName || '',
         admissionNo: String(st.admissionNo || ''),
         rollNo: String(st.rollNo || ''),
-        className: st.className || 'Class 10',
+        className: st.className || 'FSC OTT',
         section: st.section || 'Section A',
         dob: st.dob || '2008-05-14',
         gender: st.gender || 'Male',
@@ -634,7 +634,7 @@ export default function CertificatePage() {
     const fName = studentRec.fatherName || 'Tariq Mehmood';
     const admNo = studentRec.admissionNo || 'ADM-2026-101';
     const rollNo = studentRec.rollNo || '101';
-    const clsName = studentRec.className || 'Class 10';
+    const clsName = studentRec.className || 'FSC OTT';
     const secName = studentRec.section || 'A';
     const scName = schoolSetting?.schoolName || 'Stoofi Public School & College';
     const scAddr = schoolSetting?.address || 'Main Campus, Lahore, Pakistan';
@@ -673,7 +673,7 @@ export default function CertificatePage() {
     const fName = studentRec.fatherName || 'Tariq Mehmood';
     const admNo = studentRec.admissionNo || 'ADM-2026-101';
     const rollNo = studentRec.rollNo || '101';
-    const clsName = studentRec.className || 'Class 10';
+    const clsName = studentRec.className || 'FSC OTT';
     const secName = studentRec.section || 'A';
     const certDate = studentRec.certificateDate ? new Date(studentRec.certificateDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     const formattedBody = formatCertificateText(tpl.templateBody, studentRec);
@@ -2047,7 +2047,7 @@ export default function CertificatePage() {
                     <option value="">-- Choose Enrolled Student from Database --</option>
                     {studentsList.map(st => (
                       <option key={st._id} value={st._id}>
-                        {st.firstName} {st.lastName} (Roll: {st.rollNo || '-'}, Adm: {st.admissionNo || '-'}, {st.className || 'Class 10'})
+                        {st.firstName} {st.lastName} (Roll: {st.rollNo || '-'}, Adm: {st.admissionNo || '-'}, {st.className || 'FSC OTT'})
                       </option>
                     ))}
                   </select>

@@ -100,8 +100,8 @@ export async function POST(req) {
     const student = await Student.create({
       firstName: firstName.trim(),
       lastName: (lastName || '').trim(),
-      className: className || 'Class 10',
-      section: section || 'Section A',
+      className: className || 'FSC OTT',
+      section: section || 'A',
       admissionNo: cleanAdmNo,
       rollNo: cleanRollNo,
       fatherName: fatherName || '',

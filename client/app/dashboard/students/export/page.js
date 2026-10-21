@@ -20,21 +20,12 @@ const ACADEMIC_YEARS = [
 ];
 
 const FALLBACK_CLASSES = [
-  { _id: 'c-nursery', name: 'Nursery' },
-  { _id: 'c-kg', name: 'KG' },
-  { _id: 'c-prep', name: 'Prep' },
-  { _id: 'c-1', name: 'Class 1' },
-  { _id: 'c-2', name: 'Class 2' },
-  { _id: 'c-3', name: 'Class 3' },
-  { _id: 'c-4', name: 'Class 4' },
-  { _id: 'c-5', name: 'Class 5' },
-  { _id: 'c-6', name: 'Class 6' },
-  { _id: 'c-7', name: 'Class 7' },
-  { _id: 'c-8', name: 'Class 8' },
-  { _id: 'c-9', name: 'Class 9' },
-  { _id: 'c-10', name: 'Class 10' },
-  { _id: 'c-olevel', name: 'O-Levels' },
-  { _id: 'c-alevel', name: 'A-Levels' },
+  { _id: 'c-bs-psych', name: 'BS Psychology' },
+  { _id: 'c-bs-rit', name: 'BS RIT' },
+  { _id: 'c-dpt', name: 'DPT' },
+  { _id: 'c-fsc-dental', name: 'FSC Dental' },
+  { _id: 'c-fsc-nursing', name: 'FSC NURSING' },
+  { _id: 'c-fsc-ott', name: 'FSC OTT' },
 ];
 
 const FALLBACK_SECTIONS = [
@@ -42,6 +33,7 @@ const FALLBACK_SECTIONS = [
   { _id: 's-b', name: 'B' },
   { _id: 's-c', name: 'C' },
   { _id: 's-d', name: 'D' },
+  { _id: 's-e', name: 'E' },
 ];
 
 export default function StudentExportPage() {
@@ -52,7 +44,7 @@ export default function StudentExportPage() {
       try {
         const res = await api.get('/class');
         if (res && res.success) {
-          setClasses(res.data);
+          setClasses(sortClassesAcademic(res.data));
         }
       } catch (err) {
         console.error('Failed to load classes', err);

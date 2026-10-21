@@ -9,8 +9,12 @@ import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 
 const DEFAULT_CLASSES = [
-  'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5',
-  'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'
+  'BS Psychology',
+  'BS RIT',
+  'DPT',
+  'FSC Dental',
+  'FSC NURSING',
+  'FSC OTT'
 ];
 
 export default function FeesInvoiceBulkPrintPage() {
@@ -69,7 +73,7 @@ export default function FeesInvoiceBulkPrintPage() {
         studentName: `${st.firstName || ''} ${st.lastName || ''}`.trim() || 'Student',
         admissionNo: st.admissionNo || 'N/A',
         rollNo: st.rollNo || '1',
-        className: st.className || selectedClass || 'Class 10',
+        className: st.className || selectedClass || 'FSC OTT',
         section: st.section || selectedSection || 'A',
         items: [
           { name: 'Monthly Tuition Fee', amount: 3500 },

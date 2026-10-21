@@ -30,7 +30,7 @@ export default function JitsiVirtualClassPage() {
   const [message, setMessage] = useState(null);
 
   const [form, setForm] = useState({
-    classVal: 'Class 10',
+    classVal: 'FSC OTT',
     section: 'A',
     subject: 'General',
     teacher: '',
@@ -48,7 +48,7 @@ export default function JitsiVirtualClassPage() {
   const [filterClass, setFilterClass] = useState('All');
   const [filterStatus, setFilterStatus] = useState('All');
 
-  const classes = ['All Classes', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'];
+  const classes = ['All Classes', 'BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT'];
   const sections = ['All Sections', 'A', 'B', 'C', 'D'];
   const [teachers, setTeachers] = useState([]);
   const subjects = ['General', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Urdu', 'Computer Science'];

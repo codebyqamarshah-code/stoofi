@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '@/lib/api';
+import { sortClassesAcademic, STANDARD_ACADEMIC_CLASSES } from '@/lib/academicUtils';
 import Link from 'next/link';
 import { 
   ChevronRight, 
@@ -23,7 +25,19 @@ export default function SendEmailSmsPage() {
   const [statusMsg, setStatusMsg] = useState('');
 
   const groups = ['All', 'Students', 'Parents', 'Teachers', 'Staff', 'Specific Class'];
-  const classes = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'];
+  const [classes, setClasses] = useState(STANDARD_ACADEMIC_CLASSES.map(c => typeof c === 'string' ? c : c.name));
+
+  useEffect(() => {
+    async function fetchClasses() {
+      try {
+        const res = await api.get('/class');
+        if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
+          setClasses(sortClassesAcademic(res.data).map(c => typeof c === 'string' ? c : c.name));
+        }
+      } catch (err) {}
+    }
+    fetchClasses();
+  }, []);
 
   const handleSend = (e) => {
     e.preventDefault();

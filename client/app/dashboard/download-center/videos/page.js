@@ -6,14 +6,14 @@ import { ChevronRight, Search, Trash2, Edit2, Play, CheckCircle2, AlertCircle, L
 import api from '@/services/api';
 
 const FALLBACK = [
-  { _id: 'v1', title: 'Introduction to Algebra', youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', category: 'Mathematics', className: 'Class 9', description: 'Basics of algebraic expressions and equations.', thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg', views: 324, duration: '18:45', createdAt: '2026-08-10' },
-  { _id: 'v2', title: 'Newton\'s Laws of Motion', youtubeUrl: 'https://www.youtube.com/watch?v=kKKM8Y-u7ds', category: 'Physics', className: 'Class 10', description: 'Understanding the three laws of motion.', thumbnail: 'https://img.youtube.com/vi/kKKM8Y-u7ds/hqdefault.jpg', views: 512, duration: '22:10', createdAt: '2026-08-15' },
-  { _id: 'v3', title: 'Photosynthesis Explained', youtubeUrl: 'https://www.youtube.com/watch?v=AN4SI9d7QQ4', category: 'Biology', className: 'Class 8', description: 'How plants make food using sunlight.', thumbnail: 'https://img.youtube.com/vi/AN4SI9d7QQ4/hqdefault.jpg', views: 198, duration: '14:30', createdAt: '2026-09-01' },
-  { _id: 'v4', title: 'World War II Overview', youtubeUrl: 'https://www.youtube.com/watch?v=fo2Rb9h788s', category: 'History', className: 'Class 11', description: 'Comprehensive overview of World War II events.', thumbnail: 'https://img.youtube.com/vi/fo2Rb9h788s/hqdefault.jpg', views: 445, duration: '35:20', createdAt: '2026-09-12' },
+  { _id: 'v1', title: 'Introduction to Algebra', youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', category: 'Mathematics', className: 'BS Psychology', description: 'Basics of algebraic expressions and equations.', thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg', views: 324, duration: '18:45', createdAt: '2026-08-10' },
+  { _id: 'v2', title: 'Newton\'s Laws of Motion', youtubeUrl: 'https://www.youtube.com/watch?v=kKKM8Y-u7ds', category: 'Physics', className: 'FSC OTT', description: 'Understanding the three laws of motion.', thumbnail: 'https://img.youtube.com/vi/kKKM8Y-u7ds/hqdefault.jpg', views: 512, duration: '22:10', createdAt: '2026-08-15' },
+  { _id: 'v3', title: 'Photosynthesis Explained', youtubeUrl: 'https://www.youtube.com/watch?v=AN4SI9d7QQ4', category: 'Biology', className: 'FSC NURSING', description: 'How plants make food using sunlight.', thumbnail: 'https://img.youtube.com/vi/AN4SI9d7QQ4/hqdefault.jpg', views: 198, duration: '14:30', createdAt: '2026-09-01' },
+  { _id: 'v4', title: 'World War II Overview', youtubeUrl: 'https://www.youtube.com/watch?v=fo2Rb9h788s', category: 'History', className: 'BS Psychology', description: 'Comprehensive overview of World War II events.', thumbnail: 'https://img.youtube.com/vi/fo2Rb9h788s/hqdefault.jpg', views: 445, duration: '35:20', createdAt: '2026-09-12' },
 ];
 
 const CATEGORIES = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'History', 'English', 'Computer Science', 'Other'];
-const CLASSES = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12'];
+const CLASSES = ['BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT'];
 
 const getYTThumb = (url) => {
   const match = url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);

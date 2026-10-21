@@ -33,7 +33,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
-import { sortClassesAcademic, STANDARD_ACADEMIC_CLASSES, STANDARD_SECTIONS_LIST } from '@/lib/academicUtils';
+import { sortClassesAcademic, STANDARD_ACADEMIC_CLASSES, STANDARD_SECTIONS_LIST, isSchoolClass } from '@/lib/academicUtils';
 import api from '@/services/api';
 import { downloadIdCardPDF, downloadBatchIdCardsPDF } from '@/lib/idCardPdf';
 import { formatDateDMY, getPublicVerificationUrl, formatStudentRollNo, getPhotoUrl } from '@/lib/utils';
@@ -217,12 +217,13 @@ export default function BulkPrintIdCardPage() {
 
       const extractedClassNames = rawClasses
         .map(c => (typeof c === 'string' ? c : c?.name || c?.className || c?.title))
-        .filter(Boolean);
+        .filter(Boolean)
+        .filter(n => !isSchoolClass(n));
 
-      const allUniqueClasses = Array.from(new Set([...STANDARD_ACADEMIC_CLASSES, ...extractedClassNames]));
-      setClasses(sortClassesAcademic(allUniqueClasses));
+      const classList = extractedClassNames.length > 0 ? extractedClassNames : STANDARD_ACADEMIC_CLASSES;
+      setClasses(sortClassesAcademic(classList));
 
-      // ── Merge DB sections with standard sections ──
+      // ── Set dynamic DB sections ──
       let rawSections = [];
       if (Array.isArray(secRes)) rawSections = secRes;
       else if (Array.isArray(secRes?.data)) rawSections = secRes.data;
@@ -233,8 +234,8 @@ export default function BulkPrintIdCardPage() {
         .filter(Boolean)
         .map(s => String(s).replace(/^Section\s*/i, '').trim());
 
-      const allUniqueSections = Array.from(new Set([...STANDARD_SECTIONS_LIST, ...extractedSectionNames]));
-      setSections(allUniqueSections);
+      const sectionList = extractedSectionNames.length > 0 ? extractedSectionNames : STANDARD_SECTIONS_LIST;
+      setSections(Array.from(new Set(sectionList)));
 
       if (setRes?.success && setRes.data) {
         setSchoolSetting(setRes.data);
@@ -390,7 +391,7 @@ export default function BulkPrintIdCardPage() {
     const phone = rec.phone || rec.mobile || rec.guardianPhone || schoolPhone;
     const admNo = rec.admissionNo || rec.staffNo || 'ADM-2026-001';
     const rollNo = rec.rollNo || '101';
-    const className = rec.className || 'Class 10';
+    const className = rec.className || 'FSC OTT';
     const section = rec.section || 'A';
     const fatherName = rec.fatherName || 'Guardian / Father';
     const dob = formatDateDMY(rec.dob) || '14/05/2008';

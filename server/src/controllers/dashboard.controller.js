@@ -188,7 +188,7 @@ exports.quickStudentAdmission = async (req, res, next) => {
 
     const student = await Student.create({
       academicYear: academicYear || '2026[Jan-Dec]',
-      className: className || 'Class 1',
+      className: className || 'FSC OTT',
       section: section || 'A',
       admissionNo,
       admissionDate: new Date().toISOString().split('T')[0],

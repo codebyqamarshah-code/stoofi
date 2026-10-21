@@ -144,7 +144,7 @@ export const behaviourService = {
       studentId: data.studentId || `stu-${Date.now()}`,
       studentName: data.studentName,
       admissionNo: data.admissionNo || 'N/A',
-      className: data.className || 'Class 1',
+      className: data.className || 'FSC OTT',
       section: data.section || 'A',
       incidentTitle: data.incidentTitle,
       point: calculatedPoint,

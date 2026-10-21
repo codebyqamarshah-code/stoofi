@@ -131,7 +131,7 @@ export default function StudentClassRoutinePage() {
 
   // Initialize Class & Section based on user or defaults
   useEffect(() => {
-    const userClass = user?.className || (user?.referenceId?.className) || 'Class 10';
+    const userClass = user?.className || (user?.referenceId?.className) || 'FSC OTT';
     const userSection = user?.section || (user?.referenceId?.section) || 'Section A';
     setSelectedClass(userClass);
     setSelectedSection(userSection);
@@ -146,7 +146,7 @@ export default function StudentClassRoutinePage() {
         if (cRes.status === 'fulfilled' && cRes.value?.data && Array.isArray(cRes.value.data)) {
           setClassList(cRes.value.data.map(c => c.name || c.className));
         } else {
-          setClassList(['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels', 'BS Computer Science', 'FSc Pre-Engineering', 'FSc Pre-Medical']);
+          setClassList(['BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT']);
         }
 
         if (sRes.status === 'fulfilled' && sRes.value?.data && Array.isArray(sRes.value.data)) {
@@ -155,7 +155,7 @@ export default function StudentClassRoutinePage() {
           setSectionList(['Section A', 'Section B', 'Section C', 'Section D']);
         }
       } catch (_) {
-        setClassList(['Class 9', 'Class 10', 'O-Levels', 'A-Levels', 'FSc Pre-Engineering', 'FSc Pre-Medical']);
+        setClassList(['BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT']);
         setSectionList(['Section A', 'Section B', 'Section C']);
       }
     };

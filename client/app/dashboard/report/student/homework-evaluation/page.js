@@ -47,7 +47,7 @@ export default function HomeworkEvaluationReportPage() {
               className="flex h-9 w-full rounded-md border border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white px-3 text-sm text-zinc-900 dark:text-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-600"
             >
               <option value="">All Classes</option>
-              {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
+              {['BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT'].map(c => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>

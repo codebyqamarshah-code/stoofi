@@ -273,7 +273,7 @@ export default function ClassManagerPage() {
                 <Input 
                   value={className} 
                   onChange={(e) => setClassName(e.target.value)} 
-                  placeholder="e.g. Nursery, Class 1, O-Levels" 
+                  placeholder="e.g. BS Psychology, FSC OTT, DPT" 
                   className="bg-white border-zinc-300 text-zinc-950 focus-visible:ring-zinc-400 font-medium" 
                   autoFocus
                   required

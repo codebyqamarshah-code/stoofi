@@ -18,28 +18,20 @@ import dynamic from 'next/dynamic';
 const StudentImportModal = dynamic(() => import('@/components/StudentImportModal'), { ssr: false });
 
 const FALLBACK_CLASSES = [
-  { _id: 'c-nursery', name: 'Nursery' },
-  { _id: 'c-kg', name: 'KG' },
-  { _id: 'c-prep', name: 'Prep' },
-  { _id: 'c-1', name: 'Class 1' },
-  { _id: 'c-2', name: 'Class 2' },
-  { _id: 'c-3', name: 'Class 3' },
-  { _id: 'c-4', name: 'Class 4' },
-  { _id: 'c-5', name: 'Class 5' },
-  { _id: 'c-6', name: 'Class 6' },
-  { _id: 'c-7', name: 'Class 7' },
-  { _id: 'c-8', name: 'Class 8' },
-  { _id: 'c-9', name: 'Class 9' },
-  { _id: 'c-10', name: 'Class 10' },
-  { _id: 'c-olevel', name: 'O-Levels' },
-  { _id: 'c-alevel', name: 'A-Levels' },
+  { _id: 'c-bs-psych', name: 'BS Psychology' },
+  { _id: 'c-bs-rit', name: 'BS RIT' },
+  { _id: 'c-dpt', name: 'DPT' },
+  { _id: 'c-fsc-dental', name: 'FSC Dental' },
+  { _id: 'c-fsc-nursing', name: 'FSC NURSING' },
+  { _id: 'c-fsc-ott', name: 'FSC OTT' },
 ];
 
 const FALLBACK_SECTIONS = [
-  { _id: 's-a', name: 'Section A' },
-  { _id: 's-b', name: 'Section B' },
-  { _id: 's-c', name: 'Section C' },
-  { _id: 's-d', name: 'Section D' },
+  { _id: 's-a', name: 'A' },
+  { _id: 's-b', name: 'B' },
+  { _id: 's-c', name: 'C' },
+  { _id: 's-d', name: 'D' },
+  { _id: 's-e', name: 'E' },
 ];
 
 const ACADEMIC_YEARS = [
@@ -184,7 +176,7 @@ export default function StudentListPage() {
       }
 
       if (classRes?.success && Array.isArray(classRes.data) && classRes.data.length > 0) {
-        setClasses(classRes.data);
+        setClasses(sortClassesAcademic(classRes.data));
       } else {
         setClasses(FALLBACK_CLASSES);
       }

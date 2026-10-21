@@ -16,11 +16,12 @@ import { formatDateDMY } from '@/lib/utils';
 import api from '@/services/api';
 
 const DEFAULT_CLASSES = [
-  { _id: 'c1', name: 'Class 1' }, { _id: 'c2', name: 'Class 2' },
-  { _id: 'c3', name: 'Class 3' }, { _id: 'c4', name: 'Class 4' },
-  { _id: 'c5', name: 'Class 5' }, { _id: 'c6', name: 'Class 6' },
-  { _id: 'c7', name: 'Class 7' }, { _id: 'c8', name: 'Class 8' },
-  { _id: 'c9', name: 'Class 9' }, { _id: 'c10', name: 'Class 10' },
+  { _id: 'c-bs-psych', name: 'BS Psychology' },
+  { _id: 'c-bs-rit', name: 'BS RIT' },
+  { _id: 'c-dpt', name: 'DPT' },
+  { _id: 'c-fsc-dental', name: 'FSC Dental' },
+  { _id: 'c-fsc-nursing', name: 'FSC NURSING' },
+  { _id: 'c-fsc-ott', name: 'FSC OTT' },
 ];
 const DEFAULT_SUBJECTS = [
   { _id: 's1', name: 'Mathematics' }, { _id: 's2', name: 'English Language' },

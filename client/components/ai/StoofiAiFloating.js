@@ -193,7 +193,7 @@ export default function StoofiAiFloating() {
       return ['Mera attendance kitna hai?', 'Homework dikhao', 'Fees status', 'Mera profile'];
     }
     if (role === 'Teacher') {
-      return ['Class attendance', 'Homework list', 'Create homework', 'Class 10 students'];
+      return ['Class attendance', 'Homework list', 'Create homework', 'FSC OTT students'];
     }
     if (role === 'Super Admin' || role === 'Admin') {
       return ['School statistics', 'Student management', 'Fee collection', 'Total students'];

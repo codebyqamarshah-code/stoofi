@@ -43,7 +43,7 @@ export default function GMeetClassReportsPage() {
   });
   const [loading, setLoading] = useState(true);
 
-  const classes = ['All Classes', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'];
+  const classes = ['All Classes', 'BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT'];
 
   const fetchReports = async () => {
     setLoading(true);

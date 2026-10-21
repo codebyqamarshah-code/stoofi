@@ -9,22 +9,22 @@ import api from '@/services/api';
 
 const DEMO_DATA = [
   {
-    _id: 'ev1', teacherName: 'Mudassir Bajwa', subject: 'Physics', classSection: 'Class 10-A',
+    _id: 'ev1', teacherName: 'Mudassir Bajwa', subject: 'Physics', classSection: 'FSC OTT-A',
     evaluatedBy: 'Academic Coordinator', score: 82, date: '2026-10-10', status: 'Pending',
     comment: 'Excellent command of subject.'
   },
   {
-    _id: 'ev2', teacherName: 'Fatima Zahra', subject: 'Mathematics', classSection: 'Class 9-B',
+    _id: 'ev2', teacherName: 'Fatima Zahra', subject: 'Mathematics', classSection: 'BS Psychology-A',
     evaluatedBy: 'Principal Office', score: 74, date: '2026-10-08', status: 'Pending',
     comment: 'Good classroom management.'
   },
   {
-    _id: 'ev3', teacherName: 'Dr. Bilal Siddiqui', subject: 'Chemistry', classSection: 'Class 11-A',
+    _id: 'ev3', teacherName: 'Dr. Bilal Siddiqui', subject: 'Chemistry', classSection: 'DPT-A',
     evaluatedBy: 'HOD Science', score: 91, date: '2026-10-05', status: 'Pending',
     comment: 'Outstanding student engagement.'
   },
   {
-    _id: 'ev4', teacherName: 'Ahmed Khan', subject: 'English Language', classSection: 'Class 8-C',
+    _id: 'ev4', teacherName: 'Ahmed Khan', subject: 'English Language', classSection: 'FSC NURSING-B',
     evaluatedBy: 'Vice Principal', score: 58, date: '2026-10-01', status: 'Pending',
     comment: 'Needs improvement in punctuality.'
   },
@@ -183,7 +183,7 @@ export default function PendingReportPage() {
           <select value={classFilter} onChange={e => setClassFilter(e.target.value)}
             className="border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#084A86]/40">
             <option value="">All Classes</option>
-            {['Class 8', 'Class 9', 'Class 10', 'Class 11', 'O-Levels'].map(c => <option key={c}>{c}</option>)}
+            {['BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT'].map(c => <option key={c}>{c}</option>)}
           </select>
           <select value={subjectFilter} onChange={e => setSubjectFilter(e.target.value)}
             className="border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#084A86]/40">

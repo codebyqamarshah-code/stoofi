@@ -17,8 +17,8 @@ export async function POST(req) {
 
     const student = await Student.create({
       academicYear: academicYear || '2026',
-      className: className || 'Class 10',
-      section: section || 'Section A',
+      className: className || 'FSC OTT',
+      section: section || 'A',
       admissionNo,
       rollNo: String(100 + count + 1),
       firstName,

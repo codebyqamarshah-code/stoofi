@@ -36,7 +36,9 @@ export default function ClassReportsPage() {
             <label className="text-xs font-bold text-indigo-900 dark:text-indigo-100 uppercase block mb-1">CLASS <span className="text-red-500">*</span></label>
             <select value={classVal} onChange={(e) => setClassVal(e.target.value)} className="w-full bg-transparent border border-zinc-200 dark:border-zinc-200 text-zinc-700 dark:text-zinc-700 text-sm rounded-md px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500">
               <option value="">Select Class</option>
-              <option value="1">Class 1</option>
+              {['BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT'].map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
             </select>
           </div>
 
@@ -44,7 +46,9 @@ export default function ClassReportsPage() {
             <label className="text-xs font-bold text-indigo-900 dark:text-indigo-100 uppercase block mb-1">SECTION</label>
             <select value={section} onChange={(e) => setSection(e.target.value)} className="w-full bg-transparent border border-zinc-200 dark:border-zinc-200 text-zinc-700 dark:text-zinc-700 text-sm rounded-md px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500">
               <option value="">Select Section</option>
-              <option value="A">A</option>
+              {['A', 'B', 'C', 'D', 'E'].map(s => (
+                <option key={s} value={s}>Section {s}</option>
+              ))}
             </select>
           </div>
 

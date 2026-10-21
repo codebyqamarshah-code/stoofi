@@ -7,7 +7,7 @@ import api from '@/services/api';
 
 const FALLBACK = [
   { _id: 'f1', title: 'Mathematics Chapter 5 Notes', type: 'PDF Document', sharedWith: 'Everyone', targetType: 'All', expiryDate: '2027-01-31', downloads: 142, active: true, createdAt: '2026-09-01' },
-  { _id: 'f2', title: 'Physics Lab Manual', type: 'PDF Document', sharedWith: 'Class 10-A', targetType: 'Class', expiryDate: '2026-12-31', downloads: 87, active: true, createdAt: '2026-09-10' },
+  { _id: 'f2', title: 'Physics Lab Manual', type: 'PDF Document', sharedWith: 'FSC OTT-A', targetType: 'Class', expiryDate: '2026-12-31', downloads: 87, active: true, createdAt: '2026-09-10' },
   { _id: 'f3', title: 'Video Lecture: Organic Chemistry', type: 'Video Lecture', sharedWith: 'Section B', targetType: 'Section', expiryDate: '2026-11-30', downloads: 203, active: false, createdAt: '2026-08-25' },
   { _id: 'f4', title: 'English Grammar Workbook', type: 'ZIP Archive', sharedWith: 'Everyone', targetType: 'All', expiryDate: '2027-03-15', downloads: 56, active: true, createdAt: '2026-10-01' },
 ];
@@ -200,7 +200,7 @@ export default function SharedContentPage() {
                   <label className="text-xs font-bold text-zinc-600 uppercase tracking-wide">{formData.target} Name <span className="text-rose-500">*</span></label>
                   <input
                     type="text"
-                    placeholder={`e.g. ${formData.target === 'Class' ? 'Class 10-A' : 'Section B'}`}
+                    placeholder={`e.g. ${formData.target === 'Class' ? 'FSC OTT-A' : 'Section B'}`}
                     value={formData.sharedWith}
                     onChange={e => setFormData({ ...formData, sharedWith: e.target.value })}
                     className={`w-full h-10 rounded-lg border px-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#084A86] ${errors.sharedWith ? 'border-rose-400' : 'border-zinc-300'}`}

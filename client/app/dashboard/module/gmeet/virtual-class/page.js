@@ -39,7 +39,7 @@ export default function GMeetVirtualClassPage() {
   const [form, setForm] = useState({
     topic: '',
     subject: 'Mathematics',
-    classVal: 'Class 10',
+    classVal: 'FSC OTT',
     section: 'A',
     teacher: 'Muhammad Ali',
     hostEmail: '',
@@ -58,7 +58,7 @@ export default function GMeetVirtualClassPage() {
   const [filterStatus, setFilterStatus] = useState('All');
   const [previewModalItem, setPreviewModalItem] = useState(null);
 
-  const classes = ['All Classes', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'];
+  const classes = ['All Classes', 'BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT'];
   const sections = ['A', 'B', 'C', 'D'];
   const teachers = ['Mudassir Bajwa', 'Fatima Zahra', 'Muhammad Ali', 'Ahmed Khan', 'Ayesha Noor', 'Dr. Bilal Siddiqui', 'Zubair Ahmed'];
   const subjects = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Urdu', 'Computer Science', 'Islamiat', 'Pakistan Studies'];
@@ -109,7 +109,7 @@ export default function GMeetVirtualClassPage() {
       topic: `Instant Live Class (${now.toLocaleDateString()})`,
       subject: 'Live Session',
       type: 'class',
-      classVal: 'Class 10',
+      classVal: 'FSC OTT',
       section: 'A',
       teacher: form.teacher || 'Muhammad Ali',
       date: dateStr,
@@ -178,7 +178,7 @@ export default function GMeetVirtualClassPage() {
       setForm({
         topic: '',
         subject: 'Mathematics',
-        classVal: 'Class 10',
+        classVal: 'FSC OTT',
         section: 'A',
         teacher: 'Muhammad Ali',
         hostEmail: '',
@@ -254,7 +254,7 @@ export default function GMeetVirtualClassPage() {
     setForm({
       topic: '',
       subject: 'Mathematics',
-      classVal: 'Class 10',
+      classVal: 'FSC OTT',
       section: 'A',
       teacher: 'Muhammad Ali',
       hostEmail: '',

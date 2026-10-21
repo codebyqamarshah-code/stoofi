@@ -35,14 +35,13 @@ export default function VirtualClassModulePage() {
 
   // Dynamic teachers and classes
   const [classes, setClasses] = useState([
-    'All Classes', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 
-    'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'
+    'All Classes', 'BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT'
   ]);
   const [sections, setSections] = useState(['A', 'B', 'C', 'D']);
   const [teachers, setTeachers] = useState([]);
 
   const [form, setForm] = useState({
-    classVal: 'Class 10',
+    classVal: 'FSC OTT',
     section: 'A',
     teacher: '',
     customTeacher: '',

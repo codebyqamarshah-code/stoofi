@@ -1,22 +1,36 @@
 'use client';
 
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '@/lib/api';
+import { sortClassesAcademic, STANDARD_ACADEMIC_CLASSES } from '@/lib/academicUtils';
 import { Search, ChevronRight, CheckCircle2, AlertCircle, Trash2, Edit2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function OptionalSubjectPage() {
-  const [selectedClass, setSelectedClass] = useState('Class 1');
+  const [selectedClass, setSelectedClass] = useState('FSC OTT');
   const [gpaAbove, setGpaAbove] = useState('3.0');
   const [list, setList] = useState([
-    { id: '1', className: 'Class 9', gpaAbove: '3.5' },
-    { id: '2', className: 'Class 10', gpaAbove: '3.0' }
+    { id: '1', className: 'BS Psychology', gpaAbove: '3.5' },
+    { id: '2', className: 'FSC OTT', gpaAbove: '3.0' }
   ]);
   const [search, setSearch] = useState('');
   const [toast, setToast] = useState(null);
   const [editId, setEditId] = useState(null);
 
-  const classes = ['Play', 'Nursery', 'KG', 'Class 1', 'Class 2', 'Class 3', 'Class 9', 'Class 10'];
+  const [classes, setClasses] = useState(STANDARD_ACADEMIC_CLASSES);
+
+  useEffect(() => {
+    async function fetchClasses() {
+      try {
+        const res = await api.get('/class');
+        if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
+          setClasses(sortClassesAcademic(res.data).map(c => typeof c === 'string' ? c : c.name));
+        }
+      } catch (err) {}
+    }
+    fetchClasses();
+  }, []);
 
   const showToast = (msg, isErr = false) => {
     setToast({ text: msg, isError: isErr });

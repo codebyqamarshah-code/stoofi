@@ -1,15 +1,37 @@
 'use client';
 
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import api from '@/lib/api';
+import { sortClassesAcademic, STANDARD_ACADEMIC_CLASSES } from '@/lib/academicUtils';
 import { Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns } from 'lucide-react';
 import Link from 'next/link';
 
 export default function RegistrationStudentListPage() {
   const [academicYear, setAcademicYear] = useState('Select Academic Year');
   const [classVal, setClassVal] = useState('Select Class');
-  const [section, setSection] = useState('Select Section');
+  const [section, setSection] = useState('');
   const [search, setSearch] = useState('');
+  const [classesList, setClassesList] = useState(STANDARD_ACADEMIC_CLASSES);
+  const [sectionsList, setSectionsList] = useState(['A', 'B', 'C', 'D', 'E']);
+
+  useEffect(() => {
+    async function loadAcademicData() {
+      try {
+        const [cRes, sRes] = await Promise.allSettled([
+          api.get('/class'),
+          api.get('/section')
+        ]);
+        if (cRes.status === 'fulfilled' && cRes.value?.success && Array.isArray(cRes.value.data) && cRes.value.data.length > 0) {
+          setClassesList(sortClassesAcademic(cRes.value.data));
+        }
+        if (sRes.status === 'fulfilled' && sRes.value?.success && Array.isArray(sRes.value.data) && sRes.value.data.length > 0) {
+          setSectionsList(sRes.value.data.map(s => s.name || s));
+        }
+      } catch (e) {}
+    }
+    loadAcademicData();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#f4f6f9] p-6 space-y-6">
@@ -35,15 +57,17 @@ export default function RegistrationStudentListPage() {
           </select>
           <select value={classVal} onChange={e => setClassVal(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-zinc-600">
             <option value="">Select Class</option>
-            {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels'].map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
+            {classesList.map(c => {
+              const name = typeof c === 'string' ? c : c.name;
+              return <option key={name} value={name}>{name}</option>;
+            })}
           </select>
           <select value={section} onChange={e => setSection(e.target.value)} className="w-full bg-white border border-gray-300 text-zinc-900 text-sm rounded px-3 py-2.5 focus:outline-none focus:border-zinc-600">
             <option value="">Select Section</option>
-            {['A', 'B', 'C', 'D'].map(s => (
-              <option key={s} value={s}>Section {s}</option>
-            ))}
+            {sectionsList.map(s => {
+              const name = typeof s === 'string' ? s : s.name;
+              return <option key={name} value={name}>Section {name}</option>;
+            })}
           </select>
         </div>
 

@@ -18,7 +18,7 @@ const SAMPLE_TEMPLATE_DATA = [
     'Mother Name': 'Fatima Bibi',
     'Mother Occupation': 'Teacher',
     'Date of Birth': '15/04/2016',
-    'Class': 'Class 1',
+    'Class': 'FSC OTT',
     'Section': 'A',
     'Gender': 'Male',
     'Type': 'Regular',
@@ -43,7 +43,7 @@ const SAMPLE_TEMPLATE_DATA = [
     'Mother Name': 'Zainab Begum',
     'Mother Occupation': 'House wife',
     'Date of Birth': '22/07/2016',
-    'Class': 'Class 1',
+    'Class': 'FSC OTT',
     'Section': 'B',
     'Gender': 'Female',
     'Type': 'Regular',
@@ -234,7 +234,7 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
           const admissionNo = fileAdmNo ? String(fileAdmNo).trim() : `${defaultAdmPrefix}${String(idx + 1).padStart(4, '0')}`;
           const fileRollNo = getVal(row, ['rollNo', 'roll no', 'roll number', 'roll', 'rollno']);
           const rollNo = fileRollNo ? String(fileRollNo).trim() : `${defaultRollPrefix}${String(idx + 1).padStart(4, '0')}`;
-          const className = getVal(row, ['className', 'class', 'grade', 'standard']) || defaultClass || 'Class 1';
+          const className = getVal(row, ['className', 'class', 'grade', 'standard']) || defaultClass || 'FSC OTT';
           const section = getVal(row, ['section', 'sec']) || defaultSection || 'A';
           const gender = getVal(row, ['gender', 'sex']) || 'Male';
           const rawDob = getVal(row, ['dob', 'date of birth', 'birth date', 'birthday', 'age', 'birthdate']) || '2015-01-01';

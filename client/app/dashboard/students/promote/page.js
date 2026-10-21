@@ -37,14 +37,14 @@ const SESSIONS = [
 ];
 
 const DEMO_STUDENTS = [
-  { _id: 'st-01', admissionNo: 'PRC-2026-081', rollNo: '101', name: 'Muhammad Abdullah', fatherName: 'Tariq Mehmood', currentClass: 'Class 9', section: 'A', examScore: '89.4%', examResult: 'Pass', newRollNo: '201', action: 'promote' },
-  { _id: 'st-02', admissionNo: 'PRC-2026-082', rollNo: '102', name: 'Ayesha Fatima', fatherName: 'Dr. Sajid Khan', currentClass: 'Class 9', section: 'A', examScore: '94.2%', examResult: 'Pass', newRollNo: '202', action: 'promote' },
-  { _id: 'st-03', admissionNo: 'PRC-2026-083', rollNo: '103', name: 'Zainab Bibi', fatherName: 'Abdul Rehman', currentClass: 'Class 9', section: 'A', examScore: '76.8%', examResult: 'Pass', newRollNo: '203', action: 'promote' },
-  { _id: 'st-04', admissionNo: 'PRC-2026-084', rollNo: '104', name: 'Hamza Farooq', fatherName: 'Farooq Ahmed', currentClass: 'Class 9', section: 'A', examScore: '68.5%', examResult: 'Pass', newRollNo: '204', action: 'promote' },
-  { _id: 'st-05', admissionNo: 'PRC-2026-085', rollNo: '105', name: 'Fatima Noor', fatherName: 'Usman Ghani', currentClass: 'Class 9', section: 'A', examScore: '82.0%', examResult: 'Pass', newRollNo: '205', action: 'promote' },
-  { _id: 'st-06', admissionNo: 'PRC-2026-086', rollNo: '106', name: 'Bilal Hussain', fatherName: 'Hussain Ali', currentClass: 'Class 9', section: 'A', examScore: '48.2%', examResult: 'Fail', newRollNo: '106', action: 'repeat' },
-  { _id: 'st-07', admissionNo: 'PRC-2026-087', rollNo: '107', name: 'Saad Ur Rehman', fatherName: 'Khalid Mehmood', currentClass: 'Class 9', section: 'A', examScore: '91.0%', examResult: 'Pass', newRollNo: '207', action: 'promote' },
-  { _id: 'st-08', admissionNo: 'PRC-2026-088', rollNo: '108', name: 'Mariam Zahra', fatherName: 'Syed Ali Raza', currentClass: 'Class 9', section: 'A', examScore: '74.5%', examResult: 'Pass', newRollNo: '208', action: 'promote' },
+  { _id: 'st-01', admissionNo: 'PRC-2026-081', rollNo: '101', name: 'Muhammad Abdullah', fatherName: 'Tariq Mehmood', currentClass: 'BS Psychology', section: 'A', examScore: '89.4%', examResult: 'Pass', newRollNo: '201', action: 'promote' },
+  { _id: 'st-02', admissionNo: 'PRC-2026-082', rollNo: '102', name: 'Ayesha Fatima', fatherName: 'Dr. Sajid Khan', currentClass: 'BS Psychology', section: 'A', examScore: '94.2%', examResult: 'Pass', newRollNo: '202', action: 'promote' },
+  { _id: 'st-03', admissionNo: 'PRC-2026-083', rollNo: '103', name: 'Zainab Bibi', fatherName: 'Abdul Rehman', currentClass: 'BS Psychology', section: 'A', examScore: '76.8%', examResult: 'Pass', newRollNo: '203', action: 'promote' },
+  { _id: 'st-04', admissionNo: 'PRC-2026-084', rollNo: '104', name: 'Hamza Farooq', fatherName: 'Farooq Ahmed', currentClass: 'BS Psychology', section: 'A', examScore: '68.5%', examResult: 'Pass', newRollNo: '204', action: 'promote' },
+  { _id: 'st-05', admissionNo: 'PRC-2026-085', rollNo: '105', name: 'Fatima Noor', fatherName: 'Usman Ghani', currentClass: 'BS Psychology', section: 'A', examScore: '82.0%', examResult: 'Pass', newRollNo: '205', action: 'promote' },
+  { _id: 'st-06', admissionNo: 'PRC-2026-086', rollNo: '106', name: 'Bilal Hussain', fatherName: 'Hussain Ali', currentClass: 'BS Psychology', section: 'A', examScore: '48.2%', examResult: 'Fail', newRollNo: '106', action: 'repeat' },
+  { _id: 'st-07', admissionNo: 'PRC-2026-087', rollNo: '107', name: 'Saad Ur Rehman', fatherName: 'Khalid Mehmood', currentClass: 'BS Psychology', section: 'A', examScore: '91.0%', examResult: 'Pass', newRollNo: '207', action: 'promote' },
+  { _id: 'st-08', admissionNo: 'PRC-2026-088', rollNo: '108', name: 'Mariam Zahra', fatherName: 'Syed Ali Raza', currentClass: 'BS Psychology', section: 'A', examScore: '74.5%', examResult: 'Pass', newRollNo: '208', action: 'promote' },
 ];
 
 export default function StudentPromotePage() {
@@ -52,9 +52,9 @@ export default function StudentPromotePage() {
   const [formData, setFormData] = useState({
     academicYear: '2026 [Jan-Dec]',
     promoteSession: '2027 [Jan-Dec]',
-    currentClass: 'Class 9',
+    currentClass: 'BS Psychology',
     section: 'A',
-    promoteClass: 'Class 10',
+    promoteClass: 'FSC OTT',
     promoteSection: 'A'
   });
 
@@ -67,9 +67,9 @@ export default function StudentPromotePage() {
   const [activeTab, setActiveTab] = useState('promote'); // 'promote' | 'history'
   const [searchFilter, setSearchFilter] = useState('');
   const [promotionHistory, setPromotionHistory] = useState([
-    { id: 'hist-1', fromClass: 'Class 8', toClass: 'Class 9', session: '2026 [Jan-Dec]', count: 42, date: '12 Jan 2026', by: 'Principal Office' },
-    { id: 'hist-2', fromClass: 'Class 9', toClass: 'Class 10', session: '2026 [Jan-Dec]', count: 38, date: '10 Jan 2026', by: 'Admin' },
-    { id: 'hist-3', fromClass: 'Class 7', toClass: 'Class 8', session: '2026 [Jan-Dec]', count: 35, date: '08 Jan 2026', by: 'Academic Head' }
+    { id: 'hist-1', fromClass: 'DPT', toClass: 'BS Psychology', session: '2026 [Jan-Dec]', count: 42, date: '12 Jan 2026', by: 'Principal Office' },
+    { id: 'hist-2', fromClass: 'BS Psychology', toClass: 'FSC OTT', session: '2026 [Jan-Dec]', count: 38, date: '10 Jan 2026', by: 'Admin' },
+    { id: 'hist-3', fromClass: 'FSC Dental', toClass: 'DPT', session: '2026 [Jan-Dec]', count: 35, date: '08 Jan 2026', by: 'Academic Head' }
   ]);
 
   const showToast = (m) => { setToast(m); setTimeout(() => setToast(''), 3500); };

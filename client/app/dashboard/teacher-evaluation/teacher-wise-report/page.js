@@ -9,11 +9,11 @@ import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import api from '@/services/api';
 
 const DEFAULT_EVALUATIONS = [
-  { _id: 'e1', staffId: 'TCH-101', teacherName: 'Mudassir Bajwa', submittedBy: 'Academic Coordinator', classSection: 'Class 10 (A)', rating: '4.8 / 5.0', scorePercent: 96, comment: 'Exceptional pedagogy, engages students effectively and keeps disciplined classroom environment.', status: 'Approved', date: '2026-03-12' },
-  { _id: 'e2', staffId: 'TCH-102', teacherName: 'Fatima Zahra', submittedBy: 'Principal Office', classSection: 'Class 9 (B)', rating: '4.5 / 5.0', scorePercent: 90, comment: 'Strong subject mastery in Chemistry; thorough lesson planning and timely homework checking.', status: 'Approved', date: '2026-03-18' },
-  { _id: 'e3', staffId: 'TCH-103', teacherName: 'Muhammad Ali', submittedBy: 'Vice Principal', classSection: 'Class 8 (A)', rating: '4.2 / 5.0', scorePercent: 84, comment: 'Punctual and consistent. Good communication with parents during parent-teacher meetings.', status: 'Approved', date: '2026-03-25' },
+  { _id: 'e1', staffId: 'TCH-101', teacherName: 'Mudassir Bajwa', submittedBy: 'Academic Coordinator', classSection: 'FSC OTT (A)', rating: '4.8 / 5.0', scorePercent: 96, comment: 'Exceptional pedagogy, engages students effectively and keeps disciplined classroom environment.', status: 'Approved', date: '2026-03-12' },
+  { _id: 'e2', staffId: 'TCH-102', teacherName: 'Fatima Zahra', submittedBy: 'Principal Office', classSection: 'BS Psychology (B)', rating: '4.5 / 5.0', scorePercent: 90, comment: 'Strong subject mastery in Chemistry; thorough lesson planning and timely homework checking.', status: 'Approved', date: '2026-03-18' },
+  { _id: 'e3', staffId: 'TCH-103', teacherName: 'Muhammad Ali', submittedBy: 'Vice Principal', classSection: 'DPT (A)', rating: '4.2 / 5.0', scorePercent: 84, comment: 'Punctual and consistent. Good communication with parents during parent-teacher meetings.', status: 'Approved', date: '2026-03-25' },
   { _id: 'e4', staffId: 'TCH-104', teacherName: 'Ahmed Khan', submittedBy: 'HOD Science', classSection: 'Class 10 (B)', rating: '3.9 / 5.0', scorePercent: 78, comment: 'Good syllabus coverage. Recommended to introduce more audio-visual lab experiments.', status: 'Approved', date: '2026-04-02' },
-  { _id: 'e5', staffId: 'TCH-105', teacherName: 'Dr. Bilal Siddiqui', submittedBy: 'Academic Coordinator', classSection: 'Class 10 (A)', rating: '4.9 / 5.0', scorePercent: 98, comment: 'Role-model educator. Consistently high student board exam scores and innovative teaching methods.', status: 'Approved', date: '2026-04-10' },
+  { _id: 'e5', staffId: 'TCH-105', teacherName: 'Dr. Bilal Siddiqui', submittedBy: 'Academic Coordinator', classSection: 'FSC OTT (A)', rating: '4.9 / 5.0', scorePercent: 98, comment: 'Role-model educator. Consistently high student board exam scores and innovative teaching methods.', status: 'Approved', date: '2026-04-10' },
 ];
 
 export default function TeacherWiseReportPage() {

@@ -49,6 +49,7 @@ import { getPublicVerificationUrl, formatStudentRollNo, getPhotoUrl } from '@/li
 import StudentAvatar from '@/components/student/StudentAvatar';
 import QRCode from 'qrcode';
 import { PakRoyalCardFront, PakRoyalCardBack, PakRoyalCardBoth } from '@/components/id-card/PakRoyalSmartCard';
+import { sortClassesAcademic, STANDARD_ACADEMIC_CLASSES, STANDARD_SECTIONS_LIST, isSchoolClass } from '@/lib/academicUtils';
 
 // Dynamic Real Scannable Verification QR Code Component for Every ID Card
 function StudentCardQR({ rec, size = 52 }) {
@@ -108,8 +109,8 @@ const THEME_STYLES = [
   { id: 'crimson-gold', label: '5. Heritage Crimson & Gold Crest', headerBg: 'from-rose-950 via-rose-900 to-amber-950', border: 'border-amber-600', accent: 'bg-amber-50 text-amber-900 border-amber-300' }
 ];
 
-const STANDARD_CLASSES = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'];
-const STANDARD_SECTIONS = ['Section A', 'Section B', 'Section C', 'Section D'];
+const DEFAULT_COLLEGE_CLASSES = STANDARD_ACADEMIC_CLASSES;
+const DEFAULT_COLLEGE_SECTIONS = STANDARD_SECTIONS_LIST;
 
 const FALLBACK_TEMPLATES = [
   {
@@ -197,6 +198,43 @@ export default function IdCardPage() {
   const [studentClassFilter, setStudentClassFilter] = useState('All');
   const [studentSectionFilter, setStudentSectionFilter] = useState('All');
 
+  // Dynamic Live Academic Classes & Sections from Database
+  const [classesList, setClassesList] = useState(DEFAULT_COLLEGE_CLASSES);
+  const [sectionsList, setSectionsList] = useState(DEFAULT_COLLEGE_SECTIONS);
+
+  // Fetch dynamic classes & sections live from database
+  useEffect(() => {
+    const fetchAcademicData = async () => {
+      try {
+        const [cRes, sRes] = await Promise.all([
+          api.get('/class').catch(() => null),
+          api.get('/section').catch(() => null)
+        ]);
+
+        if (cRes?.success && Array.isArray(cRes.data) && cRes.data.length > 0) {
+          const raw = cRes.data.map(c => (typeof c === 'string' ? c : c?.name || c?.className || '')).filter(Boolean);
+          const filtered = raw.filter(n => !isSchoolClass(n));
+          if (filtered.length > 0) {
+            setClassesList(sortClassesAcademic(filtered));
+          }
+        }
+
+        if (sRes?.success && Array.isArray(sRes.data) && sRes.data.length > 0) {
+          const raw = sRes.data
+            .map(s => (typeof s === 'string' ? s : s?.name || s?.section || ''))
+            .filter(Boolean)
+            .map(s => String(s).replace(/^Section\s*/i, '').trim());
+          if (raw.length > 0) {
+            setSectionsList(Array.from(new Set(raw)));
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load dynamic academic classes/sections:', err);
+      }
+    };
+    fetchAcademicData();
+  }, []);
+
   // Templates State
   const [cards, setCards] = useState(FALLBACK_TEMPLATES);
   const [stats, setStats] = useState({ total: 3, studentCards: 1, staffCards: 2, activeCards: 3 });
@@ -223,8 +261,8 @@ export default function IdCardPage() {
     firstName: '',
     lastName: '',
     academicYear: '2026-2027',
-    className: 'Class 10',
-    section: 'Section A',
+    className: 'FSC OTT',
+    section: 'A',
     rollNo: '',
     admissionNo: '',
     fatherName: '',
@@ -243,8 +281,8 @@ export default function IdCardPage() {
     firstName: '',
     lastName: '',
     academicYear: '2026-2027',
-    className: 'Class 10',
-    section: 'Section A',
+    className: 'FSC OTT',
+    section: 'A',
     rollNo: '',
     admissionNo: '',
     fatherName: '',
@@ -384,7 +422,7 @@ export default function IdCardPage() {
       firstName: '',
       lastName: '',
       academicYear: `${currentYear}-${currentYear + 1}`,
-      className: 'Class 10',
+      className: 'FSC OTT',
       section: 'Section A',
       rollNo: String(nextRoll),
       admissionNo: nextAdm,
@@ -438,7 +476,7 @@ export default function IdCardPage() {
         firstName: studentForm.firstName.trim(),
         lastName: (studentForm.lastName || '').trim(),
         academicYear: studentForm.academicYear || `${currentYear}-${currentYear + 1}`,
-        className: studentForm.className || 'Class 10',
+        className: studentForm.className || 'FSC OTT',
         section: studentForm.section || 'Section A',
         gender: studentForm.gender || 'Male',
         dob: studentForm.dob || '2008-05-14',
@@ -487,7 +525,7 @@ export default function IdCardPage() {
       firstName: student.firstName || '',
       lastName: student.lastName || '',
       academicYear: student.academicYear || `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
-      className: student.className || 'Class 10',
+      className: student.className || 'FSC OTT',
       section: student.section || 'Section A',
       rollNo: String(student.rollNo || ''),
       admissionNo: String(student.admissionNo || ''),
@@ -541,7 +579,7 @@ export default function IdCardPage() {
         firstName: editStudentForm.firstName.trim(),
         lastName: (editStudentForm.lastName || '').trim(),
         academicYear: editStudentForm.academicYear || `${currentYear}-${currentYear + 1}`,
-        className: editStudentForm.className || 'Class 10',
+        className: editStudentForm.className || 'FSC OTT',
         section: editStudentForm.section || 'Section A',
         gender: editStudentForm.gender || 'Male',
         dob: editStudentForm.dob || '2008-05-14',
@@ -752,7 +790,7 @@ export default function IdCardPage() {
     const fullName = `${rec.firstName || 'Student'} ${rec.lastName || 'Name'}`.trim();
     const admNo = rec.admissionNo || 'ADM-2026-001';
     const rollNo = formatStudentRollNo(rec.rollNo || rec.admissionNo);
-    const className = rec.className || 'Class 10';
+    const className = rec.className || 'FSC OTT';
     const section = rec.section || 'Section A';
     const phone = rec.phone || '+92 300 1234567';
     const fatherName = rec.fatherName || '';
@@ -1079,7 +1117,7 @@ export default function IdCardPage() {
                 className="h-8 rounded-lg border border-zinc-300 bg-white px-2.5 text-xs text-zinc-950 font-medium cursor-pointer shadow-2xs"
               >
                 <option value="All">All Classes</option>
-                {STANDARD_CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
+                {classesList.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
 
               <select
@@ -1088,7 +1126,7 @@ export default function IdCardPage() {
                 className="h-8 rounded-lg border border-zinc-300 bg-white px-2.5 text-xs text-zinc-950 font-medium cursor-pointer shadow-2xs"
               >
                 <option value="All">All Sections</option>
-                {STANDARD_SECTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                {sectionsList.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
 
               <Button
@@ -1457,7 +1495,7 @@ export default function IdCardPage() {
                       onChange={e => setStudentForm({ ...studentForm, className: e.target.value })}
                       className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-950"
                     >
-                      {STANDARD_CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
+                      {classesList.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
 
@@ -1468,7 +1506,7 @@ export default function IdCardPage() {
                       onChange={e => setStudentForm({ ...studentForm, section: e.target.value })}
                       className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-950"
                     >
-                      {STANDARD_SECTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                      {sectionsList.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </div>
 
@@ -1702,7 +1740,7 @@ export default function IdCardPage() {
                       onChange={e => setEditStudentForm({ ...editStudentForm, className: e.target.value })}
                       className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-950"
                     >
-                      {STANDARD_CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
+                      {classesList.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
 
@@ -1713,7 +1751,7 @@ export default function IdCardPage() {
                       onChange={e => setEditStudentForm({ ...editStudentForm, section: e.target.value })}
                       className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-950"
                     >
-                      {STANDARD_SECTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                      {sectionsList.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </div>
 
@@ -2385,7 +2423,7 @@ export default function IdCardPage() {
                     lastName: 'Ali',
                     admissionNo: 'ADM-2026-089',
                     rollNo: '24',
-                    className: 'Class 10',
+                    className: 'FSC OTT',
                     section: 'Section A',
                     dob: '14/05/2008',
                     fatherName: 'Syed Tariq Shah',

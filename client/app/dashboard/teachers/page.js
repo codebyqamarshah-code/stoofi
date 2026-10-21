@@ -26,7 +26,7 @@ const DEFAULT_TEACHERS = [
     designation: 'Senior Physics Lecturer',
     qualification: 'M.Sc Physics (Punjab University)',
     experience: '8 Years',
-    assignedClasses: ['Class 10 (A)', 'Class 9 (B)'],
+    assignedClasses: ['FSC OTT (A)', 'BS Psychology (A)'],
     joinDate: '2020-08-15',
     status: 'Active',
     rating: '4.9 / 5.0'
@@ -45,7 +45,7 @@ const DEFAULT_TEACHERS = [
     designation: 'Head of Mathematics Department',
     qualification: 'M.Phil Applied Mathematics',
     experience: '10 Years',
-    assignedClasses: ['Class 10 (A)', 'Class 10 (B)', 'O-Levels'],
+    assignedClasses: ['FSC OTT (A)', 'DPT (B)'],
     joinDate: '2019-03-10',
     status: 'Active',
     rating: '4.8 / 5.0'
@@ -64,7 +64,7 @@ const DEFAULT_TEACHERS = [
     designation: 'Senior Chemistry Faculty',
     qualification: 'Ph.D Organic Chemistry (QAU)',
     experience: '12 Years',
-    assignedClasses: ['Class 9 (A)', 'Class 10 (A)', 'A-Levels'],
+    assignedClasses: ['BS RIT (A)', 'FSC NURSING (A)'],
     joinDate: '2018-09-01',
     status: 'Active',
     rating: '5.0 / 5.0'
@@ -107,7 +107,7 @@ export default function TeachersDirectoryPage() {
           designation: t.designation || 'Lecturer',
           qualification: t.qualification || 'M.Sc / M.A',
           experience: t.experience || '5+ Years',
-          assignedClasses: t.assignedClasses || ['Class 10 (A)'],
+          assignedClasses: t.assignedClasses || ['FSC OTT (A)'],
           joinDate: t.joinDate ? new Date(t.joinDate).toISOString().substring(0, 10) : '2022-01-15',
           status: t.status || 'Active',
           rating: t.rating || '4.8 / 5.0'
@@ -127,7 +127,7 @@ export default function TeachersDirectoryPage() {
           designation: s.designation || 'Subject Teacher',
           qualification: s.qualification || 'Master Degree',
           experience: '6 Years',
-          assignedClasses: ['Class 10 (A)', 'Class 9 (B)'],
+          assignedClasses: ['FSC OTT (A)', 'BS Psychology (A)'],
           joinDate: s.joiningDate ? new Date(s.joiningDate).toISOString().substring(0, 10) : '2021-08-01',
           status: s.status || 'Active',
           rating: '4.8 / 5.0'

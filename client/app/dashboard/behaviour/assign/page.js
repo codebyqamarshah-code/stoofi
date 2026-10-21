@@ -14,7 +14,7 @@ import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/export
 import behaviourService from '@/services/behaviourService';
 import api from '@/services/api';
 
-const DEFAULT_CLASSES = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'];
+const DEFAULT_CLASSES = ['BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT'];
 const SECTIONS = ['A', 'B', 'C', 'D'];
 
 export default function AssignIncidentPage() {
@@ -44,7 +44,7 @@ export default function AssignIncidentPage() {
     studentId: '',
     studentName: '',
     admissionNo: '',
-    className: 'Class 1',
+    className: 'FSC OTT',
     section: 'A',
     incidentId: '',
     incidentTitle: '',
@@ -117,7 +117,7 @@ export default function AssignIncidentPage() {
         studentId: stu._id || 'stu-1',
         studentName: `${stu.firstName || ''} ${stu.lastName || ''}`.trim(),
         admissionNo: stu.admissionNo,
-        className: stu.className || modalClass || 'Class 1',
+        className: stu.className || modalClass || 'FSC OTT',
         section: stu.section || modalSection || 'A'
       }));
     }
@@ -576,7 +576,7 @@ export default function AssignIncidentPage() {
                     <option value="">-- Choose student ({filteredModalStudents.length} available) --</option>
                     {filteredModalStudents.map(s => (
                       <option key={s._id || s.admissionNo} value={s.admissionNo}>
-                        {s.admissionNo} - {s.firstName} {s.lastName || ''} ({s.className || 'Class 1'}, Sec {s.section || 'A'})
+                        {s.admissionNo} - {s.firstName} {s.lastName || ''} ({s.className || 'FSC OTT'}, Sec {s.section || 'A'})
                       </option>
                     ))}
                   </select>

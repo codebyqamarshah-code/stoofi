@@ -9,7 +9,7 @@ import api from '@/services/api';
 
 const DEMO_DATA = [
   {
-    _id: 'ap1', teacherName: 'Mudassir Bajwa', subject: 'Physics', classSection: 'Class 10-A',
+    _id: 'ap1', teacherName: 'Mudassir Bajwa', subject: 'Physics', classSection: 'FSC OTT-A',
     evaluatedBy: 'Academic Coordinator', score: 88, date: '2026-09-28', approvedOn: '2026-10-01',
     criteria: [
       { name: 'Communication Skills', score: 9, max: 10 },

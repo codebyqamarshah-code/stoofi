@@ -30,7 +30,7 @@ export default function StudentVirtualClassPage() {
   const [viewScope, setViewScope] = useState('my_class'); // 'my_class' or 'all_classes'
 
   // Determine student's assigned class & section
-  const studentClass = user?.className || user?.referenceId?.className || 'Class 10';
+  const studentClass = user?.className || user?.referenceId?.className || 'FSC OTT';
   const studentSection = user?.section || user?.referenceId?.section || 'A';
 
   const fetchClasses = async () => {

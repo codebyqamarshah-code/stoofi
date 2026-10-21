@@ -301,7 +301,7 @@ export default function AssignSubjectPage() {
 
   const availableClassNames = classes.length > 0 
     ? classes.map(c => c.name) 
-    : ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'];
+    : ['BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT'];
 
   const availableSectionNames = sections.length > 0 
     ? sections.map(s => s.name) 

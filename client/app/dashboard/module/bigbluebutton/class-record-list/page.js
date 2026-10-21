@@ -11,7 +11,7 @@ export default function BBBClassRecordListPage() {
   const [filterClass, setFilterClass] = useState('All');
   const [selectedRecord, setSelectedRecord] = useState(null);
 
-  const classes = ['All', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'];
+  const classes = ['All', 'BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT'];
 
   const [records, setRecords] = useState([]);
 

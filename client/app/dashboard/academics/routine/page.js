@@ -84,7 +84,7 @@ export default function ClassRoutinePage() {
         if (classRes && Array.isArray(classRes.data) && classRes.data.length > 0) {
           setClassesList(classRes.data.map(c => c.name));
         } else {
-          setClassesList(['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels', 'BS Computer Science', 'FSc Pre-Engineering', 'FSc Pre-Medical']);
+          setClassesList(['BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT']);
         }
 
         if (sectionRes && Array.isArray(sectionRes.data) && sectionRes.data.length > 0) {
@@ -135,7 +135,7 @@ export default function ClassRoutinePage() {
     setEditingItem(null);
     const defaultLab = availableLabs.length > 0 ? availableLabs[0] : null;
     setFormData({
-      className: selectedClass || classesList[0] || 'Class 10',
+      className: selectedClass || classesList[0] || 'FSC OTT',
       sectionName: selectedSection || sectionsList[0] || 'Section A',
       subject: '',
       teacher: '',
@@ -158,7 +158,7 @@ export default function ClassRoutinePage() {
     setEditingItem(item);
     setFormData({
       ...item,
-      className: item.className || selectedClass || 'Class 10',
+      className: item.className || selectedClass || 'FSC OTT',
       sectionName: item.sectionName || selectedSection || 'Section A',
       isLab: Boolean(item.isLab || item.labName),
       room: item.room || 'Room 101',

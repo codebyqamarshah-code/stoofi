@@ -23,10 +23,10 @@ import { sortClassesAcademic, STANDARD_ACADEMIC_CLASSES } from '@/lib/academicUt
 import api from '@/services/api';
 
 const DEMO_DISABLED = [
-  { _id: 'dis-1', admissionNo: 'PRC-2025-019', rollNo: '109', name: 'Zohaib Tariq', class: 'Class 10', section: 'B', fatherName: 'Tariq Javed', dob: '12/03/2008', gender: 'Male', reason: 'Fee Non-Payment Suspension', disabledDate: '02 Oct 2026', phone: '+923001239871' },
-  { _id: 'dis-2', admissionNo: 'PRC-2025-044', rollNo: '115', name: 'Laiba Shahzadi', class: 'Class 9', section: 'A', fatherName: 'Muhammad Shahzad', dob: '22/07/2009', gender: 'Female', reason: 'School Leaving Certificate Issued', disabledDate: '28 Sep 2026', phone: '+923019876543' },
-  { _id: 'dis-3', admissionNo: 'PRC-2025-058', rollNo: '122', name: 'Usman Ghani', class: 'Class 8', section: 'C', fatherName: 'Ghani Ur Rehman', dob: '14/11/2010', gender: 'Male', reason: 'Medical Long Leave Withdrawal', disabledDate: '15 Sep 2026', phone: '+923024567812' },
-  { _id: 'dis-4', admissionNo: 'PRC-2024-091', rollNo: '130', name: 'Hamna Farooq', class: 'Class 10', section: 'A', fatherName: 'Farooq Ahmed', dob: '05/01/2008', gender: 'Female', reason: 'Family Relocation / Transferred', disabledDate: '10 Sep 2026', phone: '+923035678901' },
+  { _id: 'dis-1', admissionNo: 'PRC-2025-019', rollNo: '109', name: 'Zohaib Tariq', class: 'FSC OTT', section: 'B', fatherName: 'Tariq Javed', dob: '12/03/2008', gender: 'Male', reason: 'Fee Non-Payment Suspension', disabledDate: '02 Oct 2026', phone: '+923001239871' },
+  { _id: 'dis-2', admissionNo: 'PRC-2025-044', rollNo: '115', name: 'Laiba Shahzadi', class: 'BS Psychology', section: 'A', fatherName: 'Muhammad Shahzad', dob: '22/07/2009', gender: 'Female', reason: 'School Leaving Certificate Issued', disabledDate: '28 Sep 2026', phone: '+923019876543' },
+  { _id: 'dis-3', admissionNo: 'PRC-2025-058', rollNo: '122', name: 'Usman Ghani', class: 'DPT', section: 'C', fatherName: 'Ghani Ur Rehman', dob: '14/11/2010', gender: 'Male', reason: 'Medical Long Leave Withdrawal', disabledDate: '15 Sep 2026', phone: '+923024567812' },
+  { _id: 'dis-4', admissionNo: 'PRC-2024-091', rollNo: '130', name: 'Hamna Farooq', class: 'FSC OTT', section: 'A', fatherName: 'Farooq Ahmed', dob: '05/01/2008', gender: 'Female', reason: 'Family Relocation / Transferred', disabledDate: '10 Sep 2026', phone: '+923035678901' },
 ];
 
 export default function DisabledStudentsPage() {

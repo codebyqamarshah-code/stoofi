@@ -456,7 +456,7 @@ export default function StoofiAiChatBox({ forcedRole, pageTitle = 'Stoofi AI Age
       return [
         { icon: CalendarCheck, title: 'Mark Attendance', desc: 'Student attendance mark karein', prompt: 'Student attendance kaise mark karein?' },
         { icon: BookOpen, title: 'Homework List', desc: 'Created homework assignments', prompt: 'Show created homework assignments' },
-        { icon: Compass, title: 'Class Directory', desc: 'Class 10 ke students dikhao', prompt: 'Class 10 ke students dikhao' },
+        { icon: Compass, title: 'Class Directory', desc: 'FSC OTT ke students dikhao', prompt: 'FSC OTT ke students dikhao' },
         { icon: HelpCircle, title: 'Lesson Planning', desc: 'Draft a 30-minute lesson plan', prompt: 'Help me draft a 30-minute science lesson plan' }
       ];
     }

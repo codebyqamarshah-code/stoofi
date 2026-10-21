@@ -28,18 +28,12 @@ const DEFAULT_EXAMS = [
 ];
 
 const DEFAULT_CLASSES = [
-  { _id: 'c1', name: 'Class 1' },
-  { _id: 'c2', name: 'Class 2' },
-  { _id: 'c3', name: 'Class 3' },
-  { _id: 'c4', name: 'Class 4' },
-  { _id: 'c5', name: 'Class 5' },
-  { _id: 'c6', name: 'Class 6' },
-  { _id: 'c7', name: 'Class 7' },
-  { _id: 'c8', name: 'Class 8' },
-  { _id: 'c9', name: 'Class 9' },
-  { _id: 'c10', name: 'Class 10' },
-  { _id: 'c11', name: 'O-Levels' },
-  { _id: 'c12', name: 'A-Levels' },
+  { _id: 'c-bs-psych', name: 'BS Psychology' },
+  { _id: 'c-bs-rit', name: 'BS RIT' },
+  { _id: 'c-dpt', name: 'DPT' },
+  { _id: 'c-fsc-dental', name: 'FSC Dental' },
+  { _id: 'c-fsc-nursing', name: 'FSC NURSING' },
+  { _id: 'c-fsc-ott', name: 'FSC OTT' },
 ];
 
 const DEFAULT_SECTIONS = [
@@ -59,24 +53,24 @@ const DEFAULT_HALLS = [
 ];
 
 const SAMPLE_STUDENTS = [
-  { _id: 'st1', rollNo: '101', admissionNo: 'STU-001', name: 'Muhammad Ali', class: 'Class 10', section: 'A' },
-  { _id: 'st2', rollNo: '102', admissionNo: 'STU-002', name: 'Ayesha Fatima', class: 'Class 10', section: 'A' },
-  { _id: 'st3', rollNo: '103', admissionNo: 'STU-003', name: 'Zainab Bibi', class: 'Class 10', section: 'A' },
-  { _id: 'st4', rollNo: '104', admissionNo: 'STU-004', name: 'Hamza Farooq', class: 'Class 10', section: 'B' },
-  { _id: 'st5', rollNo: '105', admissionNo: 'STU-005', name: 'Fatima Noor', class: 'Class 10', section: 'B' },
-  { _id: 'st6', rollNo: '106', admissionNo: 'STU-006', name: 'Bilal Hussain', class: 'Class 10', section: 'A' },
-  { _id: 'st7', rollNo: '107', admissionNo: 'STU-007', name: 'Usman Ghani', class: 'Class 10', section: 'A' },
-  { _id: 'st8', rollNo: '108', admissionNo: 'STU-008', name: 'Hassan Raza', class: 'Class 10', section: 'B' },
-  { _id: 'st9', rollNo: '109', admissionNo: 'STU-009', name: 'Mariam Tariq', class: 'Class 10', section: 'A' },
-  { _id: 'st10', rollNo: '110', admissionNo: 'STU-010', name: 'Ahmed Ali Khan', class: 'Class 10', section: 'B' },
-  { _id: 'st11', rollNo: '111', admissionNo: 'STU-011', name: 'Sara Kamran', class: 'Class 10', section: 'A' },
-  { _id: 'st12', rollNo: '112', admissionNo: 'STU-012', name: 'Danish Qureshi', class: 'Class 10', section: 'B' },
-  { _id: 'st13', rollNo: '113', admissionNo: 'STU-013', name: 'Zoya Naveed', class: 'Class 10', section: 'A' },
-  { _id: 'st14', rollNo: '114', admissionNo: 'STU-014', name: 'Omer Farooq', class: 'Class 10', section: 'B' },
-  { _id: 'st15', rollNo: '115', admissionNo: 'STU-015', name: 'Khadija Rehman', class: 'Class 10', section: 'A' },
-  { _id: 'st16', rollNo: '116', admissionNo: 'STU-016', name: 'Sufyan Aslam', class: 'Class 10', section: 'A' },
-  { _id: 'st17', rollNo: '117', admissionNo: 'STU-017', name: 'Noor ul Huda', class: 'Class 10', section: 'B' },
-  { _id: 'st18', rollNo: '118', admissionNo: 'STU-018', name: 'Taimoor Shah', class: 'Class 10', section: 'A' },
+  { _id: 'st1', rollNo: '101', admissionNo: 'STU-001', name: 'Muhammad Ali', class: 'FSC OTT', section: 'A' },
+  { _id: 'st2', rollNo: '102', admissionNo: 'STU-002', name: 'Ayesha Fatima', class: 'FSC OTT', section: 'A' },
+  { _id: 'st3', rollNo: '103', admissionNo: 'STU-003', name: 'Zainab Bibi', class: 'FSC OTT', section: 'A' },
+  { _id: 'st4', rollNo: '104', admissionNo: 'STU-004', name: 'Hamza Farooq', class: 'FSC OTT', section: 'B' },
+  { _id: 'st5', rollNo: '105', admissionNo: 'STU-005', name: 'Fatima Noor', class: 'FSC OTT', section: 'B' },
+  { _id: 'st6', rollNo: '106', admissionNo: 'STU-006', name: 'Bilal Hussain', class: 'FSC OTT', section: 'A' },
+  { _id: 'st7', rollNo: '107', admissionNo: 'STU-007', name: 'Usman Ghani', class: 'FSC OTT', section: 'A' },
+  { _id: 'st8', rollNo: '108', admissionNo: 'STU-008', name: 'Hassan Raza', class: 'FSC OTT', section: 'B' },
+  { _id: 'st9', rollNo: '109', admissionNo: 'STU-009', name: 'Mariam Tariq', class: 'FSC OTT', section: 'A' },
+  { _id: 'st10', rollNo: '110', admissionNo: 'STU-010', name: 'Ahmed Ali Khan', class: 'FSC OTT', section: 'B' },
+  { _id: 'st11', rollNo: '111', admissionNo: 'STU-011', name: 'Sara Kamran', class: 'FSC OTT', section: 'A' },
+  { _id: 'st12', rollNo: '112', admissionNo: 'STU-012', name: 'Danish Qureshi', class: 'FSC OTT', section: 'B' },
+  { _id: 'st13', rollNo: '113', admissionNo: 'STU-013', name: 'Zoya Naveed', class: 'FSC OTT', section: 'A' },
+  { _id: 'st14', rollNo: '114', admissionNo: 'STU-014', name: 'Omer Farooq', class: 'FSC OTT', section: 'B' },
+  { _id: 'st15', rollNo: '115', admissionNo: 'STU-015', name: 'Khadija Rehman', class: 'FSC OTT', section: 'A' },
+  { _id: 'st16', rollNo: '116', admissionNo: 'STU-016', name: 'Sufyan Aslam', class: 'FSC OTT', section: 'A' },
+  { _id: 'st17', rollNo: '117', admissionNo: 'STU-017', name: 'Noor ul Huda', class: 'FSC OTT', section: 'B' },
+  { _id: 'st18', rollNo: '118', admissionNo: 'STU-018', name: 'Taimoor Shah', class: 'FSC OTT', section: 'A' },
 ];
 
 export default function SeatPlanPage() {
@@ -151,7 +145,7 @@ export default function SeatPlanPage() {
 
   const selectedHall = halls.find(h => h._id === formData.hallId) || DEFAULT_HALLS[0];
   const selectedExam = exams.find(e => e._id === formData.examId)?.name || 'Examination 2026';
-  const selectedClass = classes.find(c => c._id === formData.classId)?.name || 'Class 10';
+  const selectedClass = classes.find(c => c._id === formData.classId)?.name || 'FSC OTT';
 
   // Build grid seats
   const totalSlots = selectedHall.capacity || 40;

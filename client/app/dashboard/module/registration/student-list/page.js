@@ -44,7 +44,7 @@ export default function RegistrationStudentListPage() {
   const [loading, setLoading] = useState(true);
   const [applicants, setApplicants] = useState([]);
 
-  const classes = ['All Classes', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'];
+  const classes = ['All Classes', 'BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT'];
   const statusList = ['All', 'Approved', 'Pending', 'Rejected'];
 
   const fetchStudents = async () => {
@@ -56,7 +56,7 @@ export default function RegistrationStudentListPage() {
           id: s._id || idx,
           appNo: s.admissionNo || `REG-${idx + 1}`,
           studentName: `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.name || 'Student',
-          classVal: s.className || 'Class 1',
+          classVal: s.className || 'FSC OTT',
           section: s.section || 'A',
           fatherName: s.fatherName || '—',
           mobile: s.phone || s.fatherPhone || '—',

@@ -88,7 +88,7 @@ export default function UploadContentPage() {
                 <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Class</Label>
                 <select className="flex h-10 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 font-medium">
                   <option value="">Select Class</option>
-                  {['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels'].map(c => (
+                  {['BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT'].map(c => (
                     <option key={c} value={c}>{c}</option>
                   ))}
                 </select>

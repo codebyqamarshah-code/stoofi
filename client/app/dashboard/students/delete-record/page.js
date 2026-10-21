@@ -19,9 +19,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 const DEMO_TRASH = [
-  { id: 'del-1', admissionNo: 'PRC-2024-003', rollNo: '112', name: 'Zohaib Tariq', class: 'Class 10', section: 'A', fatherName: 'Tariq Javed', deletedAt: '14 Oct 2026, 04:20 PM', deletedBy: 'Admin (M. Imran)', reason: 'Duplicate Entry Error' },
-  { id: 'del-2', admissionNo: 'PRC-2024-019', rollNo: '118', name: 'Shahmeer Khan', class: 'Class 9', section: 'B', fatherName: 'Nasir Khan', deletedAt: '12 Oct 2026, 11:15 AM', deletedBy: 'Admin (M. Imran)', reason: 'Admission Cancelled by Parent' },
-  { id: 'del-3', admissionNo: 'PRC-2023-088', rollNo: '125', name: 'Alina Noor', class: 'Class 8', section: 'A', fatherName: 'Noor Muhammad', deletedAt: '08 Oct 2026, 02:40 PM', deletedBy: 'Principal Office', reason: 'Student Migrated to Overseas' },
+  { id: 'del-1', admissionNo: 'PRC-2024-003', rollNo: '112', name: 'Zohaib Tariq', class: 'FSC OTT', section: 'A', fatherName: 'Tariq Javed', deletedAt: '14 Oct 2026, 04:20 PM', deletedBy: 'Admin (M. Imran)', reason: 'Duplicate Entry Error' },
+  { id: 'del-2', admissionNo: 'PRC-2024-019', rollNo: '118', name: 'Shahmeer Khan', class: 'BS Psychology', section: 'B', fatherName: 'Nasir Khan', deletedAt: '12 Oct 2026, 11:15 AM', deletedBy: 'Admin (M. Imran)', reason: 'Admission Cancelled by Parent' },
+  { id: 'del-3', admissionNo: 'PRC-2023-088', rollNo: '125', name: 'Alina Noor', class: 'DPT', section: 'A', fatherName: 'Noor Muhammad', deletedAt: '08 Oct 2026, 02:40 PM', deletedBy: 'Principal Office', reason: 'Student Migrated to Overseas' },
 ];
 
 export default function DeleteStudentRecordPage() {

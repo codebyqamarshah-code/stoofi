@@ -137,7 +137,7 @@ exports.assignIncident = async (req, res) => {
       studentId: studentId || `stu-${Date.now()}`,
       studentName,
       admissionNo: admissionNo || 'N/A',
-      className: className || 'Class 1',
+      className: className || 'FSC OTT',
       section: section || 'A',
       incidentId,
       incidentTitle,

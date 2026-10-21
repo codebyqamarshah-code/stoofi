@@ -38,7 +38,7 @@ export default function JitsiClassReportsPage() {
   const [selectedReport, setSelectedReport] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const [classes, setClasses] = useState(['All Classes', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10']);
+  const [classes, setClasses] = useState(['All Classes', 'BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT']);
   const [sections, setSections] = useState(['All Sections', 'A', 'B', 'C', 'D']);
   const [reportsList, setReportsList] = useState([]);
 

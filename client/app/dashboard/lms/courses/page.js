@@ -19,7 +19,7 @@ const DEFAULT_COURSES = [
     price: 3500,
     enrolledStudents: 42,
     instructor: 'Mudassir Bajwa',
-    class: 'Class 10',
+    class: 'FSC OTT',
     section: 'Section A',
     status: 'Published',
     description: 'Comprehensive physics curriculum with video lectures, numerical problems, and solved board papers.'
@@ -32,7 +32,7 @@ const DEFAULT_COURSES = [
     price: 4000,
     enrolledStudents: 56,
     instructor: 'Fatima Zahra',
-    class: 'Class 10',
+    class: 'FSC OTT',
     section: 'Section B',
     status: 'Published',
     description: 'In-depth video tutorials covering matrices, quadratic equations, and complex trigonometric identities.'
@@ -45,7 +45,7 @@ const DEFAULT_COURSES = [
     price: 3200,
     enrolledStudents: 38,
     instructor: 'Dr. Bilal Siddiqui',
-    class: 'Class 9',
+    class: 'BS Psychology',
     section: 'Section A',
     status: 'Published',
     description: 'Practical lab demonstrations, reaction mechanisms, and periodic table revision modules.'

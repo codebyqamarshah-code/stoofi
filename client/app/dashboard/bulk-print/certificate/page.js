@@ -336,7 +336,7 @@ function GenerateCertificateContent() {
     const fName = student.fatherName || 'Tariq Mehmood';
     const admNo = student.admissionNo || 'ADM-2026-101';
     const rollNo = student.rollNo || '101';
-    const clsName = student.className || 'Class 10';
+    const clsName = student.className || 'FSC OTT';
     const secName = student.section || 'A';
     const formattedDate = new Date(certDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     const formattedDob = student.dob ? new Date(student.dob).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '15 August 2010';
@@ -371,7 +371,7 @@ function GenerateCertificateContent() {
     const fName = student.fatherName || 'Tariq Mehmood';
     const admNo = student.admissionNo || 'ADM-2026-101';
     const rollNo = student.rollNo || '101';
-    const clsName = student.className || 'Class 10';
+    const clsName = student.className || 'FSC OTT';
     const secName = student.section || 'A';
     const formattedDate = new Date(certDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     const formattedBody = formatCertificateText(activeTemplate.templateBody, student);

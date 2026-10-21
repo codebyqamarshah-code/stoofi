@@ -1,53 +1,33 @@
 const Class = require('../models/Class');
 
+function isSchoolClass(name) {
+  if (!name) return false;
+  return /^(playgroup|play group|pg|play|nursery|kg|prep|class\s*\d+|grade\s*\d+|o[-\s]?level|a[-\s]?level)$/i.test(String(name).trim());
+}
+
 function getAcademicRank(className) {
   if (!className) return 9999;
   const name = String(className).trim().toLowerCase();
 
-  // Playgroup / Nursery / KG / Prep
-  if (/^(playgroup|play group|pg|play)\b/i.test(name)) return 1;
-  if (/^nursery\s*1/i.test(name)) return 2;
-  if (/^nursery\s*2/i.test(name)) return 3;
-  if (/^nursery/i.test(name)) return 4;
-  if (/^(lkg|lower kg|junior kg)/i.test(name)) return 5;
-  if (/^(ukg|upper kg|senior kg)/i.test(name)) return 6;
-  if (/^kg\s*1/i.test(name)) return 7;
-  if (/^kg\s*2/i.test(name)) return 8;
-  if (/^(kg|kindergarten)/i.test(name)) return 9;
-  if (/^(prep|pre-school|preschool|pre school|pre-prep)/i.test(name)) return 10;
+  if (/^(all classes|all class|select class|select\.\.\.)$/i.test(name)) return -1;
 
-  // Numeric Class 1 to 12
-  const numMatch = name.match(/^(?:class|grade)?\s*(\d+)(?:st|nd|rd|th)?/i);
-  if (numMatch) {
-    const num = parseInt(numMatch[1], 10);
-    return 100 + num;
-  }
+  // College Degree & Diploma Ranks
+  if (/^bs\s*psychology/i.test(name)) return 10;
+  if (/^bs\s*rit/i.test(name)) return 11;
+  if (/^bs\b/i.test(name)) return 15;
+  if (/^dpt\b/i.test(name)) return 20;
+  if (/^pharm\b/i.test(name)) return 25;
+  if (/^fsc\s*nursing/i.test(name)) return 30;
+  if (/^fsc\s*ott/i.test(name)) return 31;
+  if (/^fsc\s*dental/i.test(name)) return 32;
+  if (/^fsc\b/i.test(name)) return 35;
 
-  // Intermediate / College
-  if (/^(1st year|first year|xi|11th)/i.test(name)) return 111;
-  if (/^(2nd year|second year|xii|12th)/i.test(name)) return 112;
-  if (/^(fsc|ics|fa|i\.com|icom)\s*1/i.test(name)) return 113;
-  if (/^(fsc|ics|fa|i\.com|icom)\s*2/i.test(name)) return 114;
-
-  // O/A Levels
-  if (/^o[-\s]?level/i.test(name)) return 120;
-  if (/^a[-\s]?level/i.test(name)) return 130;
-
-  return 200;
+  return 50;
 }
 
 function normalizeClassName(className) {
   if (!className) return '';
-  const str = String(className).trim();
-  const numMatch = str.match(/^(?:class|grade)?\s*(\d+)(?:st|nd|rd|th)?$/i);
-  if (numMatch) return `Class ${numMatch[1]}`;
-  if (/^(playgroup|play group|pg|play)$/i.test(str)) return 'Playgroup';
-  if (/^(nursery)$/i.test(str)) return 'Nursery';
-  if (/^(kg|kindergarten)$/i.test(str)) return 'KG';
-  if (/^(prep|pre-school|preschool)$/i.test(str)) return 'Prep';
-  if (/^o[-\s]?levels?$/i.test(str)) return 'O-Levels';
-  if (/^a[-\s]?levels?$/i.test(str)) return 'A-Levels';
-  return str;
+  return String(className).trim();
 }
 
 function sortClasses(classList) {
@@ -57,9 +37,11 @@ function sortClasses(classList) {
     const rawName = String(item.name || item.label || item.title || (typeof item === 'string' ? item : '')).trim();
     if (!rawName) continue;
 
+    // Filter out school classes
+    if (isSchoolClass(rawName)) continue;
+
     const normName = normalizeClassName(rawName);
-    const numMatch = rawName.match(/^(?:class|grade)?\s*(\d+)(?:st|nd|rd|th)?$/i);
-    const normKey = numMatch ? `class-${numMatch[1]}` : normName.toLowerCase();
+    const normKey = normName.toLowerCase();
 
     const normalizedObj = typeof item === 'object' && item !== null
       ? (item._doc ? { ...item._doc, name: normName } : { ...item, name: normName, label: normName })
@@ -102,37 +84,68 @@ exports.create = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Class name is required' });
     }
 
-    // Check duplicate
-    const numMatch = rawName.match(/^(?:class|grade)?\s*(\d+)(?:st|nd|rd|th)?$/i);
-    const regexPattern = numMatch ? `^(class\\s*|grade\\s*)?${numMatch[1]}$` : `^${rawName}$`;
-    const existing = await Class.findOne({ name: { $regex: new RegExp(regexPattern, 'i') } });
+    const name = normalizeClassName(rawName);
+    const existing = await Class.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
     if (existing) {
-      return res.status(400).json({ success: false, message: `Class "${existing.name}" already exists.` });
+      return res.status(400).json({ success: false, message: 'Class already exists' });
     }
 
-    const data = await Class.create(req.body);
-    res.status(201).json({ success: true, data });
+    const newClass = await Class.create({
+      name,
+      sections: req.body.sections || []
+    });
+
+    res.status(201).json({ success: true, data: newClass });
   } catch (error) {
+    console.error("create class error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
 exports.update = async (req, res) => {
   try {
-    const data = await Class.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!data) return res.status(404).json({ success: false, message: 'Not found' });
-    res.status(200).json({ success: true, data });
+    const { id } = req.params;
+    const rawName = (req.body.name || '').trim();
+    if (!rawName) {
+      return res.status(400).json({ success: false, message: 'Class name is required' });
+    }
+
+    const name = normalizeClassName(rawName);
+    const existing = await Class.findOne({ 
+      name: { $regex: new RegExp(`^${name}$`, 'i') },
+      _id: { $ne: id }
+    });
+    if (existing) {
+      return res.status(400).json({ success: false, message: 'Another class with this name already exists' });
+    }
+
+    const updated = await Class.findByIdAndUpdate(
+      id,
+      { name, sections: req.body.sections || [] },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ success: false, message: 'Class not found' });
+    }
+
+    res.status(200).json({ success: true, data: updated });
   } catch (error) {
+    console.error("update class error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-exports.remove = async (req, res) => {
+exports.delete = async (req, res) => {
   try {
-    const data = await Class.findByIdAndDelete(req.params.id);
-    if (!data) return res.status(404).json({ success: false, message: 'Not found' });
-    res.status(200).json({ success: true, data: {} });
+    const { id } = req.params;
+    const deleted = await Class.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ success: false, message: 'Class not found' });
+    }
+    res.status(200).json({ success: true, message: 'Class deleted successfully' });
   } catch (error) {
+    console.error("delete class error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

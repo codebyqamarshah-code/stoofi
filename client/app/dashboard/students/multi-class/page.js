@@ -25,11 +25,11 @@ import { sortClassesAcademic, STANDARD_ACADEMIC_CLASSES } from '@/lib/academicUt
 import api from '@/services/api';
 
 const DEMO_MULTI_CLASS = [
-  { _id: 'mc-1', studentName: 'Muhammad Abdullah', admissionNo: 'PRC-2026-081', primaryClass: 'Class 10', primarySection: 'A', secondaryClass: 'FSC Pre-Medical Evening', secondarySection: 'Eve-1', track: 'Evening Coaching & Test Session', session: '2026 [Jan-Dec]', status: 'Active' },
-  { _id: 'mc-2', studentName: 'Ayesha Fatima', admissionNo: 'PRC-2026-082', primaryClass: 'Class 10', primarySection: 'A', secondaryClass: 'Computer Science Diploma', secondarySection: 'IT-A', track: 'Skill Certification', session: '2026 [Jan-Dec]', status: 'Active' },
-  { _id: 'mc-3', studentName: 'Zainab Bibi', admissionNo: 'PRC-2026-083', primaryClass: 'Class 9', primarySection: 'B', secondaryClass: 'Quranic Arabic Studies', secondarySection: 'Q-1', track: 'Special Religious Track', session: '2026 [Jan-Dec]', status: 'Active' },
-  { _id: 'mc-4', studentName: 'Hamza Farooq', admissionNo: 'PRC-2026-084', primaryClass: 'Class 10', primarySection: 'A', secondaryClass: 'O-Levels English & Math', secondarySection: 'OL-1', track: 'Cambridge Dual Prep', session: '2026 [Jan-Dec]', status: 'Active' },
-  { _id: 'mc-5', studentName: 'Saad Ur Rehman', admissionNo: 'PRC-2026-087', primaryClass: 'Class 9', primarySection: 'A', secondaryClass: 'Pre-Engineering Advanced Physics', secondarySection: 'P-1', track: 'Advanced Foundation', session: '2026 [Jan-Dec]', status: 'Active' },
+  { _id: 'mc-1', studentName: 'Muhammad Abdullah', admissionNo: 'PRC-2026-081', primaryClass: 'FSC OTT', primarySection: 'A', secondaryClass: 'FSC Pre-Medical Evening', secondarySection: 'Eve-1', track: 'Evening Coaching & Test Session', session: '2026 [Jan-Dec]', status: 'Active' },
+  { _id: 'mc-2', studentName: 'Ayesha Fatima', admissionNo: 'PRC-2026-082', primaryClass: 'FSC OTT', primarySection: 'A', secondaryClass: 'Computer Science Diploma', secondarySection: 'IT-A', track: 'Skill Certification', session: '2026 [Jan-Dec]', status: 'Active' },
+  { _id: 'mc-3', studentName: 'Zainab Bibi', admissionNo: 'PRC-2026-083', primaryClass: 'BS Psychology', primarySection: 'B', secondaryClass: 'Quranic Arabic Studies', secondarySection: 'Q-1', track: 'Special Religious Track', session: '2026 [Jan-Dec]', status: 'Active' },
+  { _id: 'mc-4', studentName: 'Hamza Farooq', admissionNo: 'PRC-2026-084', primaryClass: 'FSC OTT', primarySection: 'A', secondaryClass: 'O-Levels English & Math', secondarySection: 'OL-1', track: 'Cambridge Dual Prep', session: '2026 [Jan-Dec]', status: 'Active' },
+  { _id: 'mc-5', studentName: 'Saad Ur Rehman', admissionNo: 'PRC-2026-087', primaryClass: 'BS Psychology', primarySection: 'A', secondaryClass: 'Pre-Engineering Advanced Physics', secondarySection: 'P-1', track: 'Advanced Foundation', session: '2026 [Jan-Dec]', status: 'Active' },
 ];
 
 export default function MultiClassStudentPage() {
@@ -44,7 +44,7 @@ export default function MultiClassStudentPage() {
   const [formData, setFormData] = useState({
     studentName: '',
     admissionNo: '',
-    primaryClass: 'Class 10',
+    primaryClass: 'FSC OTT',
     primarySection: 'A',
     secondaryClass: 'FSC Pre-Medical Evening',
     secondarySection: 'A',
@@ -87,7 +87,7 @@ export default function MultiClassStudentPage() {
     setFormData({
       studentName: '',
       admissionNo: '',
-      primaryClass: 'Class 10',
+      primaryClass: 'FSC OTT',
       primarySection: 'A',
       secondaryClass: 'FSC Pre-Medical Evening',
       secondarySection: 'A',

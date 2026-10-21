@@ -6,7 +6,7 @@ const schema = new mongoose.Schema({
   // Personal Info
   academicYear: { type: String, default: () => `${new Date().getFullYear()}` },
   classId: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' },
-  className: { type: String, default: 'Class 1' },
+  className: { type: String, default: 'FSC OTT' },
   section: { type: String, default: 'A' },
   studentGroup: { type: mongoose.Schema.Types.ObjectId, ref: 'StudentGroup', default: null },
   admissionNo: { type: String, required: true, unique: true },

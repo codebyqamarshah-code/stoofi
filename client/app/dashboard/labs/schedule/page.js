@@ -60,7 +60,7 @@ export default function LabSchedulePage() {
       if (classRes && Array.isArray(classRes.data)) {
         setClassesList(classRes.data.map(c => c.name));
       } else {
-        setClassesList(['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'O-Levels', 'A-Levels', 'BS Computer Science', 'FSc Pre-Engineering', 'FSc Pre-Medical']);
+        setClassesList(['BS Psychology', 'BS RIT', 'DPT', 'FSC Dental', 'FSC NURSING', 'FSC OTT']);
       }
       if (sectionRes && Array.isArray(sectionRes.data)) {
         setSectionsList(sectionRes.data.map(s => s.name));
@@ -90,7 +90,7 @@ export default function LabSchedulePage() {
   const [viewingSession, setViewingSession] = useState(null);
 
   const [formData, setFormData] = useState({
-    className: 'Class 10',
+    className: 'FSC OTT',
     sectionName: 'Section A',
     program: 'General Sciences',
     subject: '',

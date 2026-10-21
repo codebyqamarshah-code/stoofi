@@ -328,10 +328,10 @@ exports.create = async (req, res) => {
       dataObj.dob = '2010-01-01';
     }
     if (!dataObj.className) {
-      dataObj.className = 'Class 10';
+      dataObj.className = 'FSC OTT';
     }
     if (!dataObj.section) {
-      dataObj.section = 'Section A';
+      dataObj.section = 'A';
     }
     // Handle single req.file or multiple req.files array
     if (req.file) {
@@ -522,7 +522,7 @@ exports.bulkCreate = async (req, res) => {
       // Sensible defaults for required fields
       studentObj.gender = studentObj.gender && String(studentObj.gender).trim() ? String(studentObj.gender).trim() : 'Male';
       studentObj.dob = cleanDateStr(studentObj.dob) || '2010-01-01';
-      studentObj.className = studentObj.className && String(studentObj.className).trim() ? String(studentObj.className).trim() : 'Class 1';
+      studentObj.className = studentObj.className && String(studentObj.className).trim() ? String(studentObj.className).trim() : 'FSC OTT';
       studentObj.section = studentObj.section && String(studentObj.section).trim() ? String(studentObj.section).trim() : 'A';
       studentObj.academicYear = studentObj.academicYear && String(studentObj.academicYear).trim() ? String(studentObj.academicYear).trim() : `${currentYear}`;
       studentObj.type = studentObj.type && String(studentObj.type).trim() ? String(studentObj.type).trim() : 'Regular';
