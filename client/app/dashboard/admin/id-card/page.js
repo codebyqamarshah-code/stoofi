@@ -1,5 +1,4 @@
 'use client';
-
 import Link from 'next/link';
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
@@ -45,7 +44,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import api from '@/services/api';
 import { downloadIdCardPDF } from '@/lib/idCardPdf';
-import { getPublicVerificationUrl, formatStudentRollNo, getPhotoUrl } from '@/lib/utils';
+import { getPublicVerificationUrl, formatStudentRollNo, getPhotoUrl, formatDateDMY } from '@/lib/utils';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import QRCode from 'qrcode';
 import { PakRoyalCardFront, PakRoyalCardBack, PakRoyalCardBoth } from '@/components/id-card/PakRoyalSmartCard';
