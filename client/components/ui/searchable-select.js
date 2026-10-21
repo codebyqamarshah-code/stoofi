@@ -113,12 +113,15 @@ export function SearchableSelect({
     String(opt?.label || opt?.value || "").toLowerCase().includes((searchTerm || "").toLowerCase())
   );
 
+  // Safely extract primitive value whether caller passed string, number, or event/object
+  const cleanVal = (value && typeof value === 'object') ? (value.target?.value ?? value.value ?? '') : value;
+
   const selectedOption = (processedOptions || []).find(opt => {
-    if (value === undefined || value === null || value === '') return false;
-    if (String(opt.value) === String(value)) return true;
-    if (String(opt.label) === String(value)) return true;
+    if (cleanVal === undefined || cleanVal === null || cleanVal === '') return false;
+    if (String(opt.value) === String(cleanVal)) return true;
+    if (String(opt.label) === String(cleanVal)) return true;
     const normOpt = normalizeClassName(opt.value || opt.label);
-    const normVal = normalizeClassName(value);
+    const normVal = normalizeClassName(cleanVal);
     return normOpt && normVal && normOpt.toLowerCase() === normVal.toLowerCase();
   });
 
@@ -182,7 +185,14 @@ export function SearchableSelect({
                         : "text-zinc-900 hover:bg-zinc-100"
                     }`}
                     onClick={() => {
-                      onChange({ target: { name, value: opt.value } });
+                      if (typeof onChange === 'function') {
+                        const optVal = String(opt.value ?? opt.label ?? '');
+                        if (name) {
+                          onChange({ target: { name, value: optVal } });
+                        } else {
+                          onChange(optVal, { target: { name: '', value: optVal } });
+                        }
+                      }
                       setIsOpen(false);
                       setSearchTerm("");
                     }}

@@ -92,14 +92,9 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
             />
           </div>
           <div className="leading-tight">
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-black text-[12.5px] tracking-wide uppercase text-white block">
-                PAK ROYAL COLLEGE
-              </span>
-              <span className="text-[9px] font-bold text-[#d4af37] tracking-normal">
-                (Pvt.) Ltd.
-              </span>
-            </div>
+            <span className="font-black text-[13px] tracking-wide uppercase text-white block">
+              PAK ROYAL COLLEGE
+            </span>
             <span className="text-[7.5px] text-slate-200 font-medium tracking-wide block">
               Sharaqpur Sharif, District Sheikhupura
             </span>
@@ -245,14 +240,9 @@ export function PakRoyalCardBack({ rec, schoolSetting = null, className = '', is
             />
           </div>
           <div className="leading-tight">
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-black text-[12.5px] tracking-wide uppercase text-white block">
-                PAK ROYAL COLLEGE
-              </span>
-              <span className="text-[9px] font-bold text-[#d4af37] tracking-normal">
-                (Pvt.) Ltd.
-              </span>
-            </div>
+            <span className="font-black text-[13px] tracking-wide uppercase text-white block">
+              PAK ROYAL COLLEGE
+            </span>
             <span className="text-[7.5px] text-slate-200 font-medium tracking-wide block">
               Sharaqpur Sharif, District Sheikhupura
             </span>
@@ -280,37 +270,37 @@ export function PakRoyalCardBack({ rec, schoolSetting = null, className = '', is
       {/* ── BODY SECTION (DUAL COLUMN: CARDHOLDER INFO & QR CODE) ── */}
       <div className="flex items-stretch flex-1 bg-white min-h-[148px]">
         {/* Left Column: Instructions & Return Address */}
-        <div className="flex-1 min-w-0 bg-white p-3 flex flex-col justify-between">
-          <div>
+        <div className="flex-1 min-w-0 bg-white px-3.5 py-2.5 flex flex-col justify-start">
+          <div className="mb-2">
             <h4 className="text-[8.5px] font-black text-[#0a2544] tracking-wider uppercase mb-1">
               CARDHOLDER INFORMATION
             </h4>
-            <div className="text-[8px] text-slate-700 leading-tight space-y-0.5">
+            <div className="text-[7.8px] text-slate-700 leading-snug space-y-0.5">
               <p>This card is non-transferable.</p>
               <p>Carry it while on college premises.</p>
               <p>Report loss to the college office.</p>
             </div>
           </div>
 
-          <div className="border-b border-slate-200 my-1" />
+          <div className="border-b border-slate-200 w-[95%] mb-2" />
 
-          <div>
-            <span className="text-[7px] font-bold text-slate-500 uppercase tracking-wider block">
+          <div className="space-y-0.5">
+            <span className="text-[6.8px] font-bold text-slate-500 uppercase tracking-wider block">
               IF FOUND, PLEASE RETURN TO
             </span>
-            <span className="text-[9.5px] font-black text-[#0a2544] block mt-0.5">
-              Pak Royal College (Pvt.) Ltd.
+            <span className="text-[9.5px] font-black text-[#0a2544] block">
+              Pak Royal College
             </span>
-            <span className="text-[7.8px] text-slate-600 font-medium block">
+            <span className="text-[7.5px] text-slate-600 font-medium block">
               Sharaqpur Sharif, District Sheikhupura
             </span>
-            <span className="text-[8.5px] font-black text-[#0a2544] block mt-0.5">
+            <span className="text-[8px] font-black text-[#0a2544] block">
               Contact: 03 111 444 810
             </span>
           </div>
 
-          <p className="text-[7px] text-slate-400 italic mt-1">
-            Property of Pak Royal College (Pvt.) Ltd.
+          <p className="text-[6.8px] text-slate-400 italic mt-2.5">
+            Property of Pak Royal College.
           </p>
         </div>
 

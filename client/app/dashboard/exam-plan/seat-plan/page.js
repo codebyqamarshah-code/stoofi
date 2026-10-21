@@ -81,7 +81,7 @@ export default function SeatPlanPage() {
 
   const [formData, setFormData] = useState({ 
     examId: 'e2', 
-    classId: 'c10', 
+    classId: 'c-fsc-ott', 
     sectionId: 'sec_all', 
     hallId: 'h1',
     seatingPattern: 'normal' // 'normal' | 'zigzag'
@@ -100,8 +100,18 @@ export default function SeatPlanPage() {
           api.get('/class').catch(() => null),
           api.get('/section').catch(() => null)
         ]);
-        if (eRes?.success && Array.isArray(eRes.data) && eRes.data.length > 0) setExams(eRes.data);
-        if (cRes?.success && Array.isArray(cRes.data) && cRes.data.length > 0) setClasses(sortClassesAcademic(cRes.data));
+        if (eRes?.success && Array.isArray(eRes.data) && eRes.data.length > 0) {
+          setExams(eRes.data);
+          setFormData(prev => ({ ...prev, examId: prev.examId || eRes.data[0]._id }));
+        }
+        if (cRes?.success && Array.isArray(cRes.data) && cRes.data.length > 0) {
+          const sorted = sortClassesAcademic(cRes.data);
+          setClasses(sorted);
+          setFormData(prev => ({ 
+            ...prev, 
+            classId: sorted.some(c => c._id === prev.classId) ? prev.classId : (sorted[0]._id || sorted[0].name) 
+          }));
+        }
         if (sRes?.success && Array.isArray(sRes.data) && sRes.data.length > 0) {
           setSections([{ _id: 'sec_all', name: 'All Sections' }, ...sRes.data]);
         }
@@ -240,7 +250,10 @@ export default function SeatPlanPage() {
               </label>
               <SearchableSelect 
                 value={formData.examId} 
-                onChange={(val) => setFormData({...formData, examId: val})}
+                onChange={(val) => {
+                  const cleanVal = String(val?.target?.value ?? val?.value ?? val ?? '');
+                  setFormData(prev => ({ ...prev, examId: cleanVal }));
+                }}
                 placeholder="Select Exam *"
                 options={exams.map(e => ({ label: e.name, value: e._id }))}
               />
@@ -252,7 +265,10 @@ export default function SeatPlanPage() {
               </label>
               <SearchableSelect 
                 value={formData.classId} 
-                onChange={(val) => setFormData({...formData, classId: val})}
+                onChange={(val) => {
+                  const cleanVal = String(val?.target?.value ?? val?.value ?? val ?? '');
+                  setFormData(prev => ({ ...prev, classId: cleanVal }));
+                }}
                 placeholder="Select Class *"
                 options={classes.map(c => ({ label: c.name, value: c._id }))}
               />
@@ -262,7 +278,10 @@ export default function SeatPlanPage() {
               <label className="text-xs font-bold text-zinc-700 uppercase">SECTION</label>
               <SearchableSelect 
                 value={formData.sectionId} 
-                onChange={(val) => setFormData({...formData, sectionId: val})}
+                onChange={(val) => {
+                  const cleanVal = String(val?.target?.value ?? val?.value ?? val ?? '');
+                  setFormData(prev => ({ ...prev, sectionId: cleanVal }));
+                }}
                 placeholder="Select Section"
                 options={sections.map(s => ({ label: s.name, value: s._id }))}
               />
@@ -274,7 +293,10 @@ export default function SeatPlanPage() {
               </label>
               <SearchableSelect 
                 value={formData.hallId} 
-                onChange={(val) => setFormData({...formData, hallId: val})}
+                onChange={(val) => {
+                  const cleanVal = String(val?.target?.value ?? val?.value ?? val ?? '');
+                  setFormData(prev => ({ ...prev, hallId: cleanVal }));
+                }}
                 placeholder="Select Hall *"
                 options={halls.map(h => ({ label: h.name, value: h._id }))}
               />

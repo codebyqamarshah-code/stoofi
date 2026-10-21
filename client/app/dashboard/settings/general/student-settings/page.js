@@ -34,11 +34,22 @@ export default function StudentSettingsPage() {
   };
 
   const renderToggle = (checked, onChange) => (
-    <div className="relative cursor-pointer" onClick={onChange}>
-      <input type="checkbox" className="sr-only" checked={checked} readOnly />
-      <div className={`block w-9 h-5 rounded-full transition-colors ${checked ? 'bg-zinc-950' : 'bg-zinc-300'}`}></div>
-      <div className={`absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform shadow-xs pointer-events-none ${checked ? 'transform translate-x-4' : ''}`}></div>
-    </div>
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={onChange}
+      className={`relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
+        checked ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-zinc-300 hover:bg-zinc-400'
+      }`}
+    >
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+          checked ? 'translate-x-5' : 'translate-x-0.5'
+        } mt-0.5`}
+      />
+    </button>
   );
 
   return (

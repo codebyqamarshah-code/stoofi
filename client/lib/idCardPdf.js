@@ -292,6 +292,32 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     doc.roundedRect(1.0, 1.0, width - 2.0, 11.2, 2.0, 2.0, 'F');
     doc.rect(1.0, 6.0, width - 2.0, 6.2, 'F');
 
+    // Diagonal Translucent Stripes on Right Half (Matching Web Preview Exactly)
+    try {
+      if (typeof doc.GState === 'function') {
+        doc.saveGraphicsState();
+        doc.setGState(new doc.GState({ opacity: 0.18 }));
+        doc.setFillColor(255, 255, 255);
+        doc.triangle(57.4, 1.0, 70.0, 1.0, 53.2, 12.2, 'F');
+        doc.triangle(57.4, 1.0, 53.2, 12.2, 42.8, 12.2, 'F');
+        doc.triangle(72.1, 1.0, 84.6, 1.0, 65.8, 12.2, 'F');
+        doc.triangle(72.1, 1.0, 65.8, 12.2, 55.3, 12.2, 'F');
+        doc.restoreGraphicsState();
+      } else {
+        doc.setFillColor(35, 62, 95);
+        doc.triangle(57.4, 1.0, 70.0, 1.0, 53.2, 12.2, 'F');
+        doc.triangle(57.4, 1.0, 53.2, 12.2, 42.8, 12.2, 'F');
+        doc.triangle(72.1, 1.0, 84.6, 1.0, 65.8, 12.2, 'F');
+        doc.triangle(72.1, 1.0, 65.8, 12.2, 55.3, 12.2, 'F');
+      }
+    } catch (e) {
+      doc.setFillColor(35, 62, 95);
+      doc.triangle(57.4, 1.0, 70.0, 1.0, 53.2, 12.2, 'F');
+      doc.triangle(57.4, 1.0, 53.2, 12.2, 42.8, 12.2, 'F');
+      doc.triangle(72.1, 1.0, 84.6, 1.0, 65.8, 12.2, 'F');
+      doc.triangle(72.1, 1.0, 65.8, 12.2, 55.3, 12.2, 'F');
+    }
+
     // Circular white ring & Crest Logo
     const logoX = 3.2;
     const logoY = 2.0;
@@ -311,13 +337,8 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     // Institutional Title & Subtitle in Header
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.2);
+    doc.setFontSize(8.4);
     doc.text('PAK ROYAL COLLEGE', 14.0, 5.5);
-
-    doc.setTextColor(goldR, goldG, goldB);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(5.2);
-    doc.text('(Pvt.) Ltd.', 52.0, 5.5);
 
     doc.setTextColor(226, 232, 240);
     doc.setFont('helvetica', 'normal');
@@ -489,6 +510,32 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     doc.roundedRect(1.0, 1.0, width - 2.0, 11.2, 2.0, 2.0, 'F');
     doc.rect(1.0, 6.0, width - 2.0, 6.2, 'F');
 
+    // Diagonal Translucent Stripes on Right Half (Matching Web Preview Exactly)
+    try {
+      if (typeof doc.GState === 'function') {
+        doc.saveGraphicsState();
+        doc.setGState(new doc.GState({ opacity: 0.18 }));
+        doc.setFillColor(255, 255, 255);
+        doc.triangle(57.4, 1.0, 70.0, 1.0, 53.2, 12.2, 'F');
+        doc.triangle(57.4, 1.0, 53.2, 12.2, 42.8, 12.2, 'F');
+        doc.triangle(72.1, 1.0, 84.6, 1.0, 65.8, 12.2, 'F');
+        doc.triangle(72.1, 1.0, 65.8, 12.2, 55.3, 12.2, 'F');
+        doc.restoreGraphicsState();
+      } else {
+        doc.setFillColor(35, 62, 95);
+        doc.triangle(57.4, 1.0, 70.0, 1.0, 53.2, 12.2, 'F');
+        doc.triangle(57.4, 1.0, 53.2, 12.2, 42.8, 12.2, 'F');
+        doc.triangle(72.1, 1.0, 84.6, 1.0, 65.8, 12.2, 'F');
+        doc.triangle(72.1, 1.0, 65.8, 12.2, 55.3, 12.2, 'F');
+      }
+    } catch (e) {
+      doc.setFillColor(35, 62, 95);
+      doc.triangle(57.4, 1.0, 70.0, 1.0, 53.2, 12.2, 'F');
+      doc.triangle(57.4, 1.0, 53.2, 12.2, 42.8, 12.2, 'F');
+      doc.triangle(72.1, 1.0, 84.6, 1.0, 65.8, 12.2, 'F');
+      doc.triangle(72.1, 1.0, 65.8, 12.2, 55.3, 12.2, 'F');
+    }
+
     // Left Crest Logo in Back Header
     doc.setFillColor(255, 255, 255);
     doc.circle(logoX + logoSize / 2, logoY + logoSize / 2, (logoSize / 2) + 0.3, 'F');
@@ -504,13 +551,8 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
 
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.2);
+    doc.setFontSize(8.4);
     doc.text('PAK ROYAL COLLEGE', 14.0, 5.5);
-
-    doc.setTextColor(goldR, goldG, goldB);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(5.2);
-    doc.text('(Pvt.) Ltd.', 52.0, 5.5);
 
     doc.setTextColor(226, 232, 240);
     doc.setFont('helvetica', 'normal');
@@ -539,49 +581,49 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     doc.setLineWidth(0.5);
     doc.line(1.0, 12.2, width - 1.0, 12.2);
 
-    // Left Body Column: Instructions & If Found Address
+    // Left Body Column: Instructions & If Found Address (Compact, tight professional spacing)
     const backLeftX = 3.5;
     doc.setTextColor(navyR, navyG, navyB);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(4.6);
-    doc.text('CARDHOLDER INFORMATION', backLeftX, 16.5);
+    doc.text('CARDHOLDER INFORMATION', backLeftX, 16.0);
 
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(3.8);
+    doc.setFontSize(3.7);
     doc.setTextColor(51, 65, 85);
-    doc.text('This card is non-transferable.', backLeftX, 20.0);
-    doc.text('Carry it while on college premises.', backLeftX, 23.4);
-    doc.text('Report loss to the college office.', backLeftX, 26.8);
+    doc.text('This card is non-transferable.', backLeftX, 19.0);
+    doc.text('Carry it while on college premises.', backLeftX, 21.6);
+    doc.text('Report loss to the college office.', backLeftX, 24.2);
 
     // Hairline divider
     doc.setDrawColor(226, 232, 240);
     doc.setLineWidth(0.3);
-    doc.line(backLeftX, 28.5, 52.0, 28.5);
+    doc.line(backLeftX, 26.2, 52.0, 26.2);
 
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(3.5);
+    doc.setFontSize(3.4);
     doc.setTextColor(slateR, slateG, slateB);
-    doc.text('IF FOUND, PLEASE RETURN TO', backLeftX, 31.8);
+    doc.text('IF FOUND, PLEASE RETURN TO', backLeftX, 29.2);
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(4.8);
     doc.setTextColor(navyR, navyG, navyB);
-    doc.text('Pak Royal College (Pvt.) Ltd.', backLeftX, 35.0);
+    doc.text('Pak Royal College', backLeftX, 32.2);
 
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(3.8);
+    doc.setFontSize(3.7);
     doc.setTextColor(71, 85, 105);
-    doc.text('Sharaqpur Sharif, District Sheikhupura', backLeftX, 38.2);
+    doc.text('Sharaqpur Sharif, District Sheikhupura', backLeftX, 35.0);
 
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(4.4);
+    doc.setFontSize(4.2);
     doc.setTextColor(navyR, navyG, navyB);
-    doc.text('Contact: 03 111 444 810', backLeftX, 41.6);
+    doc.text('Contact: 03 111 444 810', backLeftX, 38.0);
 
     doc.setFont('helvetica', 'italic');
     doc.setFontSize(3.2);
     doc.setTextColor(148, 163, 184);
-    doc.text('Property of Pak Royal College (Pvt.) Ltd.', backLeftX, 45.2);
+    doc.text('Property of Pak Royal College.', backLeftX, 42.0);
 
     // Right Body Column: Scannable QR Code Panel
     const qrBoxX = 56.0;
