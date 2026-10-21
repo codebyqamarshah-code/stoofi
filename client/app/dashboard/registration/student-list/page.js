@@ -2,7 +2,7 @@
 
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { useState, useEffect } from 'react';
-import api from '@/lib/api';
+import api from '@/services/api';
 import { sortClassesAcademic, STANDARD_ACADEMIC_CLASSES } from '@/lib/academicUtils';
 import { Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns } from 'lucide-react';
 import Link from 'next/link';

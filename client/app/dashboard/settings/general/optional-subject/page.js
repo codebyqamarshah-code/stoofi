@@ -2,7 +2,7 @@
 
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import React, { useState, useEffect } from 'react';
-import api from '@/lib/api';
+import api from '@/services/api';
 import { sortClassesAcademic, STANDARD_ACADEMIC_CLASSES } from '@/lib/academicUtils';
 import { Search, ChevronRight, CheckCircle2, AlertCircle, Trash2, Edit2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
