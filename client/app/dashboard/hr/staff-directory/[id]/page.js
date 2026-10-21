@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import api from '@/services/api';
 import { exportToExcel } from '@/lib/exportUtils';
+import { formatDateDMY } from '@/lib/utils';
 
 const getPhotoUrl = (staff) => {
   if (!staff?.photo && !staff?.staffPhoto) return null;
@@ -27,11 +28,7 @@ const getInitials = (staff) => {
   return (f + l).toUpperCase() || 'S';
 };
 
-const fmtDate = (d) => {
-  if (!d) return '—';
-  try { return new Date(d).toLocaleDateString('en-PK', { day: '2-digit', month: 'long', year: 'numeric' }); }
-  catch { return d; }
-};
+const fmtDate = (d) => formatDateDMY(d);
 
 function InfoRow({ icon: Icon, label, value, highlight }) {
   return (

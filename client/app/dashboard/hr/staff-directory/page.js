@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import api from '@/services/api';
+import { formatDateDMY } from '@/lib/utils';
 
 const DEMO_STAFF = [
   {
@@ -121,7 +122,7 @@ function StaffDirectoryContent() {
 
   const handleExportCSV = () => {
     const headers = ['Name', 'Designation', 'Department', 'Role', 'Phone', 'Email', 'Status', 'Join Date'];
-    const rows = filtered.map(s => [s.name, s.designation, s.department, s.role, s.phone, s.email, s.status, s.joinDate]);
+    const rows = filtered.map(s => [s.name, s.designation, s.department, s.role, s.phone, s.email, s.status, formatDateDMY(s.dateOfJoining || s.joinDate)]);
     const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
