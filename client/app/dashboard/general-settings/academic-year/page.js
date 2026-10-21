@@ -1,5 +1,6 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import React, { useState } from 'react';
 import { 
@@ -41,11 +42,11 @@ export default function AcademicYearPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-zinc-950 mb-1">STARTING DATE *</label>
-              <input type="date" className="w-full bg-white border border-zinc-200 shadow-xs rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600" />
+              <Input type="date" className="w-full bg-white border border-zinc-200 shadow-xs rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600" />
             </div>
             <div>
               <label className="block text-sm font-medium text-zinc-950 mb-1">ENDING DATE *</label>
-              <input type="date" className="w-full bg-white border border-zinc-200 shadow-xs rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600" />
+              <Input type="date" className="w-full bg-white border border-zinc-200 shadow-xs rounded px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-600" />
             </div>
             <div>
               <label className="block text-sm font-medium text-zinc-950 mb-1">COPY WITH ACADEMIC YEAR</label>

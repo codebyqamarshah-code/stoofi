@@ -1,5 +1,6 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { useState, useRef } from 'react';
 import { 
@@ -79,7 +80,7 @@ export default function FrontResultPage() {
 
           <div>
             <label className="text-xs font-semibold text-zinc-700 uppercase font-bold block mb-1">PUBLISH DATE *</label>
-            <input
+            <Input
               type="date"
               value={publishDate}
               onChange={e => setPublishDate(e.target.value)}
@@ -162,7 +163,7 @@ export default function FrontResultPage() {
                     <tr key={item.id} className="border-b border-zinc-200/50 hover:bg-zinc-100">
                       <td className="py-3 px-3 text-zinc-600 font-medium">{idx + 1}</td>
                       <td className="py-3 px-3 text-zinc-200 font-medium">{item.title}</td>
-                      <td className="py-3 px-3 text-zinc-700">{item.date}</td>
+                      <td className="py-3 px-3 text-zinc-700">{formatDateDMY(item.date)}</td>
                       <td className="py-3 px-3 relative">
                         <div className="relative inline-block text-left">
                           <button

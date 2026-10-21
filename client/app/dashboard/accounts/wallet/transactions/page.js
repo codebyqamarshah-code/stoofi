@@ -119,7 +119,7 @@ export default function WalletTransactionsPage() {
             <tbody className="divide-y divide-zinc-100">
               {filtered.map(t => (
                 <tr key={t._id} className="hover:bg-slate-50/70">
-                  <td className="p-3 text-zinc-500">{t.date}</td>
+                  <td className="p-3 text-zinc-500">{formatDateDMY(t.date)}</td>
                   <td className="p-3 font-bold text-zinc-900">{t.student}</td>
                   <td className="p-3 font-mono text-zinc-600">{t.admNo}</td>
                   <td className="p-3"><span className={`px-2 py-0.5 rounded text-[10px] font-bold ${t.type==='Deposit'?'bg-emerald-100 text-emerald-800':t.type==='Fee Payment'?'bg-sky-100 text-[#084A86]':t.type==='Refund'?'bg-amber-100 text-amber-800':'bg-rose-100 text-rose-800'}`}>{t.type}</span></td>

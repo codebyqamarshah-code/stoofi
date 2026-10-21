@@ -1,5 +1,6 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { useState, useRef } from 'react';
 import { 
@@ -80,7 +81,7 @@ export default function FrontClassRoutinePage() {
 
           <div>
             <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1.5">PUBLISH DATE *</label>
-            <input
+            <Input
               type="date"
               value={publishDate}
               onChange={e => setPublishDate(e.target.value)}
@@ -164,7 +165,7 @@ export default function FrontClassRoutinePage() {
                     <tr key={r.id} className="border-b border-zinc-100 hover:bg-zinc-50/80 transition-colors">
                       <td className="py-2.5 px-3.5 text-zinc-900 font-semibold">{r.sl || i + 1}</td>
                       <td className="py-2.5 px-3.5 text-zinc-900 font-medium">{r.title}</td>
-                      <td className="py-2.5 px-3.5 text-zinc-600">{r.date}</td>
+                      <td className="py-2.5 px-3.5 text-zinc-600">{formatDateDMY(r.date)}</td>
                       <td className="py-2.5 px-3.5 relative">
                         <button
                           onClick={() => setOpenDropdownId(openDropdownId === r.id ? null : r.id)}

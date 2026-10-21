@@ -1,5 +1,6 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { 
@@ -221,7 +222,7 @@ export default function CalendarPage() {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-xs font-bold text-zinc-800 uppercase tracking-wider mb-1">Date</label>
-                  <input
+                  <Input
                     type="date"
                     required
                     value={newEvent.date}

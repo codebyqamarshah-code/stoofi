@@ -1,5 +1,6 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { useState, useRef } from 'react';
 import { 
@@ -79,7 +80,7 @@ export default function FrontAcademicCalendarPage() {
 
           <div>
             <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1">PUBLISH DATE *</label>
-            <input
+            <Input
               type="date"
               value={publishDate}
               onChange={e => setPublishDate(e.target.value)}
@@ -163,7 +164,7 @@ export default function FrontAcademicCalendarPage() {
                     <tr key={item.id} className="border-b border-zinc-100/50 hover:bg-zinc-50/80">
                       <td className="py-3 px-3 text-zinc-600 font-medium">{idx + 1}</td>
                       <td className="py-3 px-3 text-zinc-200 font-medium">{item.title}</td>
-                      <td className="py-3 px-3 text-zinc-700">{item.date}</td>
+                      <td className="py-3 px-3 text-zinc-700">{formatDateDMY(item.date)}</td>
                       <td className="py-3 px-3 relative">
                         <div className="relative inline-block text-left">
                           <button

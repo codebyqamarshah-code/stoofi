@@ -1,5 +1,7 @@
+import { formatDateDMY } from '@/lib/utils';
 'use client';
 
+import { Input } from '@/components/ui/input';
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { useState, useRef } from 'react';
 import { ChevronRight, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, Trash2, Calendar } from 'lucide-react';
@@ -79,7 +81,7 @@ export default function HolidayPage() {
           <div>
             <label className="text-xs font-semibold text-zinc-700 uppercase font-bold block mb-1">FROM DATE</label>
             <div className="relative">
-              <input
+              <Input
                 type="date"
                 value={fromDate}
                 onChange={e => setFromDate(e.target.value)}
@@ -90,7 +92,7 @@ export default function HolidayPage() {
           <div>
             <label className="text-xs font-semibold text-zinc-700 uppercase font-bold block mb-1">TO DATE</label>
             <div className="relative">
-              <input
+              <Input
                 type="date"
                 value={toDate}
                 onChange={e => setToDate(e.target.value)}

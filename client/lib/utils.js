@@ -5,6 +5,16 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
+// Ensure default date formatting across the software strictly adheres to DD/MM/YYYY (en-GB)
+if (typeof Date.prototype.toLocaleDateString === 'function') {
+  try {
+    const originalToLocaleDateString = Date.prototype.toLocaleDateString;
+    Date.prototype.toLocaleDateString = function (locales, options) {
+      return originalToLocaleDateString.call(this, locales || 'en-GB', options);
+    };
+  } catch (_) {}
+}
+
 // Converts any date string (ISO, YYYY-MM-DD, Excel serials, etc.) into Day/Month/Year format (DD/MM/YYYY)
 // Strictly formats as 2-digit Day / 2-digit Month / 4-digit Year (e.g. 15/08/2026)
 export function formatDateDMY(dateInput) {

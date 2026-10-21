@@ -1,5 +1,6 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
@@ -223,7 +224,7 @@ export default function NoticeBoardPage() {
                   <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                     Notice Date <span className="text-rose-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     required
                     value={form.noticeDate}
@@ -235,7 +236,7 @@ export default function NoticeBoardPage() {
                   <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                     Publish On <span className="text-rose-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     required
                     value={form.publishDate}

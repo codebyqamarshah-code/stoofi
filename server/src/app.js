@@ -44,6 +44,36 @@ app.use(express.json({
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
 
+// Automatically normalize any DD/MM/YYYY dates in incoming JSON/UrlEncoded requests to ISO YYYY-MM-DD
+app.use((req, res, next) => {
+  if (req.body && typeof req.body === 'object') {
+    const normalizeDates = (obj) => {
+      if (!obj || typeof obj !== 'object') return;
+      for (const key of Object.keys(obj)) {
+        const val = obj[key];
+        if (typeof val === 'string') {
+          const trimmed = val.trim();
+          const dmyMatch = trimmed.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+          if (dmyMatch) {
+            const day = dmyMatch[1].padStart(2, '0');
+            const month = dmyMatch[2].padStart(2, '0');
+            const year = dmyMatch[3];
+            const dNum = parseInt(day, 10);
+            const mNum = parseInt(month, 10);
+            if (dNum >= 1 && dNum <= 31 && mNum >= 1 && mNum <= 12) {
+              obj[key] = `${year}-${month}-${day}`;
+            }
+          }
+        } else if (typeof val === 'object' && val !== null && !(val instanceof Date)) {
+          normalizeDates(val);
+        }
+      }
+    };
+    normalizeDates(req.body);
+  }
+  next();
+});
+
 // Connect to Database Middleware for Serverless execution
 app.use(async (req, res, next) => {
   try {

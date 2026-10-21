@@ -66,7 +66,7 @@ export default function SyllabusListPage() {
                   <tr key={i} className="hover:bg-zinc-50/80 transition-colors text-zinc-950 font-medium">
                     <td className="px-4 py-3.5">{s.title}</td>
                     <td className="px-4 py-3.5 text-zinc-700">{s.type}</td>
-                    <td className="px-4 py-3.5 text-zinc-700">{s.date}</td>
+                    <td className="px-4 py-3.5 text-zinc-700">{formatDateDMY(s.date)}</td>
                     <td className="px-4 py-3.5 text-zinc-700">{s.availableFor}</td>
                     <td className="px-4 py-3.5 text-zinc-700">{s.classSection}</td>
                     <td className="px-4 py-3.5 text-right">

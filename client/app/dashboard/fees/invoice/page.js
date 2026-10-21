@@ -471,7 +471,7 @@ export default function FeesInvoicePage() {
                         {r.status || 'UNPAID'}
                       </span>
                     </td>
-                    <td className="px-4 py-3.5 text-zinc-600 text-xs">{r.date || '-'}</td>
+                    <td className="px-4 py-3.5 text-zinc-600 text-xs font-medium">{formatDateDMY(r.date)}</td>
                     <td className="px-4 py-3.5 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <Button 

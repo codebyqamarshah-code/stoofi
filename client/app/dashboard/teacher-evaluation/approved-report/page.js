@@ -1,5 +1,6 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import {
@@ -203,9 +204,9 @@ export default function ApprovedReportPage() {
             <option value="">All Teachers</option>
             {uniqueTeachers.map(t => <option key={t}>{t}</option>)}
           </select>
-          <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} placeholder="From Date"
+          <Input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} placeholder="From Date"
             className="border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#084A86]/40" />
-          <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} placeholder="To Date"
+          <Input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} placeholder="To Date"
             className="border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#084A86]/40" />
         </div>
         {(searchQuery || teacherFilter || dateFrom || dateTo) && (
@@ -250,7 +251,7 @@ export default function ApprovedReportPage() {
                   <td className="px-4 py-3.5 text-zinc-700">{item.subject}</td>
                   <td className="px-4 py-3.5"><ScoreBadge score={item.score} /></td>
                   <td className="px-4 py-3.5 text-zinc-700">{item.evaluatedBy}</td>
-                  <td className="px-4 py-3.5 text-zinc-600 text-xs">{item.date}</td>
+                  <td className="px-4 py-3.5 text-zinc-600 text-xs">{formatDateDMY(item.date)}</td>
                   <td className="px-4 py-3.5 text-zinc-600 text-xs">{item.approvedOn}</td>
                   <td className="px-4 py-3.5 text-right">
                     <button onClick={() => setViewItem(item)}

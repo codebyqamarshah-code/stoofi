@@ -1,5 +1,6 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
 import React, { useState, useEffect } from 'react';
 import { 
   Users, 
@@ -1963,7 +1964,7 @@ export default function DashboardUI({ user }) {
               </div>
               <div>
                 <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-700 block mb-1">Date of Birth</label>
-                <input
+                <Input
                   type="date"
                   value={admissionForm.dateOfBirth}
                   onChange={(e) => setAdmissionForm({ ...admissionForm, dateOfBirth: e.target.value })}
@@ -2203,7 +2204,7 @@ export default function DashboardUI({ user }) {
               </div>
               <div>
                 <label className="text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider block mb-1.5">Publish Date</label>
-                <input
+                <Input
                   type="date"
                   value={noticeForm.date}
                   onChange={(e) => setNoticeForm({ ...noticeForm, date: e.target.value })}
@@ -2333,7 +2334,7 @@ export default function DashboardUI({ user }) {
                 <label className="text-xs font-bold text-zinc-700 uppercase tracking-wider block mb-1">
                   Event Date <span className="text-rose-500">*</span>
                 </label>
-                <input
+                <Input
                   type="date"
                   required
                   value={eventForm.date || eventForm.startDate}

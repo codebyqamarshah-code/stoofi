@@ -1,5 +1,6 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
@@ -224,7 +225,7 @@ export default function EventPage() {
                   <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                     Start Date <span className="text-rose-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     required
                     value={form.startDate}
@@ -236,7 +237,7 @@ export default function EventPage() {
                   <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                     End Date <span className="text-rose-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     required
                     value={form.endDate}

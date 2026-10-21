@@ -162,7 +162,7 @@ export default function ApproveDepositPage() {
               {filtered.length > 0 ? filtered.map((r, i) => (
                 <tr key={r._id} className="hover:bg-slate-50/70 transition-colors">
                   <td className="p-3 text-zinc-400 font-mono">{i + 1}</td>
-                  <td className="p-3 text-zinc-500 font-medium">{r.date}</td>
+                  <td className="p-3 text-zinc-500 font-medium">{formatDateDMY(r.date)}</td>
                   <td className="p-3">
                     <div className="font-extrabold text-zinc-950">{r.student}</div>
                     <div className="text-[10px] text-zinc-500 font-mono">{r.admNo}</div>

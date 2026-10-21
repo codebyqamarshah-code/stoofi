@@ -469,7 +469,7 @@ export default function BankPaymentPage() {
                       {item.bankName || 'Meezan Bank Ltd'}
                     </td>
                     <td className="px-4 py-3.5 text-zinc-600">
-                      {item.date ? new Date(item.date).toLocaleDateString() : new Date().toLocaleDateString()}
+                      {formatDateDMY(item.date || item.createdAt)}
                     </td>
                     <td className="px-4 py-3.5 font-bold text-zinc-950 text-sm">
                       Rs. {Number(item.amount || 0).toLocaleString()}

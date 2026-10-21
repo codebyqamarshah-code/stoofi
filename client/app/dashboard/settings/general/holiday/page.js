@@ -1,5 +1,6 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { useState, useRef } from 'react';
 import { ChevronRight, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, Trash2 } from 'lucide-react';
@@ -78,7 +79,7 @@ export default function HolidayPage() {
           </div>
           <div>
             <label className="text-xs font-bold uppercase tracking-wider text-zinc-900 block mb-1.5">FROM DATE</label>
-            <input
+            <Input
               type="date"
               value={fromDate}
               onChange={e => setFromDate(e.target.value)}
@@ -87,7 +88,7 @@ export default function HolidayPage() {
           </div>
           <div>
             <label className="text-xs font-bold uppercase tracking-wider text-zinc-900 block mb-1.5">TO DATE</label>
-            <input
+            <Input
               type="date"
               value={toDate}
               onChange={e => setToDate(e.target.value)}
@@ -153,8 +154,8 @@ export default function HolidayPage() {
                   <tr key={h.id} className="hover:bg-zinc-50 transition-colors">
                     <td className="py-3 px-3 text-zinc-600 font-semibold">{idx + 1}</td>
                     <td className="py-3 px-3 font-bold text-zinc-950">{h.title}</td>
-                    <td className="py-3 px-3 text-zinc-700 font-medium">{h.fromDate}</td>
-                    <td className="py-3 px-3 text-zinc-700 font-medium">{h.toDate}</td>
+                    <td className="py-3 px-3 text-zinc-700 font-medium">{formatDateDMY(h.fromDate)}</td>
+                    <td className="py-3 px-3 text-zinc-700 font-medium">{formatDateDMY(h.toDate)}</td>
                     <td className="py-3 px-3 font-bold text-emerald-700">{h.days}</td>
                     <td className="py-3 px-3 text-zinc-600 max-w-32 truncate">{h.description}</td>
                     <td className="py-3 px-3 text-right">

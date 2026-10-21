@@ -1,5 +1,6 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { useState, useRef } from 'react';
 import { 
@@ -148,7 +149,7 @@ export default function NewsListPage() {
 
           <div>
             <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1">PUBLISH DATE *</label>
-            <input
+            <Input
               type="date"
               value={publishDate}
               onChange={e => setPublishDate(e.target.value)}
@@ -252,7 +253,7 @@ export default function NewsListPage() {
                 filtered.map((item) => (
                   <tr key={item.id} className="border-b border-zinc-100/50 hover:bg-zinc-50/80">
                     <td className="py-3 px-3 text-zinc-200 font-medium max-w-xs">{item.title}</td>
-                    <td className="py-3 px-3 text-zinc-700">{item.date}</td>
+                    <td className="py-3 px-3 text-zinc-700">{formatDateDMY(item.date)}</td>
                     <td className="py-3 px-3 text-zinc-950">{item.category}</td>
                     <td className="py-3 px-3">
                       <div className="w-12 h-10 rounded-lg overflow-hidden border border-zinc-200 bg-zinc-800">

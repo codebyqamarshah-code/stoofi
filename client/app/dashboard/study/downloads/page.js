@@ -68,7 +68,7 @@ export default function OtherDownloadsListPage() {
                     <td className="px-4 py-3.5 text-zinc-700">{i + 1}</td>
                     <td className="px-4 py-3.5">{d.title}</td>
                     <td className="px-4 py-3.5 text-zinc-700">{d.type}</td>
-                    <td className="px-4 py-3.5 text-zinc-700">{d.date}</td>
+                    <td className="px-4 py-3.5 text-zinc-700">{formatDateDMY(d.date)}</td>
                     <td className="px-4 py-3.5 text-zinc-700">{d.availableFor}</td>
                     <td className="px-4 py-3.5 text-zinc-700">{d.classSection}</td>
                     <td className="px-4 py-3.5 text-right">

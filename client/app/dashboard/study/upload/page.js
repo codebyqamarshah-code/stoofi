@@ -448,7 +448,7 @@ export default function UploadContentPage() {
                             {c.type}
                           </span>
                         </td>
-                        <td className="px-4 py-3.5 text-zinc-700 font-mono text-xs">{c.date}</td>
+                        <td className="px-4 py-3.5 text-zinc-700 font-mono text-xs">{formatDateDMY(c.date)}</td>
                         <td className="px-4 py-3.5 text-zinc-700">{c.availableFor}</td>
                         <td className="px-4 py-3.5 text-zinc-900 font-semibold">{c.classSection}</td>
                         <td className="px-4 py-3.5 text-right">

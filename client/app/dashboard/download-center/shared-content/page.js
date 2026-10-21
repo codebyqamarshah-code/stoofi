@@ -1,5 +1,6 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronRight, Search, Trash2, Edit2, Share2, CheckCircle2, AlertCircle, Loader2, ToggleLeft, ToggleRight, Calendar, Users, Globe } from 'lucide-react';
@@ -211,7 +212,7 @@ export default function SharedContentPage() {
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-zinc-600 uppercase tracking-wide">Expiry Date <span className="text-rose-500">*</span></label>
-                <input
+                <Input
                   type="date"
                   value={formData.expiryDate}
                   onChange={e => setFormData({ ...formData, expiryDate: e.target.value })}

@@ -146,7 +146,7 @@ export default function IncomePage() {
                   ) : records.map((r, i) => (
                     <tr key={r._id} className="hover:bg-zinc-50">
                       <td className="px-4 py-3 text-zinc-600">+{i+1}</td>
-                      <td className="px-4 py-3 text-zinc-950">{r.title || '-'}</td><td className="px-4 py-3 text-zinc-950">{r.amount || '-'}</td><td className="px-4 py-3 text-zinc-950">{r.category || '-'}</td><td className="px-4 py-3 text-zinc-950">{r.date || '-'}</td>
+                      <td className="px-4 py-3 text-zinc-950">{r.title || '-'}</td><td className="px-4 py-3 text-zinc-950 font-bold">Rs. {Number(r.amount || 0).toLocaleString()}</td><td className="px-4 py-3 text-zinc-950">{r.category || '-'}</td><td className="px-4 py-3 text-zinc-950 font-medium">{formatDateDMY(r.date)}</td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-2">
                           <Button onClick={() => handleEdit(r)} variant="ghost" size="sm" className="h-8 text-zinc-600 hover:bg-zinc-600/10"><Edit className="h-4 w-4" /></Button>

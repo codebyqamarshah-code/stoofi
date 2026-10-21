@@ -137,7 +137,7 @@ export default function PendingDepositPage() {
               {filtered.map(r => (
                 <tr key={r._id} className="hover:bg-slate-50/70">
                   <td className="p-3"><button onClick={() => setSelectedIds(prev => prev.includes(r._id) ? prev.filter(x=>x!==r._id) : [...prev, r._id])} className="cursor-pointer">{selectedIds.includes(r._id) ? <CheckSquare className="w-4 h-4 text-[#084A86]" /> : <Square className="w-4 h-4 text-zinc-300" />}</button></td>
-                  <td className="p-3 text-zinc-500">{r.date}</td>
+                  <td className="p-3 text-zinc-500">{formatDateDMY(r.date)}</td>
                   <td className="p-3 font-bold text-zinc-900">{r.student}</td>
                   <td className="p-3 font-mono text-zinc-600">{r.admNo}</td>
                   <td className="p-3 text-right font-bold text-emerald-600 font-mono">{fmt(r.amount)}</td>

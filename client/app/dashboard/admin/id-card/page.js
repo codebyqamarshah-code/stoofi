@@ -1190,7 +1190,7 @@ export default function IdCardPage() {
                         <span className="font-bold text-zinc-800">{st.className}</span>
                         <span className="block text-[10px] text-zinc-500 font-medium">{st.section}</span>
                       </td>
-                      <td className="px-4 py-3 font-medium text-zinc-600">{st.dob || '-'}</td>
+                      <td className="px-4 py-3 font-medium text-zinc-600">{formatDateDMY(st.dob)}</td>
                       <td className="px-4 py-3">
                         <span className="text-zinc-800 font-medium">{st.fatherName || '-'}</span>
                         <span className="block font-mono text-[10px] text-zinc-500">{st.phone || '-'}</span>

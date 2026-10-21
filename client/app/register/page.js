@@ -1,4 +1,5 @@
 'use client';
+import { Input } from '@/components/ui/input';
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -1028,7 +1029,7 @@ export default function RegisterPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className={labelClass}>Date of Birth (DOB)</label>
-              <input
+              <Input
                 type="date"
                 name="dob"
                 value={formData.dob}

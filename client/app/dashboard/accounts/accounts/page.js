@@ -198,7 +198,7 @@ export default function AccountsOverviewPage() {
               {recent.map((tx) => (
                 <tr key={tx._id} className="hover:bg-slate-50/70 transition-colors">
                   <td className="p-3 font-mono font-bold text-zinc-700">{tx.ref}</td>
-                  <td className="p-3 text-zinc-500 font-medium">{tx.date}</td>
+                  <td className="p-3 text-zinc-500 font-medium">{formatDateDMY(tx.date)}</td>
                   <td className="p-3 font-extrabold text-zinc-950">{tx.head}</td>
                   <td className="p-3">
                     <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${

@@ -66,7 +66,7 @@ export default function AssignmentListPage() {
                   <tr key={i} className="hover:bg-zinc-50/80 transition-colors text-zinc-950 font-medium">
                     <td className="px-4 py-3.5">{a.title}</td>
                     <td className="px-4 py-3.5 text-zinc-700">{a.type}</td>
-                    <td className="px-4 py-3.5 text-zinc-700">{a.date}</td>
+                    <td className="px-4 py-3.5 text-zinc-700">{formatDateDMY(a.date)}</td>
                     <td className="px-4 py-3.5 text-zinc-700">{a.availableFor}</td>
                     <td className="px-4 py-3.5 text-zinc-700">{a.classSection}</td>
                     <td className="px-4 py-3.5 text-right">

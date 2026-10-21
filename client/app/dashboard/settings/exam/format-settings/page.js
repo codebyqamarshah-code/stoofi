@@ -1,5 +1,6 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { useState } from 'react';
 import { ChevronRight, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, ChevronDown } from 'lucide-react';
@@ -71,7 +72,7 @@ export default function FormatSettingsPage() {
 
           <div>
             <label className="text-xs font-semibold text-red-500 uppercase block mb-1">RESULT PUBLICATION DATE *</label>
-            <input type="date" value={pubDate} onChange={e => setPubDate(e.target.value)} className="w-full bg-white border border-zinc-200 shadow-xs text-zinc-950 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 [&::-webkit-calendar-picker-indicator]:invert" />
+            <Input type="date" value={pubDate} onChange={e => setPubDate(e.target.value)} className="w-full bg-white border border-zinc-200 shadow-xs text-zinc-950 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 [&::-webkit-calendar-picker-indicator]:invert" />
           </div>
 
           <div className="pt-2">
@@ -79,11 +80,11 @@ export default function FormatSettingsPage() {
             <div className="space-y-4">
               <div>
                 <label className="text-xs font-semibold text-red-500 uppercase block mb-1">START DATE *</label>
-                <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full bg-white border border-zinc-200 shadow-xs text-zinc-950 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 [&::-webkit-calendar-picker-indicator]:invert" />
+                <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full bg-white border border-zinc-200 shadow-xs text-zinc-950 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 [&::-webkit-calendar-picker-indicator]:invert" />
               </div>
               <div>
                 <label className="text-xs font-semibold text-red-500 uppercase block mb-1">END DATE *</label>
-                <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full bg-white border border-zinc-200 shadow-xs text-zinc-950 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 [&::-webkit-calendar-picker-indicator]:invert" />
+                <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full bg-white border border-zinc-200 shadow-xs text-zinc-950 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 [&::-webkit-calendar-picker-indicator]:invert" />
               </div>
             </div>
           </div>

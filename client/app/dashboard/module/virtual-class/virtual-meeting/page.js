@@ -1,5 +1,6 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
 import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { 
@@ -405,7 +406,7 @@ export default function VirtualMeetingMainPage() {
                   <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                     Meeting Date <span className="text-rose-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     required
                     value={form.date}

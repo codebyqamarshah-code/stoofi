@@ -124,7 +124,7 @@ export default function WalletDashboardPage() {
             <tbody className="divide-y divide-zinc-100">
               {recent.map(t => (
                 <tr key={t._id} className="hover:bg-slate-50/70 transition-colors">
-                  <td className="p-3 text-zinc-500">{t.date}</td>
+                  <td className="p-3 text-zinc-500">{formatDateDMY(t.date)}</td>
                   <td className="p-3 font-bold text-zinc-900">{t.student}</td>
                   <td className="p-3 font-mono text-zinc-600">{t.admNo}</td>
                   <td className="p-3">

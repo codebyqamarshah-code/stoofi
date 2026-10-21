@@ -233,7 +233,7 @@ export default function PendingReportPage() {
                   <td className="px-4 py-3.5 text-zinc-700">{item.classSection}</td>
                   <td className="px-4 py-3.5 text-zinc-700">{item.evaluatedBy}</td>
                   <td className="px-4 py-3.5"><ScoreBar score={item.score} /></td>
-                  <td className="px-4 py-3.5 text-zinc-600 text-xs">{item.date}</td>
+                  <td className="px-4 py-3.5 text-zinc-600 text-xs">{formatDateDMY(item.date)}</td>
                   <td className="px-4 py-3.5">{statusBadge(item.status)}</td>
                   <td className="px-4 py-3.5">
                     <div className="flex items-center justify-end gap-1.5">

@@ -1,5 +1,6 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
 import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { 
@@ -215,28 +216,28 @@ export default function JitsiClassReportsPage() {
               <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                 From Date <span className="text-rose-500">*</span>
               </label>
-              <input
+              <Input
                 type="date"
                 required
                 value={criteria.fromDate}
                 onChange={(e) => setCriteria({ ...criteria, fromDate: e.target.value })}
                 className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
               >
-              </input>
+              </Input>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-700 uppercase tracking-wider mb-1.5">
                 To Date <span className="text-rose-500">*</span>
               </label>
-              <input
+              <Input
                 type="date"
                 required
                 value={criteria.toDate}
                 onChange={(e) => setCriteria({ ...criteria, toDate: e.target.value })}
                 className="w-full px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-200 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-900 text-sm focus:ring-2 focus:ring-zinc-600/20 focus:border-zinc-600 outline-none transition-colors"
               >
-              </input>
+              </Input>
             </div>
           </div>
 

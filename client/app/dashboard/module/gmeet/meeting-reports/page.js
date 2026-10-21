@@ -1,5 +1,6 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
@@ -154,7 +155,7 @@ export default function GMeetMeetingReportsPage() {
             </div>
             <div>
               <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1.5">From Date</label>
-              <input
+              <Input
                 type="date"
                 value={criteria.fromDate}
                 onChange={(e) => setCriteria({ ...criteria, fromDate: e.target.value })}
@@ -163,7 +164,7 @@ export default function GMeetMeetingReportsPage() {
             </div>
             <div>
               <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1.5">To Date</label>
-              <input
+              <Input
                 type="date"
                 value={criteria.toDate}
                 onChange={(e) => setCriteria({ ...criteria, toDate: e.target.value })}

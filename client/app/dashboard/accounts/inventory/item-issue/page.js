@@ -137,7 +137,7 @@ export default function ItemIssuePage() {
                   ) : records.map((r, i) => (
                     <tr key={r.id} className="hover:bg-zinc-50">
                       <td className="px-4 py-3 text-zinc-600">+{i+1}</td>
-                      <td className="px-4 py-3 text-zinc-950">{r.item || '-'}</td><td className="px-4 py-3 text-zinc-950">{r.issuedTo || '-'}</td><td className="px-4 py-3 text-zinc-950">{r.quantity || '-'}</td><td className="px-4 py-3 text-zinc-950">{r.date || '-'}</td>
+                      <td className="px-4 py-3 text-zinc-950">{r.item || '-'}</td><td className="px-4 py-3 text-zinc-950">{r.issuedTo || '-'}</td><td className="px-4 py-3 text-zinc-950">{r.quantity || '-'}</td><td className="px-4 py-3 text-zinc-950 font-medium">{formatDateDMY(r.date)}</td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-2">
                           <Button onClick={() => handleEdit(r)} variant="ghost" size="sm" className="h-8 text-zinc-600 hover:bg-zinc-600/10"><Edit className="h-4 w-4" /></Button>
