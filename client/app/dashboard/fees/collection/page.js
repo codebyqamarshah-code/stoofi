@@ -304,7 +304,7 @@ export default function FeesCollectionPage() {
     });
   }, [invoices, statusFilter, historySearch]);
 
-  const currencySymbol = schoolSetting?.currencySymbol || 'PKR ';
+  const currencySymbol = schoolSetting?.currencySymbol || 'Rs. ';
 
   // Export configs for students directory
   const studentExportColumns = [
@@ -334,8 +334,8 @@ export default function FeesCollectionPage() {
     { key: 'className', label: 'Class & Section' },
     { key: 'feeType', label: 'Fee Type' },
     { key: 'paymentMethod', label: 'Payment Method' },
-    { key: 'paid', label: 'Paid Amount (PKR)' },
-    { key: 'balance', label: 'Balance (PKR)' },
+    { key: 'paid', label: 'Paid Amount (Rs.)' },
+    { key: 'balance', label: 'Balance (Rs.)' },
     { key: 'status', label: 'Status' }
   ];
 

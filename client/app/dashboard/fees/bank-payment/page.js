@@ -319,7 +319,7 @@ export default function BankPaymentPage() {
           <div>
             <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Total Verified</span>
             <div className="text-2xl font-black text-[#084A86] mt-1">
-              PKR {stats.approvedAmount.toLocaleString()}
+              Rs. {stats.approvedAmount.toLocaleString()}
             </div>
             <div className="text-[11px] text-zinc-400">Deposited into school account</div>
           </div>
@@ -472,7 +472,7 @@ export default function BankPaymentPage() {
                       {item.date ? new Date(item.date).toLocaleDateString() : new Date().toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3.5 font-bold text-zinc-950 text-sm">
-                      PKR {Number(item.amount || 0).toLocaleString()}
+                      Rs. {Number(item.amount || 0).toLocaleString()}
                     </td>
                     <td className="px-4 py-3.5">
                       {item.file ? (
@@ -552,7 +552,7 @@ export default function BankPaymentPage() {
                 </div>
                 <div className="flex justify-between border-t border-zinc-200 pt-2">
                   <span className="text-zinc-500 font-medium">Paid Amount:</span>
-                  <span className="text-base font-black text-emerald-600">PKR {Number(selectedPayment.amount || 0).toLocaleString()}</span>
+                  <span className="text-base font-black text-emerald-600">Rs. {Number(selectedPayment.amount || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-zinc-500 font-medium">Transaction #:</span>
@@ -646,7 +646,7 @@ export default function BankPaymentPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
-                    Amount (PKR) <span className="text-rose-500">*</span>
+                    Amount (Rs.) <span className="text-rose-500">*</span>
                   </Label>
                   <Input 
                     type="number"

@@ -251,8 +251,8 @@ export default function FeesCarryForwardPage() {
     { key: 'studentName', label: 'Student Name' },
     { key: 'fatherName', label: 'Father Name' },
     { key: 'classInfo', label: 'Class & Section' },
-    { key: 'previousBalance', label: 'Previous Dues (PKR)' },
-    { key: 'carryForwardAmount', label: 'Carry Forward Amount (PKR)' },
+    { key: 'previousBalance', label: 'Previous Dues (Rs.)' },
+    { key: 'carryForwardAmount', label: 'Carry Forward Amount (Rs.)' },
     { key: 'status', label: 'Status' }
   ];
 
@@ -322,7 +322,7 @@ export default function FeesCarryForwardPage() {
         <div className="bg-white border border-zinc-200 rounded-xl p-4 flex items-center justify-between shadow-xs">
           <div>
             <div className="text-xs text-zinc-500 font-semibold uppercase tracking-wider">Total Pending Dues</div>
-            <div className="text-2xl font-black text-zinc-950 mt-1">PKR {stats.totalArrears.toLocaleString()}</div>
+            <div className="text-2xl font-black text-zinc-950 mt-1">Rs. {stats.totalArrears.toLocaleString()}</div>
           </div>
           <div className="h-10 w-10 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600">
             <DollarSign className="h-5 w-5" />
@@ -333,7 +333,7 @@ export default function FeesCarryForwardPage() {
           <div>
             <div className="text-xs text-zinc-500 font-semibold uppercase tracking-wider">Selected to Forward</div>
             <div className="text-2xl font-black text-[#084A86] mt-1">
-              PKR {stats.selectedAmount.toLocaleString()}
+              Rs. {stats.selectedAmount.toLocaleString()}
             </div>
             <div className="text-[11px] text-zinc-400 font-medium">{stats.selectedCount} students selected</div>
           </div>
@@ -462,7 +462,7 @@ export default function FeesCarryForwardPage() {
                 <th className="px-4 py-3.5">Class & Section</th>
                 <th className="px-4 py-3.5">Father Name</th>
                 <th className="px-4 py-3.5">Previous Balance</th>
-                <th className="px-4 py-3.5">Carry Forward Amount (PKR)</th>
+                <th className="px-4 py-3.5">Carry Forward Amount (Rs.)</th>
                 <th className="px-4 py-3.5">Status</th>
                 <th className="px-4 py-3.5 text-right">Action</th>
               </tr>
@@ -521,12 +521,12 @@ export default function FeesCarryForwardPage() {
                       </td>
                       <td className="px-4 py-3.5">
                         <span className={`font-bold ${hasArrears ? 'text-rose-600' : 'text-zinc-500'}`}>
-                          PKR {(s.previousBalance || 0).toLocaleString()}
+                          Rs. {(s.previousBalance || 0).toLocaleString()}
                         </span>
                       </td>
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-1 max-w-[160px]">
-                          <span className="text-xs text-zinc-400 font-bold">PKR</span>
+                          <span className="text-xs text-zinc-400 font-bold">Rs.</span>
                           <Input
                             type="number"
                             min="0"
@@ -574,7 +574,7 @@ export default function FeesCarryForwardPage() {
           <div className="flex items-center gap-2">
             <span className="text-zinc-600 font-semibold">Selected for Carry Forward:</span>
             <span className="font-bold text-[#084A86]">
-              {selectedIds.size} students (PKR {stats.selectedAmount.toLocaleString()})
+              {selectedIds.size} students (Rs. {stats.selectedAmount.toLocaleString()})
             </span>
           </div>
         </div>

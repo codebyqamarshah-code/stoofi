@@ -105,7 +105,7 @@ export default function PaymentReportPage() {
                     <span className="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 px-2 py-1 rounded text-xs">{r.paymentMethod || 'Cash'}</span>
                   </td>
                   <td className="px-4 py-3 font-semibold text-emerald-400">
-                    ${Number(r.paid || 0).toLocaleString()}
+                    Rs. {Number(r.paid || 0).toLocaleString()}
                   </td>
                   <td className="px-4 py-3 text-zinc-600 dark:text-zinc-700 text-xs">
                     {r.date ? new Date(r.date).toLocaleDateString('en-GB') : '-'}

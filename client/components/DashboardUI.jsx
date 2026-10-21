@@ -66,7 +66,7 @@ export default function DashboardUI({ user }) {
   
   // Mounted & Currency Symbol State
   const [mounted, setMounted] = useState(false);
-  const [currencySymbol, setCurrencySymbol] = useState('PKR ');
+  const [currencySymbol, setCurrencySymbol] = useState('Rs. ');
 
   // Real-time Date & Greeting State
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -300,27 +300,42 @@ export default function DashboardUI({ user }) {
     }
   }, []);
 
-  // 4. Fetch Real Stats & Invoices from Backend API
+  // 4. Fetch Real Stats, Invoices & Bank Payments from Backend API
   const fetchDashboardStats = async () => {
     try {
-      const [res, invRes] = await Promise.all([
+      const [res, invRes, bankRes] = await Promise.all([
         api.get('/dashboard/stats').catch(() => null),
-        api.get('/fees-invoice?limit=300').catch(() => null)
+        api.get('/fees-invoice?limit=500').catch(() => null),
+        api.get('/bank-payment?limit=500').catch(() => null)
       ]);
 
       let liveStats = res?.data?.stats;
       let chartsObj = res?.data?.charts;
 
-      // Extract real-time collected fees directly from invoices
-      const invoices = invRes?.success && Array.isArray(invRes.data) ? invRes.data : [];
+      // Extract real-time collected fees directly from invoices & bank payments
+      const rawInvoices = invRes?.data || (Array.isArray(invRes) ? invRes : []);
+      const rawBankPayments = bankRes?.data || (Array.isArray(bankRes) ? bankRes : []);
+
       let invoicePaid = 0;
       let invoiceTotal = 0;
-      if (invoices.length > 0) {
-        invoices.forEach(inv => {
-          invoicePaid += Number(inv.paid) || 0;
-          invoiceTotal += Number(inv.amount) || 0;
+      if (Array.isArray(rawInvoices) && rawInvoices.length > 0) {
+        rawInvoices.forEach(inv => {
+          invoicePaid += Number(inv.paid || inv.paidAmount) || 0;
+          invoiceTotal += Number(inv.amount || inv.totalAmount) || 0;
         });
       }
+
+      let bankPaid = 0;
+      if (Array.isArray(rawBankPayments) && rawBankPayments.length > 0) {
+        rawBankPayments.forEach(bp => {
+          if (bp.status !== 'Rejected') {
+            bankPaid += Number(bp.amount) || 0;
+          }
+        });
+      }
+
+      const totalDirectCollected = invoicePaid + bankPaid;
+      const totalDirectFees = Math.max(invoiceTotal + bankPaid, totalDirectCollected);
 
       setDashboardData(prev => {
         const mergedStats = { ...(liveStats || prev.stats) };
@@ -328,14 +343,28 @@ export default function DashboardUI({ user }) {
           mergedStats.fees = { ...prev.stats.fees };
         }
 
-        // Accurately blend collected fees from both API and live invoices
-        const existingCollected = Number(mergedStats.fees.collectedFees) || 0;
-        if (invoicePaid > existingCollected) {
-          mergedStats.fees.collectedFees = invoicePaid;
-          mergedStats.fees.totalIncome = Math.max(mergedStats.fees.totalIncome || 0, invoicePaid);
-          if (invoiceTotal > 0) {
-            mergedStats.fees.totalFees = Math.max(mergedStats.fees.totalFees || 0, invoiceTotal);
-            mergedStats.fees.collectionPercentage = Math.min(100, Math.round((invoicePaid / mergedStats.fees.totalFees) * 100));
+        // Accurately blend collected fees from backend stats, invoices, and bank payments
+        const backendCollected = Number(mergedStats.fees.collectedFees) || 0;
+        const finalCollected = Math.max(backendCollected, totalDirectCollected);
+        const finalTotalFees = Math.max(Number(mergedStats.fees.totalFees) || 0, totalDirectFees, finalCollected);
+        const finalPercentage = finalTotalFees > 0 
+          ? Math.min(100, Math.round((finalCollected / finalTotalFees) * 100)) 
+          : (finalCollected > 0 ? 100 : 0);
+
+        mergedStats.fees.collectedFees = finalCollected;
+        mergedStats.fees.totalIncome = Math.max(Number(mergedStats.fees.totalIncome) || 0, finalCollected);
+        mergedStats.fees.totalFees = finalTotalFees;
+        mergedStats.fees.collectionPercentage = finalPercentage;
+        mergedStats.fees.totalProfit = (mergedStats.fees.totalIncome || 0) - (Number(mergedStats.fees.totalExpenses) || 0);
+
+        // Also blend income into monthly chart if current month is 0
+        const updatedCharts = chartsObj || prev.charts;
+        if (finalCollected > 0 && updatedCharts?.monthly) {
+          const currentDay = new Date().getDate();
+          const targetBucket = currentDay <= 3 ? 0 : currentDay <= 7 ? 1 : currentDay <= 12 ? 2 : currentDay <= 17 ? 3 : currentDay <= 22 ? 4 : currentDay <= 27 ? 5 : 6;
+          const monthlySum = updatedCharts.monthly.reduce((sum, item) => sum + (Number(item.income) || 0), 0);
+          if (monthlySum < finalCollected && updatedCharts.monthly[targetBucket]) {
+            updatedCharts.monthly[targetBucket].income = Math.max(updatedCharts.monthly[targetBucket].income || 0, finalCollected);
           }
         }
 
@@ -343,7 +372,7 @@ export default function DashboardUI({ user }) {
           ...prev,
           ...(res?.data || {}),
           stats: mergedStats,
-          charts: chartsObj || prev.charts
+          charts: updatedCharts
         };
       });
 

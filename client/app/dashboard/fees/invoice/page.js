@@ -261,11 +261,11 @@ export default function FeesInvoicePage() {
     { key: 'admissionNo', label: 'Admission No' },
     { key: 'className', label: 'Class & Section' },
     { key: 'feeType', label: 'Fee Type' },
-    { key: 'amount', label: 'Amount (PKR)' },
-    { key: 'waiver', label: 'Waiver (PKR)' },
-    { key: 'fine', label: 'Fine (PKR)' },
-    { key: 'paid', label: 'Paid (PKR)' },
-    { key: 'balance', label: 'Balance (PKR)' },
+    { key: 'amount', label: 'Amount (Rs.)' },
+    { key: 'waiver', label: 'Waiver (Rs.)' },
+    { key: 'fine', label: 'Fine (Rs.)' },
+    { key: 'paid', label: 'Paid (Rs.)' },
+    { key: 'balance', label: 'Balance (Rs.)' },
     { key: 'status', label: 'Status' },
     { key: 'date', label: 'Date' }
   ];
@@ -320,7 +320,7 @@ export default function FeesInvoicePage() {
         <div className="bg-white border border-zinc-200 rounded-xl p-4 flex items-center justify-between shadow-xs">
           <div>
             <div className="text-xs text-zinc-500 font-semibold uppercase tracking-wider">Total Invoiced</div>
-            <div className="text-2xl font-black text-zinc-950 mt-1">PKR {stats.totalAmount.toLocaleString()}</div>
+            <div className="text-2xl font-black text-zinc-950 mt-1">Rs. {stats.totalAmount.toLocaleString()}</div>
           </div>
           <div className="h-10 w-10 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
             <CheckCircle2 className="h-5 w-5" />
@@ -330,7 +330,7 @@ export default function FeesInvoicePage() {
         <div className="bg-white border border-zinc-200 rounded-xl p-4 flex items-center justify-between shadow-xs">
           <div>
             <div className="text-xs text-zinc-500 font-semibold uppercase tracking-wider">Collected Fees</div>
-            <div className="text-2xl font-black text-emerald-700 mt-1">PKR {stats.totalPaid.toLocaleString()}</div>
+            <div className="text-2xl font-black text-emerald-700 mt-1">Rs. {stats.totalPaid.toLocaleString()}</div>
           </div>
           <div className="h-10 w-10 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
             <Download className="h-5 w-5" />
@@ -340,7 +340,7 @@ export default function FeesInvoicePage() {
         <div className="bg-white border border-zinc-200 rounded-xl p-4 flex items-center justify-between shadow-xs">
           <div>
             <div className="text-xs text-zinc-500 font-semibold uppercase tracking-wider">Pending Balance</div>
-            <div className="text-2xl font-black text-rose-600 mt-1">PKR {stats.totalBalance.toLocaleString()}</div>
+            <div className="text-2xl font-black text-rose-600 mt-1">Rs. {stats.totalBalance.toLocaleString()}</div>
           </div>
           <div className="h-10 w-10 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600">
             <AlertCircle className="h-5 w-5" />
@@ -409,7 +409,7 @@ export default function FeesInvoicePage() {
                 <th className="px-4 py-3.5 font-bold">Invoice No</th>
                 <th className="px-4 py-3.5 font-bold">Student & Class</th>
                 <th className="px-4 py-3.5 font-bold">Fee Type</th>
-                <th className="px-4 py-3.5 font-bold">Amount (PKR)</th>
+                <th className="px-4 py-3.5 font-bold">Amount (Rs.)</th>
                 <th className="px-4 py-3.5 font-bold">Waiver</th>
                 <th className="px-4 py-3.5 font-bold">Fine</th>
                 <th className="px-4 py-3.5 font-bold">Paid</th>
@@ -451,13 +451,13 @@ export default function FeesInvoicePage() {
                         {r.feeType || 'Tuition Fee'}
                       </span>
                     </td>
-                    <td className="px-4 py-3.5 font-bold text-zinc-950">PKR {Number(r.amount || 0).toLocaleString()}</td>
-                    <td className="px-4 py-3.5 text-zinc-600 text-xs">PKR {Number(r.waiver || 0).toLocaleString()}</td>
-                    <td className="px-4 py-3.5 text-zinc-600 text-xs">PKR {Number(r.fine || 0).toLocaleString()}</td>
-                    <td className="px-4 py-3.5 text-emerald-700 font-bold">PKR {Number(r.paid || 0).toLocaleString()}</td>
+                    <td className="px-4 py-3.5 font-bold text-zinc-950">Rs. {Number(r.amount || 0).toLocaleString()}</td>
+                    <td className="px-4 py-3.5 text-zinc-600 text-xs">Rs. {Number(r.waiver || 0).toLocaleString()}</td>
+                    <td className="px-4 py-3.5 text-zinc-600 text-xs">Rs. {Number(r.fine || 0).toLocaleString()}</td>
+                    <td className="px-4 py-3.5 text-emerald-700 font-bold">Rs. {Number(r.paid || 0).toLocaleString()}</td>
                     <td className="px-4 py-3.5">
                       <span className={`font-bold ${Number(r.balance || 0) > 0 ? 'text-rose-600' : 'text-zinc-500'}`}>
-                        PKR {Number(r.balance || 0).toLocaleString()}
+                        Rs. {Number(r.balance || 0).toLocaleString()}
                       </span>
                     </td>
                     <td className="px-4 py-3.5">
@@ -614,10 +614,10 @@ export default function FeesInvoicePage() {
 
               {/* Financial Breakdown Grid */}
               <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 space-y-3">
-                <div className="text-xs font-bold text-zinc-700 uppercase tracking-wider">Financial Breakdown (PKR)</div>
+                <div className="text-xs font-bold text-zinc-700 uppercase tracking-wider">Financial Breakdown (Rs.)</div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div>
-                    <label className="text-[11px] font-bold text-zinc-700 block mb-1">Total Fee (PKR)</label>
+                    <label className="text-[11px] font-bold text-zinc-700 block mb-1">Total Fee (Rs.)</label>
                     <Input 
                       type="number"
                       min="0"
@@ -628,7 +628,7 @@ export default function FeesInvoicePage() {
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-bold text-zinc-700 block mb-1">Waiver / Disc (PKR)</label>
+                    <label className="text-[11px] font-bold text-zinc-700 block mb-1">Waiver / Disc (Rs.)</label>
                     <Input 
                       type="number"
                       min="0"
@@ -638,7 +638,7 @@ export default function FeesInvoicePage() {
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-bold text-zinc-700 block mb-1">Late Fine (PKR)</label>
+                    <label className="text-[11px] font-bold text-zinc-700 block mb-1">Late Fine (Rs.)</label>
                     <Input 
                       type="number"
                       min="0"
@@ -648,7 +648,7 @@ export default function FeesInvoicePage() {
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-bold text-zinc-700 block mb-1">Amount Paid (PKR)</label>
+                    <label className="text-[11px] font-bold text-zinc-700 block mb-1">Amount Paid (Rs.)</label>
                     <Input 
                       type="number"
                       min="0"
@@ -672,7 +672,7 @@ export default function FeesInvoicePage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-zinc-500 font-semibold">Remaining Balance:</span>
-                    <span className="font-black text-rose-600 text-sm">PKR {computedBalance.toLocaleString()}</span>
+                    <span className="font-black text-rose-600 text-sm">Rs. {computedBalance.toLocaleString()}</span>
                   </div>
                 </div>
               </div>
@@ -790,24 +790,24 @@ export default function FeesInvoicePage() {
                 <thead>
                   <tr className="border-b border-zinc-200 text-zinc-500 uppercase text-[10px]">
                     <th className="text-left py-1.5 font-bold">Particulars / Description</th>
-                    <th className="text-right py-1.5 font-bold">Amount (PKR)</th>
+                    <th className="text-right py-1.5 font-bold">Amount (Rs.)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
                   <tr>
                     <td className="py-2 font-medium">{selectedReceipt.feeType || 'Tuition Fee 2026'}</td>
-                    <td className="py-2 text-right font-bold">PKR {Number(selectedReceipt.amount || 0).toLocaleString()}</td>
+                    <td className="py-2 text-right font-bold">Rs. {Number(selectedReceipt.amount || 0).toLocaleString()}</td>
                   </tr>
                   {Number(selectedReceipt.waiver || 0) > 0 && (
                     <tr className="text-zinc-700">
                       <td className="py-1.5">Fee Waiver / Concession</td>
-                      <td className="py-1.5 text-right">-PKR {Number(selectedReceipt.waiver).toLocaleString()}</td>
+                      <td className="py-1.5 text-right">-Rs. {Number(selectedReceipt.waiver).toLocaleString()}</td>
                     </tr>
                   )}
                   {Number(selectedReceipt.fine || 0) > 0 && (
                     <tr className="text-rose-700">
                       <td className="py-1.5">Late Fee Fine</td>
-                      <td className="py-1.5 text-right">+PKR {Number(selectedReceipt.fine).toLocaleString()}</td>
+                      <td className="py-1.5 text-right">+Rs. {Number(selectedReceipt.fine).toLocaleString()}</td>
                     </tr>
                   )}
                 </tbody>
@@ -817,15 +817,15 @@ export default function FeesInvoicePage() {
               <div className="mt-3 pt-3 border-t border-zinc-200 space-y-1 text-xs">
                 <div className="flex justify-between text-zinc-600">
                   <span>Net Payable:</span>
-                  <span className="font-bold text-zinc-900">PKR {(Number(selectedReceipt.amount || 0) - Number(selectedReceipt.waiver || 0) + Number(selectedReceipt.fine || 0)).toLocaleString()}</span>
+                  <span className="font-bold text-zinc-900">Rs. {(Number(selectedReceipt.amount || 0) - Number(selectedReceipt.waiver || 0) + Number(selectedReceipt.fine || 0)).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-emerald-700 font-bold">
                   <span>Amount Paid:</span>
-                  <span>PKR {Number(selectedReceipt.paid || 0).toLocaleString()}</span>
+                  <span>Rs. {Number(selectedReceipt.paid || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-rose-700 font-bold pt-1 border-t border-dashed border-zinc-200">
                   <span>Remaining Balance:</span>
-                  <span>PKR {Number(selectedReceipt.balance || 0).toLocaleString()}</span>
+                  <span>Rs. {Number(selectedReceipt.balance || 0).toLocaleString()}</span>
                 </div>
               </div>
             </div>

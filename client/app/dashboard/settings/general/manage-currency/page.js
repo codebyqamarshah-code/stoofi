@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 const DEFAULT_CURRENCIES = [
-  { id: 'curr-1', name: 'Pakistani Rupee', code: 'PKR', symbol: 'Rs', type: 'fiat', position: 'Left', space: 'Yes', decimal: 0, active: true },
+  { id: 'curr-1', name: 'Pakistani Rupee', code: 'PKR', symbol: 'Rs.', type: 'fiat', position: 'Left', space: 'Yes', decimal: 0, active: true },
   { id: 'curr-2', name: 'US Dollar', code: 'USD', symbol: '$', type: 'fiat', position: 'Left', space: 'Yes', decimal: 2, active: false },
   { id: 'curr-3', name: 'Euro', code: 'EUR', symbol: '€', type: 'fiat', position: 'Right', space: 'No', decimal: 2, active: false },
   { id: 'curr-4', name: 'British Pound', code: 'GBP', symbol: '£', type: 'fiat', position: 'Left', space: 'Yes', decimal: 2, active: false },
@@ -62,6 +62,10 @@ export default function ManageCurrency() {
     setCurrencies(updated);
     try {
       localStorage.setItem('stoofi_currencies', JSON.stringify(updated));
+      const activeCurr = updated.find(c => c.active);
+      if (activeCurr) {
+        localStorage.setItem('active_currency', JSON.stringify(activeCurr));
+      }
     } catch (e) {}
   };
 

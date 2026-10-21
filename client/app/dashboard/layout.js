@@ -526,9 +526,21 @@ export default function DashboardLayout({ children }) {
         } fixed inset-y-0 left-0 z-50 flex h-full max-h-screen w-72 sm:w-80 md:w-64 flex-col border-r border-zinc-200 dark:border-zinc-200 bg-white dark:bg-white transition-transform duration-300 md:relative md:translate-x-0 ${sidebarCollapsed ? 'md:hidden' : 'md:flex'} shrink-0 overflow-hidden`}
       >
         {/* Brand Header */}
-        <div className="flex h-[70px] items-center justify-between border-b border-zinc-200 dark:border-zinc-200 px-5 shrink-0 bg-white dark:bg-white">
-          <div className="flex items-center select-none cursor-default">
-            <img src="/logo.png" alt="Stoofi ERP" className="h-12 sm:h-14 max-w-[200px] w-auto object-contain pointer-events-none" />
+        <div className="flex h-[70px] items-center justify-between border-b border-zinc-200 dark:border-zinc-200 px-4 sm:px-5 shrink-0 bg-white dark:bg-white">
+          <div className="flex items-center gap-2.5 select-none cursor-default min-w-0">
+            <img 
+              src="/pak-royal-college-logo.png" 
+              alt="Pak Royal College" 
+              className="h-11 w-11 sm:h-12 sm:w-12 object-contain pointer-events-none rounded-full shrink-0 drop-shadow-xs" 
+            />
+            <div className="flex flex-col min-w-0">
+              <span className="text-xs sm:text-sm font-black tracking-tight text-emerald-950 uppercase leading-none truncate">
+                Pak Royal College
+              </span>
+              <span className="text-[9.5px] font-bold text-emerald-700 tracking-wider uppercase mt-0.5 truncate">
+                Campus Portal
+              </span>
+            </div>
           </div>
           <Button
             variant="ghost"

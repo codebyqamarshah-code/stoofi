@@ -9,6 +9,7 @@ const Todo = require('../models/Todo');
 const Expense = require('../models/Expense');
 const FeePayment = require('../models/FeePayment');
 const FeesInvoice = require('../models/FeesInvoice');
+const BankPayment = require('../models/BankPayment');
 const Attendance = require('../models/Attendance');
 
 // @desc    Get pure real-time dashboard statistics calculated directly from DB
@@ -47,20 +48,22 @@ exports.getDashboardStats = async (req, res, next) => {
     const studentAttPercent = totalStudents > 0 ? Math.round((studentsPresent / totalStudents) * 100) : 0;
     const staffAttPercent = (totalStaffs + totalTeachers) > 0 ? Math.round((staffPresent / (totalStaffs + totalTeachers)) * 100) : 0;
 
-    // Real Fees and Expenses calculations
-    const [feePayments, feesInvoices, allExpenses] = await Promise.all([
+    // Real Fees and Expenses calculations (including manual FeePayment, FeesInvoice, and BankPayment)
+    const [feePayments, feesInvoices, bankPayments, allExpenses] = await Promise.all([
       FeePayment.find().lean().catch(() => []),
       FeesInvoice.find().lean().catch(() => []),
+      BankPayment.find({ status: { $ne: 'Rejected' } }).lean().catch(() => []),
       Expense.find().lean().catch(() => [])
     ]);
 
     const paymentCollected = (feePayments || []).reduce((sum, item) => sum + (Number(item.netAmount || item.amount) || 0), 0);
     const invoiceCollected = (feesInvoices || []).reduce((sum, item) => sum + (Number(item.paid) || 0), 0);
-    const totalCollectedFees = paymentCollected + invoiceCollected;
+    const bankPaymentCollected = (bankPayments || []).reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+    const totalCollectedFees = paymentCollected + invoiceCollected + bankPaymentCollected;
 
     const totalInvoicedAmount = (feesInvoices || []).reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
     const estimatedTotalFees = totalInvoicedAmount > 0
-      ? totalInvoicedAmount
+      ? (totalInvoicedAmount + bankPaymentCollected)
       : (totalStudents > 0 ? totalStudents * 15000 : (totalCollectedFees > 0 ? totalCollectedFees : 0));
 
     const feeCollectionPercent = estimatedTotalFees > 0
@@ -119,6 +122,10 @@ exports.getDashboardStats = async (req, res, next) => {
       addIncomeToBreakdown(inv.date || inv.createdAt, inv.paid);
     });
 
+    (bankPayments || []).forEach(bp => {
+      addIncomeToBreakdown(bp.date || bp.createdAt, bp.amount);
+    });
+
     (allExpenses || []).forEach(e => {
       const eDate = new Date(e.date || e.createdAt);
       if (!isNaN(eDate.getTime()) && eDate.getMonth() === currentMonth && eDate.getFullYear() === currentYear) {
@@ -149,6 +156,13 @@ exports.getDashboardStats = async (req, res, next) => {
       const pDate = new Date(inv.date || inv.createdAt);
       if (!isNaN(pDate.getTime()) && pDate.getFullYear() === currentYear) {
         yearlyTrajectory[pDate.getMonth()].income += Number(inv.paid) || 0;
+      }
+    });
+
+    (bankPayments || []).forEach(bp => {
+      const pDate = new Date(bp.date || bp.createdAt);
+      if (!isNaN(pDate.getTime()) && pDate.getFullYear() === currentYear) {
+        yearlyTrajectory[pDate.getMonth()].income += Number(bp.amount) || 0;
       }
     });
 

@@ -68,9 +68,11 @@ export default function FeesDashboardPage() {
 
   // Compute live stats
   const stats = useMemo(() => {
-    const totalCollected = invoices.reduce((sum, inv) => sum + (Number(inv.paid) || 0), 0);
+    const totalInvoicePaid = invoices.reduce((sum, inv) => sum + (Number(inv.paid) || 0), 0);
+    const bankCollected = bankPayments.filter(b => b.status !== 'Rejected').reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
+    const totalCollected = totalInvoicePaid + bankCollected;
     const totalPending = invoices.reduce((sum, inv) => sum + (Number(inv.balance) || 0), 0);
-    const totalAmount = invoices.reduce((sum, inv) => sum + (Number(inv.amount) || 0), 0);
+    const totalAmount = invoices.reduce((sum, inv) => sum + (Number(inv.amount) || 0), 0) + bankCollected;
     const pendingBankCount = bankPayments.filter(b => b.status === 'Pending').length;
     const paidInvoicesCount = invoices.filter(inv => String(inv.status).toLowerCase() === 'paid').length;
 
@@ -119,7 +121,7 @@ export default function FeesDashboardPage() {
           <div>
             <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Total Collected</span>
             <div className="text-2xl font-black text-emerald-600 mt-1">
-              PKR {stats.totalCollected.toLocaleString()}
+              Rs. {stats.totalCollected.toLocaleString()}
             </div>
             <div className="text-[11px] font-semibold text-zinc-400 mt-0.5">
               {stats.paidInvoicesCount} invoices fully settled
@@ -134,7 +136,7 @@ export default function FeesDashboardPage() {
           <div>
             <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Pending Balance</span>
             <div className="text-2xl font-black text-rose-600 mt-1">
-              PKR {stats.totalPending.toLocaleString()}
+              Rs. {stats.totalPending.toLocaleString()}
             </div>
             <div className="text-[11px] font-semibold text-zinc-400 mt-0.5">
               Outstanding student dues
@@ -149,7 +151,7 @@ export default function FeesDashboardPage() {
           <div>
             <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Total Issued</span>
             <div className="text-2xl font-black text-[#084A86] mt-1">
-              PKR {stats.totalAmount.toLocaleString()}
+              Rs. {stats.totalAmount.toLocaleString()}
             </div>
             <div className="text-[11px] font-semibold text-zinc-400 mt-0.5">
               Across {stats.totalInvoices} generated vouchers
@@ -315,13 +317,13 @@ export default function FeesDashboardPage() {
                       {inv.feeType || 'Tuition Fee'}
                     </td>
                     <td className="px-4 py-3.5 font-semibold text-zinc-950">
-                      PKR {Number(inv.amount || 0).toLocaleString()}
+                      Rs. {Number(inv.amount || 0).toLocaleString()}
                     </td>
                     <td className="px-4 py-3.5 font-semibold text-emerald-600">
-                      PKR {Number(inv.paid || 0).toLocaleString()}
+                      Rs. {Number(inv.paid || 0).toLocaleString()}
                     </td>
                     <td className="px-4 py-3.5 font-semibold text-rose-600">
-                      PKR {Number(inv.balance || 0).toLocaleString()}
+                      Rs. {Number(inv.balance || 0).toLocaleString()}
                     </td>
                     <td className="px-4 py-3.5">
                       <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
