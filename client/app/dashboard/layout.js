@@ -65,7 +65,7 @@ export default function DashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [menuStructure, setMenuStructure] = useState(() => getStoredSidebar(user?.role || 'Super Admin'));
+  const [menuStructure, setMenuStructure] = useState(DEFAULT_MENU_STRUCTURE);
   
   useEffect(() => {
     if (!isLoading && isAuthenticated && user) {
@@ -396,8 +396,9 @@ export default function DashboardLayout({ children }) {
 
   useEffect(() => {
     setMounted(true);
+    setMenuStructure(getStoredSidebar(user?.role || 'Super Admin'));
     checkAuth();
-  }, []);
+  }, [user?.role]);
 
   // Guard ref so we only ever redirect once
   const redirectedRef = useRef(false);

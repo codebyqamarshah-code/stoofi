@@ -64,6 +64,10 @@ export default function DashboardUI({ user }) {
   const [todoTab, setTodoTab] = useState('all');
   const [calendarView, setCalendarView] = useState('month');
   
+  // Mounted & Currency Symbol State
+  const [mounted, setMounted] = useState(false);
+  const [currencySymbol, setCurrencySymbol] = useState('PKR ');
+
   // Real-time Date & Greeting State
   const [currentDate, setCurrentDate] = useState(new Date());
   const [greeting, setGreeting] = useState('GOOD AFTERNOON');
@@ -281,22 +285,69 @@ export default function DashboardUI({ user }) {
     return () => clearInterval(weatherInterval);
   }, []);
 
-  // 3. Fetch Real Stats & Notices from Backend API
+  // 3. Mount and Load Active Currency Symbol
+  useEffect(() => {
+    setMounted(true);
+    if (typeof window !== 'undefined') {
+      try {
+        const active = localStorage.getItem('active_currency');
+        if (active) {
+          const parsed = JSON.parse(active);
+          if (parsed?.symbol) setCurrencySymbol(parsed.symbol + ' ');
+          else if (parsed?.code) setCurrencySymbol(parsed.code + ' ');
+        }
+      } catch (_) {}
+    }
+  }, []);
+
+  // 4. Fetch Real Stats & Invoices from Backend API
   const fetchDashboardStats = async () => {
     try {
-      const res = await api.get('/dashboard/stats');
-      if (res && res.success) {
-        let liveStats = res?.data?.stats;
-        
-        
+      const [res, invRes] = await Promise.all([
+        api.get('/dashboard/stats').catch(() => null),
+        api.get('/fees-invoice?limit=300').catch(() => null)
+      ]);
 
-        setDashboardData(prev => ({
+      let liveStats = res?.data?.stats;
+      let chartsObj = res?.data?.charts;
+
+      // Extract real-time collected fees directly from invoices
+      const invoices = invRes?.success && Array.isArray(invRes.data) ? invRes.data : [];
+      let invoicePaid = 0;
+      let invoiceTotal = 0;
+      if (invoices.length > 0) {
+        invoices.forEach(inv => {
+          invoicePaid += Number(inv.paid) || 0;
+          invoiceTotal += Number(inv.amount) || 0;
+        });
+      }
+
+      setDashboardData(prev => {
+        const mergedStats = { ...(liveStats || prev.stats) };
+        if (!mergedStats.fees) {
+          mergedStats.fees = { ...prev.stats.fees };
+        }
+
+        // Accurately blend collected fees from both API and live invoices
+        const existingCollected = Number(mergedStats.fees.collectedFees) || 0;
+        if (invoicePaid > existingCollected) {
+          mergedStats.fees.collectedFees = invoicePaid;
+          mergedStats.fees.totalIncome = Math.max(mergedStats.fees.totalIncome || 0, invoicePaid);
+          if (invoiceTotal > 0) {
+            mergedStats.fees.totalFees = Math.max(mergedStats.fees.totalFees || 0, invoiceTotal);
+            mergedStats.fees.collectionPercentage = Math.min(100, Math.round((invoicePaid / mergedStats.fees.totalFees) * 100));
+          }
+        }
+
+        return {
           ...prev,
           ...(res?.data || {}),
-          stats: liveStats || res?.data?.stats || prev.stats,
-          charts: res?.data?.charts || prev.charts
-        }));
-        
+          stats: mergedStats,
+          charts: chartsObj || prev.charts
+        };
+      });
+
+      if (res && res.success) {
         let localSaved = [];
         if (typeof window !== 'undefined') {
           try {
@@ -943,9 +994,9 @@ export default function DashboardUI({ user }) {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-zinc-200 dark:border-zinc-200/80 pb-6 relative z-10">
             {/* 1. Greeting & Titles */}
             <div className="space-y-2 flex-1 min-w-0">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-200/60 dark:bg-zinc-100 border border-zinc-400 dark:border-zinc-200 text-xs font-bold text-zinc-950 dark:text-zinc-900 shadow-sm transition-all hover:bg-white cursor-default">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-200/60 dark:bg-zinc-100 border border-zinc-400 dark:border-zinc-200 text-xs font-bold text-zinc-950 dark:text-zinc-900 shadow-sm transition-all hover:bg-white cursor-default" suppressHydrationWarning>
                 <Sparkles className="h-3.5 w-3.5 text-zinc-950" />
-                {greeting}
+                <span suppressHydrationWarning>{mounted ? greeting : 'WELCOME'}</span>
               </div>
               <div className="flex flex-wrap items-center gap-3 mt-1">
                 <h1 className="text-2xl lg:text-3xl font-extrabold text-zinc-950 dark:text-zinc-900 tracking-tight">
@@ -959,8 +1010,8 @@ export default function DashboardUI({ user }) {
                 <span className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-zinc-200 rounded-lg shadow-sm whitespace-nowrap">
                   <GraduationCap className="h-3.5 w-3.5 text-[#084A86]" /> Stoofi Pro
                 </span>
-                <span className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-zinc-200 rounded-lg shadow-sm whitespace-nowrap">
-                  <CalendarDays className="h-3.5 w-3.5 text-emerald-600" /> {formattedToday}
+                <span className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-zinc-200 rounded-lg shadow-sm whitespace-nowrap" suppressHydrationWarning>
+                  <CalendarDays className="h-3.5 w-3.5 text-emerald-600" /> <span suppressHydrationWarning>{mounted ? formattedToday : ''}</span>
                 </span>
               </div>
             </div>
@@ -1121,11 +1172,11 @@ export default function DashboardUI({ user }) {
               <div className="mt-3 space-y-1">
                 <div className="text-xs text-zinc-950 dark:text-zinc-700 flex items-center gap-2 font-medium">
                   <span className="h-2 w-2 rounded-full bg-zinc-950" />
-                  COLLECTED: <span className="font-extrabold text-zinc-950 dark:text-zinc-900">${(dashboardData?.stats?.fees?.collectedFees?.toLocaleString?.() || '0')} ({(dashboardData?.stats?.fees?.collectionPercentage ?? 0)}%)</span>
+                  COLLECTED: <span className="font-extrabold text-zinc-950 dark:text-zinc-900">{currencySymbol}{(dashboardData?.stats?.fees?.collectedFees?.toLocaleString?.() || '0')} ({(dashboardData?.stats?.fees?.collectionPercentage ?? 0)}%)</span>
                 </div>
                 <div className="text-xs text-zinc-950 dark:text-zinc-700 flex items-center gap-2 font-medium">
                   <span className="h-2 w-2 rounded-full bg-[#18181b]" />
-                  TOTAL FEES: <span className="font-extrabold text-zinc-950 dark:text-zinc-900">${(dashboardData?.stats?.fees?.totalFees?.toLocaleString?.() || '0')}</span>
+                  TOTAL FEES: <span className="font-extrabold text-zinc-950 dark:text-zinc-900">{currencySymbol}{(dashboardData?.stats?.fees?.totalFees?.toLocaleString?.() || '0')}</span>
                 </div>
               </div>
             </div>
@@ -1269,15 +1320,15 @@ export default function DashboardUI({ user }) {
             <div className="grid grid-cols-3 gap-2">
               <div className="bg-zinc-100/40 dark:bg-white p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-200">
                 <div className="text-[10px] uppercase font-extrabold text-zinc-950 dark:text-zinc-600">TOTAL INCOME</div>
-                <div className="text-sm font-black text-zinc-950 dark:text-zinc-900 mt-0.5">${(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
+                <div className="text-sm font-black text-zinc-950 dark:text-zinc-900 mt-0.5">{currencySymbol}{(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
               </div>
               <div className="bg-zinc-100/40 dark:bg-white p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-200">
                 <div className="text-[10px] uppercase font-extrabold text-zinc-950 dark:text-zinc-600">TOTAL EXPENSES</div>
-                <div className="text-sm font-black text-rose-500 mt-0.5">${(dashboardData?.stats?.fees?.totalExpenses?.toLocaleString?.() || '0')}</div>
+                <div className="text-sm font-black text-rose-500 mt-0.5">{currencySymbol}{(dashboardData?.stats?.fees?.totalExpenses?.toLocaleString?.() || '0')}</div>
               </div>
               <div className="bg-zinc-100/40 dark:bg-white p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-200">
                 <div className="text-[10px] uppercase font-extrabold text-zinc-950 dark:text-zinc-600">TOTAL PROFIT</div>
-                <div className="text-sm font-black text-zinc-950 dark:text-zinc-900 mt-0.5">${(dashboardData?.stats?.fees?.totalProfit?.toLocaleString?.() || '0')}</div>
+                <div className="text-sm font-black text-zinc-950 dark:text-zinc-900 mt-0.5">{currencySymbol}{(dashboardData?.stats?.fees?.totalProfit?.toLocaleString?.() || '0')}</div>
               </div>
             </div>
 
@@ -1339,15 +1390,15 @@ export default function DashboardUI({ user }) {
             <div className="grid grid-cols-3 gap-2">
               <div className="bg-zinc-100/40 dark:bg-white p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-200">
                 <div className="text-[10px] uppercase font-extrabold text-zinc-950 dark:text-zinc-600">TOTAL INCOME</div>
-                <div className="text-sm font-black text-zinc-950 dark:text-zinc-900 mt-0.5">${(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
+                <div className="text-sm font-black text-zinc-950 dark:text-zinc-900 mt-0.5">{currencySymbol}{(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
               </div>
               <div className="bg-zinc-100/40 dark:bg-white p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-200">
                 <div className="text-[10px] uppercase font-extrabold text-zinc-950 dark:text-zinc-600">TOTAL EXPENSES</div>
-                <div className="text-sm font-black text-rose-500 mt-0.5">${(dashboardData?.stats?.fees?.totalExpenses?.toLocaleString?.() || '0')}</div>
+                <div className="text-sm font-black text-rose-500 mt-0.5">{currencySymbol}{(dashboardData?.stats?.fees?.totalExpenses?.toLocaleString?.() || '0')}</div>
               </div>
               <div className="bg-zinc-100/40 dark:bg-white p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-200">
                 <div className="text-[10px] uppercase font-extrabold text-zinc-950 dark:text-zinc-600">TOTAL REVENUE</div>
-                <div className="text-sm font-black text-zinc-950 dark:text-zinc-900 mt-0.5">${(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
+                <div className="text-sm font-black text-zinc-950 dark:text-zinc-900 mt-0.5">{currencySymbol}{(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
               </div>
             </div>
 

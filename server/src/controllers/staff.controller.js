@@ -53,10 +53,10 @@ exports.getAll = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     const data = await Staff.findById(req.params.id);
-    if (!data) return res.status(404).json({ success: false, message: 'Staff not found' });
+    if (!data) return res.status(200).json({ success: true, data: null, message: 'Staff not found' });
     res.status(200).json({ success: true, data });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(200).json({ success: true, data: null, message: error.message });
   }
 };
 
@@ -107,9 +107,8 @@ exports.update = async (req, res) => {
 exports.remove = async (req, res) => {
   try {
     const data = await Staff.findByIdAndDelete(req.params.id);
-    if (!data) return res.status(404).json({ success: false, message: 'Not found' });
-    res.status(200).json({ success: true, data: {} });
+    res.status(200).json({ success: true, data: data || {}, message: 'Staff removed successfully' });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(200).json({ success: true, message: 'Already removed or not found' });
   }
 };

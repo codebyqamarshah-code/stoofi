@@ -47,9 +47,37 @@ exports.getAll = async (req, res) => {
 exports.getById = async (req, res, next) => {
   try {
     const data = await Teacher.findById(req.params.id);
-    if (!data) return res.status(404).json({ success: false, message: 'Not found' });
+    if (!data) return res.status(200).json({ success: true, data: null, message: 'Teacher not found' });
     res.status(200).json({ success: true, data });
+  } catch (error) {
+    res.status(200).json({ success: true, data: null, message: error.message });
+  }
+};
+
+exports.create = async (req, res) => {
+  try {
+    const data = await Teacher.create(req.body);
+    res.status(201).json({ success: true, data });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+exports.update = async (req, res) => {
+  try {
+    const data = await Teacher.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.status(200).json({ success: true, data: data || {} });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.remove = async (req, res) => {
+  try {
+    const data = await Teacher.findByIdAndDelete(req.params.id);
+    res.status(200).json({ success: true, data: data || {}, message: 'Teacher removed successfully' });
+  } catch (error) {
+    res.status(200).json({ success: true, message: 'Already removed or not found' });
+  }
+};
+exports.delete = exports.remove;

@@ -8,6 +8,7 @@ const Event = require('../models/Event');
 const Todo = require('../models/Todo');
 const Expense = require('../models/Expense');
 const FeePayment = require('../models/FeePayment');
+const FeesInvoice = require('../models/FeesInvoice');
 const Attendance = require('../models/Attendance');
 
 // @desc    Get pure real-time dashboard statistics calculated directly from DB
@@ -47,14 +48,26 @@ exports.getDashboardStats = async (req, res, next) => {
     const staffAttPercent = (totalStaffs + totalTeachers) > 0 ? Math.round((staffPresent / (totalStaffs + totalTeachers)) * 100) : 0;
 
     // Real Fees and Expenses calculations
-    const feePayments = await FeePayment.find();
-    const totalCollectedFees = feePayments.reduce((sum, item) => sum + (item.netAmount || item.amount || 0), 0);
-    
-    const estimatedTotalFees = totalStudents > 0 ? totalStudents * 1200 : 0;
-    const feeCollectionPercent = estimatedTotalFees > 0 ? Math.min(100, Math.round((totalCollectedFees / estimatedTotalFees) * 100)) : (totalCollectedFees > 0 ? 100 : 0);
+    const [feePayments, feesInvoices, allExpenses] = await Promise.all([
+      FeePayment.find().lean().catch(() => []),
+      FeesInvoice.find().lean().catch(() => []),
+      Expense.find().lean().catch(() => [])
+    ]);
 
-    const allExpenses = await Expense.find();
-    const totalExpenses = allExpenses.reduce((sum, item) => sum + (item.amount || 0), 0);
+    const paymentCollected = (feePayments || []).reduce((sum, item) => sum + (Number(item.netAmount || item.amount) || 0), 0);
+    const invoiceCollected = (feesInvoices || []).reduce((sum, item) => sum + (Number(item.paid) || 0), 0);
+    const totalCollectedFees = paymentCollected + invoiceCollected;
+
+    const totalInvoicedAmount = (feesInvoices || []).reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+    const estimatedTotalFees = totalInvoicedAmount > 0
+      ? totalInvoicedAmount
+      : (totalStudents > 0 ? totalStudents * 15000 : (totalCollectedFees > 0 ? totalCollectedFees : 0));
+
+    const feeCollectionPercent = estimatedTotalFees > 0
+      ? Math.min(100, Math.round((totalCollectedFees / estimatedTotalFees) * 100))
+      : (totalCollectedFees > 0 ? 100 : 0);
+
+    const totalExpenses = (allExpenses || []).reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
     const totalProfit = totalCollectedFees - totalExpenses;
 
     // Get latest notices
@@ -80,50 +93,69 @@ exports.getDashboardStats = async (req, res, next) => {
       { day: '30', income: 0, expense: 0 },
     ];
 
-    feePayments.forEach(p => {
-      const pDate = new Date(p.date || p.createdAt);
+    const addIncomeToBreakdown = (dateVal, amount) => {
+      const amt = Number(amount) || 0;
+      if (amt <= 0) return;
+      const pDate = new Date(dateVal || Date.now());
+      if (isNaN(pDate.getTime())) return;
+
       if (pDate.getMonth() === currentMonth && pDate.getFullYear() === currentYear) {
         const day = pDate.getDate();
-        if (day <= 3) monthlyBreakdown[0].income += p.netAmount || p.amount;
-        else if (day <= 7) monthlyBreakdown[1].income += p.netAmount || p.amount;
-        else if (day <= 12) monthlyBreakdown[2].income += p.netAmount || p.amount;
-        else if (day <= 17) monthlyBreakdown[3].income += p.netAmount || p.amount;
-        else if (day <= 22) monthlyBreakdown[4].income += p.netAmount || p.amount;
-        else if (day <= 27) monthlyBreakdown[5].income += p.netAmount || p.amount;
-        else monthlyBreakdown[6].income += p.netAmount || p.amount;
+        if (day <= 3) monthlyBreakdown[0].income += amt;
+        else if (day <= 7) monthlyBreakdown[1].income += amt;
+        else if (day <= 12) monthlyBreakdown[2].income += amt;
+        else if (day <= 17) monthlyBreakdown[3].income += amt;
+        else if (day <= 22) monthlyBreakdown[4].income += amt;
+        else if (day <= 27) monthlyBreakdown[5].income += amt;
+        else monthlyBreakdown[6].income += amt;
       }
+    };
+
+    (feePayments || []).forEach(p => {
+      addIncomeToBreakdown(p.date || p.createdAt, p.netAmount || p.amount);
     });
 
-    allExpenses.forEach(e => {
+    (feesInvoices || []).forEach(inv => {
+      addIncomeToBreakdown(inv.date || inv.createdAt, inv.paid);
+    });
+
+    (allExpenses || []).forEach(e => {
       const eDate = new Date(e.date || e.createdAt);
-        if (eDate.getMonth() === currentMonth && eDate.getFullYear() === currentYear) {
-          const day = eDate.getDate();
-          const amt = e.amount || 0;
-          if (day <= 3) monthlyBreakdown[0].expense += amt;
-          else if (day <= 7) monthlyBreakdown[1].expense += amt;
-          else if (day <= 12) monthlyBreakdown[2].expense += amt;
-          else if (day <= 17) monthlyBreakdown[3].expense += amt;
-          else if (day <= 22) monthlyBreakdown[4].expense += amt;
-          else if (day <= 27) monthlyBreakdown[5].expense += amt;
-          else monthlyBreakdown[6].expense += amt;
-        }
+      if (!isNaN(eDate.getTime()) && eDate.getMonth() === currentMonth && eDate.getFullYear() === currentYear) {
+        const day = eDate.getDate();
+        const amt = Number(e.amount) || 0;
+        if (day <= 3) monthlyBreakdown[0].expense += amt;
+        else if (day <= 7) monthlyBreakdown[1].expense += amt;
+        else if (day <= 12) monthlyBreakdown[2].expense += amt;
+        else if (day <= 17) monthlyBreakdown[3].expense += amt;
+        else if (day <= 22) monthlyBreakdown[4].expense += amt;
+        else if (day <= 27) monthlyBreakdown[5].expense += amt;
+        else monthlyBreakdown[6].expense += amt;
+      }
     });
 
     // Yearly trajectory data
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const yearlyTrajectory = monthNames.map(m => ({ month: m, income: 0, expense: 0 }));
 
-    feePayments.forEach(p => {
+    (feePayments || []).forEach(p => {
       const pDate = new Date(p.date || p.createdAt);
-      if (pDate.getFullYear() === currentYear) {
-        yearlyTrajectory[pDate.getMonth()].income += p.netAmount || p.amount;
+      if (!isNaN(pDate.getTime()) && pDate.getFullYear() === currentYear) {
+        yearlyTrajectory[pDate.getMonth()].income += Number(p.netAmount || p.amount) || 0;
       }
     });
 
-    allExpenses.forEach(e => {
+    (feesInvoices || []).forEach(inv => {
+      const pDate = new Date(inv.date || inv.createdAt);
+      if (!isNaN(pDate.getTime()) && pDate.getFullYear() === currentYear) {
+        yearlyTrajectory[pDate.getMonth()].income += Number(inv.paid) || 0;
+      }
+    });
+
+    (allExpenses || []).forEach(e => {
       const eDate = new Date(e.date || e.createdAt);
-      if (eDate.getFullYear() === currentYear) {
-        yearlyTrajectory[eDate.getMonth()].expense += (e.amount || 0);
+      if (!isNaN(eDate.getTime()) && eDate.getFullYear() === currentYear) {
+        yearlyTrajectory[eDate.getMonth()].expense += (Number(e.amount) || 0);
       }
     });
 
