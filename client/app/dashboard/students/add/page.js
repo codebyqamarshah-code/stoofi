@@ -1102,38 +1102,6 @@ export default function AddStudentPage() {
             {/* Tab 5: Other Info */}
             {activeTab === 'OTHER INFO' && (
               <div className="space-y-6">
-                {/* Contact Information */}
-                <div>
-                  <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2 mb-4">CONTACT INFORMATION</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Phone Number</Label>
-                      <Input name="phone" value={formData.phone} onChange={handleInputChange} placeholder="03001234567" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Email Address <span className="text-zinc-400 font-normal normal-case">(Optional)</span></Label>
-                      <Input name="email" value={formData.email} onChange={handleInputChange} placeholder="student@example.com" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">City</Label>
-                      <Input name="city" value={formData.city} onChange={handleInputChange} placeholder="e.g. Lahore, Islamabad" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Emergency Contact</Label>
-                      <Input name="emergencyContact" value={formData.emergencyContact} onChange={handleInputChange} placeholder="03001234567" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                    <div className="space-y-1.5 sm:col-span-2">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Current Address</Label>
-                      <textarea name="currentAddress" value={formData.currentAddress} onChange={handleInputChange} placeholder="House No, Street, Area, City" className="flex min-h-[80px] w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-950 font-medium text-sm placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 resize-none"></textarea>
-                    </div>
-                    <div className="space-y-1.5 sm:col-span-2">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Permanent Address <span className="text-zinc-400 font-normal normal-case">(If different)</span></Label>
-                      <textarea name="permanentAddress" value={formData.permanentAddress} onChange={handleInputChange} placeholder="Permanent residential address" className="flex min-h-[80px] w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-950 font-medium text-sm placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 resize-none"></textarea>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Health & Additional Notes */}
                 <div>
                   <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2 mb-4">HEALTH & ADDITIONAL NOTES</h3>
                   <div className="grid grid-cols-1 gap-4">

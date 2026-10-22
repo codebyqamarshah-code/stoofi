@@ -266,6 +266,7 @@ export default function IdCardPage() {
     admissionNo: '',
     fatherName: '',
     phone: '',
+    emergencyContact: '',
     gender: 'Male',
     dob: '2008-05-14',
     studentPhoto: '',
@@ -286,6 +287,7 @@ export default function IdCardPage() {
     admissionNo: '',
     fatherName: '',
     phone: '',
+    emergencyContact: '',
     gender: 'Male',
     dob: '2008-05-14',
     studentPhoto: '',
@@ -530,6 +532,7 @@ export default function IdCardPage() {
       admissionNo: String(student.admissionNo || ''),
       fatherName: student.fatherName || '',
       phone: student.phone || '',
+      emergencyContact: student.emergencyContact || '',
       gender: student.gender || 'Male',
       dob: student.dob || '2008-05-14',
       studentPhoto: student.studentPhoto || student.photo || '',
@@ -907,7 +910,7 @@ export default function IdCardPage() {
             {showPhone && (
               <div className="flex justify-between items-center">
                 <span className="text-zinc-400 font-semibold">Emergency:</span>
-                <strong className="font-mono text-zinc-800 font-bold">{phone}</strong>
+                <strong className="font-mono text-zinc-800 font-bold">{rec.emergencyContact || phone}</strong>
               </div>
             )}
           </div>
@@ -1542,11 +1545,21 @@ export default function IdCardPage() {
                   </div>
 
                   <div className="space-y-1">
-                    <Label className="text-xs font-bold text-zinc-800">Emergency Phone</Label>
+                    <Label className="text-xs font-bold text-zinc-800">Student Phone</Label>
                     <Input 
                       value={studentForm.phone} 
                       onChange={e => setStudentForm({ ...studentForm, phone: e.target.value })} 
-                      placeholder="e.g. +92 300 9876543" 
+                      placeholder="e.g. 0300 1234567" 
+                      className="bg-white border-zinc-300 text-xs font-mono" 
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Emergency Contact</Label>
+                    <Input 
+                      value={studentForm.emergencyContact} 
+                      onChange={e => setStudentForm({ ...studentForm, emergencyContact: e.target.value })} 
+                      placeholder="e.g. 0300 9876543" 
                       className="bg-white border-zinc-300 text-xs font-mono" 
                     />
                   </div>
@@ -1820,11 +1833,21 @@ export default function IdCardPage() {
                   </div>
 
                   <div className="space-y-1">
-                    <Label className="text-xs font-bold text-zinc-800">Emergency Phone</Label>
+                    <Label className="text-xs font-bold text-zinc-800">Student Phone</Label>
                     <Input 
                       value={editStudentForm.phone} 
                       onChange={e => setEditStudentForm({ ...editStudentForm, phone: e.target.value })} 
-                      placeholder="e.g. +92 300 9876543" 
+                      placeholder="e.g. 0300 1234567" 
+                      className="bg-white border-zinc-300 text-xs font-mono" 
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-zinc-800">Emergency Contact</Label>
+                    <Input 
+                      value={editStudentForm.emergencyContact} 
+                      onChange={e => setEditStudentForm({ ...editStudentForm, emergencyContact: e.target.value })} 
+                      placeholder="e.g. 0300 9876543" 
                       className="bg-white border-zinc-300 text-xs font-mono" 
                     />
                   </div>

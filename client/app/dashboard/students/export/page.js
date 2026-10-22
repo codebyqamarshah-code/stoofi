@@ -145,7 +145,9 @@ export default function StudentExportPage() {
       }
 
       if (includeContact) {
-        row['Phone / Mobile'] = s.phone || s.fatherPhone || '-';
+        row['Student Phone'] = s.phone || '-';
+        row['Father Phone'] = s.fatherPhone || '-';
+        row['Emergency Contact'] = s.emergencyContact || '-';
       }
 
       if (includeAddress) {

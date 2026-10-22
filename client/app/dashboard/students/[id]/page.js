@@ -191,6 +191,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
   <div class="row"><span class="lbl">Phone</span><span class="val">${student.phone||'—'}</span></div>
   <div class="row"><span class="lbl">Email</span><span class="val">${student.email||'—'}</span></div>
   <div class="row"><span class="lbl">City</span><span class="val">${student.city||'—'}</span></div>
+  <div class="row"><span class="lbl">Emergency Contact</span><span class="val">${student.emergencyContact||'—'}</span></div>
   <div class="row"><span class="lbl">Present Address</span><span class="val">${address}</span></div>
   <div class="row"><span class="lbl">Permanent Address</span><span class="val">${permAddress}</span></div>
 </div>
@@ -214,7 +215,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
   <div class="row"><span class="lbl">Mother Name</span><span class="val">${student.motherName||'—'}</span></div>
   <div class="row"><span class="lbl">Mother Occupation</span><span class="val">${student.motherOccupation||'—'}</span></div>
   <div class="row"><span class="lbl">Mother Phone</span><span class="val">${student.motherPhone||'—'}</span></div>
-  <div class="row"><span class="lbl">Emergency Contact</span><span class="val">${student.emergencyContact||'—'}</span></div>
+  <div class="row"><span class="lbl">Guardian Phone</span><span class="val">${student.guardianPhone||'—'}</span></div>
 </div>
 <div class="footer">
   <span>Official Document — Stoofi ERP System</span>
@@ -404,7 +405,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
             <InfoRow icon={User}      label="Mother Name"       value={student.motherName} />
             <InfoRow icon={Briefcase} label="Mother Occupation" value={student.motherOccupation} />
             <InfoRow icon={Phone}     label="Mother Phone"      value={student.motherPhone} />
-            <InfoRow icon={Phone}     label="Emergency Contact" value={student.emergencyContact} />
+            <InfoRow icon={Phone}     label="Guardian Phone"    value={student.guardianPhone} />
           </SectionCard>
 
           <SectionCard title="Health & Documents" icon={FileText}>

@@ -13,50 +13,54 @@ const SAMPLE_TEMPLATE_DATA = [
     'Full Name': 'Muhammad Ali',
     'Student CNIC': '35201-1234567-1',
     'Father Name': 'Tariq Mehmood',
+    'Father Phone': '03001234567',
     'Father Occupation': 'Businessman',
     'Father CNIC': '35201-7654321-3',
     'Mother Name': 'Fatima Bibi',
+    'Mother Phone': '03009876541',
     'Mother Occupation': 'Teacher',
     'Date of Birth': '15/04/2016',
     'Class': 'FSC OTT',
     'Section': 'A',
     'Gender': 'Male',
     'Type': 'Regular',
-    'Student Phone': '03001234567',
+    'Student Phone': '03001234560',
+    'Email': 'student1@example.com',
+    'City': 'Islamabad',
+    'Emergency Contact': '03009876542',
     'Present Address': 'House 14, St 5, Sector G-9, Islamabad',
     'Permanent Address': 'Village & PO Box 12, Rawalpindi',
     'Blood Group': 'B+',
     'Religion': 'Islam',
     'Roll No': 'PRC260001',
-    'Father Phone': '03001234567',
-    'Emergency Contact': '03001234567',
-    'Joining date': '15-08-2026',
-    'City': 'Islamabad'
+    'Joining date': '15-08-2026'
   },
   {
     'Admission No': 'ADM-2026-002',
     'Full Name': 'Ayesha Khan',
     'Student CNIC': '35202-7654321-2',
     'Father Name': 'Nasir Khan',
+    'Father Phone': '03219876543',
     'Father Occupation': 'Engineer',
     'Father CNIC': '35202-1234567-4',
     'Mother Name': 'Zainab Begum',
+    'Mother Phone': '03211234561',
     'Mother Occupation': 'House wife',
     'Date of Birth': '22/07/2016',
     'Class': 'FSC OTT',
     'Section': 'B',
     'Gender': 'Female',
     'Type': 'Regular',
-    'Student Phone': '03219876543',
+    'Student Phone': '03219876540',
+    'Email': 'student2@example.com',
+    'City': 'Rawalpindi',
+    'Emergency Contact': '03211234562',
     'Present Address': 'Plot 42, Bahria Town Phase 4, Rawalpindi',
     'Permanent Address': 'Plot 42, Bahria Town Phase 4, Rawalpindi',
     'Blood Group': 'A+',
     'Religion': 'Islam',
     'Roll No': 'PRC260002',
-    'Father Phone': '03219876543',
-    'Emergency Contact': '03219876543',
-    'Joining date': '15-08-2026',
-    'City': 'Rawalpindi'
+    'Joining date': '15-08-2026'
   }
 ];
 
@@ -240,14 +244,14 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
           const rawDob = getVal(row, ['dob', 'date of birth', 'birth date', 'birthday', 'age', 'birthdate']) || '2015-01-01';
           const dob = convertExcelDate(rawDob);
           const type = getVal(row, ['type', 'student type', 'admission type', 'studenttype']) || 'Regular';
-          const fatherName = getVal(row, ['fatherName', 'father name', 'father', "father's name", 'guardian']) || '';
-          const fatherPhone = getVal(row, ['fatherPhone', 'father phone', 'father mobile', 'parent phone']) || '';
+          const fatherName = getVal(row, ['fatherName', 'father name', 'father', "father's name", 'father full name']) || '';
+          const fatherPhone = getVal(row, ['fatherPhone', 'father phone', 'fatherphone', 'father mobile', 'fathermobile', 'father mobile no', 'father phone no', 'father cell', 'fathercell', 'father contact', 'father contact no', 'father phone number', 'parent phone', 'parent mobile', "father's phone", "father's mobile", "father's contact"]) || '';
           const fatherOccupation = getVal(row, ['fatherOccupation', 'father occupation', 'father job', 'father profession', 'occupation']) || '';
           const fatherCnic = getVal(row, ['fatherCnic', 'father cnic', 'father id', 'father cnic number', 'father b-form', 'fathercnic']) || '';
-          const motherName = getVal(row, ['motherName', 'mother name', 'mother']) || '';
-          const motherPhone = getVal(row, ['motherPhone', 'mother phone', 'mother mobile']) || '';
+          const motherName = getVal(row, ['motherName', 'mother name', 'mother', 'mother full name']) || '';
+          const motherPhone = getVal(row, ['motherPhone', 'mother phone', 'motherphone', 'mother mobile', 'mothermobile', 'mother mobile no', 'mother phone no', 'mother cell', 'mothercell', 'mother contact', 'mother contact no', 'mother phone number', "mother's phone", "mother's mobile"]) || '';
           const motherOccupation = getVal(row, ['motherOccupation', 'mother occupation', 'mother job', 'mother profession']) || '';
-          const phone = getVal(row, ['studentPhone', 'student phone', 'studentphone', 'phone', 'mobile', 'cell', 'student mobile', 'contact', 'guardian phone', 'phone number', 'contact no', 'mobile no']) || fatherPhone || '';
+          const phone = getVal(row, ['studentPhone', 'student phone', 'studentphone', 'student mobile', 'studentmobile', 'student mobile no', 'student phone no', 'student cell', 'studentcell', 'student contact', 'student contact no', 'student phone number', 'student mobile number', 'phone', 'phone number', 'phone no', 'mobile', 'mobile no', 'mobile number', 'cell', 'cell no', 'cell number', 'contact', 'contact no', 'contact number', 'primary phone', 'primary mobile']) || '';
           const currentAddress = getVal(row, ['presentAddress', 'present address', 'presentaddress', 'currentAddress', 'current address', 'currentaddress', 'address', 'residential address', 'home address']) || '';
           const permanentAddress = getVal(row, ['permanentAddress', 'permanent address', 'permanentaddress', 'permanent']) || currentAddress || '';
           const academicYear = getVal(row, ['academicYear', 'academic year', 'session', 'year']) || defaultAcademicYear || `${currentYear}`;
@@ -256,11 +260,11 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
           const bloodGroup = getVal(row, ['bloodGroup', 'blood group', 'blood']) || '';
           const nationality = getVal(row, ['nationality', 'national']) || 'Pakistani';
           const caste = getVal(row, ['caste', 'tribe']) || '';
-          const guardianName = getVal(row, ['guardianName', 'guardian name', 'guardian']) || fatherName || '';
-          const guardianPhone = getVal(row, ['guardianPhone', 'guardian phone', 'guardian mobile']) || fatherPhone || '';
-          const email = getVal(row, ['email', 'email address', 'e-mail', 'student email']) || '';
+          const guardianName = getVal(row, ['guardianName', 'guardian name', 'guardian', 'guardian full name']) || '';
+          const guardianPhone = getVal(row, ['guardianPhone', 'guardian phone', 'guardianphone', 'guardian mobile', 'guardianmobile', 'guardian cell', 'guardian contact', 'guardian phone number', 'guardian phone no']) || '';
+          const email = getVal(row, ['email', 'email address', 'e-mail', 'student email', 'student mail']) || '';
           const city = getVal(row, ['city', 'town', 'district']) || '';
-          const emergencyContact = getVal(row, ['emergencyContact', 'emergency contact', 'emergency phone', 'emergency no', 'emergency']) || '';
+          const emergencyContact = getVal(row, ['emergencyContact', 'emergency contact', 'emergencycontact', 'emergency phone', 'emergencyphone', 'emergency phone no', 'emergency phone number', 'emergency mobile', 'emergencymobile', 'emergency mobile no', 'emergency cell', 'emergencycell', 'emergency no', 'emergencyno', 'emergency number', 'emergencynumber', 'emergency contact no', 'emergency contact number', 'sos', 'sos contact', 'sos phone', 'sos number']) || '';
           const rawJoiningDate = getVal(row, ['joiningDate', 'joining date', 'joiningdate', 'date of joining', 'joining', 'admissionDate', 'admission date', 'admissiondate', 'date of admission']) || '';
           const joiningDate = convertExcelDate(rawJoiningDate);
           const rawAdmissionDate = getVal(row, ['admissionDate', 'admission date', 'admissiondate', 'date of admission']) || rawJoiningDate || '';
@@ -534,11 +538,11 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
                           <th className="p-2.5">Name</th>
                           <th className="p-2.5">Class (Sec)</th>
                           <th className="p-2.5">Gender</th>
-                          <th className="p-2.5">Date of Birth</th>
                           <th className="p-2.5">Father Name</th>
+                          <th className="p-2.5">Student Phone</th>
+                          <th className="p-2.5">Father Phone</th>
+                          <th className="p-2.5">Emergency Contact</th>
                           <th className="p-2.5">CNIC / B-Form</th>
-                          <th className="p-2.5">Joining Date</th>
-                          <th className="p-2.5">Phone</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-zinc-200">
@@ -549,11 +553,11 @@ export default function StudentImportModal({ isOpen, onClose, onSuccess, availab
                             <td className="p-2.5 font-semibold text-zinc-900">{stu.firstName} {stu.lastName}</td>
                             <td className="p-2.5">{stu.className} ({stu.section})</td>
                             <td className="p-2.5">{stu.gender}</td>
-                            <td className="p-2.5 font-semibold text-emerald-800">{stu.dob || '—'}</td>
-                            <td className="p-2.5">{stu.fatherName}</td>
+                            <td className="p-2.5">{stu.fatherName || '—'}</td>
+                            <td className="p-2.5 font-mono text-[11px] text-zinc-900">{stu.phone || '—'}</td>
+                            <td className="p-2.5 font-mono text-[11px] text-zinc-900">{stu.fatherPhone || '—'}</td>
+                            <td className="p-2.5 font-mono text-[11px] text-zinc-900">{stu.emergencyContact || '—'}</td>
                             <td className="p-2.5 font-mono text-[11px] font-bold text-zinc-950">{stu.cnic || stu.bForm || '—'}</td>
-                            <td className="p-2.5 font-medium text-zinc-900">{stu.joiningDate || stu.admissionDate || '—'}</td>
-                            <td className="p-2.5">{stu.phone}</td>
                           </tr>
                         ))}
                       </tbody>

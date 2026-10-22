@@ -389,6 +389,7 @@ export default function BulkPrintIdCardPage() {
     const name = `${rec.firstName || ''} ${rec.lastName || ''}`.trim() || rec.name || 'Cardholder Name';
     const photo = rec.studentPhoto || rec.photo || rec.staffPhoto;
     const phone = rec.phone || rec.mobile || rec.guardianPhone || schoolPhone;
+    const emergencyPhone = rec.emergencyContact || rec.phone || rec.mobile || rec.guardianPhone || schoolPhone;
     const admNo = rec.admissionNo || rec.staffNo || 'ADM-2026-001';
     const rollNo = rec.rollNo || '101';
     const className = rec.className || 'FSC OTT';
@@ -478,7 +479,7 @@ export default function BulkPrintIdCardPage() {
                 </>
               )}
               {showPhone && (
-                <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Emergency:</span><strong className="font-mono text-zinc-800 text-[9.5px]">{phone}</strong></div>
+                <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Emergency:</span><strong className="font-mono text-zinc-800 text-[9.5px]">{emergencyPhone}</strong></div>
               )}
             </div>
 
@@ -598,7 +599,7 @@ export default function BulkPrintIdCardPage() {
                 </>
               )}
               {showPhone && (
-                <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Emergency:</span><strong className="font-mono text-zinc-800 text-[9.5px]">{phone}</strong></div>
+                <div className="flex justify-between items-center"><span className="text-zinc-500 font-medium">Emergency:</span><strong className="font-mono text-zinc-800 text-[9.5px]">{emergencyPhone}</strong></div>
               )}
             </div>
 
@@ -704,7 +705,7 @@ export default function BulkPrintIdCardPage() {
                 </>
               )}
               {showPhone && (
-                <div className="flex justify-between items-center"><span className="text-zinc-400 font-medium">Emergency:</span><strong className="font-mono text-emerald-400 text-[9.5px]">{phone}</strong></div>
+                <div className="flex justify-between items-center"><span className="text-zinc-400 font-medium">Emergency:</span><strong className="font-mono text-emerald-400 text-[9.5px]">{emergencyPhone}</strong></div>
               )}
             </div>
 
@@ -809,7 +810,7 @@ export default function BulkPrintIdCardPage() {
               </>
             )}
             {showPhone && (
-              <div className="flex justify-between items-center"><span className="text-zinc-600 font-medium">Emergency:</span><strong className="font-mono text-zinc-950 text-[9.5px]">{phone}</strong></div>
+              <div className="flex justify-between items-center"><span className="text-zinc-600 font-medium">Emergency:</span><strong className="font-mono text-zinc-950 text-[9.5px]">{emergencyPhone}</strong></div>
             )}
           </div>
 
@@ -1199,7 +1200,7 @@ export default function BulkPrintIdCardPage() {
                   <th className="py-3 px-4">Admission / Roll No</th>
                   <th className="py-3 px-4">{role === 'Student' ? 'Class & Sec' : 'Department'}</th>
                   <th className="py-3 px-4">{role === 'Student' ? 'Father Name' : 'Designation'}</th>
-                  <th className="py-3 px-4">Emergency Phone</th>
+                  <th className="py-3 px-4">Phone</th>
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
@@ -1255,7 +1256,10 @@ export default function BulkPrintIdCardPage() {
                         {role === 'Student' ? (rec.fatherName || '—') : (rec.designation || 'Faculty Member')}
                       </td>
                       <td className="py-3 px-4 text-zinc-600 font-mono text-[11px]">
-                        {rec.phone || rec.mobile || rec.guardianPhone || '—'}
+                        <div>{rec.phone || rec.mobile || '—'}</div>
+                        {rec.emergencyContact && (
+                          <div className="text-[10px] text-zinc-400">Em: {rec.emergencyContact}</div>
+                        )}
                       </td>
                       <td className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1.5">
