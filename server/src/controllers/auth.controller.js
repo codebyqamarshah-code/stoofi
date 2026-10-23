@@ -58,7 +58,7 @@ const isFakeCnic = (cnicStr) => {
 // Helper to generate tokens
 const generateToken = (user) => {
   return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
-    expiresIn: '1d',
+    expiresIn: '7d',
   });
 };
 
@@ -630,10 +630,10 @@ exports.login = async (req, res, next) => {
     const token = generateToken(user);
 
     res.cookie('token', token, {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 24 * 60 * 60 * 1000
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
     let additionalData = {};
@@ -703,16 +703,15 @@ exports.login = async (req, res, next) => {
 };
 
 exports.logout = (req, res) => {
-  res.cookie('token', 'none', {
-    expires: new Date(Date.now() + 10 * 1000),
-    httpOnly: true
-  });
+  res.clearCookie('token', { path: '/' });
   res.status(200).json({ success: true, message: 'Logged out successfully' });
 };
 
 exports.getMe = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id).lean();
+    const user = await User.findById(req.user.id)
+      .select('-cnicFront -cnicBack -characterCertificate -experienceLetter')
+      .lean();
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }

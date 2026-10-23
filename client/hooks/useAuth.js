@@ -3,6 +3,58 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import api from '../services/api';
 import Cookies from 'js-cookie';
 
+// Strip heavy multi-megabyte base64 document attachments before writing to localStorage
+// so browser storage never throws QuotaExceededError and wipes the session.
+const sanitizeUserForStorage = (user) => {
+  if (!user || typeof user !== 'object') return user;
+  const {
+    cnicFront,
+    cnicBack,
+    characterCertificate,
+    experienceLetter,
+    ...rest
+  } = user;
+  return rest;
+};
+
+const safeSetLocalStorage = (key, value) => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(key, value);
+  } catch (err) {
+    // Prune legacy sidebar cache versions if quota exceeded, then retry
+    try {
+      for (let i = 1; i <= 10; i++) {
+        localStorage.removeItem(`stoofi_custom_sidebar_v${i}_Super Admin`);
+        localStorage.removeItem(`stoofi_custom_sidebar_v${i}_Admin`);
+        localStorage.removeItem(`stoofi_custom_sidebar_v${i}_Teacher`);
+        localStorage.removeItem(`stoofi_custom_sidebar_v${i}_Student`);
+      }
+      localStorage.setItem(key, value);
+    } catch (_) {}
+  }
+};
+
+const decodeJwtFallbackUser = (token) => {
+  if (!token || typeof token !== 'string') return null;
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    if (payload && (payload.id || payload._id || payload.role)) {
+      return {
+        _id: payload.id || payload._id,
+        role: payload.role || 'Super Admin',
+        email: payload.email || '',
+        fullName: payload.fullName || payload.name || payload.role || 'User',
+        name: payload.name || payload.fullName || payload.role || 'User',
+        canDelete: true,
+      };
+    }
+  } catch (_) {}
+  return null;
+};
+
 export const useAuth = create(
   persist(
     (set, get) => ({
@@ -17,26 +69,33 @@ export const useAuth = create(
           const userEmail = (user.email || '').toLowerCase();
           user.canDelete = userEmail !== 'pakroyalcollege@gmail.com' && user.canDelete !== false;
         }
-        set({ user, token, isAuthenticated: true, isLoading: false, error: null });
+        const cleanUser = sanitizeUserForStorage(user);
+        set({ user: cleanUser, token, isAuthenticated: true, isLoading: false, error: null });
         if (token) {
-          Cookies.set('token', token, { path: '/', expires: 7 });
+          try {
+            Cookies.set('token', token, { path: '/', expires: 7, sameSite: 'Lax' });
+          } catch (_) {}
+          if (typeof document !== 'undefined') {
+            try {
+              document.cookie = `token=${token}; path=/; max-age=604800; SameSite=Lax`;
+            } catch (_) {}
+          }
           if (typeof window !== 'undefined') {
-            sessionStorage.setItem('token', token);
-            localStorage.setItem('token', token);
+            try { sessionStorage.setItem('token', token); } catch (_) {}
+            safeSetLocalStorage('token', token);
           }
         }
-        if (user && typeof window !== 'undefined') {
+        if (cleanUser && typeof window !== 'undefined') {
           const recentUserObj = {
-            _id: user._id,
-            name: user.fullName || user.name || user.username,
-            fullName: user.fullName || user.name || user.username,
-            email: user.email,
-            role: user.role,
-            canDelete: user.canDelete,
-            picture: user.picture || user.avatar,
-            avatar: user.avatar || user.picture
+            _id: cleanUser._id,
+            name: cleanUser.fullName || cleanUser.name || cleanUser.username,
+            fullName: cleanUser.fullName || cleanUser.name || cleanUser.username,
+            email: cleanUser.email,
+            role: cleanUser.role,
+            canDelete: cleanUser.canDelete,
+            avatar: cleanUser.avatar || cleanUser.picture
           };
-          localStorage.setItem('recent_user', JSON.stringify(recentUserObj));
+          safeSetLocalStorage('recent_user', JSON.stringify(recentUserObj));
         }
       },
 
@@ -56,9 +115,6 @@ export const useAuth = create(
           }
         }
 
-        const isSuperAdmin = role === 'Super Admin' || superEmails.includes(cleanEmail);
-        const isAdmin = role === 'Admin' || cleanEmail === 'admin@gmail.com' || cleanEmail === 'admin@gamil.com';
-
         try {
           let deviceId = null;
           let deviceName = 'Web Browser';
@@ -67,7 +123,7 @@ export const useAuth = create(
               deviceId = localStorage.getItem('stoofi_device_id');
               if (!deviceId) {
                 deviceId = `dev_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 10)}`;
-                localStorage.setItem('stoofi_device_id', deviceId);
+                safeSetLocalStorage('stoofi_device_id', deviceId);
               }
               const ua = navigator.userAgent;
               let b = ua.includes('Edg') ? 'Edge' : ua.includes('Chrome') ? 'Chrome' : ua.includes('Safari') ? 'Safari' : ua.includes('Firefox') ? 'Firefox' : 'Browser';
@@ -77,8 +133,12 @@ export const useAuth = create(
           }
 
           const res = await api.post('/auth/login', { email: cleanEmail, password, otp, deviceId, deviceName });
-          if (res && res.success) { if (res.requireOtp) { return { success: true, requireOtp: true }; }
-            const finalUser = res.data;
+          if (res && res.success) {
+            if (res.requireOtp) {
+              set({ isLoading: false, error: null });
+              return { success: true, requireOtp: true };
+            }
+            const finalUser = sanitizeUserForStorage(res.data || {});
             const finalToken = res.token;
             const userEmail = (finalUser.email || cleanEmail || '').toLowerCase();
             finalUser.canDelete = userEmail !== 'pakroyalcollege@gmail.com' && finalUser.canDelete !== false;
@@ -90,19 +150,26 @@ export const useAuth = create(
               isLoading: false,
               error: null
             });
-            // Use session cookie with 7 days expiry
-            Cookies.set('token', finalToken, { path: '/', expires: 7 });
+
+            // Persist token across Cookie, sessionStorage, and localStorage safely
+            try {
+              Cookies.set('token', finalToken, { path: '/', expires: 7, sameSite: 'Lax' });
+            } catch (_) {}
+            if (typeof document !== 'undefined') {
+              try {
+                document.cookie = `token=${finalToken}; path=/; max-age=604800; SameSite=Lax`;
+              } catch (_) {}
+            }
             if (typeof window !== 'undefined') {
-              sessionStorage.setItem('token', finalToken);
-              localStorage.setItem('token', finalToken);
-              localStorage.setItem('recent_user', JSON.stringify({
+              try { sessionStorage.setItem('token', finalToken); } catch (_) {}
+              safeSetLocalStorage('token', finalToken);
+              safeSetLocalStorage('recent_user', JSON.stringify({
                 _id: finalUser._id,
                 name: finalUser.fullName || finalUser.name || finalUser.username,
                 fullName: finalUser.fullName || finalUser.name || finalUser.username,
                 email: finalUser.email,
                 role: finalUser.role,
                 canDelete: finalUser.canDelete,
-                picture: finalUser.picture || finalUser.avatar,
                 avatar: finalUser.avatar || finalUser.picture
               }));
             }
@@ -120,12 +187,19 @@ export const useAuth = create(
 
       logout: async () => {
         set({ user: null, token: null, isAuthenticated: false });
-        Cookies.remove('token');
+        try { Cookies.remove('token', { path: '/' }); } catch (_) {}
+        if (typeof document !== 'undefined') {
+          try {
+            document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+          } catch (_) {}
+        }
         if (typeof window !== 'undefined') {
-          sessionStorage.removeItem('token');
-          sessionStorage.removeItem('auth-storage');
-          localStorage.removeItem('token');
-          localStorage.removeItem('auth-storage');
+          try {
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('auth-storage');
+            localStorage.removeItem('token');
+            localStorage.removeItem('auth-storage');
+          } catch (_) {}
         }
         try { await api.get('/auth/logout'); } catch(e){}
       },
@@ -136,12 +210,15 @@ export const useAuth = create(
 
         if (typeof window !== 'undefined') {
           if (!token) {
-            token = localStorage.getItem('token') || sessionStorage.getItem('token') || Cookies.get('token');
+            try {
+              token = localStorage.getItem('token') || sessionStorage.getItem('token') || Cookies.get('token');
+            } catch (_) {}
           }
           if (token) {
             try {
-              Cookies.set('token', token, { path: '/', expires: 7, sameSite: 'lax' });
-              localStorage.setItem('token', token);
+              Cookies.set('token', token, { path: '/', expires: 7, sameSite: 'Lax' });
+              document.cookie = `token=${token}; path=/; max-age=604800; SameSite=Lax`;
+              safeSetLocalStorage('token', token);
             } catch (_) {}
           }
           if (!user) {
@@ -166,48 +243,55 @@ export const useAuth = create(
         }
 
         if (!token) {
-           set({ user: null, isAuthenticated: false, isLoading: false });
-           return;
+          set({ user: null, isAuthenticated: false, isLoading: false });
+          return false;
         }
 
-        let resolvedUser = user;
+        let resolvedUser = user ? sanitizeUserForStorage(user) : decodeJwtFallbackUser(token);
         
-        // If we have a user in state, set it immediately for fast UI response
+        // Set user immediately so dashboard protection never sees (!user && !isAuthenticated) while /auth/me loads
         if (resolvedUser) {
           set({ isAuthenticated: true, user: resolvedUser, token, isLoading: false });
         } else {
-          // We have a token but no user, set loading state to true while we fetch
-          set({ isAuthenticated: false, token, isLoading: true });
+          set({ isAuthenticated: true, token, isLoading: true });
         }
 
         if (typeof token === 'string' && token.startsWith('mock_')) {
-          return;
+          return true;
         }
 
         try {
-           const res = await api.get('/auth/me');
-           if (res && res.success && res.data) {
-             set({ isAuthenticated: true, user: res.data, isLoading: false });
-             if (typeof window !== 'undefined') {
-               // Persist the full user object so student fields (admissionNo, className, etc.) survive page reloads
-               localStorage.setItem('recent_user', JSON.stringify(res.data));
-             }
-           }
+          const res = await api.get('/auth/me');
+          if (res && res.success && res.data) {
+            const cleanData = sanitizeUserForStorage(res.data);
+            set({ isAuthenticated: true, user: cleanData, token, isLoading: false });
+            if (typeof window !== 'undefined') {
+              safeSetLocalStorage('recent_user', JSON.stringify(cleanData));
+            }
+            return true;
+          }
         } catch (error) {
-           // If /auth/me fails and we don't have a user, token is likely invalid
-           if (!resolvedUser) {
-             set({ user: null, token: null, isAuthenticated: false, isLoading: false });
-           } else {
-             set({ isAuthenticated: true, isLoading: false });
-           }
+          // Only invalidate if backend explicitly rejected the token with 401 and no fallback user exists
+          if (!resolvedUser && error?.response?.status === 401) {
+            set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+            return false;
+          } else {
+            set({ isAuthenticated: true, user: resolvedUser, token, isLoading: false });
+            return true;
+          }
         }
+        return true;
       },
     }),
     {
       name: 'auth-storage',
       storage: createJSONStorage(() => (typeof window !== 'undefined' && window.localStorage ? window.localStorage : sessionStorage)),
       partialize: (state) => {
-        return { user: state.user, token: state.token, isAuthenticated: state.isAuthenticated };
+        return {
+          user: sanitizeUserForStorage(state.user),
+          token: state.token,
+          isAuthenticated: state.isAuthenticated
+        };
       },
     }
   )

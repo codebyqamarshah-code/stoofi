@@ -395,17 +395,28 @@ export default function DashboardLayout({ children }) {
   };
 
 
+  const [authChecked, setAuthChecked] = useState(false);
+
   useEffect(() => {
     setMounted(true);
+    let active = true;
+    Promise.resolve(checkAuth()).finally(() => {
+      if (active) setAuthChecked(true);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
     setMenuStructure(getStoredSidebar(user?.role || 'Super Admin'));
-    checkAuth();
   }, [user?.role]);
 
   // Guard ref so we only ever redirect once
   const redirectedRef = useRef(false);
 
   useEffect(() => {
-    if (!mounted || isLoading) return;
+    if (!mounted || !authChecked || isLoading) return;
     if (redirectedRef.current) return;
 
     const storedToken =
@@ -436,12 +447,17 @@ export default function DashboardLayout({ children }) {
       } catch (e) {}
     }
 
-    // If unauthenticated or missing token, redirect immediately to login
+    // If unauthenticated and missing token after auth check completes, redirect to login
     if (!storedToken || (!user && !isAuthenticated)) {
       redirectedRef.current = true;
+      if (typeof document !== 'undefined') {
+        try {
+          document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        } catch (e) {}
+      }
       router.replace('/login?redirect=' + encodeURIComponent(pathname));
     }
-  }, [mounted, isAuthenticated, isLoading, user, router, pathname]);
+  }, [mounted, authChecked, isAuthenticated, isLoading, user, router, pathname]);
 
   // Route protection check based on role
   useEffect(() => {
