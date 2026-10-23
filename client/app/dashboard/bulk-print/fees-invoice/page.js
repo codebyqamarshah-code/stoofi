@@ -2,10 +2,12 @@
 
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Printer, Receipt, Search, Building } from 'lucide-react';
+import { ChevronRight, Printer, Receipt, Search, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { sortClassesAcademic } from '@/lib/academicUtils';
+import { formatDateDMY } from '@/lib/utils';
+import ThreeCopyFeeSlipModal, { formatBillingMonthLabel } from '@/components/fees/ThreeCopyFeeSlipModal';
 import api from '@/services/api';
 
 const DEFAULT_CLASSES = [
@@ -26,6 +28,9 @@ export default function FeesInvoiceBulkPrintPage() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [schoolSetting, setSchoolSetting] = useState(null);
+  const [activeSlip, setActiveSlip] = useState(null);
+
+  const currentYM = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
 
   useEffect(() => {
     api.get('/class').then(r => {
@@ -59,29 +64,42 @@ export default function FeesInvoiceBulkPrintPage() {
         targetStudents = students.filter(s => s._id === selectedStudentId);
       }
       if (targetStudents.length === 0) {
-        // Fetch all students if none loaded
         const allRes = await api.get('/student').catch(() => null);
         if (allRes?.success && Array.isArray(allRes.data)) {
           targetStudents = allRes.data;
         }
       }
 
+      const feeItems = [
+        { head: 'Monthly Tuition Fee', amount: 12000 },
+        { head: 'Laboratory & Practical Charges', amount: 1500 },
+        { head: 'Library & Sports Fund', amount: 500 },
+        { head: 'Examination Assessment Fee', amount: 1000 }
+      ];
+      const total = feeItems.reduce((s, it) => s + it.amount, 0);
+
       const generated = targetStudents.map((st, i) => ({
-        invoiceNo: `INV-2026-${(1000 + i + 1)}`,
-        date: new Date().toLocaleDateString('en-GB'),
-        dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB'),
+        challanNo: `${31400 + i + 1}`,
+        invoiceNo: `CH-${31400 + i + 1}`,
+        billingMonth: currentYM,
+        date: new Date().toISOString().split('T')[0],
+        dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        student: `${st.firstName || ''} ${st.lastName || ''}`.trim() || 'Student',
         studentName: `${st.firstName || ''} ${st.lastName || ''}`.trim() || 'Student',
+        fatherName: st.fatherName || '—',
         admissionNo: st.admissionNo || 'N/A',
         rollNo: st.rollNo || '1',
-        className: st.className || selectedClass || 'FSC OTT',
+        className: `${st.className || selectedClass || 'FSC'} (${st.section || selectedSection || 'A'})`,
         section: st.section || selectedSection || 'A',
-        items: [
-          { name: 'Monthly Tuition Fee', amount: 3500 },
-          { name: 'Computer & Lab Charges', amount: 500 },
-          { name: 'Library & Sports Fund', amount: 300 },
-          { name: 'Exam Assessment Fee', amount: 700 }
-        ],
-        total: 5000
+        feeType: 'Monthly Tuition Fee',
+        feeItems,
+        amount: total,
+        waiver: 0,
+        fine: 0,
+        paid: 0,
+        balance: total,
+        status: 'Unpaid',
+        paymentMethod: 'Cash / Bank'
       }));
 
       setInvoices(generated);
@@ -99,21 +117,23 @@ export default function FeesInvoiceBulkPrintPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
         <div>
           <h1 className="text-2xl font-bold text-zinc-950 flex items-center gap-2">
-            <Receipt className="h-6 w-6 text-indigo-400" />
-            Fees Invoice Bulk Print
+            <Receipt className="h-6 w-6 text-[#084A86]" />
+            Fees Challan &amp; 3-Copy Slip Bulk Generator
           </h1>
-          <p className="text-sm text-zinc-400 mt-1">Generate official monthly fee challans and invoices ready for printing</p>
+          <p className="text-sm text-zinc-500 mt-1">
+            Generate official Pak Royal College 3-Copy Fee Challans (Student Copy, Bank Copy, College Copy)
+          </p>
         </div>
         <div className="flex items-center text-sm text-zinc-400">
           <Link href="/dashboard" className="hover:text-zinc-950 transition-colors">Dashboard</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span>Bulk Print</span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span className="text-zinc-950 font-bold">Fees Invoice Bulk Print</span>
+          <span className="text-zinc-950 font-bold">Fees Challan Bulk Print</span>
         </div>
       </div>
 
-      <div className="bg-white border border-zinc-200 shadow-xs rounded-xl p-5 print:hidden shadow-sm">
+      <div className="bg-white border border-zinc-200 rounded-xl p-5 print:hidden shadow-xs">
         <div className="mb-4">
           <h2 className="text-sm font-semibold text-zinc-950 uppercase tracking-wider">Select Criteria</h2>
         </div>
@@ -123,10 +143,10 @@ export default function FeesInvoiceBulkPrintPage() {
             <select 
               value={selectedClass} 
               onChange={e => setSelectedClass(e.target.value)} 
-              className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#084A86]"
             >
               <option value="">All Classes</option>
-              {classes.map(c => (
+              {sortClassesAcademic(classes).map(c => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
@@ -137,7 +157,7 @@ export default function FeesInvoiceBulkPrintPage() {
             <select 
               value={selectedSection} 
               onChange={e => setSelectedSection(e.target.value)} 
-              className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#084A86]"
             >
               <option value="">All Sections</option>
               {['A', 'B', 'C', 'D'].map(s => (
@@ -151,7 +171,7 @@ export default function FeesInvoiceBulkPrintPage() {
             <select 
               value={selectedStudentId} 
               onChange={e => setSelectedStudentId(e.target.value)} 
-              className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#084A86]"
             >
               <option value="">All Enrolled Students</option>
               {students.map(st => (
@@ -164,11 +184,11 @@ export default function FeesInvoiceBulkPrintPage() {
         </div>
 
         <div className="flex justify-end mt-6 gap-3">
-          <Button onClick={handleGenerateInvoices} disabled={loading} className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold flex items-center gap-2 px-6">
-            <Search className="h-4 w-4" /> {loading ? 'GENERATING...' : 'GENERATE INVOICES'}
+          <Button onClick={handleGenerateInvoices} disabled={loading} style={{ backgroundColor: '#084A86' }} className="hover:opacity-95 text-white font-semibold flex items-center gap-2 px-6 cursor-pointer">
+            <Search className="h-4 w-4" /> {loading ? 'GENERATING...' : 'GENERATE FEE CHALLANS'}
           </Button>
           {invoices.length > 0 && (
-            <Button onClick={handlePrint} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2 px-6">
+            <Button onClick={handlePrint} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2 px-6 cursor-pointer">
               <Printer className="h-4 w-4" /> PRINT ALL ({invoices.length})
             </Button>
           )}
@@ -176,67 +196,81 @@ export default function FeesInvoiceBulkPrintPage() {
       </div>
 
       {invoices.length > 0 && (
-        <div className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {invoices.map((inv, idx) => (
-              <div key={idx} className="bg-white text-zinc-900 rounded-xl p-6 border border-zinc-300 shadow-xl font-sans text-xs space-y-4">
+              <div key={idx} className="bg-white text-zinc-900 rounded-xl p-5 border border-zinc-300 shadow-md font-sans text-xs space-y-4">
                 {/* Header */}
                 <div className="border-b-2 border-zinc-900 pb-3 flex justify-between items-start">
-                  <div>
-                    <h3 className="text-base font-extrabold text-zinc-900 uppercase">{schoolSetting?.schoolName || 'Stoofi Public School'}</h3>
-                    <p className="text-[11px] text-zinc-600">{schoolSetting?.address || 'Main Campus, Lahore'}</p>
-                    <p className="text-[10px] text-zinc-500">Phone: {schoolSetting?.phone || '+92 300 0000000'}</p>
+                  <div className="flex items-center gap-2.5">
+                    <img src="/pak-royal-badge.png" alt="Pak Royal College" className="h-11 w-11 object-contain" />
+                    <div>
+                      <h3 className="text-sm font-black text-[#084A86] uppercase">PAK ROYAL COLLEGE</h3>
+                      <p className="text-[10px] text-zinc-600 font-semibold">{formatBillingMonthLabel(inv.billingMonth)} Fee Challan</p>
+                    </div>
                   </div>
                   <div className="text-right">
-                    <span className="inline-block px-2 py-0.5 bg-white text-zinc-950 font-bold text-[10px] rounded uppercase">STUDENT FEE CHALLAN</span>
-                    <p className="font-mono font-bold text-zinc-800 mt-1">{inv.invoiceNo}</p>
+                    <span className="inline-block px-2 py-0.5 bg-zinc-100 border border-zinc-300 text-zinc-950 font-bold text-[10px] rounded uppercase">
+                      Challan #{inv.challanNo}
+                    </span>
+                    <div className="mt-1.5 print:hidden">
+                      <Button
+                        size="sm"
+                        onClick={() => setActiveSlip(inv)}
+                        style={{ backgroundColor: '#084A86' }}
+                        className="h-7 px-2.5 text-[11px] font-bold text-white rounded-lg inline-flex items-center gap-1 cursor-pointer"
+                      >
+                        <Download className="h-3 w-3" /> 3-Copy Slip / PDF
+                      </Button>
+                    </div>
                   </div>
                 </div>
 
                 {/* Student Details */}
                 <div className="grid grid-cols-2 gap-2 bg-zinc-50 p-2.5 rounded border border-zinc-200 text-[11px]">
-                  <div><span className="text-zinc-950 font-bold">Student:</span> <strong className="text-zinc-900">{inv.studentName}</strong></div>
-                  <div><span className="text-zinc-950 font-bold">Adm No:</span> <strong className="text-zinc-900">{inv.admissionNo}</strong></div>
-                  <div><span className="text-zinc-950 font-bold">Class:</span> <strong className="text-zinc-900">{inv.className} ({inv.section})</strong></div>
-                  <div><span className="text-zinc-950 font-bold">Roll No:</span> <strong className="text-zinc-900">{inv.rollNo}</strong></div>
-                  <div><span className="text-zinc-950 font-bold">Issue Date:</span> <span className="text-zinc-800">{inv.date}</span></div>
-                  <div><span className="text-zinc-500 font-semibold text-rose-600">Due Date:</span> <strong className="text-rose-600">{inv.dueDate}</strong></div>
+                  <div><span className="text-zinc-600 font-bold">Student:</span> <strong className="text-zinc-950">{inv.studentName}</strong></div>
+                  <div><span className="text-zinc-600 font-bold">Adm / Roll:</span> <strong className="text-zinc-950">{inv.admissionNo} / {inv.rollNo}</strong></div>
+                  <div><span className="text-zinc-600 font-bold">Father:</span> <strong className="text-zinc-950">{inv.fatherName}</strong></div>
+                  <div><span className="text-zinc-600 font-bold">Class:</span> <strong className="text-zinc-950">{inv.className}</strong></div>
+                  <div><span className="text-zinc-600 font-bold">Issue Date:</span> <span className="text-zinc-800">{formatDateDMY(inv.date)}</span></div>
+                  <div><span className="text-rose-600 font-bold">Due Date:</span> <strong className="text-rose-600">{formatDateDMY(inv.dueDate)}</strong></div>
                 </div>
 
                 {/* Table */}
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-zinc-300 text-zinc-600 font-bold uppercase text-[10px]">
-                      <th className="py-1">Fee Description</th>
-                      <th className="py-1 text-right">Amount (PKR)</th>
+                    <tr className="border-b border-zinc-300 text-zinc-700 font-bold uppercase text-[10px]">
+                      <th className="py-1">Head</th>
+                      <th className="py-1 text-right">Amount (Rs.)</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-200">
-                    {inv.items.map((it, i) => (
+                    {inv.feeItems.map((it, i) => (
                       <tr key={i}>
-                        <td className="py-1.5 text-zinc-800">{it.name}</td>
-                        <td className="py-1.5 text-right font-mono font-semibold text-zinc-900">PKR {it.amount.toLocaleString()}</td>
+                        <td className="py-1.5 text-zinc-800">{it.head}</td>
+                        <td className="py-1.5 text-right font-mono font-semibold text-zinc-900">Rs. {it.amount.toLocaleString()}</td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot>
-                    <tr className="border-t-2 border-zinc-900 font-bold text-zinc-900 text-sm">
-                      <td className="py-2">Total Payable Amount</td>
-                      <td className="py-2 text-right font-mono text-indigo-700">PKR {inv.total.toLocaleString()}</td>
+                    <tr className="border-t-2 border-zinc-900 font-bold text-zinc-950 text-xs bg-zinc-100">
+                      <td className="py-2 px-1">Total Receivable</td>
+                      <td className="py-2 px-1 text-right font-mono text-[#084A86]">Rs. {inv.amount.toLocaleString()}</td>
                     </tr>
                   </tfoot>
                 </table>
-
-                {/* Footer Signatures */}
-                <div className="pt-4 border-t border-zinc-200 flex justify-between items-end text-[10px] text-zinc-500">
-                  <span>Authorized Bank Copy / Student Copy</span>
-                  <span className="border-t border-zinc-400 pt-1 font-semibold text-zinc-800">Accounts Officer Signature</span>
-                </div>
               </div>
             ))}
           </div>
         </div>
       )}
+
+      <ThreeCopyFeeSlipModal
+        isOpen={!!activeSlip}
+        onClose={() => setActiveSlip(null)}
+        slipData={activeSlip}
+        schoolSetting={schoolSetting}
+      />
     </div>
   );
 }

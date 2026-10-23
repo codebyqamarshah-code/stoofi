@@ -23,6 +23,7 @@ import api from '@/services/api';
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import ThreeCopyFeeSlipModal from '@/components/fees/ThreeCopyFeeSlipModal';
 
 const DEFAULT_FEE_TYPES = [
   'Tuition Fee 2026',
@@ -740,127 +741,13 @@ export default function FeesInvoicePage() {
       )}
 
       {/* ========================================================= */}
-      {/* MODAL 2: PRINTABLE OFFICIAL FEE RECEIPT VOUCHER          */}
+      {/* MODAL 2: PRINTABLE 3-COPY OFFICIAL FEE CHALLAN SLIP       */}
       {/* ========================================================= */}
-      {isReceiptOpen && selectedReceipt && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white text-zinc-900 rounded-2xl max-w-xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            {/* Header / Brand */}
-            <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
-              <div className="flex items-center gap-3">
-                <img src="/logo.png" alt="Stoofi ERP" className="h-12 w-auto object-contain" />
-                <div>
-                  <h3 className="text-lg font-black text-zinc-900 tracking-tight">STOOFI SCHOOL ERP</h3>
-                  <p className="text-[10px] text-zinc-500">Official Student Fees Receipt Voucher</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-xs font-bold text-zinc-700 font-mono">{selectedReceipt.invoiceNo || 'INV-2026-001'}</div>
-                <div className="text-[11px] text-zinc-500">{selectedReceipt.date || '2026-09-07'}</div>
-              </div>
-            </div>
-
-            {/* Student Meta Details */}
-            <div className="grid grid-cols-2 gap-3 py-4 border-b border-zinc-200 text-xs">
-              <div>
-                <span className="text-zinc-400 block text-[10px] uppercase font-semibold">Student Name</span>
-                <span className="font-bold text-zinc-900 text-sm">{selectedReceipt.student}</span>
-              </div>
-              <div>
-                <span className="text-zinc-400 block text-[10px] uppercase font-semibold">Admission / Roll No</span>
-                <span className="font-semibold text-zinc-800">{selectedReceipt.admissionNo || 'ADM-2026-001'}</span>
-              </div>
-              <div>
-                <span className="text-zinc-400 block text-[10px] uppercase font-semibold">Class / Section</span>
-                <span className="font-semibold text-zinc-800">{selectedReceipt.className || 'Class 10 (A)'}</span>
-              </div>
-              <div>
-                <span className="text-zinc-400 block text-[10px] uppercase font-semibold">Payment Status</span>
-                <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
-                  (selectedReceipt.status || '').toUpperCase() === 'PAID' ? 'bg-emerald-100 text-emerald-800' :
-                  (selectedReceipt.status || '').toUpperCase() === 'PARTIAL' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800'
-                }`}>
-                  {selectedReceipt.status}
-                </span>
-              </div>
-            </div>
-
-            {/* Fee Items Table */}
-            <div className="py-4 border-b border-zinc-200">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="border-b border-zinc-200 text-zinc-500 uppercase text-[10px]">
-                    <th className="text-left py-1.5 font-bold">Particulars / Description</th>
-                    <th className="text-right py-1.5 font-bold">Amount (Rs.)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-100">
-                  <tr>
-                    <td className="py-2 font-medium">{selectedReceipt.feeType || 'Tuition Fee 2026'}</td>
-                    <td className="py-2 text-right font-bold">Rs. {Number(selectedReceipt.amount || 0).toLocaleString()}</td>
-                  </tr>
-                  {Number(selectedReceipt.waiver || 0) > 0 && (
-                    <tr className="text-zinc-700">
-                      <td className="py-1.5">Fee Waiver / Concession</td>
-                      <td className="py-1.5 text-right">-Rs. {Number(selectedReceipt.waiver).toLocaleString()}</td>
-                    </tr>
-                  )}
-                  {Number(selectedReceipt.fine || 0) > 0 && (
-                    <tr className="text-rose-700">
-                      <td className="py-1.5">Late Fee Fine</td>
-                      <td className="py-1.5 text-right">+Rs. {Number(selectedReceipt.fine).toLocaleString()}</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-
-              {/* Total Calculation */}
-              <div className="mt-3 pt-3 border-t border-zinc-200 space-y-1 text-xs">
-                <div className="flex justify-between text-zinc-600">
-                  <span>Net Payable:</span>
-                  <span className="font-bold text-zinc-900">Rs. {(Number(selectedReceipt.amount || 0) - Number(selectedReceipt.waiver || 0) + Number(selectedReceipt.fine || 0)).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-emerald-700 font-bold">
-                  <span>Amount Paid:</span>
-                  <span>Rs. {Number(selectedReceipt.paid || 0).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-rose-700 font-bold pt-1 border-t border-dashed border-zinc-200">
-                  <span>Remaining Balance:</span>
-                  <span>Rs. {Number(selectedReceipt.balance || 0).toLocaleString()}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Footer / Signatures */}
-            <div className="pt-6 pb-2 grid grid-cols-2 gap-8 text-[11px] text-zinc-500">
-              <div className="text-center pt-8 border-t border-zinc-300">
-                Authorized Cashier / Stamp
-              </div>
-              <div className="text-center pt-8 border-t border-zinc-300">
-                Parent / Guardian Signature
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-200 mt-4">
-              <Button 
-                variant="outline" 
-                onClick={() => setIsReceiptOpen(false)}
-                className="text-xs h-9 text-zinc-700 border-zinc-300 rounded-xl"
-              >
-                Close
-              </Button>
-              <Button 
-                onClick={() => window.print()}
-                style={{ backgroundColor: '#084A86' }}
-                className="hover:opacity-95 text-white font-bold text-xs h-9 flex items-center gap-2 rounded-xl cursor-pointer"
-              >
-                <Printer className="h-4 w-4" /> Print / Save PDF
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ThreeCopyFeeSlipModal
+        isOpen={isReceiptOpen}
+        onClose={() => setIsReceiptOpen(false)}
+        slipData={selectedReceipt}
+      />
     </div>
   );
 }
