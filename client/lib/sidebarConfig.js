@@ -227,6 +227,7 @@ export const DEFAULT_MENU_STRUCTURE = [
         visible: true,
         subItems: [
           { id: 'sub-lab-dash', name: 'Dashboard', href: '/dashboard/labs', iconName: 'LayoutDashboard', visible: true },
+          { id: 'sub-lab-assets', name: 'Assets & Expiry', href: '/dashboard/labs/assets', iconName: 'Box', visible: true },
           { id: 'sub-lab-cats', name: 'Lab Categories', href: '/dashboard/labs/categories', iconName: 'Boxes', visible: true },
           { id: 'sub-lab-manage', name: 'Manage Labs', href: '/dashboard/labs/manage', iconName: 'FlaskConical', visible: true },
           { id: 'sub-lab-equip', name: 'Equipment & Assets', href: '/dashboard/labs/equipment', iconName: 'Cpu', visible: true },
@@ -985,6 +986,7 @@ export const TEACHER_MENU_STRUCTURE = [
         visible: true,
         subItems: [
           { id: 'sub-lab-dash', name: 'Dashboard', href: '/dashboard/labs', iconName: 'LayoutDashboard', visible: true },
+          { id: 'sub-lab-assets', name: 'Assets & Expiry', href: '/dashboard/labs/assets', iconName: 'Box', visible: true },
           { id: 'sub-lab-cats', name: 'Lab Categories', href: '/dashboard/labs/categories', iconName: 'Boxes', visible: true },
           { id: 'sub-lab-manage', name: 'Manage Labs', href: '/dashboard/labs/manage', iconName: 'FlaskConical', visible: true },
           { id: 'sub-lab-equip', name: 'Equipment & Assets', href: '/dashboard/labs/equipment', iconName: 'Cpu', visible: true },
@@ -1270,7 +1272,7 @@ export const STUDENT_MENU_STRUCTURE = [
   }
 ];
 
-export const STORAGE_KEY = 'stoofi_custom_sidebar_v10';
+export const STORAGE_KEY = 'stoofi_custom_sidebar_v11';
 
 // Keep Admin Setup as the last entry of Admin Section in saved layouts.
 function moveAdminSetupToEnd(menu) {

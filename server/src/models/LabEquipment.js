@@ -54,6 +54,30 @@ const labEquipmentSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  expiryDate: {
+    type: String,
+    default: ''
+  },
+  manufactureDate: {
+    type: String,
+    default: ''
+  },
+  assetType: {
+    type: String,
+    default: 'Equipment' // 'Chemical', 'Equipment', 'Glassware', 'Medical', 'Computer', 'General'
+  },
+  unit: {
+    type: String,
+    default: 'Units'
+  },
+  batchNo: {
+    type: String,
+    default: ''
+  },
+  storageLocation: {
+    type: String,
+    default: ''
+  },
   condition: {
     type: String,
     enum: ['Good', 'Fair', 'Damaged', 'Under Repair'],

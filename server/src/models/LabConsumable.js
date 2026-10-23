@@ -42,6 +42,26 @@ const labConsumableSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  expiryDate: {
+    type: String,
+    default: ''
+  },
+  manufactureDate: {
+    type: String,
+    default: ''
+  },
+  batchNo: {
+    type: String,
+    default: ''
+  },
+  storageLocation: {
+    type: String,
+    default: ''
+  },
+  remarks: {
+    type: String,
+    default: ''
+  },
   status: {
     type: String,
     enum: ['In Stock', 'Low Stock', 'Critical'],

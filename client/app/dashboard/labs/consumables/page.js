@@ -25,6 +25,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { exportToCSV, exportToExcel, printData } from '@/lib/exportUtils';
+import { formatDateDMY } from '@/lib/utils';
+import { getExpiryStatus } from '@/app/dashboard/labs/assets/page';
 import labService from '@/services/labService';
 
 export default function ConsumablesStockPage() {
@@ -67,7 +69,8 @@ export default function ConsumablesStockPage() {
     inStock: 10,
     reorderLevel: 5,
     unitCost: '',
-    supplier: ''
+    supplier: '',
+    expiryDate: ''
   });
 
   const handleSaveItem = async (e) => {
@@ -111,7 +114,8 @@ export default function ConsumablesStockPage() {
       inStock: 10,
       reorderLevel: 5,
       unitCost: '',
-      supplier: ''
+      supplier: '',
+      expiryDate: ''
     });
   };
 
@@ -314,6 +318,7 @@ export default function ConsumablesStockPage() {
                 <th className="px-4 py-3.5">Lab / Category</th>
                 <th className="px-4 py-3.5 text-center">Current Stock</th>
                 <th className="px-4 py-3.5 text-center">Min Alert Level</th>
+                <th className="px-4 py-3.5">Expiry Date &amp; Alert</th>
                 <th className="px-4 py-3.5">Stock Status</th>
                 <th className="px-4 py-3.5 text-right">Stock Actions</th>
               </tr>
@@ -321,21 +326,23 @@ export default function ConsumablesStockPage() {
             <tbody className="divide-y divide-zinc-100">
               {loading ? (
                 <tr>
-                  <td colSpan="6" className="py-12 text-center text-zinc-500">
+                  <td colSpan="7" className="py-12 text-center text-zinc-500">
                     <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-emerald-600" />
                     <p className="font-medium text-xs text-zinc-600">Loading consumables inventory...</p>
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="py-12 text-center text-zinc-500">
+                  <td colSpan="7" className="py-12 text-center text-zinc-500">
                     <Beaker className="w-8 h-8 text-zinc-300 mx-auto mb-2" />
                     <p className="font-medium text-xs text-zinc-600">No consumable supplies registered</p>
                     <p className="text-[11px] text-zinc-400 mt-0.5">Click &quot;Add New Consumable&quot; to log chemical reagents, glassware or supplies.</p>
                   </td>
                 </tr>
               ) : (
-                filtered.map((item) => (
+                filtered.map((item) => {
+                  const expInfo = getExpiryStatus(item.expiryDate);
+                  return (
                   <tr key={item.id || item._id} className="hover:bg-zinc-50/80 transition-colors">
                     <td className="px-4 py-3.5">
                       <div className="font-bold text-zinc-950 flex items-center gap-1.5">
@@ -355,6 +362,38 @@ export default function ConsumablesStockPage() {
                     </td>
                     <td className="px-4 py-3.5 text-center text-xs text-zinc-600 font-bold">
                       {item.reorderLevel} {item.unit}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      {expInfo.code === 'EXPIRED' ? (
+                        <div>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-800 border border-rose-300">
+                            {expInfo.label}
+                          </span>
+                          <div className="text-[10px] font-bold text-rose-700 mt-0.5">
+                            {formatDateDMY(item.expiryDate)}
+                          </div>
+                        </div>
+                      ) : expInfo.code === 'EXPIRING_SOON' ? (
+                        <div>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800 border border-amber-300">
+                            {expInfo.label}
+                          </span>
+                          <div className="text-[10px] font-bold text-amber-700 mt-0.5">
+                            {formatDateDMY(item.expiryDate)} ({expInfo.subText})
+                          </div>
+                        </div>
+                      ) : expInfo.code === 'VALID' ? (
+                        <div>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            Valid
+                          </span>
+                          <div className="text-[10px] font-semibold text-zinc-700 mt-0.5">
+                            {formatDateDMY(item.expiryDate)}
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-zinc-400">No Expiry</span>
+                      )}
                     </td>
                     <td className="px-4 py-3.5">
                       <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
@@ -399,7 +438,8 @@ export default function ConsumablesStockPage() {
                       </div>
                     </td>
                   </tr>
-                ))
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -462,14 +502,18 @@ export default function ConsumablesStockPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-1">
                   <Label className="text-[11px] font-bold text-zinc-800 uppercase">Supplier</Label>
                   <Input value={formData.supplier} onChange={e => setFormData({ ...formData, supplier: e.target.value })} placeholder="Supplier Name" />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-[11px] font-bold text-zinc-800 uppercase">Unit Cost</Label>
-                  <Input value={formData.unitCost} onChange={e => setFormData({ ...formData, unitCost: e.target.value })} placeholder="$15.00/kg" />
+                  <Label className="text-[11px] font-bold text-zinc-800 uppercase">Unit Cost (Rs.)</Label>
+                  <Input value={formData.unitCost} onChange={e => setFormData({ ...formData, unitCost: e.target.value })} placeholder="Rs. 1,500" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-bold text-rose-700 uppercase">Expiry Date</Label>
+                  <Input type="date" value={formData.expiryDate} onChange={e => setFormData({ ...formData, expiryDate: e.target.value })} />
                 </div>
               </div>
 

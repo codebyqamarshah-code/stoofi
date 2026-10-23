@@ -54,6 +54,13 @@ router.route('/equipment/:id')
   .put(updateEquipment)
   .delete(deleteEquipment);
 
+router.route('/assets')
+  .get(getEquipment)
+  .post(createEquipment);
+router.route('/assets/:id')
+  .put(updateEquipment)
+  .delete(deleteEquipment);
+
 // Maintenance & Repairs
 router.route('/maintenance')
   .get(getMaintenance)

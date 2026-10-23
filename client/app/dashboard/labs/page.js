@@ -146,6 +146,11 @@ export default function LabsDashboardPage() {
             <RefreshCw className={`w-3.5 h-3.5 text-emerald-600 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </button>
+          <Link href="/dashboard/labs/assets">
+            <Button variant="outline" className="h-9 px-3 text-xs bg-white hover:bg-zinc-50 border-zinc-300 text-zinc-800 font-bold rounded-xl shadow-xs">
+              <Plus className="h-3.5 w-3.5 mr-1 text-emerald-600" /> Lab Assets &amp; Expiry
+            </Button>
+          </Link>
           <Link href="/dashboard/labs/manage">
             <Button variant="outline" className="h-9 px-3 text-xs bg-white hover:bg-zinc-50 border-zinc-300 text-zinc-800 font-bold rounded-xl shadow-xs">
               <Plus className="h-3.5 w-3.5 mr-1 text-emerald-600" /> Add Lab
@@ -357,6 +362,7 @@ export default function LabsDashboardPage() {
             <h2 className="text-base font-bold text-zinc-950 mb-3">Labs Management Modules</h2>
             <div className="grid grid-cols-2 gap-2">
               {[
+                { name: 'Assets & Expiry', href: '/dashboard/labs/assets', icon: FlaskConical },
                 { name: 'Lab Categories', href: '/dashboard/labs/categories', icon: Layers },
                 { name: 'Manage Labs', href: '/dashboard/labs/manage', icon: FlaskConical },
                 { name: 'Equipment & Assets', href: '/dashboard/labs/equipment', icon: Cpu },
