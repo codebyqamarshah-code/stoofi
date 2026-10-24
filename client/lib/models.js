@@ -103,6 +103,13 @@ const studentSchema = new mongoose.Schema({
   photo: { type: String },
   medicalHistory: { type: String },
   emergencyContact: { type: String },
+  emergencyContactName: { type: String },
+  emergencyContactRelation: { type: String },
+  emergencyContactPhone: { type: String },
+  studentCode: { type: String, trim: true },
+  whatsapp: { type: String, trim: true },
+  isPermanentProfile: { type: Boolean, default: true },
+  activeEnrollmentCount: { type: Number, default: 1 },
   tcNo: { type: String },
   remarks: { type: String },
   fatherName: { type: String },
@@ -116,12 +123,54 @@ const studentSchema = new mongoose.Schema({
   guardianRelation: { type: String },
   guardianPhone: { type: String },
   guardianAddress: { type: String },
+  guardianCnic: { type: String },
+  guardianOccupation: { type: String },
+  guardianEmail: { type: String },
+  father: {
+    name: { type: String },
+    phone: { type: String },
+    cnic: { type: String },
+    occupation: { type: String }
+  },
+  mother: {
+    name: { type: String },
+    phone: { type: String },
+    occupation: { type: String }
+  },
+  guardian: {
+    name: { type: String },
+    relation: { type: String },
+    phone: { type: String },
+    cnic: { type: String },
+    occupation: { type: String },
+    address: { type: String },
+    email: { type: String }
+  },
   document1: { type: String },
   document2: { type: String },
   cnicFront: { type: String },
   cnicBack: { type: String },
   qualificationLevel: { type: String },
   qualificationDocument: { type: String },
+  qualifications: [{
+    qualification: { type: String },
+    institution: { type: String },
+    awardingBody: { type: String },
+    completionYear: { type: String },
+    rollNumber: { type: String },
+    totalMarks: { type: Number },
+    obtainedMarks: { type: Number },
+    percentage: { type: String },
+    grade: { type: String },
+    resultStatus: { type: String, default: 'Passed' },
+    documentUrl: { type: String }
+  }],
+  documents: [{
+    docType: { type: String },
+    status: { type: String, default: 'Pending' },
+    verified: { type: Boolean, default: false },
+    documentUrl: { type: String }
+  }],
   previousSchool: { type: String },
   previousInstituteType: { type: String },
   previousClassCovered: { type: String },
@@ -404,5 +453,282 @@ const frontendCmsSchema = new mongoose.Schema({
 }, { timestamps: true, minimize: false });
 
 export const FrontendCMS = mongoose.models.FrontendCMS || mongoose.model('FrontendCMS', frontendCmsSchema);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ACADEMIC PROGRAM MANAGEMENT & MULTI-ENROLLMENT ARCHITECTURE
+// ─────────────────────────────────────────────────────────────────────────────
+
+const academicCategorySchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true, unique: true },
+  code: { type: String, required: true, trim: true, uppercase: true, unique: true },
+  description: { type: String, default: '' },
+  applicableStageType: { type: String, enum: ['Part', 'Semester', 'Term', 'Module'], default: 'Semester' },
+  displayOrder: { type: Number, default: 0 },
+  status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
+  isActive: { type: Boolean, default: true }
+}, { timestamps: true });
+
+export const AcademicCategory = mongoose.models.AcademicCategory || mongoose.model('AcademicCategory', academicCategorySchema);
+
+const affiliationSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  code: { type: String, required: true, trim: true, uppercase: true, unique: true },
+  type: { 
+    type: String, 
+    enum: ['University', 'Board of Intermediate & Secondary Education', 'Technical Board', 'Council', 'Vocational Agency', 'Autonomous Body'], 
+    default: 'Technical Board' 
+  },
+  approvalReference: { type: String, default: '' },
+  verificationEvidence: { type: String, default: '' },
+  validityFrom: { type: String, default: '' },
+  validityTo: { type: String, default: '' },
+  contactPerson: { type: String, default: '' },
+  contactPhone: { type: String, default: '' },
+  contactEmail: { type: String, default: '' },
+  address: { type: String, default: '' },
+  authorizationStatus: { 
+    type: String, 
+    enum: ['Approved', 'Pending Renewal', 'Conditional', 'Suspended', 'Expired'], 
+    default: 'Approved' 
+  },
+  isActive: { type: Boolean, default: true }
+}, { timestamps: true });
+
+export const Affiliation = mongoose.models.Affiliation || mongoose.model('Affiliation', affiliationSchema);
+
+const campusSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  code: { type: String, required: true, trim: true, uppercase: true, unique: true },
+  address: { type: String, default: 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura' },
+  phone: { type: String, default: '03 111 444 810' },
+  email: { type: String, default: 'info@pakroyalcollege.edu.pk' },
+  status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
+  isMainCampus: { type: Boolean, default: false }
+}, { timestamps: true });
+
+export const Campus = mongoose.models.Campus || mongoose.model('Campus', campusSchema);
+
+const academicSessionSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  year: { type: Number, required: true },
+  startDate: { type: String, default: '' },
+  endDate: { type: String, default: '' },
+  isCurrent: { type: Boolean, default: false },
+  status: { type: String, enum: ['Active', 'Closed', 'Upcoming'], default: 'Active' }
+}, { timestamps: true });
+
+export const AcademicSession = mongoose.models.AcademicSession || mongoose.model('AcademicSession', academicSessionSchema);
+
+const programSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  code: { type: String, required: true, trim: true, uppercase: true, unique: true },
+  qualificationName: { type: String, default: '' },
+  category: { type: mongoose.Schema.Types.ObjectId, ref: 'AcademicCategory', required: true },
+  categoryName: { type: String, default: '' },
+  department: { type: String, default: 'Academics' },
+  description: { type: String, default: '' },
+  academicPattern: { type: String, enum: ['Annual', 'Semester', 'Term', 'Modular'], default: 'Annual' },
+  defaultDuration: { type: String, default: '2 Years' },
+  totalStages: { type: Number, default: 2 },
+  stageType: { type: String, enum: ['Part', 'Semester', 'Term', 'Module'], default: 'Part' },
+  status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
+  isActive: { type: Boolean, default: true }
+}, { timestamps: true });
+
+export const Program = mongoose.models.Program || mongoose.model('Program', programSchema);
+
+const programOfferingSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  programId: { type: mongoose.Schema.Types.ObjectId, ref: 'Program', required: true },
+  programName: { type: String, required: true },
+  programCode: { type: String, required: true },
+  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'AcademicCategory' },
+  categoryName: { type: String, default: '' },
+  campusId: { type: mongoose.Schema.Types.ObjectId, ref: 'Campus' },
+  campusName: { type: String, default: 'Main Campus - Sharaqpur Sharif' },
+  affiliationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Affiliation' },
+  affiliationName: { type: String, default: 'Punjab Board of Technical Education (PBTE)' },
+  sessionId: { type: mongoose.Schema.Types.ObjectId, ref: 'AcademicSession' },
+  sessionName: { type: String, default: '2026-2028' },
+  sessionYear: { type: Number, default: 2026 },
+  curriculumVersion: { type: String, default: 'Scheme 2026 v1.0' },
+  duration: { type: String, default: '2 Years' },
+  academicPattern: { type: String, default: 'Annual' },
+  stageType: { type: String, default: 'Part' },
+  totalStages: { type: Number, default: 2 },
+  admissionStartDate: { type: String, default: '' },
+  admissionEndDate: { type: String, default: '' },
+  seatCapacity: { type: Number, default: 60 },
+  enrolledCount: { type: Number, default: 0 },
+  feePlan: {
+    admissionFee: { type: Number, default: 5000 },
+    tuitionFeePerTerm: { type: Number, default: 25000 },
+    registrationFee: { type: Number, default: 3000 },
+    labPracticalFee: { type: Number, default: 2000 },
+    examFee: { type: Number, default: 2000 },
+    libraryFee: { type: Number, default: 1000 },
+    totalEstimate: { type: Number, default: 38000 },
+    installmentsAllowed: { type: Boolean, default: true },
+    installmentsCount: { type: Number, default: 2 }
+  },
+  documentRequirements: [{
+    name: { type: String, required: true },
+    key: { type: String, required: true },
+    required: { type: Boolean, default: true },
+    description: { type: String, default: '' }
+  }],
+  dynamicFieldSchema: [{
+    key: { type: String, required: true },
+    label: { type: String, required: true },
+    type: { type: String, enum: ['text', 'number', 'select', 'multiselect', 'date', 'textarea'], default: 'text' },
+    options: [{ type: String }],
+    required: { type: Boolean, default: false },
+    placeholder: { type: String, default: '' },
+    helpText: { type: String, default: '' }
+  }],
+  status: { type: String, enum: ['Approved', 'Draft', 'Suspended', 'Archived'], default: 'Approved' },
+  isActive: { type: Boolean, default: true }
+}, { timestamps: true });
+
+export const ProgramOffering = mongoose.models.ProgramOffering || mongoose.model('ProgramOffering', programOfferingSchema);
+
+const batchSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  code: { type: String, default: '' },
+  offeringId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProgramOffering', required: true },
+  programId: { type: mongoose.Schema.Types.ObjectId, ref: 'Program' },
+  shift: { type: String, enum: ['Morning', 'Evening', 'Weekend'], default: 'Morning' },
+  startDate: { type: String, default: '' },
+  endDate: { type: String, default: '' },
+  capacity: { type: Number, default: 60 },
+  currentEnrolled: { type: Number, default: 0 },
+  roomNumber: { type: String, default: '' },
+  coordinatorName: { type: String, default: '' },
+  sections: [{ type: String, default: 'A' }],
+  status: { type: String, enum: ['Active', 'Completed', 'Upcoming'], default: 'Active' }
+}, { timestamps: true });
+
+export const Batch = mongoose.models.Batch || mongoose.model('Batch', batchSchema);
+
+const admissionCounterSchema = new mongoose.Schema({
+  key: { type: String, required: true, unique: true, trim: true },
+  type: { type: String, enum: ['admission', 'roll', 'studentCode'], required: true },
+  year: { type: Number, required: true },
+  scope: { type: String, default: 'institution' },
+  sequence: { type: Number, default: 0, required: true }
+}, { timestamps: true });
+
+export const AdmissionCounter = mongoose.models.AdmissionCounter || mongoose.model('AdmissionCounter', admissionCounterSchema);
+
+const studentEnrollmentSchema = new mongoose.Schema({
+  studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Student', required: true },
+  studentCode: { type: String, default: '' },
+  studentName: { type: String, required: true },
+  offeringId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProgramOffering', required: true },
+  programId: { type: mongoose.Schema.Types.ObjectId, ref: 'Program' },
+  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'AcademicCategory' },
+  campusId: { type: mongoose.Schema.Types.ObjectId, ref: 'Campus' },
+  affiliationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Affiliation' },
+  sessionId: { type: mongoose.Schema.Types.ObjectId, ref: 'AcademicSession' },
+  batchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Batch' },
+  programName: { type: String, required: true },
+  programCode: { type: String, default: '' },
+  categoryName: { type: String, default: '' },
+  campusName: { type: String, default: 'Main Campus - Sharaqpur Sharif' },
+  affiliationName: { type: String, default: '' },
+  sessionName: { type: String, default: '' },
+  batchName: { type: String, default: '' },
+  sectionName: { type: String, default: 'A' },
+  shift: { type: String, enum: ['Morning', 'Evening', 'Weekend'], default: 'Morning' },
+  admissionYear: { type: Number, required: true },
+  admissionDate: { type: String, required: true },
+  admissionNumber: { type: String, required: true, unique: true },
+  rollNumber: { type: String, required: true },
+  applicationStatus: { 
+    type: String, 
+    enum: ['Draft', 'Submitted', 'Under Review', 'Accepted', 'Rejected'], 
+    default: 'Accepted' 
+  },
+  rejectionReason: { type: String, default: '' },
+  enrollmentStatus: { 
+    type: String, 
+    enum: ['Pending', 'Active', 'Deferred', 'Withdrawn', 'Completed', 'Cancelled'], 
+    default: 'Active' 
+  },
+  externalRegistrationStatus: { 
+    type: String, 
+    enum: ['Not Submitted', 'Submitted', 'Approved', 'Rejected'], 
+    default: 'Not Submitted' 
+  },
+  externalRegistrationNumber: { type: String, default: '' },
+  externalExamRollNo: { type: String, default: '' },
+  financeStatus: { 
+    type: String, 
+    enum: ['Clear', 'Partially Paid', 'Overdue'], 
+    default: 'Clear' 
+  },
+  academicStage: { type: String, default: 'Part I' },
+  academicResultStatus: { 
+    type: String, 
+    enum: ['Pending', 'Passed', 'Failed', 'Reappear'], 
+    default: 'Pending' 
+  },
+  admissionType: { 
+    type: String, 
+    enum: ['Regular', 'Private', 'Transfer / Migration', 'Readmission', 'Scholarship'], 
+    default: 'Regular' 
+  },
+  previousQualifications: [{
+    qualification: { type: String, default: '' },
+    institute: { type: String, default: '' },
+    awardingBody: { type: String, default: '' },
+    passingYear: { type: String, default: '' },
+    rollNo: { type: String, default: '' },
+    totalMarks: { type: Number, default: 0 },
+    obtainedMarks: { type: Number, default: 0 },
+    percentage: { type: Number, default: 0 },
+    grade: { type: String, default: '' },
+    resultStatus: { type: String, enum: ['Passed', 'Result Awaiting', 'Compartment'], default: 'Passed' },
+    documentUrl: { type: String, default: '' }
+  }],
+  dynamicFields: { type: mongoose.Schema.Types.Mixed, default: {} },
+  programSpecificData: { type: mongoose.Schema.Types.Mixed, default: {} },
+  documents: [{
+    name: { type: String, required: true },
+    key: { type: String, required: true },
+    fileUrl: { type: String, default: '' },
+    requirementType: { type: String, enum: ['Required', 'Optional', 'Not Applicable'], default: 'Required' },
+    status: { type: String, enum: ['Pending', 'Verified', 'Rejected'], default: 'Pending' },
+    verificationOfficer: { type: String, default: '' },
+    verifiedAt: { type: Date },
+    rejectionReason: { type: String, default: '' }
+  }],
+  feeStructureSnapshot: {
+    admissionFee: { type: Number, default: 0 },
+    tuitionFee: { type: Number, default: 0 },
+    registrationFee: { type: Number, default: 0 },
+    labFee: { type: Number, default: 0 },
+    examFee: { type: Number, default: 0 },
+    libraryFee: { type: Number, default: 0 },
+    totalFee: { type: Number, default: 0 },
+    concessionAmount: { type: Number, default: 0 },
+    concessionReason: { type: String, default: '' },
+    concessionApprovedBy: { type: String, default: '' },
+    netPayable: { type: Number, default: 0 },
+    challanGenerated: { type: Boolean, default: false },
+    challanNumber: { type: String, default: '' }
+  },
+  history: [{
+    action: { type: String, required: true },
+    fromStatus: { type: String, default: '' },
+    toStatus: { type: String, default: '' },
+    actor: { type: String, default: 'System' },
+    timestamp: { type: Date, default: Date.now },
+    reason: { type: String, default: '' }
+  }]
+}, { timestamps: true });
+
+export const StudentEnrollment = mongoose.models.StudentEnrollment || mongoose.model('StudentEnrollment', studentEnrollmentSchema);
+
 
 

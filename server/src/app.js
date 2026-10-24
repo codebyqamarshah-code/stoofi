@@ -242,6 +242,8 @@ app.use('/api/payment', require('./routes/payment.routes'));
 app.use('/api/payments', require('./routes/payment.routes'));
 app.use('/api/setting', require('./routes/setting.routes'));
 app.use('/api/frontend-cms', require('./routes/frontend-cms.routes'));
+app.use('/api/academic-program', require('./routes/academic-program.routes'));
+app.use('/api/enrollment', require('./routes/academic-program.routes'));
 app.use('/api/virtual-class', require('./routes/virtual-class.routes'));
 
 // Health check & root endpoints

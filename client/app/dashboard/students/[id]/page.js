@@ -7,7 +7,7 @@ import {
   ChevronRight, User, Phone, Mail, MapPin, Calendar, BookOpen,
   GraduationCap, Users, FileText, Download, Printer, ArrowLeft,
   BadgeCheck, Home, Heart, Briefcase, Hash, Clock, Shield,
-  Activity, AlertCircle, Edit
+  Activity, AlertCircle, Edit, Plus, CheckCircle, Layers, School
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import api from '@/services/api';
@@ -67,18 +67,28 @@ function SectionCard({ title, icon: Icon, children }) {
 export default function StudentProfilePage() {
   const { id } = useParams();
   const [student, setStudent] = useState(null);
+  const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await api.get(`/student/${id}`);
-        const s = res?.data || (res?._id ? res : null);
-        if (s) {
-          setStudent(s);
+        const [studentRes, enrollRes] = await Promise.allSettled([
+          api.get(`/student/${id}`),
+          api.get(`/enrollment?studentId=${id}`)
+        ]);
+
+        if (studentRes.status === 'fulfilled') {
+          const res = studentRes.value;
+          const s = res?.data || (res?._id ? res : null);
+          if (s) setStudent(s);
+        }
+
+        if (enrollRes.status === 'fulfilled' && enrollRes.value?.success) {
+          setEnrollments(enrollRes.value.data || []);
         }
       } catch (err) {
-        console.error('Failed to load student:', err);
+        console.error('Failed to load student or enrollments:', err);
       } finally {
         setLoading(false);
       }
@@ -302,9 +312,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl font-black text-zinc-900 tracking-tight">{fullName}</h1>
             <div className="flex flex-wrap items-center gap-2 mt-2">
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-white text-zinc-950 px-3 py-1 rounded-full">
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-zinc-950 text-white px-3 py-1 rounded-full">
                 <Hash className="h-3 w-3" /> {student.admissionNo || '—'}
               </span>
+              {student.studentCode && (
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 px-3 py-1 rounded-full border border-emerald-300 dark:border-emerald-800">
+                  <Shield className="h-3 w-3 text-emerald-600" /> Permanent ID: {student.studentCode}
+                </span>
+              )}
               <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-zinc-100 text-zinc-700 px-3 py-1 rounded-full border border-zinc-200">
                 <BookOpen className="h-3 w-3" /> {student.className || '—'} — {student.section || '—'}
               </span>
@@ -416,6 +431,146 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
         </div>
 
       </div>
+
+      {/* Academic Program Enrollments (One Student -> Multiple Enrollments) */}
+      <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4 border-b border-zinc-100 bg-zinc-50">
+          <div className="flex items-center gap-2.5">
+            <School className="h-5 w-5 text-emerald-600" />
+            <div>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-900">
+                Academic Program Enrollments
+              </h3>
+              <p className="text-xs text-zinc-500">
+                All registered program offerings, batches, and academic stages for this permanent student profile.
+              </p>
+            </div>
+          </div>
+          <Link href="/dashboard/students/add">
+            <Button
+              size="sm"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold h-8"
+            >
+              <Plus className="w-3.5 h-3.5 mr-1" /> New Program Enrollment
+            </Button>
+          </Link>
+        </div>
+
+        <div className="p-6">
+          {enrollments.length === 0 ? (
+            <div className="text-center py-6 text-zinc-400 text-xs">
+              <School className="h-8 w-8 mx-auto text-zinc-300 mb-2" />
+              <p>Primary legacy enrollment active: {student.className || 'General Program'} ({student.section || 'A'}).</p>
+              <p className="text-[11px] text-zinc-400 mt-0.5">Use the button above to add an accredited Program Offering enrollment.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {enrollments.map((enr) => (
+                <div
+                  key={enr._id}
+                  className="p-4 rounded-xl border border-zinc-200 bg-zinc-50/50 hover:bg-white hover:border-emerald-300 transition-all space-y-2.5"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-sm text-zinc-900">{enr.programName || enr.offeringTitle}</span>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                      enr.enrollmentStatus === 'Active'
+                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                        : enr.enrollmentStatus === 'Completed'
+                        ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                        : 'bg-zinc-100 text-zinc-700'
+                    }`}>
+                      {enr.enrollmentStatus}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-y-1.5 text-xs text-zinc-600">
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-zinc-400 block">Admission No</span>
+                      <span className="font-mono font-bold text-zinc-800">{enr.admissionNumber || student.admissionNo}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-zinc-400 block">Roll No</span>
+                      <span className="font-mono font-bold text-zinc-800">{enr.rollNumber || student.rollNo}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-zinc-400 block">Session / Year</span>
+                      <span className="font-medium text-zinc-800">{enr.academicYear || student.academicYear}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-zinc-400 block">Section / Shift</span>
+                      <span className="font-medium text-zinc-800">{enr.sectionName || student.section || 'A'} ({enr.shift || 'Morning'})</span>
+                    </div>
+                  </div>
+
+                  {enr.affiliationName && (
+                    <div className="pt-2 border-t border-zinc-200/60 text-[11px] text-zinc-500">
+                      Affiliation Body: <strong className="text-zinc-700">{enr.affiliationName}</strong>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Qualifications & Documents Grid */}
+      {(student.qualifications?.length > 0 || student.documents?.length > 0) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Qualifications */}
+          {student.qualifications?.length > 0 && (
+            <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
+              <div className="flex items-center gap-2 px-5 py-3.5 border-b border-zinc-100 bg-zinc-50">
+                <GraduationCap className="h-4 w-4 text-emerald-600" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-700">
+                  Prior Academic Qualifications
+                </h3>
+              </div>
+              <div className="p-4 space-y-3">
+                {student.qualifications.map((q, i) => (
+                  <div key={i} className="p-3 rounded-lg border border-zinc-100 bg-zinc-50 text-xs space-y-1">
+                    <div className="flex justify-between font-bold text-zinc-900">
+                      <span>{q.qualification}</span>
+                      <span className="text-emerald-600">{q.percentage || `${q.obtainedMarks}/${q.totalMarks}`}</span>
+                    </div>
+                    <div className="text-zinc-500 text-[11px]">
+                      {q.institution || q.awardingBody} — Passing Year: {q.completionYear || '—'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Documents Checklist */}
+          {student.documents?.length > 0 && (
+            <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
+              <div className="flex items-center gap-2 px-5 py-3.5 border-b border-zinc-100 bg-zinc-50">
+                <FileText className="h-4 w-4 text-emerald-600" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-700">
+                  Admission Documents Verification
+                </h3>
+              </div>
+              <div className="p-4 space-y-2">
+                {student.documents.map((d, i) => (
+                  <div key={i} className="flex items-center justify-between py-2 border-b border-zinc-100 last:border-0 text-xs">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className={`h-3.5 w-3.5 ${d.verified ? 'text-emerald-600' : 'text-zinc-400'}`} />
+                      <span className="font-medium text-zinc-800">{d.docType}</span>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                      d.verified ? 'bg-emerald-100 text-emerald-800' : 'bg-zinc-100 text-zinc-600'
+                    }`}>
+                      {d.status || (d.verified ? 'Verified' : 'Pending')}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
     </div>
   );
 }

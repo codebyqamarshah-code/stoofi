@@ -38,6 +38,14 @@ const schema = new mongoose.Schema({
   tcNo: { type: String },
   remarks: { type: String },
 
+  studentCode: { type: String, trim: true, sparse: true },
+  whatsapp: { type: String, trim: true },
+  emergencyContactName: { type: String },
+  emergencyContactRelation: { type: String },
+  emergencyContactPhone: { type: String },
+  isPermanentProfile: { type: Boolean, default: true },
+  activeEnrollmentCount: { type: Number, default: 1 },
+
   // Parents Info
   fatherName: { type: String },
   fatherPhone: { type: String },
@@ -50,6 +58,30 @@ const schema = new mongoose.Schema({
   guardianRelation: { type: String },
   guardianPhone: { type: String },
   guardianAddress: { type: String },
+  guardianCnic: { type: String },
+  guardianOccupation: { type: String },
+  guardianEmail: { type: String },
+
+  father: {
+    name: { type: String },
+    phone: { type: String },
+    cnic: { type: String },
+    occupation: { type: String }
+  },
+  mother: {
+    name: { type: String },
+    phone: { type: String },
+    occupation: { type: String }
+  },
+  guardian: {
+    name: { type: String },
+    relation: { type: String },
+    phone: { type: String },
+    cnic: { type: String },
+    occupation: { type: String },
+    address: { type: String },
+    email: { type: String }
+  },
 
   // Documents
   document1: { type: String },
@@ -58,6 +90,29 @@ const schema = new mongoose.Schema({
   cnicBack: { type: String },
   qualificationLevel: { type: String },
   qualificationDocument: { type: String },
+
+  // Dynamic Qualifications Array
+  qualifications: [{
+    qualification: { type: String },
+    institution: { type: String },
+    awardingBody: { type: String },
+    completionYear: { type: String },
+    rollNumber: { type: String },
+    totalMarks: { type: Number },
+    obtainedMarks: { type: Number },
+    percentage: { type: String },
+    grade: { type: String },
+    resultStatus: { type: String, default: 'Passed' },
+    documentUrl: { type: String }
+  }],
+
+  // Documents Checklist
+  documents: [{
+    docType: { type: String },
+    status: { type: String, default: 'Pending' },
+    verified: { type: Boolean, default: false },
+    documentUrl: { type: String }
+  }],
 
   // Previous School
   previousSchool: { type: String },
@@ -84,5 +139,7 @@ schema.index({ createdAt: -1 });
 schema.index({ admissionNo: 1, rollNo: 1, createdAt: 1 });
 schema.index({ rollNo: 1, admissionNo: 1 });
 schema.index({ className: 1, section: 1 });
+schema.index({ studentCode: 1 });
+schema.index({ cnic: 1 });
 
 module.exports = mongoose.model('Student', schema);

@@ -195,6 +195,7 @@ export const DEFAULT_MENU_STRUCTURE = [
         hasSubmenu: true,
         visible: true,
         subItems: [
+          { id: 'sub-acad-programs', name: 'Programs & Offerings', href: '/dashboard/academics/programs', iconName: 'GraduationCap', visible: true },
           { id: 'sub-acad-opt-subj', name: 'Optional Subject', href: '/dashboard/academics/optional-subject', iconName: 'BookCopy', visible: true },
           { id: 'sub-acad-section', name: 'Section', href: '/dashboard/academics/section', iconName: 'Layers', visible: true },
           { id: 'sub-acad-class', name: 'Class', href: '/dashboard/academics/class', iconName: 'School', visible: true },
@@ -939,6 +940,7 @@ export const TEACHER_MENU_STRUCTURE = [
         hasSubmenu: true,
         visible: true,
         subItems: [
+          { id: 'sub-acad-programs', name: 'Programs & Offerings', href: '/dashboard/academics/programs', iconName: 'GraduationCap', visible: true },
           { id: 'sub-acad-opt-subj', name: 'Optional Subject', href: '/dashboard/academics/optional-subject', iconName: 'BookCopy', visible: true },
           { id: 'sub-acad-section', name: 'Section', href: '/dashboard/academics/section', iconName: 'Layers', visible: true },
           { id: 'sub-acad-class', name: 'Class', href: '/dashboard/academics/class', iconName: 'School', visible: true },

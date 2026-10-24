@@ -1,1200 +1,1857 @@
 'use client';
 
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import React, { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
-  ChevronRight, Plus, Calendar as CalendarIcon, Upload, CheckCircle2, 
-  AlertTriangle, AlertCircle, ArrowRight, ArrowLeft, X 
+  ChevronRight, ArrowRight, ArrowLeft, CheckCircle2, AlertCircle, 
+  Upload, User, Shield, GraduationCap, FileText, CheckSquare, 
+  CreditCard, Search, Plus, Trash2, Building, RefreshCw, Calendar,
+  Layers, School, Phone, Mail, MapPin, Eye, BookOpen, AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
-import { DayMonthYearInput } from '@/components/ui/DayMonthYearInput';
-import { sortClassesAcademic } from '@/lib/academicUtils';
+import academicApi from '@/lib/academicApi';
 import api from '@/services/api';
-import { useRouter } from 'next/navigation';
-import StudentImportModal from '@/components/StudentImportModal';
 
-const QUALIFICATION_LEVELS = [
-  { label: 'Primary (Class 1-5)', value: 'Primary' },
-  { label: 'Middle (Class 6-8)', value: 'Middle' },
-  { label: 'Matriculation (SSC / O-Levels)', value: 'Matric' },
-  { label: 'Intermediate (HSSC / F.Sc / F.A / I.Com / A-Levels)', value: 'Intermediate' },
-  { label: 'Bachelors (BS / B.Sc / B.A / B.Com / B.Ed)', value: 'Graduation' },
-  { label: 'Masters (MS / M.Sc / M.A / M.Com / MBA)', value: 'Master' },
-  { label: 'MPhil / MS Research', value: 'M Phill' },
-  { label: 'PhD / Doctorate', value: 'PHD' },
-  { label: 'Two Year Diploma / DAE', value: 'Two Year Diploma' },
-  { label: 'One Year Diploma', value: 'One Year Diploma' },
-  { label: 'IT & Technical Certifications', value: 'IT Courses' },
-  { label: 'Other Courses', value: 'Other Courses' }
+const STEPS = [
+  { id: 1, title: 'Student Identity', icon: User, desc: 'Personal details & ID' },
+  { id: 2, title: 'Guardian & Family', icon: Shield, desc: 'Parents & emergency info' },
+  { id: 3, title: 'Academic Selection', icon: School, desc: 'Program & offering choice' },
+  { id: 4, title: 'Qualifications', icon: GraduationCap, desc: 'Previous academic history' },
+  { id: 5, title: 'Program Fields', icon: Layers, desc: 'Specialized dynamic fields' },
+  { id: 6, title: 'Documents Checklist', icon: CheckSquare, desc: 'Verification & uploads' },
+  { id: 7, title: 'Fees & Final Review', icon: CreditCard, desc: 'Fee plan & confirmation' }
 ];
 
-const ACADEMIC_YEARS = [
-  { label: '2027', value: '2027' },
-  { label: '2026', value: '2026' },
-  { label: '2025', value: '2025' },
-  { label: '2024', value: '2024' },
-  { label: '2023', value: '2023' },
-];
-
-const BLOOD_GROUPS = [
-  { label: 'A+', value: 'A+' },
-  { label: 'A-', value: 'A-' },
-  { label: 'B+', value: 'B+' },
-  { label: 'B-', value: 'B-' },
-  { label: 'AB+', value: 'AB+' },
-  { label: 'AB-', value: 'AB-' },
-  { label: 'O+', value: 'O+' },
-  { label: 'O-', value: 'O-' },
-  { label: 'NA', value: 'NA' },
-  { label: 'N/A (Not Available / Unknown)', value: 'N/A' },
-];
-
-const STUDENT_TYPES = [
-  { label: 'Regular', value: 'Regular' },
-  { label: 'Private', value: 'Private' },
-  { label: 'Scholarship', value: 'Scholarship' },
-  { label: 'Hostelite', value: 'Hostelite' },
-  { label: 'Day Scholar', value: 'Day Scholar' }
-];
-
-// Helper to auto-format Pakistani CNIC (12345-1234567-1)
 function formatCnic(val) {
   if (!val) return '';
   const digits = String(val).replace(/\D/g, '').slice(0, 13);
-  if (digits.length <= 5) {
-    return digits;
-  }
-  if (digits.length <= 12) {
-    return `${digits.slice(0, 5)}-${digits.slice(5)}`;
-  }
+  if (digits.length <= 5) return digits;
+  if (digits.length <= 12) return `${digits.slice(0, 5)}-${digits.slice(5)}`;
   return `${digits.slice(0, 5)}-${digits.slice(5, 12)}-${digits.slice(12, 13)}`;
 }
 
-const DocumentPreview = ({ preview, error }) => {
-  if (error) return <p className="text-rose-500 text-xs mt-1 font-semibold">{error}</p>;
-  if (!preview) return null;
-  return (
-    <div className="mt-2 rounded-lg border border-zinc-200 dark:border-zinc-200 p-1 bg-white dark:bg-zinc-800 relative w-full h-32 overflow-hidden shadow-sm">
-      {preview.type === 'application/pdf' ? (
-        <iframe src={preview.url} className="w-full h-full rounded" />
-      ) : (
-        <img src={preview.url} alt="Document Preview" className="w-full h-full object-cover rounded" />
-      )}
-      <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">VERIFIED</div>
-    </div>
-  );
-};
-
-export default function AddStudentPage() {
+export default function StudentAdmissionWizardPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('PERSONAL INFO');
+  const [currentStep, setCurrentStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [selectedPhotoName, setSelectedPhotoName] = useState('');
-  const [photoPreview, setPhotoPreview] = useState(null);
-  const fileInputRef = useRef(null);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
-  // Field-level inline errors state (displays directly under fields)
-  const [fieldErrors, setFieldErrors] = useState({});
-  const [formGeneralError, setFormGeneralError] = useState('');
-  const [formSuccess, setFormSuccess] = useState(false);
+  // Dropdown Data Collections
+  const [campuses, setCampuses] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [programs, setPrograms] = useState([]);
+  const [offerings, setOfferings] = useState([]);
+  const [batches, setBatches] = useState([]);
+  const [loadingOfferings, setLoadingOfferings] = useState(false);
 
-  // Roll Number Validation State
-  const [usedRolls, setUsedRolls] = useState([]);
-  const [rollDuplicate, setRollDuplicate] = useState(false);
-  const [loadingRoll, setLoadingRoll] = useState(false);
+  // Existing student lookup state (Multi-enrollment)
+  const [isExistingMode, setIsExistingMode] = useState(false);
+  const [searchCnicQuery, setSearchCnicQuery] = useState('');
+  const [searchingStudent, setSearchingStudent] = useState(false);
+  const [existingStudentFound, setExistingStudentFound] = useState(null);
 
-  const [docFiles, setDocFiles] = useState({ cnicFront: null, cnicBack: null, document1: null, qualificationDocument: null, previousSchoolDocument: null });
-  const [docPreviews, setDocPreviews] = useState({ cnicFront: null, cnicBack: null, document1: null, qualificationDocument: null, previousSchoolDocument: null });
-  const [docErrors, setDocErrors] = useState({ cnicFront: '', cnicBack: '', document1: '', qualificationDocument: '', previousSchoolDocument: '' });
-
-  const handleDocChange = (e, docType) => {
-    const file = e.target.files && e.target.files[0];
-    if (file) {
-      const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf'];
-      if (!validTypes.includes(file.type)) {
-        setDocErrors(prev => ({ ...prev, [docType]: 'Fake or invalid document. Only JPG, PNG, or PDF allowed.' }));
-        setDocPreviews(prev => ({ ...prev, [docType]: null }));
-        setDocFiles(prev => ({ ...prev, [docType]: null }));
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        setDocErrors(prev => ({ ...prev, [docType]: 'File too large. Max 5MB allowed.' }));
-        setDocPreviews(prev => ({ ...prev, [docType]: null }));
-        setDocFiles(prev => ({ ...prev, [docType]: null }));
-        return;
-      }
-
-      setDocErrors(prev => ({ ...prev, [docType]: '' }));
-      setDocFiles(prev => ({ ...prev, [docType]: file }));
-      
-      const previewUrl = URL.createObjectURL(file);
-      setDocPreviews(prev => ({ ...prev, [docType]: { url: previewUrl, type: file.type } }));
-    }
-  };
-
+  // Form State
   const [formData, setFormData] = useState({
-    academicYear: '2026',
-    className: '',
-    section: '',
-    studentGroup: '',
-    admissionNo: '',
+    // Step 1: Identity
+    studentId: '', // If existing student
     admissionDate: new Date().toISOString().split('T')[0],
-    joiningDate: new Date().toISOString().split('T')[0],
-    rollNo: '',
-    type: 'Regular',
-    phone: '',
-    email: '',
-    city: '',
-    address: '',
-    currentAddress: '',
-    permanentAddress: '',
+    admissionYear: String(new Date().getFullYear()),
+    previewAdmissionNo: 'ADM-YYYY-XXXX (Auto)',
+    previewRollNo: 'ROLL-YYYY-XXXX (Auto)',
+    previewStudentCode: 'STU-YYYY-XXXX (Auto)',
     
     firstName: '',
     lastName: '',
     gender: 'Male',
     dob: '',
-    religion: 'Islam',
-    caste: '',
-    bloodGroup: 'B+',
-    nationality: 'Pakistani',
     cnic: '',
-    emergencyContact: '',
-    medicalHistory: '',
+    nationality: 'Pakistani',
+    religion: 'Islam',
+    bloodGroup: 'B+',
+    phone: '',
+    whatsapp: '',
+    email: '',
+    residentialAddress: '',
+    permanentAddress: '',
+    sameAsResidential: true,
+    emergencyContactName: '',
+    emergencyContactPhone: '',
+    emergencyRelationship: 'Father',
+    photoUrl: '',
 
+    // Step 2: Guardian
     fatherName: '',
+    fatherCnic: '',
     fatherPhone: '',
     fatherOccupation: '',
-    fatherCnic: '',
     motherName: '',
     motherPhone: '',
     motherOccupation: '',
     guardianName: '',
-    guardianRelation: '',
+    guardianRelation: 'Father',
     guardianPhone: '',
+    guardianCnic: '',
+    guardianOccupation: '',
     guardianAddress: '',
+    isMinor: false,
 
-    previousSchool: '',
-    previousSchoolName: '',
-    previousSchoolAddress: '',
-    qualificationLevel: '',
-    instituteType: '',
+    // Step 3: Academic Selection
+    campusId: '',
+    categoryId: '',
+    programId: '',
+    offeringId: '',
+    batchId: '',
+    sectionName: 'A',
+    shift: 'Morning',
+    admissionType: 'Regular', // Regular, Transfer, Self-Finance, Scholarship
+    initialStage: 'Year 1 / Semester 1',
 
-    tcNo: '',
-    remarks: '',
-    otherInfo: ''
+    // Step 4: Previous Qualifications (Multi-row)
+    qualifications: [
+      {
+        qualification: 'Matriculation (SSC)',
+        institution: '',
+        awardingBody: 'BISE Lahore',
+        completionYear: '2023',
+        rollNumber: '',
+        totalMarks: 1100,
+        obtainedMarks: '',
+        percentage: '',
+        grade: 'A',
+        resultStatus: 'Passed'
+      }
+    ],
+
+    // Step 5: Program-Specific Dynamic Fields
+    // Intermediate:
+    boardRegNo: '',
+    examRollNo: '',
+    fscGroup: 'Pre-Medical',
+    practicalCompleted: 'Yes',
+    // BS / Undergrad:
+    awardingUniRegNo: '',
+    entrySemester: 'Semester 1',
+    totalCreditHours: 130,
+    creditTransferDetails: '',
+    specializationTrack: 'Clinical Psychology',
+    // Diploma / Technical:
+    tradeName: 'Computer Applications',
+    practicalHours: 120,
+    certificationTrack: 'PBTE Certified',
+    // Transfer:
+    previousInstituteName: '',
+    previousProgramStage: '',
+    nocNumber: '',
+    exemptedCredits: 0,
+
+    // Step 6: Documents
+    documents: [
+      { docType: 'CNIC / B-Form of Student', status: 'Submitted', verified: false, file: null, preview: null },
+      { docType: 'CNIC of Father / Guardian', status: 'Submitted', verified: false, file: null, preview: null },
+      { docType: 'Previous Academic Result Card', status: 'Submitted', verified: false, file: null, preview: null },
+      { docType: 'Character Certificate', status: 'Submitted', verified: false, file: null, preview: null },
+      { docType: 'Passport Size Photographs (4)', status: 'Submitted', verified: false, file: null, preview: null }
+    ],
+
+    // Step 7: Fees & Concessions
+    concessionType: 'None', // None, Percentage, Fixed
+    concessionValue: 0,
+    concessionReason: '',
+    allowCapacityOverride: false,
+    generateInvoice: true,
+    invoiceNotes: 'Admission fee invoice generated automatically upon registration.'
   });
 
-  const tabs = [
-    'PERSONAL INFO',
-    'PARENTS & GUARDIAN INFO',
-    'DOCUMENT INFO',
-    'PREVIOUS SCHOOL INFORMATION',
-    'OTHER INFO'
-  ];
+  // Selected offering object helper
+  const selectedOffering = offerings.find(o => String(o._id) === String(formData.offeringId));
+  const selectedBatch = batches.find(b => String(b._id) === String(formData.batchId));
+  const selectedCategory = categories.find(c => String(c._id) === String(formData.categoryId));
+  const selectedProgram = programs.find(p => String(p._id) === String(formData.programId));
 
-  const [classes, setClasses] = useState([]);
-  const [sections, setSections] = useState([]);
-  const [groups, setGroups] = useState([]);
-
-  // Fetch Next Admission Number
-  const fetchNextAdmissionNumber = async () => {
-    try {
-      const res = await api.get('/student/next-admission-no');
-      if (res?.success && res.nextAdmissionNo) {
-        setFormData(prev => ({ ...prev, admissionNo: res.nextAdmissionNo }));
-      }
-    } catch (e) {
-      const currYear = new Date().getFullYear();
-      setFormData(prev => ({ ...prev, admissionNo: `ADM-${currYear}-001` }));
-    }
-  };
-
-  // Fetch Next Roll Number for selected class and section
-  const fetchNextRollNumber = async (cls, sec) => {
-    if (!cls) return;
-    try {
-      setLoadingRoll(true);
-      const res = await api.get('/student/next-roll-no', {
-        params: { className: cls, section: sec || '' }
-      });
-      if (res?.success) {
-        setFormData(prev => ({ ...prev, rollNo: res.nextRollNo }));
-        setUsedRolls(res.usedRollNumbers || []);
-        setRollDuplicate(false);
-      }
-    } catch (e) {
-      console.error('Error fetching next roll no:', e);
-    } finally {
-      setLoadingRoll(false);
-    }
-  };
-
+  // Initial Data Load
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [classRes, secRes, grpRes] = await Promise.allSettled([
-          api.get('/class'),
-          api.get('/section'),
-          api.get('/student-group')
-        ]);
-
-        if (classRes.status === 'fulfilled' && classRes.value?.success && Array.isArray(classRes.value.data)) {
-          const sortedClasses = sortClassesAcademic(classRes.value.data);
-          setClasses(sortedClasses);
-        }
-
-        if (secRes.status === 'fulfilled' && secRes.value?.success && Array.isArray(secRes.value.data)) {
-          setSections(secRes.value.data);
-        }
-
-        if (grpRes.status === 'fulfilled' && grpRes.value?.success && Array.isArray(grpRes.value.data)) {
-          setGroups(grpRes.value.data);
-        }
-
-        await fetchNextAdmissionNumber();
-      } catch (err) {
-        console.error('Initial data fetch error:', err);
-      }
-    };
-    fetchData();
+    loadInitialDropdowns();
   }, []);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    // Clear inline error on change
-    if (fieldErrors[name]) {
-      setFieldErrors(prev => ({ ...prev, [name]: '' }));
-    }
-
-    if (name === 'className') {
-      setFormData(prev => ({ ...prev, className: value, section: '' }));
-      fetchNextRollNumber(value, '');
-    } else if (name === 'section') {
-      setFormData(prev => ({ ...prev, section: value }));
-      fetchNextRollNumber(formData.className, value);
-    } else if (name === 'currentAddress') {
-      setFormData(prev => ({ ...prev, currentAddress: value, address: value }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
-  };
-
-  // CNIC input handler with automatic hyphens (XXXXX-XXXXXXX-X)
-  const handleCnicChange = (e) => {
-    const formatted = formatCnic(e.target.value);
-    setFormData(prev => ({ ...prev, cnic: formatted }));
-    if (fieldErrors.cnic) {
-      if (formatted.length === 15 && /^\d{5}-\d{7}-\d{1}$/.test(formatted)) {
-        setFieldErrors(prev => ({ ...prev, cnic: '' }));
+  const loadInitialDropdowns = async () => {
+    try {
+      const [campRes, catRes] = await Promise.all([
+        academicApi.getCampuses(),
+        academicApi.getCategories()
+      ]);
+      if (campRes?.success && campRes.data?.length > 0) {
+        setCampuses(campRes.data);
+        setFormData(prev => ({ ...prev, campusId: campRes.data[0]._id }));
       }
-    }
-  };
-
-  const handleFatherCnicChange = (e) => {
-    const formatted = formatCnic(e.target.value);
-    setFormData(prev => ({ ...prev, fatherCnic: formatted }));
-  };
-
-  const handleRollChange = (e) => {
-    const val = e.target.value;
-    setFormData(prev => ({ ...prev, rollNo: val }));
-    if (val && usedRolls.includes(val.trim())) {
-      setRollDuplicate(true);
-      setFieldErrors(prev => ({ ...prev, rollNo: `Roll Number (${val}) is already assigned in this Class / Section.` }));
-    } else {
-      setRollDuplicate(false);
-      if (fieldErrors.rollNo) {
-        setFieldErrors(prev => ({ ...prev, rollNo: '' }));
+      if (catRes?.success && catRes.data?.length > 0) {
+        setCategories(catRes.data);
+        setFormData(prev => ({ ...prev, categoryId: catRes.data[0]._id }));
       }
+    } catch (e) {
+      console.error('Error loading academic dropdowns:', e);
     }
   };
 
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setSelectedPhotoName(file.name);
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const img = new window.Image();
-        img.onload = () => {
-          const maxDim = 320;
-          let { width, height } = img;
-          if (width > maxDim || height > maxDim) {
-            if (width > height) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
-            } else {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
-            }
+  // Reload programs when Category changes
+  useEffect(() => {
+    if (!formData.categoryId) return;
+    const fetchPrograms = async () => {
+      try {
+        const res = await academicApi.getPrograms({ categoryId: formData.categoryId });
+        if (res?.success) {
+          setPrograms(res.data || []);
+          if (res.data?.length > 0) {
+            setFormData(prev => ({ ...prev, programId: res.data[0]._id }));
+          } else {
+            setFormData(prev => ({ ...prev, programId: '', offeringId: '', batchId: '' }));
           }
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, width, height);
-          ctx.drawImage(img, 0, 0, width, height);
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
-          setPhotoPreview(compressedDataUrl);
-          setFormData(prev => ({ ...prev, studentPhoto: compressedDataUrl }));
-        };
-        img.src = ev.target.result;
-      };
-      reader.readAsDataURL(file);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchPrograms();
+  }, [formData.categoryId]);
+
+  // Reload Offerings when Program or Campus changes
+  useEffect(() => {
+    if (!formData.programId) {
+      setOfferings([]);
+      return;
+    }
+    const fetchOfferings = async () => {
+      setLoadingOfferings(true);
+      try {
+        const params = { programId: formData.programId, status: 'Approved' };
+        if (formData.campusId) params.campusId = formData.campusId;
+        const res = await academicApi.getOfferings(params);
+        if (res?.success) {
+          const approvedOfferings = (res.data || []).filter(o => o.status === 'Approved');
+          setOfferings(approvedOfferings);
+          if (approvedOfferings.length > 0) {
+            setFormData(prev => ({ ...prev, offeringId: approvedOfferings[0]._id }));
+          } else {
+            setFormData(prev => ({ ...prev, offeringId: '', batchId: '' }));
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingOfferings(false);
+      }
+    };
+    fetchOfferings();
+  }, [formData.programId, formData.campusId]);
+
+  // Reload Batches when Offering changes
+  useEffect(() => {
+    if (!formData.offeringId) {
+      setBatches([]);
+      return;
+    }
+    const fetchBatches = async () => {
+      try {
+        const res = await academicApi.getBatches({ offeringId: formData.offeringId });
+        if (res?.success) {
+          const activeBatches = res.data || [];
+          setBatches(activeBatches);
+          if (activeBatches.length > 0) {
+            setFormData(prev => ({ 
+              ...prev, 
+              batchId: activeBatches[0]._id,
+              sectionName: activeBatches[0].sections?.[0] || 'A',
+              shift: activeBatches[0].shift || 'Morning'
+            }));
+          } else {
+            setFormData(prev => ({ ...prev, batchId: '' }));
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchBatches();
+  }, [formData.offeringId]);
+
+  // Fetch Year-Based Preview Numbers whenever admissionDate changes
+  useEffect(() => {
+    const fetchPreviews = async () => {
+      try {
+        const year = formData.admissionDate ? new Date(formData.admissionDate).getFullYear() : 2026;
+        setFormData(prev => ({ ...prev, admissionYear: String(year) }));
+        const res = await academicApi.getNextNumbers(year);
+        if (res?.success) {
+          setFormData(prev => ({
+            ...prev,
+            previewAdmissionNo: res.nextAdmissionNo,
+            previewRollNo: res.nextRollNo,
+            previewStudentCode: res.nextStudentCode
+          }));
+        }
+      } catch (e) {
+        console.error('Error fetching preview numbers:', e);
+      }
+    };
+    fetchPreviews();
+  }, [formData.admissionDate]);
+
+  // Existing Student Lookup (Multi-enrollment)
+  const handleSearchStudent = async () => {
+    if (!searchCnicQuery.trim()) return;
+    setSearchingStudent(true);
+    setErrorMsg('');
+    try {
+      const res = await academicApi.searchStudents(searchCnicQuery.trim());
+      if (res?.success && res.data?.length > 0) {
+        const found = res.data[0];
+        setExistingStudentFound(found);
+        setFormData(prev => ({
+          ...prev,
+          studentId: found._id,
+          firstName: found.firstName || '',
+          lastName: found.lastName || '',
+          dob: found.dob ? found.dob.split('T')[0] : '',
+          gender: found.gender || 'Male',
+          cnic: found.cnic || '',
+          phone: found.phone || '',
+          email: found.email || '',
+          residentialAddress: found.address || found.residentialAddress || '',
+          permanentAddress: found.permanentAddress || found.address || '',
+          fatherName: found.fatherName || found.father?.name || '',
+          fatherCnic: found.fatherCnic || found.father?.cnic || '',
+          fatherPhone: found.fatherPhone || found.father?.phone || '',
+          fatherOccupation: found.fatherOccupation || '',
+          guardianName: found.guardianName || found.guardian?.name || '',
+          guardianPhone: found.guardianPhone || found.guardian?.phone || '',
+          guardianRelation: found.guardianRelation || found.guardian?.relation || 'Father',
+          previewStudentCode: found.studentCode || prev.previewStudentCode
+        }));
+      } else {
+        setErrorMsg(`No existing student found matching "${searchCnicQuery}".`);
+        setExistingStudentFound(null);
+      }
+    } catch (err) {
+      setErrorMsg('Failed to search student record.');
+    } finally {
+      setSearchingStudent(false);
     }
   };
 
-  const getFilteredSections = () => {
-    const selectedClass = classes.find(c => c.name === formData.className);
-    if (selectedClass && selectedClass.sections && selectedClass.sections.length > 0) {
-      return selectedClass.sections.map(s => ({ label: s, value: s }));
-    }
-    return (sections.length > 0 ? sections : ['A', 'B', 'C', 'D']).map(s => {
-      const val = typeof s === 'string' ? s : s.name;
-      return { label: val, value: val };
+  // Qualification Table Handlers
+  const handleAddQualification = () => {
+    setFormData(prev => ({
+      ...prev,
+      qualifications: [
+        ...prev.qualifications,
+        {
+          qualification: 'Intermediate (HSSC)',
+          institution: '',
+          awardingBody: 'BISE Lahore',
+          completionYear: '2025',
+          rollNumber: '',
+          totalMarks: 1100,
+          obtainedMarks: '',
+          percentage: '',
+          grade: 'A',
+          resultStatus: 'Passed'
+        }
+      ]
+    }));
+  };
+
+  const handleRemoveQualification = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      qualifications: prev.qualifications.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleQualificationChange = (index, field, value) => {
+    setFormData(prev => {
+      const list = [...prev.qualifications];
+      list[index] = { ...list[index], [field]: value };
+      
+      // Auto-calculate percentage
+      if (field === 'obtainedMarks' || field === 'totalMarks') {
+        const obt = parseFloat(list[index].obtainedMarks) || 0;
+        const tot = parseFloat(list[index].totalMarks) || 0;
+        if (tot > 0 && obt >= 0) {
+          list[index].percentage = ((obt / tot) * 100).toFixed(1) + '%';
+        }
+      }
+      return { ...prev, qualifications: list };
     });
   };
 
-  // Frontend Validation logic — populates inline field errors
-  const validatePersonalInfo = () => {
-    const errors = {};
-    if (!formData.className || !formData.className.trim()) {
-      errors.className = 'Class is required.';
+  // Fees Calculation
+  const feeAdmission = selectedOffering?.feeStructure?.admissionFee || 0;
+  const feeTuition = selectedOffering?.feeStructure?.tuitionFee || 0;
+  const feeSecurity = selectedOffering?.feeStructure?.securityDeposit || 0;
+  const feeExam = selectedOffering?.feeStructure?.examFee || 0;
+  const feeGross = feeAdmission + feeTuition + feeSecurity + feeExam;
+
+  let concessionDiscount = 0;
+  if (formData.concessionType === 'Percentage') {
+    concessionDiscount = (feeGross * (parseFloat(formData.concessionValue) || 0)) / 100;
+  } else if (formData.concessionType === 'Fixed') {
+    concessionDiscount = parseFloat(formData.concessionValue) || 0;
+  }
+  const feeNetPayable = Math.max(0, feeGross - concessionDiscount);
+
+  // Step Validation & Navigation
+  const validateStep = (step) => {
+    setErrorMsg('');
+    if (step === 1) {
+      if (!formData.firstName.trim()) {
+        setErrorMsg('Please enter Student First Name.');
+        return false;
+      }
+      if (!formData.admissionDate) {
+        setErrorMsg('Please enter Admission Date.');
+        return false;
+      }
+      if (!formData.phone.trim()) {
+        setErrorMsg('Please enter Student or Contact Phone Number.');
+        return false;
+      }
     }
-    if (!formData.firstName || !formData.firstName.trim()) {
-      errors.firstName = 'Full Name is required.';
+    if (step === 2) {
+      if (!formData.fatherName.trim() && !formData.guardianName.trim()) {
+        setErrorMsg("Please enter Father's Name or Guardian's Name.");
+        return false;
+      }
+      if (!formData.guardianPhone.trim() && !formData.fatherPhone.trim()) {
+        setErrorMsg('Guardian or Father Contact Phone is required.');
+        return false;
+      }
     }
-    if (!formData.gender) {
-      errors.gender = 'Gender is required.';
+    if (step === 3) {
+      if (!formData.offeringId) {
+        setErrorMsg('Please select an active, approved Program Offering.');
+        return false;
+      }
+      if (selectedOffering && selectedOffering.status !== 'Approved') {
+        setErrorMsg(`Selected offering is "${selectedOffering.status}" and cannot accept admissions.`);
+        return false;
+      }
+      if (selectedOffering?.seatCapacity && selectedOffering.enrolledCount >= selectedOffering.seatCapacity) {
+        if (!formData.allowCapacityOverride) {
+          setErrorMsg(`Offering capacity reached (${selectedOffering.enrolledCount}/${selectedOffering.seatCapacity}). Enable Capacity Override in Step 7 to proceed.`);
+          return false;
+        }
+      }
     }
-    if (!formData.dob) {
-      errors.dob = 'Date of birth is required.';
-    }
-    // CNIC is strictly required and must follow XXXXX-XXXXXXX-X format
-    if (!formData.cnic || !formData.cnic.trim()) {
-      errors.cnic = 'CNIC / B-Form number is required.';
-    } else if (!/^\d{5}-\d{7}-\d{1}$/.test(formData.cnic.trim())) {
-      errors.cnic = 'Invalid CNIC format. Required format: 12345-1234567-1 (13 digits).';
-    }
-    if (rollDuplicate) {
-      errors.rollNo = `Roll Number (${formData.rollNo}) is already assigned in this Class / Section.`;
-    }
-    return errors;
+    return true;
   };
 
-  // Handle Backend Error mapping into field-level inline errors
-  const handleBackendError = (msg) => {
-    const errMap = {};
-    if (typeof msg === 'string') {
-      if (msg.includes('studentGroup')) {
-        errMap.studentGroup = 'Student Group is invalid. Leave it as None.';
-      }
-      if (msg.includes('rollNo') || msg.includes('Roll Number') || msg.includes('roll')) {
-        errMap.rollNo = 'This Roll Number is already assigned.';
-      }
-      if (msg.includes('cnic') || msg.includes('CNIC')) {
-        errMap.cnic = 'This CNIC number is invalid or already registered.';
-      }
-      if (msg.includes('admissionNo') || msg.includes('Admission Number')) {
-        errMap.admissionNo = 'Admission number already exists.';
-      }
-      if (msg.includes('className') || msg.includes('class')) {
-        errMap.className = 'Class is required.';
-      }
-    }
-    setFieldErrors(prev => ({ ...prev, ...errMap }));
-    setFormGeneralError(typeof msg === 'string' ? msg : 'Error saving student record.');
-    setActiveTab('PERSONAL INFO');
-    window.scrollTo({ top: 120, behavior: 'smooth' });
-  };
-
-  // Tab Navigation Handling
-  const handleNextTab = () => {
-    const currentIndex = tabs.indexOf(activeTab);
-    if (activeTab === 'PERSONAL INFO') {
-      const errs = validatePersonalInfo();
-      if (Object.keys(errs).length > 0) {
-        setFieldErrors(errs);
-        setFormGeneralError('Please fill in all required fields highlighted in red.');
-        window.scrollTo({ top: 120, behavior: 'smooth' });
-        return;
-      }
-      setFieldErrors({});
-      setFormGeneralError('');
-    }
-    if (currentIndex < tabs.length - 1) {
-      setActiveTab(tabs[currentIndex + 1]);
-      window.scrollTo({ top: 120, behavior: 'smooth' });
+  const handleNext = () => {
+    if (validateStep(currentStep)) {
+      setCurrentStep(prev => Math.min(STEPS.length, prev + 1));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
-  const handlePrevTab = () => {
-    const currentIndex = tabs.indexOf(activeTab);
-    if (currentIndex > 0) {
-      setActiveTab(tabs[currentIndex - 1]);
-      window.scrollTo({ top: 120, behavior: 'smooth' });
-    }
+  const handlePrev = () => {
+    setCurrentStep(prev => Math.max(1, prev - 1));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSave = async (e) => {
-    e.preventDefault();
-    const errs = validatePersonalInfo();
-    if (Object.keys(errs).length > 0) {
-      setFieldErrors(errs);
-      setActiveTab('PERSONAL INFO');
-      setFormGeneralError('Please fill in all required fields highlighted in red.');
-      window.scrollTo({ top: 120, behavior: 'smooth' });
-      return;
-    }
-    setFieldErrors({});
-    setFormGeneralError('');
+  // Final Form Submission
+  const handleSubmitAdmission = async () => {
+    if (!validateStep(3)) return;
+    setSubmitting(true);
+    setErrorMsg('');
+    setSuccessMsg('');
 
     try {
-      setSubmitting(true);
-      const dataToSubmit = new FormData();
-      Object.keys(formData).forEach(key => {
-        // NEVER send studentGroup if empty or null (prevents Mongoose CastError on any backend)
-        if (key === 'studentGroup') {
-          if (formData.studentGroup && String(formData.studentGroup).trim() !== '' && formData.studentGroup !== 'undefined' && formData.studentGroup !== 'null') {
-            dataToSubmit.append('studentGroup', String(formData.studentGroup).trim());
-          }
-          return;
-        }
-        // Section is optional
-        if (key === 'section') {
-          if (formData.section && String(formData.section).trim() !== '') {
-            dataToSubmit.append('section', String(formData.section).trim());
-          }
-          return;
-        }
-        if (formData[key] !== undefined && formData[key] !== null && String(formData[key]).trim() !== '') {
-          dataToSubmit.append(key, formData[key]);
-        }
-      });
-      
-      if (docFiles.cnicFront) dataToSubmit.append('cnicFront', docFiles.cnicFront);
-      if (docFiles.cnicBack) dataToSubmit.append('cnicBack', docFiles.cnicBack);
-      if (docFiles.document1) dataToSubmit.append('document1', docFiles.document1);
-      if (docFiles.qualificationDocument) dataToSubmit.append('qualificationDocument', docFiles.qualificationDocument);
-      if (docFiles.previousSchoolDocument) dataToSubmit.append('previousSchoolDocument', docFiles.previousSchoolDocument);
-      
-      if (fileInputRef.current?.files[0]) {
-        dataToSubmit.append('file', fileInputRef.current.files[0]);
-      }
+      const payload = {
+        studentId: formData.studentId || undefined,
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        gender: formData.gender,
+        dob: formData.dob || undefined,
+        cnic: formData.cnic ? formData.cnic.trim() : undefined,
+        nationality: formData.nationality,
+        religion: formData.religion,
+        bloodGroup: formData.bloodGroup,
+        phone: formData.phone.trim(),
+        whatsapp: formData.whatsapp.trim() || formData.phone.trim(),
+        email: formData.email.trim() || undefined,
+        residentialAddress: formData.residentialAddress.trim(),
+        permanentAddress: (formData.sameAsResidential ? formData.residentialAddress : formData.permanentAddress).trim(),
+        emergencyContact: {
+          name: formData.emergencyContactName || formData.fatherName,
+          phone: formData.emergencyContactPhone || formData.fatherPhone || formData.phone,
+          relationship: formData.emergencyRelationship || 'Guardian'
+        },
+        fatherName: formData.fatherName.trim(),
+        fatherCnic: formData.fatherCnic.trim(),
+        fatherPhone: formData.fatherPhone.trim(),
+        fatherOccupation: formData.fatherOccupation.trim(),
+        motherName: formData.motherName.trim(),
+        motherPhone: formData.motherPhone.trim(),
+        motherOccupation: formData.motherOccupation.trim(),
+        guardian: {
+          name: formData.guardianName.trim() || formData.fatherName.trim(),
+          relation: formData.guardianRelation || 'Father',
+          phone: formData.guardianPhone.trim() || formData.fatherPhone.trim(),
+          cnic: formData.guardianCnic.trim() || formData.fatherCnic.trim(),
+          occupation: formData.guardianOccupation.trim(),
+          address: formData.guardianAddress.trim() || formData.residentialAddress.trim()
+        },
+        // Academic & Offering Selection
+        campusId: formData.campusId || undefined,
+        categoryId: formData.categoryId || undefined,
+        programId: formData.programId || undefined,
+        offeringId: formData.offeringId,
+        batchId: formData.batchId || undefined,
+        sectionName: formData.sectionName || 'A',
+        shift: formData.shift || 'Morning',
+        admissionType: formData.admissionType || 'Regular',
+        initialStage: formData.initialStage || 'Year 1 / Semester 1',
+        admissionDate: formData.admissionDate,
+        admissionYear: formData.admissionYear,
+        allowCapacityOverride: formData.allowCapacityOverride,
 
-      const res = await api.post('/student', dataToSubmit);
-      if (res && res.success !== false) {
-        setFormSuccess(true);
+        // Step 4: Qualifications
+        qualifications: formData.qualifications.filter(q => q.qualification && (q.institution || q.awardingBody)),
+
+        // Step 5: Program-specific dynamic data
+        programSpecificData: {
+          boardRegNo: formData.boardRegNo,
+          examRollNo: formData.examRollNo,
+          fscGroup: formData.fscGroup,
+          practicalCompleted: formData.practicalCompleted,
+          awardingUniRegNo: formData.awardingUniRegNo,
+          entrySemester: formData.entrySemester,
+          totalCreditHours: formData.totalCreditHours,
+          creditTransferDetails: formData.creditTransferDetails,
+          specializationTrack: formData.specializationTrack,
+          tradeName: formData.tradeName,
+          practicalHours: formData.practicalHours,
+          certificationTrack: formData.certificationTrack,
+          previousInstituteName: formData.previousInstituteName,
+          previousProgramStage: formData.previousProgramStage,
+          nocNumber: formData.nocNumber,
+          exemptedCredits: formData.exemptedCredits
+        },
+
+        // Step 6: Documents
+        documents: formData.documents.map(d => ({
+          docType: d.docType,
+          status: d.status,
+          verified: d.verified,
+          documentUrl: d.preview || ''
+        })),
+
+        // Step 7: Fee & Concessions
+        feePlan: {
+          admissionFee: feeAdmission,
+          tuitionFee: feeTuition,
+          securityDeposit: feeSecurity,
+          examFee: feeExam,
+          grossTotal: feeGross,
+          concessionType: formData.concessionType,
+          concessionValue: parseFloat(formData.concessionValue) || 0,
+          concessionDiscount: concessionDiscount,
+          netPayable: feeNetPayable,
+          generateInvoice: formData.generateInvoice,
+          invoiceNotes: formData.invoiceNotes
+        }
+      };
+
+      const res = await academicApi.submitAdmission(payload);
+      if (res?.success) {
+        setSuccessMsg(
+          `Student Admission Confirmed Successfully! Admission No: ${res.admissionNo} | Roll No: ${res.rollNo} | Code: ${res.studentCode}`
+        );
         setTimeout(() => {
-          router.push('/dashboard/students');
-        }, 1200);
+          if (res.studentId) {
+            router.push(`/dashboard/students/${res.studentId}`);
+          } else {
+            router.push('/dashboard/students');
+          }
+        }, 2200);
       } else {
-        const msg = res?.message || "Failed to save student.";
-        handleBackendError(msg);
+        setErrorMsg(res?.message || 'Failed to submit student admission.');
       }
-    } catch (error) {
-      const msg = error.response?.data?.message || error.message || 'Error saving student';
-      handleBackendError(msg);
+    } catch (err) {
+      console.error(err);
+      setErrorMsg(err.response?.data?.message || err.message || 'Error occurred while saving admission.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const currentTabIndex = tabs.indexOf(activeTab);
-
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-4">
-        <h1 className="text-xl sm:text-2xl font-bold text-zinc-950">Student Admission</h1>
-        <div className="flex flex-wrap items-center text-xs sm:text-sm text-zinc-400 gap-y-1">
-          <Link href="/dashboard" className="hover:text-zinc-600 transition-colors">Dashboard</Link>
-          <ChevronRight className="h-3.5 w-3.5 mx-1 shrink-0" />
-          <Link href="/dashboard/students" className="hover:text-zinc-600 transition-colors">Student Info</Link>
-          <ChevronRight className="h-3.5 w-3.5 mx-1 shrink-0" />
-          <span className="text-[#084A86] font-bold">Student Admission</span>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-5">
+        <div>
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+            <span>Student Management</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+            <span>Academic Admission</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mt-1">
+            New Student Admission & Program Enrollment
+          </h1>
+          <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
+            Dynamic 7-step enrollment wizard supporting permanent student profiles and offering-based enrollments.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link href="/dashboard/academics/programs">
+            <Button variant="outline" size="sm" className="text-xs font-medium border-zinc-300 dark:border-zinc-700">
+              <School className="w-3.5 h-3.5 mr-1.5" /> Programs & Offerings
+            </Button>
+          </Link>
+          <Link href="/dashboard/students">
+            <Button variant="ghost" size="sm" className="text-xs font-medium">
+              Cancel
+            </Button>
+          </Link>
         </div>
       </div>
 
-      {/* Top Notification Banners */}
-      {formGeneralError && (
-        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center justify-between shadow-xs animate-in fade-in">
-          <div className="flex items-center gap-2.5">
-            <AlertCircle className="h-5 w-5 text-rose-600 shrink-0" />
-            <span>{formGeneralError}</span>
+      {/* Existing Student Search Banner (Multi-Enrollment Support) */}
+      <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-xl p-4 transition-all">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 rounded-lg">
+              <User className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-emerald-950 dark:text-emerald-100">
+                Enroll Existing Student Profile? (One Student → Multiple Enrollments)
+              </p>
+              <p className="text-xs text-emerald-700 dark:text-emerald-300">
+                Search by CNIC, B-Form, or Student ID to add another academic enrollment without creating duplicate student records.
+              </p>
+            </div>
           </div>
-          <button 
-            type="button" 
-            onClick={() => setFormGeneralError('')} 
-            className="text-rose-600 hover:text-rose-900 font-extrabold text-sm p-1 cursor-pointer"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-
-      {formSuccess && (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2.5 shadow-xs animate-in fade-in">
-          <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
-          <span>Student record saved successfully! Redirecting to student list...</span>
-        </div>
-      )}
-
-      <div className="bg-white border border-zinc-200 rounded-xl shadow-xs overflow-hidden shadow-lg">
-        <div className="p-4 border-b border-zinc-100 bg-zinc-50/50 flex justify-between items-center flex-wrap gap-2">
-          <h2 className="text-base sm:text-lg font-semibold text-zinc-950">Add Student Profile</h2>
-          <div className="flex items-center gap-2">
-            <Button 
-              type="button" 
-              onClick={() => setIsImportModalOpen(true)}
-              className="bg-zinc-100 hover:bg-zinc-200 text-zinc-900 border border-zinc-300 font-bold flex items-center gap-2 cursor-pointer text-xs h-9 px-3.5 shadow-xs"
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Input
+              type="text"
+              placeholder="Search CNIC (e.g. 35202-...)"
+              value={searchCnicQuery}
+              onChange={(e) => setSearchCnicQuery(e.target.value)}
+              className="bg-white dark:bg-zinc-900 text-xs h-9 w-full sm:w-64"
+            />
+            <Button
+              size="sm"
+              onClick={handleSearchStudent}
+              disabled={searchingStudent || !searchCnicQuery}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-9"
             >
-              <Upload className="h-4 w-4 text-zinc-900" /> IMPORT STUDENT
+              {searchingStudent ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5 mr-1" />}
+              Search
             </Button>
           </div>
         </div>
 
-        <form onSubmit={handleSave} className="p-4 sm:p-6">
+        {existingStudentFound && (
+          <div className="mt-3 pt-3 border-t border-emerald-200 dark:border-emerald-800/50 flex items-center justify-between text-xs text-emerald-900 dark:text-emerald-200">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>
+                Found Student: <strong>{existingStudentFound.firstName} {existingStudentFound.lastName}</strong> (Code: {existingStudentFound.studentCode || 'STU-PRO-001'})
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                setExistingStudentFound(null);
+                setSearchCnicQuery('');
+                setFormData(prev => ({ ...prev, studentId: '' }));
+              }}
+              className="text-xs text-rose-600 hover:underline font-semibold"
+            >
+              Clear / New Student Mode
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Stepper Navigation */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+        {STEPS.map((s) => {
+          const StepIcon = s.icon;
+          const isActive = currentStep === s.id;
+          const isPassed = currentStep > s.id;
+          return (
+            <button
+              key={s.id}
+              onClick={() => {
+                if (s.id < currentStep || validateStep(currentStep)) {
+                  setCurrentStep(s.id);
+                }
+              }}
+              className={`flex flex-col items-start p-3 rounded-xl border text-left transition-all ${
+                isActive
+                  ? 'border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/20 shadow-sm'
+                  : isPassed
+                  ? 'border-emerald-200 dark:border-emerald-900/40 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-300'
+                  : 'border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/30 text-zinc-400 dark:text-zinc-500'
+              }`}
+            >
+              <div className="flex items-center justify-between w-full mb-1">
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                  isActive ? 'bg-emerald-600 text-white' : isPassed ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
+                }`}>
+                  Step {s.id}
+                </span>
+                <StepIcon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-600' : isPassed ? 'text-emerald-500' : 'text-zinc-400'}`} />
+              </div>
+              <p className={`text-xs font-semibold leading-tight ${isActive ? 'text-zinc-900 dark:text-white' : ''}`}>
+                {s.title}
+              </p>
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 line-clamp-1 mt-0.5">
+                {s.desc}
+              </p>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Global Alerts */}
+      {errorMsg && (
+        <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-xs font-medium flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+          <span>{errorMsg}</span>
+        </div>
+      )}
+      {successMsg && (
+        <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 animate-pulse" />
+          <span>{successMsg}</span>
+        </div>
+      )}
+
+      {/* STEP CONTENT CONTAINER */}
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm p-6 sm:p-8 space-y-6">
+        
+        {/* ================= STEP 1: STUDENT IDENTITY ================= */}
+        {currentStep === 1 && (
           <div className="space-y-6">
-            {/* Tabs Bar */}
-            <div className="flex border-b border-zinc-200 overflow-x-auto gap-2 pb-2 scrollbar-none">
-              {tabs.map((tab, idx) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all whitespace-nowrap shrink-0 uppercase tracking-wide cursor-pointer flex items-center gap-1.5 ${
-                    activeTab === tab
-                      ? 'bg-[#084A86] text-white shadow-sm'
-                      : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900'
-                  }`}
-                >
-                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${activeTab === tab ? 'bg-white text-[#084A86]' : 'bg-zinc-300 text-zinc-700'}`}>
-                    {idx + 1}
-                  </span>
-                  {tab}
-                </button>
-              ))}
+            <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3 flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                  Step 1: Student Permanent Profile & Identity
+                </h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Student code and identifiers are assigned automatically per academic year.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="text-zinc-400">Sequence Year:</span>
+                <span className="font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                  {formData.admissionYear}
+                </span>
+              </div>
             </div>
 
-            {/* Tab 1: Personal Info */}
-            {activeTab === 'PERSONAL INFO' && (
-              <div className="space-y-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Left Column: Academic Placement */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2">ACADEMIC PLACEMENT</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Academic Year <span className="text-rose-500">*</span></Label>
-                      <SearchableSelect 
-                        name="academicYear" 
-                        value={formData.academicYear} 
-                        onChange={handleInputChange} 
-                        options={ACADEMIC_YEARS} 
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Class <span className="text-rose-500">*</span></Label>
-                      <SearchableSelect 
-                        name="className" 
-                        value={formData.className} 
-                        onChange={handleInputChange} 
-                        placeholder="Select Class *"
-                        options={classes.map(c => ({ label: c.name, value: c.name }))} 
-                        className={fieldErrors.className ? "border-rose-500 ring-1 ring-rose-500" : ""}
-                      />
-                      {fieldErrors.className && (
-                        <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
-                          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                          {fieldErrors.className}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Section (100% Optional) */}
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
-                        Section <span className="text-zinc-400 font-normal normal-case">(Optional)</span>
-                      </Label>
-                      <SearchableSelect 
-                        name="section" 
-                        value={formData.section} 
-                        onChange={handleInputChange} 
-                        placeholder="Select Section (Optional)"
-                        options={[
-                          { label: 'None / Default Section', value: '' },
-                          ...getFilteredSections()
-                        ]} 
-                      />
-                    </div>
-                    
-                    {/* Student Group (100% Optional) */}
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between items-center">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
-                          Student Group <span className="text-zinc-400 font-normal normal-case">(Optional)</span>
-                        </Label>
-                        <Link href="/dashboard/students/groups" className="text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline flex items-center gap-1">
-                          + Add Group
-                        </Link>
-                      </div>
-                      <SearchableSelect 
-                        name="studentGroup" 
-                        value={formData.studentGroup} 
-                        onChange={handleInputChange} 
-                        placeholder="Select Group (Optional)"
-                        options={[
-                          { label: 'None / No Group (Optional)', value: '' },
-                          ...groups.map(g => ({ label: g.name, value: g._id }))
-                        ]} 
-                      />
-                      {fieldErrors.studentGroup && (
-                        <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
-                          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                          {fieldErrors.studentGroup}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Admission Number */}
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
-                        Admission Number <span className="text-rose-500">*</span>
-                      </Label>
-                      <Input 
-                        name="admissionNo" 
-                        value={formData.admissionNo} 
-                        readOnly 
-                        disabled 
-                        className="bg-zinc-100 border-zinc-300 text-zinc-950 font-bold cursor-not-allowed select-none shadow-xs text-sm" 
-                      />
-                      {fieldErrors.admissionNo && (
-                        <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
-                          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                          {fieldErrors.admissionNo}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Roll Number (Auto-assigned, Read-Only, Starts from 1) */}
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
-                          Roll Number
-                        </Label>
-                        {loadingRoll && (
-                          <span className="text-[10px] text-zinc-500 font-medium">Checking next roll...</span>
-                        )}
-                      </div>
-                      <Input 
-                        name="rollNo" 
-                        value={formData.rollNo} 
-                        readOnly 
-                        disabled 
-                        placeholder="Auto-assigned (e.g. PRC260001)" 
-                        className="bg-zinc-100 border-zinc-300 text-zinc-950 font-bold cursor-not-allowed select-none shadow-xs text-sm" 
-                      />
-                      {fieldErrors.rollNo && (
-                        <p className="text-xs text-rose-600 font-bold flex items-center gap-1 mt-1 animate-in fade-in">
-                          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                          {fieldErrors.rollNo}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Admission Date (Day / Month / Year Format) */}
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Admission Date</Label>
-                      <DayMonthYearInput 
-                        name="admissionDate" 
-                        value={formData.admissionDate} 
-                        onChange={handleInputChange} 
-                        minYear={2020} 
-                        maxYear={2030} 
-                      />
-                    </div>
-
-                    {/* Student Type */}
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Student Type</Label>
-                      <SearchableSelect 
-                        name="type" 
-                        value={formData.type} 
-                        onChange={handleInputChange} 
-                        options={STUDENT_TYPES} 
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Column: Personal Bio Details */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2">PERSONAL PROFILE</h3>
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="space-y-1.5 sm:col-span-2">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Full Name <span className="text-rose-500">*</span></Label>
-                        <Input 
-                          name="firstName" 
-                          value={formData.firstName} 
-                          onChange={handleInputChange} 
-                          placeholder="Student Full Name (e.g. Muhammad Ali)" 
-                          className={`bg-white text-zinc-950 font-medium ${fieldErrors.firstName ? 'border-rose-500 ring-1 ring-rose-500' : 'border-zinc-300'}`} 
-                        />
-                        {fieldErrors.firstName && (
-                          <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
-                            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                            {fieldErrors.firstName}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Gender <span className="text-rose-500">*</span></Label>
-                        <SearchableSelect 
-                          name="gender" 
-                          value={formData.gender} 
-                          onChange={handleInputChange} 
-                          placeholder="Gender *"
-                          options={[
-                            { label: 'Male', value: 'Male' },
-                            { label: 'Female', value: 'Female' },
-                            { label: 'Other', value: 'Other' }
-                          ]} 
-                          className={fieldErrors.gender ? "border-rose-500 ring-1 ring-rose-500" : ""}
-                        />
-                        {fieldErrors.gender && (
-                          <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
-                            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                            {fieldErrors.gender}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Date of Birth (Day / Month / Year Format) */}
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Date of Birth <span className="text-rose-500">*</span></Label>
-                        <DayMonthYearInput 
-                          name="dob" 
-                          value={formData.dob} 
-                          onChange={handleInputChange} 
-                          minYear={1990} 
-                          maxYear={2026} 
-                          required={true}
-                        />
-                        {fieldErrors.dob && (
-                          <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
-                            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                            {fieldErrors.dob}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* CNIC / B-Form with Hyphens (Required) */}
-                      <div className="space-y-1.5 sm:col-span-2">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
-                            CNIC / B-Form Number <span className="text-rose-500">*</span>
-                          </Label>
-                          <span className="text-[10px] text-zinc-500 font-mono">12345-1234567-1</span>
-                        </div>
-                        <Input 
-                          name="cnic" 
-                          value={formData.cnic} 
-                          onChange={handleCnicChange} 
-                          placeholder="35201-1234567-1" 
-                          maxLength={15}
-                          className={`bg-white font-mono text-zinc-950 font-semibold tracking-wider ${
-                            fieldErrors.cnic ? 'border-rose-500 ring-1 ring-rose-500 bg-rose-50/20' : 'border-zinc-300 focus-visible:ring-zinc-400'
-                          }`} 
-                        />
-                        {fieldErrors.cnic && (
-                          <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1 animate-in fade-in">
-                            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                            {fieldErrors.cnic}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Religion</Label>
-                        <SearchableSelect 
-                          name="religion" 
-                          value={formData.religion} 
-                          onChange={handleInputChange} 
-                          placeholder="Religion"
-                          options={[
-                            { label: 'Islam', value: 'Islam' },
-                            { label: 'Christianity', value: 'Christianity' },
-                            { label: 'Hinduism', value: 'Hinduism' },
-                            { label: 'Other', value: 'Other' }
-                          ]} 
-                        />
-                      </div>
-
-                      {/* Blood Group with NA & N/A Options */}
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Blood Group</Label>
-                        <SearchableSelect 
-                          name="bloodGroup" 
-                          value={formData.bloodGroup} 
-                          onChange={handleInputChange} 
-                          placeholder="Select Blood Group"
-                          options={BLOOD_GROUPS} 
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Nationality</Label>
-                        <Input name="nationality" value={formData.nationality} onChange={handleInputChange} placeholder="Pakistani" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
-                      </div>
-
-                      {/* Caste (100% Optional) */}
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
-                          Caste <span className="text-zinc-400 font-normal normal-case">(Optional)</span>
-                        </Label>
-                        <Input name="caste" value={formData.caste} onChange={handleInputChange} placeholder="e.g. Rajput, Arain, etc." className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
-                      </div>
-
-                      {/* Student Photo */}
-                      <div className="space-y-2 sm:col-span-2">
-                        <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Student Photo <span className="text-zinc-400 font-normal normal-case">(Optional)</span></Label>
-                        <div className="flex items-center gap-4">
-                          {/* Photo preview circle */}
-                          <div
-                            onClick={() => fileInputRef.current?.click()}
-                            className="relative h-24 w-24 shrink-0 rounded-full border-2 border-dashed border-zinc-300 hover:border-[#084A86] bg-zinc-50 hover:bg-blue-50/30 overflow-hidden flex items-center justify-center cursor-pointer transition-all group"
-                          >
-                            {photoPreview ? (
-                              <img
-                                src={photoPreview}
-                                alt="Student Photo"
-                                onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                  if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex';
-                                }}
-                                className="h-full w-full object-cover rounded-full"
-                              />
-                            ) : null}
-                            <div className={`flex flex-col items-center gap-1 text-zinc-400 group-hover:text-[#084A86] ${photoPreview ? 'hidden' : 'flex'}`}>
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                              <span className="text-[10px] font-bold">Upload</span>
-                            </div>
-                          </div>
-                          {/* Right side info */}
-                          <div className="flex-1 space-y-2">
-                            <p className="text-xs text-zinc-500">
-                              {photoPreview ? (
-                                <span className="text-emerald-600 font-semibold">✓ Photo selected: {selectedPhotoName}</span>
-                              ) : (
-                                'Click the circle to upload a student photo (JPG, PNG). Max 5MB.'
-                              )}
-                            </p>
-                            <div className="flex gap-2">
-                              <Button
-                                type="button"
-                                onClick={() => fileInputRef.current?.click()}
-                                className="bg-[#084A86] hover:bg-[#063b6d] text-white font-bold text-xs h-8 px-4 cursor-pointer"
-                              >
-                                {photoPreview ? 'Change Photo' : 'Browse Photo'}
-                              </Button>
-                              {photoPreview && (
-                                <Button
-                                  type="button"
-                                  onClick={() => { setPhotoPreview(null); setSelectedPhotoName(''); if (fileInputRef.current) fileInputRef.current.value = ''; }}
-                                  className="bg-rose-100 text-rose-700 hover:bg-rose-200 border border-rose-300 font-bold text-xs h-8 px-3 cursor-pointer"
-                                >
-                                  Remove
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                          <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-</div>
-                {/* Contact & Residential Information */}
-                <div className="pt-6 border-t border-zinc-200">
-                  <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2 mb-4">CONTACT & RESIDENTIAL INFORMATION</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Student Phone</Label>
-                      <Input name="phone" value={formData.phone} onChange={handleInputChange} placeholder="03001234567" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Email Address <span className="text-zinc-400 font-normal normal-case">(Optional)</span></Label>
-                      <Input name="email" value={formData.email} onChange={handleInputChange} placeholder="student@example.com" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">City</Label>
-                      <Input name="city" value={formData.city} onChange={handleInputChange} placeholder="e.g. Lahore, Islamabad" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Emergency Contact</Label>
-                      <Input name="emergencyContact" value={formData.emergencyContact} onChange={handleInputChange} placeholder="03001234567" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                    <div className="space-y-1.5 sm:col-span-2">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Current Residential Address</Label>
-                      <textarea name="currentAddress" value={formData.currentAddress} onChange={handleInputChange} placeholder="House No, Street, Area, City" className="flex min-h-[75px] w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-950 font-medium text-sm placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 resize-none"></textarea>
-                    </div>
-                    <div className="space-y-1.5 sm:col-span-2">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Permanent Address <span className="text-zinc-400 font-normal normal-case">(If different)</span></Label>
-                      <textarea name="permanentAddress" value={formData.permanentAddress} onChange={handleInputChange} placeholder="Permanent residential address" className="flex min-h-[75px] w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-950 font-medium text-sm placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 resize-none"></textarea>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Tab 2: Parents & Guardian Info */}
-            {activeTab === 'PARENTS & GUARDIAN INFO' && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2 mb-4">FATHER INFORMATION</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Father Name</Label>
-                      <Input name="fatherName" value={formData.fatherName} onChange={handleInputChange} placeholder="Father's full name" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Father Phone</Label>
-                      <Input name="fatherPhone" value={formData.fatherPhone} onChange={handleInputChange} placeholder="0300-1234567" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Father Occupation</Label>
-                      <Input name="fatherOccupation" value={formData.fatherOccupation} onChange={handleInputChange} placeholder="e.g. Businessman / Doctor" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                    <div className="space-y-1.5 sm:col-span-3">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Father CNIC</Label>
-                      <Input 
-                        name="fatherCnic" 
-                        value={formData.fatherCnic} 
-                        onChange={handleFatherCnicChange} 
-                        placeholder="35201-1234567-1" 
-                        maxLength={15}
-                        className="bg-white border-zinc-300 text-zinc-950 font-mono tracking-wider focus-visible:ring-zinc-400 font-medium" 
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2 mb-4">MOTHER INFORMATION</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Mother Name</Label>
-                      <Input name="motherName" value={formData.motherName} onChange={handleInputChange} placeholder="Mother's full name" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Mother Phone</Label>
-                      <Input name="motherPhone" value={formData.motherPhone} onChange={handleInputChange} placeholder="0300-1234567" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Mother Occupation</Label>
-                      <Input name="motherOccupation" value={formData.motherOccupation} onChange={handleInputChange} placeholder="e.g. Housewife / Teacher" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2 mb-4">GUARDIAN INFORMATION (IF ANY)</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Guardian Name</Label>
-                      <Input name="guardianName" value={formData.guardianName} onChange={handleInputChange} placeholder="Guardian name" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Relation</Label>
-                      <Input name="guardianRelation" value={formData.guardianRelation} onChange={handleInputChange} placeholder="e.g. Uncle / Grandfather" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Guardian Phone</Label>
-                      <Input name="guardianPhone" value={formData.guardianPhone} onChange={handleInputChange} placeholder="0300-1234567" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                    <div className="space-y-1.5 sm:col-span-3">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Guardian Address</Label>
-                      <textarea name="guardianAddress" value={formData.guardianAddress} onChange={handleInputChange} placeholder="Guardian complete address..." className="flex min-h-[80px] w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-zinc-950 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 resize-none"></textarea>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Tab 3: Document Info */}
-            {activeTab === 'DOCUMENT INFO' && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2 mb-4">ORIGINAL DOCUMENTS UPLOAD</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Transfer Certificate (TC) Scan (Original)</Label>
-                      <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'document1')} className="bg-white border-zinc-300 text-zinc-950 file:bg-[#084A86] file:text-white file:font-bold file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-[#063b6d] file:rounded-md cursor-pointer" />
-                      <DocumentPreview preview={docPreviews.document1} error={docErrors.document1} />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Transfer Certificate (TC) Number</Label>
-                      <Input name="tcNo" value={formData.tcNo} onChange={handleInputChange} placeholder="e.g. TC-8921" className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-700 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">CNIC / B-Form Front (Original)</Label>
-                      <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'cnicFront')} className="bg-white border-zinc-300 text-zinc-950 file:bg-[#084A86] file:text-white file:font-bold file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-[#063b6d] file:rounded-md cursor-pointer" />
-                      <DocumentPreview preview={docPreviews.cnicFront} error={docErrors.cnicFront} />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">CNIC / B-Form Back (Original)</Label>
-                      <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'cnicBack')} className="bg-white border-zinc-300 text-zinc-950 file:bg-[#084A86] file:text-white file:font-bold file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-[#063b6d] file:rounded-md cursor-pointer" />
-                      <DocumentPreview preview={docPreviews.cnicBack} error={docErrors.cnicBack} />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Previous Qualification</Label>
-                      <SearchableSelect 
-                        name="qualificationLevel" 
-                        value={formData.qualificationLevel || ''} 
-                        onChange={handleInputChange} 
-                        placeholder="Select Qualification"
-                        options={QUALIFICATION_LEVELS} 
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Qualification Certificate (Original)</Label>
-                      <Input type="file" accept="image/*,application/pdf" onChange={(e) => handleDocChange(e, 'qualificationDocument')} className="bg-white border-zinc-300 text-zinc-950 file:bg-[#084A86] file:text-white file:font-bold file:border-0 file:mr-4 file:px-4 file:py-2 hover:file:bg-[#063b6d] file:rounded-md cursor-pointer" />
-                      <DocumentPreview preview={docPreviews.qualificationDocument} error={docErrors.qualificationDocument} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Tab 4: Previous School Info */}
-            {activeTab === 'PREVIOUS SCHOOL INFORMATION' && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-200 pb-2 mb-4">PREVIOUS SCHOOL DETAILS</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-700 uppercase">Qualification Covered</Label>
-                      <SearchableSelect 
-                        name="qualificationLevel" 
-                        value={formData.qualificationLevel || ''} 
-                        onChange={handleInputChange} 
-                        placeholder="Select Qualification (e.g., Matric)"
-                        options={QUALIFICATION_LEVELS} 
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-700 uppercase">Institute Type</Label>
-                      <SearchableSelect 
-                        name="instituteType" 
-                        value={formData.instituteType || ''} 
-                        onChange={handleInputChange} 
-                        placeholder="Select Institute Type"
-                        options={[
-                          { label: 'School', value: 'School' },
-                          { label: 'College', value: 'College' },
-                          { label: 'University', value: 'University' },
-                          { label: 'Institute', value: 'Institute' },
-                          { label: 'Academy', value: 'Academy' }
-                        ]} 
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-700 uppercase">Institute Name</Label>
-                      <Input name="previousSchoolName" value={formData.previousSchoolName} onChange={(e) => {
-                        handleInputChange(e);
-                        setFormData(prev => ({ ...prev, previousSchool: e.target.value }));
-                      }} placeholder="e.g. Army Public School" className="bg-white border-zinc-300 focus-visible:ring-emerald-500" />
-                    </div>
-                    
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-700 uppercase">Institute Address</Label>
-                      <Input name="previousSchoolAddress" value={formData.previousSchoolAddress} onChange={handleInputChange} placeholder="City, Campus address" className="bg-white border-zinc-300 focus-visible:ring-emerald-500" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Tab 5: Other Info */}
-            {activeTab === 'OTHER INFO' && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-sm font-bold text-zinc-950 border-b border-zinc-100 pb-2 mb-4">HEALTH & ADDITIONAL NOTES</h3>
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Medical History / Allergies</Label>
-                      <Input name="medicalHistory" value={formData.medicalHistory} onChange={handleInputChange} placeholder="e.g. Asthmatic, No allergies, etc." className="bg-white border-zinc-300 text-zinc-950 placeholder:text-zinc-400 focus-visible:ring-zinc-400 font-medium" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Additional Remarks / Notes</Label>
-                      <textarea name="otherInfo" value={formData.otherInfo} onChange={handleInputChange} placeholder="Special instructions or student history..." className="flex min-h-[120px] w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-950 font-medium text-sm placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 resize-none"></textarea>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Step Shift Buttons Bar */}
-            <div className="mt-8 pt-4 border-t border-zinc-200 flex items-center justify-between flex-wrap gap-3">
+            {/* Read-Only Auto Identifier Previews */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs">
               <div>
-                {currentTabIndex > 0 ? (
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={handlePrevTab}
-                    className="border-zinc-300 hover:bg-zinc-100 text-zinc-800 font-bold px-5 py-2.5 rounded-lg flex items-center gap-2 cursor-pointer text-xs"
-                  >
-                    <ArrowLeft className="h-4 w-4" /> PREVIOUS STEP
-                  </Button>
-                ) : (
-                  <span className="text-xs text-zinc-400 font-medium">Step 1 of 5: Personal & Academic</span>
-                )}
+                <Label className="text-[11px] text-zinc-500 font-semibold">Auto Admission No (Preview)</Label>
+                <p className="font-mono font-bold text-zinc-800 dark:text-zinc-200 mt-0.5">{formData.previewAdmissionNo}</p>
+                <span className="text-[10px] text-zinc-400">Generated atomically on save</span>
               </div>
+              <div>
+                <Label className="text-[11px] text-zinc-500 font-semibold">Auto Roll No (Preview)</Label>
+                <p className="font-mono font-bold text-zinc-800 dark:text-zinc-200 mt-0.5">{formData.previewRollNo}</p>
+                <span className="text-[10px] text-zinc-400">Year-based continuous sequence</span>
+              </div>
+              <div>
+                <Label className="text-[11px] text-zinc-500 font-semibold">Student Permanent Code</Label>
+                <p className="font-mono font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">{formData.previewStudentCode}</p>
+                <span className="text-[10px] text-zinc-400">Permanent profile identifier</span>
+              </div>
+            </div>
 
-              <div className="flex items-center gap-3">
-                {currentTabIndex < tabs.length - 1 ? (
-                  <Button 
-                    type="button" 
-                    onClick={handleNextTab}
-                    className="bg-[#084A86] hover:bg-[#063866] text-white font-bold px-6 py-2.5 rounded-lg flex items-center gap-2 cursor-pointer text-xs shadow-xs"
-                  >
-                    NEXT: {tabs[currentTabIndex + 1]} <ArrowRight className="h-4 w-4" />
-                  </Button>
-                ) : null}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <Label className="text-xs font-semibold">Admission Date *</Label>
+                <Input
+                  type="date"
+                  value={formData.admissionDate}
+                  onChange={(e) => setFormData({ ...formData, admissionDate: e.target.value })}
+                  className="mt-1 text-xs"
+                />
+              </div>
+              <div>
+                <Label className="text-xs font-semibold">First Name *</Label>
+                <Input
+                  type="text"
+                  placeholder="e.g. Muhammad"
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  className="mt-1 text-xs"
+                />
+              </div>
+              <div>
+                <Label className="text-xs font-semibold">Last / Family Name</Label>
+                <Input
+                  type="text"
+                  placeholder="e.g. Ali"
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  className="mt-1 text-xs"
+                />
+              </div>
+            </div>
 
-                <Button 
-                  disabled={submitting} 
-                  type="submit" 
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-2.5 rounded-lg cursor-pointer shadow-sm text-xs flex items-center gap-2"
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+              <div>
+                <Label className="text-xs font-semibold">Date of Birth</Label>
+                <Input
+                  type="date"
+                  value={formData.dob}
+                  onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
+                  className="mt-1 text-xs"
+                />
+              </div>
+              <div>
+                <Label className="text-xs font-semibold">Gender</Label>
+                <select
+                  value={formData.gender}
+                  onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                  className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3"
                 >
-                  <CheckCircle2 className="h-4 w-4" />
-                  {submitting ? 'SAVING RECORD...' : 'SAVE STUDENT RECORD'}
-                </Button>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <Label className="text-xs font-semibold">CNIC / B-Form No</Label>
+                <Input
+                  type="text"
+                  placeholder="35202-1234567-1"
+                  value={formData.cnic}
+                  onChange={(e) => setFormData({ ...formData, cnic: formatCnic(e.target.value) })}
+                  className="mt-1 text-xs font-mono"
+                />
+              </div>
+              <div>
+                <Label className="text-xs font-semibold">Blood Group</Label>
+                <select
+                  value={formData.bloodGroup}
+                  onChange={(e) => setFormData({ ...formData, bloodGroup: e.target.value })}
+                  className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3"
+                >
+                  {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'N/A'].map(bg => (
+                    <option key={bg} value={bg}>{bg}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <Label className="text-xs font-semibold">Student / Primary Phone *</Label>
+                <Input
+                  type="text"
+                  placeholder="0300-1234567"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="mt-1 text-xs"
+                />
+              </div>
+              <div>
+                <Label className="text-xs font-semibold">WhatsApp Number</Label>
+                <Input
+                  type="text"
+                  placeholder="0300-1234567"
+                  value={formData.whatsapp}
+                  onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                  className="mt-1 text-xs"
+                />
+              </div>
+              <div>
+                <Label className="text-xs font-semibold">Email Address</Label>
+                <Input
+                  type="email"
+                  placeholder="student@example.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="mt-1 text-xs"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label className="text-xs font-semibold">Residential Address</Label>
+                <textarea
+                  rows={2}
+                  value={formData.residentialAddress}
+                  onChange={(e) => setFormData({ ...formData, residentialAddress: e.target.value })}
+                  placeholder="Current living address, street, city..."
+                  className="w-full mt-1 text-xs rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2.5"
+                />
+              </div>
+              <div>
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-semibold">Permanent Address</Label>
+                  <label className="text-[11px] text-zinc-500 flex items-center gap-1 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.sameAsResidential}
+                      onChange={(e) => setFormData({ ...formData, sameAsResidential: e.target.checked })}
+                      className="rounded"
+                    />
+                    Same as residential
+                  </label>
+                </div>
+                <textarea
+                  rows={2}
+                  disabled={formData.sameAsResidential}
+                  value={formData.sameAsResidential ? formData.residentialAddress : formData.permanentAddress}
+                  onChange={(e) => setFormData({ ...formData, permanentAddress: e.target.value })}
+                  placeholder="Permanent native address..."
+                  className="w-full mt-1 text-xs rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2.5 disabled:bg-zinc-100 dark:disabled:bg-zinc-800"
+                />
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 space-y-3">
+              <h4 className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wide">
+                Emergency Contact Details
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <Label className="text-xs">Contact Person Name</Label>
+                  <Input
+                    type="text"
+                    value={formData.emergencyContactName}
+                    onChange={(e) => setFormData({ ...formData, emergencyContactName: e.target.value })}
+                    placeholder="e.g. Aslam Khan"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Emergency Phone</Label>
+                  <Input
+                    type="text"
+                    value={formData.emergencyContactPhone}
+                    onChange={(e) => setFormData({ ...formData, emergencyContactPhone: e.target.value })}
+                    placeholder="0300-0000000"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Relationship</Label>
+                  <Input
+                    type="text"
+                    value={formData.emergencyRelationship}
+                    onChange={(e) => setFormData({ ...formData, emergencyRelationship: e.target.value })}
+                    placeholder="e.g. Uncle / Brother"
+                    className="mt-1 text-xs"
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </form>
-      </div>
+        )}
 
-      <StudentImportModal
-        isOpen={isImportModalOpen}
-        onClose={() => setIsImportModalOpen(false)}
-        onSuccess={() => {
-          router.push('/dashboard/students');
-        }}
-        availableClasses={classes}
-      />
+        {/* ================= STEP 2: GUARDIAN & FAMILY ================= */}
+        {currentStep === 2 && (
+          <div className="space-y-6">
+            <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
+              <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                Step 2: Parents & Guardian Details
+              </h3>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Provides reusable guardian records and family emergency notification channels.
+              </p>
+            </div>
+
+            {/* Father Details */}
+            <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-4">
+              <h4 className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wide flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-emerald-600" /> Father Details
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <div>
+                  <Label className="text-xs font-semibold">Father Full Name *</Label>
+                  <Input
+                    type="text"
+                    value={formData.fatherName}
+                    onChange={(e) => setFormData({ ...formData, fatherName: e.target.value })}
+                    placeholder="Father Name"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs font-semibold">Father CNIC</Label>
+                  <Input
+                    type="text"
+                    value={formData.fatherCnic}
+                    onChange={(e) => setFormData({ ...formData, fatherCnic: formatCnic(e.target.value) })}
+                    placeholder="35202-0000000-0"
+                    className="mt-1 text-xs font-mono"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs font-semibold">Father Phone</Label>
+                  <Input
+                    type="text"
+                    value={formData.fatherPhone}
+                    onChange={(e) => setFormData({ ...formData, fatherPhone: e.target.value })}
+                    placeholder="0300-0000000"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Father Occupation</Label>
+                  <Input
+                    type="text"
+                    value={formData.fatherOccupation}
+                    onChange={(e) => setFormData({ ...formData, fatherOccupation: e.target.value })}
+                    placeholder="e.g. Government Officer / Business"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Mother Details */}
+            <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-4">
+              <h4 className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wide flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-purple-600" /> Mother Details
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <Label className="text-xs">Mother Name</Label>
+                  <Input
+                    type="text"
+                    value={formData.motherName}
+                    onChange={(e) => setFormData({ ...formData, motherName: e.target.value })}
+                    placeholder="Mother Name"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Mother Phone</Label>
+                  <Input
+                    type="text"
+                    value={formData.motherPhone}
+                    onChange={(e) => setFormData({ ...formData, motherPhone: e.target.value })}
+                    placeholder="0300-0000000"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Mother Occupation</Label>
+                  <Input
+                    type="text"
+                    value={formData.motherOccupation}
+                    onChange={(e) => setFormData({ ...formData, motherOccupation: e.target.value })}
+                    placeholder="e.g. Teacher / Housewife"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Designated Guardian */}
+            <div className="p-4 rounded-xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/20 dark:bg-emerald-950/10 space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wide flex items-center gap-1.5">
+                  <Shield className="w-3.5 h-3.5 text-emerald-600" /> Designated Legal Guardian
+                </h4>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setFormData(prev => ({
+                      ...prev,
+                      guardianName: prev.fatherName,
+                      guardianCnic: prev.fatherCnic,
+                      guardianPhone: prev.fatherPhone,
+                      guardianOccupation: prev.fatherOccupation,
+                      guardianRelation: 'Father'
+                    }));
+                  }}
+                  className="text-[11px] h-7 px-2"
+                >
+                  Copy from Father
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <div>
+                  <Label className="text-xs font-semibold">Guardian Name *</Label>
+                  <Input
+                    type="text"
+                    value={formData.guardianName}
+                    onChange={(e) => setFormData({ ...formData, guardianName: e.target.value })}
+                    placeholder="Guardian Name"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs font-semibold">Relationship *</Label>
+                  <Input
+                    type="text"
+                    value={formData.guardianRelation}
+                    onChange={(e) => setFormData({ ...formData, guardianRelation: e.target.value })}
+                    placeholder="Father / Mother / Brother"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs font-semibold">Guardian Phone *</Label>
+                  <Input
+                    type="text"
+                    value={formData.guardianPhone}
+                    onChange={(e) => setFormData({ ...formData, guardianPhone: e.target.value })}
+                    placeholder="0300-0000000"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Guardian CNIC</Label>
+                  <Input
+                    type="text"
+                    value={formData.guardianCnic}
+                    onChange={(e) => setFormData({ ...formData, guardianCnic: formatCnic(e.target.value) })}
+                    placeholder="35202-0000000-0"
+                    className="mt-1 text-xs font-mono"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= STEP 3: ACADEMIC SELECTION ================= */}
+        {currentStep === 3 && (
+          <div className="space-y-6">
+            <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
+              <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                Step 3: Academic Program & Offering Selection
+              </h3>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Enforce hierarchy: Campus → Academic Category → Program → Approved Program Offering → Batch/Section.
+              </p>
+            </div>
+
+            {/* Dependent Selectors */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <Label className="text-xs font-semibold">1. Select Campus *</Label>
+                <select
+                  value={formData.campusId}
+                  onChange={(e) => setFormData({ ...formData, campusId: e.target.value })}
+                  className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3"
+                >
+                  {campuses.map(c => (
+                    <option key={c._id} value={c._id}>{c.name} ({c.city})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <Label className="text-xs font-semibold">2. Academic Category *</Label>
+                <select
+                  value={formData.categoryId}
+                  onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                  className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3"
+                >
+                  {categories.map(c => (
+                    <option key={c._id} value={c._id}>{c.name} ({c.code})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <Label className="text-xs font-semibold">3. Select Program *</Label>
+                <select
+                  value={formData.programId}
+                  onChange={(e) => setFormData({ ...formData, programId: e.target.value })}
+                  className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3"
+                >
+                  {programs.length === 0 && <option value="">No programs available</option>}
+                  {programs.map(p => (
+                    <option key={p._id} value={p._id}>{p.name} ({p.code})</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Approved Offerings Picker */}
+            <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wide">
+                    4. Select Approved Program Offering *
+                  </h4>
+                  <p className="text-[11px] text-zinc-500">
+                    Only approved, active offerings with available seat capacity can be selected for enrollment.
+                  </p>
+                </div>
+                {loadingOfferings && <RefreshCw className="w-4 h-4 animate-spin text-emerald-600" />}
+              </div>
+
+              {offerings.length === 0 ? (
+                <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/50 text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>No approved offerings available for this program on the selected campus. Please create an offering in <strong>Academics → Programs & Offerings</strong>.</span>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {offerings.map(offering => {
+                    const isSelected = String(offering._id) === String(formData.offeringId);
+                    const isCapacityFull = offering.seatCapacity && offering.enrolledCount >= offering.seatCapacity;
+                    return (
+                      <div
+                        key={offering._id}
+                        onClick={() => {
+                          if (offering.status === 'Approved') {
+                            setFormData(prev => ({ ...prev, offeringId: offering._id }));
+                          }
+                        }}
+                        className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all ${
+                          isSelected
+                            ? 'border-emerald-600 bg-emerald-50/40 dark:bg-emerald-950/30 ring-1 ring-emerald-600'
+                            : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="font-bold text-zinc-900 dark:text-zinc-100">{offering.title}</span>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200">
+                            {offering.status}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-y-1 text-[11px] text-zinc-500 dark:text-zinc-400">
+                          <div>Affiliation: <span className="font-medium text-zinc-700 dark:text-zinc-300">{offering.affiliationId?.name || 'Authorized Body'}</span></div>
+                          <div>Session: <span className="font-medium text-zinc-700 dark:text-zinc-300">{offering.academicSession || 'Current'}</span></div>
+                          <div>Duration: <span className="font-medium text-zinc-700 dark:text-zinc-300">{offering.durationMonths ? `${offering.durationMonths} Mo` : '2 Years'}</span></div>
+                          <div>
+                            Seats: <span className={`font-semibold ${isCapacityFull ? 'text-rose-600' : 'text-emerald-600'}`}>
+                              {offering.enrolledCount || 0} / {offering.seatCapacity || 50}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Batch, Section, Shift, Admission Type */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-900/30">
+              <div>
+                <Label className="text-xs font-semibold">Batch Assignment</Label>
+                <select
+                  value={formData.batchId}
+                  onChange={(e) => setFormData({ ...formData, batchId: e.target.value })}
+                  className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3"
+                >
+                  {batches.map(b => (
+                    <option key={b._id} value={b._id}>{b.name} ({b.code})</option>
+                  ))}
+                  {batches.length === 0 && <option value="">Default Batch (Auto)</option>}
+                </select>
+              </div>
+
+              <div>
+                <Label className="text-xs font-semibold">Section</Label>
+                <select
+                  value={formData.sectionName}
+                  onChange={(e) => setFormData({ ...formData, sectionName: e.target.value })}
+                  className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3"
+                >
+                  {['A', 'B', 'C', 'D'].map(sec => (
+                    <option key={sec} value={sec}>Section {sec}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <Label className="text-xs font-semibold">Shift</Label>
+                <select
+                  value={formData.shift}
+                  onChange={(e) => setFormData({ ...formData, shift: e.target.value })}
+                  className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3"
+                >
+                  <option value="Morning">Morning</option>
+                  <option value="Evening">Evening</option>
+                  <option value="Weekend">Weekend</option>
+                </select>
+              </div>
+
+              <div>
+                <Label className="text-xs font-semibold">Admission Type</Label>
+                <select
+                  value={formData.admissionType}
+                  onChange={(e) => setFormData({ ...formData, admissionType: e.target.value })}
+                  className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3"
+                >
+                  <option value="Regular">Regular</option>
+                  <option value="Transfer">Transfer / Migration</option>
+                  <option value="Self-Finance">Self-Finance</option>
+                  <option value="Scholarship">Scholarship</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= STEP 4: PREVIOUS QUALIFICATIONS ================= */}
+        {currentStep === 4 && (
+          <div className="space-y-6">
+            <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3 flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                  Step 4: Previous Academic Qualifications
+                </h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Support multiple prior degrees, boards, roll numbers, and examination records.
+                </p>
+              </div>
+              <Button
+                type="button"
+                onClick={handleAddQualification}
+                size="sm"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8"
+              >
+                <Plus className="w-3.5 h-3.5 mr-1" /> Add Qualification
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              {formData.qualifications.map((q, idx) => (
+                <div key={idx} className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/40 dark:bg-zinc-900/40 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                      Qualification Record #{idx + 1}
+                    </span>
+                    {formData.qualifications.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveQualification(idx)}
+                        className="text-rose-600 hover:text-rose-700 text-xs flex items-center gap-1"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> Remove
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <Label className="text-xs">Degree / Certificate *</Label>
+                      <Input
+                        type="text"
+                        value={q.qualification}
+                        onChange={(e) => handleQualificationChange(idx, 'qualification', e.target.value)}
+                        placeholder="e.g. Matric / FSc / O-Levels"
+                        className="mt-1 text-xs"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Awarding Board / University *</Label>
+                      <Input
+                        type="text"
+                        value={q.awardingBody}
+                        onChange={(e) => handleQualificationChange(idx, 'awardingBody', e.target.value)}
+                        placeholder="e.g. BISE Lahore / Punjab University"
+                        className="mt-1 text-xs"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Previous School / College</Label>
+                      <Input
+                        type="text"
+                        value={q.institution}
+                        onChange={(e) => handleQualificationChange(idx, 'institution', e.target.value)}
+                        placeholder="Institution name"
+                        className="mt-1 text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                    <div>
+                      <Label className="text-xs">Passing Year</Label>
+                      <Input
+                        type="text"
+                        value={q.completionYear}
+                        onChange={(e) => handleQualificationChange(idx, 'completionYear', e.target.value)}
+                        placeholder="2024"
+                        className="mt-1 text-xs"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Roll Number</Label>
+                      <Input
+                        type="text"
+                        value={q.rollNumber}
+                        onChange={(e) => handleQualificationChange(idx, 'rollNumber', e.target.value)}
+                        placeholder="e.g. 543210"
+                        className="mt-1 text-xs"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Total Marks</Label>
+                      <Input
+                        type="number"
+                        value={q.totalMarks}
+                        onChange={(e) => handleQualificationChange(idx, 'totalMarks', e.target.value)}
+                        className="mt-1 text-xs"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Obtained Marks</Label>
+                      <Input
+                        type="number"
+                        value={q.obtainedMarks}
+                        onChange={(e) => handleQualificationChange(idx, 'obtainedMarks', e.target.value)}
+                        placeholder="e.g. 980"
+                        className="mt-1 text-xs"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Percentage / Grade</Label>
+                      <Input
+                        type="text"
+                        readOnly
+                        value={q.percentage ? `${q.percentage} (${q.grade || 'Passed'})` : ''}
+                        placeholder="Auto"
+                        className="mt-1 text-xs bg-zinc-100 dark:bg-zinc-800 font-semibold"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ================= STEP 5: PROGRAM-SPECIFIC FIELDS ================= */}
+        {currentStep === 5 && (
+          <div className="space-y-6">
+            <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
+              <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                Step 5: Dynamic Program-Specific Configuration
+              </h3>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Fields adapt according to the selected program ({selectedProgram?.name || 'Selected Program'}).
+              </p>
+            </div>
+
+            {/* Intermediate / F.Sc Section */}
+            <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-4">
+              <h4 className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wide">
+                Intermediate / F.Sc / HSSC Stream Details
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <div>
+                  <Label className="text-xs">Board Registration No</Label>
+                  <Input
+                    type="text"
+                    value={formData.boardRegNo}
+                    onChange={(e) => setFormData({ ...formData, boardRegNo: e.target.value })}
+                    placeholder="e.g. 123-B-LHR-2024"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Exam Roll Number</Label>
+                  <Input
+                    type="text"
+                    value={formData.examRollNo}
+                    onChange={(e) => setFormData({ ...formData, examRollNo: e.target.value })}
+                    placeholder="e.g. 789123"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Academic Group</Label>
+                  <select
+                    value={formData.fscGroup}
+                    onChange={(e) => setFormData({ ...formData, fscGroup: e.target.value })}
+                    className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3"
+                  >
+                    <option value="Pre-Medical">Pre-Medical</option>
+                    <option value="Pre-Engineering">Pre-Engineering</option>
+                    <option value="General Science / ICS">ICS / Computer Science</option>
+                    <option value="Allied Health Sciences / OTT">Allied Health (OTT / Nursing)</option>
+                  </select>
+                </div>
+                <div>
+                  <Label className="text-xs">Science Practicals Completed</Label>
+                  <select
+                    value={formData.practicalCompleted}
+                    onChange={(e) => setFormData({ ...formData, practicalCompleted: e.target.value })}
+                    className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3"
+                  >
+                    <option value="Yes">Yes (All labs verified)</option>
+                    <option value="Pending">Pending Evaluation</option>
+                    <option value="Exempted">Exempted</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* BS / Undergraduate Section */}
+            <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-4">
+              <h4 className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wide">
+                BS / Undergraduate / ADP University Stream
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <Label className="text-xs">Awarding University Student ID / Reg No</Label>
+                  <Input
+                    type="text"
+                    value={formData.awardingUniRegNo}
+                    onChange={(e) => setFormData({ ...formData, awardingUniRegNo: e.target.value })}
+                    placeholder="e.g. PU-2026-PSY-042"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Entry Semester</Label>
+                  <select
+                    value={formData.entrySemester}
+                    onChange={(e) => setFormData({ ...formData, entrySemester: e.target.value })}
+                    className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3"
+                  >
+                    {['Semester 1', 'Semester 2', 'Semester 3 (Lateral Entry)', 'Semester 5 (BS 5th)'].map(sem => (
+                      <option key={sem} value={sem}>{sem}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <Label className="text-xs">Program Credit Hours</Label>
+                  <Input
+                    type="number"
+                    value={formData.totalCreditHours}
+                    onChange={(e) => setFormData({ ...formData, totalCreditHours: e.target.value })}
+                    className="mt-1 text-xs"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Technical / Diploma Section */}
+            <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-4">
+              <h4 className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wide">
+                Technical Diploma & Practical Competency
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <Label className="text-xs">Trade / Specialized Discipline</Label>
+                  <Input
+                    type="text"
+                    value={formData.tradeName}
+                    onChange={(e) => setFormData({ ...formData, tradeName: e.target.value })}
+                    placeholder="e.g. Pharmacy Assistant / Radiology"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Clinical / Practical Hours</Label>
+                  <Input
+                    type="number"
+                    value={formData.practicalHours}
+                    onChange={(e) => setFormData({ ...formData, practicalHours: e.target.value })}
+                    placeholder="120"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Awarding Authority / Board</Label>
+                  <Input
+                    type="text"
+                    value={formData.certificationTrack}
+                    onChange={(e) => setFormData({ ...formData, certificationTrack: e.target.value })}
+                    placeholder="e.g. Punjab Pharmacy Council / PBTE"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= STEP 6: DOCUMENTS CHECKLIST ================= */}
+        {currentStep === 6 && (
+          <div className="space-y-6">
+            <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
+              <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                Step 6: Document Verification & Checklist
+              </h3>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Verify mandatory admission credentials against program requirements.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {formData.documents.map((doc, idx) => (
+                <div
+                  key={idx}
+                  className="p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs bg-zinc-50/30 dark:bg-zinc-900/30"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <CheckSquare className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <div>
+                      <p className="font-semibold text-zinc-900 dark:text-zinc-100">{doc.docType}</p>
+                      <span className="text-[10px] text-zinc-500">Required for official enrollment</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <select
+                      value={doc.status}
+                      onChange={(e) => {
+                        const newDocs = [...formData.documents];
+                        newDocs[idx].status = e.target.value;
+                        setFormData({ ...formData, documents: newDocs });
+                      }}
+                      className="text-xs h-8 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-2"
+                    >
+                      <option value="Submitted">Submitted (Hardcopy)</option>
+                      <option value="Pending">Pending Submission</option>
+                      <option value="Verified">Verified & Approved</option>
+                      <option value="Exempted">Exempted</option>
+                    </select>
+
+                    <label className="flex items-center gap-1.5 cursor-pointer font-medium text-zinc-700 dark:text-zinc-300">
+                      <input
+                        type="checkbox"
+                        checked={doc.verified}
+                        onChange={(e) => {
+                          const newDocs = [...formData.documents];
+                          newDocs[idx].verified = e.target.checked;
+                          if (e.target.checked) newDocs[idx].status = 'Verified';
+                          setFormData({ ...formData, documents: newDocs });
+                        }}
+                        className="rounded text-emerald-600"
+                      />
+                      <span>Verified</span>
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ================= STEP 7: FEES & FINAL REVIEW ================= */}
+        {currentStep === 7 && (
+          <div className="space-y-6">
+            <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
+              <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                Step 7: Fee Structure, Concessions & Final Confirmation
+              </h3>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Review academic selection, apply scholarships/concessions, and generate invoice.
+              </p>
+            </div>
+
+            {/* Fee Structure Summary */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="sm:col-span-2 space-y-4">
+                <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-900/30 space-y-3">
+                  <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wide">
+                    Program Offering Fee Breakdown
+                  </h4>
+                  <div className="space-y-1.5 text-xs">
+                    <div className="flex justify-between py-1 border-b border-zinc-200 dark:border-zinc-800">
+                      <span className="text-zinc-600 dark:text-zinc-400">Admission / Registration Fee</span>
+                      <span className="font-semibold">PKR {feeAdmission.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-zinc-200 dark:border-zinc-800">
+                      <span className="text-zinc-600 dark:text-zinc-400">Tuition Fee (First Term)</span>
+                      <span className="font-semibold">PKR {feeTuition.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-zinc-200 dark:border-zinc-800">
+                      <span className="text-zinc-600 dark:text-zinc-400">Security Deposit (Refundable)</span>
+                      <span className="font-semibold">PKR {feeSecurity.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-zinc-200 dark:border-zinc-800">
+                      <span className="text-zinc-600 dark:text-zinc-400">Exam & Board Affiliation Fee</span>
+                      <span className="font-semibold">PKR {feeExam.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between py-1.5 font-bold text-zinc-900 dark:text-zinc-100">
+                      <span>Gross Total Fee</span>
+                      <span>PKR {feeGross.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Concessions / Scholarships */}
+                <div className="p-4 rounded-xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/20 dark:bg-emerald-950/10 space-y-3">
+                  <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wide flex items-center gap-1.5">
+                    <CreditCard className="w-3.5 h-3.5 text-emerald-600" /> Scholarship & Fee Concession
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <Label className="text-xs">Concession Type</Label>
+                      <select
+                        value={formData.concessionType}
+                        onChange={(e) => setFormData({ ...formData, concessionType: e.target.value })}
+                        className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3"
+                      >
+                        <option value="None">No Concession</option>
+                        <option value="Percentage">Percentage (%)</option>
+                        <option value="Fixed">Fixed Amount (PKR)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <Label className="text-xs">Value ({formData.concessionType === 'Percentage' ? '%' : 'PKR'})</Label>
+                      <Input
+                        type="number"
+                        disabled={formData.concessionType === 'None'}
+                        value={formData.concessionValue}
+                        onChange={(e) => setFormData({ ...formData, concessionValue: e.target.value })}
+                        className="mt-1 text-xs"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Approval / Reference Reason</Label>
+                      <Input
+                        type="text"
+                        disabled={formData.concessionType === 'None'}
+                        placeholder="e.g. Merit Scholarship 25%"
+                        value={formData.concessionReason}
+                        onChange={(e) => setFormData({ ...formData, concessionReason: e.target.value })}
+                        className="mt-1 text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Net Payable Card */}
+              <div className="p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-zinc-50 to-emerald-50/30 dark:from-zinc-900 dark:to-emerald-950/20 flex flex-col justify-between">
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                    Admission Net Total
+                  </span>
+                  <div className="mt-2">
+                    <span className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-100">
+                      PKR {feeNetPayable.toLocaleString()}
+                    </span>
+                    {concessionDiscount > 0 && (
+                      <p className="text-xs text-emerald-600 font-semibold mt-1">
+                        - PKR {concessionDiscount.toLocaleString()} ({formData.concessionValue}{formData.concessionType === 'Percentage' ? '%' : ' PKR'} off)
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-800 space-y-2 text-xs">
+                    <label className="flex items-center gap-2 cursor-pointer font-medium text-zinc-700 dark:text-zinc-300">
+                      <input
+                        type="checkbox"
+                        checked={formData.generateInvoice}
+                        onChange={(e) => setFormData({ ...formData, generateInvoice: e.target.checked })}
+                        className="rounded text-emerald-600"
+                      />
+                      <span>Auto-generate fee invoice in Finance</span>
+                    </label>
+
+                    <label className="flex items-center gap-2 cursor-pointer font-medium text-amber-700 dark:text-amber-400">
+                      <input
+                        type="checkbox"
+                        checked={formData.allowCapacityOverride}
+                        onChange={(e) => setFormData({ ...formData, allowCapacityOverride: e.target.checked })}
+                        className="rounded text-amber-600"
+                      />
+                      <span>Allow capacity override (Admin)</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+                  <Button
+                    onClick={handleSubmitAdmission}
+                    disabled={submitting}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 text-xs shadow-md"
+                  >
+                    {submitting ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Finalizing Admission...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 mr-2" /> Confirm & Complete Admission
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Complete Admission Summary Card */}
+            <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30 text-xs space-y-3">
+              <h4 className="font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wide">
+                Final Review Summary
+              </h4>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-zinc-600 dark:text-zinc-400">
+                <div>
+                  <span className="text-zinc-400 block text-[10px]">Student Name</span>
+                  <span className="font-bold text-zinc-900 dark:text-zinc-100">{formData.firstName} {formData.lastName}</span>
+                </div>
+                <div>
+                  <span className="text-zinc-400 block text-[10px]">Program Offering</span>
+                  <span className="font-bold text-zinc-900 dark:text-zinc-100">{selectedOffering?.title || 'Selected Offering'}</span>
+                </div>
+                <div>
+                  <span className="text-zinc-400 block text-[10px]">Campus & Batch</span>
+                  <span className="font-bold text-zinc-900 dark:text-zinc-100">
+                    {campuses.find(c => c._id === formData.campusId)?.name || 'Campus'} / Section {formData.sectionName}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-zinc-400 block text-[10px]">Admission Date & Year</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                    {formData.admissionDate} ({formData.admissionYear})
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Navigation Buttons Footer */}
+        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={currentStep === 1 || submitting}
+            onClick={handlePrev}
+            className="text-xs h-9"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 mr-1" /> Previous Step
+          </Button>
+
+          <div className="flex items-center gap-2">
+            {currentStep < 7 ? (
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleNext}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-9"
+              >
+                Next Step <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Button>
+            ) : null}
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }

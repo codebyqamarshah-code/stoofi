@@ -1,6 +1,13 @@
 const mongoose = require('mongoose');
 const Notification = require('../models/Notification');
 const Student = require('../models/Student');
+const { 
+  extractYear, 
+  previewNextAdmissionNumber, 
+  previewNextRollNumber,
+  generateAdmissionNumber,
+  generateRollNumber
+} = require('../services/admissionSequence.service');
 
 // Helper function to extract numeric sequence from roll number strings (e.g. PRC260001 -> 1, PRC260050 -> 50)
 const extractRollSeq = (r) => {
@@ -189,33 +196,21 @@ exports.getById = async (req, res, next) => {
 
 exports.getNextAdmissionNo = async (req, res) => {
   try {
-    const currentYear = new Date().getFullYear();
-    const students = await Student.find({}, 'admissionNo').lean();
-    let maxNum = 0;
-    students.forEach(s => {
-      if (s.admissionNo) {
-        const match = String(s.admissionNo).match(/(\d+)$/);
-        if (match) {
-          const num = parseInt(match[1], 10);
-          if (!isNaN(num) && num > maxNum) maxNum = num;
-        }
-      }
-    });
-    const nextNum = maxNum + 1;
-    const nextAdmissionNo = `ADM-${currentYear}-${String(nextNum).padStart(3, '0')}`;
-    res.status(200).json({ success: true, nextAdmissionNo, nextNum });
+    const year = extractYear(req.query.year || req.query.admissionDate);
+    const nextAdmissionNo = await previewNextAdmissionNumber(year);
+    res.status(200).json({ success: true, nextAdmissionNo, year });
   } catch (error) {
     const currentYear = new Date().getFullYear();
-    res.status(200).json({ success: true, nextAdmissionNo: `ADM-${currentYear}-001`, nextNum: 1 });
+    res.status(200).json({ success: true, nextAdmissionNo: `ADM-${currentYear}-0001`, year: currentYear });
   }
 };
 
 exports.getNextRollNo = async (req, res) => {
   try {
-    const prefix = 'PRC';
+    const year = extractYear(req.query.year || req.query.admissionDate);
+    const nextRollNo = await previewNextRollNumber(year);
 
     const allStudents = await Student.find({}, 'rollNo firstName lastName admissionNo').lean();
-    let maxRoll = 0;
     const usedRolls = [];
     allStudents.forEach(s => {
       if (s.rollNo) {
@@ -225,22 +220,19 @@ exports.getNextRollNo = async (req, res) => {
           studentName: `${s.firstName || ''} ${s.lastName || ''}`.trim() || 'Student',
           admissionNo: s.admissionNo || ''
         });
-        const num = extractRollSeq(rStr);
-        if (num > maxRoll) {
-          maxRoll = num;
-        }
       }
     });
 
-    const nextRollNo = `${prefix}${String(maxRoll + 1).padStart(4, '0')}`;
     res.status(200).json({ 
       success: true, 
       nextRollNo, 
+      year,
       usedRollNumbers: usedRolls.map(u => u.rollNo),
       usedRolls 
     });
   } catch (err) {
-    res.status(200).json({ success: true, nextRollNo: 'PRC0001', usedRollNumbers: [], usedRolls: [] });
+    const currentYear = new Date().getFullYear();
+    res.status(200).json({ success: true, nextRollNo: `ROLL-${currentYear}-0001`, year: currentYear, usedRollNumbers: [], usedRolls: [] });
   }
 };
 
@@ -271,50 +263,36 @@ exports.create = async (req, res) => {
       }
     }
 
-    // Auto-generate or ensure unique sequential admission number
+    // Auto-generate or ensure unique sequential admission number based on admission year
+    const targetYear = extractYear(dataObj.admissionYear || dataObj.admissionDate);
+
     if (!dataObj.admissionNo || dataObj.admissionNo.trim() === '') {
-      const students = await Student.find({}, 'admissionNo').lean();
-      let maxNum = 0;
-      students.forEach(s => {
-        if (s.admissionNo) {
-          const match = String(s.admissionNo).match(/(\d+)$/);
-          if (match) {
-            const num = parseInt(match[1], 10);
-            if (!isNaN(num) && num > maxNum) maxNum = num;
-          }
-        }
-      });
-      dataObj.admissionNo = `ADM-${currentYear}-${String(maxNum + 1).padStart(3, '0')}`;
+      const admRes = await generateAdmissionNumber(targetYear);
+      dataObj.admissionNo = admRes.admissionNumber;
     } else {
       const existingAdm = await Student.findOne({ admissionNo: dataObj.admissionNo.trim() });
       if (existingAdm) {
-        const students = await Student.find({}, 'admissionNo').lean();
-        let maxNum = 0;
-        students.forEach(s => {
-          if (s.admissionNo) {
-            const match = String(s.admissionNo).match(/(\d+)$/);
-            if (match) {
-              const num = parseInt(match[1], 10);
-              if (!isNaN(num) && num > maxNum) maxNum = num;
-            }
-          }
-        });
-        dataObj.admissionNo = `ADM-${currentYear}-${String(maxNum + 1).padStart(3, '0')}`;
+        const admRes = await generateAdmissionNumber(targetYear);
+        dataObj.admissionNo = admRes.admissionNumber;
       }
     }
 
-    const rollPrefix = 'PRC';
-
-    // Auto-assign roll number starting from PRC0001 if not provided
+    // Auto-assign roll number based on admission year if not provided
     if (!dataObj.rollNo || String(dataObj.rollNo).trim() === '') {
-      const allStudents = await Student.find({}, 'rollNo').lean();
-      let maxRollSeq = 0;
-      allStudents.forEach(s => {
-        const seq = extractRollSeq(s.rollNo);
-        if (seq > maxRollSeq) maxRollSeq = seq;
-      });
-      dataObj.rollNo = `${rollPrefix}${String(maxRollSeq + 1).padStart(4, '0')}`;
+      const rollRes = await generateRollNumber(targetYear);
+      dataObj.rollNo = rollRes.rollNumber;
     } else {
+      const rollStr = String(dataObj.rollNo).trim();
+      const existingRoll = await Student.findOne({
+        rollNo: { $regex: '^' + rollStr + '$', $options: 'i' }
+      });
+      if (existingRoll) {
+        return res.status(400).json({
+          success: false,
+          message: `Roll Number (${rollStr}) is already assigned in system.`
+        });
+      }
+    }
       // Check duplicate roll number in system
       const rollStr = String(dataObj.rollNo).trim();
       const existingRoll = await Student.findOne({

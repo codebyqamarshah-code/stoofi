@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { Student } from '@/lib/models';
+import { extractYear, generateAdmissionNumber, generateRollNumber } from '@/lib/admissionSequence.service';
 
 const extractRollSeq = (r) => {
   if (!r) return 0;
@@ -211,47 +212,34 @@ export async function POST(req) {
       return NextResponse.json({ success: false, message: 'Student first name is required' }, { status: 400 });
     }
 
+    const targetYear = extractYear(dataObj.admissionYear || dataObj.admissionDate);
+
     if (!dataObj.admissionNo || String(dataObj.admissionNo).trim() === '') {
-      const students = await Student.find({}, 'admissionNo').lean();
-      let maxNum = 0;
-      students.forEach(s => {
-        if (s.admissionNo) {
-          const match = String(s.admissionNo).match(/(\d+)$/);
-          if (match) {
-            const num = parseInt(match[1], 10);
-            if (!isNaN(num) && num > maxNum) maxNum = num;
-          }
-        }
-      });
-      dataObj.admissionNo = `ADM-${currentYear}-${String(maxNum + 1).padStart(3, '0')}`;
+      const admRes = await generateAdmissionNumber(targetYear);
+      dataObj.admissionNo = admRes.admissionNumber;
     } else {
       const existingAdm = await Student.findOne({ admissionNo: String(dataObj.admissionNo).trim() });
       if (existingAdm) {
-        const students = await Student.find({}, 'admissionNo').lean();
-        let maxNum = 0;
-        students.forEach(s => {
-          if (s.admissionNo) {
-            const match = String(s.admissionNo).match(/(\d+)$/);
-            if (match) {
-              const num = parseInt(match[1], 10);
-              if (!isNaN(num) && num > maxNum) maxNum = num;
-            }
-          }
-        });
-        dataObj.admissionNo = `ADM-${currentYear}-${String(maxNum + 1).padStart(3, '0')}`;
+        const admRes = await generateAdmissionNumber(targetYear);
+        dataObj.admissionNo = admRes.admissionNumber;
       }
     }
 
-    const rollPrefix = 'PRC';
     if (!dataObj.rollNo || String(dataObj.rollNo).trim() === '') {
-      const allStudents = await Student.find({}, 'rollNo').lean();
-      let maxRollSeq = 0;
-      allStudents.forEach(s => {
-        const seq = extractRollSeq(s.rollNo);
-        if (seq > maxRollSeq) maxRollSeq = seq;
-      });
-      dataObj.rollNo = `${rollPrefix}${String(maxRollSeq + 1).padStart(4, '0')}`;
+      const rollRes = await generateRollNumber(targetYear);
+      dataObj.rollNo = rollRes.rollNumber;
     } else {
+      const rollStr = String(dataObj.rollNo).trim();
+      const existingRoll = await Student.findOne({
+        rollNo: { $regex: '^' + rollStr + '$', $options: 'i' }
+      });
+      if (existingRoll) {
+        return NextResponse.json({
+          success: false,
+          message: `Roll Number (${rollStr}) is already assigned in system.`
+        }, { status: 400 });
+      }
+    }
       const rollStr = String(dataObj.rollNo).trim();
       const existingRoll = await Student.findOne({
         rollNo: { $regex: '^' + rollStr + '$', $options: 'i' }
