@@ -177,6 +177,10 @@ export default function StoofiAiFloating() {
     pathname === '/dashboard/student/chat/chat-box' || 
     pathname === '/dashboard/teacher/chat/chat-box';
 
+  // Guest mode: visitors on the public Home Page can chat without logging in
+  const isHomePage = pathname === '/';
+  const isGuest = !isAuthenticated;
+
   useEffect(() => {
     if (isOpen && !isMinimized && inputRef.current) {
       inputRef.current.focus();
@@ -188,6 +192,9 @@ export default function StoofiAiFloating() {
   }, [messages, isLoading]);
 
   const getSuggestions = () => {
+    if (isGuest) {
+      return ['Admission process', 'Programs offered', 'Contact details', 'How to login?'];
+    }
     const role = user?.role || 'User';
     if (role === 'Student') {
       return ['Mera attendance kitna hai?', 'Homework dikhao', 'Fees status', 'Mera profile'];
@@ -217,11 +224,24 @@ export default function StoofiAiFloating() {
     setIsLoading(true);
 
     try {
-      const res = await aiApi.sendMessage({
-        message: text,
-        conversationId: conversationId || undefined,
-        pageContext: { pathname }
-      });
+      let res;
+      if (isGuest) {
+        const resp = await fetch('/api/public-chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: text,
+            history: messages.filter(m => !m.isError).map(m => ({ role: m.role, content: m.content }))
+          })
+        });
+        res = await resp.json();
+      } else {
+        res = await aiApi.sendMessage({
+          message: text,
+          conversationId: conversationId || undefined,
+          pageContext: { pathname }
+        });
+      }
 
       if (res?.success) {
         if (res.conversationId && !conversationId) {
@@ -285,6 +305,10 @@ export default function StoofiAiFloating() {
 
   const handleOpenFullChat = () => {
     setIsOpen(false);
+    if (isGuest) {
+      router.push('/login');
+      return;
+    }
     if (user?.role === 'Student') {
       router.push('/dashboard/student/chat/chat-box');
     } else if (user?.role === 'Teacher') {
@@ -299,7 +323,8 @@ export default function StoofiAiFloating() {
     setConversationId(null);
   };
 
-  if (!isAuthenticated || isFullChatPage) {
+  // Logged-in users: everywhere (except full chat page). Guests: only on the public Home Page.
+  if (isFullChatPage || (isGuest && !isHomePage)) {
     return null;
   }
 
@@ -381,7 +406,7 @@ export default function StoofiAiFloating() {
                 <div className="flex items-center gap-1.5">
                   <h3 className="text-sm font-bold leading-tight text-white">Stoofi AI</h3>
                   <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-white/20 text-white uppercase tracking-wider">
-                    {user?.role || 'Agent'}
+                    {isGuest ? 'Guest' : (user?.role || 'Agent')}
                   </span>
                 </div>
                 <p className="text-[11px] text-zinc-300 leading-tight">Intelligent school assistant</p>
@@ -436,7 +461,9 @@ export default function StoofiAiFloating() {
                         Hi {user?.firstName || user?.fullName || user?.username || 'there'}! 👋
                       </h4>
                       <p className="text-xs text-zinc-500 mt-1 max-w-[240px]">
-                        Attendance, homework, fees, ya portal navigation ke hawalay se kuch bhi poochiye.
+                        {isGuest
+                          ? 'Ask about admissions, programs, results, contact details or portal login.'
+                          : 'Attendance, homework, fees, ya portal navigation ke hawalay se kuch bhi poochiye.'}
                       </p>
                     </div>
                   </div>

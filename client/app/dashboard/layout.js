@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import PageTransitionLoader from '@/components/PageTransitionLoader';
 import StoofiAiFloating from '@/components/ai/StoofiAiFloating';
+import RainAlertPopup from '@/components/RainAlertPopup';
 import { 
   LayoutDashboard, 
   Users, 
@@ -1222,6 +1223,9 @@ export default function DashboardLayout({ children }) {
 
       {/* Global Stoofi AI Floating Assistant */}
       <StoofiAiFloating />
+
+      {/* Daily Rain Alert for school location (Super Admin, Admin, Teacher, Student) */}
+      <RainAlertPopup />
     </div>
   );
 }

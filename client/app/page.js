@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { translations } from "@/utils/translations";
 import { useAuth } from "@/hooks/useAuth";
 import api from "@/services/api";
+import StoofiAiFloating from "@/components/ai/StoofiAiFloating";
 import {
   CheckCircle2, Monitor, Users, GraduationCap,
   ShieldCheck, Menu, X, Star, ArrowRight, Zap, BarChart3,
@@ -2667,6 +2668,9 @@ export default function LandingPage() {
           </div>
         </div>
       )}
+
+      {/* Stoofi AI Chatbot (guest mode for visitors, full mode for logged-in users) */}
+      <StoofiAiFloating />
     </div>
   );
 }
