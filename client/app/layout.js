@@ -39,7 +39,7 @@ export default function RootLayout({ children }) {
       </head>
       <body suppressHydrationWarning className={`min-h-screen bg-background text-foreground overflow-x-hidden ${poppins.className}`}>
         <GoogleTranslate />
-        <ThemeProvider attribute="class" forcedTheme="light">
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <PageTransitionLoader />
           {/* <CustomCursor /> */}
           {children}

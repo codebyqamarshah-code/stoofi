@@ -334,21 +334,78 @@ export default function IdCardPage() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  // 1. Fetch Real Students from Database
+  // Compress uploaded photo on canvas to max 320x320 JPEG (~15KB) so DB never exceeds memory/payload limits
+  const compressPhotoFile = (file) =>
+    new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new window.Image();
+        img.onload = () => {
+          const maxDim = 320;
+          let { width, height } = img;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.82));
+        };
+        img.onerror = () => resolve(ev.target.result);
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+  // 1. Fetch Real Students from Database (with automatic retry & localStorage cache protection)
   const fetchStudents = async () => {
     try {
       setLoadingStudents(true);
-      const res = await api.get('/student?limit=200').catch(() => null);
-      if (Array.isArray(res?.data)) {
-        setStudentsList(res.data);
-      } else if (Array.isArray(res)) {
-        setStudentsList(res);
-      } else {
-        setStudentsList([]);
+      // Hydrate from cache immediately if list is currently empty
+      if (studentsList.length === 0 && typeof window !== 'undefined') {
+        try {
+          const cached = localStorage.getItem('stoofi_students_cache_v1');
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setStudentsList(parsed);
+            }
+          }
+        } catch (_) {}
+      }
+
+      let res = await api.get('/student?limit=500').catch(() => null);
+      let list = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : null);
+
+      // Automatic retry once if transient cold-start/network hiccup occurred
+      if (!list || list.length === 0) {
+        await new Promise(r => setTimeout(r, 600));
+        res = await api.get('/student?limit=500').catch(() => null);
+        list = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : null);
+      }
+
+      if (Array.isArray(list) && list.length > 0) {
+        setStudentsList(list);
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('stoofi_students_cache_v1', JSON.stringify(list));
+          } catch (_) {}
+        }
+      } else if (Array.isArray(list) && res?.success === true && studentsList.length === 0) {
+        setStudentsList(list);
       }
     } catch (err) {
       console.error('Error fetching students:', err);
-      setStudentsList([]);
     } finally {
       setLoadingStudents(false);
     }
@@ -438,19 +495,16 @@ export default function IdCardPage() {
   };
 
   // Handle Photo Upload
-  const handlePhotoUpload = (e) => {
+  const handlePhotoUpload = async (e) => {
     const file = e.target.files && e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        showToast('Photo size must be less than 5MB', true);
+      if (file.size > 10 * 1024 * 1024) {
+        showToast('Photo size must be less than 10MB', true);
         return;
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setStudentForm(prev => ({ ...prev, studentPhoto: reader.result }));
-        showToast('Profile photo uploaded successfully!');
-      };
-      reader.readAsDataURL(file);
+      const compressed = await compressPhotoFile(file);
+      setStudentForm(prev => ({ ...prev, studentPhoto: compressed }));
+      showToast('Profile photo uploaded successfully!');
     }
   };
 
@@ -542,19 +596,16 @@ export default function IdCardPage() {
   };
 
   // Handle Photo Upload in Edit Modal
-  const handleEditPhotoUpload = (e) => {
+  const handleEditPhotoUpload = async (e) => {
     const file = e.target.files && e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        showToast('Photo size must be less than 5MB', true);
+      if (file.size > 10 * 1024 * 1024) {
+        showToast('Photo size must be less than 10MB', true);
         return;
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setEditStudentForm(prev => ({ ...prev, studentPhoto: reader.result }));
-        showToast('Profile photo uploaded successfully!');
-      };
-      reader.readAsDataURL(file);
+      const compressed = await compressPhotoFile(file);
+      setEditStudentForm(prev => ({ ...prev, studentPhoto: compressed }));
+      showToast('Profile photo uploaded successfully!');
     }
   };
 

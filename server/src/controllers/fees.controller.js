@@ -122,7 +122,15 @@ exports.getCarryForward = async (req, res) => {
       query.$and = conditions;
     }
 
-    const students = await Student.find(query).sort({ rollNo: 1, admissionNo: 1 });
+    const students = await Student.find(query)
+      .select('-studentPhoto -photo')
+      .lean();
+    students.sort((a, b) => {
+      const rA = String(a.rollNo || '').trim();
+      const rB = String(b.rollNo || '').trim();
+      if (rA !== rB) return rA.localeCompare(rB, undefined, { numeric: true, sensitivity: 'base' });
+      return String(a.admissionNo || '').localeCompare(String(b.admissionNo || ''), undefined, { numeric: true, sensitivity: 'base' });
+    });
 
     // Calculate pending invoice balance for each student
     const studentAdmissions = students.map(s => s.admissionNo).filter(Boolean);

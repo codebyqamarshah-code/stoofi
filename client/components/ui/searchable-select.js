@@ -187,10 +187,15 @@ export function SearchableSelect({
                     onClick={() => {
                       if (typeof onChange === 'function') {
                         const optVal = String(opt.value ?? opt.label ?? '');
+                        const syntheticEvent = { target: { name: name || '', value: optVal }, value: optVal };
                         if (name) {
-                          onChange({ target: { name, value: optVal } });
+                          onChange(syntheticEvent);
                         } else {
-                          onChange(optVal, { target: { name: '', value: optVal } });
+                          try {
+                            onChange(optVal, syntheticEvent);
+                          } catch (err) {
+                            onChange(syntheticEvent);
+                          }
                         }
                       }
                       setIsOpen(false);

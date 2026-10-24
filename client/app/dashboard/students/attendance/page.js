@@ -11,12 +11,13 @@ import { sortClassesAcademic } from '@/lib/academicUtils';
 import api from '@/services/api';
 
 const DEFAULT_CLASSES = [
-  { _id: 'c-bs-psych', name: 'BS Psychology', sections: ['A', 'B'] },
-  { _id: 'c-bs-rit', name: 'BS RIT', sections: ['A', 'B'] },
+  { _id: 'c-fsc-mlt', name: 'FSC MLT', sections: ['A', 'B', 'C'] },
+  { _id: 'c-fsc-ott', name: 'FSC OTT', sections: ['A', 'B', 'C'] },
+  { _id: 'c-fsc-nursing', name: 'FSC NURSING', sections: ['A', 'B', 'C'] },
+  { _id: 'c-fsc-dental', name: 'FSC Dental', sections: ['A', 'B', 'C'] },
   { _id: 'c-dpt', name: 'DPT', sections: ['A', 'B'] },
-  { _id: 'c-fsc-dental', name: 'FSC Dental', sections: ['A', 'B'] },
-  { _id: 'c-fsc-nursing', name: 'FSC NURSING', sections: ['A', 'B'] },
-  { _id: 'c-fsc-ott', name: 'FSC OTT', sections: ['A', 'B'] },
+  { _id: 'c-bs-rit', name: 'BS RIT', sections: ['A', 'B'] },
+  { _id: 'c-bs-psych', name: 'BS Psychology', sections: ['A', 'B'] },
 ];
 
 const DEFAULT_SECTIONS = [
@@ -47,16 +48,41 @@ export default function StudentAttendancePage() {
 
   const fetchOptions = async () => {
     try {
-      const [cRes, sRes] = await Promise.all([
+      const [cRes, sRes, stuRes] = await Promise.all([
         api.get('/class').catch(() => null),
-        api.get('/section').catch(() => null)
+        api.get('/section').catch(() => null),
+        api.get('/student').catch(() => null)
       ]);
 
-      if (cRes && cRes.success && Array.isArray(cRes.data) && cRes.data.length > 0) {
-        setClasses(sortClassesAcademic(cRes.data));
-      } else {
-        setClasses(DEFAULT_CLASSES);
+      const classMap = new Map();
+      DEFAULT_CLASSES.forEach(c => classMap.set(c.name.toLowerCase(), c));
+
+      if (cRes && cRes.success && Array.isArray(cRes.data)) {
+        cRes.data.forEach(c => {
+          const cName = String(c?.name || '').trim();
+          if (cName) {
+            classMap.set(cName.toLowerCase(), {
+              _id: c._id || `cls-${cName}`,
+              name: cName,
+              sections: Array.isArray(c.sections) && c.sections.length > 0 ? c.sections : ['A', 'B', 'C']
+            });
+          }
+        });
       }
+
+      const stuList = Array.isArray(stuRes) ? stuRes : (Array.isArray(stuRes?.data) ? stuRes.data : []);
+      stuList.forEach(st => {
+        const cName = String(st?.className || '').trim();
+        if (cName && !classMap.has(cName.toLowerCase())) {
+          classMap.set(cName.toLowerCase(), {
+            _id: `stu-cls-${cName}`,
+            name: cName,
+            sections: ['A', 'B', 'C']
+          });
+        }
+      });
+
+      setClasses(sortClassesAcademic(Array.from(classMap.values())));
 
       if (sRes && sRes.success && Array.isArray(sRes.data) && sRes.data.length > 0) {
         setSections(sRes.data);
@@ -70,14 +96,22 @@ export default function StudentAttendancePage() {
   };
 
   const getAvailableSections = () => {
+    const baseSecs = sections
+      .map(s => (typeof s === 'string' ? s : s?.name || ''))
+      .filter(Boolean);
+
     if (!formData.class) {
-      return sections.map(s => (typeof s === 'string' ? s : s.name));
+      return baseSecs.length > 0 ? baseSecs : ['A', 'B', 'C', 'D', 'E'];
     }
     const selected = classes.find(c => c.name === formData.class || c._id === formData.class);
-    if (selected && selected.sections && selected.sections.length > 0) {
-      return selected.sections;
+    if (selected && Array.isArray(selected.sections) && selected.sections.length > 0) {
+      const secNames = selected.sections
+        .map(s => (typeof s === 'string' ? s : s?.name || ''))
+        .filter(Boolean);
+      const merged = Array.from(new Set([...secNames, ...baseSecs]));
+      return merged.length > 0 ? merged : ['A', 'B', 'C', 'D'];
     }
-    return ['A', 'B', 'C', 'D'];
+    return baseSecs.length > 0 ? baseSecs : ['A', 'B', 'C', 'D'];
   };
 
   const handleSearch = async () => {
@@ -186,20 +220,28 @@ export default function StudentAttendancePage() {
           <div className="space-y-2">
             <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Class <span className="text-rose-500">*</span></Label>
             <SearchableSelect
+              name="class"
               options={classOptions}
               value={formData.class}
               placeholder="-- Select Class * --"
-              onChange={(e) => setFormData({ ...formData, class: e.target.value })}
+              onChange={(valOrEvent) => {
+                const val = typeof valOrEvent === 'object' && valOrEvent !== null ? valOrEvent.target?.value : valOrEvent;
+                setFormData(prev => ({ ...prev, class: val || '' }));
+              }}
             />
           </div>
 
           <div className="space-y-2">
             <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Section <span className="text-rose-500">*</span></Label>
             <SearchableSelect
+              name="section"
               options={sectionOptions}
               value={formData.section}
               placeholder="-- Select Section * --"
-              onChange={(e) => setFormData({ ...formData, section: e.target.value })}
+              onChange={(valOrEvent) => {
+                const val = typeof valOrEvent === 'object' && valOrEvent !== null ? valOrEvent.target?.value : valOrEvent;
+                setFormData(prev => ({ ...prev, section: val || '' }));
+              }}
             />
           </div>
 

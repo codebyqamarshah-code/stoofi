@@ -38,7 +38,7 @@ export async function GET(req) {
         studentQuery.section = { $regex: new RegExp(`^(Section\\s*)?${cleanSec}$`, 'i') };
       }
 
-      const students = await Student.find(studentQuery).lean();
+      const students = await Student.find(studentQuery).select('-studentPhoto -photo').lean();
 
       const targetDate = dateParam ? new Date(dateParam) : new Date();
       const startOfDay = new Date(targetDate);

@@ -140,7 +140,7 @@ export default function StudentListPage() {
       if (active.nameFilter && active.nameFilter.trim()) params.name = active.nameFilter.trim();
       if (active.rollFilter && active.rollFilter.trim()) params.rollNo = active.rollFilter.trim();
 
-      const [stuRes, classRes, secRes] = await Promise.all([
+      let [stuRes, classRes, secRes] = await Promise.all([
         api.get('/student', { params }).catch(err => {
           console.error('Fetch students error:', err);
           return null;
@@ -148,31 +148,39 @@ export default function StudentListPage() {
         api.get('/class').catch(() => null),
         api.get('/section').catch(() => null)
       ]);
-      
-      let list = [];
-      if (Array.isArray(stuRes?.data)) list = stuRes.data;
-      else if (Array.isArray(stuRes?.students)) list = stuRes.students;
-      else if (Array.isArray(stuRes)) list = stuRes;
 
-      // Natural sequential sort by admissionNo (ADM260001, ADM260002, ADM260003...)
-      list.sort((a, b) => {
-        const admA = String(a.admissionNo || '').trim();
-        const admB = String(b.admissionNo || '').trim();
-        if (admA && admB) {
-          return admA.localeCompare(admB, undefined, { numeric: true, sensitivity: 'base' });
+      // Retry once if transient network / cold-start error occurred
+      if (!stuRes) {
+        await new Promise(r => setTimeout(r, 600));
+        stuRes = await api.get('/student', { params }).catch(() => null);
+      }
+
+      if (stuRes) {
+        let list = [];
+        if (Array.isArray(stuRes?.data)) list = stuRes.data;
+        else if (Array.isArray(stuRes?.students)) list = stuRes.students;
+        else if (Array.isArray(stuRes)) list = stuRes;
+
+        // Natural sequential sort by admissionNo (ADM260001, ADM260002, ADM260003...)
+        list.sort((a, b) => {
+          const admA = String(a.admissionNo || '').trim();
+          const admB = String(b.admissionNo || '').trim();
+          if (admA && admB) {
+            return admA.localeCompare(admB, undefined, { numeric: true, sensitivity: 'base' });
+          }
+          if (admA) return -1;
+          if (admB) return 1;
+          return 0;
+        });
+
+        setStudents(list);
+        if (stuRes?.pagination) {
+          setTotalPages(stuRes.pagination.totalPages || 1);
+          setTotalRecords(stuRes.pagination.total || list.length);
+        } else {
+          setTotalRecords(list.length);
+          setTotalPages(Math.ceil(list.length / limit) || 1);
         }
-        if (admA) return -1;
-        if (admB) return 1;
-        return 0;
-      });
-
-      setStudents(list);
-      if (stuRes?.pagination) {
-        setTotalPages(stuRes.pagination.totalPages || 1);
-        setTotalRecords(stuRes.pagination.total || list.length);
-      } else {
-        setTotalRecords(list.length);
-        setTotalPages(Math.ceil(list.length / limit) || 1);
       }
 
       if (classRes?.success && Array.isArray(classRes.data) && classRes.data.length > 0) {
@@ -187,7 +195,6 @@ export default function StudentListPage() {
       }
     } catch (error) {
       console.error('Student fetch error:', error);
-      setStudents([]);
     } finally {
       setLoading(false);
     }

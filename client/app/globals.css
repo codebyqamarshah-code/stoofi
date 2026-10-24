@@ -158,22 +158,22 @@ a.bg-black:hover *,
 }
 
 /* LIGHT MODE: Universal Soft & Clean Hover for table rows and cards */
-:root tr:hover,
-:root tbody tr:hover,
-:root tr[class*="hover:bg-"]:hover,
-:root tbody tr[class*="hover:bg-"]:hover,
-:root tr[class*="hover:bg-zinc-9"]:hover,
-:root tr[class*="hover:bg-zinc-8"]:hover {
+:root:not(.dark) tr:hover,
+:root:not(.dark) tbody tr:hover,
+:root:not(.dark) tr[class*="hover:bg-"]:hover,
+:root:not(.dark) tbody tr[class*="hover:bg-"]:hover,
+:root:not(.dark) tr[class*="hover:bg-zinc-9"]:hover,
+:root:not(.dark) tr[class*="hover:bg-zinc-8"]:hover {
   background-color: #f4f4f5 !important; /* Soft clean hover */
 }
 
-:root tr:hover td,
-:root tr:hover td * {
+:root:not(.dark) tr:hover td,
+:root:not(.dark) tr:hover td * {
   color: inherit;
 }
 
-:root tr:hover td span:not([class*="bg-"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-amber"]):not([class*="text-blue"]):not([class*="text-indigo"]),
-:root tr:hover td div:not([class*="bg-"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-amber"]):not([class*="text-blue"]):not([class*="text-indigo"]) {
+:root:not(.dark) tr:hover td span:not([class*="bg-"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-amber"]):not([class*="text-blue"]):not([class*="text-indigo"]),
+:root:not(.dark) tr:hover td div:not([class*="bg-"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-amber"]):not([class*="text-blue"]):not([class*="text-indigo"]) {
   color: #09090b !important;
 }
 
@@ -248,35 +248,32 @@ a[class*="hover:bg-zinc-950"]:not(.bg-zinc-800):not(.bg-zinc-900):not(.bg-zinc-9
   color: #09090b !important;
 }
 
-/* Dropdown & Select styling */
-select,
-.dark select {
+/* Dropdown & Select styling (Light Mode) */
+:root:not(.dark) select {
   background-color: #ffffff !important;
   color: #09090b !important;
   border-color: #e4e4e7 !important;
 }
 
-option,
-optgroup,
-.dark option,
-.dark optgroup {
+:root:not(.dark) option,
+:root:not(.dark) optgroup {
   background-color: #ffffff !important;
   color: #09090b !important;
 }
 
 /* Form input elements in light mode: white bg, dark text, soft border */
-input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
-textarea {
+:root:not(.dark) input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+:root:not(.dark) textarea {
   background-color: #ffffff !important;
   color: #09090b !important;
   border-color: #e4e4e7 !important;
 }
-input::placeholder,
-textarea::placeholder {
+:root:not(.dark) input::placeholder,
+:root:not(.dark) textarea::placeholder {
   color: #71717a !important;
 }
-input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]):focus,
-textarea:focus {
+:root:not(.dark) input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]):focus,
+:root:not(.dark) textarea:focus {
   border-color: #084A86 !important;
   outline: none !important;
   box-shadow: 0 0 0 1px #084A86 !important;
@@ -338,39 +335,39 @@ span[style*="backgroundColor:#09090b"] {
 }
 
 .dark {
-  --card: #ffffff;
-  --card-foreground: #084A86;
-  --popover: #ffffff;
-  --popover-foreground: #084A86;
-  --primary: #084A86;
+  --card: #0f172a;
+  --card-foreground: #f8fafc;
+  --popover: #0f172a;
+  --popover-foreground: #f8fafc;
+  --primary: #10b981;
   --primary-foreground: #ffffff;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #084A86;
-  --muted: #f4f4f5;
-  --muted-foreground: #4a7aaa;
-  --accent: #f4f4f5;
-  --accent-foreground: #084A86;
-  --destructive: #e40014;
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #1e293b;
+  --accent-foreground: #f8fafc;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e4e4e7;
-  --input: #e4e4e7;
-  --ring: #084A86;
-  --chart-1: #084A86;
-  --chart-2: #1565B0;
-  --chart-3: #2a6fc2;
-  --chart-4: #6ca3d6;
-  --chart-5: #a8c7e8;
+  --border: #1e293b;
+  --input: #1e293b;
+  --ring: #10b981;
+  --chart-1: #10b981;
+  --chart-2: #38bdf8;
+  --chart-3: #818cf8;
+  --chart-4: #fbbf24;
+  --chart-5: #f472b6;
   --radius: 0.625rem;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #084A86;
-  --sidebar-primary: #084A86;
+  --sidebar: #0b1120;
+  --sidebar-foreground: #f8fafc;
+  --sidebar-primary: #10b981;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f4f4f5;
-  --sidebar-accent-foreground: #084A86;
-  --sidebar-border: #e4e4e7;
-  --sidebar-ring: #084A86;
-  --background: #ffffff;
-  --foreground: #084A86;
+  --sidebar-accent: #1e293b;
+  --sidebar-accent-foreground: #f8fafc;
+  --sidebar-border: #1e293b;
+  --sidebar-ring: #10b981;
+  --background: #090d16;
+  --foreground: #f8fafc;
 }
 
 @theme inline {
@@ -742,6 +739,103 @@ body {
   pointer-events: none !important;
   visibility: hidden !important;
 }
+
+/* ==========================================================================
+   PORTAL DARK MODE THEME (ACTIVATED EXCLUSIVELY VIA STYLE -> BACKGROUND SETTINGS)
+   ========================================================================== */
+html.dark body {
+  background-color: #090d16 !important;
+  color: #f8fafc !important;
+}
+
+html.dark aside,
+html.dark header,
+html.dark aside > div.bg-white {
+  background-color: #0b1120 !important;
+  border-color: #1e293b !important;
+}
+
+html.dark main {
+  background-color: #090d16 !important;
+}
+
+html.dark :is(div, section, article, form, table):is(.bg-white, .dark\:bg-white, .bg-zinc-50, .bg-zinc-50\/50, .bg-zinc-50\/80, .bg-slate-50):not(#pak-royal-three-copy-slip):not(#pak-royal-three-copy-slip *):not(.theme-preview-box):not(.theme-preview-box *) {
+  background-color: #111827 !important;
+  color: #f8fafc !important;
+  border-color: #1e293b !important;
+}
+
+html.dark :is(div, thead, tr, th, td):is(.bg-zinc-50, .bg-zinc-50\/50, .bg-zinc-100, .bg-zinc-100\/40, .bg-zinc-100\/80):not(#pak-royal-three-copy-slip *):not(.theme-preview-box *) {
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+}
+
+html.dark :is(.border-zinc-100, .border-zinc-200, .border-zinc-300, .dark\:border-zinc-200, .border-slate-200):not(#pak-royal-three-copy-slip *):not(.theme-preview-box *) {
+  border-color: #1e293b !important;
+}
+
+html.dark :is(.divide-zinc-100 > * + *, .divide-zinc-200 > * + *):not(#pak-royal-three-copy-slip *) {
+  border-color: #1e293b !important;
+}
+
+html.dark :is(.text-zinc-950, .text-zinc-900, .text-zinc-800, .dark\:text-zinc-900, .dark\:text-zinc-800, .text-emerald-950, .text-\[\#084A86\], .dark\:text-\[\#084A86\]):not(#pak-royal-three-copy-slip *):not(.theme-preview-box *):not(button *) {
+  color: #f8fafc !important;
+}
+
+html.dark :is(.text-zinc-700, .text-zinc-600, .text-zinc-500, .text-zinc-400, .dark\:text-zinc-700, .dark\:text-zinc-600):not(#pak-royal-three-copy-slip *):not(.theme-preview-box *) {
+  color: #94a3b8 !important;
+}
+
+html.dark .sidebar-item:not(.active):not(:hover),
+html.dark .sidebar-subitem:not(.active):not(:hover) {
+  color: #cbd5e1 !important;
+}
+
+html.dark .sidebar-item:not(.active):not(:hover) .sidebar-icon,
+html.dark .sidebar-subitem:not(.active):not(:hover) .sidebar-icon {
+  color: #94a3b8 !important;
+}
+
+html.dark .sidebar-item.active,
+html.dark .sidebar-subitem.active,
+html.dark .sidebar-item:hover,
+html.dark .sidebar-subitem:hover {
+  background-color: rgba(16, 185, 129, 0.14) !important;
+  color: #34d399 !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+html.dark .sidebar-item.active .sidebar-icon,
+html.dark .sidebar-subitem.active .sidebar-icon,
+html.dark .sidebar-item:hover .sidebar-icon,
+html.dark .sidebar-subitem:hover .sidebar-icon {
+  color: #34d399 !important;
+}
+
+html.dark input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+html.dark textarea,
+html.dark select {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.dark option,
+html.dark optgroup {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+html.dark tbody tr:hover:not(#pak-royal-three-copy-slip *) {
+  background-color: rgba(30, 41, 59, 0.75) !important;
+}
+
 
 
 

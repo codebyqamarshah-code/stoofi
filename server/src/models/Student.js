@@ -80,4 +80,9 @@ const schema = new mongoose.Schema({
 
 }, { timestamps: true });
 
+schema.index({ createdAt: -1 });
+schema.index({ admissionNo: 1, rollNo: 1, createdAt: 1 });
+schema.index({ rollNo: 1, admissionNo: 1 });
+schema.index({ className: 1, section: 1 });
+
 module.exports = mongoose.model('Student', schema);

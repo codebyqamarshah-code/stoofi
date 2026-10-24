@@ -101,7 +101,7 @@ exports.getAttendance = async (req, res) => {
         const cleanSec = section.replace(/^Section\s*/i, '').trim();
         studentQuery.section = { $regex: new RegExp(`^(Section\\s*)?${cleanSec}$`, 'i') };
       }
-      const students = await Student.find(studentQuery);
+      const students = await Student.find(studentQuery).select('-studentPhoto -photo').lean();
 
       let targetDate = date ? new Date(date) : new Date();
       if (isNaN(targetDate.getTime())) targetDate = new Date();

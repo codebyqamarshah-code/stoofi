@@ -120,34 +120,44 @@ exports.getAll = async (req, res) => {
     const limitNumber = parseInt(limit, 10) || 50;
     const skip = (pageNumber - 1) * limitNumber;
 
-    // Execute query with pagination
-    // Sort with numeric collation so ADM260001, ADM260002, ADM260010 are ordered naturally
-    const rawData = await Student.find(query)
-      .collation({ locale: 'en', numericOrdering: true })
-      .sort({ admissionNo: 1, rollNo: 1, createdAt: 1 })
-      .skip(skip)
-      .limit(limitNumber)
+    // Fetch lightweight metadata first and sort naturally in JS so MongoDB never hits the 32MB in-memory sort limit
+    const metaDocs = await Student.find(query)
+      .select('_id admissionNo rollNo createdAt')
       .lean();
 
-    // Clean dates and ensure sequential natural order
-    const data = rawData.map(st => ({
-      ...st,
-      dob: cleanDateStr(st.dob),
-      admissionDate: cleanDateStr(st.admissionDate),
-      joiningDate: cleanDateStr(st.joiningDate)
-    }));
-
-    data.sort((a, b) => {
+    metaDocs.sort((a, b) => {
       const admA = String(a.admissionNo || '').trim();
       const admB = String(b.admissionNo || '').trim();
-      if (admA && admB) {
+      if (admA && admB && admA !== admB) {
         return admA.localeCompare(admB, undefined, { numeric: true, sensitivity: 'base' });
       }
-      return 0;
+      const rollA = String(a.rollNo || '').trim();
+      const rollB = String(b.rollNo || '').trim();
+      if (rollA && rollB && rollA !== rollB) {
+        return rollA.localeCompare(rollB, undefined, { numeric: true, sensitivity: 'base' });
+      }
+      return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
     });
 
-    // Get total count for pagination
-    const total = await Student.countDocuments(query);
+    const total = metaDocs.length;
+    const pageIds = metaDocs.slice(skip, skip + limitNumber).map(m => m._id);
+
+    const rawData = pageIds.length > 0
+      ? await Student.find({ _id: { $in: pageIds } }).lean()
+      : [];
+
+    const docMap = new Map(rawData.map(st => [String(st._id), st]));
+
+    // Preserve exact sorted order and clean dates
+    const data = pageIds
+      .map(id => docMap.get(String(id)))
+      .filter(Boolean)
+      .map(st => ({
+        ...st,
+        dob: cleanDateStr(st.dob),
+        admissionDate: cleanDateStr(st.admissionDate),
+        joiningDate: cleanDateStr(st.joiningDate)
+      }));
 
     res.status(200).json({ 
       success: true, 
@@ -619,10 +629,11 @@ exports.bulkCreate = async (req, res) => {
 
     const result = await Student.find({
       admissionNo: { $in: prepared.map(p => p.admissionNo) }
-    })
-      .collation({ locale: 'en', numericOrdering: true })
-      .sort({ admissionNo: 1 })
-      .lean();
+    }).lean();
+
+    result.sort((a, b) =>
+      String(a.admissionNo || '').localeCompare(String(b.admissionNo || ''), undefined, { numeric: true, sensitivity: 'base' })
+    );
 
     res.status(201).json({
       success: true,

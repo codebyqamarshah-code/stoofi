@@ -317,8 +317,35 @@ export default function AddStudentPage() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setSelectedPhotoName(file.name);
-      const previewUrl = URL.createObjectURL(file);
-      setPhotoPreview(previewUrl);
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new window.Image();
+        img.onload = () => {
+          const maxDim = 320;
+          let { width, height } = img;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+          setPhotoPreview(compressedDataUrl);
+          setFormData(prev => ({ ...prev, studentPhoto: compressedDataUrl }));
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
     }
   };
 

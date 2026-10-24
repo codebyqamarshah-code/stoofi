@@ -67,6 +67,27 @@ export default function DashboardLayout({ children }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [menuStructure, setMenuStructure] = useState(DEFAULT_MENU_STRUCTURE);
+
+  // Sync Portal Theme (exclusively controlled from Style -> BackGround Settings)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const applyPortalTheme = () => {
+      const savedTheme = localStorage.getItem('stoofi_portal_theme') || 'light';
+      const isDark = savedTheme === 'dark';
+      document.documentElement.classList.toggle('dark', isDark);
+      document.documentElement.setAttribute('data-portal-theme', isDark ? 'dark' : 'light');
+    };
+
+    applyPortalTheme();
+    window.addEventListener('stoofi_theme_changed', applyPortalTheme);
+    window.addEventListener('storage', applyPortalTheme);
+
+    return () => {
+      window.removeEventListener('stoofi_theme_changed', applyPortalTheme);
+      window.removeEventListener('storage', applyPortalTheme);
+    };
+  }, []);
   
   useEffect(() => {
     if (!isLoading && isAuthenticated && user) {
