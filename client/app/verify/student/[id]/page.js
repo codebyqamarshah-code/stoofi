@@ -28,7 +28,7 @@ const SAMPLE_DATA = {
   regNo: 'PRC-REG-00125',
   program: 'F.Sc Medical Lab Technology',
   session: '2026–2028',
-  campus: 'Sharaqpur Sharif',
+  campus: 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura',
   status: 'Active',
   cardExpiry: '31/08/2028',
   isSample: true
@@ -94,7 +94,7 @@ export default function StudentVerifyPage() {
             regNo,
             program: programName,
             session: sessionStr,
-            campus: 'Sharaqpur Sharif',
+            campus: 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura',
             status: d.status || 'Active',
             cardExpiry: expiryStr,
             isSample: false
@@ -192,8 +192,8 @@ export default function StudentVerifyPage() {
           <h1 className="text-base sm:text-lg font-black tracking-wide uppercase text-white">
             PAK ROYAL COLLEGE
           </h1>
-          <p className="text-xs font-semibold tracking-wider uppercase text-blue-200">
-            SHARAQPUR SHARIF
+          <p className="text-[10px] font-semibold tracking-wide text-blue-200 leading-tight">
+            Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura
           </p>
           <p className="text-[9px] sm:text-[10px] tracking-widest uppercase text-blue-300/80 font-medium">
             OFFICIAL STUDENT VERIFICATION PORTAL
@@ -267,9 +267,9 @@ export default function StudentVerifyPage() {
           </div>
 
           {/* Campus */}
-          <div className="py-3 flex items-center justify-between">
-            <span className="text-zinc-400">Campus</span>
-            <span className="text-zinc-100 font-medium">{s.campus || 'Sharaqpur Sharif'}</span>
+          <div className="py-3 flex items-center justify-between gap-4">
+            <span className="text-zinc-400 shrink-0">Campus</span>
+            <span className="text-zinc-100 font-medium text-right text-xs">{s.campus || 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura'}</span>
           </div>
 
           {/* Student Status */}

@@ -206,7 +206,8 @@ export default function FeesInvoiceBulkPrintPage() {
                     <img src="/pak-royal-badge.png" alt="Pak Royal College" className="h-11 w-11 object-contain" />
                     <div>
                       <h3 className="text-sm font-black text-[#084A86] uppercase">PAK ROYAL COLLEGE</h3>
-                      <p className="text-[10px] text-zinc-600 font-semibold">{formatBillingMonthLabel(inv.billingMonth)} Fee Challan</p>
+                      <p className="text-[9.5px] text-zinc-700 font-bold leading-tight">Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura</p>
+                      <p className="text-[10px] text-zinc-600 font-semibold mt-0.5">{formatBillingMonthLabel(inv.billingMonth)} Fee Challan</p>
                     </div>
                   </div>
                   <div className="text-right">

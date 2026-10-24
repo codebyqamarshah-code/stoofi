@@ -279,7 +279,7 @@ export default function PayrollBulkPrintPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {records.map((staff, idx) => {
             const isSelected = selectedIds.includes(staff._id);
-            const schoolName = schoolSetting?.schoolName || 'Stoofi Public School & College';
+            const schoolName = schoolSetting?.schoolName || 'Pak Royal College';
 
             return (
               <div 
@@ -295,8 +295,8 @@ export default function PayrollBulkPrintPage() {
                   <div className="border-b-2 border-zinc-900 pb-3 flex justify-between items-start">
                     <div>
                       <h3 className="text-base font-extrabold text-zinc-900 uppercase">{schoolName}</h3>
-                      <p className="text-[11px] text-zinc-600">{schoolSetting?.address || 'Main Campus, Lahore'}</p>
-                      <p className="text-[10px] text-zinc-500">Phone: {schoolSetting?.phone || '+92 300 0000000'}</p>
+                      <p className="text-[11px] text-zinc-600">{'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura'}</p>
+                      <p className="text-[10px] text-zinc-500">Phone: {schoolSetting?.phone || '03 111 444 810'}</p>
                     </div>
                     <div className="text-right">
                       <span className="inline-block px-2.5 py-1 bg-emerald-800 text-white font-bold text-[10px] rounded uppercase">SALARY PAYSLIP</span>

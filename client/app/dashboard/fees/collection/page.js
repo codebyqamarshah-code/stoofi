@@ -1477,23 +1477,6 @@ export default function FeesCollectionPage() {
 
                 <div className="space-y-1.5">
                   <Label className="text-xs font-bold text-zinc-700 uppercase">
-                    Discount / Scholarship ({currencySymbol})
-                  </Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    value={formData.waiver}
-                    onChange={(e) => {
-                      const wav = Number(e.target.value) || 0;
-                      const net = Math.max(0, (Number(formData.amount) || 0) - wav + (Number(formData.fine) || 0));
-                      setFormData({ ...formData, waiver: e.target.value, paid: net });
-                    }}
-                    className="bg-white border-zinc-200 text-zinc-900 rounded-xl text-sm"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-zinc-700 uppercase">
                     Late Fee / Fine ({currencySymbol})
                   </Label>
                   <Input
@@ -1502,7 +1485,7 @@ export default function FeesCollectionPage() {
                     value={formData.fine}
                     onChange={(e) => {
                       const fn = Number(e.target.value) || 0;
-                      const net = Math.max(0, (Number(formData.amount) || 0) - (Number(formData.waiver) || 0) + fn);
+                      const net = Math.max(0, (Number(formData.amount) || 0) + fn);
                       setFormData({ ...formData, fine: e.target.value, paid: net });
                     }}
                     className="bg-white border-zinc-200 text-zinc-900 rounded-xl text-sm"

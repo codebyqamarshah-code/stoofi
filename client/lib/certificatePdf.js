@@ -48,7 +48,7 @@ function renderCertificateToDoc(doc, student, template, schoolSetting) {
 
   const styleId = template.themeStyle || 'classic-gold';
   const schoolName = schoolSetting?.schoolName || 'Pak Royal College Sharaqpur';
-  const schoolAddress = schoolSetting?.address || 'Sharaqpur Sharif, Sheikhupura, Punjab, Pakistan';
+  const schoolAddress = 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura';
   const schoolPhone = schoolSetting?.phone || '+92 300 1234567';
 
   const stName = `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.name || student.studentName || 'Student Name';

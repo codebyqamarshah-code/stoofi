@@ -19,7 +19,7 @@ const SettingSchema = new mongoose.Schema({
   },
   address: {
     type: String,
-    default: 'Sharaqpur Sharif, Sheikhupura, Punjab, Pakistan'
+    default: 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura'
   },
   currency: {
     type: String,

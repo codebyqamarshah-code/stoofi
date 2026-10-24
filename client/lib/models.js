@@ -178,12 +178,12 @@ export const Section = mongoose.models.Section || mongoose.model('Section', sect
 
 // Setting Schema
 const settingSchema = new mongoose.Schema({
-  schoolName: { type: String, default: 'Stoofi Public School' },
-  schoolCode: { type: String, default: 'STOOFI-001' },
-  phone: { type: String, default: '+92 300 1234567' },
-  email: { type: String, default: 'info@stoofi.com' },
-  address: { type: String, default: 'Main Campus, Model Town, Lahore, Pakistan' },
-  schoolLogo: { type: String, default: '' }
+  schoolName: { type: String, default: 'Pak Royal College Sharaqpur' },
+  schoolCode: { type: String, default: 'PRC-001' },
+  phone: { type: String, default: '03 111 444 810' },
+  email: { type: String, default: 'info@pakroyalcollege.edu.pk' },
+  address: { type: String, default: 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura' },
+  schoolLogo: { type: String, default: '/pak-royal-college-logo.png' }
 }, { timestamps: true });
 
 export const Setting = mongoose.models.Setting || mongoose.model('Setting', settingSchema);

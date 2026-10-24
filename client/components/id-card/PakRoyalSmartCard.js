@@ -95,8 +95,8 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
             <span className="font-black text-[13px] tracking-wide uppercase text-white block">
               PAK ROYAL COLLEGE
             </span>
-            <span className="text-[7.5px] text-slate-200 font-medium tracking-wide block">
-              Sharaqpur Sharif, District Sheikhupura
+            <span className="text-[6.2px] text-slate-200 font-medium tracking-tight leading-tight block max-w-[215px]">
+              Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura
             </span>
           </div>
         </div>
@@ -243,8 +243,8 @@ export function PakRoyalCardBack({ rec, schoolSetting = null, className = '', is
             <span className="font-black text-[13px] tracking-wide uppercase text-white block">
               PAK ROYAL COLLEGE
             </span>
-            <span className="text-[7.5px] text-slate-200 font-medium tracking-wide block">
-              Sharaqpur Sharif, District Sheikhupura
+            <span className="text-[6.2px] text-slate-200 font-medium tracking-tight leading-tight block max-w-[215px]">
+              Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura
             </span>
           </div>
         </div>
@@ -288,11 +288,11 @@ export function PakRoyalCardBack({ rec, schoolSetting = null, className = '', is
             <span className="text-[6.8px] font-bold text-slate-500 uppercase tracking-wider block">
               IF FOUND, PLEASE RETURN TO
             </span>
-            <span className="text-[9.5px] font-black text-[#0a2544] block">
+            <span className="font-black text-[9.5px] text-[#0a2544] block">
               Pak Royal College
             </span>
-            <span className="text-[7.5px] text-slate-600 font-medium block">
-              Sharaqpur Sharif, District Sheikhupura
+            <span className="text-[7px] text-slate-600 font-medium leading-tight block">
+              Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura
             </span>
             <span className="text-[8px] font-black text-[#0a2544] block">
               Contact: 03 111 444 810

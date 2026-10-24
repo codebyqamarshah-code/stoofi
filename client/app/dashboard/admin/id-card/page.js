@@ -119,7 +119,7 @@ const FALLBACK_TEMPLATES = [
     cardLayout: 'horizontal',
     themeStyle: 'classic-navy',
     headerText: 'PAK ROYAL COLLEGE',
-    subHeaderText: 'Sharaqpur Sharif Campus',
+    subHeaderText: 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura',
     footerText: 'Principal Signature & Seal',
     showPhoto: true,
     showAdmissionNo: true,
@@ -143,7 +143,7 @@ const FALLBACK_TEMPLATES = [
     cardLayout: 'vertical',
     themeStyle: 'dark-slate',
     headerText: 'PAK ROYAL COLLEGE',
-    subHeaderText: 'Sharaqpur Sharif Campus',
+    subHeaderText: 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura',
     footerText: 'HR & Administrative Seal',
     showPhoto: true,
     showAdmissionNo: false,
@@ -167,7 +167,7 @@ const FALLBACK_TEMPLATES = [
     cardLayout: 'horizontal',
     themeStyle: 'classic-navy',
     headerText: 'PAK ROYAL COLLEGE',
-    subHeaderText: 'Faculty of Academics - Sharaqpur',
+    subHeaderText: 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura',
     footerText: 'Director of Academics',
     showPhoto: true,
     showAdmissionNo: false,
@@ -312,7 +312,7 @@ export default function IdCardPage() {
     cardLayout: 'horizontal',
     themeStyle: 'classic-navy',
     headerText: 'PAK ROYAL COLLEGE',
-    subHeaderText: 'Sharaqpur Sharif Campus',
+    subHeaderText: 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura',
     footerText: 'Principal Signature & Seal',
     showPhoto: true,
     showAdmissionNo: true,
@@ -513,7 +513,7 @@ export default function IdCardPage() {
   const handleDownloadStudentPDF = (student) => {
     downloadIdCardPDF(student, {
       schoolName: 'PAK ROYAL COLLEGE SHARAQPUR',
-      address: 'Sharaqpur Sharif, District Sheikhupura',
+      address: 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura',
       phone: '+92 300 1234567'
     }, student.cardTemplate || student.themeStyle || 'classic-navy');
     showToast(`PDF downloaded for ${student.firstName} ${student.lastName}`);
@@ -637,7 +637,7 @@ export default function IdCardPage() {
       cardLayout: 'horizontal',
       themeStyle: 'classic-navy',
       headerText: 'PAK ROYAL COLLEGE',
-      subHeaderText: 'Sharaqpur Sharif Campus',
+      subHeaderText: 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura',
       footerText: 'Principal Signature & Seal',
       showPhoto: true,
       showAdmissionNo: true,
@@ -666,7 +666,7 @@ export default function IdCardPage() {
       cardLayout: card.cardLayout || 'horizontal',
       themeStyle: card.themeStyle || 'classic-navy',
       headerText: card.headerText || 'PAK ROYAL COLLEGE',
-      subHeaderText: card.subHeaderText || 'Sharaqpur Sharif Campus',
+      subHeaderText: card.subHeaderText || 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura',
       footerText: card.footerText || 'Principal Signature & Seal',
       showPhoto: card.showPhoto !== undefined ? card.showPhoto : true,
       showAdmissionNo: card.showAdmissionNo !== undefined ? card.showAdmissionNo : true,
@@ -699,7 +699,7 @@ export default function IdCardPage() {
         ...formData,
         title: formData.title.trim(),
         headerText: formData.headerText.trim(),
-        subHeaderText: (formData.subHeaderText || 'Sharaqpur Sharif Campus').trim(),
+        subHeaderText: (formData.subHeaderText || 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura').trim(),
         footerText: formData.footerText.trim()
       };
 
@@ -784,7 +784,7 @@ export default function IdCardPage() {
     const showSignature = tplOverride ? tplOverride.showSignature : (rec.showSignature !== undefined ? rec.showSignature : (activeTpl.showSignature !== undefined ? activeTpl.showSignature : true));
 
     const headerText = 'PAK ROYAL COLLEGE';
-    const subHeaderText = 'Sharaqpur Sharif, District Sheikhupura';
+    const subHeaderText = 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura';
     const footerText = 'M. Umer W';
     const roleBadge = (tplOverride?.role || rec.role || 'Student').toUpperCase();
 
@@ -2304,7 +2304,7 @@ export default function IdCardPage() {
                           <Input 
                             value={formData.subHeaderText} 
                             onChange={e => setFormData({ ...formData, subHeaderText: e.target.value })} 
-                            placeholder="e.g. Sharaqpur Sharif Campus" 
+                            placeholder="e.g. Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura" 
                             className="bg-white border-zinc-300 text-zinc-950 text-xs h-8" 
                           />
                         </div>

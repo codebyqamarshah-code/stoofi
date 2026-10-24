@@ -245,7 +245,7 @@ export default function BulkPrintIdCardPage() {
           schoolCode: 'PRC-001',
           phone: '+92 300 1234567',
           email: 'info@pakroyalcollege.edu.pk',
-          address: 'Sharaqpur Sharif, Sheikhupura, Punjab, Pakistan'
+          address: 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura'
         });
       }
     } catch (err) {
@@ -362,7 +362,7 @@ export default function BulkPrintIdCardPage() {
 
   const selectedRecords = filteredRecords.filter(r => selectedIds.includes(r._id));
   const schoolName = schoolSetting?.schoolName || 'Pak Royal College Sharaqpur';
-  const schoolAddress = schoolSetting?.address || schoolSetting?.city || 'Sharaqpur Sharif, District Sheikhupura';
+  const schoolAddress = 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura';
   const schoolPhone = schoolSetting?.phone || '+92 300 1234567';
 
   // Active Design Object
@@ -383,7 +383,7 @@ export default function BulkPrintIdCardPage() {
     const showSignature = activeTpl.showSignature !== undefined ? activeTpl.showSignature : true;
 
     const brandHeader = activeTpl.headerText || schoolName || 'Pak Royal College Sharaqpur';
-    const brandSubHeader = activeTpl.subHeaderText || schoolAddress || 'Sharaqpur Sharif, District Sheikhupura';
+    const brandSubHeader = activeTpl.subHeaderText || schoolAddress || 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura';
     const brandFooter = activeTpl.footerText || 'Principal Signature';
 
     const name = `${rec.firstName || ''} ${rec.lastName || ''}`.trim() || rec.name || 'Cardholder Name';
@@ -416,8 +416,8 @@ export default function BulkPrintIdCardPage() {
               <h3 className="font-black text-xs sm:text-sm leading-tight uppercase tracking-tight text-white drop-shadow-xs truncate">
                 PAK ROYAL COLLEGE
               </h3>
-              <p className="text-[10px] font-extrabold text-amber-300 uppercase tracking-wider mt-0.5">
-                SHARAQPUR
+              <p className="text-[7px] font-bold text-amber-300 leading-tight mt-0.5">
+                Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura
               </p>
               <span className="text-[7.5px] font-medium text-emerald-200/90 tracking-wide uppercase block">
                 Affiliated & Registered
@@ -535,8 +535,8 @@ export default function BulkPrintIdCardPage() {
               <h3 className="font-black text-xs sm:text-sm leading-tight uppercase tracking-tight text-white drop-shadow-xs truncate">
                 PAK ROYAL COLLEGE
               </h3>
-              <p className="text-[10px] font-extrabold text-amber-300 uppercase tracking-wider mt-0.5">
-                SHARAQPUR
+              <p className="text-[7px] font-bold text-amber-300 leading-tight mt-0.5">
+                Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura
               </p>
               <span className="text-[7.5px] font-medium text-purple-200/90 tracking-wide uppercase block">
                 Academic Excellence Pass
@@ -645,8 +645,8 @@ export default function BulkPrintIdCardPage() {
               <h3 className="font-black text-xs sm:text-sm leading-tight uppercase tracking-tight text-white drop-shadow-xs truncate">
                 PAK ROYAL COLLEGE
               </h3>
-              <p className="text-[10px] font-extrabold text-emerald-400 uppercase tracking-wider mt-0.5">
-                SHARAQPUR
+              <p className="text-[7px] font-bold text-emerald-400 leading-tight mt-0.5">
+                Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura
               </p>
               <span className="text-[7.5px] font-medium text-zinc-400 tracking-wide uppercase block">
                 Digital Smart ID Card
@@ -750,8 +750,8 @@ export default function BulkPrintIdCardPage() {
             <h3 className="font-black text-xs sm:text-sm leading-tight uppercase tracking-tight text-white drop-shadow-xs truncate">
               PAK ROYAL COLLEGE
             </h3>
-            <p className="text-[10px] font-extrabold text-amber-300 uppercase tracking-wider mt-0.5">
-              SHARAQPUR
+            <p className="text-[7px] font-bold text-amber-300 leading-tight mt-0.5">
+              Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura
             </p>
             <span className="text-[7.5px] font-medium text-amber-200/80 tracking-wide uppercase block">
               Institutional Heritage Pass

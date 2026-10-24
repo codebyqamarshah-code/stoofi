@@ -326,7 +326,7 @@ function GenerateCertificateContent() {
 
   const selectedStudents = students.filter(s => selectedIds.includes(s._id));
   const schoolName = schoolSetting?.schoolName || 'Pak Royal College Sharaqpur';
-  const schoolAddress = schoolSetting?.address || schoolSetting?.city || 'Sharaqpur Sharif, Sheikhupura, Punjab, Pakistan';
+  const schoolAddress = 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura';
   const currentDesign = CERTIFICATE_DESIGNS.find(d => d.id === activeDesignId) || CERTIFICATE_DESIGNS[0];
 
   // Helper to replace dynamic placeholders

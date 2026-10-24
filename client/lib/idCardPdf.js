@@ -63,7 +63,7 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
   const height = isHorizontal ? 53.98 : 85.6;
 
   const schoolName = schoolSetting?.schoolName || 'PAK ROYAL COLLEGE SHARAQPUR';
-  const schoolAddress = schoolSetting?.address || schoolSetting?.city || 'Sharaqpur Sharif, District Sheikhupura';
+  const schoolAddress = 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura';
   const schoolPhone = schoolSetting?.phone || '+92 300 1234567';
 
   const name = `${rec.firstName || ''} ${rec.lastName || ''}`.trim() || rec.name || 'Muhammad Abdullah';
@@ -342,8 +342,8 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
 
     doc.setTextColor(226, 232, 240);
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(4.0);
-    doc.text('Sharaqpur Sharif, District Sheikhupura', 14.0, 9.2);
+    doc.setFontSize(3.2);
+    doc.text('Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura', 14.0, 9.2);
 
     // Gold divider line beneath header
     doc.setDrawColor(goldR, goldG, goldB);
@@ -556,8 +556,9 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
 
     doc.setTextColor(226, 232, 240);
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(4.0);
-    doc.text('Sharaqpur Sharif, District Sheikhupura', 14.0, 9.2);
+    doc.setFontSize(3.1);
+    const backHeaderAddrLines = doc.splitTextToSize('Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura', 45);
+    doc.text(backHeaderAddrLines, 14.0, 8.2);
 
     // Right of Back Header: Gold Authorized Signature m. umer w
     try {
@@ -611,19 +612,20 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     doc.text('Pak Royal College', backLeftX, 32.2);
 
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(3.7);
+    doc.setFontSize(3.3);
     doc.setTextColor(71, 85, 105);
-    doc.text('Sharaqpur Sharif, District Sheikhupura', backLeftX, 35.0);
+    const returnAddrLines = doc.splitTextToSize('Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura', 48);
+    doc.text(returnAddrLines, backLeftX, 34.6);
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(4.2);
     doc.setTextColor(navyR, navyG, navyB);
-    doc.text('Contact: 03 111 444 810', backLeftX, 38.0);
+    doc.text('Contact: 03 111 444 810', backLeftX, 39.2);
 
     doc.setFont('helvetica', 'italic');
     doc.setFontSize(3.2);
     doc.setTextColor(148, 163, 184);
-    doc.text('Property of Pak Royal College.', backLeftX, 42.0);
+    doc.text('Property of Pak Royal College.', backLeftX, 42.8);
 
     // Right Body Column: Scannable QR Code Panel
     const qrBoxX = 56.0;

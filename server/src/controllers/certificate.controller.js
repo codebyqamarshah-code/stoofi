@@ -434,7 +434,7 @@ exports.generateCertificates = async (req, res) => {
       : new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
     const schoolName = setting?.schoolName || 'Pak Royal College Sharaqpur';
-    const schoolAddress = setting?.address || 'Sharaqpur Sharif, Sheikhupura, Punjab, Pakistan';
+    const schoolAddress = 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura';
     const schoolPhone = setting?.phone || '+92 300 1234567';
 
     const currentYear = new Date().getFullYear();

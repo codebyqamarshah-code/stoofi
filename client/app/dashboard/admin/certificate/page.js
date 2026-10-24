@@ -636,8 +636,8 @@ export default function CertificatePage() {
     const rollNo = studentRec.rollNo || '101';
     const clsName = studentRec.className || 'FSC OTT';
     const secName = studentRec.section || 'A';
-    const scName = schoolSetting?.schoolName || 'Stoofi Public School & College';
-    const scAddr = schoolSetting?.address || 'Main Campus, Lahore, Pakistan';
+    const scName = schoolSetting?.schoolName || 'Pak Royal College';
+    const scAddr = 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura';
     const certDate = studentRec.certificateDate ? new Date(studentRec.certificateDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     const formattedDob = studentRec.dob ? new Date(studentRec.dob).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '15 August 2010';
 
@@ -678,8 +678,8 @@ export default function CertificatePage() {
     const certDate = studentRec.certificateDate ? new Date(studentRec.certificateDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     const formattedBody = formatCertificateText(tpl.templateBody, studentRec);
     const photo = getPhotoUrl(studentRec.studentPhoto || studentRec.photo) || '';
-    const scName = schoolSetting?.schoolName || 'Stoofi Public School & College';
-    const scAddr = schoolSetting?.address || 'Main Campus, Lahore, Pakistan';
+    const scName = schoolSetting?.schoolName || 'Pak Royal College';
+    const scAddr = 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura';
 
     // Visibility toggles
     const showHeader = tpl.showSchoolHeader !== false;

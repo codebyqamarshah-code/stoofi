@@ -167,9 +167,8 @@ export default function ThreeCopyFeeSlipModal({
         ];
 
   const grossAmount = feeItems.reduce((sum, item) => sum + (Number(item.amount) || 0), 0) || Number(slipData.amount) || 0;
-  const discount = Number(slipData.waiver) || 0;
   const fine = Number(slipData.fine) || 0;
-  const netReceivable = Math.max(0, grossAmount - discount + fine);
+  const netReceivable = Math.max(0, grossAmount + fine);
   const paidAmount = Number(slipData.paid) || 0;
   const balanceAmount =
     slipData.balance !== undefined
@@ -185,7 +184,7 @@ export default function ThreeCopyFeeSlipModal({
     schoolSetting?.bankAccountTitle ||
     'PAK ROYAL COLLEGE OFFICIAL FEE COLLECTION ACCOUNT';
   const campusAddress =
-    schoolSetting?.address || 'Main Campus • Accounts & Fee Section';
+    'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura';
 
   // Print ONLY the 3-Copy Slip in a clean A4 Landscape window
   const handlePrintSlip = () => {
@@ -314,17 +313,18 @@ export default function ThreeCopyFeeSlipModal({
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(9.5);
         doc.setTextColor(8, 74, 134);
-        doc.text(collegeName, cx + cw / 2 + 3, y + 4.2, { align: 'center' });
+        doc.text(collegeName, cx + cw / 2 + 4, y + 3.8, { align: 'center' });
 
         doc.setFont('helvetica', 'bold');
-        doc.setFontSize(6.2);
+        doc.setFontSize(5.0);
         doc.setTextColor(40, 40, 40);
-        doc.text(campusAddress, cx + cw / 2 + 3, y + 7.8, { align: 'center' });
+        const addrLines = doc.splitTextToSize(campusAddress, cw - 15);
+        doc.text(addrLines, cx + cw / 2 + 4, y + 7.0, { align: 'center' });
 
         doc.setFont('helvetica', 'normal');
-        doc.setFontSize(5.5);
+        doc.setFontSize(5.2);
         doc.setTextColor(70, 70, 70);
-        doc.text(accountSubtitle, cx + cw / 2 + 3, y + 11, { align: 'center' });
+        doc.text(accountSubtitle, cx + cw / 2 + 4, y + 11.8, { align: 'center' });
 
         y += 15.5;
 
@@ -407,9 +407,8 @@ export default function ThreeCopyFeeSlipModal({
         doc.setDrawColor(20, 20, 20);
         y += itemsAreaH;
 
-        // Summary Rows: Discount, Fine, Paid, Balance
+        // Summary Rows: Fine, Paid, Balance
         const summaryRows = [
-          { label: 'Discount / Scholarship', val: discount > 0 ? `-${discount.toLocaleString()}` : '0' },
           { label: 'Late Fee / Fine', val: fine > 0 ? `+${fine.toLocaleString()}` : '0' },
           { label: 'Amount Paid', val: paidAmount.toLocaleString() },
           { label: 'Balance Due', val: balanceAmount.toLocaleString() }
@@ -710,14 +709,6 @@ export default function ThreeCopyFeeSlipModal({
 
                           {/* Summary Rows */}
                           <tr className="border-t border-zinc-900 border-b border-zinc-300">
-                            <td className="px-2 py-0.5 border-r border-zinc-900 font-semibold">
-                              Discount / Scholarship
-                            </td>
-                            <td className="px-2 py-0.5 text-right font-mono">
-                              {discount > 0 ? `-${discount.toLocaleString()}` : '—'}
-                            </td>
-                          </tr>
-                          <tr className="border-b border-zinc-300">
                             <td className="px-2 py-0.5 border-r border-zinc-900 font-semibold">
                               Late Fee / Fine
                             </td>

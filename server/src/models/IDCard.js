@@ -32,7 +32,7 @@ const idCardSchema = new mongoose.Schema({
   subHeaderText: { 
     type: String, 
     trim: true,
-    default: 'Sharaqpur Sharif Campus'
+    default: 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura'
   },
   footerText: { 
     type: String, 
