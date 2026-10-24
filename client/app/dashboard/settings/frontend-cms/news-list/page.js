@@ -1,284 +1,354 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { formatDateDMY } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
-import { useState, useRef } from 'react';
-import { 
-  ChevronRight, 
-  Search, 
-  Copy, 
-  FileSpreadsheet, 
-  FileText, 
-  Printer, 
-  Download, 
-  Columns, 
-  ChevronDown,
+import { fetchCmsSection, mutateCmsSection, compressCmsImage } from '@/lib/frontendCmsApi';
+import {
+  ChevronRight,
+  Search,
   Trash2,
+  Edit3,
   Plus,
-  Bold,
-  Italic,
-  Underline,
-  List,
-  Link2,
-  ImageIcon,
-  Code
+  ExternalLink,
+  CheckCircle2,
+  Upload
 } from 'lucide-react';
 
-const INITIAL_NEWS = [
-  { id: 1, title: 'Aut nostrum aut ad repudiandae.', date: '2nd Jun, 2019', category: 'Our mission and vision', image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=150&auto=format&fit=crop&q=80' },
-  { id: 2, title: 'Debitis voluptate sed hic.', date: '2nd Jun, 2019', category: 'International', image: 'https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=150&auto=format&fit=crop&q=80' },
-  { id: 3, title: 'Digital Transformation in Education: STOOFI PRO Paving the Way', date: '2nd Jun, 2019', category: 'International', image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=150&auto=format&fit=crop&q=80' },
-  { id: 4, title: 'Dolores aperiam dolor sed expedita.', date: '2nd Jun, 2019', category: 'Our history', image: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=150&auto=format&fit=crop&q=80' },
-  { id: 5, title: 'Error eaque qui voluptas aspernatur.', date: '2nd Jun, 2019', category: 'Our history', image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=150&auto=format&fit=crop&q=80' },
-  { id: 6, title: 'STOOFI PRO Launches Enhanced Features for a Seamless School Year', date: '2nd Jun, 2019', category: 'International', image: 'https://images.unsplash.com/photo-1519452635265-7b1fbfd1e4e0?w=150&auto=format&fit=crop&q=80' },
-  { id: 7, title: 'Inventore veritatis ea illo eius et.', date: '2nd Jun, 2019', category: 'Our history', image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=150&auto=format&fit=crop&q=80' },
-  { id: 8, title: 'Molestiae quo animi explicabo.', date: '2nd Jun, 2019', category: 'Our mission and vision', image: 'https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=150&auto=format&fit=crop&q=80' },
-  { id: 9, title: 'Non est nisi est consequatur vitae.', date: '2nd Jun, 2019', category: 'Our mission and vision', image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=150&auto=format&fit=crop&q=80' },
-  { id: 10, title: 'Quia vel consequatur et omnis.', date: '2nd Jun, 2019', category: 'Our mission and vision', image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=150&auto=format&fit=crop&q=80' },
-];
-
-const today = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+const todayISO = () => new Date().toISOString().slice(0, 10);
 
 export default function NewsListPage() {
-  const [newsList, setNewsList] = useState(INITIAL_NEWS);
+  const [newsList, setNewsList] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState('');
+
+  const [editingId, setEditingId] = useState(null);
   const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('');
-  const [publishDate, setPublishDate] = useState(today);
+  const [category, setCategory] = useState('Academic Announcements');
+  const [publishDate, setPublishDate] = useState(todayISO());
   const [description, setDescription] = useState('');
   const [showStatus, setShowStatus] = useState(true);
-  const [globalCommentSettings, setGlobalCommentSettings] = useState(true);
-  const [file, setFile] = useState(null);
+  const [image, setImage] = useState('');
   const [search, setSearch] = useState('');
-  const [openDropdownId, setOpenDropdownId] = useState(null);
-  const fileRef = useRef();
+  const fileRef = useRef(null);
 
-  const handleAdd = () => {
-    if (!title) return alert('Please enter News Title');
-    const newNews = {
-      id: Date.now(),
-      title,
-      date: publishDate,
-      category: category || 'International',
-      image: file ? URL.createObjectURL(file) : 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=150&auto=format&fit=crop&q=80'
-    };
-    setNewsList(prev => [newNews, ...prev]);
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 3000);
+  };
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const [items, cats] = await Promise.all([
+        fetchCmsSection('newsList', []),
+        fetchCmsSection('newsCategory', [])
+      ]);
+      // Filter out any old Latin lorem ipsum if present
+      const cleanItems = (Array.isArray(items) ? items : []).filter(
+        (n) => !/^(Aut nostrum|Debitis voluptate|Dolores aperiam|Error eaque|Inventore veritatis|Molestiae quo|Non est nisi|Quia vel)/i.test(n.title || '')
+      );
+      setNewsList(cleanItems);
+      setCategories(
+        Array.isArray(cats) && cats.length > 0
+          ? cats
+          : [
+              { id: '1', title: 'Academic Announcements' },
+              { id: '2', title: 'Campus Events & Activities' },
+              { id: '3', title: 'Sports & Athletics' },
+              { id: '4', title: 'Admissions & Scholarships' }
+            ]
+      );
+      setLoading(false);
+    })();
+  }, []);
+
+  const handleImageChange = async (e) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    const compressed = await compressCmsImage(f, 800, 0.82);
+    setImage(compressed);
+  };
+
+  const resetForm = () => {
+    setEditingId(null);
     setTitle('');
+    setCategory('Academic Announcements');
+    setPublishDate(todayISO());
     setDescription('');
-    setCategory('');
-    setFile(null);
+    setShowStatus(true);
+    setImage('');
   };
 
-  const handleDelete = (id) => {
-    setNewsList(prev => prev.filter(n => n.id !== id));
-    setOpenDropdownId(null);
+  const handleSave = async () => {
+    if (!title.trim()) return alert('Please enter News Title');
+    setSaving(true);
+    const payload = {
+      id: editingId || `news-${Date.now()}`,
+      title: title.trim(),
+      category: category || 'Academic Announcements',
+      date: publishDate || todayISO(),
+      description: description.trim(),
+      status: showStatus ? 'Published' : 'Draft',
+      image:
+        image ||
+        'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80'
+    };
+    const res = await mutateCmsSection('newsList', editingId ? 'updateItem' : 'addItem', {
+      id: editingId,
+      item: payload
+    });
+    setSaving(false);
+    if (res.success) {
+      setNewsList(Array.isArray(res.data) ? res.data : []);
+      showToast(editingId ? 'News article updated!' : 'News article published to Home Page!');
+      resetForm();
+    }
   };
 
-  const filtered = newsList.filter(n => 
-    n.title.toLowerCase().includes(search.toLowerCase()) || 
-    n.category.toLowerCase().includes(search.toLowerCase())
+  const handleEdit = (item) => {
+    setEditingId(item.id);
+    setTitle(item.title || '');
+    setCategory(item.category || 'Academic Announcements');
+    setPublishDate(item.date || todayISO());
+    setDescription(item.description || '');
+    setShowStatus(item.status !== 'Draft');
+    setImage(item.image || '');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDelete = async (id) => {
+    const res = await mutateCmsSection('newsList', 'deleteItem', { id });
+    if (res.success) {
+      setNewsList(Array.isArray(res.data) ? res.data : []);
+      showToast('News article deleted.');
+    }
+  };
+
+  const filtered = newsList.filter(
+    (n) =>
+      (n.title || '').toLowerCase().includes(search.toLowerCase()) ||
+      (n.category || '').toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <div className="space-y-6 space-y-6">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-1 text-xs text-zinc-400">
-        <span>Dashboard</span>
-        <ChevronRight className="w-3 h-3" />
-        <span>Frontend CMS</span>
-        <ChevronRight className="w-3 h-3" />
-        <span className="text-zinc-950 font-bold">News List</span>
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-1 text-xs text-zinc-500 mb-1.5">
+            <span>Dashboard</span>
+            <ChevronRight className="w-3 h-3" />
+            <span>Frontend CMS</span>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-zinc-950 font-bold">News List</span>
+          </div>
+          <h1 className="text-2xl font-black text-zinc-950">Campus News & Announcements</h1>
+          <p className="text-xs text-zinc-600 mt-0.5">
+            Publish real institutional news, notices, and event updates to the Home Page.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {toast && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
+              <CheckCircle2 className="w-3.5 h-3.5" /> {toast}
+            </span>
+          )}
+          <Link
+            href="/#campus-showcase"
+            target="_blank"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-bold"
+          >
+            <ExternalLink className="w-3.5 h-3.5" /> View on Home Page
+          </Link>
+        </div>
       </div>
 
-      <h1 className="text-xl font-bold text-zinc-950">News List</h1>
-
       {/* Top Form: Add News */}
-      <div className="bg-white border border-zinc-200 rounded-xl shadow-xs p-6 space-y-5">
-        <h2 className="text-sm font-semibold text-zinc-950">Add News</h2>
+      <div className="bg-white border border-zinc-200 rounded-2xl shadow-xs p-6 space-y-5">
+        <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+          <h2 className="text-sm font-bold text-zinc-950 uppercase tracking-wider">
+            {editingId ? 'Edit News Article' : 'Publish New Article'}
+          </h2>
+          {editingId && (
+            <button onClick={resetForm} className="text-xs font-bold text-rose-600 hover:underline">
+              Cancel Edit
+            </button>
+          )}
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1">TITLE *</label>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="md:col-span-2">
+            <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1.5">HEADLINE / TITLE *</label>
             <input
               type="text"
               value={title}
-              onChange={e => setTitle(e.target.value)}
-              className="w-full bg-white border border-zinc-300 text-zinc-950 font-medium text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Admissions Open for Academic Session 2026-27"
+              className="w-full bg-white border border-zinc-300 text-zinc-950 font-medium text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#009966]"
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1">CATEGORY *</label>
+            <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1.5">CATEGORY *</label>
             <select
               value={category}
-              onChange={e => setCategory(e.target.value)}
-              className="w-full bg-white border border-zinc-300 text-zinc-950 font-medium text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full bg-white border border-zinc-300 text-zinc-950 font-medium text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#009966]"
             >
-              <option value="">Select *</option>
-              <option value="International">International</option>
-              <option value="National">National</option>
-              <option value="Our history">Our history</option>
-              <option value="Our mission and vision">Our mission and vision</option>
-              <option value="Sports">Sports</option>
+              {categories.map((c) => (
+                <option key={c.id || c.title} value={c.title}>
+                  {c.title}
+                </option>
+              ))}
             </select>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1">IMAGE *</label>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-zinc-700 border border-zinc-200 rounded px-3 py-2 bg-zinc-800 flex-1 truncate">
-                {file ? file.name : 'Image *'}
-              </span>
-              <button
-                type="button"
-                onClick={() => fileRef.current.click()}
-                className="bg-zinc-700 hover:bg-zinc-600 text-zinc-950 text-sm font-semibold px-4 py-2 rounded cursor-pointer"
-              >
-                BROWSE
-              </button>
-              <input
-                ref={fileRef}
-                type="file"
-                className="hidden"
-                accept="image/*"
-                onChange={e => setFile(e.target.files[0])}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1">PUBLISH DATE *</label>
+            <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1.5">PUBLISH DATE *</label>
             <Input
               type="date"
               value={publishDate}
-              onChange={e => setPublishDate(e.target.value)}
-              className="w-full bg-white border border-zinc-300 text-zinc-950 font-medium text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+              onChange={(e) => setPublishDate(e.target.value)}
+              className="w-full bg-white border border-zinc-300 text-zinc-950 font-medium text-sm rounded-xl px-3.5 py-2.5"
             />
           </div>
-        </div>
 
-        {/* Rich Description */}
-        <div className="border border-zinc-200 rounded-lg overflow-hidden">
-          <div className="bg-zinc-800/80 px-3 py-2 border-b border-zinc-200 flex items-center justify-between flex-wrap gap-2 text-zinc-400">
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-bold text-zinc-950">Poppins</span>
-              <Bold className="w-3.5 h-3.5 hover:text-zinc-500 cursor-pointer" />
-              <Italic className="w-3.5 h-3.5 hover:text-zinc-500 cursor-pointer" />
-              <Underline className="w-3.5 h-3.5 hover:text-zinc-500 cursor-pointer" />
-              <List className="w-3.5 h-3.5 hover:text-zinc-500 cursor-pointer" />
-              <Link2 className="w-3.5 h-3.5 hover:text-zinc-500 cursor-pointer" />
-              <ImageIcon className="w-3.5 h-3.5 hover:text-zinc-500 cursor-pointer" />
-              <Code className="w-3.5 h-3.5 hover:text-zinc-500 cursor-pointer" />
+          <div>
+            <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1.5">COVER IMAGE</label>
+            <div className="flex items-center gap-2">
+              {image && <img src={image} alt="Preview" className="w-10 h-10 rounded-lg object-cover border shrink-0" />}
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="flex-1 bg-zinc-50 hover:bg-emerald-50/40 border border-dashed border-zinc-300 hover:border-[#009966] text-zinc-800 text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <Upload className="w-3.5 h-3.5 text-[#009966]" /> {image ? 'Change Image' : 'Upload Cover Image'}
+              </button>
+              <input ref={fileRef} type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
             </div>
           </div>
-          <textarea
-            rows={5}
-            placeholder="Write here"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            className="w-full bg-white text-zinc-950 text-sm p-3 focus:outline-none resize-none placeholder:text-zinc-600"
-          />
+
+          <div>
+            <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1.5">VISIBILITY STATUS</label>
+            <select
+              value={showStatus ? 'Published' : 'Draft'}
+              onChange={(e) => setShowStatus(e.target.value === 'Published')}
+              className="w-full bg-white border border-zinc-300 text-zinc-950 font-medium text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#009966]"
+            >
+              <option value="Published">Published (Show on Website)</option>
+              <option value="Draft">Draft (Hidden)</option>
+            </select>
+          </div>
         </div>
 
-        {/* Toggles */}
-        <div className="space-y-3 pt-2">
-          <div>
-            <p className="text-xs font-bold text-zinc-800 uppercase tracking-wider mb-1.5">NEWS STATUS</p>
-            <label className="flex items-center gap-2 cursor-pointer" onClick={() => setShowStatus(!showStatus)}>
-              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${showStatus ? 'border-zinc-600' : 'border-zinc-600'}`}>
-                {showStatus && <div className="w-2 h-2 rounded-full bg-zinc-600" />}
-              </div>
-              <span className="text-xs text-zinc-950">Show</span>
-            </label>
-          </div>
-
-          <div>
-            <p className="text-xs font-bold text-zinc-800 uppercase tracking-wider mb-1.5">USE GLOBAL SETTINGS FOR CAN COMMENT AND COMMENT AUTO APPROVAL</p>
-            <label className="flex items-center gap-2 cursor-pointer" onClick={() => setGlobalCommentSettings(!globalCommentSettings)}>
-              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${globalCommentSettings ? 'border-zinc-600' : 'border-zinc-600'}`}>
-                {globalCommentSettings && <div className="w-2 h-2 rounded-full bg-zinc-600" />}
-              </div>
-              <span className="text-xs text-zinc-950">Yes</span>
-            </label>
-          </div>
+        <div>
+          <label className="text-xs font-bold text-zinc-800 uppercase tracking-wider block mb-1.5">ARTICLE SUMMARY / CONTENT</label>
+          <textarea
+            rows={4}
+            placeholder="Write the news announcement details here..."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full bg-white border border-zinc-300 text-zinc-950 font-medium text-sm rounded-xl p-3.5 focus:outline-none focus:border-[#009966] resize-none"
+          />
         </div>
 
         <button
           type="button"
-          onClick={handleAdd}
-          className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold py-2 rounded-lg shadow-xs text-sm px-6 py-2.5 rounded-lg flex items-center gap-2 cursor-pointer shadow-lg mt-4"
+          disabled={saving}
+          onClick={handleSave}
+          className="bg-[#009966] hover:bg-[#008055] disabled:opacity-50 text-white font-bold text-sm px-6 py-2.5 rounded-xl inline-flex items-center gap-2 cursor-pointer"
         >
-          ✓ UPDATE
+          <Plus className="w-4 h-4" /> {editingId ? 'UPDATE NEWS ARTICLE' : 'PUBLISH NEWS ARTICLE'}
         </button>
       </div>
 
       {/* Bottom Card: News List */}
-      <div className="bg-white border border-zinc-200 rounded-xl shadow-xs p-6">
+      <div className="bg-white border border-zinc-200 rounded-2xl shadow-xs p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold text-zinc-950">News List</h2>
+          <h2 className="text-sm font-bold text-zinc-950 uppercase tracking-wider">
+            Published News List ({filtered.length})
+          </h2>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 border border-zinc-200 rounded px-2 py-1">
-              <Search className="w-3 h-3 text-zinc-400" />
+            <div className="flex items-center gap-1.5 border border-zinc-300 rounded-xl px-3 py-1.5 bg-white">
+              <Search className="w-3.5 h-3.5 text-zinc-400" />
               <input
                 value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="SEARCH"
-                className="bg-transparent text-xs text-zinc-950 outline-none w-28"
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search news..."
+                className="bg-transparent text-xs text-zinc-950 font-medium outline-none w-36"
               />
             </div>
             <TableExportToolbar />
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl border border-zinc-200">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-100">
-                <th className="text-left py-2 px-3 text-zinc-700 font-medium text-xs">↓ Title</th>
-                <th className="text-left py-2 px-3 text-zinc-700 font-medium text-xs">↓ Publication Date</th>
-                <th className="text-left py-2 px-3 text-zinc-700 font-medium text-xs">↓ Category</th>
-                <th className="text-left py-2 px-3 text-zinc-700 font-medium text-xs">↓ Image</th>
-                <th className="text-left py-2 px-3 text-zinc-700 font-medium text-xs">↓ Action</th>
+              <tr className="border-b border-zinc-200 bg-zinc-50">
+                <th className="text-left py-2.5 px-4 text-zinc-800 font-bold text-xs uppercase">Image</th>
+                <th className="text-left py-2.5 px-4 text-zinc-800 font-bold text-xs uppercase">Headline & Summary</th>
+                <th className="text-left py-2.5 px-4 text-zinc-800 font-bold text-xs uppercase">Category</th>
+                <th className="text-left py-2.5 px-4 text-zinc-800 font-bold text-xs uppercase">Publication Date</th>
+                <th className="text-right py-2.5 px-4 text-zinc-800 font-bold text-xs uppercase">Action</th>
               </tr>
             </thead>
-            <tbody>
-              {filtered.length === 0 ? (
+            <tbody className="divide-y divide-zinc-200">
+              {loading ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-zinc-500 text-sm">
-                    No Data Available In Table
+                  <td colSpan={5} className="py-10 text-center text-zinc-500 text-sm">
+                    Loading news articles...
+                  </td>
+                </tr>
+              ) : filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-10 text-center text-zinc-500 text-sm">
+                    No news articles published yet. Add your first campus announcement above!
                   </td>
                 </tr>
               ) : (
-                filtered.map((item) => (
-                  <tr key={item.id} className="border-b border-zinc-100/50 hover:bg-zinc-50/80">
-                    <td className="py-3 px-3 text-zinc-200 font-medium max-w-xs">{item.title}</td>
-                    <td className="py-3 px-3 text-zinc-700">{formatDateDMY(item.date)}</td>
-                    <td className="py-3 px-3 text-zinc-950">{item.category}</td>
-                    <td className="py-3 px-3">
-                      <div className="w-12 h-10 rounded-lg overflow-hidden border border-zinc-200 bg-zinc-800">
-                        <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                      </div>
+                filtered.map((item, idx) => (
+                  <tr key={item.id || idx} className="hover:bg-zinc-50/80">
+                    <td className="py-3 px-4 w-20">
+                      <img
+                        src={
+                          item.image ||
+                          'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=200&auto=format&fit=crop&q=80'
+                        }
+                        alt={item.title}
+                        className="w-14 h-10 rounded-lg object-cover border border-zinc-200"
+                      />
                     </td>
-                    <td className="py-3 px-3 relative">
-                      <div className="relative inline-block text-left">
+                    <td className="py-3 px-4 max-w-md">
+                      <div className="text-zinc-950 font-bold">{item.title}</div>
+                      {item.description && <div className="text-xs text-zinc-600 line-clamp-1 mt-0.5">{item.description}</div>}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-bold text-xs">
+                        {item.category}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-zinc-800 font-medium">{formatDateDMY(item.date)}</td>
+                    <td className="py-3 px-4 text-right">
+                      <div className="inline-flex items-center gap-1.5">
                         <button
-                          onClick={() => setOpenDropdownId(openDropdownId === item.id ? null : item.id)}
-                          className="border border-zinc-300 bg-white text-zinc-800 text-xs px-3 py-1 rounded-md font-bold flex items-center gap-1 hover:bg-zinc-100"
+                          onClick={() => handleEdit(item)}
+                          className="p-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 text-zinc-800 cursor-pointer"
                         >
-                          SELECT <ChevronDown className="w-3 h-3" />
+                          <Edit3 className="w-3.5 h-3.5" />
                         </button>
-                        {openDropdownId === item.id && (
-                          <div className="absolute right-0 mt-1 w-28 bg-white border border-zinc-200 rounded-lg shadow-xl z-20 py-1">
-                            <button
-                              onClick={() => handleDelete(item.id)}
-                              className="w-full text-left px-3 py-1.5 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" /> Delete
-                            </button>
-                          </div>
-                        )}
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="p-1.5 rounded-lg border border-rose-200 hover:bg-rose-50 text-rose-600 cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -286,15 +356,6 @@ export default function NewsListPage() {
               )}
             </tbody>
           </table>
-        </div>
-
-        <div className="flex items-center justify-between mt-4 text-xs text-zinc-400">
-          <span>Showing 1 to {filtered.length} of {filtered.length} entries</span>
-          <div className="flex items-center gap-1">
-            <button className="px-2.5 py-1 bg-white text-zinc-950 rounded font-bold font-bold">1</button>
-            <button className="px-2.5 py-1 border border-zinc-200 rounded hover:bg-zinc-100 text-zinc-700 font-bold">2</button>
-            <button className="px-2.5 py-1 border border-zinc-200 rounded hover:bg-zinc-100 text-zinc-700 font-bold">→</button>
-          </div>
         </div>
       </div>
     </div>

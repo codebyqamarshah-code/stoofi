@@ -157,6 +157,84 @@ export default function LandingPage() {
   const [todayEvent, setTodayEvent] = useState(null);
   const [showTodayEventModal, setShowTodayEventModal] = useState(false);
 
+  // Live Frontend CMS State
+  const [cmsData, setCmsData] = useState(null);
+  const [activeHeroSlideIdx, setActiveHeroSlideIdx] = useState(0);
+  const [activeGalleryModal, setActiveGalleryModal] = useState(null);
+  const [activeVideoModal, setActiveVideoModal] = useState(null);
+  const [contactForm, setContactForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [contactSending, setContactSending] = useState(false);
+  const [contactSentMsg, setContactSentMsg] = useState("");
+
+  useEffect(() => {
+    fetch("/api/frontend-cms", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((json) => {
+        if (json?.success && json?.data) {
+          setCmsData(json.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const activeHeroSlides = useMemo(() => {
+    const raw = Array.isArray(cmsData?.homeSlider) ? cmsData.homeSlider : [];
+    const active = raw.filter((s) => s && s.status !== false && s.status !== "Inactive");
+    if (active.length > 0) return active;
+    return [
+      {
+        id: "default-hero-1",
+        badge: "STOOFI PRO IS LIVE • 30 DAYS FREE TRIAL",
+        title: "The Complete School Management ERP.",
+        subtitle:
+          "Manage your entire institution from one unified platform. Tailored portals for Admins, Teachers, Students and Parents.",
+        buttonText: "Get Started",
+        link: "#pricing",
+        image: "/classroom.webp",
+        captionTitle: "Smarter Education. Simpler Management."
+      }
+    ];
+  }, [cmsData]);
+
+  useEffect(() => {
+    if (activeHeroSlides.length <= 1 || isMotionPaused) return;
+    const timer = setInterval(() => {
+      setActiveHeroSlideIdx((prev) => (prev + 1) % activeHeroSlides.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [activeHeroSlides.length, isMotionPaused]);
+
+  const currentHeroSlide = activeHeroSlides[activeHeroSlideIdx % activeHeroSlides.length] || activeHeroSlides[0];
+
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    if (!contactForm.name.trim() || !contactForm.email.trim() || !contactForm.message.trim()) return;
+    setContactSending(true);
+    try {
+      await fetch("/api/frontend-cms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          section: "contactMessage",
+          action: "addItem",
+          item: {
+            id: `msg-${Date.now()}`,
+            name: contactForm.name.trim(),
+            email: contactForm.email.trim(),
+            subject: contactForm.subject.trim() || "Website Inquiry",
+            message: contactForm.message.trim(),
+            status: "Pending",
+            createdAt: new Date().toISOString()
+          }
+        })
+      });
+      setContactSentMsg("Thank you! Your inquiry has been sent to the administration.");
+      setContactForm({ name: "", email: "", subject: "", message: "" });
+      setTimeout(() => setContactSentMsg(""), 5000);
+    } catch (_) {}
+    setContactSending(false);
+  };
+
   useEffect(() => {
     setMounted(true);
     if (typeof window !== "undefined") {
@@ -617,6 +695,7 @@ export default function LandingPage() {
               <span>Notice Board</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#087f77] animate-pulse"></span>
             </button>
+            <Link href="#campus-showcase" className="hover:text-[#087f77] transition-colors py-1">Campus Gallery & Hub</Link>
             <Link href="#how-it-works" className="hover:text-[#087f77] transition-colors py-1">How To Use</Link>
             <Link href="#portals" className="hover:text-[#087f77] transition-colors py-1">Portals</Link>
             <Link href="#features" className="hover:text-[#087f77] transition-colors py-1">Features</Link>
@@ -806,21 +885,32 @@ export default function LandingPage() {
           <div className="flex flex-col items-start text-left">
             {/* Announcement Badge */}
             <div className="inline-flex items-center gap-2.5 border border-[#56728080] rounded-full px-3.5 py-1.5 text-[11px] font-bold tracking-wider text-[#b7d0da] mb-8 bg-white/5 backdrop-blur-sm">
-              <span className="text-[#64e2bc]">STOOFI PRO IS LIVE</span>
-              <span className="h-3 w-px bg-[#507080]"></span>
-              <span>30 DAYS FREE TRIAL</span>
+              <span className="text-[#64e2bc] uppercase">{currentHeroSlide?.badge || "STOOFI PRO IS LIVE • 30 DAYS FREE TRIAL"}</span>
+              {activeHeroSlides.length > 1 && (
+                <>
+                  <span className="h-3 w-px bg-[#507080]"></span>
+                  <span>SLIDE {(activeHeroSlideIdx % activeHeroSlides.length) + 1} / {activeHeroSlides.length}</span>
+                </>
+              )}
             </div>
 
             {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.08] text-white">
-              The Complete<br />
-              <em className="not-italic text-[#64e2bc]">School Management</em><br />
-              ERP<span className="text-[#64e2bc]">.</span>
-            </h1>
+            {currentHeroSlide?.id === "default-hero-1" ? (
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.08] text-white">
+                The Complete<br />
+                <em className="not-italic text-[#64e2bc]">School Management</em><br />
+                ERP<span className="text-[#64e2bc]">.</span>
+              </h1>
+            ) : (
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.08] text-white">
+                {currentHeroSlide?.title}
+                <span className="text-[#64e2bc]">.</span>
+              </h1>
+            )}
 
             {/* Description */}
             <p className="text-base sm:text-lg text-[#b7cbd4] max-w-xl mt-6 leading-relaxed">
-              Manage your entire institution from one unified platform. Tailored portals for Admins, Teachers, Students and Parents.
+              {currentHeroSlide?.subtitle || "Manage your entire institution from one unified platform. Tailored portals for Admins, Teachers, Students and Parents."}
             </p>
 
             {/* Hero Actions */}
@@ -833,9 +923,9 @@ export default function LandingPage() {
                   </Button>
                 </Link>
               ) : (
-                <Link href="#pricing">
+                <Link href={currentHeroSlide?.link || "#pricing"}>
                   <Button className="bg-[#64e2bc] hover:bg-[#85edce] text-[#0c322f] font-bold text-sm sm:text-base px-8 h-13 rounded-lg shadow-lg hover:-translate-y-1 transition-all border-0">
-                    Get Started
+                    {currentHeroSlide?.buttonText || "Get Started"}
                   </Button>
                 </Link>
               )}
@@ -846,6 +936,40 @@ export default function LandingPage() {
                 </Button>
               </Link>
             </div>
+
+            {/* Slider Dots & Prev/Next Controls when CMS Home Slider has slides */}
+            {activeHeroSlides.length > 1 && (
+              <div className="flex items-center gap-3 mt-7">
+                <button
+                  onClick={() => setActiveHeroSlideIdx((prev) => (prev - 1 + activeHeroSlides.length) % activeHeroSlides.length)}
+                  className="w-8 h-8 rounded-full border border-[#567280] hover:border-[#64e2bc] text-white flex items-center justify-center text-xs font-bold cursor-pointer transition-colors"
+                  aria-label="Previous slide"
+                >
+                  ←
+                </button>
+                <div className="flex items-center gap-2">
+                  {activeHeroSlides.map((s, idx) => (
+                    <button
+                      key={s.id || idx}
+                      onClick={() => setActiveHeroSlideIdx(idx)}
+                      className={`h-2 rounded-full transition-all cursor-pointer ${
+                        idx === activeHeroSlideIdx % activeHeroSlides.length
+                          ? "w-8 bg-[#64e2bc]"
+                          : "w-2 bg-white/30 hover:bg-white/60"
+                      }`}
+                      aria-label={`Go to slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={() => setActiveHeroSlideIdx((prev) => (prev + 1) % activeHeroSlides.length)}
+                  className="w-8 h-8 rounded-full border border-[#567280] hover:border-[#64e2bc] text-white flex items-center justify-center text-xs font-bold cursor-pointer transition-colors"
+                  aria-label="Next slide"
+                >
+                  →
+                </button>
+              </div>
+            )}
 
             {/* Note Guarantee */}
             <div className="flex items-center gap-2 text-xs text-[#9fb8c6] mt-6">
@@ -866,9 +990,9 @@ export default function LandingPage() {
               {/* Drift Photo */}
               <div className="w-full h-full animate-photo-breathe">
                 <img
-                  src="/classroom.webp"
-                  alt="A teacher supporting students learning on laptops"
-                  className="w-full h-full object-cover object-[50%_45%] scale-105"
+                  src={currentHeroSlide?.image || "/classroom.webp"}
+                  alt={currentHeroSlide?.title || "Campus Hero Banner"}
+                  className="w-full h-full object-cover object-[50%_45%] scale-105 transition-all duration-700"
                 />
               </div>
 
@@ -878,10 +1002,14 @@ export default function LandingPage() {
               {/* Photo Caption */}
               <div className="absolute bottom-8 left-6 sm:left-8 right-6 text-white pointer-events-none">
                 <span className="text-[11px] font-bold tracking-widest text-[#64e2bc] uppercase block mb-1.5">
-                  STOOFI ERP
+                  {currentHeroSlide?.badge || "STOOFI ERP"}
                 </span>
                 <strong className="text-xl sm:text-2xl font-extrabold leading-snug tracking-tight block">
-                  Smarter Education.<br />Simpler Management.
+                  {currentHeroSlide?.id === "default-hero-1" ? (
+                    <>Smarter Education.<br />Simpler Management.</>
+                  ) : (
+                    currentHeroSlide?.title
+                  )}
                 </strong>
               </div>
             </div>
@@ -1449,8 +1577,276 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── LIVE FRONTEND CMS: CAMPUS GALLERY, VIDEOS, DOWNLOADS & FACULTY SHOWCASE ── */}
+      <section id="campus-showcase" className="py-20 sm:py-24 bg-white border-t border-[#dfe7eb] scroll-mt-16">
+        <div className="max-w-[1280px] mx-auto px-6 sm:px-10 space-y-16">
+          {/* 1. Photo Gallery & Video Gallery Row */}
+          <div id="photo-gallery" className="scroll-mt-20">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+              <div>
+                <span className="text-xs font-extrabold tracking-widest text-[#087f77] uppercase block mb-2">
+                  CAMPUS MEDIA & HIGHLIGHTS
+                </span>
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-[#102e43] tracking-tight">
+                  Photo & Video Gallery<span className="text-[#087f77]">.</span>
+                </h2>
+                <p className="text-sm text-[#667987] mt-2 max-w-xl">
+                  Explore campus life, laboratory sessions, sports championships, and video highlights managed via Frontend CMS.
+                </p>
+              </div>
+              {isUserAvailable && activeUser && (
+                <Link
+                  href="/dashboard/settings/frontend-cms/photo-gallery"
+                  className="text-xs font-bold text-[#087f77] hover:underline inline-flex items-center gap-1"
+                >
+                  <span>Manage in Frontend CMS</span>
+                  <ExternalLink size={13} />
+                </Link>
+              )}
+            </div>
+
+            {/* Photo Gallery Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {(Array.isArray(cmsData?.photoGallery) && cmsData.photoGallery.length > 0
+                ? cmsData.photoGallery
+                : [
+                    {
+                      id: "def-pg-1",
+                      title: "STEM & Robotics Innovation Lab",
+                      category: "Academics",
+                      description: "Students collaborating on digital robotics and STEM experiments.",
+                      featureImage: "/classroom.webp",
+                      galleryImages: ["/classroom.webp"]
+                    },
+                    {
+                      id: "def-pg-2",
+                      title: "Campus Administration & Digital Library",
+                      category: "Campus Life",
+                      description: "Modern smart-campus infrastructure and resource centers.",
+                      featureImage: "/administration.webp",
+                      galleryImages: ["/administration.webp"]
+                    },
+                    {
+                      id: "def-pg-3",
+                      title: "Annual Convocation & Excellence Awards",
+                      category: "Events",
+                      description: "Celebrating top achievers, scholarship winners, and graduates.",
+                      featureImage: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop&q=80",
+                      galleryImages: ["https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop&q=80"]
+                    }
+                  ]
+              ).map((album, idx) => (
+                <article
+                  key={album.id || idx}
+                  onClick={() => setActiveGalleryModal(album)}
+                  className="group rounded-2xl border border-[#dfe7eb] bg-white overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col"
+                >
+                  <div className="relative h-52 overflow-hidden bg-[#0c2436]">
+                    <img
+                      src={album.featureImage || album.image || "/classroom.webp"}
+                      alt={album.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute top-3 left-3">
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#0c2436]/85 text-[#64e2bc] backdrop-blur-xs">
+                        {album.category || "Campus Album"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-5 flex-1 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-base font-bold text-[#102e43] group-hover:text-[#087f77] transition-colors">
+                        {album.title}
+                      </h3>
+                      {album.description && (
+                        <p className="text-xs text-[#667987] mt-1.5 line-clamp-2">{album.description}</p>
+                      )}
+                    </div>
+                    <div className="pt-3 mt-3 border-t border-[#edf2f5] flex items-center justify-between text-xs font-bold text-[#087f77]">
+                      <span>View Album</span>
+                      <ArrowRight size={13} />
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {/* Video Gallery Sub-Row */}
+            {Array.isArray(cmsData?.videoGallery) && cmsData.videoGallery.length > 0 && (
+              <div id="video-gallery" className="mt-12 pt-10 border-t border-[#edf2f5] scroll-mt-20">
+                <h3 className="text-xl font-extrabold text-[#102e43] mb-6 flex items-center gap-2">
+                  <Play size={18} className="text-[#087f77] fill-[#087f77]" /> Featured Campus Videos
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {cmsData.videoGallery.map((vid, idx) => (
+                    <article
+                      key={vid.id || idx}
+                      onClick={() => setActiveVideoModal(vid)}
+                      className="group rounded-2xl border border-[#dfe7eb] bg-white overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer"
+                    >
+                      <div className="relative h-48 overflow-hidden bg-[#0c2436]">
+                        <img
+                          src={vid.thumbnail || "/classroom.webp"}
+                          alt={vid.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                        />
+                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                          <div className="w-12 h-12 rounded-full bg-[#64e2bc] text-[#0c322f] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                            <Play size={20} className="fill-[#0c322f] ml-0.5" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <h4 className="text-sm font-bold text-[#102e43] group-hover:text-[#087f77]">{vid.name}</h4>
+                        {vid.description && (
+                          <p className="text-xs text-[#667987] mt-1 line-clamp-2">{vid.description}</p>
+                        )}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 2. Academic Downloads Hub: Results, Class Routines, Exam Routines, Academic Calendar & Forms */}
+          <div id="academic-downloads" className="pt-12 border-t border-[#dfe7eb] scroll-mt-20">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+              <div>
+                <span className="text-xs font-extrabold tracking-widest text-[#087f77] uppercase block mb-2">
+                  PUBLIC ACADEMIC PORTAL
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#102e43] tracking-tight">
+                  Results, Routines & Official Forms<span className="text-[#087f77]">.</span>
+                </h2>
+                <p className="text-xs sm:text-sm text-[#667987] mt-1">
+                  Download official examination results, weekly class timetables, datesheets, academic calendars, and admission forms.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[
+                ...(Array.isArray(cmsData?.result)
+                  ? cmsData.result.map((r) => ({ ...r, docCategory: "Exam Result", badgeColor: "bg-emerald-50 text-emerald-700" }))
+                  : []),
+                ...(Array.isArray(cmsData?.classRoutine)
+                  ? cmsData.classRoutine.map((r) => ({ ...r, docCategory: "Class Routine", badgeColor: "bg-sky-50 text-sky-700" }))
+                  : []),
+                ...(Array.isArray(cmsData?.examRoutine)
+                  ? cmsData.examRoutine.map((r) => ({ ...r, docCategory: "Exam Datesheet", badgeColor: "bg-indigo-50 text-indigo-700" }))
+                  : []),
+                ...(Array.isArray(cmsData?.academicCalendar)
+                  ? cmsData.academicCalendar.map((r) => ({ ...r, docCategory: "Academic Calendar", badgeColor: "bg-amber-50 text-amber-700" }))
+                  : []),
+                ...(Array.isArray(cmsData?.formDownload)
+                  ? cmsData.formDownload.map((f) => ({ ...f, docCategory: "Official Form", badgeColor: "bg-teal-50 text-teal-700" }))
+                  : [])
+              ]
+                .slice(0, 9)
+                .map((doc, idx) => (
+                  <div
+                    key={doc.id || idx}
+                    className="p-5 rounded-xl border border-[#dfe7eb] bg-[#f8fafb] hover:bg-white hover:border-[#8ac7b7] hover:shadow-md transition-all flex items-start justify-between gap-4"
+                  >
+                    <div className="min-w-0">
+                      <span className={`inline-block text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full mb-2 ${doc.badgeColor}`}>
+                        {doc.docCategory}
+                      </span>
+                      <h4 className="text-sm font-bold text-[#102e43] leading-snug">{doc.title}</h4>
+                      <p className="text-xs text-[#667987] mt-1 truncate">
+                        {doc.description || doc.className || doc.examType || doc.fileName || "Official Document"}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (doc.fileUrl) {
+                          const a = document.createElement("a");
+                          a.href = doc.fileUrl;
+                          a.download = doc.fileName || `${doc.title}.pdf`;
+                          a.click();
+                        } else {
+                          setActiveDialog({
+                            title: doc.title,
+                            content: `<p><strong>Category:</strong> ${doc.docCategory}</p><p>${doc.description || "Official institutional document published via Stoofi Frontend CMS."}</p><p><strong>File:</strong> ${doc.fileName || "document.pdf"}</p>`,
+                            isHtml: true
+                          });
+                        }
+                      }}
+                      className="shrink-0 px-3 py-2 rounded-lg bg-[#102e43] hover:bg-[#087f77] text-white text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      Download
+                    </button>
+                  </div>
+                ))}
+            </div>
+          </div>
+
+          {/* 3. Expert Faculty, Leadership Speeches & Courses (when published in CMS) */}
+          {((Array.isArray(cmsData?.expertTeacher) && cmsData.expertTeacher.length > 0) ||
+            (Array.isArray(cmsData?.speechSlider) && cmsData.speechSlider.length > 0) ||
+            (Array.isArray(cmsData?.courseList) && cmsData.courseList.length > 0)) && (
+            <div className="pt-12 border-t border-[#dfe7eb] space-y-12">
+              {Array.isArray(cmsData?.expertTeacher) && cmsData.expertTeacher.length > 0 && (
+                <div>
+                  <span className="text-xs font-extrabold tracking-widest text-[#087f77] uppercase block mb-2">
+                    ACADEMIC LEADERSHIP
+                  </span>
+                  <h3 className="text-2xl font-extrabold text-[#102e43] mb-6">
+                    Our Expert Faculty<span className="text-[#087f77]">.</span>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    {cmsData.expertTeacher.map((st, idx) => (
+                      <div key={st.id || idx} className="p-5 rounded-2xl border border-[#dfe7eb] bg-white text-center hover:shadow-lg transition-all">
+                        <img
+                          src={st.image || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80"}
+                          alt={st.name}
+                          className="w-20 h-20 rounded-full object-cover mx-auto mb-3 border-2 border-[#64e2bc]"
+                        />
+                        <h4 className="text-base font-bold text-[#102e43]">{st.name}</h4>
+                        <p className="text-xs font-bold text-[#087f77] mt-0.5">{st.designation}</p>
+                        {st.subject && <p className="text-xs text-[#667987] mt-1">{st.subject}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {Array.isArray(cmsData?.courseList) && cmsData.courseList.length > 0 && (
+                <div>
+                  <span className="text-xs font-extrabold tracking-widest text-[#087f77] uppercase block mb-2">
+                    ACADEMIC PROGRAMS
+                  </span>
+                  <h3 className="text-2xl font-extrabold text-[#102e43] mb-6">
+                    Featured Courses & Curricula<span className="text-[#087f77]">.</span>
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {cmsData.courseList.map((c, idx) => (
+                      <div key={c.id || idx} className="rounded-2xl border border-[#dfe7eb] bg-white overflow-hidden shadow-xs hover:shadow-lg transition-all">
+                        <img
+                          src={c.image || "/classroom.webp"}
+                          alt={c.title}
+                          className="w-full h-44 object-cover"
+                        />
+                        <div className="p-5">
+                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#087f77] bg-[#eaf6f2] px-2.5 py-0.5 rounded-full">
+                            {c.category || "Academic Program"}
+                          </span>
+                          <h4 className="text-base font-bold text-[#102e43] mt-2">{c.title}</h4>
+                          <p className="text-xs text-[#667987] mt-1.5 line-clamp-2">{c.overview}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* ── TESTIMONIALS SECTION ── */}
-      <section className="bg-[#f2f7f6] py-20 sm:py-28">
+      <section id="testimonials" className="bg-[#f2f7f6] py-20 sm:py-28">
         <div className="max-w-[1240px] mx-auto px-6 sm:px-10">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-14">
             <div>
@@ -1461,32 +1857,50 @@ export default function LandingPage() {
                 Loved By Schools<span className="text-[#087f77]">.</span>
               </h2>
             </div>
-            <p className="text-sm sm:text-base text-[#667987]">What educators are saying about Stoofi PRO.</p>
+            <p className="text-sm sm:text-base text-[#667987]">What educators & parents are saying about Stoofi PRO.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.map((t, idx) => (
-              <figure
-                key={idx}
-                className="p-8 rounded-xl bg-white border border-[#e1eae7] flex flex-col justify-between hover:-translate-y-1.5 hover:shadow-[0_15px_40px_rgba(21,60,48,0.06)] transition-all"
-              >
-                <div>
-                  <div className="text-amber-500 text-base tracking-widest mb-6">★★★★★</div>
-                  <blockquote className="text-sm sm:text-base text-[#375260] leading-relaxed mb-8 italic">
-                    &ldquo;{t.text}&rdquo;
-                  </blockquote>
-                </div>
-                <figcaption className="flex items-center gap-3 pt-4 border-t border-[#f2f7f6]">
-                  <span className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${t.avatarClass}`}>
-                    {t.initials}
-                  </span>
+            {[
+              ...(Array.isArray(cmsData?.testimonial)
+                ? cmsData.testimonial.map((item) => ({
+                    name: item.name,
+                    role: `${item.designation || "Educator"}${item.institution ? `, ${item.institution}` : ""}`,
+                    text: item.description || "Outstanding school management experience.",
+                    initials: (item.name || "ST")
+                      .split(" ")
+                      .map((w) => w[0])
+                      .join("")
+                      .slice(0, 2)
+                      .toUpperCase(),
+                    avatarClass: "bg-[#dff1ea] text-[#408873]"
+                  }))
+                : []),
+              ...testimonials
+            ]
+              .slice(0, 6)
+              .map((t, idx) => (
+                <figure
+                  key={idx}
+                  className="p-8 rounded-xl bg-white border border-[#e1eae7] flex flex-col justify-between hover:-translate-y-1.5 hover:shadow-[0_15px_40px_rgba(21,60,48,0.06)] transition-all"
+                >
                   <div>
-                    <strong className="text-xs sm:text-sm font-bold text-[#102e43] block leading-tight">{t.name}</strong>
-                    <small className="text-[11px] text-[#80939d] block mt-0.5">{t.role}</small>
+                    <div className="text-amber-500 text-base tracking-widest mb-6">★★★★★</div>
+                    <blockquote className="text-sm sm:text-base text-[#375260] leading-relaxed mb-8 italic">
+                      &ldquo;{t.text}&rdquo;
+                    </blockquote>
                   </div>
-                </figcaption>
-              </figure>
-            ))}
+                  <figcaption className="flex items-center gap-3 pt-4 border-t border-[#f2f7f6]">
+                    <span className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${t.avatarClass}`}>
+                      {t.initials}
+                    </span>
+                    <div>
+                      <strong className="text-xs sm:text-sm font-bold text-[#102e43] block leading-tight">{t.name}</strong>
+                      <small className="text-[11px] text-[#80939d] block mt-0.5">{t.role}</small>
+                    </div>
+                  </figcaption>
+                </figure>
+              ))}
           </div>
         </div>
       </section>
@@ -1727,7 +2141,7 @@ export default function LandingPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <a
-            href="tel:+923001234567"
+            href={`tel:${(cmsData?.footerContent?.phone || cmsData?.headerContent?.phone || "+923001234567").replace(/\s+/g, "")}`}
             className="p-6 rounded-xl border-t border-[#dfe7eb] flex items-start gap-4 hover:bg-[#f8fafb] transition-colors group"
           >
             <div className="w-11 h-11 rounded-lg bg-[#eaf6f2] text-[#087f77] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
@@ -1736,14 +2150,16 @@ export default function LandingPage() {
             <div>
               <h3 className="text-xs font-bold text-[#667987] uppercase tracking-wider mb-1">Call Us</h3>
               <strong className="text-sm font-bold text-[#102e43] group-hover:text-[#087f77] transition-colors block">
-                +92 300 1234567
+                {cmsData?.footerContent?.phone || cmsData?.headerContent?.phone || "+92 300 1234567"}
               </strong>
-              <p className="text-xs text-[#80939d] mt-1">Mon-Fri, 9am-6pm</p>
+              <p className="text-xs text-[#80939d] mt-1">
+                {cmsData?.headerContent?.openingHours || "Mon-Sat, 8am-4pm"}
+              </p>
             </div>
           </a>
 
           <a
-            href="mailto:support@stoofi.com"
+            href={`mailto:${cmsData?.footerContent?.email || cmsData?.headerContent?.email || "support@stoofi.com"}`}
             className="p-6 rounded-xl border-t border-[#dfe7eb] flex items-start gap-4 hover:bg-[#f8fafb] transition-colors group"
           >
             <div className="w-11 h-11 rounded-lg bg-[#eaf6f2] text-[#087f77] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
@@ -1752,7 +2168,7 @@ export default function LandingPage() {
             <div>
               <h3 className="text-xs font-bold text-[#667987] uppercase tracking-wider mb-1">Email Us</h3>
               <strong className="text-sm font-bold text-[#102e43] group-hover:text-[#087f77] transition-colors block">
-                support@stoofi.com
+                {cmsData?.footerContent?.email || cmsData?.headerContent?.email || "support@stoofi.com"}
               </strong>
               <p className="text-xs text-[#80939d] mt-1">We reply within 24 hours</p>
             </div>
@@ -1764,12 +2180,162 @@ export default function LandingPage() {
             </div>
             <div>
               <h3 className="text-xs font-bold text-[#667987] uppercase tracking-wider mb-1">Visit Us</h3>
-              <strong className="text-sm font-bold text-[#102e43] block">Lahore, Pakistan</strong>
-              <p className="text-xs text-[#80939d] mt-1">Head Office</p>
+              <strong className="text-sm font-bold text-[#102e43] block">
+                {cmsData?.footerContent?.address || "Lahore / Islamabad, Pakistan"}
+              </strong>
+              <p className="text-xs text-[#80939d] mt-1">Main Campus & Office</p>
             </div>
           </div>
         </div>
+
+        {/* Live Inquiry Form synced to Frontend CMS -> Contact Messages */}
+        <form
+          onSubmit={handleContactSubmit}
+          className="mt-10 bg-[#f8fafb] border border-[#dfe7eb] rounded-2xl p-6 sm:p-8 max-w-3xl mx-auto space-y-4"
+        >
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-extrabold text-[#102e43]">Send Us a Direct Inquiry</h3>
+            {contactSentMsg && (
+              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
+                {contactSentMsg}
+              </span>
+            )}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <input
+              type="text"
+              required
+              placeholder="Your Name *"
+              value={contactForm.name}
+              onChange={(e) => setContactForm((p) => ({ ...p, name: e.target.value }))}
+              className="bg-white border border-[#dfe7eb] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-[#102e43] font-medium focus:outline-none focus:border-[#087f77]"
+            />
+            <input
+              type="email"
+              required
+              placeholder="Your Email *"
+              value={contactForm.email}
+              onChange={(e) => setContactForm((p) => ({ ...p, email: e.target.value }))}
+              className="bg-white border border-[#dfe7eb] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-[#102e43] font-medium focus:outline-none focus:border-[#087f77]"
+            />
+            <input
+              type="text"
+              placeholder="Subject (e.g. Admission Inquiry)"
+              value={contactForm.subject}
+              onChange={(e) => setContactForm((p) => ({ ...p, subject: e.target.value }))}
+              className="bg-white border border-[#dfe7eb] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-[#102e43] font-medium focus:outline-none focus:border-[#087f77]"
+            />
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <input
+              type="text"
+              required
+              placeholder="Write your message or question here... *"
+              value={contactForm.message}
+              onChange={(e) => setContactForm((p) => ({ ...p, message: e.target.value }))}
+              className="flex-1 bg-white border border-[#dfe7eb] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-[#102e43] font-medium focus:outline-none focus:border-[#087f77]"
+            />
+            <Button
+              type="submit"
+              disabled={contactSending}
+              className="bg-[#087f77] hover:bg-[#06655f] text-white font-bold text-xs sm:text-sm px-6 py-2.5 rounded-xl cursor-pointer shrink-0"
+            >
+              {contactSending ? "Sending..." : "Send Message"}
+            </Button>
+          </div>
+        </form>
       </section>
+
+      {/* ── PHOTO GALLERY MODAL ── */}
+      {activeGalleryModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl border border-[#dfe7eb]">
+            <div className="p-5 bg-[#0c2436] text-white flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#64e2bc] block">
+                  {activeGalleryModal.category || "Campus Album"}
+                </span>
+                <h3 className="text-lg font-extrabold">{activeGalleryModal.title}</h3>
+              </div>
+              <button
+                onClick={() => setActiveGalleryModal(null)}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+              <img
+                src={activeGalleryModal.featureImage || activeGalleryModal.image || "/classroom.webp"}
+                alt={activeGalleryModal.title}
+                className="w-full max-h-[420px] object-cover rounded-xl border border-[#dfe7eb]"
+              />
+              {activeGalleryModal.description && (
+                <p className="text-sm text-[#375260]">{activeGalleryModal.description}</p>
+              )}
+              {Array.isArray(activeGalleryModal.galleryImages) && activeGalleryModal.galleryImages.length > 1 && (
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 pt-2">
+                  {activeGalleryModal.galleryImages.map((imgUrl, i) => (
+                    <img
+                      key={i}
+                      src={imgUrl}
+                      alt=""
+                      className="h-24 w-full object-cover rounded-lg border border-[#dfe7eb]"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── VIDEO GALLERY MODAL ── */}
+      {activeVideoModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl border border-[#dfe7eb]">
+            <div className="p-5 bg-[#0c2436] text-white flex items-center justify-between">
+              <h3 className="text-lg font-extrabold">{activeVideoModal.name}</h3>
+              <button
+                onClick={() => setActiveVideoModal(null)}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="p-6 space-y-3">
+              {activeVideoModal.youtubeId ? (
+                <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${activeVideoModal.youtubeId}?autoplay=1`}
+                    title={activeVideoModal.name}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              ) : (
+                <div className="p-8 text-center bg-[#f8fafb] rounded-xl border border-[#dfe7eb]">
+                  <p className="text-sm font-bold text-[#102e43] mb-3">{activeVideoModal.name}</p>
+                  {activeVideoModal.link && (
+                    <a
+                      href={activeVideoModal.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#087f77] text-white text-xs font-bold"
+                    >
+                      Open Video Link <ExternalLink size={14} />
+                    </a>
+                  )}
+                </div>
+              )}
+              {activeVideoModal.description && (
+                <p className="text-xs sm:text-sm text-[#667987]">{activeVideoModal.description}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── FOOTER ── */}
       <footer className="border-t border-[#dfe7eb] bg-[#f8fafb] py-10">
@@ -1782,10 +2348,11 @@ export default function LandingPage() {
             />
           </Link>
           <p className="text-xs sm:text-sm text-[#667987] max-w-sm">
-            The ultimate school management ERP solution for modern educational institutes.
+            {cmsData?.footerContent?.about ||
+              "The ultimate school management ERP solution for modern educational institutes."}
           </p>
           <small className="text-xs text-[#83949e]">
-            &copy; {new Date().getFullYear()} Stoofi PRO. All rights reserved.
+            {cmsData?.footerContent?.copyright || `© ${new Date().getFullYear()} Stoofi PRO. All rights reserved.`}
           </small>
         </div>
       </footer>
