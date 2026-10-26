@@ -1999,6 +1999,7 @@ export default function AdminDashboardUI({ user }) {
                   <option value="Teachers">Teachers Only</option>
                   <option value="Parents">Parents Only</option>
                   <option value="Staff">Staff Only</option>
+                  <option value="Directors">Directors Only</option>
                 </select>
               </div>
               <div>
@@ -2107,6 +2108,9 @@ export default function AdminDashboardUI({ user }) {
                   <option value="Exam">Exam / Test</option>
                   <option value="Sports">Sports</option>
                   <option value="Meeting">Parent / Teacher Meeting</option>
+                  <option value="Affiliations">Affiliations</option>
+                  <option value="Visits">Visits</option>
+                  <option value="Submissions">Submissions</option>
                 </select>
               </div>
 
@@ -2124,6 +2128,7 @@ export default function AdminDashboardUI({ user }) {
                   <option value="Teachers">Teachers Only</option>
                   <option value="Parents">Parents Only</option>
                   <option value="Staff">Staff Only</option>
+                  <option value="Directors">Directors Only</option>
                 </select>
               </div>
             </div>

@@ -72,71 +72,55 @@ export const User = mongoose.models.User || mongoose.model('User', userSchema);
 
 // Student Schema
 const studentSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  academicYear: { type: String, default: () => `${new Date().getFullYear()}` },
-  classId: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' },
-  className: { type: String, default: 'FSC OTT' },
-  section: { type: String, default: 'A' },
-  studentGroup: { type: mongoose.Schema.Types.ObjectId, ref: 'StudentGroup', default: null },
-  admissionNo: { type: String, required: true, unique: true },
-  admissionDate: { type: String },
-  joiningDate: { type: String },
-  rollNo: { type: String },
-  type: { type: String, default: 'Regular' },
-  phone: { type: String, trim: true },
-  email: { type: String, trim: true },
-  city: { type: String },
-  address: { type: String },
-  currentAddress: { type: String },
-  permanentAddress: { type: String },
-  firstName: { type: String, required: true },
-  lastName: { type: String, default: '' },
+  // 1. STUDENT CORE IDENTITY (Top Priority)
+  studentName: { type: String, trim: true },
+  name: { type: String, trim: true },
+  fullName: { type: String, trim: true },
+  firstName: { type: String, required: true, trim: true },
+  lastName: { type: String, default: '', trim: true },
   gender: { type: String, default: 'Male' },
   dob: { type: String, default: '2015-01-01' },
+  cnic: { type: String, trim: true },
+  bForm: { type: String, trim: true },
+  bloodGroup: { type: String },
   religion: { type: String },
   caste: { type: String },
-  bloodGroup: { type: String },
   nationality: { type: String, default: 'Pakistani' },
-  cnic: { type: String, trim: true },
-  bForm: { type: String },
   studentPhoto: { type: String },
   photo: { type: String },
   medicalHistory: { type: String },
-  emergencyContact: { type: String },
-  emergencyContactName: { type: String },
-  emergencyContactRelation: { type: String },
-  emergencyContactPhone: { type: String },
-  studentCode: { type: String, trim: true },
-  whatsapp: { type: String, trim: true },
-  isPermanentProfile: { type: Boolean, default: true },
-  activeEnrollmentCount: { type: Number, default: 1 },
-  tcNo: { type: String },
-  remarks: { type: String },
-  fatherName: { type: String },
-  fatherPhone: { type: String },
-  fatherOccupation: { type: String },
-  fatherCnic: { type: String },
-  motherName: { type: String },
-  motherPhone: { type: String },
-  motherOccupation: { type: String },
-  guardianName: { type: String },
-  guardianRelation: { type: String },
-  guardianPhone: { type: String },
-  guardianAddress: { type: String },
-  guardianCnic: { type: String },
-  guardianOccupation: { type: String },
-  guardianEmail: { type: String },
+
+  // 2. FATHER DETAILS
+  fatherName: { type: String, trim: true },
+  fatherCnic: { type: String, trim: true },
+  fatherPhone: { type: String, trim: true },
+  fatherOccupation: { type: String, trim: true },
   father: {
     name: { type: String },
     phone: { type: String },
     cnic: { type: String },
     occupation: { type: String }
   },
+
+  // 3. MOTHER DETAILS
+  motherName: { type: String, trim: true },
+  motherCnic: { type: String, trim: true },
+  motherPhone: { type: String, trim: true },
+  motherOccupation: { type: String, trim: true },
   mother: {
     name: { type: String },
     phone: { type: String },
     occupation: { type: String }
   },
+
+  // 4. GUARDIAN DETAILS
+  guardianName: { type: String, trim: true },
+  guardianRelation: { type: String, trim: true },
+  guardianPhone: { type: String, trim: true },
+  guardianCnic: { type: String, trim: true },
+  guardianOccupation: { type: String, trim: true },
+  guardianEmail: { type: String, trim: true },
+  guardianAddress: { type: String, trim: true },
   guardian: {
     name: { type: String },
     relation: { type: String },
@@ -146,6 +130,40 @@ const studentSchema = new mongoose.Schema({
     address: { type: String },
     email: { type: String }
   },
+
+  // 5. ADDRESS & CONTACT DETAILS
+  address: { type: String, trim: true },
+  currentAddress: { type: String, trim: true },
+  permanentAddress: { type: String, trim: true },
+  city: { type: String, trim: true },
+  phone: { type: String, trim: true },
+  whatsapp: { type: String, trim: true },
+  email: { type: String, trim: true },
+  emergencyContact: { type: String, trim: true },
+  emergencyContactName: { type: String, trim: true },
+  emergencyContactRelation: { type: String, trim: true },
+  emergencyContactPhone: { type: String, trim: true },
+
+  // 6. ACADEMIC & INSTITUTION DETAILS
+  admissionNo: { type: String, required: true, unique: true, trim: true },
+  rollNo: { type: String, trim: true },
+  academicYear: { type: String, default: () => `${new Date().getFullYear()}` },
+  className: { type: String, default: 'FSC OTT' },
+  section: { type: String, default: 'A' },
+  classId: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' },
+  studentGroup: { type: mongoose.Schema.Types.ObjectId, ref: 'StudentGroup', default: null },
+  admissionDate: { type: String },
+  joiningDate: { type: String },
+  studentCode: { type: String, trim: true },
+  type: { type: String, default: 'Regular' },
+  status: { type: String, default: 'Active' },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  isPermanentProfile: { type: Boolean, default: true },
+  activeEnrollmentCount: { type: Number, default: 1 },
+  tcNo: { type: String },
+  remarks: { type: String },
+
+  // 7. DOCUMENTS & PREVIOUS EDUCATION
   document1: { type: String },
   document2: { type: String },
   cnicFront: { type: String },
@@ -184,9 +202,25 @@ const studentSchema = new mongoose.Schema({
   cardTemplate: { type: String, default: 'classic-navy' },
   cardLayout: { type: String, default: 'horizontal' },
   themeStyle: { type: String, default: 'classic-navy' },
-  status: { type: String, default: 'Active' },
   subjects: [{ type: String }]
 }, { timestamps: true });
+
+// Pre-validate & pre-save hook to ensure studentName, name, and fullName are always populated
+studentSchema.pre('validate', function(next) {
+  const calculated = [this.firstName, this.lastName].filter(Boolean).join(' ').trim();
+  if (!this.studentName || this.studentName.trim() === '') this.studentName = calculated;
+  if (!this.name || this.name.trim() === '') this.name = calculated;
+  if (!this.fullName || this.fullName.trim() === '') this.fullName = calculated;
+  next();
+});
+
+studentSchema.pre('save', function(next) {
+  const calculated = [this.firstName, this.lastName].filter(Boolean).join(' ').trim();
+  if (!this.studentName || this.studentName.trim() === '') this.studentName = calculated;
+  if (!this.name || this.name.trim() === '') this.name = calculated;
+  if (!this.fullName || this.fullName.trim() === '') this.fullName = calculated;
+  next();
+});
 
 export const Student = mongoose.models.Student || mongoose.model('Student', studentSchema);
 
@@ -327,7 +361,7 @@ const noticeSchema = new mongoose.Schema({
   description: { type: String },
   date: { type: Date, default: Date.now },
   published: { type: Boolean, default: true },
-  audience: { type: String, enum: ['All', 'Students', 'Teachers', 'Parents', 'Staff'], default: 'All' },
+  audience: { type: String, enum: ['All', 'Students', 'Teachers', 'Parents', 'Staff', 'Directors'], default: 'All' },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
 

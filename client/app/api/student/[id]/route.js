@@ -103,8 +103,8 @@ export async function PUT(req, { params }) {
     }
 
     // Parse Full Name if single name field was submitted
-    if (dataObj.name || dataObj.fullName) {
-      const rawName = String(dataObj.fullName || dataObj.name).trim();
+    if (dataObj.name || dataObj.fullName || dataObj.studentName) {
+      const rawName = String(dataObj.studentName || dataObj.fullName || dataObj.name).trim();
       if (!dataObj.firstName) dataObj.firstName = rawName;
     }
     if (dataObj.firstName && (!dataObj.lastName || !dataObj.lastName.trim())) {
@@ -113,6 +113,14 @@ export async function PUT(req, { params }) {
         dataObj.firstName = parts[0];
         dataObj.lastName = parts.slice(1).join(' ');
       }
+    }
+
+    // Keep studentName, name, and fullName in sync
+    const computedName = [dataObj.firstName, dataObj.lastName].filter(Boolean).join(' ').trim();
+    if (computedName) {
+      dataObj.studentName = dataObj.studentName || computedName;
+      dataObj.name = dataObj.name || computedName;
+      dataObj.fullName = dataObj.fullName || computedName;
     }
 
     // Sync father/mother/guardian

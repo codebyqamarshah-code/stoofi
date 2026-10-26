@@ -155,6 +155,11 @@ export async function POST(req) {
         studentObj.lastName = '';
       }
 
+      const bulkFullName = [studentObj.firstName, studentObj.lastName].filter(Boolean).join(' ').trim();
+      studentObj.studentName = bulkFullName;
+      studentObj.name = bulkFullName;
+      studentObj.fullName = bulkFullName;
+
       // Sensible defaults
       studentObj.gender = studentObj.gender && String(studentObj.gender).trim() ? String(studentObj.gender).trim() : 'Male';
       studentObj.dob = cleanDateStr(studentObj.dob) || '2010-01-01';

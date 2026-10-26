@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { DobInput } from '@/components/ui/DobInput';
 import academicApi from '@/lib/academicApi';
 import api from '@/services/api';
 
@@ -506,19 +507,26 @@ export default function StudentAdmissionWizardPage() {
     setSuccessMsg('');
 
     try {
+      const sFullName = `${formData.firstName} ${formData.lastName || ''}`.trim();
       const payload = {
         studentId: formData.studentId || undefined,
+        studentName: sFullName,
+        name: sFullName,
+        fullName: sFullName,
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         gender: formData.gender,
         dob: formData.dob || undefined,
         cnic: formData.cnic ? formData.cnic.trim() : undefined,
+        bForm: formData.bForm ? formData.bForm.trim() : (formData.cnic ? formData.cnic.trim() : undefined),
         nationality: formData.nationality,
         religion: formData.religion,
         bloodGroup: formData.bloodGroup,
         phone: formData.phone.trim(),
         whatsapp: formData.whatsapp.trim() || formData.phone.trim(),
         email: formData.email.trim() || undefined,
+        address: formData.residentialAddress.trim(),
+        currentAddress: formData.residentialAddress.trim(),
         residentialAddress: formData.residentialAddress.trim(),
         permanentAddress: (formData.sameAsResidential ? formData.residentialAddress : formData.permanentAddress).trim(),
         emergencyContact: {
@@ -957,12 +965,12 @@ export default function StudentAdmissionWizardPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <div>
-                <Label className="text-xs font-semibold">Date of Birth</Label>
-                <Input
-                  type="date"
+                <DobInput
+                  label="Date of Birth"
                   value={formData.dob}
-                  onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
-                  className="mt-1 text-xs"
+                  onChange={(val) => setFormData({ ...formData, dob: val })}
+                  minYear={1980}
+                  maxYear={2026}
                 />
               </div>
               <div>

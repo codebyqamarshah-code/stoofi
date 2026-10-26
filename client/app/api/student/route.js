@@ -297,19 +297,105 @@ export async function POST(req) {
       }
     }
 
-    const student = await Student.create({
-      ...dataObj,
-      firstName: String(dataObj.firstName).trim(),
-      lastName: String(dataObj.lastName || '').trim(),
-      className: dataObj.className || 'FSC OTT',
-      section: dataObj.section || 'A',
+    const fName = String(dataObj.firstName).trim();
+    const lName = String(dataObj.lastName || '').trim();
+    const calculatedFullName = [fName, lName].filter(Boolean).join(' ').trim();
+    const finalStudentName = String(dataObj.studentName || dataObj.fullName || dataObj.name || calculatedFullName).trim();
+
+    // Construct student object with exact priority sequence:
+    // 1. Student Core Details -> 2. Father Details -> 3. Mother Details -> 4. Guardian Details -> 5. Address & Contact Details -> 6. Academic Details
+    const orderedStudentData = {
+      // 1. Student
+      studentName: finalStudentName,
+      name: finalStudentName,
+      fullName: finalStudentName,
+      firstName: fName,
+      lastName: lName,
       gender: dataObj.gender || 'Male',
       dob: dataObj.dob || '2008-01-01',
+      cnic: dataObj.cnic || '',
+      bForm: dataObj.bForm || dataObj.cnic || '',
+      bloodGroup: dataObj.bloodGroup || '',
+      religion: dataObj.religion || '',
+      caste: dataObj.caste || '',
+      nationality: dataObj.nationality || 'Pakistani',
+      studentPhoto: dataObj.studentPhoto || dataObj.photo || '',
+      photo: dataObj.photo || dataObj.studentPhoto || '',
+      medicalHistory: dataObj.medicalHistory || '',
+
+      // 2. Father
+      fatherName: dataObj.fatherName || dataObj.father?.name || '',
+      fatherCnic: dataObj.fatherCnic || dataObj.father?.cnic || '',
+      fatherPhone: dataObj.fatherPhone || dataObj.father?.phone || '',
+      fatherOccupation: dataObj.fatherOccupation || dataObj.father?.occupation || '',
+      father: {
+        name: dataObj.fatherName || dataObj.father?.name || '',
+        phone: dataObj.fatherPhone || dataObj.father?.phone || '',
+        cnic: dataObj.fatherCnic || dataObj.father?.cnic || '',
+        occupation: dataObj.fatherOccupation || dataObj.father?.occupation || ''
+      },
+
+      // 3. Mother
+      motherName: dataObj.motherName || dataObj.mother?.name || '',
+      motherCnic: dataObj.motherCnic || '',
+      motherPhone: dataObj.motherPhone || dataObj.mother?.phone || '',
+      motherOccupation: dataObj.motherOccupation || dataObj.mother?.occupation || '',
+      mother: {
+        name: dataObj.motherName || dataObj.mother?.name || '',
+        phone: dataObj.motherPhone || dataObj.mother?.phone || '',
+        occupation: dataObj.motherOccupation || dataObj.mother?.occupation || ''
+      },
+
+      // 4. Guardian
+      guardianName: dataObj.guardianName || dataObj.guardian?.name || '',
+      guardianRelation: dataObj.guardianRelation || dataObj.guardian?.relation || '',
+      guardianPhone: dataObj.guardianPhone || dataObj.guardian?.phone || '',
+      guardianCnic: dataObj.guardianCnic || dataObj.guardian?.cnic || '',
+      guardianOccupation: dataObj.guardianOccupation || dataObj.guardian?.occupation || '',
+      guardianEmail: dataObj.guardianEmail || dataObj.guardian?.email || '',
+      guardianAddress: dataObj.guardianAddress || dataObj.guardian?.address || '',
+      guardian: {
+        name: dataObj.guardianName || dataObj.guardian?.name || '',
+        relation: dataObj.guardianRelation || dataObj.guardian?.relation || '',
+        phone: dataObj.guardianPhone || dataObj.guardian?.phone || '',
+        cnic: dataObj.guardianCnic || dataObj.guardian?.cnic || '',
+        occupation: dataObj.guardianOccupation || dataObj.guardian?.occupation || '',
+        address: dataObj.guardianAddress || dataObj.guardian?.address || '',
+        email: dataObj.guardianEmail || dataObj.guardian?.email || ''
+      },
+
+      // 5. Address & Contact
+      address: dataObj.address || dataObj.residentialAddress || dataObj.currentAddress || '',
+      currentAddress: dataObj.currentAddress || dataObj.residentialAddress || dataObj.address || '',
+      permanentAddress: dataObj.permanentAddress || dataObj.address || '',
+      city: dataObj.city || '',
+      phone: dataObj.phone || '',
+      whatsapp: dataObj.whatsapp || '',
+      email: dataObj.email || '',
+      emergencyContact: typeof dataObj.emergencyContact === 'string' ? dataObj.emergencyContact : (dataObj.emergencyContact?.phone || dataObj.emergencyContactPhone || ''),
+      emergencyContactName: dataObj.emergencyContactName || (typeof dataObj.emergencyContact === 'object' ? dataObj.emergencyContact?.name : ''),
+      emergencyContactRelation: dataObj.emergencyContactRelation || (typeof dataObj.emergencyContact === 'object' ? dataObj.emergencyContact?.relationship : ''),
+      emergencyContactPhone: dataObj.emergencyContactPhone || (typeof dataObj.emergencyContact === 'object' ? dataObj.emergencyContact?.phone : ''),
+
+      // 6. Academic
+      admissionNo: String(dataObj.admissionNo).trim(),
+      rollNo: String(dataObj.rollNo).trim(),
+      academicYear: dataObj.academicYear || `${targetYear}`,
+      className: dataObj.className || 'FSC OTT',
+      section: dataObj.section || 'A',
+      admissionDate: dataObj.admissionDate || '',
+      joiningDate: dataObj.joiningDate || '',
+      type: dataObj.type || dataObj.admissionType || 'Regular',
+      status: dataObj.status || 'Active',
       cardTemplate: dataObj.cardTemplate || 'classic-navy',
       cardLayout: dataObj.cardLayout || 'horizontal',
       themeStyle: dataObj.themeStyle || 'classic-navy',
-      status: dataObj.status || 'Active'
-    });
+
+      // Any remaining fields
+      ...dataObj
+    };
+
+    const student = await Student.create(orderedStudentData);
 
     return NextResponse.json({
       success: true,
