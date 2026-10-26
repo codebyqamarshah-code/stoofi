@@ -7,18 +7,22 @@ export async function GET(req) {
     await connectDB();
     const { searchParams } = new URL(req.url);
     const year = extractYear(searchParams.get('year') || searchParams.get('admissionDate'));
-    const nextAdmissionNo = await previewNextAdmissionNumber(year);
+    const preview = await previewNextAdmissionNumber(year);
+    const admStr = typeof preview === 'object' ? (preview?.admissionNumber || preview?.nextAdmissionNo || `ADM${String(year).slice(-2)}0001`) : preview;
 
     return NextResponse.json({
       success: true,
-      nextAdmissionNo,
+      nextAdmissionNo: admStr,
+      admissionNo: admStr,
       year
     });
   } catch (error) {
     const fallbackYear = new Date().getFullYear();
+    const fallbackAdm = `ADM${String(fallbackYear).slice(-2)}0001`;
     return NextResponse.json({
       success: true,
-      nextAdmissionNo: `ADM-${fallbackYear}-0001`,
+      nextAdmissionNo: fallbackAdm,
+      admissionNo: fallbackAdm,
       year: fallbackYear
     });
   }

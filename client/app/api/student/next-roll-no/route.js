@@ -8,7 +8,8 @@ export async function GET(req) {
     await connectDB();
     const { searchParams } = new URL(req.url);
     const year = extractYear(searchParams.get('year') || searchParams.get('admissionDate'));
-    const nextRollNo = await previewNextRollNumber(year);
+    const preview = await previewNextRollNumber(year);
+    const rollStr = typeof preview === 'object' ? (preview?.rollNumber || preview?.nextRollNo || `PRC${String(year).slice(-2)}0001`) : preview;
 
     const allStudents = await Student.find({}, 'rollNo firstName lastName admissionNo').lean();
     const usedRolls = [];
@@ -25,16 +26,19 @@ export async function GET(req) {
 
     return NextResponse.json({
       success: true,
-      nextRollNo,
+      nextRollNo: rollStr,
+      rollNo: rollStr,
       year,
       usedRollNumbers: usedRolls.map(u => u.rollNo),
       usedRolls
     });
   } catch (error) {
     const fallbackYear = new Date().getFullYear();
+    const fallbackRoll = `PRC${String(fallbackYear).slice(-2)}0001`;
     return NextResponse.json({
       success: true,
-      nextRollNo: `ROLL-${fallbackYear}-0001`,
+      nextRollNo: fallbackRoll,
+      rollNo: fallbackRoll,
       year: fallbackYear,
       usedRollNumbers: [],
       usedRolls: []

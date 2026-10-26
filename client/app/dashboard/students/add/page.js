@@ -61,9 +61,11 @@ export default function StudentAdmissionWizardPage() {
     studentId: '', // If existing student
     admissionDate: new Date().toISOString().split('T')[0],
     admissionYear: String(new Date().getFullYear()),
-    previewAdmissionNo: 'ADM-YYYY-XXXX (Auto)',
-    previewRollNo: 'ROLL-YYYY-XXXX (Auto)',
-    previewStudentCode: 'STU-YYYY-XXXX (Auto)',
+    admissionNo: `ADM${String(new Date().getFullYear()).slice(-2)}0001`,
+    rollNo: `PRC${String(new Date().getFullYear()).slice(-2)}0001`,
+    previewAdmissionNo: `ADM${String(new Date().getFullYear()).slice(-2)}0001`,
+    previewRollNo: `PRC${String(new Date().getFullYear()).slice(-2)}0001`,
+    previewStudentCode: `STU-${new Date().getFullYear()}-0001`,
     
     firstName: '',
     lastName: '',
@@ -159,6 +161,11 @@ export default function StudentAdmissionWizardPage() {
     ],
 
     // Step 7: Fees & Concessions
+    feeAdmission: 5000,
+    feeTuition: 25000,
+    feeSecurity: 0,
+    feeExam: 2000,
+    feeOther: 1000,
     concessionType: 'None', // None, Percentage, Fixed
     concessionValue: 0,
     concessionReason: '',
@@ -176,6 +183,7 @@ export default function StudentAdmissionWizardPage() {
   // Initial Data Load
   useEffect(() => {
     loadInitialDropdowns();
+    handleYearChange(new Date().getFullYear());
   }, []);
 
   const loadInitialDropdowns = async () => {
@@ -278,27 +286,56 @@ export default function StudentAdmissionWizardPage() {
     fetchBatches();
   }, [formData.offeringId]);
 
-  // Fetch Year-Based Preview Numbers whenever admissionDate changes
-  useEffect(() => {
-    const fetchPreviews = async () => {
-      try {
-        const year = formData.admissionDate ? new Date(formData.admissionDate).getFullYear() : 2026;
-        setFormData(prev => ({ ...prev, admissionYear: String(year) }));
-        const res = await academicApi.getNextNumbers(year);
-        if (res?.success) {
-          setFormData(prev => ({
-            ...prev,
-            previewAdmissionNo: res.nextAdmissionNo,
-            previewRollNo: res.nextRollNo,
-            previewStudentCode: res.nextStudentCode
-          }));
-        }
-      } catch (e) {
-        console.error('Error fetching preview numbers:', e);
+  // Handle Year Change & Auto-fetch Admission and Roll Numbers
+  const handleYearChange = async (yearVal) => {
+    const year = parseInt(yearVal, 10) || new Date().getFullYear();
+    const y2 = String(year).slice(-2);
+    const defaultAdm = `ADM${y2}0001`;
+    const defaultRoll = `PRC${y2}0001`;
+
+    setFormData(prev => ({
+      ...prev,
+      admissionYear: String(year),
+      admissionDate: prev.admissionDate ? `${year}-${prev.admissionDate.slice(5) || '08-15'}` : `${year}-08-15`,
+      admissionNo: defaultAdm,
+      rollNo: defaultRoll,
+      previewAdmissionNo: defaultAdm,
+      previewRollNo: defaultRoll
+    }));
+
+    try {
+      const res = await academicApi.getNextNumbers(year);
+      if (res?.success) {
+        const admStr = res.admissionNo || res.nextAdmissionNo?.admissionNumber || res.nextAdmissionNo || defaultAdm;
+        const rollStr = res.rollNo || res.nextRollNumber?.rollNumber || res.nextRollNo || defaultRoll;
+        setFormData(prev => ({
+          ...prev,
+          admissionNo: admStr,
+          rollNo: rollStr,
+          previewAdmissionNo: admStr,
+          previewRollNo: rollStr,
+          previewStudentCode: res.nextStudentCode || `STU-${year}-0001`
+        }));
       }
-    };
-    fetchPreviews();
-  }, [formData.admissionDate]);
+    } catch (e) {
+      console.error('Error fetching numbers for year:', e);
+    }
+  };
+
+  // Sync fee defaults when an offering is selected
+  useEffect(() => {
+    if (selectedOffering) {
+      const plan = selectedOffering.feePlan || selectedOffering.feeStructure || {};
+      setFormData(p => ({
+        ...p,
+        feeAdmission: plan.admissionFee !== undefined && plan.admissionFee !== 0 ? plan.admissionFee : p.feeAdmission,
+        feeTuition: (plan.tuitionFeePerTerm || plan.tuitionFee) !== undefined && (plan.tuitionFeePerTerm || plan.tuitionFee) !== 0 ? (plan.tuitionFeePerTerm || plan.tuitionFee) : p.feeTuition,
+        feeSecurity: plan.securityDeposit !== undefined && plan.securityDeposit !== 0 ? plan.securityDeposit : p.feeSecurity,
+        feeExam: plan.examFee !== undefined && plan.examFee !== 0 ? plan.examFee : p.feeExam,
+        feeOther: (plan.labFee || plan.labPracticalFee) !== undefined && (plan.labFee || plan.labPracticalFee) !== 0 ? (plan.labFee || plan.labPracticalFee) : p.feeOther
+      }));
+    }
+  }, [selectedOffering?._id]);
 
   // Existing Student Lookup (Multi-enrollment)
   const handleSearchStudent = async () => {
@@ -388,12 +425,13 @@ export default function StudentAdmissionWizardPage() {
     });
   };
 
-  // Fees Calculation
-  const feeAdmission = selectedOffering?.feeStructure?.admissionFee || 0;
-  const feeTuition = selectedOffering?.feeStructure?.tuitionFee || 0;
-  const feeSecurity = selectedOffering?.feeStructure?.securityDeposit || 0;
-  const feeExam = selectedOffering?.feeStructure?.examFee || 0;
-  const feeGross = feeAdmission + feeTuition + feeSecurity + feeExam;
+  // Fees Calculation (Editable inputs from formData)
+  const feeAdmission = parseFloat(formData.feeAdmission) || 0;
+  const feeTuition = parseFloat(formData.feeTuition) || 0;
+  const feeSecurity = parseFloat(formData.feeSecurity) || 0;
+  const feeExam = parseFloat(formData.feeExam) || 0;
+  const feeOther = parseFloat(formData.feeOther) || 0;
+  const feeGross = feeAdmission + feeTuition + feeSecurity + feeExam + feeOther;
 
   let concessionDiscount = 0;
   if (formData.concessionType === 'Percentage') {
@@ -514,6 +552,8 @@ export default function StudentAdmissionWizardPage() {
         shift: formData.shift || 'Morning',
         admissionType: formData.admissionType || 'Regular',
         initialStage: formData.initialStage || 'Year 1 / Semester 1',
+        admissionNo: formData.admissionNo.trim(),
+        rollNo: formData.rollNo.trim(),
         admissionDate: formData.admissionDate,
         admissionYear: formData.admissionYear,
         allowCapacityOverride: formData.allowCapacityOverride,
@@ -555,6 +595,7 @@ export default function StudentAdmissionWizardPage() {
           tuitionFee: feeTuition,
           securityDeposit: feeSecurity,
           examFee: feeExam,
+          labFee: feeOther,
           grossTotal: feeGross,
           concessionType: formData.concessionType,
           concessionValue: parseFloat(formData.concessionValue) || 0,
@@ -735,42 +776,151 @@ export default function StudentAdmissionWizardPage() {
       {/* STEP CONTENT CONTAINER */}
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm p-6 sm:p-8 space-y-6">
         
+        {/* Quick Top Navigation Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-zinc-200 dark:border-zinc-800">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+                Step {currentStep} of {STEPS.length}
+              </span>
+              <h2 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100">
+                {STEPS[currentStep - 1]?.title}
+              </h2>
+            </div>
+            <p className="text-xs text-zinc-500 mt-0.5">
+              {STEPS[currentStep - 1]?.desc}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={currentStep === 1 || submitting}
+              onClick={handlePrev}
+              className="text-xs h-8 px-3 font-semibold"
+            >
+              <ArrowLeft className="w-3 h-3 mr-1" /> Back
+            </Button>
+
+            {currentStep < 7 ? (
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleNext}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8 px-4 font-bold shadow-xs flex items-center gap-1.5"
+              >
+                <span>Next ({currentStep + 1}/7)</span>
+                <ArrowRight className="w-3 h-3" />
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleSubmitAdmission}
+                disabled={submitting}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8 px-4 font-bold shadow-xs flex items-center gap-1.5"
+              >
+                {submitting ? <RefreshCw className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
+                <span>Confirm Admission</span>
+              </Button>
+            )}
+          </div>
+        </div>
+
         {/* ================= STEP 1: STUDENT IDENTITY ================= */}
         {currentStep === 1 && (
           <div className="space-y-6">
-            <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3 flex items-center justify-between">
-              <div>
-                <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-                  Step 1: Student Permanent Profile & Identity
-                </h3>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  Student code and identifiers are assigned automatically per academic year.
-                </p>
+            {/* Academic Session, Admission No & Roll No Card */}
+            <div className="p-4 sm:p-5 bg-gradient-to-r from-emerald-50/70 via-zinc-50 to-teal-50/50 dark:from-zinc-800/80 dark:to-zinc-800/40 rounded-2xl border-2 border-emerald-300 dark:border-emerald-800 shadow-sm space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-100 dark:border-zinc-700 pb-2.5">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                    ID
+                  </div>
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wide">
+                      Academic Session & Identification Numbers
+                    </h4>
+                    <p className="text-[11px] text-zinc-500">
+                      Selecting year auto-calculates ADM{formData.admissionYear.slice(-2)} / PRC{formData.admissionYear.slice(-2)} sequence. Both numbers are editable.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-200 border border-emerald-300">
+                    Session: {formData.admissionYear}
+                  </span>
+                  <span className="text-[10px] font-mono text-zinc-400">
+                    Code: {formData.previewStudentCode}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-xs">
-                <span className="text-zinc-400">Sequence Year:</span>
-                <span className="font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
-                  {formData.admissionYear}
-                </span>
-              </div>
-            </div>
 
-            {/* Read-Only Auto Identifier Previews */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs">
-              <div>
-                <Label className="text-[11px] text-zinc-500 font-semibold">Auto Admission No (Preview)</Label>
-                <p className="font-mono font-bold text-zinc-800 dark:text-zinc-200 mt-0.5">{formData.previewAdmissionNo}</p>
-                <span className="text-[10px] text-zinc-400">Generated atomically on save</span>
-              </div>
-              <div>
-                <Label className="text-[11px] text-zinc-500 font-semibold">Auto Roll No (Preview)</Label>
-                <p className="font-mono font-bold text-zinc-800 dark:text-zinc-200 mt-0.5">{formData.previewRollNo}</p>
-                <span className="text-[10px] text-zinc-400">Year-based continuous sequence</span>
-              </div>
-              <div>
-                <Label className="text-[11px] text-zinc-500 font-semibold">Student Permanent Code</Label>
-                <p className="font-mono font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">{formData.previewStudentCode}</p>
-                <span className="text-[10px] text-zinc-400">Permanent profile identifier</span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* Year Dropdown */}
+                <div>
+                  <Label className="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center justify-between">
+                    <span>Admission Year / Session *</span>
+                    <span className="text-[10px] text-emerald-600 font-semibold">Live Sequence</span>
+                  </Label>
+                  <select
+                    value={formData.admissionYear}
+                    onChange={(e) => handleYearChange(e.target.value)}
+                    className="w-full mt-1.5 text-xs font-bold h-10 rounded-xl border-2 border-emerald-400 dark:border-emerald-700 bg-white dark:bg-zinc-900 px-3 text-zinc-900 dark:text-white shadow-xs focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                  >
+                    {[
+                      { label: '2027 (Session 2027-2028)', value: '2027' },
+                      { label: '2026 (Session 2026-2027)', value: '2026' },
+                      { label: '2025 (Session 2025-2026)', value: '2025' },
+                      { label: '2024 (Session 2024-2025)', value: '2024' },
+                      { label: '2023 (Session 2023-2024)', value: '2023' },
+                      { label: '2022 (Session 2022-2023)', value: '2022' }
+                    ].map(y => (
+                      <option key={y.value} value={y.value}>{y.label}</option>
+                    ))}
+                  </select>
+                  <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold mt-1 block">
+                    Prefix: ADM{formData.admissionYear.slice(-2)} / PRC{formData.admissionYear.slice(-2)}
+                  </span>
+                </div>
+
+                {/* Admission Number */}
+                <div>
+                  <Label className="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center justify-between">
+                    <span>Admission Number *</span>
+                    <span className="text-[10px] font-normal text-emerald-600">Editable</span>
+                  </Label>
+                  <Input
+                    type="text"
+                    value={formData.admissionNo}
+                    onChange={(e) => setFormData({ ...formData, admissionNo: e.target.value })}
+                    placeholder={`e.g. ADM${formData.admissionYear.slice(-2)}0001`}
+                    className="mt-1.5 font-mono font-extrabold text-xs h-10 border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white"
+                  />
+                  <span className="text-[10px] text-zinc-500 mt-1 block">
+                    Continuous student admission ID
+                  </span>
+                </div>
+
+                {/* Roll Number */}
+                <div>
+                  <Label className="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center justify-between">
+                    <span>Roll Number *</span>
+                    <span className="text-[10px] font-normal text-emerald-600">Editable</span>
+                  </Label>
+                  <Input
+                    type="text"
+                    value={formData.rollNo}
+                    onChange={(e) => setFormData({ ...formData, rollNo: e.target.value })}
+                    placeholder={`e.g. PRC${formData.admissionYear.slice(-2)}0001`}
+                    className="mt-1.5 font-mono font-extrabold text-xs h-10 border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white"
+                  />
+                  <span className="text-[10px] text-zinc-500 mt-1 block">
+                    Continuous student academic roll
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -1662,30 +1812,94 @@ export default function StudentAdmissionWizardPage() {
             {/* Fee Structure Summary */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="sm:col-span-2 space-y-4">
-                <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-900/30 space-y-3">
-                  <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wide">
-                    Program Offering Fee Breakdown
-                  </h4>
-                  <div className="space-y-1.5 text-xs">
-                    <div className="flex justify-between py-1 border-b border-zinc-200 dark:border-zinc-800">
-                      <span className="text-zinc-600 dark:text-zinc-400">Admission / Registration Fee</span>
-                      <span className="font-semibold">PKR {feeAdmission.toLocaleString()}</span>
+                <div className="p-4 sm:p-5 rounded-2xl border-2 border-emerald-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs space-y-4">
+                  <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-2.5">
+                    <div>
+                      <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wide flex items-center gap-1.5">
+                        <CreditCard className="w-4 h-4 text-emerald-600" />
+                        Editable Admission & Term Fee Breakdown
+                      </h4>
+                      <p className="text-[11px] text-zinc-500">
+                        Customize or enter fee heads for this student. Gross total updates live.
+                      </p>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-zinc-200 dark:border-zinc-800">
-                      <span className="text-zinc-600 dark:text-zinc-400">Tuition Fee (First Term)</span>
-                      <span className="font-semibold">PKR {feeTuition.toLocaleString()}</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
+                      Fully Editable
+                    </span>
+                  </div>
+
+                  <div className="space-y-3.5 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <div>
+                        <Label className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                          Admission / Registration Fee (PKR) *
+                        </Label>
+                        <Input
+                          type="number"
+                          value={formData.feeAdmission}
+                          onChange={(e) => setFormData({ ...formData, feeAdmission: e.target.value })}
+                          className="mt-1 font-mono font-bold text-xs h-9 bg-zinc-50/50 dark:bg-zinc-800"
+                          placeholder="5000"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                          Tuition Fee (Term / First Installment) (PKR) *
+                        </Label>
+                        <Input
+                          type="number"
+                          value={formData.feeTuition}
+                          onChange={(e) => setFormData({ ...formData, feeTuition: e.target.value })}
+                          className="mt-1 font-mono font-bold text-xs h-9 bg-zinc-50/50 dark:bg-zinc-800"
+                          placeholder="25000"
+                        />
+                      </div>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-zinc-200 dark:border-zinc-800">
-                      <span className="text-zinc-600 dark:text-zinc-400">Security Deposit (Refundable)</span>
-                      <span className="font-semibold">PKR {feeSecurity.toLocaleString()}</span>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                      <div>
+                        <Label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                          Security Deposit (Refundable)
+                        </Label>
+                        <Input
+                          type="number"
+                          value={formData.feeSecurity}
+                          onChange={(e) => setFormData({ ...formData, feeSecurity: e.target.value })}
+                          className="mt-1 font-mono font-bold text-xs h-9 bg-zinc-50/50 dark:bg-zinc-800"
+                          placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                          Exam & Board Affiliation Fee
+                        </Label>
+                        <Input
+                          type="number"
+                          value={formData.feeExam}
+                          onChange={(e) => setFormData({ ...formData, feeExam: e.target.value })}
+                          className="mt-1 font-mono font-bold text-xs h-9 bg-zinc-50/50 dark:bg-zinc-800"
+                          placeholder="2000"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                          Laboratory / Library Fee
+                        </Label>
+                        <Input
+                          type="number"
+                          value={formData.feeOther}
+                          onChange={(e) => setFormData({ ...formData, feeOther: e.target.value })}
+                          className="mt-1 font-mono font-bold text-xs h-9 bg-zinc-50/50 dark:bg-zinc-800"
+                          placeholder="1000"
+                        />
+                      </div>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-zinc-200 dark:border-zinc-800">
-                      <span className="text-zinc-600 dark:text-zinc-400">Exam & Board Affiliation Fee</span>
-                      <span className="font-semibold">PKR {feeExam.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between py-1.5 font-bold text-zinc-900 dark:text-zinc-100">
-                      <span>Gross Total Fee</span>
-                      <span>PKR {feeGross.toLocaleString()}</span>
+
+                    <div className="flex justify-between items-center py-2.5 px-3.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 font-extrabold text-xs sm:text-sm text-zinc-900 dark:text-zinc-100">
+                      <span>Gross Total Fee:</span>
+                      <span className="font-mono text-base font-extrabold text-emerald-700 dark:text-emerald-400">
+                        PKR {feeGross.toLocaleString()}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -1701,7 +1915,7 @@ export default function StudentAdmissionWizardPage() {
                       <select
                         value={formData.concessionType}
                         onChange={(e) => setFormData({ ...formData, concessionType: e.target.value })}
-                        className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3"
+                        className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 cursor-pointer"
                       >
                         <option value="None">No Concession</option>
                         <option value="Percentage">Percentage (%)</option>
@@ -1715,7 +1929,7 @@ export default function StudentAdmissionWizardPage() {
                         disabled={formData.concessionType === 'None'}
                         value={formData.concessionValue}
                         onChange={(e) => setFormData({ ...formData, concessionValue: e.target.value })}
-                        className="mt-1 text-xs"
+                        className="mt-1 text-xs font-bold"
                       />
                     </div>
                     <div>
@@ -1734,13 +1948,13 @@ export default function StudentAdmissionWizardPage() {
               </div>
 
               {/* Net Payable Card */}
-              <div className="p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-zinc-50 to-emerald-50/30 dark:from-zinc-900 dark:to-emerald-950/20 flex flex-col justify-between">
+              <div className="p-5 rounded-2xl border-2 border-emerald-400 dark:border-emerald-700 bg-gradient-to-br from-white via-zinc-50 to-emerald-50/40 dark:from-zinc-900 dark:to-emerald-950/20 shadow-md flex flex-col justify-between">
                 <div>
                   <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                    Admission Net Total
+                    Admission Net Total Payable
                   </span>
                   <div className="mt-2">
-                    <span className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-100">
+                    <span className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-100 font-mono">
                       PKR {feeNetPayable.toLocaleString()}
                     </span>
                     {concessionDiscount > 0 && (
@@ -1756,7 +1970,7 @@ export default function StudentAdmissionWizardPage() {
                         type="checkbox"
                         checked={formData.generateInvoice}
                         onChange={(e) => setFormData({ ...formData, generateInvoice: e.target.checked })}
-                        className="rounded text-emerald-600"
+                        className="rounded text-emerald-600 cursor-pointer"
                       />
                       <span>Auto-generate fee invoice in Finance</span>
                     </label>
@@ -1766,7 +1980,7 @@ export default function StudentAdmissionWizardPage() {
                         type="checkbox"
                         checked={formData.allowCapacityOverride}
                         onChange={(e) => setFormData({ ...formData, allowCapacityOverride: e.target.checked })}
-                        className="rounded text-amber-600"
+                        className="rounded text-amber-600 cursor-pointer"
                       />
                       <span>Allow capacity override (Admin)</span>
                     </label>
@@ -1777,15 +1991,15 @@ export default function StudentAdmissionWizardPage() {
                   <Button
                     onClick={handleSubmitAdmission}
                     disabled={submitting}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 text-xs shadow-md"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold h-12 text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer"
                   >
                     {submitting ? (
                       <>
-                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Finalizing Admission...
+                        <RefreshCw className="w-4 h-4 animate-spin" /> Finalizing Admission...
                       </>
                     ) : (
                       <>
-                        <CheckCircle2 className="w-4 h-4 mr-2" /> Confirm & Complete Admission
+                        <CheckCircle2 className="w-5 h-5" /> Confirm & Complete Admission
                       </>
                     )}
                   </Button>
@@ -1794,30 +2008,33 @@ export default function StudentAdmissionWizardPage() {
             </div>
 
             {/* Complete Admission Summary Card */}
-            <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30 text-xs space-y-3">
-              <h4 className="font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wide">
-                Final Review Summary
+            <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30 text-xs space-y-3">
+              <h4 className="font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wide flex items-center gap-2">
+                <span>Final Review Summary</span>
+                <span className="text-[10px] font-normal text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  Session {formData.admissionYear}
+                </span>
               </h4>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-zinc-600 dark:text-zinc-400">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 text-zinc-600 dark:text-zinc-400">
                 <div>
-                  <span className="text-zinc-400 block text-[10px]">Student Name</span>
-                  <span className="font-bold text-zinc-900 dark:text-zinc-100">{formData.firstName} {formData.lastName}</span>
+                  <span className="text-zinc-400 block text-[10px] uppercase font-bold">Student Name</span>
+                  <span className="font-bold text-zinc-900 dark:text-zinc-100">{formData.firstName} {formData.lastName || ''}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-400 block text-[10px]">Program Offering</span>
-                  <span className="font-bold text-zinc-900 dark:text-zinc-100">{selectedOffering?.title || 'Selected Offering'}</span>
+                  <span className="text-zinc-400 block text-[10px] uppercase font-bold">Admission Number</span>
+                  <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400">{formData.admissionNo}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-400 block text-[10px]">Campus & Batch</span>
-                  <span className="font-bold text-zinc-900 dark:text-zinc-100">
-                    {campuses.find(c => c._id === formData.campusId)?.name || 'Campus'} / Section {formData.sectionName}
-                  </span>
+                  <span className="text-zinc-400 block text-[10px] uppercase font-bold">Roll Number</span>
+                  <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400">{formData.rollNo}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-400 block text-[10px]">Admission Date & Year</span>
-                  <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                    {formData.admissionDate} ({formData.admissionYear})
-                  </span>
+                  <span className="text-zinc-400 block text-[10px] uppercase font-bold">Program Offering</span>
+                  <span className="font-bold text-zinc-900 dark:text-zinc-100 truncate block">{selectedOffering?.title || 'Selected Offering'}</span>
+                </div>
+                <div>
+                  <span className="text-zinc-400 block text-[10px] uppercase font-bold">Net Total Payable</span>
+                  <span className="font-mono font-extrabold text-zinc-900 dark:text-zinc-100">PKR {feeNetPayable.toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -1825,29 +2042,48 @@ export default function StudentAdmissionWizardPage() {
         )}
 
         {/* Navigation Buttons Footer */}
-        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-4">
           <Button
             type="button"
             variant="outline"
             size="sm"
             disabled={currentStep === 1 || submitting}
             onClick={handlePrev}
-            className="text-xs h-9"
+            className="text-xs h-10 px-4 font-bold cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5 mr-1" /> Previous Step
           </Button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {currentStep < 7 ? (
               <Button
                 type="button"
                 size="sm"
                 onClick={handleNext}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-9"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-10 px-6 font-bold shadow-sm flex items-center gap-1.5 cursor-pointer"
               >
-                Next Step <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                <span>Next Step ({currentStep + 1} of 7)</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </Button>
-            ) : null}
+            ) : (
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleSubmitAdmission}
+                disabled={submitting}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-10 px-6 font-extrabold shadow-md flex items-center gap-2 cursor-pointer"
+              >
+                {submitting ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" /> Finalizing Admission...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" /> Confirm & Complete Admission
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         </div>
 

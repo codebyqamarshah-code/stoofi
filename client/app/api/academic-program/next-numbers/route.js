@@ -12,9 +12,16 @@ export async function GET(req) {
       previewNextRollNumber(year)
     ]);
 
+    const admStr = nextAdmissionNumber?.admissionNumber || nextAdmissionNumber?.admissionNo || `ADM${String(year).slice(-2)}0001`;
+    const rollStr = nextRollNumber?.rollNumber || nextRollNumber?.rollNo || `PRC${String(year).slice(-2)}0001`;
+
     return NextResponse.json({
       success: true,
       year,
+      nextAdmissionNo: admStr,
+      nextRollNo: rollStr,
+      admissionNo: admStr,
+      rollNo: rollStr,
       nextAdmissionNumber,
       nextRollNumber
     });

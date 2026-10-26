@@ -132,8 +132,9 @@ export async function generateAdmissionNumber(yearInput) {
     { new: true, upsert: true }
   );
 
+  const y2 = String(year).slice(-2);
   let seq = updatedCounter.sequence;
-  let candidate = `ADM-${year}-${String(seq).padStart(4, '0')}`;
+  let candidate = `ADM${y2}${String(seq).padStart(4, '0')}`;
 
   let isDuplicate = await checkAdmissionNoExists(candidate);
   while (isDuplicate) {
@@ -143,7 +144,7 @@ export async function generateAdmissionNumber(yearInput) {
       { new: true }
     );
     seq = updatedCounter.sequence;
-    candidate = `ADM-${year}-${String(seq).padStart(4, '0')}`;
+    candidate = `ADM${y2}${String(seq).padStart(4, '0')}`;
     isDuplicate = await checkAdmissionNoExists(candidate);
   }
 
@@ -187,8 +188,9 @@ export async function generateRollNumber(yearInput) {
     { returnDocument: 'after', upsert: true }
   );
 
+  const y2 = String(year).slice(-2);
   let seq = updatedCounter.sequence;
-  let candidate = `ROLL-${year}-${String(seq).padStart(4, '0')}`;
+  let candidate = `PRC${y2}${String(seq).padStart(4, '0')}`;
 
   let isDuplicate = await checkRollNoExists(candidate);
   while (isDuplicate) {
@@ -198,7 +200,7 @@ export async function generateRollNumber(yearInput) {
       { returnDocument: 'after' }
     );
     seq = updatedCounter.sequence;
-    candidate = `ROLL-${year}-${String(seq).padStart(4, '0')}`;
+    candidate = `PRC${y2}${String(seq).padStart(4, '0')}`;
     isDuplicate = await checkRollNoExists(candidate);
   }
 
@@ -247,12 +249,13 @@ export async function checkRollNoExists(rollNo) {
 
 export async function previewNextAdmissionNumber(yearInput) {
   const year = extractYear(yearInput);
+  const y2 = String(year).slice(-2);
   const key = `adm-${year}`;
   const highestExisting = await findHighestExistingAdmissionSeq(year);
   const counter = await AdmissionCounter.findOne({ key }).lean();
   const currentSeq = Math.max(highestExisting, counter?.sequence || 0);
   const nextSeq = currentSeq + 1;
-  const candidate = `ADM-${year}-${String(nextSeq).padStart(4, '0')}`;
+  const candidate = `ADM${y2}${String(nextSeq).padStart(4, '0')}`;
   return {
     nextAdmissionNo: candidate,
     admissionNumber: candidate,
@@ -264,12 +267,13 @@ export async function previewNextAdmissionNumber(yearInput) {
 
 export async function previewNextRollNumber(yearInput) {
   const year = extractYear(yearInput);
+  const y2 = String(year).slice(-2);
   const key = `roll-${year}`;
   const highestExisting = await findHighestExistingRollSeq(year);
   const counter = await AdmissionCounter.findOne({ key }).lean();
   const currentSeq = Math.max(highestExisting, counter?.sequence || 0);
   const nextSeq = currentSeq + 1;
-  const candidate = `ROLL-${year}-${String(nextSeq).padStart(4, '0')}`;
+  const candidate = `PRC${y2}${String(nextSeq).padStart(4, '0')}`;
   return {
     nextRollNo: candidate,
     rollNumber: candidate,

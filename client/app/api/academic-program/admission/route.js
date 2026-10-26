@@ -122,11 +122,18 @@ export async function POST(req) {
       }
     }
 
-    // Atomic Year-Based Identifiers
-    const admGen = await generateAdmissionNumber(admissionYear);
-    const rollGen = await generateRollNumber(admissionYear);
-    const officialAdmissionNo = admGen.admissionNumber;
-    const officialRollNo = rollGen.rollNumber;
+    // Atomic Year-Based Identifiers or User-Entered Custom Numbers
+    let officialAdmissionNo = body.admissionNo && String(body.admissionNo).trim();
+    if (!officialAdmissionNo) {
+      const admGen = await generateAdmissionNumber(admissionYear);
+      officialAdmissionNo = admGen.admissionNumber;
+    }
+
+    let officialRollNo = body.rollNo && String(body.rollNo).trim();
+    if (!officialRollNo) {
+      const rollGen = await generateRollNumber(admissionYear);
+      officialRollNo = rollGen.rollNumber;
+    }
 
     if (isExistingStudent && student) {
       student.phone = body.phone || student.phone;
@@ -208,10 +215,18 @@ export async function POST(req) {
       }
     } catch (_) {}
 
-    const feePlan = offering.feePlan || {};
-    const totalFee = feePlan.totalEstimate || 38000;
-    const concessionAmount = parseFloat(body.concessionAmount || 0) || 0;
-    const netPayable = Math.max(0, totalFee - concessionAmount);
+    const incomingFee = body.feePlan || {};
+    const offeringFee = offering.feePlan || offering.feeStructure || {};
+
+    const admissionFee = incomingFee.admissionFee !== undefined ? parseFloat(incomingFee.admissionFee) || 0 : (parseFloat(offeringFee.admissionFee) || 5000);
+    const tuitionFee = incomingFee.tuitionFee !== undefined ? parseFloat(incomingFee.tuitionFee) || 0 : (parseFloat(offeringFee.tuitionFeePerTerm || offeringFee.tuitionFee) || 25000);
+    const securityDeposit = incomingFee.securityDeposit !== undefined ? parseFloat(incomingFee.securityDeposit) || 0 : (parseFloat(offeringFee.securityDeposit) || 0);
+    const examFee = incomingFee.examFee !== undefined ? parseFloat(incomingFee.examFee) || 0 : (parseFloat(offeringFee.examFee) || 2000);
+    const labFee = incomingFee.labFee !== undefined ? parseFloat(incomingFee.labFee) || 0 : (parseFloat(offeringFee.labFee || offeringFee.labPracticalFee) || 1000);
+
+    const totalFee = incomingFee.grossTotal !== undefined ? parseFloat(incomingFee.grossTotal) || 0 : (admissionFee + tuitionFee + securityDeposit + examFee + labFee);
+    const concessionAmount = parseFloat(incomingFee.concessionDiscount || body.concessionAmount || 0) || 0;
+    const netPayable = incomingFee.netPayable !== undefined ? parseFloat(incomingFee.netPayable) || 0 : Math.max(0, totalFee - concessionAmount);
 
     const enrollment = await StudentEnrollment.create({
       studentId: student._id,
@@ -249,15 +264,15 @@ export async function POST(req) {
       documents: Array.isArray(body.documents) ? body.documents : [],
 
       feeStructureSnapshot: {
-        admissionFee: feePlan.admissionFee || 5000,
-        tuitionFee: feePlan.tuitionFeePerTerm || 25000,
-        registrationFee: feePlan.registrationFee || 3000,
-        labFee: feePlan.labPracticalFee || 2000,
-        examFee: feePlan.examFee || 2000,
-        libraryFee: feePlan.libraryFee || 1000,
+        admissionFee,
+        tuitionFee,
+        registrationFee: 0,
+        labFee,
+        examFee,
+        libraryFee: 0,
         totalFee,
         concessionAmount,
-        concessionReason: body.concessionReason || '',
+        concessionReason: body.concessionReason || incomingFee.invoiceNotes || '',
         concessionApprovedBy: 'Administrator',
         netPayable,
         challanGenerated: true,
@@ -300,12 +315,11 @@ export async function POST(req) {
         section: sectionName,
         feeType: 'Admission & Term Fee',
         feeItems: [
-          { head: 'Admission Fee', amount: feePlan.admissionFee || 5000 },
-          { head: 'Tuition Fee', amount: feePlan.tuitionFeePerTerm || 25000 },
-          { head: 'Registration Fee', amount: feePlan.registrationFee || 3000 },
-          { head: 'Laboratory / Practical Fee', amount: feePlan.labPracticalFee || 2000 },
-          { head: 'Examination Fee', amount: feePlan.examFee || 2000 },
-          { head: 'Library Fee', amount: feePlan.libraryFee || 1000 }
+          { head: 'Admission Fee', amount: admissionFee },
+          { head: 'Tuition Fee', amount: tuitionFee },
+          { head: 'Security Deposit', amount: securityDeposit },
+          { head: 'Laboratory / Practical Fee', amount: labFee },
+          { head: 'Examination Fee', amount: examFee }
         ],
         amount: totalFee,
         waiver: concessionAmount,
