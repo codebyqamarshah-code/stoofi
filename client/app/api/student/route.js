@@ -240,17 +240,6 @@ export async function POST(req) {
         }, { status: 400 });
       }
     }
-      const rollStr = String(dataObj.rollNo).trim();
-      const existingRoll = await Student.findOne({
-        rollNo: { $regex: '^' + rollStr + '$', $options: 'i' }
-      });
-      if (existingRoll) {
-        return NextResponse.json({
-          success: false,
-          message: `Roll Number (${rollStr}) is already assigned in system.`
-        }, { status: 400 });
-      }
-    }
 
     const student = await Student.create({
       ...dataObj,

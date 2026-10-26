@@ -1048,11 +1048,11 @@ export default function DashboardUI({ user }) {
               <div className="mt-3 space-y-1">
                 <div className="text-xs text-zinc-950 dark:text-zinc-700 flex items-center gap-2 font-medium">
                   <span className="h-2 w-2 rounded-full bg-zinc-950" />
-                  COLLECTED: <span className="font-extrabold text-zinc-950 dark:text-zinc-900">${(dashboardData?.stats?.fees?.collectedFees?.toLocaleString?.() || '0')} ({(dashboardData?.stats?.fees?.collectionPercentage ?? 0)}%)</span>
+                  COLLECTED: <span className="font-extrabold text-zinc-950 dark:text-zinc-900">PKR {(dashboardData?.stats?.fees?.collectedFees?.toLocaleString?.() || '0')} ({(dashboardData?.stats?.fees?.collectionPercentage ?? 0)}%)</span>
                 </div>
                 <div className="text-xs text-zinc-950 dark:text-zinc-700 flex items-center gap-2 font-medium">
                   <span className="h-2 w-2 rounded-full bg-[#18181b]" />
-                  TOTAL FEES: <span className="font-extrabold text-zinc-950 dark:text-zinc-900">${(dashboardData?.stats?.fees?.totalFees?.toLocaleString?.() || '0')}</span>
+                  TOTAL FEES: <span className="font-extrabold text-zinc-950 dark:text-zinc-900">PKR {(dashboardData?.stats?.fees?.totalFees?.toLocaleString?.() || '0')}</span>
                 </div>
               </div>
             </div>
@@ -1196,15 +1196,15 @@ export default function DashboardUI({ user }) {
             <div className="grid grid-cols-3 gap-2">
               <div className="bg-zinc-100/40 dark:bg-white p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-200">
                 <div className="text-[10px] uppercase font-extrabold text-zinc-950 dark:text-zinc-600">TOTAL INCOME</div>
-                <div className="text-sm font-black text-zinc-950 dark:text-zinc-900 mt-0.5">${(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
+                <div className="text-sm font-black text-zinc-950 dark:text-zinc-900 mt-0.5">PKR {(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
               </div>
               <div className="bg-zinc-100/40 dark:bg-white p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-200">
                 <div className="text-[10px] uppercase font-extrabold text-zinc-950 dark:text-zinc-600">TOTAL EXPENSES</div>
-                <div className="text-sm font-black text-rose-500 mt-0.5">${(dashboardData?.stats?.fees?.totalExpenses?.toLocaleString?.() || '0')}</div>
+                <div className="text-sm font-black text-rose-500 mt-0.5">PKR {(dashboardData?.stats?.fees?.totalExpenses?.toLocaleString?.() || '0')}</div>
               </div>
               <div className="bg-zinc-100/40 dark:bg-white p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-200">
                 <div className="text-[10px] uppercase font-extrabold text-zinc-950 dark:text-zinc-600">TOTAL PROFIT</div>
-                <div className="text-sm font-black text-zinc-950 dark:text-zinc-900 mt-0.5">${(dashboardData?.stats?.fees?.totalProfit?.toLocaleString?.() || '0')}</div>
+                <div className="text-sm font-black text-zinc-950 dark:text-zinc-900 mt-0.5">PKR {(dashboardData?.stats?.fees?.totalProfit?.toLocaleString?.() || '0')}</div>
               </div>
             </div>
 
@@ -1266,15 +1266,15 @@ export default function DashboardUI({ user }) {
             <div className="grid grid-cols-3 gap-2">
               <div className="bg-zinc-100/40 dark:bg-white p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-200">
                 <div className="text-[10px] uppercase font-extrabold text-zinc-950 dark:text-zinc-600">TOTAL INCOME</div>
-                <div className="text-sm font-black text-zinc-950 dark:text-zinc-900 mt-0.5">${(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
+                <div className="text-sm font-black text-zinc-950 dark:text-zinc-900 mt-0.5">PKR {(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
               </div>
               <div className="bg-zinc-100/40 dark:bg-white p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-200">
                 <div className="text-[10px] uppercase font-extrabold text-zinc-950 dark:text-zinc-600">TOTAL EXPENSES</div>
-                <div className="text-sm font-black text-rose-500 mt-0.5">${(dashboardData?.stats?.fees?.totalExpenses?.toLocaleString?.() || '0')}</div>
+                <div className="text-sm font-black text-rose-500 mt-0.5">PKR {(dashboardData?.stats?.fees?.totalExpenses?.toLocaleString?.() || '0')}</div>
               </div>
               <div className="bg-zinc-100/40 dark:bg-white p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-200">
                 <div className="text-[10px] uppercase font-extrabold text-zinc-950 dark:text-zinc-600">TOTAL REVENUE</div>
-                <div className="text-sm font-black text-zinc-950 dark:text-zinc-900 mt-0.5">${(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
+                <div className="text-sm font-black text-zinc-950 dark:text-zinc-900 mt-0.5">PKR {(dashboardData?.stats?.fees?.totalIncome?.toLocaleString?.() || '0')}</div>
               </div>
             </div>
 

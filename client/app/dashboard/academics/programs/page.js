@@ -1010,8 +1010,8 @@ export default function AcademicProgramsPage() {
               {/* Fee Plan Configuration */}
               <div className="bg-zinc-50 p-4 rounded-2xl border border-zinc-200 space-y-3">
                 <h4 className="text-xs font-black uppercase text-zinc-900 tracking-wider flex items-center gap-1.5">
-                  <DollarSign className="h-4 w-4 text-emerald-700" />
-                  Fee Structure & Plan (Rs.)
+                  <CreditCard className="h-4 w-4 text-emerald-700" />
+                  Fee Structure & Plan (PKR)
                 </h4>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">

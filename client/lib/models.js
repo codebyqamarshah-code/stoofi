@@ -730,5 +730,140 @@ const studentEnrollmentSchema = new mongoose.Schema({
 
 export const StudentEnrollment = mongoose.models.StudentEnrollment || mongoose.model('StudentEnrollment', studentEnrollmentSchema);
 
+// FeesInvoice Schema
+const feesInvoiceSchema = new mongoose.Schema({ 
+  invoiceNo: String,
+  challanNo: String,
+  billingMonth: String,
+  dueDate: Date,
+  studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
+  student: String, 
+  fatherName: String,
+  rollNo: String,
+  admissionNo: String,
+  className: String,
+  section: String,
+  feeType: String,
+  feeItems: [{
+    head: String,
+    amount: Number
+  }],
+  amount: Number, 
+  waiver: Number, 
+  fine: Number, 
+  paid: Number, 
+  balance: Number, 
+  paymentMethod: { type: String, default: 'Cash' },
+  note: String,
+  status: { type: String, enum: ['Paid', 'Partial', 'Unpaid', 'PAID', 'PARTIAL', 'UNPAID'], default: 'Unpaid' }, 
+  date: Date 
+}, { timestamps: true });
+
+export const FeesInvoice = mongoose.models.FeesInvoice || mongoose.model('FeesInvoice', feesInvoiceSchema);
+
+// Payroll Schema
+const payrollSchema = new mongoose.Schema({
+  staffId: { type: String, required: true },
+  staffNo: String,
+  staffName: String,
+  role: String,
+  department: String,
+  designation: String,
+  month: String,
+  year: String,
+  basicSalary: Number,
+  allowances: Number,
+  deductions: Number,
+  netSalary: Number,
+  status: { type: String, default: 'Paid' },
+  payDate: Date,
+  paymentMethod: { type: String, default: 'Bank Transfer' },
+  transactionRef: String
+}, { timestamps: true });
+
+export const Payroll = mongoose.models.Payroll || mongoose.model('Payroll', payrollSchema);
+
+// Staff Attendance Schema
+const staffAttendanceSchema = new mongoose.Schema({
+  staffId: { type: String, required: true },
+  staffNo: String,
+  name: String,
+  role: String,
+  department: String,
+  date: { type: Date, default: Date.now },
+  status: { type: String, enum: ['Present', 'Absent', 'Leave', 'Late', 'present', 'absent', 'leave', 'late'], default: 'Present' },
+  remarks: String
+}, { timestamps: true });
+
+export const StaffAttendance = mongoose.models.StaffAttendance || mongoose.model('StaffAttendance', staffAttendanceSchema);
+
+// Bank Payment Schema
+const bankPaymentSchema = new mongoose.Schema({ 
+  studentName: { type: String, required: true },
+  studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
+  admissionNo: String,
+  className: String,
+  section: String,
+  date: { type: Date, default: Date.now }, 
+  amount: { type: Number, required: true }, 
+  transactionId: String,
+  bankName: String,
+  note: String, 
+  file: String,
+  status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' } 
+}, { timestamps: true });
+
+export const BankPayment = mongoose.models.BankPayment || mongoose.model('BankPayment', bankPaymentSchema);
+
+// Exam Schedule Schema
+const examScheduleSchema = new mongoose.Schema({
+  examId: String,
+  examName: String,
+  classId: String,
+  className: String,
+  sectionId: String,
+  sectionName: String,
+  scheduleItems: [{
+    subjectId: String,
+    subjectName: String,
+    date: String,
+    startTime: String,
+    endTime: String,
+    room: String,
+    totalMarks: Number,
+    passingMarks: Number,
+    invigilator: String
+  }]
+}, { timestamps: true });
+
+export const ExamSchedule = mongoose.models.ExamSchedule || mongoose.model('ExamSchedule', examScheduleSchema);
+
+// Online Exam Schema
+const onlineExamSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  examCode: { type: String, unique: true, sparse: true },
+  classId: String,
+  className: String,
+  subjectId: String,
+  subjectName: String,
+  date: Date,
+  duration: { type: Number, default: 30 },
+  totalMarks: { type: Number, default: 100 },
+  minPercentage: { type: Number, default: 50 },
+  status: { type: String, enum: ['Draft', 'Active', 'Completed', 'Closed'], default: 'Active' },
+  questions: [{
+    question: String,
+    optionA: String,
+    optionB: String,
+    optionC: String,
+    optionD: String,
+    correctAnswer: String,
+    marks: Number
+  }]
+}, { timestamps: true });
+
+export const OnlineExam = mongoose.models.OnlineExam || mongoose.model('OnlineExam', onlineExamSchema);
+
+
 
 

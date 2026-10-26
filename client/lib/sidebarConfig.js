@@ -86,7 +86,7 @@ export const ICON_MAP = {
   FolderOpen,
   Settings,
   School,
-  DollarSign,
+  DollarSign: Wallet, // Replaced dollar sign with Wallet icon for Pakistan ERP
   Shield,
   FileText,
   CreditCard,
@@ -304,7 +304,7 @@ export const DEFAULT_MENU_STRUCTURE = [
       {
         id: 'item-fees',
         name: 'Fees',
-        iconName: 'DollarSign',
+        iconName: 'Wallet',
         hasSubmenu: true,
         visible: true,
         subItems: [
@@ -516,7 +516,7 @@ export const DEFAULT_MENU_STRUCTURE = [
           { id: 'sub-lms-pending', name: 'Pending Course', href: '/dashboard/lms/pending', iconName: 'ListTodo', visible: true },
           { id: 'sub-lms-history', name: 'Enroll History', href: '/dashboard/lms/enroll-history', iconName: 'CalendarDays', visible: true },
           { id: 'sub-lms-log', name: 'Purchase Log', href: '/dashboard/lms/purchase-log', iconName: 'FileText', visible: true },
-          { id: 'sub-lms-inv', name: 'LMS Fees Invoice', href: '/dashboard/lms/invoice', iconName: 'DollarSign', visible: true },
+          { id: 'sub-lms-inv', name: 'LMS Fees Invoice', href: '/dashboard/lms/invoice', iconName: 'CreditCard', visible: true },
           { id: 'sub-lms-cat', name: 'Category List', href: '/dashboard/lms/categories', iconName: 'List', visible: true },
           { id: 'sub-lms-lvl', name: 'Course Level', href: '/dashboard/lms/levels', iconName: 'Layers', visible: true },
           { id: 'sub-lms-vimeo', name: 'Vimeo Settings', href: '/dashboard/lms/vimeo', iconName: 'Video', visible: true },
@@ -553,7 +553,7 @@ export const DEFAULT_MENU_STRUCTURE = [
         subItems: [
           { id: 'sub-acc-pl', name: 'Profit & Loss', href: '/dashboard/accounts/accounts/profit-loss', iconName: 'BarChart2', visible: true },
           { id: 'sub-acc-income', name: 'Income', href: '/dashboard/accounts/accounts/income', iconName: 'Banknote', visible: true },
-          { id: 'sub-acc-expense', name: 'Expense', href: '/dashboard/accounts/accounts/expense', iconName: 'DollarSign', visible: true },
+          { id: 'sub-acc-expense', name: 'Expense', href: '/dashboard/accounts/accounts/expense', iconName: 'Banknote', visible: true },
           { id: 'sub-acc-chart', name: 'Chart Of Account', href: '/dashboard/accounts/accounts/chart-of-account', iconName: 'PieChart', visible: true },
           { id: 'sub-acc-bank', name: 'Bank Account', href: '/dashboard/accounts/accounts/bank-account', iconName: 'Building', visible: true },
           { id: 'sub-acc-fund', name: 'Fund Transfer', href: '/dashboard/accounts/accounts/fund-transfer', iconName: 'ArrowRightLeft', visible: true },
@@ -682,12 +682,12 @@ export const DEFAULT_MENU_STRUCTURE = [
       {
         id: 'item-rep-fees',
         name: 'Fees Report',
-        iconName: 'DollarSign',
+        iconName: 'Wallet',
         hasSubmenu: true,
         visible: true,
         subItems: [
           { id: 'sub-rep-fee-due', name: 'Fees Due Report', href: '/dashboard/report/fees/due', iconName: 'ListTodo', visible: true },
-          { id: 'sub-rep-fee-fine', name: 'Fine Report', href: '/dashboard/report/fees/fine', iconName: 'DollarSign', visible: true },
+          { id: 'sub-rep-fee-fine', name: 'Fine Report', href: '/dashboard/report/fees/fine', iconName: 'Banknote', visible: true },
           { id: 'sub-rep-fee-pay', name: 'Payment Report', href: '/dashboard/report/fees/payment', iconName: 'Banknote', visible: true },
           { id: 'sub-rep-fee-bal', name: 'Balance Report', href: '/dashboard/report/fees/balance', iconName: 'BarChart2', visible: true },
           { id: 'sub-rep-fee-waiver', name: 'Waiver Report', href: '/dashboard/report/fees/waiver', iconName: 'Tag', visible: true },
@@ -743,7 +743,7 @@ export const DEFAULT_MENU_STRUCTURE = [
           { id: 'sub-gen-notif', name: 'Notification Setting', href: '/dashboard/settings/general/notification-setting', iconName: 'Bell', visible: true },
           { id: 'sub-gen-tawk', name: 'Tawk To Chat', href: '/dashboard/settings/general/tawk-to-chat', iconName: 'MessageSquare', visible: true },
           { id: 'sub-gen-msg', name: 'Messenger Chat', href: '/dashboard/settings/general/messenger-chat', iconName: 'MessagesSquare', visible: true },
-          { id: 'sub-gen-curr', name: 'Manage Currency', href: '/dashboard/settings/general/manage-currency', iconName: 'DollarSign', visible: true },
+          { id: 'sub-gen-curr', name: 'Manage Currency', href: '/dashboard/settings/general/manage-currency', iconName: 'Banknote', visible: true },
           { id: 'sub-gen-email', name: 'Email Settings', href: '/dashboard/settings/general/email-settings', iconName: 'MailOpen', visible: true },
           { id: 'sub-gen-pay', name: 'Payment Settings', href: '/dashboard/settings/general/payment-settings', iconName: 'Banknote', visible: true },
           { id: 'sub-gen-base', name: 'Base Setup', href: '/dashboard/settings/general/base-setup', iconName: 'Settings', visible: true },
@@ -795,7 +795,7 @@ export const DEFAULT_MENU_STRUCTURE = [
       {
         id: 'item-set-fees',
         name: 'Fees Settings',
-        iconName: 'DollarSign',
+        iconName: 'Wallet',
         hasSubmenu: true,
         visible: true,
         subItems: [

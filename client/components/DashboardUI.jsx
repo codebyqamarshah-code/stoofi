@@ -1062,7 +1062,7 @@ export default function DashboardUI({ user }) {
                     <Briefcase className="h-3.5 w-3.5 mr-1.5" /> Staff
                   </Button>
                   <Button onClick={() => router.push('/dashboard/fees/collection')} className="h-9 px-4 text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all rounded-xl font-bold border-0">
-                    <DollarSign className="h-3.5 w-3.5 mr-1.5" /> Fee
+                    <CreditCard className="h-3.5 w-3.5 mr-1.5" /> Fee
                   </Button>
                 </div>
               </div>

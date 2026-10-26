@@ -4,18 +4,21 @@ import React from 'react';
 import Link from 'next/link';
 import { 
   ChevronRight, 
-  DollarSign, 
+  Banknote, 
   FileText, 
   CreditCard, 
   ArrowRight, 
   PieChart, 
   TrendingUp, 
-  ArrowRightLeft
+  ArrowRightLeft,
+  Wallet
 } from 'lucide-react';
 
 const ACCOUNTS_REPORTS = [
-  { title: 'General Transaction & Ledger Report', href: '/dashboard/report/accounts/transaction', icon: FileText, desc: 'Complete audit of income vouchers, expense debits, inter-account transfers, and closing balances' },
-  { title: 'Faculty & Staff Payroll Ledger', href: '/dashboard/report/accounts/payroll', icon: DollarSign, desc: 'Detailed salary disbursement register with tax withholdings, allowances, and banking references' },
+  { title: 'General Transaction & Ledger Report', href: '/dashboard/report/accounts/transaction', icon: ArrowRightLeft, desc: 'Complete audit of income vouchers, student fee credits, expense debits, and closing bank balances' },
+  { title: 'Faculty & Staff Payroll Ledger', href: '/dashboard/report/accounts/payroll', icon: Banknote, desc: 'Detailed salary disbursement register with tax withholdings, allowances, and banking references' },
+  { title: 'Fees Due & Collection Report', href: '/dashboard/report/fees/due', icon: Wallet, desc: 'Student term dues, balance summaries, and institutional revenue recovery tracking' },
+  { title: 'Monthly Payment & Cash Flow Report', href: '/dashboard/report/fees/payment', icon: CreditCard, desc: 'Daily and monthly revenue collection reconciliations across bank and counter challans' },
 ];
 
 export default function AccountsReportHubPage() {
@@ -26,7 +29,7 @@ export default function AccountsReportHubPage() {
         <div>
           <h1 className="text-2xl font-black text-zinc-950 flex items-center gap-2.5">
             <span className="p-2 rounded-xl bg-[#084A86]/10 text-[#084A86]">
-              <DollarSign className="h-6 w-6" />
+              <Banknote className="h-6 w-6" />
             </span>
             Accounts &amp; Financial Reports
           </h1>
@@ -62,7 +65,7 @@ export default function AccountsReportHubPage() {
               <p className="text-xs text-zinc-500 mt-2 leading-relaxed">{rep.desc}</p>
             </div>
             <div className="mt-6 pt-4 border-t border-zinc-100 flex items-center justify-between text-xs">
-              <span className="text-zinc-400 font-medium">Export to CSV / PDF / Print</span>
+              <span className="text-zinc-400 font-medium">Export CSV &amp; Official Print</span>
               <span className="font-bold text-[#084A86] group-hover:underline">Open Report →</span>
             </div>
           </Link>

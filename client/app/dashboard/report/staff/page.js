@@ -6,7 +6,7 @@ import {
   ChevronRight, 
   Users, 
   CalendarCheck, 
-  DollarSign, 
+  Banknote, 
   ArrowRight, 
   Award, 
   Sparkles,
@@ -15,7 +15,7 @@ import {
 
 const STAFF_REPORTS = [
   { title: 'Staff Monthly Attendance Report', href: '/dashboard/report/staff/attendance', icon: CalendarCheck, desc: 'Detailed employee attendance ledger, punctuality score, leave records, and department totals' },
-  { title: 'Staff Payroll & Salary Summary', href: '/dashboard/report/staff/payroll', icon: DollarSign, desc: 'Monthly payslip ledger, gross salary, tax deductions, allowances, and net pay dispatches' },
+  { title: 'Staff Payroll & Salary Summary', href: '/dashboard/report/staff/payroll', icon: Banknote, desc: 'Monthly payslip ledger, gross salary, tax deductions, allowances, and net pay dispatches' },
 ];
 
 export default function StaffReportHubPage() {
@@ -62,7 +62,7 @@ export default function StaffReportHubPage() {
               <p className="text-xs text-zinc-500 mt-2 leading-relaxed">{rep.desc}</p>
             </div>
             <div className="mt-6 pt-4 border-t border-zinc-100 flex items-center justify-between text-xs">
-              <span className="text-zinc-400 font-medium">Export to CSV / PDF / Print</span>
+              <span className="text-zinc-400 font-medium">Export CSV &amp; Official Print</span>
               <span className="font-bold text-[#084A86] group-hover:underline">Open Report →</span>
             </div>
           </Link>

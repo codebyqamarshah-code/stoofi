@@ -5,7 +5,9 @@ import Link from 'next/link';
 import {
   ChevronRight,
   Search,
-  DollarSign,
+  Wallet,
+  CreditCard,
+  Banknote,
   Printer,
   Download,
   FileText,
@@ -702,7 +704,7 @@ export default function FeesCollectionPage() {
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 print:hidden">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-zinc-950 flex items-center gap-2">
-            <DollarSign className="h-7 w-7 text-emerald-600" />
+            <Wallet className="h-7 w-7 text-emerald-600" />
             Monthly Fees Collection &amp; Challan Desk
           </h1>
           <p className="text-sm text-zinc-600 mt-1">
@@ -1117,7 +1119,7 @@ export default function FeesCollectionPage() {
                                 : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                             }`}
                           >
-                            <DollarSign className="h-3.5 w-3.5" />
+                            <CreditCard className="h-3.5 w-3.5" />
                             {isPaid ? 'Edit / Receipt' : 'Collect Fee'}
                           </Button>
                         </div>

@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import api from '@/services/api';
 import { 
   BookOpen, Award, Monitor, Users, BookMarked, ListTodo,
-  CalendarCheck, DollarSign, Star, Clock, ChevronLeft,
+  CalendarCheck, Wallet, Star, Clock, ChevronLeft,
   ChevronRight, Sun, MapPin, Cloud, CloudRain, CloudSnow,
   Wind, Droplets, Thermometer
 } from 'lucide-react';
@@ -183,7 +183,7 @@ export default function StudentDashboardPage() {
     { label: 'TOTAL ISSUED BOOK', value: studentDetails?.issuedBooks?.length || '0', icon: BookMarked, href: '/dashboard/student/library/book-issue' },
     { label: 'PENDING HOMEWORK', value: String(pendingHomeworkList.length), icon: ListTodo, href: '/dashboard/student/homework' },
     { label: 'ATTENDANCE THIS MONTH', value: attendanceSummary.total > 0 ? `${attendanceSummary.present} Days` : '0 Days', icon: CalendarCheck, href: '/dashboard/student/attendance' },
-    { label: 'TOTAL DUE FEES', value: '$' + (studentDetails?.dueFees || '0'), icon: DollarSign, href: '/dashboard/student/fees' },
+    { label: 'TOTAL DUE FEES', value: 'PKR ' + (studentDetails?.dueFees || '0'), icon: Wallet, href: '/dashboard/student/fees' },
     { label: 'BEHAVIOUR POINTS', value: studentDetails?.behaviourPoints || '0', icon: Star, href: '/dashboard/student' },
   ];
 
