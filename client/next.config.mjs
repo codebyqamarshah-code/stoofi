@@ -24,10 +24,6 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/:path*',
-        destination: 'https://stoofi-backend.vercel.app/api/:path*',
-      },
-      {
         source: '/uploads/:path*',
         destination: 'https://stoofi-backend.vercel.app/uploads/:path*',
       },

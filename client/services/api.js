@@ -1,31 +1,22 @@
 import axios from 'axios';
 
-const REMOTE_BACKEND_URL = 'https://stoofi-backend.vercel.app/api';
-const LOCAL_BACKEND_URL = 'http://localhost:5000/api';
-
 const isProd = process.env.NODE_ENV === 'production';
 const envApiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 // Base URL configuration - dynamically resolve according to client execution environment
-let baseURL = envApiUrl;
+let baseURL = '/api';
 
 if (typeof window !== 'undefined') {
-  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  if (!isLocalhost) {
-    // If accessing from another laptop, mobile, or live web deployment, never attempt localhost:5000!
-    if (!baseURL || baseURL.includes('localhost') || baseURL.includes('127.0.0.1')) {
-      baseURL = REMOTE_BACKEND_URL;
-    }
-  } else {
-    // On localhost, default to local backend unless explicitly pointing elsewhere
-    if (!baseURL) {
-      baseURL = LOCAL_BACKEND_URL;
-    }
-  }
+  // In the browser, always route to same-origin /api so Next.js fullstack route handlers are invoked
+  baseURL = '/api';
 } else {
   // Server-side rendering default
-  if (!baseURL || baseURL.includes('localhost')) {
-    baseURL = isProd ? REMOTE_BACKEND_URL : LOCAL_BACKEND_URL;
+  if (envApiUrl && !envApiUrl.includes('stoofi-backend')) {
+    baseURL = envApiUrl;
+  } else if (process.env.VERCEL_URL) {
+    baseURL = `https://${process.env.VERCEL_URL}/api`;
+  } else {
+    baseURL = 'http://localhost:3000/api';
   }
 }
 
@@ -40,15 +31,9 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    if (!isLocalhost) {
-      if (!config.baseURL || config.baseURL.includes('localhost') || config.baseURL.includes('127.0.0.1') || config.baseURL === '/api') {
-        config.baseURL = REMOTE_BACKEND_URL;
-      }
-    } else {
-      if (!config.baseURL) {
-        config.baseURL = LOCAL_BACKEND_URL;
-      }
+    // In browser, ensure we always talk to the same-origin Next.js fullstack API routes
+    if (!config.baseURL || config.baseURL.includes('stoofi-backend') || config.baseURL.includes('localhost:5000')) {
+      config.baseURL = '/api';
     }
 
     let token = sessionStorage.getItem('token') || localStorage.getItem('token');

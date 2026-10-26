@@ -20,7 +20,6 @@ import {
   Trash2,
   RotateCcw,
   User,
-  CreditCard,
   Calendar,
   Users
 } from 'lucide-react';

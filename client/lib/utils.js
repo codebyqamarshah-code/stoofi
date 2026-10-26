@@ -122,14 +122,9 @@ export function getPhotoUrl(photoPath) {
 
   let baseUrl = '';
   if (typeof window !== 'undefined') {
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    if (!isLocalhost) {
-      baseUrl = 'https://stoofi-backend.vercel.app';
-    } else {
-      baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || 'http://localhost:5000';
-    }
+    baseUrl = window.location.origin;
   } else {
-    baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || 'https://stoofi-backend.vercel.app';
+    baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '');
   }
 
   // Format the path cleanly under /uploads/
