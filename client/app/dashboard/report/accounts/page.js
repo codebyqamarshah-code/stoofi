@@ -5,20 +5,23 @@ import Link from 'next/link';
 import { 
   ChevronRight, 
   Banknote, 
-  FileText, 
   CreditCard, 
   ArrowRight, 
   PieChart, 
   TrendingUp, 
+  TrendingDown,
   ArrowRightLeft,
-  Wallet
+  Wallet,
+  Scale
 } from 'lucide-react';
 
 const ACCOUNTS_REPORTS = [
   { title: 'General Transaction & Ledger Report', href: '/dashboard/report/accounts/transaction', icon: ArrowRightLeft, desc: 'Complete audit of income vouchers, student fee credits, expense debits, and closing bank balances' },
-  { title: 'Faculty & Staff Payroll Ledger', href: '/dashboard/report/accounts/payroll', icon: Banknote, desc: 'Detailed salary disbursement register with tax withholdings, allowances, and banking references' },
-  { title: 'Fees Due & Collection Report', href: '/dashboard/report/fees/due', icon: Wallet, desc: 'Student term dues, balance summaries, and institutional revenue recovery tracking' },
-  { title: 'Monthly Payment & Cash Flow Report', href: '/dashboard/report/fees/payment', icon: CreditCard, desc: 'Daily and monthly revenue collection reconciliations across bank and counter challans' },
+  { title: 'Income & Revenue Receipts Report', href: '/dashboard/report/accounts/income', icon: TrendingUp, desc: 'Student tuition fees, lab charges, hostel collections, prospectus sales, and bank/cash inflows' },
+  { title: 'Expenditure & Operating Expenses', href: '/dashboard/report/accounts/expense', icon: TrendingDown, desc: 'Campus utilities, lab equipment, IT infrastructure, maintenance, and administrative vendor disbursements' },
+  { title: 'Profit & Loss Statement (P&L)', href: '/dashboard/report/accounts/profit-loss', icon: Scale, desc: 'Statutory institutional profit & loss statement, revenue vs operating costs, and net fiscal margin' },
+  { title: 'Faculty & Staff Payroll Ledger', href: '/dashboard/report/accounts/payroll', icon: Banknote, desc: 'Monthly salary disbursement register with tax withholdings, allowances, and banking references' },
+  { title: 'Student Fees Due & Collection', href: '/dashboard/report/fees/due', icon: Wallet, desc: 'Student term dues, balance summaries, and institutional revenue recovery tracking' },
 ];
 
 export default function AccountsReportHubPage() {
@@ -31,10 +34,10 @@ export default function AccountsReportHubPage() {
             <span className="p-2 rounded-xl bg-[#084A86]/10 text-[#084A86]">
               <Banknote className="h-6 w-6" />
             </span>
-            Accounts &amp; Financial Reports
+            Accounts &amp; Financial Reports Center
           </h1>
           <p className="text-sm text-zinc-500 mt-1">
-            General ledger audit logs, bank statements, and salary payroll registries • Pak Royal College Sharaqpur
+            General ledger audit logs, income streams, expenditures, and P&amp;L margins • Pak Royal College Sharaqpur
           </p>
         </div>
         <div className="flex items-center text-xs text-zinc-400">
@@ -47,24 +50,24 @@ export default function AccountsReportHubPage() {
       </div>
 
       {/* Reports Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {ACCOUNTS_REPORTS.map((rep, idx) => (
           <Link
             key={idx}
             href={rep.href}
-            className="bg-white p-6 rounded-2xl border border-zinc-200/80 shadow-xs hover:border-[#084A86]/40 hover:shadow-md transition-all group flex flex-col justify-between"
+            className="bg-white p-5 rounded-2xl border border-zinc-200/80 shadow-xs hover:border-[#084A86]/40 hover:shadow-md transition-all group flex flex-col justify-between"
           >
             <div>
               <div className="flex items-start justify-between">
-                <div className="w-12 h-12 rounded-2xl bg-[#084A86]/10 text-[#084A86] flex items-center justify-center group-hover:bg-[#084A86] group-hover:text-white transition-colors">
-                  <rep.icon className="w-6 h-6" />
+                <div className="w-11 h-11 rounded-xl bg-[#084A86]/10 text-[#084A86] flex items-center justify-center group-hover:bg-[#084A86] group-hover:text-white transition-colors">
+                  <rep.icon className="w-5 h-5" />
                 </div>
-                <ArrowRight className="w-5 h-5 text-zinc-400 group-hover:text-[#084A86] group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="w-4 h-4 text-zinc-400 group-hover:text-[#084A86] group-hover:translate-x-1 transition-all" />
               </div>
-              <h3 className="font-extrabold text-base text-zinc-950 mt-5 group-hover:text-[#084A86] transition-colors">{rep.title}</h3>
-              <p className="text-xs text-zinc-500 mt-2 leading-relaxed">{rep.desc}</p>
+              <h3 className="font-extrabold text-sm text-zinc-950 mt-4 group-hover:text-[#084A86] transition-colors">{rep.title}</h3>
+              <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">{rep.desc}</p>
             </div>
-            <div className="mt-6 pt-4 border-t border-zinc-100 flex items-center justify-between text-xs">
+            <div className="mt-5 pt-3 border-t border-zinc-100 flex items-center justify-between text-[11px]">
               <span className="text-zinc-400 font-medium">Export CSV &amp; Official Print</span>
               <span className="font-bold text-[#084A86] group-hover:underline">Open Report →</span>
             </div>

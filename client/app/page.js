@@ -672,35 +672,35 @@ export default function LandingPage() {
   return (
     <div className={`min-h-screen bg-white text-[#102e43] font-sans selection:bg-[#64e2bc] selection:text-[#0c322f] ${isMotionPaused ? "motion-paused" : ""}`}>
       {/* ── Sticky Header Navigation ── */}
-      <header className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/95 backdrop-blur-md border-b border-[#dfe7eb] shadow-sm py-3" : "bg-white/95 backdrop-blur-md border-b border-[#dfe7eb] py-4"}`}>
-        <div className="max-w-[1360px] mx-auto px-6 sm:px-10 flex items-center justify-between min-h-[56px]">
+      <header className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/95 backdrop-blur-md border-b border-[#dfe7eb] shadow-sm py-2.5" : "bg-white/95 backdrop-blur-md border-b border-[#dfe7eb] py-3.5"}`}>
+        <div className="max-w-[1360px] mx-auto px-4 sm:px-8 xl:px-10 flex items-center justify-between gap-4 min-h-[56px]">
           {/* Brand Logo */}
-          <Link href="#home" className="flex items-center shrink-0" aria-label="Stoofi ERP home">
+          <Link href="#home" className="flex items-center shrink-0 mr-4 sm:mr-6 xl:mr-10" aria-label="Stoofi ERP home">
             <img
               src="/logo.png"
               alt="Stoofi ERP — Smarter Education, Simple Management"
-              className="h-10 sm:h-12 w-auto object-contain hover:scale-105 transition-transform duration-300"
+              className="h-9 sm:h-11 w-auto object-contain hover:scale-105 transition-transform duration-300"
             />
           </Link>
 
           {/* Center Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-7 text-sm font-semibold text-[#102e43]">
-            <Link href="#home" className="hover:text-[#087f77] transition-colors py-1">Home</Link>
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-6 text-[13px] xl:text-sm font-semibold text-[#102e43]">
+            <Link href="#home" className="hover:text-[#087f77] transition-colors py-1 whitespace-nowrap">Home</Link>
             <button
               onClick={() => {
                 const el = document.getElementById("notices");
                 if (el) el.scrollIntoView({ behavior: "smooth" });
               }}
-              className="hover:text-[#087f77] transition-colors py-1 cursor-pointer relative flex items-center gap-1.5"
+              className="hover:text-[#087f77] transition-colors py-1 cursor-pointer relative flex items-center gap-1.5 whitespace-nowrap"
             >
               <span>Notice Board</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#087f77] animate-pulse"></span>
             </button>
-            <Link href="#campus-showcase" className="hover:text-[#087f77] transition-colors py-1">Campus Gallery & Hub</Link>
-            <Link href="#how-it-works" className="hover:text-[#087f77] transition-colors py-1">How To Use</Link>
-            <Link href="#portals" className="hover:text-[#087f77] transition-colors py-1">Portals</Link>
-            <Link href="#features" className="hover:text-[#087f77] transition-colors py-1">Features</Link>
-            <Link href="#pricing" className="hover:text-[#087f77] transition-colors py-1">Pricing</Link>
+            <Link href="#campus-showcase" className="hover:text-[#087f77] transition-colors py-1 whitespace-nowrap">Campus Gallery &amp; Hub</Link>
+            <Link href="#how-it-works" className="hover:text-[#087f77] transition-colors py-1 whitespace-nowrap">How To Use</Link>
+            <Link href="#portals" className="hover:text-[#087f77] transition-colors py-1 whitespace-nowrap">Portals</Link>
+            <Link href="#features" className="hover:text-[#087f77] transition-colors py-1 whitespace-nowrap">Features</Link>
+            <Link href="#pricing" className="hover:text-[#087f77] transition-colors py-1 whitespace-nowrap">Pricing</Link>
           </nav>
 
           {/* Right Actions */}

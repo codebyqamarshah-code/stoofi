@@ -8,14 +8,16 @@ import {
   CalendarCheck, 
   Banknote, 
   ArrowRight, 
-  Award, 
-  Sparkles,
-  FileText
+  Building, 
+  Briefcase,
+  Award
 } from 'lucide-react';
 
 const STAFF_REPORTS = [
   { title: 'Staff Monthly Attendance Report', href: '/dashboard/report/staff/attendance', icon: CalendarCheck, desc: 'Detailed employee attendance ledger, punctuality score, leave records, and department totals' },
   { title: 'Staff Payroll & Salary Summary', href: '/dashboard/report/staff/payroll', icon: Banknote, desc: 'Monthly payslip ledger, gross salary, tax deductions, allowances, and net pay dispatches' },
+  { title: 'Staff Directory & Employee Profiles', href: '/dashboard/report/staff/directory', icon: Users, desc: 'Complete faculty and administrative roster, academic qualifications, and emergency contacts' },
+  { title: 'Department-Wise Staff Distribution', href: '/dashboard/report/staff/department', icon: Building, desc: 'Departmental staff strength, HOD leadership, average salary, and compensation allocations' },
 ];
 
 export default function StaffReportHubPage() {
@@ -28,7 +30,7 @@ export default function StaffReportHubPage() {
             <span className="p-2 rounded-xl bg-[#084A86]/10 text-[#084A86]">
               <Users className="h-6 w-6" />
             </span>
-            Staff &amp; Human Resource Reports
+            Staff &amp; Human Resource Reports Center
           </h1>
           <p className="text-sm text-zinc-500 mt-1">
             Faculty attendance tracking, departmental strength, and salary payroll logs • Pak Royal College Sharaqpur
@@ -44,7 +46,7 @@ export default function StaffReportHubPage() {
       </div>
 
       {/* Reports Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {STAFF_REPORTS.map((rep, idx) => (
           <Link
             key={idx}

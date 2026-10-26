@@ -76,10 +76,16 @@ import {
   ClipboardList,
   CalendarCheck,
   Sparkles,
+  TrendingUp,
+  TrendingDown,
+  Scale,
 } from 'lucide-react';
 
 export const ICON_MAP = {
   Sparkles,
+  TrendingUp,
+  TrendingDown,
+  Scale,
   LayoutDashboard,
   Users,
   BookOpen,
@@ -677,6 +683,8 @@ export const DEFAULT_MENU_STRUCTURE = [
         subItems: [
           { id: 'sub-rep-stf-att', name: 'Staff Attendance Report', href: '/dashboard/report/staff/attendance', iconName: 'CalendarCheck', visible: true },
           { id: 'sub-rep-stf-payroll', name: 'Payroll Report', href: '/dashboard/report/staff/payroll', iconName: 'Banknote', visible: true },
+          { id: 'sub-rep-stf-dir', name: 'Staff Directory', href: '/dashboard/report/staff/directory', iconName: 'Users', visible: true },
+          { id: 'sub-rep-stf-dept', name: 'Department Report', href: '/dashboard/report/staff/department', iconName: 'Building', visible: true },
         ]
       },
       {
@@ -701,8 +709,11 @@ export const DEFAULT_MENU_STRUCTURE = [
         hasSubmenu: true,
         visible: true,
         subItems: [
-          { id: 'sub-rep-acc-payroll', name: 'Payroll Report', href: '/dashboard/report/accounts/payroll', iconName: 'Banknote', visible: true },
           { id: 'sub-rep-acc-txn', name: 'Transaction', href: '/dashboard/report/accounts/transaction', iconName: 'ArrowRightLeft', visible: true },
+          { id: 'sub-rep-acc-income', name: 'Income Report', href: '/dashboard/report/accounts/income', iconName: 'TrendingUp', visible: true },
+          { id: 'sub-rep-acc-expense', name: 'Expense Report', href: '/dashboard/report/accounts/expense', iconName: 'TrendingDown', visible: true },
+          { id: 'sub-rep-acc-pl', name: 'Profit & Loss', href: '/dashboard/report/accounts/profit-loss', iconName: 'Scale', visible: true },
+          { id: 'sub-rep-acc-payroll', name: 'Payroll Report', href: '/dashboard/report/accounts/payroll', iconName: 'Banknote', visible: true },
         ]
       },
     ]
