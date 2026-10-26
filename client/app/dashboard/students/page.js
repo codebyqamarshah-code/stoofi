@@ -1,8 +1,8 @@
 'use client';
 
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
-﻿import React, { useState, useEffect, useMemo } from 'react';
-import { ChevronRight, Search, Download, Printer, FileText, Plus, Edit, Trash2, X, Save, Upload, RotateCcw } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { ChevronRight, Search, Download, Printer, FileText, Plus, Edit, Trash2, X, Save, Upload, RotateCcw, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -35,6 +35,7 @@ const FALLBACK_SECTIONS = [
 ];
 
 const ACADEMIC_YEARS = [
+  { label: 'All Academic Years', value: '' },
   { label: '2026', value: '2026' },
   { label: '2025', value: '2025' },
   { label: '2024', value: '2024' },
@@ -45,6 +46,24 @@ const ACADEMIC_YEARS = [
 export default function StudentListPage() {
   const [students, setStudents] = useState([]);
   const [classes, setClasses] = useState([]);
+  const [sections, setSections] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [quickSearch, setQuickSearch] = useState('');
+  
+  // Filters
+  const [academicYear, setAcademicYear] = useState('');
+  const [classFilter, setClassFilter] = useState('');
+  const [sectionFilter, setSectionFilter] = useState('');
+  const [nameFilter, setNameFilter] = useState('');
+  const [rollFilter, setRollFilter] = useState('');
+
+  const [appliedFilters, setAppliedFilters] = useState({
+    academicYear: '', classFilter: '', sectionFilter: '', nameFilter: '', rollFilter: ''
+  });
+
+  const fetchReqId = useRef(0);
+
   useEffect(() => {
     const fetchDynamicClasses = async () => {
       try {
@@ -58,22 +77,6 @@ export default function StudentListPage() {
     };
     fetchDynamicClasses();
   }, []);
-
-  const [sections, setSections] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const [quickSearch, setQuickSearch] = useState('');
-  
-  // Filters
-  const [academicYear, setAcademicYear] = useState('2026');
-  const [classFilter, setClassFilter] = useState('');
-  const [sectionFilter, setSectionFilter] = useState('');
-  const [nameFilter, setNameFilter] = useState('');
-  const [rollFilter, setRollFilter] = useState('');
-
-  const [appliedFilters, setAppliedFilters] = useState({
-    academicYear: '2026', classFilter: '', sectionFilter: '', nameFilter: '', rollFilter: ''
-  });
 
   // Edit modal state
   const [editModal, setEditModal] = useState(false);
@@ -93,13 +96,29 @@ export default function StudentListPage() {
   const [selectedStudentIds, setSelectedStudentIds] = useState([]);
   const [bulkDeleting, setBulkDeleting] = useState(false);
 
-  const isAllSelected = students.length > 0 && students.every(s => selectedStudentIds.includes(s._id));
+  const displayStudents = useMemo(() => {
+    if (!quickSearch || !quickSearch.trim()) return students;
+    const q = quickSearch.trim().toLowerCase();
+    return students.filter(s => {
+      const full = `${s.firstName || ''} ${s.lastName || ''}`.toLowerCase();
+      const adm = String(s.admissionNo || '').toLowerCase();
+      const roll = String(s.rollNo || '').toLowerCase();
+      const phone = String(s.phone || '').toLowerCase();
+      const father = String(s.fatherName || '').toLowerCase();
+      const cls = String(s.className || '').toLowerCase();
+      const sec = String(s.section || '').toLowerCase();
+      const cnic = String(s.cnic || s.bForm || '').toLowerCase();
+      return full.includes(q) || adm.includes(q) || roll.includes(q) || phone.includes(q) || father.includes(q) || cls.includes(q) || sec.includes(q) || cnic.includes(q);
+    });
+  }, [students, quickSearch]);
+
+  const isAllSelected = displayStudents.length > 0 && displayStudents.every(s => selectedStudentIds.includes(s._id));
 
   const toggleSelectAll = () => {
     if (isAllSelected) {
       setSelectedStudentIds([]);
     } else {
-      setSelectedStudentIds(students.map(s => s._id));
+      setSelectedStudentIds(displayStudents.map(s => s._id));
     }
   };
 
@@ -129,12 +148,16 @@ export default function StudentListPage() {
     }
   };
 
-  const fetchData = async (overrideFilters) => {
+  const fetchData = async (overrideFilters, targetPage) => {
+    const curId = ++fetchReqId.current;
     setLoading(true);
-    const active = overrideFilters || appliedFilters;
+    const active = overrideFilters !== undefined ? overrideFilters : appliedFilters;
+    const curPage = targetPage !== undefined ? targetPage : page;
     try {
-      const params = { page, limit };
-      if (quickSearch && quickSearch.trim()) params.search = quickSearch.trim();
+      const params = { page: curPage, limit };
+      if (active.academicYear && active.academicYear !== 'All' && active.academicYear !== 'All Years') {
+        params.academicYear = active.academicYear;
+      }
       if (active.classFilter && active.classFilter !== 'All Classes') params.className = active.classFilter;
       if (active.sectionFilter && active.sectionFilter !== 'All Sections') params.section = active.sectionFilter;
       if (active.nameFilter && active.nameFilter.trim()) params.name = active.nameFilter.trim();
@@ -149,11 +172,17 @@ export default function StudentListPage() {
         api.get('/section').catch(() => null)
       ]);
 
+      // If a newer request was dispatched while this was in flight, ignore this response
+      if (curId !== fetchReqId.current) return;
+
       // Retry once if transient network / cold-start error occurred
       if (!stuRes) {
         await new Promise(r => setTimeout(r, 600));
+        if (curId !== fetchReqId.current) return;
         stuRes = await api.get('/student', { params }).catch(() => null);
       }
+
+      if (curId !== fetchReqId.current) return;
 
       if (stuRes) {
         let list = [];
@@ -181,6 +210,8 @@ export default function StudentListPage() {
           setTotalRecords(list.length);
           setTotalPages(Math.ceil(list.length / limit) || 1);
         }
+      } else {
+        setStudents([]);
       }
 
       if (classRes?.success && Array.isArray(classRes.data) && classRes.data.length > 0) {
@@ -194,37 +225,35 @@ export default function StudentListPage() {
         setSections(FALLBACK_SECTIONS);
       }
     } catch (error) {
-      console.error('Student fetch error:', error);
+      if (curId === fetchReqId.current) {
+        console.error('Student fetch error:', error);
+      }
     } finally {
-      setLoading(false);
+      if (curId === fetchReqId.current) {
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
     fetchData();
-    const handleFocus = () => fetchData();
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [page, limit, appliedFilters, quickSearch]);
+  }, [page, limit, appliedFilters]);
 
   const handleSearch = () => {
     setPage(1);
     const newFilters = { academicYear, classFilter, sectionFilter, nameFilter, rollFilter };
     setAppliedFilters(newFilters);
-    fetchData(newFilters);
   };
 
   const handleReset = () => {
-    setAcademicYear('2026');
+    setAcademicYear('');
     setClassFilter('');
     setSectionFilter('');
     setNameFilter('');
     setRollFilter('');
     setQuickSearch('');
     setPage(1);
-    const emptyFilters = { academicYear: '2026', classFilter: '', sectionFilter: '', nameFilter: '', rollFilter: '' };
-    setAppliedFilters(emptyFilters);
-    fetchData(emptyFilters);
+    setAppliedFilters({ academicYear: '', classFilter: '', sectionFilter: '', nameFilter: '', rollFilter: '' });
   };
 
   const handleDelete = async (id) => {
@@ -275,14 +304,14 @@ export default function StudentListPage() {
     }
   };
 
-  const exportData = students.map(s => ({
+  const exportData = displayStudents.map(s => ({
     'Admission No': s.admissionNo,
-    Name: `${s.firstName} ${s.lastName}`,
-    'Father Name': s.fatherName,
-    'Date of Birth': s.dob,
-    'Class(Section)': `${s.className} (${s.section})`,
-    Gender: s.gender,
-    Phone: s.phone
+    Name: `${s.firstName} ${s.lastName || ''}`.trim(),
+    'Father Name': s.fatherName || '-',
+    'Date of Birth': s.dob || '-',
+    'Class(Section)': `${s.className || ''} (${s.section || ''})`,
+    Gender: s.gender || '-',
+    Phone: s.phone || '-'
   }));
 
   return (
@@ -379,8 +408,14 @@ export default function StudentListPage() {
             >
               <RotateCcw className="h-3.5 w-3.5" /> RESET
             </Button>
-            <Button onClick={handleSearch} className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold flex items-center gap-2 cursor-pointer text-xs rounded-xl">
-              <Search className="h-4 w-4" /> SEARCH
+            <Button 
+              type="button"
+              onClick={handleSearch} 
+              disabled={loading}
+              className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold flex items-center gap-2 cursor-pointer text-xs rounded-xl"
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+              {loading ? 'SEARCHING...' : 'SEARCH'}
             </Button>
           </div>
         </div>
@@ -388,7 +423,12 @@ export default function StudentListPage() {
 
       <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-xs h-full flex flex-col">
         <div className="p-4 border-b border-zinc-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-50/50">
-          <h2 className="text-base font-bold text-zinc-900">Student List</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-base font-bold text-zinc-900">Student List</h2>
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-700 border border-zinc-200">
+              {displayStudents.length} {displayStudents.length === 1 ? 'Record' : 'Records'}
+            </span>
+          </div>
           
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="relative">
@@ -461,14 +501,21 @@ export default function StudentListPage() {
             <tbody className="divide-y divide-zinc-100 font-medium">
               {loading ? (
                 <tr>
-                  <td colSpan="10" className="px-4 py-8 text-center text-zinc-500">Loading...</td>
+                  <td colSpan="10" className="px-4 py-8 text-center text-zinc-500">
+                    <div className="flex items-center justify-center gap-2">
+                      <Loader2 className="h-5 w-5 animate-spin text-zinc-600" />
+                      <span>Loading students...</span>
+                    </div>
+                  </td>
                 </tr>
-              ) : students.length === 0 ? (
+              ) : displayStudents.length === 0 ? (
                 <tr>
-                  <td colSpan="10" className="px-4 py-8 text-center text-zinc-500">No Data Available In Table</td>
+                  <td colSpan="10" className="px-4 py-8 text-center text-zinc-500">
+                    No Data Available In Table
+                  </td>
                 </tr>
               ) : (
-                students.map((student) => {
+                displayStudents.map((student) => {
                   const isSelected = selectedStudentIds.includes(student._id);
                   return (
                     <tr key={student._id} className={`hover:bg-zinc-50/80 transition-colors ${isSelected ? 'bg-zinc-100/80 border-l-2 border-l-zinc-900' : ''}`}>

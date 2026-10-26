@@ -20,22 +20,23 @@ export async function findHighestExistingAdmissionSeq(year) {
   let maxSeq = 0;
 
   try {
+    const regex = new RegExp(`ADM[-_]?(?:${yStr}|${y2})[-_]?(\\d+)`, 'i');
     const enrollments = await StudentEnrollment.find(
       { admissionYear: year },
       'admissionNumber'
     ).lean();
     for (const e of enrollments) {
       if (!e.admissionNumber) continue;
-      const m = String(e.admissionNumber).match(/(\d+)$/);
-      if (m) {
+      const m = String(e.admissionNumber).match(regex);
+      if (m && m[1]) {
         const n = parseInt(m[1], 10);
-        if (!isNaN(n) && n > maxSeq) maxSeq = n;
+        if (!isNaN(n) && n < 100000 && n > maxSeq) maxSeq = n;
       }
     }
   } catch (_) {}
 
   try {
-    const regex = new RegExp(`ADM[-_]?(${yStr}|${y2})[-_]?(\\d+)`, 'i');
+    const regex = new RegExp(`ADM[-_]?(?:${yStr}|${y2})[-_]?(\\d+)`, 'i');
     const students = await Student.find(
       { admissionNo: { $regex: regex } },
       'admissionNo'
@@ -44,15 +45,9 @@ export async function findHighestExistingAdmissionSeq(year) {
     for (const s of students) {
       if (!s.admissionNo) continue;
       const m = String(s.admissionNo).match(regex);
-      if (m && m[2]) {
-        const n = parseInt(m[2], 10);
-        if (!isNaN(n) && n > maxSeq) maxSeq = n;
-      } else {
-        const endDigits = String(s.admissionNo).match(/(\d+)$/);
-        if (endDigits) {
-          const n = parseInt(endDigits[1], 10);
-          if (!isNaN(n) && n > maxSeq) maxSeq = n;
-        }
+      if (m && m[1]) {
+        const n = parseInt(m[1], 10);
+        if (!isNaN(n) && n < 100000 && n > maxSeq) maxSeq = n;
       }
     }
   } catch (_) {}
@@ -66,22 +61,23 @@ export async function findHighestExistingRollSeq(year) {
   let maxSeq = 0;
 
   try {
+    const regex = new RegExp(`(?:ROLL|PRC)[-_]?(?:${yStr}|${y2})[-_]?(\\d+)`, 'i');
     const enrollments = await StudentEnrollment.find(
       { admissionYear: year },
       'rollNumber'
     ).lean();
     for (const e of enrollments) {
       if (!e.rollNumber) continue;
-      const m = String(e.rollNumber).match(/(\d+)$/);
-      if (m) {
+      const m = String(e.rollNumber).match(regex);
+      if (m && m[1]) {
         const n = parseInt(m[1], 10);
-        if (!isNaN(n) && n > maxSeq) maxSeq = n;
+        if (!isNaN(n) && n < 100000 && n > maxSeq) maxSeq = n;
       }
     }
   } catch (_) {}
 
   try {
-    const regex = new RegExp(`(ROLL|PRC)[-_]?(${yStr}|${y2})[-_]?(\\d+)`, 'i');
+    const regex = new RegExp(`(?:ROLL|PRC)[-_]?(?:${yStr}|${y2})[-_]?(\\d+)`, 'i');
     const students = await Student.find(
       { rollNo: { $regex: regex } },
       'rollNo'
@@ -90,9 +86,9 @@ export async function findHighestExistingRollSeq(year) {
     for (const s of students) {
       if (!s.rollNo) continue;
       const m = String(s.rollNo).match(regex);
-      if (m && m[3]) {
-        const n = parseInt(m[3], 10);
-        if (!isNaN(n) && n > maxSeq) maxSeq = n;
+      if (m && m[1]) {
+        const n = parseInt(m[1], 10);
+        if (!isNaN(n) && n < 100000 && n > maxSeq) maxSeq = n;
       }
     }
   } catch (_) {}

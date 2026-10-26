@@ -95,6 +95,11 @@ export const academicApi = {
       params: { q: query }
     });
   },
+  searchStudents: async (query) => {
+    return await api.get('/academic-program/student-search', {
+      params: { q: query }
+    });
+  },
 
   // Atomic Admission Submission
   submitAdmission: async (formData) => {

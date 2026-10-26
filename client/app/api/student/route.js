@@ -88,40 +88,96 @@ export async function GET(req) {
     const section = searchParams.get('section') || '';
     const rollNo = searchParams.get('rollNo') || '';
     const name = searchParams.get('name') || '';
+    const academicYear = searchParams.get('academicYear') || searchParams.get('year') || '';
 
-    const query = {};
+    const andConditions = [];
+
+    // 1. Quick search
     if (search && search.trim()) {
       const s = search.trim();
-      query.$or = [
-        { firstName: { $regex: s, $options: 'i' } },
-        { lastName: { $regex: s, $options: 'i' } },
-        { admissionNo: { $regex: s, $options: 'i' } },
-        { phone: { $regex: s, $options: 'i' } },
-        { rollNo: { $regex: s, $options: 'i' } }
-      ];
+      andConditions.push({
+        $or: [
+          { firstName: { $regex: s, $options: 'i' } },
+          { lastName: { $regex: s, $options: 'i' } },
+          { admissionNo: { $regex: s, $options: 'i' } },
+          { rollNo: { $regex: s, $options: 'i' } },
+          { studentCode: { $regex: s, $options: 'i' } },
+          { phone: { $regex: s, $options: 'i' } },
+          { cnic: { $regex: s, $options: 'i' } },
+          { bForm: { $regex: s, $options: 'i' } },
+          { fatherName: { $regex: s, $options: 'i' } }
+        ]
+      });
     }
 
+    // 2. Name search (supports single word or multi-word full names)
     if (name && name.trim()) {
       const n = name.trim();
-      query.$or = [
-        { firstName: { $regex: n, $options: 'i' } },
-        { lastName: { $regex: n, $options: 'i' } }
-      ];
+      const parts = n.split(/\s+/).filter(Boolean);
+      if (parts.length > 1) {
+        andConditions.push({
+          $or: [
+            {
+              $and: [
+                { firstName: { $regex: parts[0], $options: 'i' } },
+                { lastName: { $regex: parts.slice(1).join(' '), $options: 'i' } }
+              ]
+            },
+            { firstName: { $regex: n, $options: 'i' } },
+            { lastName: { $regex: n, $options: 'i' } }
+          ]
+        });
+      } else {
+        andConditions.push({
+          $or: [
+            { firstName: { $regex: n, $options: 'i' } },
+            { lastName: { $regex: n, $options: 'i' } }
+          ]
+        });
+      }
     }
 
+    // 3. Roll or Admission number filter (allows searching rollNo, admissionNo, or studentCode)
+    if (rollNo && rollNo.trim()) {
+      const r = rollNo.trim();
+      andConditions.push({
+        $or: [
+          { rollNo: { $regex: r, $options: 'i' } },
+          { admissionNo: { $regex: r, $options: 'i' } },
+          { studentCode: { $regex: r, $options: 'i' } }
+        ]
+      });
+    }
+
+    // 4. Class filter
     if (className && className !== 'All Classes' && className !== 'All' && className.trim()) {
       const c = className.replace(/^Class\s+/i, '').trim();
-      query.className = { $regex: '^(' + className + '|' + c + '|Class\\s*' + c + ')$', $options: 'i' };
+      const escaped = c.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+      andConditions.push({
+        $or: [
+          { className: { $regex: `^${escaped}$`, $options: 'i' } },
+          { className: { $regex: escaped, $options: 'i' } }
+        ]
+      });
     }
 
+    // 5. Section filter
     if (section && section !== 'All Sections' && section !== 'All' && section.trim()) {
       const sec = section.replace(/^Section\s+/i, '').trim();
-      query.section = { $regex: '^(' + section + '|' + sec + '|Section\\s*' + sec + ')$', $options: 'i' };
+      andConditions.push({
+        section: { $regex: `^${sec}$`, $options: 'i' }
+      });
     }
 
-    if (rollNo && rollNo.trim()) {
-      query.rollNo = { $regex: rollNo.trim(), $options: 'i' };
+    // 6. Academic Year filter
+    if (academicYear && academicYear !== 'All Years' && academicYear !== 'All' && academicYear.trim()) {
+      const y = academicYear.replace(/\D/g, '').trim() || academicYear.trim();
+      andConditions.push({
+        academicYear: { $regex: y, $options: 'i' }
+      });
     }
+
+    const query = andConditions.length > 0 ? { $and: andConditions } : {};
 
     const skip = (page - 1) * limit;
 

@@ -19,20 +19,33 @@ export async function GET(req) {
       { admissionNo: { $regex: q, $options: 'i' } },
       { rollNo: { $regex: q, $options: 'i' } },
       { studentCode: { $regex: q, $options: 'i' } },
-      { email: { $regex: q, $options: 'i' } }
+      { email: { $regex: q, $options: 'i' } },
+      { cnic: { $regex: q, $options: 'i' } },
+      { bForm: { $regex: q, $options: 'i' } }
     ];
 
-    if (q.includes('-') || digitsOnly.length >= 5) {
-      orConditions.push({ cnic: { $regex: q, $options: 'i' } });
-      orConditions.push({ bForm: { $regex: q, $options: 'i' } });
+    if (digitsOnly.length >= 5) {
+      orConditions.push({ cnic: { $regex: digitsOnly, $options: 'i' } });
+      orConditions.push({ bForm: { $regex: digitsOnly, $options: 'i' } });
+      orConditions.push({ fatherCnic: { $regex: digitsOnly, $options: 'i' } });
+      
+      // Also format standard Pakistani CNIC (XXXXX-XXXXXXX-X) if 13 digits
+      if (digitsOnly.length === 13) {
+        const hyphenated = `${digitsOnly.slice(0, 5)}-${digitsOnly.slice(5, 12)}-${digitsOnly.slice(12, 13)}`;
+        orConditions.push({ cnic: { $regex: hyphenated, $options: 'i' } });
+        orConditions.push({ bForm: { $regex: hyphenated, $options: 'i' } });
+      }
     }
+
     if (digitsOnly.length >= 7) {
       orConditions.push({ phone: { $regex: digitsOnly, $options: 'i' } });
       orConditions.push({ whatsapp: { $regex: digitsOnly, $options: 'i' } });
+      orConditions.push({ fatherPhone: { $regex: digitsOnly, $options: 'i' } });
+      orConditions.push({ guardianPhone: { $regex: digitsOnly, $options: 'i' } });
     }
 
     const students = await Student.find({ $or: orConditions })
-      .select('firstName lastName studentCode admissionNo rollNo cnic bForm phone email fatherName guardianName className section studentPhoto photo dob gender currentAddress permanentAddress city bloodGroup religion nationality')
+      .select('firstName lastName studentCode admissionNo rollNo cnic bForm phone email whatsapp fatherName fatherCnic fatherPhone fatherOccupation guardianName guardianPhone guardianRelation className section studentPhoto photo dob gender address currentAddress permanentAddress residentialAddress city bloodGroup religion nationality')
       .limit(10)
       .lean();
 

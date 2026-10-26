@@ -290,24 +290,18 @@ export default function StudentAdmissionWizardPage() {
   const handleYearChange = async (yearVal) => {
     const year = parseInt(yearVal, 10) || new Date().getFullYear();
     const y2 = String(year).slice(-2);
-    const defaultAdm = `ADM${y2}0001`;
-    const defaultRoll = `PRC${y2}0001`;
 
     setFormData(prev => ({
       ...prev,
       admissionYear: String(year),
-      admissionDate: prev.admissionDate ? `${year}-${prev.admissionDate.slice(5) || '08-15'}` : `${year}-08-15`,
-      admissionNo: defaultAdm,
-      rollNo: defaultRoll,
-      previewAdmissionNo: defaultAdm,
-      previewRollNo: defaultRoll
+      admissionDate: prev.admissionDate ? `${year}-${prev.admissionDate.slice(5) || '08-15'}` : `${year}-08-15`
     }));
 
     try {
       const res = await academicApi.getNextNumbers(year);
       if (res?.success) {
-        const admStr = res.admissionNo || res.nextAdmissionNo?.admissionNumber || res.nextAdmissionNo || defaultAdm;
-        const rollStr = res.rollNo || res.nextRollNumber?.rollNumber || res.nextRollNo || defaultRoll;
+        const admStr = res.admissionNo || res.nextAdmissionNo?.admissionNumber || res.nextAdmissionNo || `ADM${y2}0001`;
+        const rollStr = res.rollNo || res.nextRollNumber?.rollNumber || res.nextRollNo || `PRC${y2}0001`;
         setFormData(prev => ({
           ...prev,
           admissionNo: admStr,
@@ -342,8 +336,10 @@ export default function StudentAdmissionWizardPage() {
     if (!searchCnicQuery.trim()) return;
     setSearchingStudent(true);
     setErrorMsg('');
+    setSuccessMsg('');
     try {
-      const res = await academicApi.searchStudents(searchCnicQuery.trim());
+      const searchFn = academicApi.searchExistingStudent || academicApi.searchStudents;
+      const res = await searchFn(searchCnicQuery.trim());
       if (res?.success && res.data?.length > 0) {
         const found = res.data[0];
         setExistingStudentFound(found);
@@ -354,10 +350,11 @@ export default function StudentAdmissionWizardPage() {
           lastName: found.lastName || '',
           dob: found.dob ? found.dob.split('T')[0] : '',
           gender: found.gender || 'Male',
-          cnic: found.cnic || '',
+          cnic: found.cnic || found.bForm || '',
+          bForm: found.bForm || found.cnic || '',
           phone: found.phone || '',
           email: found.email || '',
-          residentialAddress: found.address || found.residentialAddress || '',
+          residentialAddress: found.residentialAddress || found.address || found.currentAddress || '',
           permanentAddress: found.permanentAddress || found.address || '',
           fatherName: found.fatherName || found.father?.name || '',
           fatherCnic: found.fatherCnic || found.father?.cnic || '',
@@ -368,12 +365,14 @@ export default function StudentAdmissionWizardPage() {
           guardianRelation: found.guardianRelation || found.guardian?.relation || 'Father',
           previewStudentCode: found.studentCode || prev.previewStudentCode
         }));
+        setSuccessMsg(`Student record found: ${found.firstName} ${found.lastName || ''} (ID: ${found.admissionNo || found.studentCode || found._id}). Profile details auto-filled!`);
       } else {
-        setErrorMsg(`No existing student found matching "${searchCnicQuery}".`);
+        setErrorMsg(`No existing student found matching "${searchCnicQuery}". You can proceed with a new admission.`);
         setExistingStudentFound(null);
       }
     } catch (err) {
-      setErrorMsg('Failed to search student record.');
+      console.error('Search student error:', err);
+      setErrorMsg(err?.message || 'Failed to search student record.');
     } finally {
       setSearchingStudent(false);
     }
