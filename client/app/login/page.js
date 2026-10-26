@@ -394,18 +394,15 @@ export default function LoginPage() {
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div className="space-y-2">
-            <div className="relative w-full">
-              <div 
-                className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-zinc-400 z-10"
-                style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}
-              >
+            <div className="relative flex items-center w-full">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400">
                 <Mail className="h-5 w-5 text-zinc-400 group-focus-within:text-zinc-600 transition-colors" />
               </div>
               <input
                 {...register("email")}
                 type="text"
                 placeholder="Email Address or Username"
-                className={inputClass}
+                className="w-full h-12 pl-12 pr-4 rounded-xl border border-zinc-200 bg-white text-zinc-900 placeholder-zinc-400 text-sm font-medium focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
                 disabled={isLocked}
               />
             </div>
@@ -413,26 +410,22 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-2">
-            <div className="relative w-full">
-              <div 
-                className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-zinc-400 z-10"
-                style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}
-              >
+            <div className="relative flex items-center w-full">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400">
                 <Lock className="h-5 w-5 text-zinc-400 group-focus-within:text-zinc-600 transition-colors" />
               </div>
               <input
                 {...register("password")}
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
-                className={`${inputClass} pr-12`}
+                className="w-full h-12 pl-12 pr-12 rounded-xl border border-zinc-200 bg-white text-zinc-900 placeholder-zinc-400 text-sm font-medium focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
                 disabled={isLocked}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 aria-label={showPassword ? "Hide password" : "Show password"}
-                className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-zinc-400 hover:text-zinc-600 focus:outline-none transition-colors cursor-pointer z-10 p-1"
-                style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center justify-center text-zinc-400 hover:text-zinc-600 focus:outline-none transition-colors cursor-pointer"
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>

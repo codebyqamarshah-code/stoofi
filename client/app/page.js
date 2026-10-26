@@ -673,18 +673,18 @@ export default function LandingPage() {
     <div className={`min-h-screen bg-white text-[#102e43] font-sans selection:bg-[#64e2bc] selection:text-[#0c322f] ${isMotionPaused ? "motion-paused" : ""}`}>
       {/* ── Sticky Header Navigation ── */}
       <header className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/95 backdrop-blur-md border-b border-[#dfe7eb] shadow-sm py-2.5" : "bg-white/95 backdrop-blur-md border-b border-[#dfe7eb] py-3.5"}`}>
-        <div className="max-w-[1360px] mx-auto px-4 sm:px-8 xl:px-10 flex items-center justify-between gap-4 min-h-[56px]">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 flex items-center justify-between gap-4 lg:gap-8 min-h-[58px]">
           {/* Brand Logo */}
-          <Link href="#home" className="flex items-center shrink-0 mr-4 sm:mr-6 xl:mr-10" aria-label="Stoofi ERP home">
+          <Link href="#home" className="flex items-center shrink-0 mr-3 sm:mr-5 lg:mr-8 xl:mr-12" aria-label="Stoofi ERP home">
             <img
               src="/logo.png"
               alt="Stoofi ERP — Smarter Education, Simple Management"
-              className="h-9 sm:h-11 w-auto object-contain hover:scale-105 transition-transform duration-300"
+              className="h-8 sm:h-9 lg:h-10 xl:h-11 w-auto object-contain hover:opacity-90 transition-opacity duration-200"
             />
           </Link>
 
           {/* Center Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-4 xl:gap-6 text-[13px] xl:text-sm font-semibold text-[#102e43]">
+          <nav className="hidden lg:flex items-center gap-5 xl:gap-8 text-[13px] xl:text-sm font-semibold text-[#102e43]">
             <Link href="#home" className="hover:text-[#087f77] transition-colors py-1 whitespace-nowrap">Home</Link>
             <button
               onClick={() => {
@@ -694,13 +694,12 @@ export default function LandingPage() {
               className="hover:text-[#087f77] transition-colors py-1 cursor-pointer relative flex items-center gap-1.5 whitespace-nowrap"
             >
               <span>Notice Board</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#087f77] animate-pulse"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#087f77]"></span>
             </button>
-            <Link href="#campus-showcase" className="hover:text-[#087f77] transition-colors py-1 whitespace-nowrap">Campus Gallery &amp; Hub</Link>
+            <Link href="#campus-showcase" className="hover:text-[#087f77] transition-colors py-1 whitespace-nowrap">Campus Gallery</Link>
             <Link href="#how-it-works" className="hover:text-[#087f77] transition-colors py-1 whitespace-nowrap">How To Use</Link>
             <Link href="#portals" className="hover:text-[#087f77] transition-colors py-1 whitespace-nowrap">Portals</Link>
             <Link href="#features" className="hover:text-[#087f77] transition-colors py-1 whitespace-nowrap">Features</Link>
-            <Link href="#pricing" className="hover:text-[#087f77] transition-colors py-1 whitespace-nowrap">Pricing</Link>
           </nav>
 
           {/* Right Actions */}
@@ -845,10 +844,10 @@ export default function LandingPage() {
               <span>Notice Board & Events</span>
               <span className="w-2 h-2 rounded-full bg-[#087f77]"></span>
             </button>
+            <Link href="#campus-showcase" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-[#102e43] py-2 border-b border-[#f3f7f8]">Campus Gallery</Link>
             <Link href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-[#102e43] py-2 border-b border-[#f3f7f8]">How To Use</Link>
             <Link href="#portals" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-[#102e43] py-2 border-b border-[#f3f7f8]">Portals</Link>
             <Link href="#features" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-[#102e43] py-2 border-b border-[#f3f7f8]">Features</Link>
-            <Link href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-[#102e43] py-2 border-b border-[#f3f7f8]">Pricing</Link>
             <div className="pt-2 flex items-center justify-between">
               <span className="text-xs font-bold text-[#667987]">Animations:</span>
               <button
