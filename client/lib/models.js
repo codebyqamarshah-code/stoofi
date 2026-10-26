@@ -864,6 +864,35 @@ const onlineExamSchema = new mongoose.Schema({
 
 export const OnlineExam = mongoose.models.OnlineExam || mongoose.model('OnlineExam', onlineExamSchema);
 
+// ClassRoom Schema
+const classRoomSchema = new mongoose.Schema({
+  roomNo: { type: String, required: true },
+  capacity: { type: Number, required: true }
+}, { timestamps: true });
+export const ClassRoom = mongoose.models.ClassRoom || mongoose.model('ClassRoom', classRoomSchema);
+
+// ClassTeacher Schema
+const classTeacherSchema = new mongoose.Schema({
+  className: { type: String, required: true },
+  section: { type: String, required: true },
+  teacher: { type: String, required: true },
+  teacherId: { type: mongoose.Schema.Types.ObjectId, ref: 'Staff' }
+}, { timestamps: true });
+classTeacherSchema.index({ className: 1, section: 1 });
+export const ClassTeacher = mongoose.models.ClassTeacher || mongoose.model('ClassTeacher', classTeacherSchema);
+
+// AssignSubject Schema
+const assignSubjectSchema = new mongoose.Schema({
+  className: { type: String, required: true },
+  section: { type: String, required: true },
+  subject: { type: String, required: true },
+  teacher: { type: String, required: true },
+  type: { type: String, enum: ['Theory', 'Practical', 'Both'], default: 'Theory' }
+}, { timestamps: true });
+assignSubjectSchema.index({ className: 1, section: 1, subject: 1 });
+export const AssignSubject = mongoose.models.AssignSubject || mongoose.model('AssignSubject', assignSubjectSchema);
+
+
 
 
 
