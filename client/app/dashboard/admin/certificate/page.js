@@ -734,7 +734,12 @@ export default function CertificatePage() {
               <div className="flex justify-center mb-2">
                 <div className="w-16 h-20 rounded-xl border-2 border-amber-500 p-0.5 bg-white shadow-md overflow-hidden flex items-center justify-center">
                   {photo ? (
-                    <img src={photo} alt="Student" className="w-full h-full object-cover rounded-lg" />
+                    <img 
+                      src={photo} 
+                      alt="Student" 
+                      className="w-full h-full object-cover rounded-lg" 
+                      style={{ objectFit: 'cover', objectPosition: 'center 15%' }}
+                    />
                   ) : (
                     <Camera className="w-6 h-6 text-amber-600" />
                   )}
@@ -826,7 +831,12 @@ export default function CertificatePage() {
               <div className="flex justify-center mb-1">
                 <div className="w-16 h-20 rounded-xl border-2 border-emerald-600 p-0.5 bg-white shadow-md overflow-hidden flex items-center justify-center">
                   {photo ? (
-                    <img src={photo} alt="Student" className="w-full h-full object-cover rounded-lg" />
+                    <img 
+                      src={photo} 
+                      alt="Student" 
+                      className="w-full h-full object-cover rounded-lg" 
+                      style={{ objectFit: 'cover', objectPosition: 'center 15%' }}
+                    />
                   ) : (
                     <Camera className="w-6 h-6 text-emerald-600" />
                   )}
@@ -908,7 +918,12 @@ export default function CertificatePage() {
               <div className="flex justify-center mb-1">
                 <div className="w-16 h-20 rounded-xl border-2 border-sky-900 p-0.5 bg-white shadow-md overflow-hidden flex items-center justify-center">
                   {photo ? (
-                    <img src={photo} alt="Student" className="w-full h-full object-cover rounded-lg" />
+                    <img 
+                      src={photo} 
+                      alt="Student" 
+                      className="w-full h-full object-cover rounded-lg" 
+                      style={{ objectFit: 'cover', objectPosition: 'center 15%' }}
+                    />
                   ) : (
                     <Camera className="w-6 h-6 text-sky-800" />
                   )}
@@ -988,7 +1003,12 @@ export default function CertificatePage() {
               <div className="flex justify-center mb-1">
                 <div className="w-16 h-20 rounded-xl border-2 border-rose-700 p-0.5 bg-white shadow-md overflow-hidden flex items-center justify-center">
                   {photo ? (
-                    <img src={photo} alt="Student" className="w-full h-full object-cover rounded-lg" />
+                    <img 
+                      src={photo} 
+                      alt="Student" 
+                      className="w-full h-full object-cover rounded-lg" 
+                      style={{ objectFit: 'cover', objectPosition: 'center 15%' }}
+                    />
                   ) : (
                     <Camera className="w-6 h-6 text-rose-700" />
                   )}
@@ -1067,7 +1087,12 @@ export default function CertificatePage() {
             <div className="flex justify-center mb-1">
               <div className="w-16 h-20 rounded-xl border border-zinc-400 p-0.5 bg-white shadow-xs overflow-hidden flex items-center justify-center">
                 {photo ? (
-                  <img src={photo} alt="Student" className="w-full h-full object-cover rounded-lg" />
+                  <img 
+                    src={photo} 
+                    alt="Student" 
+                    className="w-full h-full object-cover rounded-lg" 
+                    style={{ objectFit: 'cover', objectPosition: 'center 15%' }}
+                  />
                 ) : (
                   <Camera className="w-6 h-6 text-zinc-700" />
                 )}

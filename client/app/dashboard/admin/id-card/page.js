@@ -896,7 +896,10 @@ export default function IdCardPage() {
           {/* Portrait Photo Box */}
           {showPhoto && (
             <div className="relative mt-0.5">
-              <div className={`w-22 h-26 rounded-2xl border-[3px] ${theme.border} overflow-hidden bg-zinc-100 shadow-md flex items-center justify-center relative`}>
+              <div 
+                className={`w-22 h-26 rounded-2xl border-[3px] ${theme.border} overflow-hidden bg-zinc-100 shadow-md flex items-center justify-center relative shrink-0`}
+                style={{ width: '88px', height: '104px', minWidth: '88px', minHeight: '104px' }}
+              >
                 {getPhotoUrl(rec.studentPhoto) ? (
                   <img 
                     src={getPhotoUrl(rec.studentPhoto)} 
@@ -905,7 +908,8 @@ export default function IdCardPage() {
                       e.currentTarget.style.display = 'none';
                       if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex';
                     }}
-                    className="w-full h-full object-cover" 
+                    className="w-full h-full object-cover object-top block shrink-0" 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
                   />
                 ) : null}
                 <div className={`flex flex-col items-center justify-center text-zinc-400 p-2 ${getPhotoUrl(rec.studentPhoto) ? 'hidden' : 'flex'}`}>
@@ -1473,13 +1477,17 @@ export default function IdCardPage() {
               <form onSubmit={handleCreateStudentSubmit} className="lg:col-span-7 space-y-4">
                 {/* ── PROFILE PHOTO UPLOAD BOX ── */}
                 <div className="p-3.5 bg-emerald-50/60 border border-emerald-200 rounded-2xl flex items-center gap-4">
-                  <div className="w-16 h-20 rounded-xl border-2 border-emerald-600 overflow-hidden bg-white shadow-2xs shrink-0 flex items-center justify-center relative">
+                  <div 
+                    className="w-16 h-20 rounded-xl border-2 border-emerald-600 overflow-hidden bg-white shadow-2xs shrink-0 flex items-center justify-center relative"
+                    style={{ width: '64px', height: '80px', minWidth: '64px', minHeight: '80px' }}
+                  >
                     {studentForm.studentPhoto ? (
                       <img 
                         src={getPhotoUrl(studentForm.studentPhoto)} 
                         alt="Uploaded" 
                         onError={(e) => { e.currentTarget.style.display = 'none'; }} 
-                        className="w-full h-full object-cover" 
+                        className="w-full h-full object-cover object-top block shrink-0" 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
                       />
                     ) : (
                       <Camera className="w-6 h-6 text-emerald-600" />
@@ -1761,13 +1769,17 @@ export default function IdCardPage() {
               <form onSubmit={handleEditStudentSubmit} className="lg:col-span-7 space-y-4">
                 {/* ── PROFILE PHOTO UPLOAD BOX ── */}
                 <div className="p-3.5 bg-sky-50/60 border border-sky-200 rounded-2xl flex items-center gap-4">
-                  <div className="w-16 h-20 rounded-xl border-2 border-sky-600 overflow-hidden bg-white shadow-2xs shrink-0 flex items-center justify-center relative">
+                  <div 
+                    className="w-16 h-20 rounded-xl border-2 border-sky-600 overflow-hidden bg-white shadow-2xs shrink-0 flex items-center justify-center relative"
+                    style={{ width: '64px', height: '80px', minWidth: '64px', minHeight: '80px' }}
+                  >
                     {editStudentForm.studentPhoto ? (
                       <img 
                         src={getPhotoUrl(editStudentForm.studentPhoto)} 
                         alt="Student" 
                         onError={(e) => { e.currentTarget.style.display = 'none'; }} 
-                        className="w-full h-full object-cover" 
+                        className="w-full h-full object-cover object-top block shrink-0" 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
                       />
                     ) : (
                       <Camera className="w-6 h-6 text-sky-600" />

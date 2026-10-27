@@ -836,6 +836,14 @@ html.dark tbody tr:hover:not(#pak-royal-three-copy-slip *) {
   background-color: rgba(30, 41, 59, 0.75) !important;
 }
 
+/* Global Aspect Ratio Protection: Prevent photos from stretching/squishing across cards, badges and modals */
+img.object-cover,
+img[class*="object-cover"] {
+  object-fit: cover !important;
+  object-position: center 15% !important;
+}
+
+
 
 
 

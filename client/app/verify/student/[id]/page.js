@@ -217,6 +217,7 @@ export default function StudentVerifyPage() {
                 if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex';
               }}
               className="w-16 h-16 rounded-full object-cover border-2 border-emerald-500 shadow-md" 
+              style={{ objectFit: 'cover', objectPosition: 'center 15%' }} 
             />
           ) : null}
           <div className={`w-14 h-14 rounded-full border border-zinc-700/80 items-center justify-center text-zinc-300 ${photo ? 'hidden' : 'flex'}`}>

@@ -109,7 +109,10 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
       <div className="flex items-stretch flex-1 bg-white min-h-[148px]">
         {/* Left Column: Photo Container (Grey-Blue Panel) */}
         <div className="w-[116px] shrink-0 bg-[#f0f4f8] px-2.5 py-2 flex flex-col items-center justify-center border-r border-slate-100">
-          <div className="w-[82px] h-[102px] rounded-xl border-2 border-[#0a2544] overflow-hidden bg-slate-200 shadow-xs flex items-center justify-center relative">
+          <div 
+            className="w-[82px] h-[102px] rounded-xl border-2 border-[#0a2544] overflow-hidden bg-slate-200 shadow-xs flex items-center justify-center relative shrink-0"
+            style={{ width: '82px', height: '102px', minWidth: '82px', minHeight: '102px' }}
+          >
             {photoUrl ? (
               <img 
                 src={photoUrl} 
@@ -118,7 +121,14 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
                   e.currentTarget.style.display = 'none';
                   if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex';
                 }}
-                className="w-full h-full object-cover" 
+                className="w-full h-full object-cover object-top block shrink-0" 
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  objectPosition: 'center 15%',
+                  display: 'block'
+                }}
               />
             ) : null}
             <div className={`flex flex-col items-center justify-center text-slate-400 p-1 ${photoUrl ? 'hidden' : 'flex'}`}>

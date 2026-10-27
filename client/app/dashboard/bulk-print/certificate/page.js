@@ -428,9 +428,17 @@ function GenerateCertificateContent() {
             {/* Student Photo Badge if enabled */}
             {showPhoto && (
               <div className="flex justify-center mb-2">
-                <div className="w-16 h-20 rounded-xl border-2 border-amber-500 p-0.5 bg-white shadow-md overflow-hidden flex items-center justify-center">
+                <div 
+                  className="w-16 h-20 rounded-xl border-2 border-amber-500 p-0.5 bg-white shadow-md overflow-hidden flex items-center justify-center shrink-0"
+                  style={{ width: '64px', height: '80px', minWidth: '64px', minHeight: '80px' }}
+                >
                   {photo ? (
-                    <img src={photo} alt="Student" className="w-full h-full object-cover rounded-lg" />
+                    <img 
+                      src={photo} 
+                      alt="Student" 
+                      className="w-full h-full object-cover object-top rounded-lg block shrink-0" 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
+                    />
                   ) : (
                     <Camera className="w-6 h-6 text-amber-600" />
                   )}
@@ -518,9 +526,17 @@ function GenerateCertificateContent() {
           <div className="my-8 text-center space-y-3 relative z-10">
             {showPhoto && (
               <div className="flex justify-center mb-2">
-                <div className="w-16 h-20 rounded-xl border-2 border-emerald-600 p-0.5 bg-white shadow-md overflow-hidden flex items-center justify-center">
+                <div 
+                  className="w-16 h-20 rounded-xl border-2 border-emerald-600 p-0.5 bg-white shadow-md overflow-hidden flex items-center justify-center shrink-0"
+                  style={{ width: '64px', height: '80px', minWidth: '64px', minHeight: '80px' }}
+                >
                   {photo ? (
-                    <img src={photo} alt="Student" className="w-full h-full object-cover rounded-lg" />
+                    <img 
+                      src={photo} 
+                      alt="Student" 
+                      className="w-full h-full object-cover object-top rounded-lg block shrink-0" 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
+                    />
                   ) : (
                     <Camera className="w-6 h-6 text-emerald-600" />
                   )}
@@ -599,9 +615,17 @@ function GenerateCertificateContent() {
           <div className="my-8 text-center space-y-4 relative z-10">
             {showPhoto && (
               <div className="flex justify-center mb-2">
-                <div className="w-16 h-20 rounded-xl border-2 border-sky-900 p-0.5 bg-white shadow-md overflow-hidden flex items-center justify-center">
+                <div 
+                  className="w-16 h-20 rounded-xl border-2 border-sky-900 p-0.5 bg-white shadow-md overflow-hidden flex items-center justify-center shrink-0"
+                  style={{ width: '64px', height: '80px', minWidth: '64px', minHeight: '80px' }}
+                >
                   {photo ? (
-                    <img src={photo} alt="Student" className="w-full h-full object-cover rounded-lg" />
+                    <img 
+                      src={photo} 
+                      alt="Student" 
+                      className="w-full h-full object-cover object-top rounded-lg block shrink-0" 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
+                    />
                   ) : (
                     <Camera className="w-6 h-6 text-sky-800" />
                   )}
@@ -678,9 +702,17 @@ function GenerateCertificateContent() {
           <div className="my-8 text-center space-y-3 relative z-10">
             {showPhoto && (
               <div className="flex justify-center mb-2">
-                <div className="w-16 h-20 rounded-xl border-2 border-rose-700 p-0.5 bg-white shadow-md overflow-hidden flex items-center justify-center">
+                <div 
+                  className="w-16 h-20 rounded-xl border-2 border-rose-700 p-0.5 bg-white shadow-md overflow-hidden flex items-center justify-center shrink-0"
+                  style={{ width: '64px', height: '80px', minWidth: '64px', minHeight: '80px' }}
+                >
                   {photo ? (
-                    <img src={photo} alt="Student" className="w-full h-full object-cover rounded-lg" />
+                    <img 
+                      src={photo} 
+                      alt="Student" 
+                      className="w-full h-full object-cover object-top rounded-lg block shrink-0" 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
+                    />
                   ) : (
                     <Camera className="w-6 h-6 text-rose-700" />
                   )}
@@ -757,9 +789,17 @@ function GenerateCertificateContent() {
         <div className="my-8 text-center space-y-3 relative z-10">
           {showPhoto && (
             <div className="flex justify-center mb-2">
-              <div className="w-16 h-20 rounded-xl border border-zinc-400 p-0.5 bg-white shadow-xs overflow-hidden flex items-center justify-center">
+              <div 
+                className="w-16 h-20 rounded-xl border border-zinc-400 p-0.5 bg-white shadow-xs overflow-hidden flex items-center justify-center shrink-0"
+                style={{ width: '64px', height: '80px', minWidth: '64px', minHeight: '80px' }}
+              >
                 {photo ? (
-                  <img src={photo} alt="Student" className="w-full h-full object-cover rounded-lg" />
+                  <img 
+                    src={photo} 
+                    alt="Student" 
+                    className="w-full h-full object-cover object-top rounded-lg block shrink-0" 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
+                  />
                 ) : (
                   <Camera className="w-6 h-6 text-zinc-700" />
                 )}

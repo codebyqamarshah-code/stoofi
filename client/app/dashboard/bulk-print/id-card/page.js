@@ -430,9 +430,17 @@ export default function BulkPrintIdCardPage() {
             {/* Portrait Rounded-Rectangular Photo Box */}
             {showPhoto && (
               <div className="relative mt-1">
-                <div className="w-24 h-28 rounded-2xl border-[3px] border-emerald-600 overflow-hidden bg-zinc-100 shadow-md flex items-center justify-center relative">
+                <div 
+                  className="w-24 h-28 rounded-2xl border-[3px] border-emerald-600 overflow-hidden bg-zinc-100 shadow-md flex items-center justify-center relative shrink-0"
+                  style={{ width: '96px', height: '112px', minWidth: '96px', minHeight: '112px' }}
+                >
                   {photoUrl ? (
-                    <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
+                    <img 
+                      src={photoUrl} 
+                      alt={name} 
+                      className="w-full h-full object-cover object-top block shrink-0" 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
+                    />
                   ) : (
                     <div className="flex flex-col items-center justify-center text-emerald-700 p-2">
                       <span className="text-3xl font-black text-emerald-700 uppercase">{name.charAt(0)}</span>
@@ -547,9 +555,17 @@ export default function BulkPrintIdCardPage() {
           <div className="p-3.5 flex flex-col items-center text-center flex-1 bg-white">
             {showPhoto && (
               <div className="relative mt-1">
-                <div className="w-24 h-28 rounded-2xl border-[3px] border-purple-600 overflow-hidden bg-purple-50 shadow-md flex items-center justify-center relative">
+                <div 
+                  className="w-24 h-28 rounded-2xl border-[3px] border-purple-600 overflow-hidden bg-purple-50 shadow-md flex items-center justify-center relative shrink-0"
+                  style={{ width: '96px', height: '112px', minWidth: '96px', minHeight: '112px' }}
+                >
                   {photoUrl ? (
-                    <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
+                    <img 
+                      src={photoUrl} 
+                      alt={name} 
+                      className="w-full h-full object-cover object-top block shrink-0" 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
+                    />
                   ) : (
                     <div className="flex flex-col items-center justify-center text-purple-900">
                       <User className="w-10 h-10 text-purple-300" />
@@ -657,9 +673,17 @@ export default function BulkPrintIdCardPage() {
           <div className="p-3.5 flex flex-col items-center text-center flex-1 bg-zinc-900/90">
             {showPhoto && (
               <div className="relative mt-1">
-                <div className="w-24 h-28 rounded-2xl border-[3px] border-emerald-500/80 overflow-hidden bg-zinc-950 shadow-inner flex items-center justify-center relative">
+                <div 
+                  className="w-24 h-28 rounded-2xl border-[3px] border-emerald-500/80 overflow-hidden bg-zinc-950 shadow-inner flex items-center justify-center relative shrink-0"
+                  style={{ width: '96px', height: '112px', minWidth: '96px', minHeight: '112px' }}
+                >
                   {photoUrl ? (
-                    <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
+                    <img 
+                      src={photoUrl} 
+                      alt={name} 
+                      className="w-full h-full object-cover object-top block shrink-0" 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
+                    />
                   ) : (
                     <div className="flex flex-col items-center justify-center text-emerald-400">
                       <span className="text-3xl font-black uppercase text-emerald-400">{name.charAt(0)}</span>
@@ -762,9 +786,17 @@ export default function BulkPrintIdCardPage() {
         <div className="p-3.5 flex flex-col items-center text-center flex-1 bg-white">
           {showPhoto && (
             <div className="relative mt-1">
-              <div className="w-24 h-28 rounded-2xl border-[3px] border-amber-600 overflow-hidden bg-amber-50/50 shadow-md flex items-center justify-center relative">
+              <div 
+                className="w-24 h-28 rounded-2xl border-[3px] border-amber-600 overflow-hidden bg-amber-50/50 shadow-md flex items-center justify-center relative shrink-0"
+                style={{ width: '96px', height: '112px', minWidth: '96px', minHeight: '112px' }}
+              >
                 {photoUrl ? (
-                  <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
+                  <img 
+                    src={photoUrl} 
+                    alt={name} 
+                    className="w-full h-full object-cover object-top block shrink-0" 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
+                  />
                 ) : (
                   <div className="flex flex-col items-center justify-center text-rose-950">
                     <span className="text-3xl font-black uppercase text-rose-950">{name.charAt(0)}</span>

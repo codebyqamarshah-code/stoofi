@@ -56,7 +56,8 @@ export default function StudentAvatar({
           alt=""
           loading="lazy"
           onError={() => setImgError(true)}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover object-top block shrink-0"
+          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
         />
       ) : (
         <span className="font-black uppercase tracking-wider">{getInitials()}</span>

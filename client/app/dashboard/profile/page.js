@@ -296,7 +296,8 @@ export default function ProfilePage() {
                 <img 
                   src={avatarPreview} 
                   alt="Profile" 
-                  className="w-full h-full object-cover" 
+                  className="w-full h-full object-cover object-top block shrink-0" 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
                   onError={(e) => { e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(formData.fullName || user.username || 'User') + '&background=09090b&color=ffffff'; }} 
                 />
                 {isEditing && (

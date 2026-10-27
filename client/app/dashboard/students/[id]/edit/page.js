@@ -767,6 +767,7 @@ export default function EditStudentPage() {
                             if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex';
                           }}
                           className="h-full w-full object-cover"
+                          style={{ objectFit: 'cover', objectPosition: 'center 15%' }}
                         />
                       ) : null}
                       <User className={`h-10 w-10 text-zinc-400 ${photoPreview ? 'hidden' : 'block'}`} />

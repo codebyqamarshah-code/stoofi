@@ -56,6 +56,63 @@ export const downloadBatchIdCardsPDF = async (recordsList, schoolSetting = null,
 };
 
 /**
+ * Safely crops and resizes any image to the exact target aspect ratio (cover mode, center-top focus)
+ * so that faces are never stretched or distorted in the PDF.
+ */
+async function getCoverCroppedImageDataUrl(imageSrc, targetAspectRatio = 0.8) {
+  if (!imageSrc || typeof window === 'undefined') return imageSrc;
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const iw = img.naturalWidth || img.width;
+        const ih = img.naturalHeight || img.height;
+        if (!iw || !ih) return resolve(imageSrc);
+
+        const currentRatio = iw / ih;
+
+        // If ratio is already close to target, return as-is
+        if (Math.abs(currentRatio - targetAspectRatio) < 0.05) {
+          return resolve(imageSrc);
+        }
+
+        const canvas = document.createElement('canvas');
+        const canvasW = 400;
+        const canvasH = Math.round(canvasW / targetAspectRatio);
+        canvas.width = canvasW;
+        canvas.height = canvasH;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return resolve(imageSrc);
+
+        let sx = 0, sy = 0, sWidth = iw, sHeight = ih;
+
+        if (currentRatio > targetAspectRatio) {
+          // Source is wider than target box (e.g. 16:9 landscape): crop horizontally (keep center)
+          sWidth = ih * targetAspectRatio;
+          sx = (iw - sWidth) / 2;
+          sy = 0;
+        } else {
+          // Source is taller than target box: crop vertically (keep top 10% for face)
+          sHeight = iw / targetAspectRatio;
+          sx = 0;
+          sy = Math.max(0, (ih - sHeight) * 0.1);
+        }
+
+        ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, canvasW, canvasH);
+        resolve(canvas.toDataURL('image/jpeg', 0.95));
+      } catch (e) {
+        resolve(imageSrc);
+      }
+    };
+    img.onerror = () => resolve(imageSrc);
+    img.src = imageSrc;
+  });
+}
+
+/**
  * Internal helper to draw a single card on current jsPDF page
  */
 async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, designStyle) {
@@ -166,12 +223,14 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     doc.setFillColor(248, 250, 252);
     doc.roundedRect(photoX, photoY, photoW, photoH, photoR, photoR, 'F');
 
-    // Render Student Photo
+    // Render Student Photo (Aspect-ratio preserving cover crop)
     let photoRendered = false;
     if (photo && (photo.startsWith('data:image') || photo.startsWith('blob:') || photo.startsWith('http'))) {
       try {
-        const format = photo.includes('png') ? 'PNG' : 'JPEG';
-        doc.addImage(photo, format, photoX, photoY, photoW, photoH);
+        const targetRatio = photoW / photoH;
+        const croppedPhoto = await getCoverCroppedImageDataUrl(photo, targetRatio);
+        const format = croppedPhoto.includes('png') ? 'PNG' : 'JPEG';
+        doc.addImage(croppedPhoto, format, photoX, photoY, photoW, photoH);
         photoRendered = true;
       } catch (err) {
         photoRendered = false;
@@ -365,11 +424,14 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     doc.setFillColor(248, 250, 252);
     doc.roundedRect(photoX, photoY, photoW, photoH, photoR, photoR, 'F');
 
+    // Render Student Photo (Aspect-ratio preserving cover crop)
     let photoRendered = false;
     if (photo && (photo.startsWith('data:image') || photo.startsWith('blob:') || photo.startsWith('http'))) {
       try {
-        const format = photo.includes('png') ? 'PNG' : 'JPEG';
-        doc.addImage(photo, format, photoX, photoY, photoW, photoH);
+        const targetRatio = photoW / photoH;
+        const croppedPhoto = await getCoverCroppedImageDataUrl(photo, targetRatio);
+        const format = croppedPhoto.includes('png') ? 'PNG' : 'JPEG';
+        doc.addImage(croppedPhoto, format, photoX, photoY, photoW, photoH);
         photoRendered = true;
       } catch (err) {
         photoRendered = false;
