@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
@@ -209,7 +209,7 @@ export default function BulkPrintIdCardPage() {
         if (defaultTpl.themeStyle) setActiveDesignId(defaultTpl.themeStyle);
       }
 
-      // ── Merge DB classes with standard academic classes ──
+      // â”€â”€ Merge DB classes with standard academic classes â”€â”€
       let rawClasses = [];
       if (Array.isArray(clsRes)) rawClasses = clsRes;
       else if (Array.isArray(clsRes?.data)) rawClasses = clsRes.data;
@@ -223,7 +223,7 @@ export default function BulkPrintIdCardPage() {
       const classList = extractedClassNames.length > 0 ? extractedClassNames : STANDARD_ACADEMIC_CLASSES;
       setClasses(sortClassesAcademic(classList));
 
-      // ── Set dynamic DB sections ──
+      // â”€â”€ Set dynamic DB sections â”€â”€
       let rawSections = [];
       if (Array.isArray(secRes)) rawSections = secRes;
       else if (Array.isArray(secRes?.data)) rawSections = secRes.data;
@@ -401,7 +401,7 @@ export default function BulkPrintIdCardPage() {
 
     const photoUrl = getPhotoUrl(photo);
 
-    // ── DESIGN 1: Modern Emerald Vertical Lanyard Badge (Matching Reference Image 2) ──
+    // â”€â”€ DESIGN 1: Modern Emerald Vertical Lanyard Badge (Matching Reference Image 2) â”€â”€
     if (activeDesignId === 'stoofi-emerald') {
       return (
         <div className={`bg-white text-zinc-900 rounded-none overflow-hidden shadow-xl border-2 border-emerald-600 w-full ${isInspectModal ? 'max-w-[340px]' : ''} flex flex-col justify-between select-none relative`} style={{ borderRadius: '0px' }}>
@@ -430,37 +430,40 @@ export default function BulkPrintIdCardPage() {
             {/* Portrait Rounded-Rectangular Photo Box */}
             {showPhoto && (
               <div className="relative mt-1">
+                {/* Strictly contained photo frame â€” absolute img prevents ANY overflow */}
                 <div 
-                  className="w-24 h-28 rounded-xl border-[2.5px] border-emerald-600 overflow-hidden bg-zinc-100 shadow-md flex items-center justify-center relative shrink-0"
-                  style={{ 
-                    width: '96px', 
-                    height: '112px', 
-                    minWidth: '96px', 
+                  style={{
+                    position: 'relative',
+                    width: '96px',
+                    height: '112px',
+                    minWidth: '96px',
                     minHeight: '112px',
                     maxWidth: '96px',
                     maxHeight: '112px',
+                    flexShrink: 0,
                     borderRadius: '12px',
+                    border: '2.5px solid #059669',
                     overflow: 'hidden',
-                    WebkitMaskImage: '-webkit-radial-gradient(white, black)',
-                    clipPath: 'inset(0 round 10px)',
-                    isolation: 'isolate'
+                    backgroundColor: '#f4f4f5',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.10)'
                   }}
                 >
                   {photoUrl ? (
                     <img 
                       src={photoUrl} 
                       alt={name} 
-                      className="w-full h-full object-cover object-top block shrink-0 rounded-[10px]" 
                       style={{ 
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
                         width: '100%', 
                         height: '100%', 
-                        maxWidth: '100%',
-                        maxHeight: '100%',
                         objectFit: 'cover', 
-                        objectPosition: 'center 18%', 
+                        objectPosition: 'center 15%', 
                         display: 'block',
-                        borderRadius: '10px',
-                        clipPath: 'inset(0 round 10px)',
                         imageOrientation: 'from-image'
                       }}
                     />
@@ -540,7 +543,7 @@ export default function BulkPrintIdCardPage() {
       );
     }
 
-    // ── DESIGN 2: Executive Navy Horizontal Smart Card (Front & Back Official Design) ──
+    // â”€â”€ DESIGN 2: Executive Navy Horizontal Smart Card (Front & Back Official Design) â”€â”€
     if (activeDesignId === 'classic-navy') {
       if (cardSide === 'both') {
         return <PakRoyalCardBoth rec={rec} schoolSetting={schoolSetting} isInspectModal={isInspectModal} />;
@@ -552,7 +555,7 @@ export default function BulkPrintIdCardPage() {
     }
 
 
-    // ── DESIGN 3: Royal Purple Academic Pass ──
+    // â”€â”€ DESIGN 3: Royal Purple Academic Pass â”€â”€
     if (activeDesignId === 'royal-purple') {
       return (
         <div className={`bg-white text-zinc-900 rounded-none overflow-hidden shadow-xl border-2 border-purple-600 w-full ${isInspectModal ? 'max-w-[340px]' : ''} flex flex-col justify-between select-none`} style={{ borderRadius: '0px' }}>
@@ -578,37 +581,40 @@ export default function BulkPrintIdCardPage() {
           <div className="p-3.5 flex flex-col items-center text-center flex-1 bg-white">
             {showPhoto && (
               <div className="relative mt-1">
+                {/* Strictly contained photo frame */}
                 <div 
-                  className="w-24 h-28 rounded-xl border-[2.5px] border-purple-600 overflow-hidden bg-purple-50 shadow-md flex items-center justify-center relative shrink-0"
-                  style={{ 
-                    width: '96px', 
-                    height: '112px', 
-                    minWidth: '96px', 
+                  style={{
+                    position: 'relative',
+                    width: '96px',
+                    height: '112px',
+                    minWidth: '96px',
                     minHeight: '112px',
                     maxWidth: '96px',
                     maxHeight: '112px',
+                    flexShrink: 0,
                     borderRadius: '12px',
+                    border: '2.5px solid #9333ea',
                     overflow: 'hidden',
-                    WebkitMaskImage: '-webkit-radial-gradient(white, black)',
-                    clipPath: 'inset(0 round 10px)',
-                    isolation: 'isolate'
+                    backgroundColor: '#faf5ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.10)'
                   }}
                 >
                   {photoUrl ? (
                     <img 
                       src={photoUrl} 
                       alt={name} 
-                      className="w-full h-full object-cover object-top block shrink-0 rounded-[10px]" 
                       style={{ 
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
                         width: '100%', 
                         height: '100%', 
-                        maxWidth: '100%',
-                        maxHeight: '100%',
                         objectFit: 'cover', 
-                        objectPosition: 'center 18%', 
+                        objectPosition: 'center 15%', 
                         display: 'block',
-                        borderRadius: '10px',
-                        clipPath: 'inset(0 round 10px)',
                         imageOrientation: 'from-image'
                       }}
                     />
@@ -693,7 +699,7 @@ export default function BulkPrintIdCardPage() {
       );
     }
 
-    // ── DESIGN 4: Dark Luxury Obsidian Digital Card ──
+    // â”€â”€ DESIGN 4: Dark Luxury Obsidian Digital Card â”€â”€
     if (activeDesignId === 'dark-slate') {
       return (
         <div className={`bg-zinc-950 text-white rounded-3xl overflow-hidden shadow-2xl border-2 border-zinc-700 w-full ${isInspectModal ? 'max-w-[340px]' : ''} flex flex-col justify-between select-none`}>
@@ -720,15 +726,39 @@ export default function BulkPrintIdCardPage() {
             {showPhoto && (
               <div className="relative mt-1">
                 <div 
-                  className="w-24 h-28 rounded-2xl border-[3px] border-emerald-500/80 overflow-hidden bg-zinc-950 shadow-inner flex items-center justify-center relative shrink-0"
-                  style={{ width: '96px', height: '112px', minWidth: '96px', minHeight: '112px' }}
+                  style={{
+                    position: 'relative',
+                    width: '96px',
+                    height: '112px',
+                    minWidth: '96px',
+                    minHeight: '112px',
+                    maxWidth: '96px',
+                    maxHeight: '112px',
+                    flexShrink: 0,
+                    borderRadius: '16px',
+                    border: '2.5px solid rgba(52,211,153,0.7)',
+                    overflow: 'hidden',
+                    backgroundColor: '#09090b',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
                 >
                   {photoUrl ? (
                     <img 
                       src={photoUrl} 
                       alt={name} 
-                      className="w-full h-full object-cover object-top block shrink-0" 
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
+                      style={{ 
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%', 
+                        height: '100%', 
+                        objectFit: 'cover', 
+                        objectPosition: 'center 15%', 
+                        display: 'block',
+                        imageOrientation: 'from-image'
+                      }}
                     />
                   ) : (
                     <div className="flex flex-col items-center justify-center text-emerald-400">
@@ -807,7 +837,7 @@ export default function BulkPrintIdCardPage() {
       );
     }
 
-    // ── DESIGN 5: Heritage Crimson & Gold Crest Badge ──
+    // â”€â”€ DESIGN 5: Heritage Crimson & Gold Crest Badge â”€â”€
     return (
       <div className={`bg-white text-zinc-900 rounded-3xl overflow-hidden shadow-xl border-3 border-amber-600 w-full ${isInspectModal ? 'max-w-[340px]' : ''} flex flex-col justify-between select-none`}>
         <div className="bg-gradient-to-r from-rose-950 via-rose-900 to-amber-950 p-3 text-white border-b-2 border-amber-500 relative flex items-center gap-3">
@@ -833,15 +863,40 @@ export default function BulkPrintIdCardPage() {
           {showPhoto && (
             <div className="relative mt-1">
               <div 
-                className="w-24 h-28 rounded-2xl border-[3px] border-amber-600 overflow-hidden bg-amber-50/50 shadow-md flex items-center justify-center relative shrink-0"
-                style={{ width: '96px', height: '112px', minWidth: '96px', minHeight: '112px' }}
+                style={{
+                  position: 'relative',
+                  width: '96px',
+                  height: '112px',
+                  minWidth: '96px',
+                  minHeight: '112px',
+                  maxWidth: '96px',
+                  maxHeight: '112px',
+                  flexShrink: 0,
+                  borderRadius: '16px',
+                  border: '3px solid #d97706',
+                  overflow: 'hidden',
+                  backgroundColor: '#fffbeb',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.10)'
+                }}
               >
                 {photoUrl ? (
                   <img 
                     src={photoUrl} 
                     alt={name} 
-                    className="w-full h-full object-cover object-top block shrink-0" 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
+                    style={{ 
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%', 
+                      height: '100%', 
+                      objectFit: 'cover', 
+                      objectPosition: 'center 15%', 
+                      display: 'block',
+                      imageOrientation: 'from-image'
+                    }}
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center text-rose-950">
@@ -950,7 +1005,7 @@ export default function BulkPrintIdCardPage() {
         </div>
       </div>
 
-      {/* ── 5 INTERACTIVE CARD DESIGN SELECTOR TABS ── */}
+      {/* â”€â”€ 5 INTERACTIVE CARD DESIGN SELECTOR TABS â”€â”€ */}
       <div className="bg-white border border-zinc-200 shadow-xs rounded-2xl p-5 print:hidden">
         <div className="flex items-center justify-between pb-3 mb-3 border-b border-zinc-100">
           <div className="flex items-center gap-2">
@@ -1007,7 +1062,7 @@ export default function BulkPrintIdCardPage() {
         </div>
       </div>
 
-      {/* ── SEARCH CRITERIA & FILTERS ── */}
+      {/* â”€â”€ SEARCH CRITERIA & FILTERS â”€â”€ */}
       <div className="bg-white border border-zinc-200 shadow-xs rounded-2xl p-5 print:hidden">
         <div className="flex items-center justify-between pb-3 mb-4 border-b border-zinc-100">
           <div className="flex items-center gap-2">
@@ -1141,7 +1196,7 @@ export default function BulkPrintIdCardPage() {
         </form>
       </div>
 
-      {/* ── ACTION BAR & PRINT TOOLS ── */}
+      {/* â”€â”€ ACTION BAR & PRINT TOOLS â”€â”€ */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white border border-zinc-200 shadow-xs rounded-2xl p-4 print:hidden">
         <div className="flex flex-wrap items-center gap-4">
           <button 
@@ -1246,7 +1301,7 @@ export default function BulkPrintIdCardPage() {
         </div>
       </div>
 
-      {/* ── RECORDS / CARDS DISPLAY ── */}
+      {/* â”€â”€ RECORDS / CARDS DISPLAY â”€â”€ */}
       {loading ? (
         <div className="bg-white border border-zinc-200 rounded-2xl p-12 text-center text-zinc-500">
           <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-3 text-emerald-600" />
@@ -1318,23 +1373,23 @@ export default function BulkPrintIdCardPage() {
                         </div>
                       </td>
                       <td className="py-3 px-4 font-mono text-zinc-700">
-                        <span className="font-bold text-zinc-900">{rec.admissionNo || rec.staffNo || '—'}</span>
+                        <span className="font-bold text-zinc-900">{rec.admissionNo || rec.staffNo || 'â€”'}</span>
                         {rec.rollNo && <span className="text-[10px] text-zinc-400 ml-1.5">(Roll: {rec.rollNo})</span>}
                       </td>
                       <td className="py-3 px-4 text-zinc-700">
                         {role === 'Student' ? (
                           <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-zinc-100 text-zinc-800">
-                            {rec.className || '—'} {rec.section ? `(${rec.section})` : ''}
+                            {rec.className || 'â€”'} {rec.section ? `(${rec.section})` : ''}
                           </span>
                         ) : (
                           <span>{rec.department || 'Academics'}</span>
                         )}
                       </td>
                       <td className="py-3 px-4 text-zinc-700">
-                        {role === 'Student' ? (rec.fatherName || '—') : (rec.designation || 'Faculty Member')}
+                        {role === 'Student' ? (rec.fatherName || 'â€”') : (rec.designation || 'Faculty Member')}
                       </td>
                       <td className="py-3 px-4 text-zinc-600 font-mono text-[11px]">
-                        <div>{rec.phone || rec.mobile || '—'}</div>
+                        <div>{rec.phone || rec.mobile || 'â€”'}</div>
                         {rec.emergencyContact && (
                           <div className="text-[10px] text-zinc-400">Em: {rec.emergencyContact}</div>
                         )}
@@ -1455,14 +1510,14 @@ export default function BulkPrintIdCardPage() {
         </div>
       )}
 
-      {/* ── SINGLE CARD INSPECTION / DOWNLOAD MODAL ── */}
+      {/* â”€â”€ SINGLE CARD INSPECTION / DOWNLOAD MODAL â”€â”€ */}
       {previewCard && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 print:hidden animate-in fade-in duration-150">
           <div className="bg-white rounded-2xl border border-zinc-200 shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="flex items-center justify-between p-4 border-b border-zinc-100 bg-zinc-50">
               <div className="flex items-center gap-2">
                 <CreditCard className="h-5 w-5 text-emerald-600" />
-                <h3 className="font-bold text-sm text-zinc-900">ID Card Preview — {previewCard.firstName} {previewCard.lastName}</h3>
+                <h3 className="font-bold text-sm text-zinc-900">ID Card Preview â€” {previewCard.firstName} {previewCard.lastName}</h3>
               </div>
               <button 
                 type="button" 
@@ -1536,7 +1591,7 @@ export default function BulkPrintIdCardPage() {
         </div>
       )}
 
-      {/* ── DEDICATED PRINT PORTAL (100% ISOLATED — ONLY THE CARD PRINTS) ── */}
+      {/* â”€â”€ DEDICATED PRINT PORTAL (100% ISOLATED â€” ONLY THE CARD PRINTS) â”€â”€ */}
       <div id="id-card-print-portal" className="hidden">
         {(printPortalRecords.length > 0 ? printPortalRecords : (selectedRecords.length > 0 ? selectedRecords : filteredRecords)).map((rec, idx) => (
           <React.Fragment key={rec._id || idx}>
@@ -1568,7 +1623,7 @@ export default function BulkPrintIdCardPage() {
         ))}
       </div>
 
-      {/* ── PRINT-ONLY OPTIMIZATION STYLESHEET ── */}
+      {/* â”€â”€ PRINT-ONLY OPTIMIZATION STYLESHEET â”€â”€ */}
       <style jsx global>{`
         @media print {
           * {

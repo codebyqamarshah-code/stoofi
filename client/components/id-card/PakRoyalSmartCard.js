@@ -109,20 +109,25 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
       <div className="flex items-stretch flex-1 bg-white min-h-[148px]">
         {/* Left Column: Photo Container (Grey-Blue Panel) */}
         <div className="w-[116px] shrink-0 bg-[#f0f4f8] px-2.5 py-2 flex flex-col items-center justify-center border-r border-slate-100">
+          {/* Photo frame: strictly fixed size, never lets photo bleed outside */}
           <div 
-            className="w-[82px] h-[102px] rounded-xl border-2 border-[#0a2544] overflow-hidden bg-slate-100 shadow-xs flex items-center justify-center relative shrink-0"
-            style={{ 
-              width: '82px', 
-              height: '102px', 
-              minWidth: '82px', 
+            style={{
+              position: 'relative',
+              width: '82px',
+              height: '102px',
+              minWidth: '82px',
               minHeight: '102px',
               maxWidth: '82px',
               maxHeight: '102px',
-              borderRadius: '12px',
+              flexShrink: 0,
+              borderRadius: '10px',
+              border: '2px solid #0a2544',
               overflow: 'hidden',
-              WebkitMaskImage: '-webkit-radial-gradient(white, black)',
-              clipPath: 'inset(0 round 10px)',
-              isolation: 'isolate'
+              backgroundColor: '#e2e8f0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.12)'
             }}
           >
             {photoUrl ? (
@@ -133,22 +138,20 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
                   e.currentTarget.style.display = 'none';
                   if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex';
                 }}
-                className="w-full h-full object-cover object-top block shrink-0 rounded-[10px]" 
                 style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
                   width: '100%',
                   height: '100%',
-                  maxWidth: '100%',
-                  maxHeight: '100%',
                   objectFit: 'cover',
-                  objectPosition: 'center 18%',
+                  objectPosition: 'center 15%',
                   display: 'block',
-                  borderRadius: '10px',
-                  clipPath: 'inset(0 round 10px)',
                   imageOrientation: 'from-image'
                 }}
               />
             ) : null}
-            <div className={`flex flex-col items-center justify-center text-slate-400 p-1 ${photoUrl ? 'hidden' : 'flex'}`}>
+            <div style={{ display: photoUrl ? 'none' : 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4px' }}>
               <User className="w-8 h-8 text-[#0a2544]/60" />
               <span className="text-[9px] font-black mt-1 uppercase text-[#0a2544]">{initial}</span>
             </div>

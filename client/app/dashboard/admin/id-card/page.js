@@ -931,21 +931,28 @@ export default function IdCardPage() {
           {/* Portrait Photo Box */}
           {showPhoto && (
             <div className="relative mt-0.5">
+              {/* Photo frame: fixed size, absolute img inside ensures no overflow ever */}
               <div 
-                className={`w-22 h-26 rounded-xl border-[2.5px] ${theme.border} overflow-hidden bg-zinc-100 shadow-md flex items-center justify-center relative shrink-0`}
-                style={{ 
-                  width: '88px', 
-                  height: '104px', 
-                  minWidth: '88px', 
+                style={{
+                  position: 'relative',
+                  width: '88px',
+                  height: '104px',
+                  minWidth: '88px',
                   minHeight: '104px',
                   maxWidth: '88px',
                   maxHeight: '104px',
+                  flexShrink: 0,
                   borderRadius: '12px',
+                  border: '2.5px solid',
+                  borderColor: theme.borderColor || '#059669',
                   overflow: 'hidden',
-                  WebkitMaskImage: '-webkit-radial-gradient(white, black)',
-                  clipPath: 'inset(0 round 10px)',
-                  isolation: 'isolate'
+                  backgroundColor: '#f4f4f5',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.10), 0 2px 4px -1px rgba(0,0,0,0.06)'
                 }}
+                className={`border-${theme.border.replace('border-','')}`}
               >
                 {getPhotoUrl(rec.studentPhoto) ? (
                   <img 
@@ -955,22 +962,20 @@ export default function IdCardPage() {
                       e.currentTarget.style.display = 'none';
                       if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex';
                     }}
-                    className="w-full h-full object-cover object-top block shrink-0 rounded-[10px]" 
                     style={{ 
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
                       width: '100%', 
                       height: '100%', 
-                      maxWidth: '100%',
-                      maxHeight: '100%',
                       objectFit: 'cover', 
-                      objectPosition: 'center 18%', 
+                      objectPosition: 'center 15%', 
                       display: 'block',
-                      borderRadius: '10px',
-                      clipPath: 'inset(0 round 10px)',
                       imageOrientation: 'from-image'
                     }}
                   />
                 ) : null}
-                <div className={`flex flex-col items-center justify-center text-zinc-400 p-2 ${getPhotoUrl(rec.studentPhoto) ? 'hidden' : 'flex'}`}>
+                <div style={{ display: getPhotoUrl(rec.studentPhoto) ? 'none' : 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '8px' }}>
                   <User className="w-9 h-9 text-zinc-300" />
                   <span className="text-[9px] font-bold mt-1 text-zinc-400 uppercase">{initial}</span>
                 </div>
