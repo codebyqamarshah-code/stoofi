@@ -34,7 +34,7 @@ const schema = new mongoose.Schema({
   studentPhoto: { type: String },
   photo: { type: String },
   medicalHistory: { type: String },
-  emergencyContact: { type: String },
+  emergencyContact: { type: mongoose.Schema.Types.Mixed },
   tcNo: { type: String },
   remarks: { type: String },
 

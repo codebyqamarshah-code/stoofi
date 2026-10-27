@@ -94,6 +94,21 @@ export async function PUT(req, { params }) {
     const body = await req.json();
     const dataObj = { ...body };
 
+    // Normalize emergencyContact if sent as an object
+    if (dataObj.emergencyContact && typeof dataObj.emergencyContact === 'object') {
+      if (!dataObj.emergencyContactPhone) dataObj.emergencyContactPhone = dataObj.emergencyContact.phone || '';
+      if (!dataObj.emergencyContactName) dataObj.emergencyContactName = dataObj.emergencyContact.name || '';
+      if (!dataObj.emergencyContactRelation) dataObj.emergencyContactRelation = dataObj.emergencyContact.relationship || dataObj.emergencyContact.relation || '';
+      dataObj.emergencyContact = dataObj.emergencyContact.phone || dataObj.emergencyContact.name || '';
+    }
+
+    // Keep studentPhoto and photo synchronized
+    if (dataObj.studentPhoto || dataObj.photo) {
+      const p = dataObj.studentPhoto || dataObj.photo;
+      dataObj.studentPhoto = p;
+      dataObj.photo = p;
+    }
+
     // Clean up empty ObjectId / optional fields
     if (!dataObj.studentGroup || dataObj.studentGroup === '' || dataObj.studentGroup === 'undefined' || dataObj.studentGroup === 'null') {
       delete dataObj.studentGroup;

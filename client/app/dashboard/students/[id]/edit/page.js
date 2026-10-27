@@ -356,11 +356,10 @@ export default function EditStudentPage() {
         emergencyContactName: formData.emergencyContactName.trim(),
         emergencyContactPhone: formData.emergencyContactPhone.trim(),
         emergencyContactRelation: formData.emergencyRelationship,
-        emergencyContact: {
-          name: formData.emergencyContactName.trim(),
-          phone: formData.emergencyContactPhone.trim(),
-          relationship: formData.emergencyRelationship
-        },
+        emergencyContact: formData.emergencyContactPhone.trim() || formData.emergencyContactName.trim() || '',
+
+        studentPhoto: formData.studentPhoto || '',
+        photo: formData.studentPhoto || '',
 
         fatherName: formData.fatherName.trim(),
         fatherCnic: formData.fatherCnic.trim(),

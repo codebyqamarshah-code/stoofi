@@ -139,7 +139,7 @@ const studentSchema = new mongoose.Schema({
   phone: { type: String, trim: true },
   whatsapp: { type: String, trim: true },
   email: { type: String, trim: true },
-  emergencyContact: { type: String, trim: true },
+  emergencyContact: { type: mongoose.Schema.Types.Mixed },
   emergencyContactName: { type: String, trim: true },
   emergencyContactRelation: { type: String, trim: true },
   emergencyContactPhone: { type: String, trim: true },
@@ -1457,6 +1457,38 @@ itemIssueSchema.index({ storeId: 1 });
 itemIssueSchema.index({ recipientType: 1 });
 itemIssueSchema.index({ date: -1 });
 export const ItemIssue = mongoose.models.ItemIssue || mongoose.model('ItemIssue', itemIssueSchema);
+
+// --- DEPARTMENT ---
+const departmentSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  description: { type: String, default: '', trim: true }
+}, { timestamps: true });
+export const Department = mongoose.models.Department || mongoose.model('Department', departmentSchema);
+
+// --- DESIGNATION ---
+const designationSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  departmentId: { type: String, default: '' },
+  department: { type: String, default: '', trim: true },
+  description: { type: String, default: '', trim: true }
+}, { timestamps: true });
+export const Designation = mongoose.models.Designation || mongoose.model('Designation', designationSchema);
+
+// --- FEES GROUP ---
+const feesGroupSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  description: { type: String, default: '', trim: true }
+}, { timestamps: true });
+export const FeesGroup = mongoose.models.FeesGroup || mongoose.model('FeesGroup', feesGroupSchema);
+
+// --- FEES TYPE ---
+const feesTypeSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  feesGroup: { type: mongoose.Schema.Types.ObjectId, ref: 'FeesGroup', required: true },
+  description: { type: String, default: '', trim: true }
+}, { timestamps: true });
+export const FeesType = mongoose.models.FeesType || mongoose.model('FeesType', feesTypeSchema);
+
 
 
 

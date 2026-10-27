@@ -51,7 +51,7 @@ export default function DesignationPage() {
     setLoading(true);
     try {
       const [deptRes, desigRes] = await Promise.allSettled([
-        api.get('/Department'),
+        api.get('/department'),
         api.get('/designation'),
       ]);
       if (deptRes.status === 'fulfilled' && deptRes.value?.data?.length > 0) {
@@ -67,34 +67,38 @@ export default function DesignationPage() {
   const showSuccess = (msg) => { setSuccess(msg); setTimeout(() => setSuccess(''), 3000); };
   const showError = (msg) => { setError(msg); setTimeout(() => setError(''), 4000); };
 
-  const getDeptName = (id) => departments.find(d => d.id === Number(id))?.name || '';
+  const getDeptName = (id) => departments.find(d => (d._id || d.id) === id || String(d._id || d.id) === String(id))?.name || '';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name.trim()) return showError('Designation name is required.');
     setSaving(true);
     try {
-      const payload = { ...form, departmentId: Number(form.departmentId) };
+      const selectedDept = departments.find(d => (d._id || d.id) === form.departmentId || String(d._id || d.id) === String(form.departmentId));
+      const payload = {
+        ...form,
+        department: selectedDept ? selectedDept.name : getDeptName(form.departmentId)
+      };
       if (editId) {
-        await api.put(`/designation/${editId}`, payload).catch(() => {});
-        setDesignations(prev => prev.map(d => d.id === editId
-          ? { ...d, ...payload, department: getDeptName(form.departmentId) } : d));
+        await api.put(`/designation/${editId}`, payload);
+        setDesignations(prev => prev.map(d => ((d._id || d.id) === editId)
+          ? { ...d, ...payload } : d));
         showSuccess('Designation updated successfully.');
       } else {
-        const res = await api.post('/designation', payload).catch(() => ({ data: null }));
-        const newItem = res?.data || { id: Date.now(), ...payload, department: getDeptName(form.departmentId) };
-        setDesignations(prev => [...prev, newItem]);
+        const res = await api.post('/designation', payload);
+        const newItem = res?.data || { _id: String(Date.now()), ...payload };
+        setDesignations(prev => [newItem, ...prev]);
         showSuccess('Designation added successfully.');
       }
       setForm(EMPTY_FORM);
       setEditId(null);
-    } catch (_) {
-      showError('Failed to save designation. Please try again.');
+    } catch (err) {
+      showError(err?.response?.data?.message || err?.message || 'Failed to save designation. Please try again.');
     } finally { setSaving(false); }
   };
 
   const handleEdit = (item) => {
-    setEditId(item.id);
+    setEditId(item._id || item.id);
     setForm({ name: item.name, departmentId: item.departmentId || '', description: item.description || '' });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -102,7 +106,7 @@ export default function DesignationPage() {
   const handleDelete = async (id) => {
     setDeleteId(id);
     try { await api.delete(`/designation/${id}`); } catch (_) {}
-    setDesignations(prev => prev.filter(d => d.id !== id));
+    setDesignations(prev => prev.filter(d => (d._id || d.id) !== id));
     setDeleteId(null);
     showSuccess('Designation deleted.');
     if (editId === id) { setEditId(null); setForm(EMPTY_FORM); }
@@ -260,8 +264,10 @@ export default function DesignationPage() {
                         </td>
                       </tr>
                     ) : (
-                      filtered.map((item, idx) => (
-                        <tr key={item.id} className={`hover:bg-zinc-50/70 transition-colors ${editId === item.id ? 'bg-blue-50/50' : ''}`}>
+                      filtered.map((item, idx) => {
+                        const itId = item._id || item.id;
+                        return (
+                        <tr key={itId} className={`hover:bg-zinc-50/70 transition-colors ${editId === itId ? 'bg-blue-50/50' : ''}`}>
                           <td className="px-4 py-3.5 text-zinc-400 text-xs">{idx + 1}</td>
                           <td className="px-4 py-3.5">
                             <div className="flex items-center gap-2">
@@ -289,17 +295,18 @@ export default function DesignationPage() {
                                 <Pencil className="h-3.5 w-3.5" />
                               </button>
                               <button
-                                onClick={() => handleDelete(item.id)}
-                                disabled={deleteId === item.id}
+                                onClick={() => handleDelete(itId)}
+                                disabled={deleteId === itId}
                                 className="p-1.5 rounded-md text-zinc-400 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
                                 title="Delete"
                               >
-                                {deleteId === item.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                                {deleteId === itId ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                               </button>
                             </div>
                           </td>
                         </tr>
-                      ))
+                      );
+                      })
                     )}
                   </tbody>
                 </table>

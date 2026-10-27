@@ -241,6 +241,20 @@ exports.create = async (req, res) => {
     const dataObj = { ...req.body };
     const currentYear = new Date().getFullYear();
 
+    // Normalize emergencyContact if sent as an object
+    if (dataObj.emergencyContact && typeof dataObj.emergencyContact === 'object') {
+      if (!dataObj.emergencyContactPhone) dataObj.emergencyContactPhone = dataObj.emergencyContact.phone || '';
+      if (!dataObj.emergencyContactName) dataObj.emergencyContactName = dataObj.emergencyContact.name || '';
+      if (!dataObj.emergencyContactRelation) dataObj.emergencyContactRelation = dataObj.emergencyContact.relationship || dataObj.emergencyContact.relation || '';
+      dataObj.emergencyContact = dataObj.emergencyContact.phone || dataObj.emergencyContact.name || '';
+    }
+
+    if (dataObj.studentPhoto || dataObj.photo) {
+      const p = dataObj.studentPhoto || dataObj.photo;
+      dataObj.studentPhoto = p;
+      dataObj.photo = p;
+    }
+
     // Clean up empty ObjectId / optional fields so Mongoose doesn't fail on cast
     if (!dataObj.studentGroup || dataObj.studentGroup === '' || dataObj.studentGroup === 'undefined' || dataObj.studentGroup === 'null') {
       delete dataObj.studentGroup;
@@ -363,6 +377,20 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const dataObj = { ...req.body };
+
+    // Normalize emergencyContact if sent as an object
+    if (dataObj.emergencyContact && typeof dataObj.emergencyContact === 'object') {
+      if (!dataObj.emergencyContactPhone) dataObj.emergencyContactPhone = dataObj.emergencyContact.phone || '';
+      if (!dataObj.emergencyContactName) dataObj.emergencyContactName = dataObj.emergencyContact.name || '';
+      if (!dataObj.emergencyContactRelation) dataObj.emergencyContactRelation = dataObj.emergencyContact.relationship || dataObj.emergencyContact.relation || '';
+      dataObj.emergencyContact = dataObj.emergencyContact.phone || dataObj.emergencyContact.name || '';
+    }
+
+    if (dataObj.studentPhoto || dataObj.photo) {
+      const p = dataObj.studentPhoto || dataObj.photo;
+      dataObj.studentPhoto = p;
+      dataObj.photo = p;
+    }
 
     // Clean up empty ObjectId / optional fields
     if (!dataObj.studentGroup || dataObj.studentGroup === '' || dataObj.studentGroup === 'undefined' || dataObj.studentGroup === 'null') {

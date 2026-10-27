@@ -40,7 +40,7 @@ export default function DepartmentPage() {
   const fetchDepartments = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/Department');
+      const res = await api.get('/department');
       if (res?.success && res.data?.length > 0) setDepartments(res.data);
     } catch (_) {}
     finally { setLoading(false); }
@@ -55,29 +55,29 @@ export default function DepartmentPage() {
     setSaving(true);
     try {
       if (editId) {
-        const res = await api.put(`/Department/${editId}`, form);
+        const res = await api.put(`/department/${editId}`, form);
         if (res?.success || res?.data) {
-          setDepartments(prev => prev.map(d => d.id === editId ? { ...d, ...form } : d));
+          setDepartments(prev => prev.map(d => ((d._id || d.id) === editId) ? { ...d, ...form } : d));
           showSuccess('Department updated successfully.');
         } else {
-          setDepartments(prev => prev.map(d => d.id === editId ? { ...d, ...form } : d));
+          setDepartments(prev => prev.map(d => ((d._id || d.id) === editId) ? { ...d, ...form } : d));
           showSuccess('Department updated successfully.');
         }
       } else {
-        const res = await api.post('/Department', form);
-        const newDept = res?.data || { id: Date.now(), ...form };
-        setDepartments(prev => [...prev, newDept]);
+        const res = await api.post('/department', form);
+        const newDept = res?.data || { _id: String(Date.now()), ...form };
+        setDepartments(prev => [newDept, ...prev]);
         showSuccess('Department added successfully.');
       }
       setForm(EMPTY_FORM);
       setEditId(null);
-    } catch (_) {
-      showError('Failed to save department. Please try again.');
+    } catch (err) {
+      showError(err?.response?.data?.message || err?.message || 'Failed to save department. Please try again.');
     } finally { setSaving(false); }
   };
 
   const handleEdit = (dept) => {
-    setEditId(dept.id);
+    setEditId(dept._id || dept.id);
     setForm({ name: dept.name, description: dept.description || '' });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -85,9 +85,9 @@ export default function DepartmentPage() {
   const handleDelete = async (id) => {
     setDeleteId(id);
     try {
-      await api.delete(`/Department/${id}`);
+      await api.delete(`/department/${id}`);
     } catch (_) {}
-    setDepartments(prev => prev.filter(d => d.id !== id));
+    setDepartments(prev => prev.filter(d => (d._id || d.id) !== id));
     setDeleteId(null);
     showSuccess('Department deleted.');
     if (editId === id) { setEditId(null); setForm(EMPTY_FORM); }
@@ -229,8 +229,10 @@ export default function DepartmentPage() {
                         </td>
                       </tr>
                     ) : (
-                      filtered.map((dept, idx) => (
-                        <tr key={dept.id} className={`hover:bg-zinc-50/70 transition-colors ${editId === dept.id ? 'bg-blue-50/50' : ''}`}>
+                      filtered.map((dept, idx) => {
+                        const dId = dept._id || dept.id;
+                        return (
+                        <tr key={dId} className={`hover:bg-zinc-50/70 transition-colors ${editId === dId ? 'bg-blue-50/50' : ''}`}>
                           <td className="px-4 py-3.5 text-zinc-400 text-xs">{idx + 1}</td>
                           <td className="px-4 py-3.5">
                             <div className="flex items-center gap-2">
@@ -253,17 +255,18 @@ export default function DepartmentPage() {
                                 <Pencil className="h-3.5 w-3.5" />
                               </button>
                               <button
-                                onClick={() => handleDelete(dept.id)}
-                                disabled={deleteId === dept.id}
+                                onClick={() => handleDelete(dId)}
+                                disabled={deleteId === dId}
                                 className="p-1.5 rounded-md text-zinc-400 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
                                 title="Delete"
                               >
-                                {deleteId === dept.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                                {deleteId === dId ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                               </button>
                             </div>
                           </td>
                         </tr>
-                      ))
+                      );
+                      })
                     )}
                   </tbody>
                 </table>
