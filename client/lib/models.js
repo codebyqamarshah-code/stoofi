@@ -395,18 +395,145 @@ const attendanceSchema = new mongoose.Schema({
 
 export const Attendance = mongoose.models.Attendance || mongoose.model('Attendance', attendanceSchema);
 
+// ── ACCOUNTS MODULE SCHEMAS ──
+
+// Chart of Account Schema
+const chartOfAccountSchema = new mongoose.Schema({
+  accountCode: { type: String, required: true, trim: true, index: true },
+  accountName: { type: String, required: true, trim: true },
+  accountType: { 
+    type: String, 
+    required: true, 
+    enum: ['Asset', 'Liability', 'Equity', 'Income', 'Expense'],
+    default: 'Asset'
+  },
+  parentAccount: { type: mongoose.Schema.Types.ObjectId, ref: 'ChartOfAccount', default: null },
+  description: { type: String, default: '' },
+  openingBalance: { type: Number, default: 0 },
+  currentBalance: { type: Number, default: 0 },
+  status: { type: String, enum: ['Active', 'Inactive'], default: 'Active', index: true },
+  isSystem: { type: Boolean, default: false }
+}, { timestamps: true });
+
+export const ChartOfAccount = mongoose.models.ChartOfAccount || mongoose.model('ChartOfAccount', chartOfAccountSchema);
+
+// Bank Account Schema
+const bankAccountSchema = new mongoose.Schema({
+  bankName: { type: String, required: true, trim: true },
+  accountTitle: { type: String, required: true, trim: true },
+  accountNumber: { type: String, required: true, trim: true },
+  branchName: { type: String, default: '' },
+  branchCode: { type: String, default: '' },
+  accountType: { 
+    type: String, 
+    enum: ['Current', 'Savings', 'Money Market', 'Cash Account'],
+    default: 'Current'
+  },
+  chartOfAccountId: { type: mongoose.Schema.Types.ObjectId, ref: 'ChartOfAccount' },
+  openingBalance: { type: Number, default: 0 },
+  openingBalanceDate: { type: Date, default: Date.now },
+  currentBalance: { type: Number, default: 0 },
+  currency: { type: String, default: 'PKR' },
+  description: { type: String, default: '' },
+  status: { type: String, enum: ['Active', 'Inactive'], default: 'Active', index: true }
+}, { timestamps: true });
+
+export const BankAccount = mongoose.models.BankAccount || mongoose.model('BankAccount', bankAccountSchema);
+
+// Income Schema
+const incomeSchema = new mongoose.Schema({
+  receiptNo: { type: String, index: true },
+  title: { type: String, required: true, trim: true },
+  amount: { type: Number, required: true, min: 0 },
+  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'ChartOfAccount' },
+  categoryName: { type: String, default: 'General Revenue' },
+  bankAccountId: { type: mongoose.Schema.Types.ObjectId, ref: 'BankAccount' },
+  bankAccountName: { type: String, default: 'Cash in Safe' },
+  date: { type: Date, default: Date.now, index: true },
+  paymentMethod: { 
+    type: String, 
+    enum: ['Cash', 'Bank Transfer', 'Cheque', 'Online Payment', 'Other'],
+    default: 'Cash'
+  },
+  referenceNo: { type: String, default: '' },
+  payerName: { type: String, default: '' },
+  payerContact: { type: String, default: '' },
+  description: { type: String, default: '' },
+  attachment: { type: String, default: '' },
+  status: { 
+    type: String, 
+    enum: ['Received', 'Pending', 'Void'],
+    default: 'Received',
+    index: true
+  },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  createdByName: { type: String, default: 'Accounts Officer' }
+}, { timestamps: true });
+
+export const Income = mongoose.models.Income || mongoose.model('Income', incomeSchema);
+
 // Expense Schema
 const expenseSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  amount: { type: Number, required: true },
-  category: { type: String, default: 'General' },
-  date: { type: Date, default: Date.now },
-  description: { type: String },
-  paymentMethod: { type: String, default: 'Cash' },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  voucherNo: { type: String, index: true },
+  title: { type: String, required: true, trim: true },
+  amount: { type: Number, required: true, min: 0 },
+  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'ChartOfAccount' },
+  categoryName: { type: String, default: 'General Operating Expense' },
+  bankAccountId: { type: mongoose.Schema.Types.ObjectId, ref: 'BankAccount' },
+  bankAccountName: { type: String, default: 'Cash in Safe' },
+  date: { type: Date, default: Date.now, index: true },
+  paymentMethod: { 
+    type: String, 
+    enum: ['Cash', 'Bank Transfer', 'Cheque', 'Online Payment', 'Other'],
+    default: 'Cash'
+  },
+  payeeName: { type: String, default: '' },
+  invoiceNo: { type: String, default: '' },
+  referenceNo: { type: String, default: '' },
+  description: { type: String, default: '' },
+  attachment: { type: String, default: '' },
+  status: { 
+    type: String, 
+    enum: ['Paid', 'Pending', 'Void'],
+    default: 'Paid',
+    index: true
+  },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  createdByName: { type: String, default: 'Accounts Officer' }
 }, { timestamps: true });
 
 export const Expense = mongoose.models.Expense || mongoose.model('Expense', expenseSchema);
+
+// FundTransfer Schema
+const fundTransferSchema = new mongoose.Schema({
+  transferNo: { type: String, index: true },
+  fromAccountId: { type: mongoose.Schema.Types.ObjectId, ref: 'BankAccount', required: true },
+  fromAccountName: { type: String, required: true },
+  toAccountId: { type: mongoose.Schema.Types.ObjectId, ref: 'BankAccount', required: true },
+  toAccountName: { type: String, required: true },
+  amount: { type: Number, required: true, min: 1 },
+  date: { type: Date, default: Date.now, index: true },
+  referenceNo: { type: String, default: '' },
+  transferMethod: { 
+    type: String, 
+    enum: ['Internal Transfer', 'Cheque', 'Online Banking', 'Cash Deposit'],
+    default: 'Internal Transfer'
+  },
+  description: { type: String, default: '' },
+  attachment: { type: String, default: '' },
+  status: { 
+    type: String, 
+    enum: ['Completed', 'Pending', 'Cancelled', 'Reversed'],
+    default: 'Completed',
+    index: true
+  },
+  reversedTransferId: { type: mongoose.Schema.Types.ObjectId, ref: 'FundTransfer' },
+  reversalReason: { type: String, default: '' },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  createdByName: { type: String, default: 'Accounts Officer' }
+}, { timestamps: true });
+
+export const FundTransfer = mongoose.models.FundTransfer || mongoose.model('FundTransfer', fundTransferSchema);
 
 // FeePayment Schema
 const feePaymentSchema = new mongoose.Schema({
