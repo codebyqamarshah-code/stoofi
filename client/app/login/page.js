@@ -395,7 +395,10 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div className="space-y-2">
             <div className="relative flex items-center w-full">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400">
+              <div 
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-zinc-400"
+                style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }}
+              >
                 <Mail className="h-5 w-5 text-zinc-400 group-focus-within:text-zinc-600 transition-colors" />
               </div>
               <input
@@ -411,7 +414,10 @@ export default function LoginPage() {
 
           <div className="space-y-2">
             <div className="relative flex items-center w-full">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400">
+              <div 
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-zinc-400"
+                style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }}
+              >
                 <Lock className="h-5 w-5 text-zinc-400 group-focus-within:text-zinc-600 transition-colors" />
               </div>
               <input
@@ -425,7 +431,8 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 aria-label={showPassword ? "Hide password" : "Show password"}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center justify-center text-zinc-400 hover:text-zinc-600 focus:outline-none transition-colors cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-zinc-600 focus:outline-none transition-colors cursor-pointer z-10"
+                style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>

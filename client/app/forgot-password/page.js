@@ -305,7 +305,10 @@ export default function ForgotPasswordPage() {
                 New Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400">
+                <div 
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-zinc-400"
+                  style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }}
+                >
                   <Lock size={18} />
                 </div>
                 <input
@@ -321,8 +324,8 @@ export default function ForgotPasswordPage() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-zinc-400 hover:text-zinc-600 focus:outline-none transition-colors cursor-pointer z-10 p-1"
-                  style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-zinc-600 focus:outline-none transition-colors cursor-pointer z-10"
+                  style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -334,7 +337,10 @@ export default function ForgotPasswordPage() {
                 Confirm New Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400">
+                <div 
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-zinc-400"
+                  style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }}
+                >
                   <Lock size={18} />
                 </div>
                 <input
@@ -345,6 +351,15 @@ export default function ForgotPasswordPage() {
                   className={`${inputClass} pr-12`}
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-zinc-600 focus:outline-none transition-colors cursor-pointer z-10"
+                  style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
 
