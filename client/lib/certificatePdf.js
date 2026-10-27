@@ -1,21 +1,29 @@
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
+import * as jspdfLib from 'jspdf';
+import QRCode from 'qrcode';
 import { PAK_ROYAL_COLLEGE_LOGO } from './pakRoyalCollegeLogo.js';
 import { PAK_ROYAL_SIGNATURE_DARK, PAK_ROYAL_SIGNATURE_GOLD } from './signatureImage.js';
+import { getPublicVerificationUrl, formatStudentRollNo } from './utils.js';
+
+function createPdfDoc(options) {
+  const Constructor = jspdfLib.jsPDF || jspdfLib.default?.jsPDF || jspdfLib.default || jsPDF;
+  return new Constructor(options);
+}
 
 /**
  * Downloads a high-resolution, landscape A4 (297mm x 210mm) Certificate PDF
  * Ultra-professional layout matching institutional diplomas & merit certificates.
  */
-export const downloadCertificatePDF = (student, template = {}, schoolSetting = null) => {
+export const downloadCertificatePDF = async (student, template = {}, schoolSetting = null) => {
   if (!student) return;
 
-  const doc = new jsPDF({
+  const doc = createPdfDoc({
     orientation: 'landscape',
     unit: 'mm',
     format: 'a4' // 297mm x 210mm
   });
 
-  renderCertificateToDoc(doc, student, template, schoolSetting);
+  await renderCertificateToDoc(doc, student, template, schoolSetting);
 
   const stName = `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.name || student.studentName || 'Student';
   const cleanFileName = `${stName.replace(/[^a-zA-Z0-9]/g, '_')}_Certificate.pdf`;
@@ -25,42 +33,43 @@ export const downloadCertificatePDF = (student, template = {}, schoolSetting = n
 /**
  * Batch Download Multiple Certificates into a single PDF
  */
-export const downloadBatchCertificatesPDF = (studentsList, template = {}, schoolSetting = null) => {
+export const downloadBatchCertificatesPDF = async (studentsList, template = {}, schoolSetting = null) => {
   if (!studentsList || studentsList.length === 0) return;
 
-  const doc = new jsPDF({
+  const doc = createPdfDoc({
     orientation: 'landscape',
     unit: 'mm',
     format: 'a4'
   });
 
-  studentsList.forEach((st, idx) => {
+  for (let idx = 0; idx < studentsList.length; idx++) {
+    const st = studentsList[idx];
     if (idx > 0) {
       doc.addPage('a4', 'landscape');
     }
-    renderCertificateToDoc(doc, st, template, schoolSetting);
-  });
+    await renderCertificateToDoc(doc, st, template, schoolSetting);
+  }
 
-  doc.save(`Stoofi_Certificates_Batch_${studentsList.length}.pdf`);
+  doc.save(`Pak_Royal_College_Certificates_${studentsList.length}.pdf`);
 };
 
-function renderCertificateToDoc(doc, student, template, schoolSetting) {
+async function renderCertificateToDoc(doc, student, template, schoolSetting) {
   const width = 297;
   const height = 210;
 
   const styleId = template.themeStyle || 'classic-gold';
-  const schoolName = schoolSetting?.schoolName || 'Pak Royal College Sharaqpur';
+  const schoolName = schoolSetting?.schoolName || 'PAK ROYAL COLLEGE';
   const schoolAddress = 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura';
-  const schoolPhone = schoolSetting?.phone || '+92 300 1234567';
+  const schoolPhone = schoolSetting?.phone || '+92 311 1444810';
 
-  const stName = `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.name || student.studentName || 'Student Name';
-  const fName = student.fatherName || '-';
-  const admNo = student.admissionNo || '-';
-  const rollNo = student.rollNo || '-';
-  const clsName = student.className || '-';
-  const secName = student.section || '-';
+  const stName = `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.name || student.studentName || 'Muhammad Rayyan';
+  const fName = student.fatherName || 'Tariq Mehmood';
+  const admNo = student.admissionNo || 'ADM-2026-101';
+  const rollNo = formatStudentRollNo(student.rollNo || student.admissionNo || 'PRC0021');
+  const clsName = student.className || 'FSC OTT';
+  const secName = student.section || 'A';
   const certDate = student.certificateDate || student.issueDate || new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-  const certNo = student.certificateNumber || `STO-CERT-${Date.now().toString().slice(-6)}`;
+  const certNo = student.certificateNumber || `PRC-CERT-${(student.admissionNo || '2026').replace(/\D/g, '') || Date.now().toString().slice(-6)}`;
 
   // Color Palettes
   let primaryColor = [180, 83, 9]; // Amber 700 (Gold)
@@ -113,61 +122,61 @@ function renderCertificateToDoc(doc, student, template, schoolSetting) {
   });
 
   // 2. School Header (if enabled)
-  let currentY = 20;
+  let currentY = 22;
   if (template.showSchoolHeader !== false) {
     try {
-      doc.addImage(PAK_ROYAL_COLLEGE_LOGO, 'PNG', width / 2 - 7, currentY - 5, 14, 14);
-      currentY += 12;
+      doc.addImage(PAK_ROYAL_COLLEGE_LOGO, 'PNG', width / 2 - 8, currentY - 7, 16, 16);
+      currentY += 13;
     } catch (_) {
       currentY += 2;
     }
 
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.setFont('times', 'bold');
-    doc.setFontSize(13);
+    doc.setFontSize(14);
     doc.text(schoolName.toUpperCase(), width / 2, currentY, { align: 'center' });
 
     currentY += 4.5;
     doc.setTextColor(110, 110, 110);
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
+    doc.setFontSize(7.5);
     doc.text(`${schoolAddress} | Ph: ${schoolPhone}`, width / 2, currentY, { align: 'center' });
 
-    currentY += 4;
+    currentY += 3.5;
     doc.setDrawColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
     doc.setLineWidth(0.4);
-    doc.line(width / 2 - 40, currentY, width / 2 + 40, currentY);
-    currentY += 8;
+    doc.line(width / 2 - 45, currentY, width / 2 + 45, currentY);
+    currentY += 7.5;
   } else {
     currentY += 8;
   }
 
   // 3. Certificate Title & Ribbon
-  const titleText = template.headerTitle || template.title || 'CERTIFICATE OF EXCELLENCE';
+  const titleText = template.headerTitle || template.title || 'CERTIFICATE OF ACADEMIC EXCELLENCE';
   doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.setFont('times', 'bold');
-  doc.setFontSize(22);
+  doc.setFontSize(20);
   doc.text(titleText.toUpperCase(), width / 2, currentY, { align: 'center' });
 
-  currentY += 6;
+  currentY += 5.5;
   const subtitleText = template.headerSubtitle || 'TO WHOM IT MAY CONCERN';
   doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
+  doc.setFontSize(8.5);
   doc.text(subtitleText.toUpperCase(), width / 2, currentY, { align: 'center' });
 
   // 4. Recipient Intro
-  currentY += 10;
+  currentY += 9;
   doc.setTextColor(120, 120, 120);
   doc.setFont('times', 'italic');
-  doc.setFontSize(11);
+  doc.setFontSize(10.5);
   doc.text('This is to proudly certify that', width / 2, currentY, { align: 'center' });
 
   // 5. Student Name
-  currentY += 11;
+  currentY += 10.5;
   doc.setTextColor(darkTextColor[0], darkTextColor[1], darkTextColor[2]);
   doc.setFont('times', 'bold');
-  doc.setFontSize(24);
+  doc.setFontSize(23);
   doc.text(stName, width / 2, currentY, { align: 'center' });
 
   // Underline for name
@@ -177,7 +186,7 @@ function renderCertificateToDoc(doc, student, template, schoolSetting) {
   doc.line(width / 2 - nameWidth / 2 - 5, currentY + 2, width / 2 + nameWidth / 2 + 5, currentY + 2);
 
   // 6. Bio Information Badges (Respecting toggles)
-  currentY += 9;
+  currentY += 8.5;
   const bioParts = [];
   if (template.showFatherName !== false && fName && fName !== '-') {
     bioParts.push(`S/D of: ${fName}`);
@@ -198,9 +207,9 @@ function renderCertificateToDoc(doc, student, template, schoolSetting) {
   if (bioParts.length > 0) {
     doc.setTextColor(70, 70, 70);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.5);
+    doc.setFontSize(8);
     doc.text(bioParts.join('  |  '), width / 2, currentY, { align: 'center' });
-    currentY += 7;
+    currentY += 6.5;
   } else {
     currentY += 4;
   }
@@ -209,47 +218,83 @@ function renderCertificateToDoc(doc, student, template, schoolSetting) {
   let rawBody = template.templateBody || 'Has demonstrated exemplary conduct, scholastic dedication, and outstanding character during their enrollment in this academic institution. We wish them success in all future pursuits.';
   rawBody = rawBody
     .split('[student_name]').join(stName)
+    .split('{{studentName}}').join(stName)
     .split('[father_name]').join(fName)
+    .split('{{fatherName}}').join(fName)
     .split('[admission_no]').join(admNo)
+    .split('{{admissionNumber}}').join(admNo)
     .split('[roll_no]').join(rollNo)
+    .split('{{rollNumber}}').join(rollNo)
     .split('[class_name]').join(clsName)
+    .split('{{class}}').join(clsName)
     .split('[section]').join(secName)
+    .split('{{section}}').join(secName)
     .split('[school_name]').join(schoolName)
     .split('[certificate_date]').join(certDate)
     .split('[issue_date]').join(certDate);
 
   doc.setTextColor(50, 50, 50);
   doc.setFont('times', 'normal');
-  doc.setFontSize(11);
+  doc.setFontSize(10.5);
   const splitBody = doc.splitTextToSize(rawBody, 220);
-  doc.text(splitBody, width / 2, currentY, { align: 'center', lineHeightFactor: 1.4 });
+  doc.text(splitBody, width / 2, currentY, { align: 'center', lineHeightFactor: 1.35 });
 
   // 8. Footer & Signatories
-  const footerY = height - 34;
+  const footerY = height - 32;
 
   // Left Signatory (Date of Issue)
   if (template.showSignatureLeft !== false) {
-    const leftX = 35;
+    const leftX = 40;
     if (template.showIssueDate !== false) {
       doc.setTextColor(40, 40, 40);
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
+      doc.setFontSize(8.5);
       doc.text(certDate, leftX, footerY, { align: 'center' });
     }
     doc.setDrawColor(180, 180, 180);
     doc.setLineWidth(0.5);
-    doc.line(leftX - 25, footerY + 2, leftX + 25, footerY + 2);
+    doc.line(leftX - 22, footerY + 2, leftX + 22, footerY + 2);
 
     doc.setTextColor(110, 110, 110);
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.text(template.footerLeft || 'Date of Issue', leftX, footerY + 7, { align: 'center' });
+    doc.setFontSize(7.5);
+    doc.text(template.footerLeft || 'Date of Issue', leftX, footerY + 6.5, { align: 'center' });
   }
 
-  // Center: Official Embossed Seal Graphic (if enabled)
-  if (template.showSeal !== false) {
-    const sealX = width / 2;
-    const sealY = footerY + 2;
+  // Center: Official Embossed Seal Graphic + Scannable QR Code
+  const sealX = width / 2;
+  const sealY = footerY;
+
+  if (template.showQrBarcode !== false) {
+    try {
+      const identifier = String(student.admissionNo || student.rollNo || student._id || 'PRC0021').trim();
+      const qrPayload = getPublicVerificationUrl(identifier);
+      const qrDataUrl = await QRCode.toDataURL(qrPayload, {
+        margin: 1,
+        width: 256,
+        errorCorrectionLevel: 'M',
+        color: { dark: '#000000', light: '#ffffff' }
+      });
+      const qrSize = 17;
+      doc.addImage(qrDataUrl, 'PNG', sealX - qrSize / 2, sealY - 14, qrSize, qrSize);
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(6.5);
+      doc.text('SCAN TO VERIFY CREDENTIAL', sealX, sealY + 6, { align: 'center' });
+      doc.setFont('courier', 'bold');
+      doc.setFontSize(6);
+      doc.setTextColor(90, 90, 90);
+      doc.text(certNo, sealX, sealY + 9.5, { align: 'center' });
+    } catch (_) {
+      // Fallback seal
+      doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.circle(sealX, sealY - 4, 11, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('times', 'bold');
+      doc.setFontSize(6.5);
+      doc.text('OFFICIAL SEAL', sealX, sealY - 3, { align: 'center' });
+    }
+  } else if (template.showSeal !== false) {
     doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.circle(sealX, sealY - 4, 11, 'F');
     doc.setDrawColor(255, 255, 255);
@@ -261,36 +306,15 @@ function renderCertificateToDoc(doc, student, template, schoolSetting) {
     doc.setFontSize(6.5);
     doc.text('OFFICIAL', sealX, sealY - 5.5, { align: 'center' });
     doc.text('SEAL', sealX, sealY - 2.5, { align: 'center' });
-
-    if (template.showQrBarcode !== false) {
-      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(7);
-      doc.text(certNo, sealX, footerY + 13, { align: 'center' });
-    }
-  } else if (template.showSignatureCenter !== false) {
-    const centerX = width / 2;
-    doc.setTextColor(40, 40, 40);
-    doc.setFont('times', 'italic');
-    doc.setFontSize(10);
-    doc.text('Academic Coordinator', centerX, footerY, { align: 'center' });
-    doc.setDrawColor(180, 180, 180);
-    doc.setLineWidth(0.5);
-    doc.line(centerX - 25, footerY + 2, centerX + 25, footerY + 2);
-
-    doc.setTextColor(110, 110, 110);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.text(template.footerCenter || 'Class In-Charge', centerX, footerY + 7, { align: 'center' });
   }
 
   // Right Signatory (Principal Signature & Stamp)
   if (template.showSignatureRight !== false) {
-    const rightX = width - 38;
-    const signImage = theme === 'classic-gold' ? PAK_ROYAL_SIGNATURE_GOLD : PAK_ROYAL_SIGNATURE_DARK;
+    const rightX = width - 42;
+    const signImage = styleId === 'classic-gold' ? PAK_ROYAL_SIGNATURE_GOLD : PAK_ROYAL_SIGNATURE_DARK;
     let signatureRendered = false;
     try {
-      doc.addImage(signImage, 'PNG', rightX - 16, footerY - 8, 32, 8);
+      doc.addImage(signImage, 'PNG', rightX - 18, footerY - 11, 36, 10);
       signatureRendered = true;
     } catch (_) {
       signatureRendered = false;
@@ -300,21 +324,21 @@ function renderCertificateToDoc(doc, student, template, schoolSetting) {
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.setFont('times', 'italic');
       doc.setFontSize(11);
-      doc.text('Principal Signature', rightX, footerY - 1, { align: 'center' });
+      doc.text('M. Umer', rightX, footerY - 2, { align: 'center' });
     }
 
     doc.setDrawColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
     doc.setLineWidth(0.6);
-    doc.line(rightX - 25, footerY + 1, rightX + 25, footerY + 1);
+    doc.line(rightX - 22, footerY + 2, rightX + 22, footerY + 2);
 
     doc.setTextColor(darkTextColor[0], darkTextColor[1], darkTextColor[2]);
     doc.setFont('times', 'bold');
     doc.setFontSize(8.5);
-    doc.text('M. UMER', rightX, footerY + 5, { align: 'center' });
+    doc.text('M. UMER', rightX, footerY + 6, { align: 'center' });
 
     doc.setTextColor(110, 110, 110);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
-    doc.text(template.footerRight || 'Principal / Authorized Seal', rightX, footerY + 8.5, { align: 'center' });
+    doc.text(template.footerRight || 'Principal / Authorized Seal', rightX, footerY + 9.5, { align: 'center' });
   }
 }

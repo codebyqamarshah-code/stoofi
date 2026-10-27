@@ -49,6 +49,9 @@ import { Label } from '@/components/ui/label';
 import api from '@/services/api';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 import { downloadCertificatePDF } from '@/lib/certificatePdf';
+import { PAK_ROYAL_COLLEGE_LOGO } from '@/lib/pakRoyalCollegeLogo.js';
+import { PAK_ROYAL_SIGNATURE_DARK, PAK_ROYAL_SIGNATURE_GOLD } from '@/lib/signatureImage.js';
+import { StudentCardQR } from '@/components/id-card/PakRoyalSmartCard';
 import { getPhotoUrl } from '@/lib/utils';
 
 const CERT_TYPE_OPTIONS = [
@@ -635,9 +638,24 @@ export default function CertificatePage() {
     }, 150);
   };
 
-  const handleDownloadPDF = (record) => {
-    downloadCertificatePDF(record, record, schoolSetting);
-    showToast(`PDF Certificate downloaded for ${record.studentName || 'Student'}`);
+  const handleDownloadPDF = async (record) => {
+    try {
+      await downloadCertificatePDF(record, record, schoolSetting);
+      showToast(`PDF Certificate downloaded for ${record.studentName || record.firstName || 'Student'}`);
+    } catch (err) {
+      console.error('PDF download error:', err);
+      alert('Failed to generate PDF certificate: ' + (err?.message || err));
+    }
+  };
+
+  const handleDownloadCertificatePDF = async (student, template) => {
+    try {
+      await downloadCertificatePDF(student, template, schoolSetting);
+      showToast(`PDF Certificate downloaded for ${student.studentName || student.firstName || 'Student'}`);
+    } catch (err) {
+      console.error('PDF download error:', err);
+      alert('Failed to generate PDF certificate: ' + (err?.message || err));
+    }
   };
 
   // Helper to format certificate body text replacing placeholders
@@ -724,15 +742,14 @@ export default function CertificatePage() {
             {showHeader && (
               <div className="flex flex-col items-center mb-1">
                 <img 
-                  src="/pak-royal-badge.png" 
+                  src={PAK_ROYAL_COLLEGE_LOGO} 
                   alt="Pak Royal College Crest" 
-                  className="w-12 h-12 rounded-full object-contain mb-1 shadow-xs ring-2 ring-amber-500/40 bg-white p-0.5" 
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  className="w-14 h-14 rounded-full object-contain mb-1 shadow-xs ring-2 ring-amber-500/50 bg-white p-0.5" 
                 />
-                <div className="flex items-center justify-center gap-2 text-amber-800 font-serif text-sm uppercase tracking-widest font-extrabold">
+                <div className="flex items-center justify-center gap-2 text-amber-900 font-serif text-sm uppercase tracking-widest font-extrabold">
                   <span>{scName}</span>
                 </div>
-                <p className="text-[10px] text-zinc-500 tracking-wide">{scAddr}</p>
+                <p className="text-[10px] text-zinc-600 tracking-wide">{scAddr}</p>
                 <div className="w-36 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto my-2"></div>
               </div>
             )}
@@ -795,26 +812,29 @@ export default function CertificatePage() {
               </div>
             )}
 
-            {/* Official Seal Medallion */}
-            {showSeal && (
-              <div className="flex flex-col items-center">
+            {/* Center: Official Seal / Scannable QR Code */}
+            <div className="flex flex-col items-center">
+              {showQr ? (
+                <div className="flex flex-col items-center">
+                  <div className="p-1 bg-white rounded-xl shadow-xs border border-amber-300">
+                    <StudentCardQR rec={studentRec} size={54} />
+                  </div>
+                  <span className="text-[8px] font-mono font-bold text-amber-900 mt-1 uppercase tracking-tight">SCAN TO VERIFY</span>
+                </div>
+              ) : showSeal ? (
                 <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-600 via-yellow-400 to-amber-700 shadow-md border-2 border-amber-200 flex items-center justify-center text-white font-serif font-bold text-center text-[8px] uppercase leading-tight p-1">
                   Official Seal
                 </div>
-                {showQr && (
-                  <span className="text-[8px] font-mono font-bold text-amber-800 mt-1">VERIFIED: {studentRec.certificateNumber || 'CERT-OK'}</span>
-                )}
-              </div>
-            )}
+              ) : null}
+            </div>
 
             {showSignRight && (
               <div className="text-center flex flex-col items-center">
                 <img 
-                  src="/signature-gold.png" 
+                  src={PAK_ROYAL_SIGNATURE_GOLD} 
                   alt="Principal Signature (M. Umer)" 
-                  className="h-8 w-auto object-contain filter drop-shadow-2xs mb-0.5" 
-                  style={{ height: '32px' }}
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  className="h-9 w-auto max-w-[130px] object-contain filter drop-shadow-2xs mb-0.5" 
+                  style={{ height: '36px' }}
                 />
                 <div className="w-32 h-0.5 bg-amber-600 mt-0.5 mb-1"></div>
                 <div className="text-[10px] font-bold text-amber-950 font-serif tracking-wider">M. UMER</div>
@@ -836,15 +856,14 @@ export default function CertificatePage() {
             {showHeader && (
               <div className="flex flex-col items-center mb-1">
                 <img 
-                  src="/pak-royal-badge.png" 
+                  src={PAK_ROYAL_COLLEGE_LOGO} 
                   alt="Pak Royal College Crest" 
-                  className="w-12 h-12 rounded-full object-contain mb-1 shadow-xs ring-2 ring-emerald-500/40 bg-white p-0.5" 
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  className="w-14 h-14 rounded-full object-contain mb-1 shadow-xs ring-2 ring-emerald-500/50 bg-white p-0.5" 
                 />
-                <div className="text-sm font-black uppercase text-emerald-900 tracking-wider">
+                <div className="text-sm font-black uppercase text-emerald-950 tracking-wider">
                   <span>{scName}</span>
                 </div>
-                <p className="text-[10px] text-zinc-500">{scAddr}</p>
+                <p className="text-[10px] text-zinc-600">{scAddr}</p>
               </div>
             )}
 
@@ -901,21 +920,29 @@ export default function CertificatePage() {
               </div>
             )}
 
-            {showQr && (
-              <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-900 border border-emerald-200 px-3 py-1 rounded-lg text-[9px] font-mono font-bold">
-                <QrCode className="w-4 h-4 text-emerald-700" />
-                <span>SEC-VERIFIED</span>
-              </div>
-            )}
+            {/* Center: Real Scannable Verification QR Code */}
+            <div className="flex flex-col items-center">
+              {showQr ? (
+                <div className="flex flex-col items-center">
+                  <div className="p-1 bg-white rounded-xl shadow-xs border border-emerald-300">
+                    <StudentCardQR rec={studentRec} size={54} />
+                  </div>
+                  <span className="text-[8px] font-mono font-bold text-emerald-800 mt-1 uppercase tracking-tight">SCAN TO VERIFY</span>
+                </div>
+              ) : showSeal ? (
+                <div className="w-12 h-12 rounded-full border-2 border-emerald-600 flex items-center justify-center text-[8px] font-bold uppercase text-emerald-900 bg-emerald-50">
+                  Seal
+                </div>
+              ) : null}
+            </div>
 
             {showSignRight && (
               <div className="text-center flex flex-col items-center">
                 <img 
-                  src="/signature-dark.png" 
+                  src={PAK_ROYAL_SIGNATURE_DARK} 
                   alt="Principal Signature (M. Umer)" 
-                  className="h-8 w-auto object-contain filter drop-shadow-2xs mb-0.5" 
-                  style={{ height: '32px' }}
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  className="h-9 w-auto max-w-[130px] object-contain filter drop-shadow-2xs mb-0.5" 
+                  style={{ height: '36px' }}
                 />
                 <div className="w-32 h-0.5 bg-emerald-700 mt-0.5 mb-1"></div>
                 <div className="text-[10px] font-bold text-emerald-950 tracking-wider">M. UMER</div>
@@ -935,15 +962,14 @@ export default function CertificatePage() {
             {showHeader && (
               <div className="flex flex-col items-center mb-1">
                 <img 
-                  src="/pak-royal-badge.png" 
+                  src={PAK_ROYAL_COLLEGE_LOGO} 
                   alt="Pak Royal College Crest" 
-                  className="w-12 h-12 rounded-full object-contain mb-1 shadow-xs ring-2 ring-sky-900/40 bg-white p-0.5" 
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  className="w-14 h-14 rounded-full object-contain mb-1 shadow-xs ring-2 ring-sky-900/50 bg-white p-0.5" 
                 />
                 <div className="text-sm font-black uppercase text-sky-950 tracking-wider">
                   <span>{scName}</span>
                 </div>
-                <p className="text-[10px] text-zinc-500">{scAddr}</p>
+                <p className="text-[10px] text-zinc-600">{scAddr}</p>
               </div>
             )}
 
@@ -999,20 +1025,29 @@ export default function CertificatePage() {
               </div>
             )}
 
-            {showSeal && (
-              <div className="w-12 h-12 rounded-full border-2 border-sky-900 flex items-center justify-center text-[8px] font-bold uppercase text-sky-950 bg-sky-50">
-                Seal
-              </div>
-            )}
+            {/* Center: Real Scannable Verification QR Code */}
+            <div className="flex flex-col items-center">
+              {showQr ? (
+                <div className="flex flex-col items-center">
+                  <div className="p-1 bg-white rounded-xl shadow-xs border border-sky-300">
+                    <StudentCardQR rec={studentRec} size={54} />
+                  </div>
+                  <span className="text-[8px] font-mono font-bold text-sky-900 mt-1 uppercase tracking-tight">SCAN TO VERIFY</span>
+                </div>
+              ) : showSeal ? (
+                <div className="w-12 h-12 rounded-full border-2 border-sky-900 flex items-center justify-center text-[8px] font-bold uppercase text-sky-950 bg-sky-50">
+                  Seal
+                </div>
+              ) : null}
+            </div>
 
             {showSignRight && (
               <div className="text-center flex flex-col items-center">
                 <img 
-                  src="/signature-dark.png" 
+                  src={PAK_ROYAL_SIGNATURE_DARK} 
                   alt="Principal Signature (M. Umer)" 
-                  className="h-8 w-auto object-contain filter drop-shadow-2xs mb-0.5" 
-                  style={{ height: '32px' }}
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  className="h-9 w-auto max-w-[130px] object-contain filter drop-shadow-2xs mb-0.5" 
+                  style={{ height: '36px' }}
                 />
                 <div className="w-32 h-0.5 bg-sky-900 mt-0.5 mb-1"></div>
                 <div className="text-[10px] font-bold text-sky-950 font-serif tracking-wider">M. UMER</div>
@@ -1032,15 +1067,14 @@ export default function CertificatePage() {
             {showHeader && (
               <div className="flex flex-col items-center mb-1">
                 <img 
-                  src="/pak-royal-badge.png" 
+                  src={PAK_ROYAL_COLLEGE_LOGO} 
                   alt="Pak Royal College Crest" 
-                  className="w-12 h-12 rounded-full object-contain mb-1 shadow-xs ring-2 ring-rose-800/40 bg-white p-0.5" 
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  className="w-14 h-14 rounded-full object-contain mb-1 shadow-xs ring-2 ring-rose-800/50 bg-white p-0.5" 
                 />
                 <div className="text-sm font-black uppercase text-rose-950 tracking-wider">
                   <span>{scName}</span>
                 </div>
-                <p className="text-[10px] text-zinc-500">{scAddr}</p>
+                <p className="text-[10px] text-zinc-600">{scAddr}</p>
               </div>
             )}
 
@@ -1094,22 +1128,31 @@ export default function CertificatePage() {
               </div>
             )}
 
-            {showSignCenter && (
-              <div className="text-center">
-                <div className="text-xs font-bold text-rose-950">Sports Coordinator</div>
-                <div className="w-28 h-0.5 bg-rose-800 mt-1 mb-0.5"></div>
-                <p className="text-[9.5px] text-zinc-500 uppercase font-semibold">{tpl.footerCenter || 'Sports Director'}</p>
-              </div>
-            )}
+            {/* Center: Real Scannable Verification QR Code or Sports Coordinator */}
+            <div className="flex flex-col items-center">
+              {showQr ? (
+                <div className="flex flex-col items-center">
+                  <div className="p-1 bg-white rounded-xl shadow-xs border border-rose-300">
+                    <StudentCardQR rec={studentRec} size={54} />
+                  </div>
+                  <span className="text-[8px] font-mono font-bold text-rose-900 mt-1 uppercase tracking-tight">SCAN TO VERIFY</span>
+                </div>
+              ) : showSignCenter ? (
+                <div className="text-center">
+                  <div className="text-xs font-bold text-rose-950">Sports Coordinator</div>
+                  <div className="w-28 h-0.5 bg-rose-800 mt-1 mb-0.5"></div>
+                  <p className="text-[9.5px] text-zinc-500 uppercase font-semibold">{tpl.footerCenter || 'Sports Director'}</p>
+                </div>
+              ) : null}
+            </div>
 
             {showSignRight && (
               <div className="text-center flex flex-col items-center">
                 <img 
-                  src="/signature-dark.png" 
+                  src={PAK_ROYAL_SIGNATURE_DARK} 
                   alt="Principal Signature (M. Umer)" 
-                  className="h-8 w-auto object-contain filter drop-shadow-2xs mb-0.5" 
-                  style={{ height: '32px' }}
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  className="h-9 w-auto max-w-[130px] object-contain filter drop-shadow-2xs mb-0.5" 
+                  style={{ height: '36px' }}
                 />
                 <div className="w-32 h-0.5 bg-rose-800 mt-0.5 mb-1"></div>
                 <div className="text-[10px] font-bold text-rose-950 tracking-wider">M. UMER</div>
@@ -1128,15 +1171,14 @@ export default function CertificatePage() {
           {showHeader && (
             <div className="flex flex-col items-center mb-1">
               <img 
-                src="/pak-royal-badge.png" 
+                src={PAK_ROYAL_COLLEGE_LOGO} 
                 alt="Pak Royal College Crest" 
-                className="w-12 h-12 rounded-full object-contain mb-1 shadow-2xs ring-1 ring-zinc-300 bg-white p-0.5" 
-                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                className="w-14 h-14 rounded-full object-contain mb-1 shadow-xs ring-1 ring-zinc-300 bg-white p-0.5" 
               />
               <div className="text-sm font-extrabold uppercase text-zinc-950 tracking-wider">
                 <span>{scName}</span>
               </div>
-              <p className="text-[10px] text-zinc-500">{scAddr}</p>
+              <p className="text-[10px] text-zinc-600">{scAddr}</p>
             </div>
           )}
 
@@ -1190,21 +1232,25 @@ export default function CertificatePage() {
             </div>
           )}
 
-          {showQr && (
-            <div className="flex items-center gap-1.5 font-mono text-[9px] text-zinc-700 bg-zinc-50 px-3 py-1.5 rounded-lg border border-zinc-200">
-              <QrCode className="w-3.5 h-3.5 text-zinc-900" />
-              <span>ID: STO-CERT-VERIFIED</span>
-            </div>
-          )}
+          {/* Center: Real Scannable Verification QR Code */}
+          <div className="flex flex-col items-center">
+            {showQr && (
+              <div className="flex flex-col items-center">
+                <div className="p-1 bg-white rounded-xl shadow-xs border border-zinc-300">
+                  <StudentCardQR rec={studentRec} size={52} />
+                </div>
+                <span className="text-[8px] font-mono font-bold text-zinc-800 mt-1 uppercase tracking-tight">SCAN TO VERIFY</span>
+              </div>
+            )}
+          </div>
 
           {showSignRight && (
             <div className="text-center flex flex-col items-center">
               <img 
-                src="/signature-dark.png" 
+                src={PAK_ROYAL_SIGNATURE_DARK} 
                 alt="Principal Signature (M. Umer)" 
-                className="h-8 w-auto object-contain filter drop-shadow-2xs mb-0.5" 
-                style={{ height: '32px' }}
-                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                className="h-9 w-auto max-w-[130px] object-contain filter drop-shadow-2xs mb-0.5" 
+                style={{ height: '36px' }}
               />
               <div className="w-32 h-0.5 bg-zinc-900 mt-0.5 mb-1"></div>
               <div className="text-[10px] font-bold text-zinc-950 tracking-wider">M. UMER</div>
@@ -1543,6 +1589,15 @@ export default function CertificatePage() {
                               title="Preview Certificate"
                             >
                               <Eye className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button 
+                              onClick={() => handleDownloadCertificatePDF(DEFAULT_SAMPLE_STUDENT, c)} 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-7 w-7 p-0 text-emerald-700 hover:text-emerald-950 hover:bg-emerald-50 cursor-pointer"
+                              title="Download PDF Certificate"
+                            >
+                              <Download className="h-3.5 w-3.5" />
                             </Button>
                             <Button
                               onClick={() => handleOpenIssueModal(c)}

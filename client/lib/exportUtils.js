@@ -1,6 +1,12 @@
 import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
+import * as jspdfLib from 'jspdf';
 import 'jspdf-autotable';
+
+function createPdfDoc(options) {
+  const Constructor = jspdfLib.jsPDF || jspdfLib.default?.jsPDF || jspdfLib.default || jsPDF;
+  return new Constructor(options);
+}
 
 /**
  * Clean & Format Excel (.xlsx) Export
@@ -118,7 +124,7 @@ export const exportToPDF = (data, headersOrFilename, titleOrHeaders, maybeFilena
     headers = Object.keys(data[0] || {});
   }
 
-  const doc = new jsPDF({
+  const doc = createPdfDoc({
     orientation: headers.length > 6 ? 'landscape' : 'portrait',
     unit: 'mm',
     format: 'a4'
