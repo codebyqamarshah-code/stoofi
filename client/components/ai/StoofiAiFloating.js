@@ -21,6 +21,97 @@ import {
   CheckCheck
 } from 'lucide-react';
 
+// Inline style parser for **bold** and `code`
+function parseInlineStyles(text) {
+  if (!text) return text;
+  const parts = [];
+  const regex = /(\*\*.*?\*\*|`.*?`)/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.substring(lastIndex, match.index));
+    }
+    const token = match[0];
+    if (token.startsWith('**') && token.endsWith('**')) {
+      parts.push(
+        <strong key={match.index} className="font-bold text-zinc-950">
+          {token.slice(2, -2)}
+        </strong>
+      );
+    } else if (token.startsWith('`') && token.endsWith('`')) {
+      parts.push(
+        <code key={match.index} className="px-1 py-0.5 rounded bg-zinc-100 text-zinc-800 text-[11px] font-mono">
+          {token.slice(1, -1)}
+        </code>
+      );
+    }
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.substring(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : text;
+}
+
+// Formatted Message helper for floating panel
+function FormattedMessage({ content }) {
+  if (!content) return null;
+  const lines = content.split('\n');
+
+  return (
+    <div className="space-y-1 text-xs sm:text-sm leading-relaxed">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+        if (!trimmed) {
+          return <div key={idx} className="h-1" />;
+        }
+
+        // Bullet point: •, -, or *
+        if (trimmed.startsWith('•') || trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+          const itemText = trimmed.replace(/^[•\-\*]\s*/, '');
+          return (
+            <div key={idx} className="flex items-start gap-1.5 pl-0.5 my-0.5">
+              <span className="text-zinc-500 mt-1 text-[7px] shrink-0">●</span>
+              <span className="flex-1">{parseInlineStyles(itemText)}</span>
+            </div>
+          );
+        }
+
+        // Numbered list
+        const numMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
+        if (numMatch) {
+          return (
+            <div key={idx} className="flex items-start gap-1.5 pl-0.5 my-0.5">
+              <span className="font-bold text-zinc-950 shrink-0 text-xs min-w-[14px]">{numMatch[1]}.</span>
+              <span className="flex-1">{parseInlineStyles(numMatch[2])}</span>
+            </div>
+          );
+        }
+
+        // Heading
+        if (trimmed.startsWith('###') || trimmed.startsWith('##')) {
+          const hText = trimmed.replace(/^#+\s*/, '');
+          return (
+            <div key={idx} className="font-bold text-zinc-950 text-xs mt-1 mb-0.5">
+              {parseInlineStyles(hText)}
+            </div>
+          );
+        }
+
+        return (
+          <p key={idx} className="leading-relaxed">
+            {parseInlineStyles(line)}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function StoofiAiFloating() {
   const { user, isAuthenticated } = useAuth();
   const pathname = usePathname();
@@ -469,66 +560,73 @@ export default function StoofiAiFloating() {
                   </div>
                 ) : (
                   messages.map((msg) => (
-                    <div 
-                      key={msg.id} 
-                      className={`flex gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      {msg.role === 'assistant' && (
+                    msg.role === 'user' ? (
+                      /* User Message: Clean Right Alignment with W-Fit Bubble */
+                      <div key={msg.id} className="w-full flex justify-end items-end gap-2 my-1">
+                        <div className="flex flex-col items-end max-w-[84%] space-y-1">
+                          <div className="inline-block w-fit bg-zinc-950 text-white rounded-2xl rounded-tr-xs px-3.5 py-2.5 shadow-xs text-xs sm:text-sm leading-relaxed font-normal whitespace-pre-wrap break-words text-left">
+                            {msg.content}
+                          </div>
+                          <span className="text-[9px] text-zinc-400 mr-1 select-none">
+                            {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                          </span>
+                        </div>
+                        <div className="w-6 h-6 rounded-full bg-zinc-800 text-white flex items-center justify-center shrink-0 shadow-xs mb-3 text-[10px]">
+                          <UserIcon className="w-3.5 h-3.5" />
+                        </div>
+                      </div>
+                    ) : (
+                      /* Assistant Message: Clean Left Alignment with Rich Formatted Content */
+                      <div key={msg.id} className="w-full flex justify-start items-start gap-2 my-1">
                         <div className="w-7 h-7 rounded-full bg-white border border-zinc-200 flex items-center justify-center shrink-0 mt-0.5 shadow-xs p-1 overflow-hidden">
                           <img src="/stoofi-icon.png" alt="Stoofi AI" className="w-full h-full object-contain" />
                         </div>
-                      )}
-
-                      <div className="max-w-[82%] space-y-1.5">
-                        <div 
-                          className={`relative group p-3 rounded-2xl text-xs sm:text-sm leading-relaxed ${
-                            msg.role === 'user'
-                              ? 'bg-zinc-950 text-white rounded-br-none shadow-xs font-normal'
-                              : msg.isError
-                                ? 'bg-rose-50 text-rose-800 border border-rose-200 rounded-bl-none'
-                                : 'bg-white text-zinc-950 border border-zinc-200 rounded-bl-none shadow-xs'
-                          }`}
-                        >
-                          <div className="whitespace-pre-wrap break-words">{msg.content}</div>
-
-                          {msg.role === 'assistant' && !msg.isError && (
-                            <button
-                              onClick={() => handleCopy(msg.content, msg.id)}
-                              className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 p-1 rounded bg-zinc-100 hover:bg-zinc-200 text-zinc-600 transition-all"
-                              title="Copy message"
-                            >
-                              {copiedMessageId === msg.id ? (
-                                <CheckCheck className="w-3 h-3 text-emerald-600" />
-                              ) : (
-                                <Copy className="w-3 h-3" />
-                              )}
-                            </button>
-                          )}
-                        </div>
-
-                        {/* Navigation Action Button from AI */}
-                        {msg.navAction && msg.navAction.route && (
-                          <div className="pt-0.5 animate-in fade-in duration-300">
-                            <button
-                              onClick={() => {
-                                router.push(msg.navAction.route);
-                                setIsOpen(false);
-                              }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-bold shadow-xs transition-all"
-                            >
-                              <span>Open {msg.navAction.label || 'Page'}</span>
-                              <ArrowRight className="w-3.5 h-3.5" />
-                            </button>
+                        <div className="flex flex-col items-start max-w-[85%] space-y-1.5">
+                          <div className={`relative group p-3 rounded-2xl rounded-tl-xs text-xs sm:text-sm leading-relaxed shadow-xs w-fit ${
+                            msg.isError
+                              ? 'bg-rose-50 text-rose-800 border border-rose-200'
+                              : 'bg-white text-zinc-900 border border-zinc-200/90'
+                          }`}>
+                            <div className="text-zinc-900 leading-relaxed font-normal">
+                              <FormattedMessage content={msg.content} />
+                            </div>
+                            {!msg.isError && (
+                              <button
+                                onClick={() => handleCopy(msg.content, msg.id)}
+                                className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 p-1 rounded bg-zinc-100 hover:bg-zinc-200 text-zinc-600 transition-all cursor-pointer shadow-xs"
+                                title="Copy message"
+                              >
+                                {copiedMessageId === msg.id ? (
+                                  <CheckCheck className="w-3 h-3 text-emerald-600" />
+                                ) : (
+                                  <Copy className="w-3 h-3" />
+                                )}
+                              </button>
+                            )}
                           </div>
-                        )}
-                      </div>
 
-                      {msg.role === 'user' && (
-                        <div className="w-7 h-7 rounded-full bg-zinc-800 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
-                          <UserIcon className="w-3.5 h-3.5" />
+                          {/* Navigation Action Button from AI */}
+                          {msg.navAction && msg.navAction.route && (
+                            <div className="pt-0.5 animate-in fade-in duration-200">
+                              <button
+                                onClick={() => {
+                                  router.push(msg.navAction.route);
+                                  setIsOpen(false);
+                                }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-bold shadow-xs transition-all cursor-pointer"
+                              >
+                                <span>Open {msg.navAction.label || 'Page'}</span>
+                                <ArrowRight className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          )}
+
+                          <span className="text-[9px] text-zinc-400 ml-1 select-none">
+                            {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                          </span>
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )
                   ))
                 )}
 

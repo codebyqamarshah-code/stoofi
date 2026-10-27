@@ -3,8 +3,8 @@
 import { formatDateDMY } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
-import { useState, useRef } from 'react';
-import { ChevronRight, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, Trash2 } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { ChevronRight, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, Trash2, Loader2, CheckCircle2 } from 'lucide-react';
 import api from '@/services/api';
 
 const today = new Date().toISOString().split('T')[0];
@@ -18,7 +18,27 @@ export default function HolidayPage() {
   const [holidays, setHolidays] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
+  const [successMsg, setSuccessMsg] = useState('');
   const fileRef = useRef();
+
+  useEffect(() => {
+    fetchHolidays();
+  }, []);
+
+  const fetchHolidays = async () => {
+    try {
+      setFetching(true);
+      const res = await api.get('/holiday');
+      if (res?.success && Array.isArray(res.data)) {
+        setHolidays(res.data);
+      }
+    } catch (e) {
+      console.error('Failed to load holidays:', e);
+    } finally {
+      setFetching(false);
+    }
+  };
 
   const calculateDays = (from, to) => {
     try {
@@ -28,35 +48,57 @@ export default function HolidayPage() {
     } catch { return 1; }
   };
 
-  const handleSave = async () => {
-    if (!title) return alert('Please enter Holiday Title');
+  const handleSave = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!title || !title.trim()) return alert('Please enter Holiday Title');
     setLoading(true);
     try {
-      const formData = new FormData();
-      formData.append('title', title);
-      formData.append('fromDate', fromDate);
-      formData.append('toDate', toDate);
-      formData.append('description', description);
-      if (file) formData.append('file', file);
-      await api.post('/holiday', formData);
-    } catch {}
-    const newHoliday = {
-      id: Date.now(),
-      title,
-      fromDate,
-      toDate,
-      days: calculateDays(fromDate, toDate),
-      description,
-    };
-    setHolidays(prev => [...prev, newHoliday]);
-    setTitle(''); setFromDate(today); setToDate(today);
-    setDescription(''); setFile(null);
-    setLoading(false);
+      const payload = {
+        title: title.trim(),
+        fromDate,
+        toDate,
+        description: description.trim()
+      };
+      const res = await api.post('/holiday', payload);
+      if (res?.success && res.data) {
+        setHolidays(prev => [res.data, ...prev]);
+        setSuccessMsg('Holiday added successfully!');
+        setTimeout(() => setSuccessMsg(''), 3000);
+      } else {
+        const newHoliday = {
+          id: Date.now().toString(),
+          title: title.trim(),
+          fromDate,
+          toDate,
+          days: calculateDays(fromDate, toDate),
+          description: description.trim(),
+        };
+        setHolidays(prev => [newHoliday, ...prev]);
+      }
+      setTitle(''); 
+      setFromDate(today); 
+      setToDate(today);
+      setDescription(''); 
+      setFile(null);
+    } catch (err) {
+      console.error('Failed to save holiday:', err);
+      alert('Error saving holiday');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = async (id) => {
-    try { await api.delete(`/holiday/${id}`); } catch {}
-    setHolidays(prev => prev.filter(h => h.id !== id));
+    if (!confirm('Are you sure you want to delete this holiday?')) return;
+    try {
+      await api.delete(`/holiday/${id}`);
+      setHolidays(prev => prev.filter(h => h.id !== id && h._id !== id));
+      setSuccessMsg('Holiday deleted successfully');
+      setTimeout(() => setSuccessMsg(''), 3000);
+    } catch (err) {
+      console.error('Failed to delete holiday:', err);
+      setHolidays(prev => prev.filter(h => h.id !== id && h._id !== id));
+    }
   };
 
   const filtered = holidays.filter(h => h.title.toLowerCase().includes(search.toLowerCase()));

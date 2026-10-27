@@ -1,16 +1,16 @@
 'use client';
 
 import TableExportToolbar from '@/components/ui/TableExportToolbar';
-import { useState } from 'react';
-import { ChevronRight, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, ChevronDown } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ChevronRight, Search, Copy, FileSpreadsheet, FileText, Printer, Download, Columns, ChevronDown, Check, Loader2 } from 'lucide-react';
 import api from '@/services/api';
 
 const BASE_GROUPS = ['Gender', 'Religion', 'Blood Group', 'Category', 'Caste', 'Marital Status'];
 
 const INITIAL_DATA = [
   { group: 'Gender', items: ['Male', 'Female', 'Others'], expanded: true },
-  { group: 'Religion', items: [], expanded: false },
-  { group: 'Blood Group', items: [], expanded: false },
+  { group: 'Religion', items: ['Islam', 'Christianity', 'Hinduism'], expanded: false },
+  { group: 'Blood Group', items: ['A+', 'B+', 'O+', 'AB+'], expanded: false },
 ];
 
 export default function BaseSetupPage() {
@@ -19,6 +19,25 @@ export default function BaseSetupPage() {
   const [data, setData] = useState(INITIAL_DATA);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
+
+  useEffect(() => {
+    fetchBaseSetups();
+  }, []);
+
+  const fetchBaseSetups = async () => {
+    try {
+      setFetching(true);
+      const res = await api.get('/base-setup');
+      if (res?.success && res.data) {
+        setData(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to load base setup:', err);
+    } finally {
+      setFetching(false);
+    }
+  };
 
   const toggleGroup = (group) => {
     setData(prev => prev.map(d => d.group === group ? { ...d, expanded: !d.expanded } : d));

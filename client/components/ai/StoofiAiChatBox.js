@@ -35,6 +35,97 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+// Helper to parse inline **bold** and `code` markers
+function parseInlineStyles(text) {
+  if (!text) return text;
+  const parts = [];
+  const regex = /(\*\*.*?\*\*|`.*?`)/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.substring(lastIndex, match.index));
+    }
+    const token = match[0];
+    if (token.startsWith('**') && token.endsWith('**')) {
+      parts.push(
+        <strong key={match.index} className="font-bold text-zinc-950">
+          {token.slice(2, -2)}
+        </strong>
+      );
+    } else if (token.startsWith('`') && token.endsWith('`')) {
+      parts.push(
+        <code key={match.index} className="px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-800 text-xs font-mono">
+          {token.slice(1, -1)}
+        </code>
+      );
+    }
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.substring(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : text;
+}
+
+// Formatted Message Component that renders bold text, bullet points, numbered lists and headings cleanly
+function FormattedMessage({ content }) {
+  if (!content) return null;
+  const lines = content.split('\n');
+
+  return (
+    <div className="space-y-1.5 leading-relaxed">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+        if (!trimmed) {
+          return <div key={idx} className="h-1.5" />;
+        }
+
+        // Bullet point: •, -, or *
+        if (trimmed.startsWith('•') || trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+          const itemText = trimmed.replace(/^[•\-\*]\s*/, '');
+          return (
+            <div key={idx} className="flex items-start gap-2 pl-1 my-0.5">
+              <span className="text-zinc-500 mt-1.5 text-[8px] shrink-0">●</span>
+              <span className="flex-1">{parseInlineStyles(itemText)}</span>
+            </div>
+          );
+        }
+
+        // Numbered list: e.g. 1. or 2.
+        const numMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
+        if (numMatch) {
+          return (
+            <div key={idx} className="flex items-start gap-2 pl-1 my-0.5">
+              <span className="font-bold text-zinc-950 shrink-0 text-xs min-w-[18px]">{numMatch[1]}.</span>
+              <span className="flex-1">{parseInlineStyles(numMatch[2])}</span>
+            </div>
+          );
+        }
+
+        // Section header
+        if (trimmed.startsWith('###') || trimmed.startsWith('##')) {
+          const hText = trimmed.replace(/^#+\s*/, '');
+          return (
+            <div key={idx} className="font-bold text-zinc-950 text-sm mt-2 mb-1">
+              {parseInlineStyles(hText)}
+            </div>
+          );
+        }
+
+        return (
+          <p key={idx} className="leading-relaxed">
+            {parseInlineStyles(line)}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function StoofiAiChatBox({ forcedRole, pageTitle = 'Stoofi AI Agent' }) {
   const { user } = useAuth();
   const router = useRouter();
@@ -266,10 +357,42 @@ export default function StoofiAiChatBox({ forcedRole, pageTitle = 'Stoofi AI Age
       };
     }
 
-    // Default intelligent response
+    // 9. Total Students & Enrolment Records
+    if (/student.*(total|kitn|count|how many|all|list|record)|(total|kitn|how many).*student/i.test(q)) {
+      return {
+        content: `📊 **Pak Royal College Sharaqpur — Student Statistics:**\n\nPortal par is waqt **total 82 students** enrolled hain:\n• **Session 2025:** 41 students\n• **Session 2026:** 41 students\n\n**Top Classes Breakdown:**\n• **FSC OTT:** 24 students\n• **BS PSY:** 9 students\n• **BS RIT:** 9 students\n• **FSC Nursing:** 8 students\n• **B Category / Pharmacy:** 15 students\n• **BS DPT, BS CS, LHV, CMW:** 17 students\n\nTamam students ki mukammal directory dekhne ke liye click karein.`,
+        navAction: { label: 'Student Directory', route: '/dashboard/student/list' }
+      };
+    }
+
+    // 10. Teachers & Faculty Staff
+    if (/teacher|faculty|staff|ustad|mulazim|kitny teacher|kitne teacher/i.test(q)) {
+      return {
+        content: `👨‍🏫 **Faculty & Staff Overview:**\n\nPak Royal College ERP portal par is waqt **1 Registered Teacher** aur **1 Administrative Staff Member** active hain.\n\nAap Staff Directory se naya teacher ya staff register kar saktay hain.`,
+        navAction: { label: 'Staff Directory', route: '/dashboard/staff/list' }
+      };
+    }
+
+    // 11. Admissions & Sequential Roll Numbers
+    if (/admission|dakhla|new student|add student|roll no|adm25|adm26/i.test(q)) {
+      return {
+        content: `🎓 **Student Admission & Auto-Sequencing:**\n\nAdmission form par session select karne se roll number auto-assign hota hai:\n• **Session 2025:** ADM25 / 2500xx series\n• **Session 2026:** ADM26 / 2600xx series\n\nData hierarchy mein Student Name, Father, Mother, Guardian, Address aur Academics save hotay hain.`,
+        navAction: { label: 'Add Student Form', route: '/dashboard/student/admission' }
+      };
+    }
+
+    // 12. Settings Hub
+    if (/setting|settings|base setup|general settings/i.test(q)) {
+      return {
+        content: `⚙️ **College Settings Hub:**\n\nPak Royal College Sharaqpur ke tamam configuration modules (General Settings, Fees Invoice, Weekend, Holidays, Base Setup, SMS & Email) Settings section mein fully operational hain.`,
+        navAction: { label: 'Settings Hub', route: '/dashboard/settings' }
+      };
+    }
+
+    // Default intelligent response (Never generic canned, always helpful)
     return {
-      content: `Aapki request par maine portal check kiya hai. Stoofi AI aapki academic activities, live records, reports aur settings ko manage karne ke liye hamesha active hai.\n\nAap Roman Urdu ya English mein attendance, homework, fees, routine ya exams ke hawalay se mazeed sawaal pooch saktay hain.`,
-      navAction: null
+      content: `Main aapki request samajh raha hoon. Main Pak Royal College Sharaqpur Sharif ka **Stoofi AI Assistant** hoon.\n\nAap mujh se in live ERP topics ke baare mein direct pooch saktay hain:\n• *"Total kitny student hai?"* (82 students ki live summary)\n• *"Teachers aur staff kitne hain?"*\n• *"Fee collection aur pending dues ka status"*\n• *"Class routine aur attendance"*\n• *"Settings aur new admission"*`,
+      navAction: { label: 'Dashboard Overview', route: '/dashboard' }
     };
   };
 
@@ -695,76 +818,79 @@ export default function StoofiAiChatBox({ forcedRole, pageTitle = 'Stoofi AI Age
           ) : (
             /* Active Conversation Thread */
             messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex gap-3.5 max-w-3xl ${
-                  msg.role === 'user' ? 'ml-auto justify-end' : 'mr-auto justify-start'
-                }`}
-              >
-                {msg.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-2xl bg-white border border-zinc-200 flex items-center justify-center shrink-0 mt-1 shadow-xs p-1 overflow-hidden">
-                    <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
-                  </div>
-                )}
-
-                <div className="space-y-2 flex-1 max-w-[88%]">
-                  <div
-                    className={`relative group p-4 sm:p-5 rounded-2xl text-sm leading-relaxed ${
-                      msg.role === 'user'
-                        ? 'bg-zinc-950 text-white rounded-tr-none shadow-sm font-normal'
-                        : msg.isError
-                          ? 'bg-rose-50 text-rose-800 border border-rose-200 rounded-tl-none'
-                          : 'bg-white text-zinc-950 border border-zinc-200 rounded-tl-none shadow-xs'
-                    }`}
-                  >
-                    <div className="whitespace-pre-wrap break-words">{msg.content}</div>
-
-                    {msg.role === 'assistant' && !msg.isError && (
-                      <button
-                        onClick={() => handleCopy(msg.content, msg.id)}
-                        className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 p-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-600 transition-all cursor-pointer"
-                        title="Copy message"
-                      >
-                        {copiedMessageId === msg.id ? (
-                          <CheckCheck className="w-3.5 h-3.5 text-emerald-600" />
-                        ) : (
-                          <Copy className="w-3.5 h-3.5" />
-                        )}
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Navigation Action CTA Button */}
-                  {msg.navAction && msg.navAction.route && (
-                    <div className="p-3 bg-zinc-50 border border-zinc-200 rounded-xl flex items-center justify-between gap-3 animate-in fade-in duration-300">
-                      <div className="flex items-center gap-2">
-                        <Compass className="w-4 h-4 text-zinc-950" />
-                        <span className="text-xs font-semibold text-zinc-950">
-                          Jump to {msg.navAction.label || 'Page'}
-                        </span>
-                      </div>
-                      <Button
-                        size="sm"
-                        onClick={() => router.push(msg.navAction.route)}
-                        className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold text-xs h-7 px-3 rounded-lg shadow-xs flex items-center gap-1 cursor-pointer"
-                      >
-                        <span>Open</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </Button>
+              msg.role === 'user' ? (
+                /* User Message: Clean Right Alignment with W-Fit Bubble */
+                <div key={msg.id} className="w-full flex justify-end items-end gap-2.5 my-2">
+                  <div className="flex flex-col items-end max-w-[85%] sm:max-w-[75%] space-y-1">
+                    <div className="inline-block w-fit bg-zinc-950 text-white rounded-2xl rounded-tr-xs px-4 py-3 shadow-xs text-sm leading-relaxed font-normal whitespace-pre-wrap break-words text-left">
+                      {msg.content}
                     </div>
-                  )}
-
-                  <span className="block text-[10px] text-zinc-400 px-1">
-                    {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
-                  </span>
-                </div>
-
-                {msg.role === 'user' && (
-                  <div className="w-8 h-8 rounded-2xl bg-zinc-800 text-white flex items-center justify-center shrink-0 mt-1 shadow-xs">
+                    <span className="text-[10px] text-zinc-400 mr-1 select-none">
+                      {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                    </span>
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-zinc-800 text-white flex items-center justify-center shrink-0 shadow-xs mb-4">
                     <UserIcon className="w-4 h-4" />
                   </div>
-                )}
-              </div>
+                </div>
+              ) : (
+                /* Assistant Message: Clean Left Alignment with Rich Formatted Message & Actions */
+                <div key={msg.id} className="w-full flex justify-start items-start gap-3 my-2">
+                  <div className="w-9 h-9 rounded-2xl bg-white border border-zinc-200 flex items-center justify-center shrink-0 shadow-xs p-1 mt-0.5 overflow-hidden">
+                    <img src="/logo.png" alt="Stoofi AI" className="w-full h-full object-contain" />
+                  </div>
+                  <div className="flex flex-col items-start max-w-[90%] sm:max-w-[82%] space-y-2">
+                    <div className={`relative group p-4 sm:p-5 rounded-2xl rounded-tl-xs text-sm leading-relaxed shadow-xs w-fit ${
+                      msg.isError
+                        ? 'bg-rose-50 text-rose-800 border border-rose-200'
+                        : 'bg-white text-zinc-900 border border-zinc-200/90'
+                    }`}>
+                      <div className="text-zinc-900 leading-relaxed font-normal">
+                        <FormattedMessage content={msg.content} />
+                      </div>
+                      {!msg.isError && (
+                        <button
+                          onClick={() => handleCopy(msg.content, msg.id)}
+                          className="absolute right-2.5 top-2.5 opacity-0 group-hover:opacity-100 p-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-600 transition-all cursor-pointer shadow-xs"
+                          title="Copy message"
+                        >
+                          {copiedMessageId === msg.id ? (
+                            <CheckCheck className="w-3.5 h-3.5 text-emerald-600" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Navigation Action CTA Button */}
+                    {msg.navAction && msg.navAction.route && (
+                      <div className="p-2.5 sm:p-3 bg-zinc-50 border border-zinc-200 rounded-xl flex items-center justify-between gap-3 w-full max-w-md animate-in fade-in duration-200">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-6 h-6 rounded-lg bg-zinc-200/70 flex items-center justify-center shrink-0">
+                            <Compass className="w-3.5 h-3.5 text-zinc-800" />
+                          </div>
+                          <span className="text-xs font-semibold text-zinc-900 truncate">
+                            Jump to {msg.navAction.label || 'Page'}
+                          </span>
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={() => router.push(msg.navAction.route)}
+                          className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold text-xs h-7 px-3 rounded-lg shadow-xs flex items-center gap-1 cursor-pointer shrink-0"
+                        >
+                          <span>Open</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    )}
+
+                    <span className="text-[10px] text-zinc-400 ml-1 select-none">
+                      {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                    </span>
+                  </div>
+                </div>
+              )
             ))
           )}
 

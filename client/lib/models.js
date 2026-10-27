@@ -310,8 +310,33 @@ const settingSchema = new mongoose.Schema({
   phone: { type: String, default: '03 111 444 810' },
   email: { type: String, default: 'info@pakroyalcollege.edu.pk' },
   address: { type: String, default: 'Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura' },
-  schoolLogo: { type: String, default: '/pak-royal-college-logo.png' }
-}, { timestamps: true });
+  schoolLogo: { type: String, default: '/pak-royal-college-logo.png' },
+  currency: { type: String, default: 'PKR' },
+  currencySymbol: { type: String, default: 'Rs.' },
+  academicYear: { type: String, default: '2026' },
+  academicYears: [{ type: mongoose.Schema.Types.Mixed }],
+  session: { type: String, default: '2026' },
+  sessionStartMonth: { type: String, default: 'January' },
+  dateFormat: { type: String, default: 'DD/MM/YYYY' },
+  language: { type: String, default: 'English' },
+  timezone: { type: String, default: 'Asia/Karachi' },
+  tagline: { type: String, default: '' },
+  footerText: { type: String, default: '' },
+  website: { type: String, default: '' },
+  examRule: { type: mongoose.Schema.Types.Mixed, default: {} },
+  feeInvoiceSettings: { type: mongoose.Schema.Types.Mixed, default: {} },
+  studentFieldSettings: [{ type: mongoose.Schema.Types.Mixed }],
+  staffFieldSettings: [{ type: mongoose.Schema.Types.Mixed }],
+  emailSettings: { type: mongoose.Schema.Types.Mixed, default: {} },
+  smsSettings: { type: mongoose.Schema.Types.Mixed, default: {} },
+  paymentSettings: { type: mongoose.Schema.Types.Mixed, default: {} },
+  weekendSettings: [{ type: mongoose.Schema.Types.Mixed }],
+  twoFactorSettings: { type: mongoose.Schema.Types.Mixed, default: {} },
+  customFieldsStudent: [{ type: mongoose.Schema.Types.Mixed }],
+  customFieldsStaff: [{ type: mongoose.Schema.Types.Mixed }],
+  baseSetups: [{ type: mongoose.Schema.Types.Mixed }],
+  themeSettings: { type: mongoose.Schema.Types.Mixed, default: {} }
+}, { strict: false, timestamps: true });
 
 export const Setting = mongoose.models.Setting || mongoose.model('Setting', settingSchema);
 
@@ -925,6 +950,34 @@ const assignSubjectSchema = new mongoose.Schema({
 }, { timestamps: true });
 assignSubjectSchema.index({ className: 1, section: 1, subject: 1 });
 export const AssignSubject = mongoose.models.AssignSubject || mongoose.model('AssignSubject', assignSubjectSchema);
+
+// AI Conversation Schema
+const aiConversationSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false, index: true },
+  title: { type: String, default: 'New Conversation', trim: true },
+  role: { type: String, default: 'User' },
+  pinned: { type: Boolean, default: false }
+}, { timestamps: true });
+export const AIConversation = mongoose.models.AIConversation || mongoose.model('AIConversation', aiConversationSchema);
+
+// AI Message Schema
+const aiMessageSchema = new mongoose.Schema({
+  conversationId: { type: mongoose.Schema.Types.ObjectId, ref: 'AIConversation', required: true, index: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false, index: true },
+  role: { type: String, enum: ['user', 'assistant', 'system', 'tool'], required: true },
+  content: { type: String, required: true },
+  navAction: {
+    route: { type: String },
+    label: { type: String },
+    description: { type: String }
+  },
+  dataCard: {
+    type: { type: String },
+    data: { type: mongoose.Schema.Types.Mixed }
+  }
+}, { timestamps: true });
+export const AIMessage = mongoose.models.AIMessage || mongoose.model('AIMessage', aiMessageSchema);
+
 
 
 
