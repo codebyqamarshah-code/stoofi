@@ -405,14 +405,19 @@ function GenerateCertificateContent() {
           {/* Header */}
           <div className="text-center relative z-10">
             {showHeader && (
-              <>
-                <div className="flex items-center justify-center gap-2 text-amber-700 font-serif text-xs uppercase tracking-widest font-bold mb-1">
-                  <Crown className="w-5 h-5 text-amber-600" />
+              <div className="flex flex-col items-center mb-1">
+                <img 
+                  src="/pak-royal-badge.png" 
+                  alt="Pak Royal College Crest" 
+                  className="w-12 h-12 rounded-full object-contain mb-1 shadow-xs ring-2 ring-amber-500/40 bg-white p-0.5" 
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div className="flex items-center justify-center gap-2 text-amber-800 font-serif text-sm uppercase tracking-widest font-extrabold">
                   <span>{schoolName}</span>
                 </div>
                 <p className="text-[10px] text-zinc-500 tracking-wide">{schoolAddress}</p>
-                <div className="w-32 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto my-3"></div>
-              </>
+                <div className="w-36 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto my-2.5"></div>
+              </div>
             )}
             
             <h2 className="text-2xl sm:text-3xl font-serif font-extrabold text-amber-950 tracking-wider uppercase mt-1">
@@ -487,10 +492,17 @@ function GenerateCertificateContent() {
             )}
 
             {showSignRight && (
-              <div className="text-center">
-                <div className="text-xs font-bold text-amber-950 font-serif italic">Principal Signature</div>
-                <div className="w-36 h-0.5 bg-amber-600 mt-1 mb-0.5"></div>
-                <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Principal & Authorized Seal'}</p>
+              <div className="text-center flex flex-col items-center">
+                <img 
+                  src="/signature-gold.png" 
+                  alt="Principal Signature (M. Umer)" 
+                  className="h-8 w-auto object-contain filter drop-shadow-2xs mb-0.5" 
+                  style={{ height: '32px' }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div className="w-36 h-0.5 bg-amber-600 mt-0.5 mb-1"></div>
+                <div className="text-[10px] font-bold text-amber-950 font-serif tracking-wider">M. UMER</div>
+                <p className="text-[9.5px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Principal & Authorized Seal'}</p>
               </div>
             )}
           </div>
@@ -506,13 +518,18 @@ function GenerateCertificateContent() {
 
           <div className="text-center relative z-10 pt-2">
             {showHeader && (
-              <>
-                <div className="text-xs font-black uppercase text-emerald-800 tracking-wider flex items-center justify-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <div className="flex flex-col items-center mb-1">
+                <img 
+                  src="/pak-royal-badge.png" 
+                  alt="Pak Royal College Crest" 
+                  className="w-12 h-12 rounded-full object-contain mb-1 shadow-xs ring-2 ring-emerald-500/40 bg-white p-0.5" 
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div className="text-sm font-black uppercase text-emerald-900 tracking-wider">
                   <span>{schoolName}</span>
                 </div>
                 <p className="text-[10px] text-zinc-500">{schoolAddress}</p>
-              </>
+              </div>
             )}
             
             <h2 className="text-2xl sm:text-3xl font-black text-emerald-950 tracking-tight uppercase mt-3">
@@ -578,10 +595,17 @@ function GenerateCertificateContent() {
             )}
 
             {showSignRight && (
-              <div className="text-center">
-                <div className="text-xs font-bold text-emerald-950">Head of Institution</div>
-                <div className="w-36 h-0.5 bg-emerald-700 mt-1 mb-0.5"></div>
-                <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Principal Signature'}</p>
+              <div className="text-center flex flex-col items-center">
+                <img 
+                  src="/signature-dark.png" 
+                  alt="Principal Signature (M. Umer)" 
+                  className="h-8 w-auto object-contain filter drop-shadow-2xs mb-0.5" 
+                  style={{ height: '32px' }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div className="w-36 h-0.5 bg-emerald-700 mt-0.5 mb-1"></div>
+                <div className="text-[10px] font-bold text-emerald-950 tracking-wider">M. UMER</div>
+                <p className="text-[9.5px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Principal Signature'}</p>
               </div>
             )}
           </div>
@@ -595,13 +619,18 @@ function GenerateCertificateContent() {
         <div className={`bg-[#fbfcff] text-zinc-900 border-4 border-sky-900 p-8 sm:p-12 rounded-3xl shadow-xl w-full ${isInspect ? 'max-w-4xl' : 'max-w-full'} flex flex-col justify-between relative overflow-hidden select-none certificate-page`}>
           <div className="text-center relative z-10">
             {showHeader && (
-              <>
-                <div className="text-xs font-black uppercase text-sky-950 tracking-wider flex items-center justify-center gap-1.5">
-                  <Award className="w-5 h-5 text-sky-800" />
+              <div className="flex flex-col items-center mb-1">
+                <img 
+                  src="/pak-royal-badge.png" 
+                  alt="Pak Royal College Crest" 
+                  className="w-12 h-12 rounded-full object-contain mb-1 shadow-xs ring-2 ring-sky-900/40 bg-white p-0.5" 
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div className="text-sm font-black uppercase text-sky-950 tracking-wider">
                   <span>{schoolName}</span>
                 </div>
                 <p className="text-[10px] text-zinc-500">{schoolAddress}</p>
-              </>
+              </div>
             )}
             
             <h2 className="text-2xl sm:text-3xl font-serif font-black text-sky-950 tracking-wide uppercase mt-3">
@@ -665,10 +694,17 @@ function GenerateCertificateContent() {
             )}
 
             {showSignRight && (
-              <div className="text-center">
-                <div className="text-xs font-bold text-sky-950 font-serif">Principal / Registrar</div>
-                <div className="w-36 h-0.5 bg-sky-900 mt-1 mb-0.5"></div>
-                <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Authorized Clearance'}</p>
+              <div className="text-center flex flex-col items-center">
+                <img 
+                  src="/signature-dark.png" 
+                  alt="Principal Signature (M. Umer)" 
+                  className="h-8 w-auto object-contain filter drop-shadow-2xs mb-0.5" 
+                  style={{ height: '32px' }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div className="w-36 h-0.5 bg-sky-900 mt-0.5 mb-1"></div>
+                <div className="text-[10px] font-bold text-sky-950 font-serif tracking-wider">M. UMER</div>
+                <p className="text-[9.5px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Authorized Clearance'}</p>
               </div>
             )}
           </div>
@@ -682,13 +718,18 @@ function GenerateCertificateContent() {
         <div className={`bg-[#fffbfb] text-zinc-900 border-4 border-rose-800 p-8 sm:p-12 rounded-3xl shadow-xl w-full ${isInspect ? 'max-w-4xl' : 'max-w-full'} flex flex-col justify-between relative overflow-hidden select-none certificate-page`}>
           <div className="text-center relative z-10">
             {showHeader && (
-              <>
-                <div className="text-xs font-black uppercase text-rose-900 tracking-wider flex items-center justify-center gap-1.5">
-                  <Medal className="w-5 h-5 text-amber-500" />
+              <div className="flex flex-col items-center mb-1">
+                <img 
+                  src="/pak-royal-badge.png" 
+                  alt="Pak Royal College Crest" 
+                  className="w-12 h-12 rounded-full object-contain mb-1 shadow-xs ring-2 ring-rose-800/40 bg-white p-0.5" 
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div className="text-sm font-black uppercase text-rose-950 tracking-wider">
                   <span>{schoolName}</span>
                 </div>
                 <p className="text-[10px] text-zinc-500">{schoolAddress}</p>
-              </>
+              </div>
             )}
             
             <h2 className="text-2xl sm:text-3xl font-black text-rose-950 tracking-tight uppercase mt-3">
@@ -753,10 +794,17 @@ function GenerateCertificateContent() {
             )}
 
             {showSignRight && (
-              <div className="text-center">
-                <div className="text-xs font-bold text-rose-950">Principal / Patron</div>
-                <div className="w-36 h-0.5 bg-rose-800 mt-1 mb-0.5"></div>
-                <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Principal Seal'}</p>
+              <div className="text-center flex flex-col items-center">
+                <img 
+                  src="/signature-dark.png" 
+                  alt="Principal Signature (M. Umer)" 
+                  className="h-8 w-auto object-contain filter drop-shadow-2xs mb-0.5" 
+                  style={{ height: '32px' }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div className="w-36 h-0.5 bg-rose-800 mt-0.5 mb-1"></div>
+                <div className="text-[10px] font-bold text-rose-950 tracking-wider">M. UMER</div>
+                <p className="text-[9.5px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Principal Seal'}</p>
               </div>
             )}
           </div>
@@ -769,13 +817,18 @@ function GenerateCertificateContent() {
       <div className={`bg-white text-zinc-900 border-2 border-zinc-900 p-8 sm:p-12 rounded-2xl shadow-xl w-full ${isInspect ? 'max-w-4xl' : 'max-w-full'} flex flex-col justify-between relative overflow-hidden select-none certificate-page`}>
         <div className="text-center relative z-10">
           {showHeader && (
-            <>
-              <div className="text-xs font-extrabold uppercase text-zinc-900 tracking-widest flex items-center justify-center gap-1.5">
-                <BadgeCheck className="w-4 h-4 text-emerald-600" />
+            <div className="flex flex-col items-center mb-1">
+              <img 
+                src="/pak-royal-badge.png" 
+                alt="Pak Royal College Crest" 
+                className="w-12 h-12 rounded-full object-contain mb-1 shadow-2xs ring-1 ring-zinc-300 bg-white p-0.5" 
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
+              <div className="text-sm font-extrabold uppercase text-zinc-950 tracking-wider">
                 <span>{schoolName}</span>
               </div>
               <p className="text-[10px] text-zinc-500">{schoolAddress}</p>
-            </>
+            </div>
           )}
           
           <h2 className="text-2xl sm:text-3xl font-black text-zinc-950 tracking-tight uppercase mt-3">
@@ -837,10 +890,17 @@ function GenerateCertificateContent() {
           )}
 
           {showSignRight && (
-            <div className="text-center">
-              <div className="text-xs font-bold text-zinc-950">Principal & Authorized Seal</div>
-              <div className="w-36 h-0.5 bg-zinc-900 mt-1 mb-0.5"></div>
-              <p className="text-[10px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Digital Authorized Sign'}</p>
+            <div className="text-center flex flex-col items-center">
+              <img 
+                src="/signature-dark.png" 
+                alt="Principal Signature (M. Umer)" 
+                className="h-8 w-auto object-contain filter drop-shadow-2xs mb-0.5" 
+                style={{ height: '32px' }}
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
+              <div className="w-36 h-0.5 bg-zinc-900 mt-0.5 mb-1"></div>
+              <div className="text-[10px] font-bold text-zinc-950 tracking-wider">M. UMER</div>
+              <p className="text-[9.5px] text-zinc-500 uppercase font-semibold">{activeTemplate.footerRight || 'Digital Authorized Sign'}</p>
             </div>
           )}
         </div>

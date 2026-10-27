@@ -303,6 +303,19 @@ export default function CertificatePage() {
     }
   };
 
+  const filteredStudentsForIssue = useMemo(() => {
+    if (!studentSearchQuery.trim()) return studentsList;
+    const q = studentSearchQuery.toLowerCase().trim();
+    return studentsList.filter(s => {
+      const name = `${s.firstName || ''} ${s.lastName || ''}`.toLowerCase();
+      const roll = String(s.rollNo || '').toLowerCase();
+      const adm = String(s.admissionNo || '').toLowerCase();
+      const cls = String(s.className || '').toLowerCase();
+      const fName = String(s.fatherName || '').toLowerCase();
+      return name.includes(q) || roll.includes(q) || adm.includes(q) || cls.includes(q) || fName.includes(q);
+    });
+  }, [studentsList, studentSearchQuery]);
+
   const insertPlaceholder = (tag) => {
     if (!textareaRef.current) {
       setFormData(prev => ({ ...prev, templateBody: prev.templateBody + ' ' + tag }));
@@ -709,14 +722,19 @@ export default function CertificatePage() {
           {/* Header */}
           <div className="text-center relative z-10">
             {showHeader && (
-              <>
-                <div className="flex items-center justify-center gap-2 text-amber-700 font-serif text-xs uppercase tracking-widest font-bold mb-1">
-                  <Crown className="w-5 h-5 text-amber-600" />
+              <div className="flex flex-col items-center mb-1">
+                <img 
+                  src="/pak-royal-badge.png" 
+                  alt="Pak Royal College Crest" 
+                  className="w-12 h-12 rounded-full object-contain mb-1 shadow-xs ring-2 ring-amber-500/40 bg-white p-0.5" 
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div className="flex items-center justify-center gap-2 text-amber-800 font-serif text-sm uppercase tracking-widest font-extrabold">
                   <span>{scName}</span>
                 </div>
                 <p className="text-[10px] text-zinc-500 tracking-wide">{scAddr}</p>
-                <div className="w-32 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto my-2.5"></div>
-              </>
+                <div className="w-36 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto my-2"></div>
+              </div>
             )}
 
             <h2 className="text-xl sm:text-2xl font-serif font-extrabold text-amber-950 tracking-wider uppercase mt-1">
@@ -790,10 +808,17 @@ export default function CertificatePage() {
             )}
 
             {showSignRight && (
-              <div className="text-center">
-                <div className="text-xs font-bold text-amber-950 font-serif italic">Principal Signature</div>
-                <div className="w-32 h-0.5 bg-amber-600 mt-1 mb-0.5"></div>
-                <p className="text-[9.5px] text-zinc-500 uppercase font-semibold">{tpl.footerRight || 'Principal & Seal'}</p>
+              <div className="text-center flex flex-col items-center">
+                <img 
+                  src="/signature-gold.png" 
+                  alt="Principal Signature (M. Umer)" 
+                  className="h-8 w-auto object-contain filter drop-shadow-2xs mb-0.5" 
+                  style={{ height: '32px' }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div className="w-32 h-0.5 bg-amber-600 mt-0.5 mb-1"></div>
+                <div className="text-[10px] font-bold text-amber-950 font-serif tracking-wider">M. UMER</div>
+                <p className="text-[9px] text-zinc-500 uppercase font-semibold">{tpl.footerRight || 'Principal / Authorized Seal'}</p>
               </div>
             )}
           </div>
@@ -809,13 +834,18 @@ export default function CertificatePage() {
 
           <div className="text-center relative z-10 pt-1">
             {showHeader && (
-              <>
-                <div className="text-xs font-black uppercase text-emerald-800 tracking-wider flex items-center justify-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <div className="flex flex-col items-center mb-1">
+                <img 
+                  src="/pak-royal-badge.png" 
+                  alt="Pak Royal College Crest" 
+                  className="w-12 h-12 rounded-full object-contain mb-1 shadow-xs ring-2 ring-emerald-500/40 bg-white p-0.5" 
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div className="text-sm font-black uppercase text-emerald-900 tracking-wider">
                   <span>{scName}</span>
                 </div>
                 <p className="text-[10px] text-zinc-500">{scAddr}</p>
-              </>
+              </div>
             )}
 
             <h2 className="text-xl sm:text-2xl font-black text-emerald-950 tracking-tight uppercase mt-2">
@@ -879,10 +909,17 @@ export default function CertificatePage() {
             )}
 
             {showSignRight && (
-              <div className="text-center">
-                <div className="text-xs font-bold text-emerald-900">Principal Signature</div>
-                <div className="w-32 h-0.5 bg-emerald-700 mt-1 mb-0.5"></div>
-                <p className="text-[9.5px] text-zinc-500 uppercase font-semibold">{tpl.footerRight || 'Authorized Signatory'}</p>
+              <div className="text-center flex flex-col items-center">
+                <img 
+                  src="/signature-dark.png" 
+                  alt="Principal Signature (M. Umer)" 
+                  className="h-8 w-auto object-contain filter drop-shadow-2xs mb-0.5" 
+                  style={{ height: '32px' }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div className="w-32 h-0.5 bg-emerald-700 mt-0.5 mb-1"></div>
+                <div className="text-[10px] font-bold text-emerald-950 tracking-wider">M. UMER</div>
+                <p className="text-[9px] text-zinc-500 uppercase font-semibold">{tpl.footerRight || 'Principal / Head of Institution'}</p>
               </div>
             )}
           </div>
@@ -896,13 +933,18 @@ export default function CertificatePage() {
         <div className={`bg-[#fbfcff] text-zinc-900 border-4 border-sky-900 p-6 sm:p-10 rounded-3xl shadow-xl w-full ${isInspect ? 'max-w-4xl' : 'max-w-full'} flex flex-col justify-between relative overflow-hidden select-none certificate-page`}>
           <div className="text-center relative z-10">
             {showHeader && (
-              <>
-                <div className="text-xs font-black uppercase text-sky-950 tracking-wider flex items-center justify-center gap-1.5">
-                  <Award className="w-5 h-5 text-sky-800" />
+              <div className="flex flex-col items-center mb-1">
+                <img 
+                  src="/pak-royal-badge.png" 
+                  alt="Pak Royal College Crest" 
+                  className="w-12 h-12 rounded-full object-contain mb-1 shadow-xs ring-2 ring-sky-900/40 bg-white p-0.5" 
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div className="text-sm font-black uppercase text-sky-950 tracking-wider">
                   <span>{scName}</span>
                 </div>
                 <p className="text-[10px] text-zinc-500">{scAddr}</p>
-              </>
+              </div>
             )}
 
             <h2 className="text-xl sm:text-2xl font-serif font-black text-sky-950 tracking-wide uppercase mt-2">
@@ -964,10 +1006,17 @@ export default function CertificatePage() {
             )}
 
             {showSignRight && (
-              <div className="text-center">
-                <div className="text-xs font-bold text-sky-950 font-serif">Principal / Registrar</div>
-                <div className="w-32 h-0.5 bg-sky-900 mt-1 mb-0.5"></div>
-                <p className="text-[9.5px] text-zinc-500 uppercase font-semibold">{tpl.footerRight || 'Authorized Clearance'}</p>
+              <div className="text-center flex flex-col items-center">
+                <img 
+                  src="/signature-dark.png" 
+                  alt="Principal Signature (M. Umer)" 
+                  className="h-8 w-auto object-contain filter drop-shadow-2xs mb-0.5" 
+                  style={{ height: '32px' }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div className="w-32 h-0.5 bg-sky-900 mt-0.5 mb-1"></div>
+                <div className="text-[10px] font-bold text-sky-950 font-serif tracking-wider">M. UMER</div>
+                <p className="text-[9px] text-zinc-500 uppercase font-semibold">{tpl.footerRight || 'Principal / Authorized Clearance'}</p>
               </div>
             )}
           </div>
@@ -981,13 +1030,18 @@ export default function CertificatePage() {
         <div className={`bg-[#fffbfb] text-zinc-900 border-4 border-rose-800 p-6 sm:p-10 rounded-3xl shadow-xl w-full ${isInspect ? 'max-w-4xl' : 'max-w-full'} flex flex-col justify-between relative overflow-hidden select-none certificate-page`}>
           <div className="text-center relative z-10">
             {showHeader && (
-              <>
-                <div className="text-xs font-black uppercase text-rose-900 tracking-wider flex items-center justify-center gap-1.5">
-                  <Medal className="w-5 h-5 text-amber-500" />
+              <div className="flex flex-col items-center mb-1">
+                <img 
+                  src="/pak-royal-badge.png" 
+                  alt="Pak Royal College Crest" 
+                  className="w-12 h-12 rounded-full object-contain mb-1 shadow-xs ring-2 ring-rose-800/40 bg-white p-0.5" 
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div className="text-sm font-black uppercase text-rose-950 tracking-wider">
                   <span>{scName}</span>
                 </div>
                 <p className="text-[10px] text-zinc-500">{scAddr}</p>
-              </>
+              </div>
             )}
 
             <h2 className="text-xl sm:text-2xl font-black text-rose-950 tracking-tight uppercase mt-2">
@@ -1049,10 +1103,17 @@ export default function CertificatePage() {
             )}
 
             {showSignRight && (
-              <div className="text-center">
-                <div className="text-xs font-bold text-rose-950">Principal / Patron</div>
-                <div className="w-32 h-0.5 bg-rose-800 mt-1 mb-0.5"></div>
-                <p className="text-[9.5px] text-zinc-500 uppercase font-semibold">{tpl.footerRight || 'Principal Seal'}</p>
+              <div className="text-center flex flex-col items-center">
+                <img 
+                  src="/signature-dark.png" 
+                  alt="Principal Signature (M. Umer)" 
+                  className="h-8 w-auto object-contain filter drop-shadow-2xs mb-0.5" 
+                  style={{ height: '32px' }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <div className="w-32 h-0.5 bg-rose-800 mt-0.5 mb-1"></div>
+                <div className="text-[10px] font-bold text-rose-950 tracking-wider">M. UMER</div>
+                <p className="text-[9px] text-zinc-500 uppercase font-semibold">{tpl.footerRight || 'Principal / Patron in Chief'}</p>
               </div>
             )}
           </div>
@@ -1065,13 +1126,18 @@ export default function CertificatePage() {
       <div className={`bg-white text-zinc-900 border-2 border-zinc-900 p-6 sm:p-10 rounded-2xl shadow-xl w-full ${isInspect ? 'max-w-4xl' : 'max-w-full'} flex flex-col justify-between relative overflow-hidden select-none certificate-page`}>
         <div className="text-center relative z-10">
           {showHeader && (
-            <>
-              <div className="text-xs font-extrabold uppercase text-zinc-900 tracking-widest flex items-center justify-center gap-1.5">
-                <BadgeCheck className="w-4 h-4 text-emerald-600" />
+            <div className="flex flex-col items-center mb-1">
+              <img 
+                src="/pak-royal-badge.png" 
+                alt="Pak Royal College Crest" 
+                className="w-12 h-12 rounded-full object-contain mb-1 shadow-2xs ring-1 ring-zinc-300 bg-white p-0.5" 
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
+              <div className="text-sm font-extrabold uppercase text-zinc-950 tracking-wider">
                 <span>{scName}</span>
               </div>
               <p className="text-[10px] text-zinc-500">{scAddr}</p>
-            </>
+            </div>
           )}
 
           <h2 className="text-xl sm:text-2xl font-black text-zinc-950 tracking-tight uppercase mt-2">
@@ -1132,10 +1198,17 @@ export default function CertificatePage() {
           )}
 
           {showSignRight && (
-            <div className="text-center">
-              <div className="text-xs font-bold text-zinc-950">Principal & Authorized Sign</div>
-              <div className="w-32 h-0.5 bg-zinc-900 mt-1 mb-0.5"></div>
-              <p className="text-[9.5px] text-zinc-500 uppercase font-semibold">{tpl.footerRight || 'Digital Authorized Seal'}</p>
+            <div className="text-center flex flex-col items-center">
+              <img 
+                src="/signature-dark.png" 
+                alt="Principal Signature (M. Umer)" 
+                className="h-8 w-auto object-contain filter drop-shadow-2xs mb-0.5" 
+                style={{ height: '32px' }}
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
+              <div className="w-32 h-0.5 bg-zinc-900 mt-0.5 mb-1"></div>
+              <div className="text-[10px] font-bold text-zinc-950 tracking-wider">M. UMER</div>
+              <p className="text-[9px] text-zinc-500 uppercase font-semibold">{tpl.footerRight || 'Principal / Authorized Digital Seal'}</p>
             </div>
           )}
         </div>
@@ -2054,28 +2127,126 @@ export default function CertificatePage() {
             <div className="flex-1 overflow-y-auto grid grid-cols-1 lg:grid-cols-12 text-xs">
               {/* Left Column: Student Selection & Info */}
               <div className="lg:col-span-7 p-5 space-y-4 border-r border-zinc-200 overflow-y-auto max-h-[75vh]">
-                {/* 1. Student Picker (Kis Ke Liye Hai) */}
-                <div className="p-3 bg-amber-50/60 border border-amber-200 rounded-xl space-y-2">
+                {/* 1. Dynamic Student Picker */}
+                <div className="p-3.5 bg-amber-50/70 border border-amber-200 rounded-2xl space-y-2.5 shadow-2xs">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs font-bold text-amber-950 uppercase tracking-wide flex items-center gap-1.5">
                       <User className="w-3.5 h-3.5 text-amber-700" />
-                      Step 1: Choose Recipient Student (&ldquo;Kis Ky Liye Hai&rdquo;)
+                      Step 1: Select Enrolled Student
                     </Label>
-                    {loadingStudents && <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-600" />}
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-semibold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-full">
+                        {studentsList.length} Students Available
+                      </span>
+                      {loadingStudents && <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-600" />}
+                    </div>
                   </div>
 
-                  <select
-                    value={issueForm.studentId}
-                    onChange={e => handleSelectStudentForIssue(e.target.value)}
-                    className="flex h-9 w-full rounded-md border border-amber-300 bg-white px-3 py-1.5 text-zinc-950 text-xs font-semibold cursor-pointer shadow-2xs"
-                  >
-                    <option value="">-- Choose Enrolled Student from Database --</option>
-                    {studentsList.map(st => (
-                      <option key={st._id} value={st._id}>
-                        {st.firstName} {st.lastName} (Roll: {st.rollNo || '-'}, Adm: {st.admissionNo || '-'}, {st.className || 'FSC OTT'})
-                      </option>
-                    ))}
-                  </select>
+                  {/* Active Selected Student Pill (if selected) */}
+                  {issueForm.studentId && (
+                    <div className="flex items-center justify-between p-2.5 bg-emerald-50 border border-emerald-300 rounded-xl">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-7 h-7 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold text-emerald-950 truncate">
+                            {issueForm.studentName}
+                          </div>
+                          <div className="text-[10px] text-emerald-700 flex flex-wrap items-center gap-2 font-medium">
+                            <span>Roll: <strong>{issueForm.rollNo || '-'}</strong></span>
+                            <span>| Adm: <strong>{issueForm.admissionNo || '-'}</strong></span>
+                            <span>| Class: <strong>{issueForm.className}</strong> ({issueForm.section})</span>
+                          </div>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setIssueForm(prev => ({ ...prev, studentId: '' }));
+                          setStudentSearchQuery('');
+                        }}
+                        className="h-6 px-2 text-[10px] font-bold text-zinc-600 bg-white border-zinc-300 hover:bg-zinc-100 shrink-0"
+                      >
+                        Change
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* Live Search Input Field */}
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 text-amber-700 absolute left-3 top-2.5 pointer-events-none" />
+                    <Input
+                      type="text"
+                      placeholder="Type student name, roll no, adm no, or class to search dynamically..."
+                      value={studentSearchQuery}
+                      onChange={e => setStudentSearchQuery(e.target.value)}
+                      className="pl-8 pr-8 bg-white border-amber-300 text-xs h-9 focus-visible:ring-amber-500 rounded-lg shadow-2xs text-zinc-900 placeholder:text-zinc-400"
+                    />
+                    {studentSearchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setStudentSearchQuery('')}
+                        className="absolute right-2.5 top-2.5 text-zinc-400 hover:text-zinc-600"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Dynamic Search Results Dropdown List */}
+                  <div className="max-h-40 overflow-y-auto space-y-1 rounded-xl border border-amber-200/90 bg-white p-1.5 shadow-inner">
+                    {filteredStudentsForIssue.length === 0 ? (
+                      <div className="text-center py-3 text-zinc-500 text-xs font-medium">
+                        {loadingStudents ? 'Loading student directory...' : `No students found matching "${studentSearchQuery}"`}
+                      </div>
+                    ) : (
+                      filteredStudentsForIssue.slice(0, 40).map(st => {
+                        const isSelected = issueForm.studentId === st._id;
+                        const fullName = `${st.firstName || ''} ${st.lastName || ''}`.trim() || 'Student';
+                        const photo = getPhotoUrl(st.studentPhoto || st.photo);
+                        return (
+                          <button
+                            key={st._id}
+                            type="button"
+                            onClick={() => {
+                              handleSelectStudentForIssue(st._id);
+                              setStudentSearchQuery('');
+                            }}
+                            className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between transition-colors ${
+                              isSelected 
+                                ? 'bg-amber-100 text-amber-950 font-bold border border-amber-300' 
+                                : 'hover:bg-amber-50/80 text-zinc-800'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="w-7 h-7 rounded-full bg-zinc-100 border border-zinc-200 overflow-hidden shrink-0 flex items-center justify-center text-[10px] font-bold text-zinc-700">
+                                {photo ? (
+                                  <img 
+                                    src={photo} 
+                                    alt="" 
+                                    className="w-full h-full object-cover" 
+                                    style={{ objectFit: 'cover', objectPosition: 'center 15%' }} 
+                                  />
+                                ) : (
+                                  fullName.charAt(0)
+                                )}
+                              </div>
+                              <div className="truncate text-xs">
+                                <span className="font-bold text-zinc-900">{fullName}</span>
+                                <span className="text-[10px] text-zinc-500 ml-1.5 font-normal">
+                                  Roll: <strong>{st.rollNo || '-'}</strong> | Adm: <strong>{st.admissionNo || '-'}</strong> | {st.className || 'FSC OTT'}
+                                </span>
+                              </div>
+                            </div>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-amber-800 shrink-0 ml-1.5" />}
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
 
                 {/* 2. Photo Upload Box */}

@@ -1,4 +1,6 @@
 import jsPDF from 'jspdf';
+import { PAK_ROYAL_COLLEGE_LOGO } from './pakRoyalCollegeLogo.js';
+import { PAK_ROYAL_SIGNATURE_DARK, PAK_ROYAL_SIGNATURE_GOLD } from './signatureImage.js';
 
 /**
  * Downloads a high-resolution, landscape A4 (297mm x 210mm) Certificate PDF
@@ -111,14 +113,21 @@ function renderCertificateToDoc(doc, student, template, schoolSetting) {
   });
 
   // 2. School Header (if enabled)
-  let currentY = 24;
+  let currentY = 20;
   if (template.showSchoolHeader !== false) {
+    try {
+      doc.addImage(PAK_ROYAL_COLLEGE_LOGO, 'PNG', width / 2 - 7, currentY - 5, 14, 14);
+      currentY += 12;
+    } catch (_) {
+      currentY += 2;
+    }
+
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.setFont('times', 'bold');
-    doc.setFontSize(14);
+    doc.setFontSize(13);
     doc.text(schoolName.toUpperCase(), width / 2, currentY, { align: 'center' });
 
-    currentY += 5;
+    currentY += 4.5;
     doc.setTextColor(110, 110, 110);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
@@ -277,19 +286,35 @@ function renderCertificateToDoc(doc, student, template, schoolSetting) {
 
   // Right Signatory (Principal Signature & Stamp)
   if (template.showSignatureRight !== false) {
-    const rightX = width - 35;
-    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-    doc.setFont('times', 'italic');
-    doc.setFontSize(12);
-    doc.text('Principal Signature', rightX, footerY, { align: 'center' });
+    const rightX = width - 38;
+    const signImage = theme === 'classic-gold' ? PAK_ROYAL_SIGNATURE_GOLD : PAK_ROYAL_SIGNATURE_DARK;
+    let signatureRendered = false;
+    try {
+      doc.addImage(signImage, 'PNG', rightX - 16, footerY - 8, 32, 8);
+      signatureRendered = true;
+    } catch (_) {
+      signatureRendered = false;
+    }
+
+    if (!signatureRendered) {
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.setFont('times', 'italic');
+      doc.setFontSize(11);
+      doc.text('Principal Signature', rightX, footerY - 1, { align: 'center' });
+    }
 
     doc.setDrawColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
     doc.setLineWidth(0.6);
-    doc.line(rightX - 30, footerY + 2, rightX + 30, footerY + 2);
+    doc.line(rightX - 25, footerY + 1, rightX + 25, footerY + 1);
+
+    doc.setTextColor(darkTextColor[0], darkTextColor[1], darkTextColor[2]);
+    doc.setFont('times', 'bold');
+    doc.setFontSize(8.5);
+    doc.text('M. UMER', rightX, footerY + 5, { align: 'center' });
 
     doc.setTextColor(110, 110, 110);
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.text(template.footerRight || 'Principal / Authorized Sign', rightX, footerY + 7, { align: 'center' });
+    doc.setFontSize(7.5);
+    doc.text(template.footerRight || 'Principal / Authorized Seal', rightX, footerY + 8.5, { align: 'center' });
   }
 }
