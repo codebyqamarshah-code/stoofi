@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { 
   ChevronRight, ArrowRight, ArrowLeft, CheckCircle2, AlertCircle, 
   Upload, User, Shield, GraduationCap, FileText, CheckSquare, 
@@ -35,8 +36,9 @@ function formatCnic(val) {
   return `${digits.slice(0, 5)}-${digits.slice(5, 12)}-${digits.slice(12, 13)}`;
 }
 
-export default function StudentAdmissionWizardPage() {
+function StudentAdmissionWizardInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -50,8 +52,9 @@ export default function StudentAdmissionWizardPage() {
   const [batches, setBatches] = useState([]);
   const [loadingOfferings, setLoadingOfferings] = useState(false);
 
-  // Existing student lookup state (Multi-enrollment)
-  const [isExistingMode, setIsExistingMode] = useState(false);
+  // Edit Mode & Existing student lookup state
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingStudentId, setEditingStudentId] = useState(null);
   const [searchCnicQuery, setSearchCnicQuery] = useState('');
   const [searchingStudent, setSearchingStudent] = useState(false);
   const [existingStudentFound, setExistingStudentFound] = useState(null);
@@ -332,7 +335,116 @@ export default function StudentAdmissionWizardPage() {
     }
   }, [selectedOffering?._id]);
 
-  // Existing Student Lookup (Multi-enrollment)
+  // Load Student into Form for Full Editing or Multi-Enrollment
+  const loadStudentIntoForm = (found, isFullEdit = true) => {
+    setIsEditMode(isFullEdit);
+    setEditingStudentId(found._id);
+    setExistingStudentFound(found);
+
+    const admYear = found.academicYear ? String(found.academicYear).slice(0, 4) : String(new Date().getFullYear());
+
+    setFormData(prev => ({
+      ...prev,
+      studentId: found._id,
+      admissionNo: found.admissionNo || prev.admissionNo,
+      rollNo: found.rollNo || prev.rollNo,
+      admissionYear: admYear,
+      admissionDate: found.admissionDate || found.joiningDate || prev.admissionDate,
+      firstName: found.firstName || found.studentName || found.name || '',
+      lastName: found.lastName || '',
+      dob: found.dob || '',
+      gender: found.gender || 'Male',
+      cnic: found.cnic || found.bForm || '',
+      bForm: found.bForm || found.cnic || '',
+      bloodGroup: found.bloodGroup || 'B+',
+      religion: found.religion || 'Islam',
+      nationality: found.nationality || 'Pakistani',
+      phone: found.phone || '',
+      whatsapp: found.whatsapp || found.phone || '',
+      email: found.email || '',
+      residentialAddress: found.residentialAddress || found.currentAddress || found.address || '',
+      permanentAddress: found.permanentAddress || found.address || '',
+      sameAsResidential: (found.permanentAddress === found.address) || !found.permanentAddress,
+      fatherName: found.fatherName || found.father?.name || '',
+      fatherCnic: found.fatherCnic || found.father?.cnic || '',
+      fatherPhone: found.fatherPhone || found.father?.phone || '',
+      fatherOccupation: found.fatherOccupation || found.father?.occupation || '',
+      motherName: found.motherName || found.mother?.name || '',
+      motherPhone: found.motherPhone || found.mother?.phone || '',
+      motherOccupation: found.motherOccupation || found.mother?.occupation || '',
+      guardianName: found.guardianName || found.guardian?.name || found.fatherName || '',
+      guardianPhone: found.guardianPhone || found.guardian?.phone || found.fatherPhone || '',
+      guardianRelation: found.guardianRelation || found.guardian?.relation || 'Father',
+      guardianCnic: found.guardianCnic || found.guardian?.cnic || found.fatherCnic || '',
+      guardianAddress: found.guardianAddress || found.guardian?.address || '',
+      guardianOccupation: found.guardianOccupation || '',
+      emergencyContactName: found.emergencyContactName || found.emergencyContact?.name || found.fatherName || '',
+      emergencyContactPhone: found.emergencyContactPhone || found.emergencyContact?.phone || found.fatherPhone || found.phone || '',
+      emergencyRelationship: found.emergencyContactRelation || found.emergencyContact?.relationship || 'Father',
+      previewStudentCode: found.studentCode || prev.previewStudentCode,
+      previewAdmissionNo: found.admissionNo || prev.previewAdmissionNo,
+      previewRollNo: found.rollNo || prev.previewRollNo,
+      qualifications: Array.isArray(found.qualifications) && found.qualifications.length > 0 ? found.qualifications : prev.qualifications
+    }));
+
+    setSuccessMsg(
+      isFullEdit 
+        ? `Loaded ${found.firstName} ${found.lastName || ''} (${found.admissionNo || found.rollNo}) into Edit Mode. You can update any field across all steps.`
+        : `Student record found: ${found.firstName} ${found.lastName || ''}. Details pre-filled for new enrollment.`
+    );
+  };
+
+  const resetToNewStudent = () => {
+    setIsEditMode(false);
+    setEditingStudentId(null);
+    setExistingStudentFound(null);
+    setSearchCnicQuery('');
+    setFormData(prev => ({
+      ...prev,
+      studentId: '',
+      firstName: '',
+      lastName: '',
+      dob: '',
+      cnic: '',
+      bForm: '',
+      phone: '',
+      whatsapp: '',
+      email: '',
+      residentialAddress: '',
+      permanentAddress: '',
+      fatherName: '',
+      fatherCnic: '',
+      fatherPhone: '',
+      fatherOccupation: '',
+      motherName: '',
+      motherPhone: '',
+      guardianName: '',
+      guardianPhone: ''
+    }));
+    setSuccessMsg('Switched back to New Admission Mode.');
+  };
+
+  // Check URL query parameters for student edit request
+  useEffect(() => {
+    const editId = searchParams.get('id') || searchParams.get('edit') || searchParams.get('studentId');
+    const admNo = searchParams.get('admissionNo') || searchParams.get('adm');
+    if (editId) {
+      api.get(`/student/${editId}`).then(res => {
+        const s = res?.data || (res?._id ? res : null);
+        if (s) {
+          loadStudentIntoForm(s, true);
+        }
+      }).catch(err => console.error('Failed to load edit student by ID:', err));
+    } else if (admNo) {
+      academicApi.searchExistingStudent(admNo).then(res => {
+        if (res?.success && res.data?.length > 0) {
+          loadStudentIntoForm(res.data[0], true);
+        }
+      }).catch(err => console.error('Failed to load edit student by admNo:', err));
+    }
+  }, [searchParams]);
+
+  // Existing Student Lookup (Multi-enrollment & Edit Search)
   const handleSearchStudent = async () => {
     if (!searchCnicQuery.trim()) return;
     setSearchingStudent(true);
@@ -343,30 +455,7 @@ export default function StudentAdmissionWizardPage() {
       const res = await searchFn(searchCnicQuery.trim());
       if (res?.success && res.data?.length > 0) {
         const found = res.data[0];
-        setExistingStudentFound(found);
-        setFormData(prev => ({
-          ...prev,
-          studentId: found._id,
-          firstName: found.firstName || '',
-          lastName: found.lastName || '',
-          dob: found.dob ? found.dob.split('T')[0] : '',
-          gender: found.gender || 'Male',
-          cnic: found.cnic || found.bForm || '',
-          bForm: found.bForm || found.cnic || '',
-          phone: found.phone || '',
-          email: found.email || '',
-          residentialAddress: found.residentialAddress || found.address || found.currentAddress || '',
-          permanentAddress: found.permanentAddress || found.address || '',
-          fatherName: found.fatherName || found.father?.name || '',
-          fatherCnic: found.fatherCnic || found.father?.cnic || '',
-          fatherPhone: found.fatherPhone || found.father?.phone || '',
-          fatherOccupation: found.fatherOccupation || '',
-          guardianName: found.guardianName || found.guardian?.name || '',
-          guardianPhone: found.guardianPhone || found.guardian?.phone || '',
-          guardianRelation: found.guardianRelation || found.guardian?.relation || 'Father',
-          previewStudentCode: found.studentCode || prev.previewStudentCode
-        }));
-        setSuccessMsg(`Student record found: ${found.firstName} ${found.lastName || ''} (ID: ${found.admissionNo || found.studentCode || found._id}). Profile details auto-filled!`);
+        loadStudentIntoForm(found, true);
       } else {
         setErrorMsg(`No existing student found matching "${searchCnicQuery}". You can proceed with a new admission.`);
         setExistingStudentFound(null);
@@ -501,13 +590,83 @@ export default function StudentAdmissionWizardPage() {
 
   // Final Form Submission
   const handleSubmitAdmission = async () => {
-    if (!validateStep(3)) return;
+    if (!isEditMode && !validateStep(3)) return;
     setSubmitting(true);
     setErrorMsg('');
     setSuccessMsg('');
 
     try {
       const sFullName = `${formData.firstName} ${formData.lastName || ''}`.trim();
+
+      if (isEditMode && editingStudentId) {
+        const updatePayload = {
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+          name: sFullName,
+          fullName: sFullName,
+          studentName: sFullName,
+          admissionNo: formData.admissionNo.trim(),
+          rollNo: formData.rollNo.trim(),
+          academicYear: formData.admissionYear,
+          admissionDate: formData.admissionDate,
+          gender: formData.gender,
+          dob: formData.dob || undefined,
+          cnic: formData.cnic ? formData.cnic.trim() : undefined,
+          bForm: formData.bForm ? formData.bForm.trim() : (formData.cnic ? formData.cnic.trim() : undefined),
+          nationality: formData.nationality,
+          religion: formData.religion,
+          bloodGroup: formData.bloodGroup,
+          phone: formData.phone.trim(),
+          whatsapp: formData.whatsapp.trim() || formData.phone.trim(),
+          email: formData.email.trim() || undefined,
+          address: formData.residentialAddress.trim(),
+          currentAddress: formData.residentialAddress.trim(),
+          residentialAddress: formData.residentialAddress.trim(),
+          permanentAddress: (formData.sameAsResidential ? formData.residentialAddress : formData.permanentAddress).trim(),
+          emergencyContact: {
+            name: formData.emergencyContactName || formData.fatherName,
+            phone: formData.emergencyContactPhone || formData.fatherPhone || formData.phone,
+            relationship: formData.emergencyRelationship || 'Guardian'
+          },
+          emergencyContactName: formData.emergencyContactName || formData.fatherName,
+          emergencyContactPhone: formData.emergencyContactPhone || formData.fatherPhone || formData.phone,
+          emergencyContactRelation: formData.emergencyRelationship || 'Guardian',
+          fatherName: formData.fatherName.trim(),
+          fatherCnic: formData.fatherCnic.trim(),
+          fatherPhone: formData.fatherPhone.trim(),
+          fatherOccupation: formData.fatherOccupation.trim(),
+          motherName: formData.motherName.trim(),
+          motherPhone: formData.motherPhone.trim(),
+          motherOccupation: formData.motherOccupation.trim(),
+          guardian: {
+            name: formData.guardianName.trim() || formData.fatherName.trim(),
+            relation: formData.guardianRelation || 'Father',
+            phone: formData.guardianPhone.trim() || formData.fatherPhone.trim(),
+            cnic: formData.guardianCnic.trim() || formData.fatherCnic.trim(),
+            occupation: formData.guardianOccupation.trim(),
+            address: formData.guardianAddress.trim() || formData.residentialAddress.trim()
+          },
+          guardianName: formData.guardianName.trim() || formData.fatherName.trim(),
+          guardianRelation: formData.guardianRelation || 'Father',
+          guardianPhone: formData.guardianPhone.trim() || formData.fatherPhone.trim(),
+          guardianCnic: formData.guardianCnic.trim() || formData.fatherCnic.trim(),
+          qualifications: formData.qualifications.filter(q => q.qualification && (q.institution || q.awardingBody))
+        };
+
+        const updateRes = await api.put(`/student/${editingStudentId}`, updatePayload);
+        if (updateRes && updateRes.success) {
+          setSuccessMsg(`Student profile updated successfully! Admission No: ${formData.admissionNo}`);
+          setTimeout(() => {
+            router.push(`/dashboard/students/${editingStudentId}`);
+          }, 1500);
+          return;
+        } else {
+          setErrorMsg(updateRes?.message || 'Failed to update student profile.');
+          setSubmitting(false);
+          return;
+        }
+      }
+
       const payload = {
         studentId: formData.studentId || undefined,
         studentName: sFullName,
@@ -667,7 +826,33 @@ export default function StudentAdmissionWizardPage() {
         </div>
       </div>
 
-      {/* Existing Student Search Banner (Multi-Enrollment Support) */}
+      {/* Active Edit Mode Banner */}
+      {isEditMode && (
+        <div className="bg-[#009966] text-white rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md animate-in fade-in">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white/20 rounded-lg">
+              <CheckCircle2 className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-white">
+                Live Edit Mode: {formData.firstName} {formData.lastName}
+              </h2>
+              <p className="text-xs text-emerald-100 font-mono mt-0.5">
+                Adm: {formData.admissionNo} • Roll: {formData.rollNo} • All 7 wizard steps loaded with database records
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={resetToNewStudent}
+            className="text-xs bg-white text-emerald-900 hover:bg-emerald-50 px-3 py-1.5 rounded-lg font-bold transition-colors cursor-pointer shrink-0"
+          >
+            Switch to New Admission Mode
+          </button>
+        </div>
+      )}
+
+      {/* Existing Student Search Banner (Multi-Enrollment & Profile Editing) */}
       <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-xl p-4 transition-all">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -676,20 +861,20 @@ export default function StudentAdmissionWizardPage() {
             </div>
             <div>
               <p className="text-sm font-semibold text-emerald-950 dark:text-emerald-100">
-                Enroll Existing Student Profile? (One Student → Multiple Enrollments)
+                Edit Existing Student or Add New Enrollment?
               </p>
               <p className="text-xs text-emerald-700 dark:text-emerald-300">
-                Search by CNIC, B-Form, or Student ID to add another academic enrollment without creating duplicate student records.
+                Search by Name, Roll #, Admission #, or CNIC to load complete profile data for editing.
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <Input
               type="text"
-              placeholder="Search CNIC (e.g. 35202-...)"
+              placeholder="Search Name, Roll, Adm, CNIC (e.g. Kinza, ADM260051)..."
               value={searchCnicQuery}
               onChange={(e) => setSearchCnicQuery(e.target.value)}
-              className="bg-white dark:bg-zinc-900 text-xs h-9 w-full sm:w-64"
+              className="bg-white dark:bg-zinc-900 text-xs h-9 w-full sm:w-72"
             />
             <Button
               size="sm"
@@ -704,23 +889,35 @@ export default function StudentAdmissionWizardPage() {
         </div>
 
         {existingStudentFound && (
-          <div className="mt-3 pt-3 border-t border-emerald-200 dark:border-emerald-800/50 flex items-center justify-between text-xs text-emerald-900 dark:text-emerald-200">
+          <div className="mt-3 pt-3 border-t border-emerald-200 dark:border-emerald-800/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-emerald-900 dark:text-emerald-200">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>
-                Found Student: <strong>{existingStudentFound.firstName} {existingStudentFound.lastName}</strong> (Code: {existingStudentFound.studentCode || 'STU-PRO-001'})
+                Found Student: <strong>{existingStudentFound.firstName} {existingStudentFound.lastName}</strong> (Adm: <strong>{existingStudentFound.admissionNo || 'N/A'}</strong> | Roll: <strong>{existingStudentFound.rollNo || 'N/A'}</strong>)
               </span>
+              {isEditMode && (
+                <span className="bg-[#009966] text-white font-bold text-[10px] px-2 py-0.5 rounded-full ml-1">
+                  Editing Active
+                </span>
+              )}
             </div>
-            <button
-              onClick={() => {
-                setExistingStudentFound(null);
-                setSearchCnicQuery('');
-                setFormData(prev => ({ ...prev, studentId: '' }));
-              }}
-              className="text-xs text-rose-600 hover:underline font-semibold"
-            >
-              Clear / New Student Mode
-            </button>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => loadStudentIntoForm(existingStudentFound, true)}
+                className="h-7 text-[11px] bg-[#009966] hover:bg-[#007a52] text-white font-semibold"
+              >
+                Load All Details for Edit
+              </Button>
+              <button
+                type="button"
+                onClick={resetToNewStudent}
+                className="text-xs text-rose-600 hover:underline font-semibold ml-2 cursor-pointer"
+              >
+                Clear / New Student Mode
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -2082,11 +2279,11 @@ export default function StudentAdmissionWizardPage() {
               >
                 {submitting ? (
                   <>
-                    <RefreshCw className="w-4 h-4 animate-spin" /> Finalizing Admission...
+                    <RefreshCw className="w-4 h-4 animate-spin" /> {isEditMode ? 'Updating Student Record...' : 'Finalizing Admission...'}
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="w-4 h-4" /> Confirm & Complete Admission
+                    <CheckCircle2 className="w-4 h-4" /> {isEditMode ? 'Save & Update Student Profile' : 'Confirm & Complete Admission'}
                   </>
                 )}
               </Button>
@@ -2096,5 +2293,18 @@ export default function StudentAdmissionWizardPage() {
 
       </div>
     </div>
+  );
+}
+
+export default function StudentAdmissionWizardPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-3">
+        <RefreshCw className="h-8 w-8 animate-spin text-[#009966]" />
+        <p className="text-sm font-medium text-zinc-600">Loading Student Wizard...</p>
+      </div>
+    }>
+      <StudentAdmissionWizardInner />
+    </Suspense>
   );
 }

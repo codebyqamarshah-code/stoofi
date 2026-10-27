@@ -203,6 +203,10 @@ export const STAFF_SEED = [
   }
 ];
 
+export function getSeededStaffRecords() {
+  return STAFF_SEED;
+}
+
 export async function ensureStaffRosterSeeded() {
   try {
     const existingStaffCount = await Staff.countDocuments({ staffNo: { $regex: /^PRC-STF-/ } });

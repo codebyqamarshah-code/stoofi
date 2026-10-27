@@ -1223,6 +1223,242 @@ contentSchema.index({ contentType: 1, status: 1, publishDate: -1 });
 contentSchema.index({ className: 1, section: 1 });
 export const Content = mongoose.models.Content || mongoose.model('Content', contentSchema);
 
+// ==========================================
+// INVENTORY MODULE SCHEMAS
+// ==========================================
+
+// 1. Item Category Schema
+const itemCategorySchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true, unique: true },
+  code: { type: String, trim: true },
+  description: { type: String, default: '' },
+  status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
+}, { timestamps: true });
+itemCategorySchema.index({ status: 1 });
+export const ItemCategory = mongoose.models.ItemCategory || mongoose.model('ItemCategory', itemCategorySchema);
+
+// 2. Item Store (Warehouse / Storage room) Schema
+const itemStoreSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true, unique: true },
+  code: { type: String, trim: true },
+  location: { type: String, required: true, trim: true },
+  managerName: { type: String, default: 'Store Officer' },
+  managerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Staff' },
+  contactNumber: { type: String, default: '' },
+  description: { type: String, default: '' },
+  status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
+}, { timestamps: true });
+itemStoreSchema.index({ status: 1 });
+export const ItemStore = mongoose.models.ItemStore || mongoose.model('ItemStore', itemStoreSchema);
+
+// 3. Supplier (Vendor) Schema
+const supplierSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  code: { type: String, trim: true, unique: true },
+  contactPerson: { type: String, default: '' },
+  phone: { type: String, required: true, trim: true },
+  email: { type: String, trim: true, lowercase: true, default: '' },
+  address: { type: String, default: '' },
+  city: { type: String, default: 'Lahore' },
+  companyName: { type: String, default: '' },
+  taxNumber: { type: String, default: '' },
+  paymentTerms: { type: String, default: 'Net 30' },
+  notes: { type: String, default: '' },
+  status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
+}, { timestamps: true });
+supplierSchema.index({ name: 1 });
+supplierSchema.index({ status: 1 });
+export const Supplier = mongoose.models.Supplier || mongoose.model('Supplier', supplierSchema);
+
+// 4. Inventory Item Schema
+const storeStockSubSchema = new mongoose.Schema({
+  storeId: { type: mongoose.Schema.Types.ObjectId, ref: 'ItemStore', required: true },
+  storeName: { type: String, required: true },
+  quantity: { type: Number, default: 0 },
+}, { _id: false });
+
+const inventoryItemSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  code: { type: String, required: true, trim: true, unique: true },
+  barcode: { type: String, trim: true, default: '' },
+  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'ItemCategory', required: true },
+  categoryName: { type: String, required: true },
+  unit: { type: String, required: true, default: 'Pcs' },
+  description: { type: String, default: '' },
+  minStock: { type: Number, default: 10 },
+  unitCost: { type: Number, default: 0 },
+  sellingPrice: { type: Number, default: 0 },
+  totalStock: { type: Number, default: 0 },
+  storeStock: [storeStockSubSchema],
+  status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
+}, { timestamps: true });
+inventoryItemSchema.index({ name: 1 });
+inventoryItemSchema.index({ categoryId: 1 });
+inventoryItemSchema.index({ status: 1 });
+export const InventoryItem = mongoose.models.InventoryItem || mongoose.model('InventoryItem', inventoryItemSchema);
+
+// 5. Stock Movement Ledger Schema
+const stockMovementSchema = new mongoose.Schema({
+  itemId: { type: mongoose.Schema.Types.ObjectId, ref: 'InventoryItem', required: true, index: true },
+  itemName: { type: String, required: true },
+  storeId: { type: mongoose.Schema.Types.ObjectId, ref: 'ItemStore', required: true, index: true },
+  storeName: { type: String, required: true },
+  transactionType: { 
+    type: String, 
+    required: true, 
+    enum: ['RECEIVE', 'SELL', 'ISSUE', 'RETURN', 'REVERSAL', 'ADJUSTMENT'] 
+  },
+  referenceType: { 
+    type: String, 
+    enum: ['ItemReceive', 'ItemSell', 'ItemIssue', 'Manual'],
+    default: 'Manual' 
+  },
+  referenceId: { type: mongoose.Schema.Types.ObjectId, index: true },
+  referenceNo: { type: String },
+  quantityIn: { type: Number, default: 0 },
+  quantityOut: { type: Number, default: 0 },
+  netQuantity: { type: Number, required: true }, // positive for in, negative for out
+  balanceAfter: { type: Number, default: 0 },
+  unitCost: { type: Number, default: 0 },
+  totalValue: { type: Number, default: 0 },
+  date: { type: Date, default: Date.now },
+  performedBy: { type: String, default: 'Store Officer' },
+  remarks: { type: String, default: '' }
+}, { timestamps: true });
+stockMovementSchema.index({ itemId: 1, storeId: 1, date: -1 });
+stockMovementSchema.index({ referenceNo: 1 });
+export const StockMovement = mongoose.models.StockMovement || mongoose.model('StockMovement', stockMovementSchema);
+
+// 6. Item Receive (GRN) Schema
+const receiveItemRowSchema = new mongoose.Schema({
+  itemId: { type: mongoose.Schema.Types.ObjectId, ref: 'InventoryItem', required: true },
+  itemName: { type: String, required: true },
+  itemCode: { type: String, default: '' },
+  unit: { type: String, default: 'Pcs' },
+  orderedQuantity: { type: Number, default: 0 },
+  receivedQuantity: { type: Number, required: true, min: 1 },
+  unitCost: { type: Number, required: true, min: 0 },
+  discount: { type: Number, default: 0 },
+  lineTotal: { type: Number, required: true, min: 0 }
+}, { _id: false });
+
+const itemReceiveSchema = new mongoose.Schema({
+  receiptNo: { type: String, required: true, unique: true },
+  date: { type: Date, default: Date.now },
+  supplierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier', required: true },
+  supplierName: { type: String, required: true },
+  storeId: { type: mongoose.Schema.Types.ObjectId, ref: 'ItemStore', required: true },
+  storeName: { type: String, required: true },
+  supplierInvoiceNo: { type: String, default: '' },
+  referenceNo: { type: String, default: '' },
+  receivedByName: { type: String, default: 'Store Officer' },
+  receivedById: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  items: [receiveItemRowSchema],
+  subtotal: { type: Number, default: 0 },
+  discount: { type: Number, default: 0 },
+  grandTotal: { type: Number, default: 0 },
+  totalItems: { type: Number, default: 0 },
+  totalQuantity: { type: Number, default: 0 },
+  status: { type: String, enum: ['Draft', 'Posted', 'Cancelled', 'Reversed'], default: 'Posted' },
+  reversalReason: { type: String, default: '' },
+  notes: { type: String, default: '' }
+}, { timestamps: true });
+itemReceiveSchema.index({ supplierId: 1 });
+itemReceiveSchema.index({ storeId: 1 });
+itemReceiveSchema.index({ date: -1 });
+export const ItemReceive = mongoose.models.ItemReceive || mongoose.model('ItemReceive', itemReceiveSchema);
+
+// 7. Item Sell Schema
+const sellItemRowSchema = new mongoose.Schema({
+  itemId: { type: mongoose.Schema.Types.ObjectId, ref: 'InventoryItem', required: true },
+  itemName: { type: String, required: true },
+  itemCode: { type: String, default: '' },
+  unit: { type: String, default: 'Pcs' },
+  quantity: { type: Number, required: true, min: 1 },
+  unitPrice: { type: Number, required: true, min: 0 },
+  discount: { type: Number, default: 0 },
+  lineTotal: { type: Number, required: true, min: 0 }
+}, { _id: false });
+
+const itemSellSchema = new mongoose.Schema({
+  invoiceNo: { type: String, required: true, unique: true },
+  date: { type: Date, default: Date.now },
+  storeId: { type: mongoose.Schema.Types.ObjectId, ref: 'ItemStore', required: true },
+  storeName: { type: String, required: true },
+  customerType: { 
+    type: String, 
+    enum: ['Student', 'Staff', 'Walk-in / External', 'Other'],
+    default: 'Student' 
+  },
+  customerId: { type: mongoose.Schema.Types.ObjectId },
+  customerName: { type: String, required: true },
+  customerContact: { type: String, default: '' },
+  paymentMethod: { 
+    type: String, 
+    enum: ['Cash', 'Bank Transfer', 'Cheque', 'On Account'],
+    default: 'Cash' 
+  },
+  referenceNo: { type: String, default: '' },
+  items: [sellItemRowSchema],
+  subtotal: { type: Number, default: 0 },
+  discount: { type: Number, default: 0 },
+  grandTotal: { type: Number, default: 0 },
+  paidAmount: { type: Number, default: 0 },
+  totalItems: { type: Number, default: 0 },
+  totalQuantity: { type: Number, default: 0 },
+  status: { type: String, enum: ['Draft', 'Posted', 'Cancelled', 'Reversed'], default: 'Posted' },
+  reversalReason: { type: String, default: '' },
+  soldByName: { type: String, default: 'Store Officer' },
+  notes: { type: String, default: '' }
+}, { timestamps: true });
+itemSellSchema.index({ storeId: 1 });
+itemSellSchema.index({ date: -1 });
+export const ItemSell = mongoose.models.ItemSell || mongoose.model('ItemSell', itemSellSchema);
+
+// 8. Item Issue (Requisition / Distribution) Schema
+const issueItemRowSchema = new mongoose.Schema({
+  itemId: { type: mongoose.Schema.Types.ObjectId, ref: 'InventoryItem', required: true },
+  itemName: { type: String, required: true },
+  itemCode: { type: String, default: '' },
+  unit: { type: String, default: 'Pcs' },
+  quantity: { type: Number, required: true, min: 1 },
+  condition: { type: String, default: 'Good / New' },
+  returnedQuantity: { type: Number, default: 0 },
+  remarks: { type: String, default: '' }
+}, { _id: false });
+
+const itemIssueSchema = new mongoose.Schema({
+  issueNo: { type: String, required: true, unique: true },
+  date: { type: Date, default: Date.now },
+  storeId: { type: mongoose.Schema.Types.ObjectId, ref: 'ItemStore', required: true },
+  storeName: { type: String, required: true },
+  recipientType: { 
+    type: String, 
+    enum: ['Student', 'Teacher', 'Staff', 'Department'],
+    required: true 
+  },
+  recipientId: { type: mongoose.Schema.Types.ObjectId },
+  recipientName: { type: String, required: true },
+  department: { type: String, default: '' },
+  purpose: { type: String, default: 'Educational / Campus Use' },
+  issuedByName: { type: String, default: 'Store Incharge' },
+  issuedById: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  items: [issueItemRowSchema],
+  totalItems: { type: Number, default: 0 },
+  totalQuantity: { type: Number, default: 0 },
+  status: { 
+    type: String, 
+    enum: ['Issued', 'Partially Returned', 'Fully Returned', 'Cancelled'],
+    default: 'Issued' 
+  },
+  notes: { type: String, default: '' }
+}, { timestamps: true });
+itemIssueSchema.index({ storeId: 1 });
+itemIssueSchema.index({ recipientType: 1 });
+itemIssueSchema.index({ date: -1 });
+export const ItemIssue = mongoose.models.ItemIssue || mongoose.model('ItemIssue', itemIssueSchema);
+
+
 
 
 
