@@ -69,8 +69,8 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
 
   return (
     <div 
-      className={`w-[365px] max-w-full h-[230px] bg-white rounded-xl overflow-hidden border border-slate-300 shadow-md flex flex-col justify-between select-none relative font-sans text-slate-900 shrink-0 ${className}`}
-      style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
+      className={`w-[365px] max-w-full h-[230px] bg-white rounded-none overflow-hidden border border-slate-300 shadow-md flex flex-col justify-between select-none relative font-sans text-slate-900 shrink-0 ${className}`}
+      style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact', borderRadius: '0px' }}
     >
       {/* ── TOP HEADER BAR ── */}
       <div className="relative bg-[#0a2544] px-3.5 py-1.5 flex items-center justify-between overflow-hidden shrink-0">
@@ -110,8 +110,20 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
         {/* Left Column: Photo Container (Grey-Blue Panel) */}
         <div className="w-[116px] shrink-0 bg-[#f0f4f8] px-2.5 py-2 flex flex-col items-center justify-center border-r border-slate-100">
           <div 
-            className="w-[82px] h-[102px] rounded-xl border-2 border-[#0a2544] overflow-hidden bg-slate-200 shadow-xs flex items-center justify-center relative shrink-0"
-            style={{ width: '82px', height: '102px', minWidth: '82px', minHeight: '102px' }}
+            className="w-[82px] h-[102px] rounded-xl border-2 border-[#0a2544] overflow-hidden bg-slate-100 shadow-xs flex items-center justify-center relative shrink-0"
+            style={{ 
+              width: '82px', 
+              height: '102px', 
+              minWidth: '82px', 
+              minHeight: '102px',
+              maxWidth: '82px',
+              maxHeight: '102px',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              WebkitMaskImage: '-webkit-radial-gradient(white, black)',
+              clipPath: 'inset(0 round 10px)',
+              isolation: 'isolate'
+            }}
           >
             {photoUrl ? (
               <img 
@@ -121,13 +133,18 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
                   e.currentTarget.style.display = 'none';
                   if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex';
                 }}
-                className="w-full h-full object-cover object-top block shrink-0" 
+                className="w-full h-full object-cover object-top block shrink-0 rounded-[10px]" 
                 style={{
                   width: '100%',
                   height: '100%',
+                  maxWidth: '100%',
+                  maxHeight: '100%',
                   objectFit: 'cover',
-                  objectPosition: 'center 15%',
-                  display: 'block'
+                  objectPosition: 'center 18%',
+                  display: 'block',
+                  borderRadius: '10px',
+                  clipPath: 'inset(0 round 10px)',
+                  imageOrientation: 'from-image'
                 }}
               />
             ) : null}
@@ -227,8 +244,8 @@ export function PakRoyalCardBack({ rec, schoolSetting = null, className = '', is
 
   return (
     <div 
-      className={`w-[365px] max-w-full h-[230px] bg-white rounded-xl overflow-hidden border border-slate-300 shadow-md flex flex-col justify-between select-none relative font-sans text-slate-900 shrink-0 ${className}`}
-      style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
+      className={`w-[365px] max-w-full h-[230px] bg-white rounded-none overflow-hidden border border-slate-300 shadow-md flex flex-col justify-between select-none relative font-sans text-slate-900 shrink-0 ${className}`}
+      style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact', borderRadius: '0px' }}
     >
       {/* ── TOP HEADER BAR WITH AUTHORIZED SIGNATURE ON RIGHT ── */}
       <div className="relative bg-[#0a2544] px-3.5 py-1.5 flex items-center justify-between overflow-hidden shrink-0">

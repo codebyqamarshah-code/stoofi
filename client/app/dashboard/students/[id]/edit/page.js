@@ -24,7 +24,9 @@ import {
   CreditCard,
   Building,
   Hash,
-  Eye
+  Eye,
+  Camera,
+  Upload
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -243,6 +245,72 @@ export default function EditStudentPage() {
     }));
   };
 
+  // Auto-straightens, center-crops to portrait (4:5 ratio), and sets uploaded photo
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      let source = null;
+      if (typeof createImageBitmap === 'function') {
+        try {
+          source = await createImageBitmap(file, { imageOrientation: 'from-image' });
+        } catch {
+          source = null;
+        }
+      }
+
+      if (!source) {
+        source = await new Promise((resImg, rejImg) => {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const img = new window.Image();
+            img.onload = () => resImg(img);
+            img.onerror = rejImg;
+            img.src = ev.target.result;
+          };
+          reader.onerror = rejImg;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      const iw = source.naturalWidth || source.width;
+      const ih = source.naturalHeight || source.height;
+      if (!iw || !ih) return;
+
+      const targetRatio = 0.8;
+      const currentRatio = iw / ih;
+
+      const canvasW = 320;
+      const canvasH = 400;
+      const canvas = document.createElement('canvas');
+      canvas.width = canvasW;
+      canvas.height = canvasH;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      let sx = 0, sy = 0, sWidth = iw, sHeight = ih;
+      if (currentRatio > targetRatio) {
+        sWidth = ih * targetRatio;
+        sx = (iw - sWidth) / 2;
+        sy = 0;
+      } else {
+        sHeight = iw / targetRatio;
+        sx = 0;
+        sy = Math.max(0, (ih - sHeight) * 0.12);
+      }
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(0, 0, canvasW, canvasH);
+      ctx.drawImage(source, sx, sy, sWidth, sHeight, 0, 0, canvasW, canvasH);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+      setFormData(prev => ({ ...prev, studentPhoto: dataUrl }));
+      showToast('Photo uploaded, auto-straightened and fitted!');
+    } catch {
+      showToast('Failed to process photo', true);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -372,12 +440,28 @@ export default function EditStudentPage() {
       {/* Header Profile Banner */}
       <div className="bg-white border border-zinc-200 rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-emerald-50/50 via-white to-white">
         <div className="flex items-center gap-4">
-          <div className="h-14 w-14 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xl border border-emerald-200 overflow-hidden shrink-0">
-            {formData.studentPhoto ? (
-              <img src={formData.studentPhoto} alt={formData.firstName} className="h-full w-full object-cover" />
-            ) : (
-              formData.firstName.slice(0, 2).toUpperCase()
-            )}
+          <div className="relative group shrink-0">
+            <div className="h-16 w-16 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xl border-2 border-emerald-300 overflow-hidden shadow-xs relative">
+              {formData.studentPhoto ? (
+                <img src={formData.studentPhoto} alt={formData.firstName} className="h-full w-full object-cover rounded-[10px]" style={{ imageOrientation: 'from-image' }} />
+              ) : (
+                formData.firstName.slice(0, 2).toUpperCase()
+              )}
+            </div>
+            <label 
+              htmlFor="student-photo-edit-input" 
+              className="absolute -bottom-1 -right-1 p-1.5 rounded-full bg-[#009966] text-white shadow-md hover:bg-[#007a52] cursor-pointer transition-transform hover:scale-110"
+              title="Upload / Change Photo (Auto-straightens and crops)"
+            >
+              <Camera className="w-3.5 h-3.5" />
+              <input 
+                id="student-photo-edit-input" 
+                type="file" 
+                accept="image/*" 
+                onChange={handlePhotoUpload} 
+                className="hidden" 
+              />
+            </label>
           </div>
           <div>
             <div className="flex items-center gap-2">

@@ -56,30 +56,48 @@ export const downloadBatchIdCardsPDF = async (recordsList, schoolSetting = null,
 };
 
 /**
- * Safely crops and resizes any image to the exact target aspect ratio (cover mode, center-top focus)
- * so that faces are never stretched or distorted in the PDF.
+ * Safely crops, auto-straightens, and resizes any image to the exact target aspect ratio (cover mode, center-top focus)
+ * with transparent rounded corners so that the photo never bleeds outside the photo frame box in PDF.
  */
-async function getCoverCroppedImageDataUrl(imageSrc, targetAspectRatio = 0.8) {
+async function getCoverCroppedImageDataUrl(imageSrc, targetAspectRatio = 0.8, cornerRadiusRatio = 0.092) {
   if (!imageSrc || typeof window === 'undefined') return imageSrc;
 
   return new Promise((resolve) => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
+    const processImage = async () => {
       try {
-        const iw = img.naturalWidth || img.width;
-        const ih = img.naturalHeight || img.height;
+        let source = null;
+
+        // Auto-straighten using createImageBitmap if supported (handles EXIF orientation)
+        if (typeof createImageBitmap === 'function' && typeof fetch === 'function') {
+          try {
+            if (imageSrc.startsWith('data:') || imageSrc.startsWith('blob:')) {
+              const res = await fetch(imageSrc);
+              const blob = await res.blob();
+              source = await createImageBitmap(blob, { imageOrientation: 'from-image' });
+            }
+          } catch {
+            source = null;
+          }
+        }
+
+        if (!source) {
+          source = await new Promise((resImg, rejImg) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => resImg(img);
+            img.onerror = () => rejImg(new Error('Image failed to load'));
+            img.src = imageSrc;
+          });
+        }
+
+        const iw = source.naturalWidth || source.width;
+        const ih = source.naturalHeight || source.height;
         if (!iw || !ih) return resolve(imageSrc);
 
         const currentRatio = iw / ih;
 
-        // If ratio is already close to target, return as-is
-        if (Math.abs(currentRatio - targetAspectRatio) < 0.05) {
-          return resolve(imageSrc);
-        }
-
         const canvas = document.createElement('canvas');
-        const canvasW = 400;
+        const canvasW = 600;
         const canvasH = Math.round(canvasW / targetAspectRatio);
         canvas.width = canvasW;
         canvas.height = canvasH;
@@ -95,20 +113,47 @@ async function getCoverCroppedImageDataUrl(imageSrc, targetAspectRatio = 0.8) {
           sx = (iw - sWidth) / 2;
           sy = 0;
         } else {
-          // Source is taller than target box: crop vertically (keep top 10% for face)
+          // Source is taller than target box: crop vertically (keep upper 12% for face)
           sHeight = iw / targetAspectRatio;
           sx = 0;
-          sy = Math.max(0, (ih - sHeight) * 0.1);
+          sy = Math.max(0, (ih - sHeight) * 0.12);
         }
 
-        ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, canvasW, canvasH);
-        resolve(canvas.toDataURL('image/jpeg', 0.95));
+        // Clear canvas with full transparency
+        ctx.clearRect(0, 0, canvasW, canvasH);
+
+        // Apply smooth rounded corner clipping mask
+        if (cornerRadiusRatio > 0) {
+          const radius = Math.round(canvasW * cornerRadiusRatio);
+          ctx.beginPath();
+          if (typeof ctx.roundRect === 'function') {
+            ctx.roundRect(0, 0, canvasW, canvasH, radius);
+          } else {
+            ctx.moveTo(radius, 0);
+            ctx.lineTo(canvasW - radius, 0);
+            ctx.quadraticCurveTo(canvasW, 0, canvasW, radius);
+            ctx.lineTo(canvasW, canvasH - radius);
+            ctx.quadraticCurveTo(canvasW, canvasH, canvasW - radius, canvasH);
+            ctx.lineTo(radius, canvasH);
+            ctx.quadraticCurveTo(0, canvasH, 0, canvasH - radius);
+            ctx.lineTo(0, radius);
+            ctx.quadraticCurveTo(0, 0, radius, 0);
+            ctx.closePath();
+          }
+          ctx.clip();
+        }
+
+        // Draw the auto-straightened, cropped image within the rounded mask
+        ctx.drawImage(source, sx, sy, sWidth, sHeight, 0, 0, canvasW, canvasH);
+
+        // Export as PNG so outside corner pixels remain 100% transparent in PDF!
+        resolve(canvas.toDataURL('image/png'));
       } catch (e) {
         resolve(imageSrc);
       }
     };
-    img.onerror = () => resolve(imageSrc);
-    img.src = imageSrc;
+
+    processImage();
   });
 }
 
@@ -168,10 +213,10 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     primaryR = 159; primaryG = 18; primaryB = 57;
   }
 
-  // Card Outer Border
+  // Card Outer Border (Sharp rectangular corners for PVC printing)
   doc.setDrawColor(primaryR, primaryG, primaryB);
   doc.setLineWidth(0.8);
-  doc.roundedRect(1.5, 1.5, width - 3, height - 3, 3, 3, 'S');
+  doc.rect(1.5, 1.5, width - 3, height - 3, 'S');
 
   if (!isHorizontal) {
     // ════════════════════════════════════════════════════════
@@ -182,7 +227,7 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     const headerY = 2.2;
     const headerH = 17.5;
     doc.setFillColor(primaryR, primaryG, primaryB);
-    doc.roundedRect(2.2, headerY, width - 4.4, headerH, 2.5, 2.5, 'F');
+    doc.rect(2.2, headerY, width - 4.4, headerH, 'F');
 
     // Official Pak Royal College Circular Badge (Logo)
     const logoSize = 13;
@@ -223,12 +268,12 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     doc.setFillColor(248, 250, 252);
     doc.roundedRect(photoX, photoY, photoW, photoH, photoR, photoR, 'F');
 
-    // Render Student Photo (Aspect-ratio preserving cover crop)
+    // Render Student Photo (Aspect-ratio preserving cover crop with transparent rounded corners)
     let photoRendered = false;
     if (photo && (photo.startsWith('data:image') || photo.startsWith('blob:') || photo.startsWith('http'))) {
       try {
         const targetRatio = photoW / photoH;
-        const croppedPhoto = await getCoverCroppedImageDataUrl(photo, targetRatio);
+        const croppedPhoto = await getCoverCroppedImageDataUrl(photo, targetRatio, photoR / photoW);
         const format = croppedPhoto.includes('png') ? 'PNG' : 'JPEG';
         doc.addImage(croppedPhoto, format, photoX, photoY, photoW, photoH);
         photoRendered = true;
@@ -341,14 +386,14 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     // PAGE 1: FRONT SIDE
     // ────────────────────────────────────────────────────────
 
-    // Outer card border
+    // Outer card border (Sharp rectangular corners for PVC printing)
     doc.setDrawColor(navyR, navyG, navyB);
     doc.setLineWidth(0.6);
-    doc.roundedRect(1.0, 1.0, width - 2.0, height - 2.0, 2.0, 2.0, 'S');
+    doc.rect(1.0, 1.0, width - 2.0, height - 2.0, 'S');
 
     // Header Stripe (Deep Royal Navy #0a2544)
     doc.setFillColor(navyR, navyG, navyB);
-    doc.roundedRect(1.0, 1.0, width - 2.0, 11.2, 2.0, 2.0, 'F');
+    doc.rect(1.0, 1.0, width - 2.0, 11.2, 'F');
     doc.rect(1.0, 6.0, width - 2.0, 6.2, 'F');
 
     // Diagonal Translucent Stripes on Right Half (Matching Web Preview Exactly)
@@ -424,12 +469,12 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     doc.setFillColor(248, 250, 252);
     doc.roundedRect(photoX, photoY, photoW, photoH, photoR, photoR, 'F');
 
-    // Render Student Photo (Aspect-ratio preserving cover crop)
+    // Render Student Photo (Aspect-ratio preserving cover crop with transparent rounded corners)
     let photoRendered = false;
     if (photo && (photo.startsWith('data:image') || photo.startsWith('blob:') || photo.startsWith('http'))) {
       try {
         const targetRatio = photoW / photoH;
-        const croppedPhoto = await getCoverCroppedImageDataUrl(photo, targetRatio);
+        const croppedPhoto = await getCoverCroppedImageDataUrl(photo, targetRatio, photoR / photoW);
         const format = croppedPhoto.includes('png') ? 'PNG' : 'JPEG';
         doc.addImage(croppedPhoto, format, photoX, photoY, photoW, photoH);
         photoRendered = true;
@@ -538,7 +583,6 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     const footerH = 5.5;
     doc.setFillColor(navyR, navyG, navyB);
     doc.rect(1.0, footerY, width - 2.0, footerH, 'F');
-    doc.roundedRect(1.0, footerY, width - 2.0, footerH, 2.0, 2.0, 'F');
 
     // Gold accent tab on top-left of footer
     doc.setFillColor(goldR, goldG, goldB);
@@ -562,14 +606,14 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     // ────────────────────────────────────────────────────────
     doc.addPage([width, height], 'landscape');
 
-    // Outer card border
+    // Outer card border (Sharp rectangular corners for PVC printing)
     doc.setDrawColor(navyR, navyG, navyB);
     doc.setLineWidth(0.6);
-    doc.roundedRect(1.0, 1.0, width - 2.0, height - 2.0, 2.0, 2.0, 'S');
+    doc.rect(1.0, 1.0, width - 2.0, height - 2.0, 'S');
 
     // Header Stripe (Deep Royal Navy #0a2544)
     doc.setFillColor(navyR, navyG, navyB);
-    doc.roundedRect(1.0, 1.0, width - 2.0, 11.2, 2.0, 2.0, 'F');
+    doc.rect(1.0, 1.0, width - 2.0, 11.2, 'F');
     doc.rect(1.0, 6.0, width - 2.0, 6.2, 'F');
 
     // Diagonal Translucent Stripes on Right Half (Matching Web Preview Exactly)
@@ -721,7 +765,6 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     // Footer Bar (Back)
     doc.setFillColor(navyR, navyG, navyB);
     doc.rect(1.0, footerY, width - 2.0, footerH, 'F');
-    doc.roundedRect(1.0, footerY, width - 2.0, footerH, 2.0, 2.0, 'F');
 
     // Gold accent tab on top-left of footer
     doc.setFillColor(goldR, goldG, goldB);

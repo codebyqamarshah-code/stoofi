@@ -404,7 +404,7 @@ export default function BulkPrintIdCardPage() {
     // ── DESIGN 1: Modern Emerald Vertical Lanyard Badge (Matching Reference Image 2) ──
     if (activeDesignId === 'stoofi-emerald') {
       return (
-        <div className={`bg-white text-zinc-900 rounded-3xl overflow-hidden shadow-xl border-2 border-emerald-600 w-full ${isInspectModal ? 'max-w-[340px]' : ''} flex flex-col justify-between select-none relative`}>
+        <div className={`bg-white text-zinc-900 rounded-none overflow-hidden shadow-xl border-2 border-emerald-600 w-full ${isInspectModal ? 'max-w-[340px]' : ''} flex flex-col justify-between select-none relative`} style={{ borderRadius: '0px' }}>
           {/* Header Banner with Official Pak Royal College Crest */}
           <div className="bg-gradient-to-r from-emerald-800 via-teal-900 to-emerald-950 p-3 text-white relative overflow-hidden flex items-center gap-3">
             <img 
@@ -431,15 +431,38 @@ export default function BulkPrintIdCardPage() {
             {showPhoto && (
               <div className="relative mt-1">
                 <div 
-                  className="w-24 h-28 rounded-2xl border-[3px] border-emerald-600 overflow-hidden bg-zinc-100 shadow-md flex items-center justify-center relative shrink-0"
-                  style={{ width: '96px', height: '112px', minWidth: '96px', minHeight: '112px' }}
+                  className="w-24 h-28 rounded-xl border-[2.5px] border-emerald-600 overflow-hidden bg-zinc-100 shadow-md flex items-center justify-center relative shrink-0"
+                  style={{ 
+                    width: '96px', 
+                    height: '112px', 
+                    minWidth: '96px', 
+                    minHeight: '112px',
+                    maxWidth: '96px',
+                    maxHeight: '112px',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    WebkitMaskImage: '-webkit-radial-gradient(white, black)',
+                    clipPath: 'inset(0 round 10px)',
+                    isolation: 'isolate'
+                  }}
                 >
                   {photoUrl ? (
                     <img 
                       src={photoUrl} 
                       alt={name} 
-                      className="w-full h-full object-cover object-top block shrink-0" 
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
+                      className="w-full h-full object-cover object-top block shrink-0 rounded-[10px]" 
+                      style={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        objectFit: 'cover', 
+                        objectPosition: 'center 18%', 
+                        display: 'block',
+                        borderRadius: '10px',
+                        clipPath: 'inset(0 round 10px)',
+                        imageOrientation: 'from-image'
+                      }}
                     />
                   ) : (
                     <div className="flex flex-col items-center justify-center text-emerald-700 p-2">
@@ -532,7 +555,7 @@ export default function BulkPrintIdCardPage() {
     // ── DESIGN 3: Royal Purple Academic Pass ──
     if (activeDesignId === 'royal-purple') {
       return (
-        <div className={`bg-white text-zinc-900 rounded-3xl overflow-hidden shadow-xl border-2 border-purple-600 w-full ${isInspectModal ? 'max-w-[340px]' : ''} flex flex-col justify-between select-none`}>
+        <div className={`bg-white text-zinc-900 rounded-none overflow-hidden shadow-xl border-2 border-purple-600 w-full ${isInspectModal ? 'max-w-[340px]' : ''} flex flex-col justify-between select-none`} style={{ borderRadius: '0px' }}>
           <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-950 p-3 text-white relative flex items-center gap-3">
             <img 
               src="/pak-royal-college-logo.png" 
@@ -556,15 +579,38 @@ export default function BulkPrintIdCardPage() {
             {showPhoto && (
               <div className="relative mt-1">
                 <div 
-                  className="w-24 h-28 rounded-2xl border-[3px] border-purple-600 overflow-hidden bg-purple-50 shadow-md flex items-center justify-center relative shrink-0"
-                  style={{ width: '96px', height: '112px', minWidth: '96px', minHeight: '112px' }}
+                  className="w-24 h-28 rounded-xl border-[2.5px] border-purple-600 overflow-hidden bg-purple-50 shadow-md flex items-center justify-center relative shrink-0"
+                  style={{ 
+                    width: '96px', 
+                    height: '112px', 
+                    minWidth: '96px', 
+                    minHeight: '112px',
+                    maxWidth: '96px',
+                    maxHeight: '112px',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    WebkitMaskImage: '-webkit-radial-gradient(white, black)',
+                    clipPath: 'inset(0 round 10px)',
+                    isolation: 'isolate'
+                  }}
                 >
                   {photoUrl ? (
                     <img 
                       src={photoUrl} 
                       alt={name} 
-                      className="w-full h-full object-cover object-top block shrink-0" 
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
+                      className="w-full h-full object-cover object-top block shrink-0 rounded-[10px]" 
+                      style={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        objectFit: 'cover', 
+                        objectPosition: 'center 18%', 
+                        display: 'block',
+                        borderRadius: '10px',
+                        clipPath: 'inset(0 round 10px)',
+                        imageOrientation: 'from-image'
+                      }}
                     />
                   ) : (
                     <div className="flex flex-col items-center justify-center text-purple-900">

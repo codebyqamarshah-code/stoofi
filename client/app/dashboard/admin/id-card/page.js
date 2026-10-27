@@ -334,37 +334,72 @@ export default function IdCardPage() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  // Compress uploaded photo on canvas to max 320x320 JPEG (~15KB) so DB never exceeds memory/payload limits
+  // Auto-straightens, center-crops to portrait (4:5 ratio), and compresses uploaded photo
   const compressPhotoFile = (file) =>
     new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const img = new window.Image();
-        img.onload = () => {
-          const maxDim = 320;
-          let { width, height } = img;
-          if (width > maxDim || height > maxDim) {
-            if (width > height) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
-            } else {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
+      const process = async () => {
+        try {
+          let source = null;
+          if (typeof createImageBitmap === 'function') {
+            try {
+              source = await createImageBitmap(file, { imageOrientation: 'from-image' });
+            } catch {
+              source = null;
             }
           }
+
+          if (!source) {
+            source = await new Promise((resImg, rejImg) => {
+              const reader = new FileReader();
+              reader.onload = (ev) => {
+                const img = new window.Image();
+                img.onload = () => resImg(img);
+                img.onerror = rejImg;
+                img.src = ev.target.result;
+              };
+              reader.onerror = rejImg;
+              reader.readAsDataURL(file);
+            });
+          }
+
+          const iw = source.naturalWidth || source.width;
+          const ih = source.naturalHeight || source.height;
+          if (!iw || !ih) return resolve('');
+
+          const targetRatio = 0.8; // Standard 4:5 portrait ratio
+          const currentRatio = iw / ih;
+
+          const canvasW = 320;
+          const canvasH = 400;
           const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
+          canvas.width = canvasW;
+          canvas.height = canvasH;
           const ctx = canvas.getContext('2d');
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, width, height);
-          ctx.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', 0.82));
-        };
-        img.onerror = () => resolve(ev.target.result);
-        img.src = ev.target.result;
+          if (!ctx) return resolve('');
+
+          let sx = 0, sy = 0, sWidth = iw, sHeight = ih;
+          if (currentRatio > targetRatio) {
+            sWidth = ih * targetRatio;
+            sx = (iw - sWidth) / 2;
+            sy = 0;
+          } else {
+            sHeight = iw / targetRatio;
+            sx = 0;
+            sy = Math.max(0, (ih - sHeight) * 0.12);
+          }
+
+          ctx.fillStyle = '#f8fafc';
+          ctx.fillRect(0, 0, canvasW, canvasH);
+          ctx.drawImage(source, sx, sy, sWidth, sHeight, 0, 0, canvasW, canvasH);
+          resolve(canvas.toDataURL('image/jpeg', 0.88));
+        } catch {
+          // Fallback to basic file reader
+          const reader = new FileReader();
+          reader.onload = (ev) => resolve(ev.target.result);
+          reader.readAsDataURL(file);
+        }
       };
-      reader.readAsDataURL(file);
+      process();
     });
 
   // 1. Fetch Real Students from Database (with automatic retry & localStorage cache protection)
@@ -865,7 +900,7 @@ export default function IdCardPage() {
 
     // Vertical Modern Lanyard Badge
     return (
-      <div className={`w-[270px] mx-auto bg-white rounded-3xl overflow-hidden border-2 ${theme.border} shadow-xl text-zinc-900 font-sans select-none relative flex flex-col`}>
+      <div className={`w-[270px] mx-auto bg-white rounded-none overflow-hidden border-2 ${theme.border} shadow-xl text-zinc-900 font-sans select-none relative flex flex-col`} style={{ borderRadius: '0px' }}>
         {/* Lanyard Hole Cutout Representation */}
         <div className="pt-2 pb-1 bg-white text-center">
           <div className="w-12 h-2.5 rounded-full bg-zinc-200 border border-zinc-300 mx-auto shadow-inner" />
@@ -897,8 +932,20 @@ export default function IdCardPage() {
           {showPhoto && (
             <div className="relative mt-0.5">
               <div 
-                className={`w-22 h-26 rounded-2xl border-[3px] ${theme.border} overflow-hidden bg-zinc-100 shadow-md flex items-center justify-center relative shrink-0`}
-                style={{ width: '88px', height: '104px', minWidth: '88px', minHeight: '104px' }}
+                className={`w-22 h-26 rounded-xl border-[2.5px] ${theme.border} overflow-hidden bg-zinc-100 shadow-md flex items-center justify-center relative shrink-0`}
+                style={{ 
+                  width: '88px', 
+                  height: '104px', 
+                  minWidth: '88px', 
+                  minHeight: '104px',
+                  maxWidth: '88px',
+                  maxHeight: '104px',
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  WebkitMaskImage: '-webkit-radial-gradient(white, black)',
+                  clipPath: 'inset(0 round 10px)',
+                  isolation: 'isolate'
+                }}
               >
                 {getPhotoUrl(rec.studentPhoto) ? (
                   <img 
@@ -908,8 +955,19 @@ export default function IdCardPage() {
                       e.currentTarget.style.display = 'none';
                       if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex';
                     }}
-                    className="w-full h-full object-cover object-top block shrink-0" 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
+                    className="w-full h-full object-cover object-top block shrink-0 rounded-[10px]" 
+                    style={{ 
+                      width: '100%', 
+                      height: '100%', 
+                      maxWidth: '100%',
+                      maxHeight: '100%',
+                      objectFit: 'cover', 
+                      objectPosition: 'center 18%', 
+                      display: 'block',
+                      borderRadius: '10px',
+                      clipPath: 'inset(0 round 10px)',
+                      imageOrientation: 'from-image'
+                    }}
                   />
                 ) : null}
                 <div className={`flex flex-col items-center justify-center text-zinc-400 p-2 ${getPhotoUrl(rec.studentPhoto) ? 'hidden' : 'flex'}`}>
