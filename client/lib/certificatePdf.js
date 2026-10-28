@@ -3,11 +3,101 @@ import * as jspdfLib from 'jspdf';
 import QRCode from 'qrcode';
 import { PAK_ROYAL_COLLEGE_LOGO } from './pakRoyalCollegeLogo.js';
 import { PAK_ROYAL_SIGNATURE_DARK, PAK_ROYAL_SIGNATURE_GOLD } from './signatureImage.js';
-import { getPublicVerificationUrl, formatStudentRollNo } from './utils.js';
+import { getPublicVerificationUrl, formatStudentRollNo, getPhotoUrl, formatDateDMY } from './utils.js';
 
 function createPdfDoc(options) {
   const Constructor = jspdfLib.jsPDF || jspdfLib.default?.jsPDF || jspdfLib.default || jsPDF;
   return new Constructor(options);
+}
+
+/**
+ * Cover-crops and auto-straightens user photo for sharp, aspect-accurate passport rendering
+ */
+async function getCoverCroppedImageDataUrl(imageSrc, targetAspectRatio = 0.8, cornerRadiusRatio = 0.05) {
+  if (!imageSrc || typeof window === 'undefined') return imageSrc;
+
+  return new Promise((resolve) => {
+    const processImage = async () => {
+      try {
+        let source = null;
+        if (typeof createImageBitmap === 'function' && typeof fetch === 'function') {
+          try {
+            if (imageSrc.startsWith('data:') || imageSrc.startsWith('blob:')) {
+              const res = await fetch(imageSrc);
+              const blob = await res.blob();
+              source = await createImageBitmap(blob, { imageOrientation: 'from-image' });
+            }
+          } catch {
+            source = null;
+          }
+        }
+
+        if (!source) {
+          source = await new Promise((resImg, rejImg) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => resImg(img);
+            img.onerror = () => rejImg(new Error('Image failed to load'));
+            img.src = imageSrc;
+          });
+        }
+
+        const iw = source.naturalWidth || source.width;
+        const ih = source.naturalHeight || source.height;
+        if (!iw || !ih) return resolve(imageSrc);
+
+        const currentRatio = iw / ih;
+        const canvas = document.createElement('canvas');
+        const canvasW = 600;
+        const canvasH = Math.round(canvasW / targetAspectRatio);
+        canvas.width = canvasW;
+        canvas.height = canvasH;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return resolve(imageSrc);
+
+        let sx = 0, sy = 0, sWidth = iw, sHeight = ih;
+        if (currentRatio > targetAspectRatio) {
+          sWidth = ih * targetAspectRatio;
+          sx = (iw - sWidth) / 2;
+          sy = 0;
+        } else {
+          sHeight = iw / targetAspectRatio;
+          sx = 0;
+          sy = Math.max(0, (ih - sHeight) * 0.12);
+        }
+
+        ctx.clearRect(0, 0, canvasW, canvasH);
+
+        if (cornerRadiusRatio > 0) {
+          const radius = Math.round(canvasW * cornerRadiusRatio);
+          ctx.beginPath();
+          if (typeof ctx.roundRect === 'function') {
+            ctx.roundRect(0, 0, canvasW, canvasH, radius);
+          } else {
+            ctx.moveTo(radius, 0);
+            ctx.lineTo(canvasW - radius, 0);
+            ctx.quadraticCurveTo(canvasW, 0, canvasW, radius);
+            ctx.lineTo(canvasW, canvasH - radius);
+            ctx.quadraticCurveTo(canvasW, canvasH, canvasW - radius, canvasH);
+            ctx.lineTo(radius, canvasH);
+            ctx.quadraticCurveTo(0, canvasH, 0, canvasH - radius);
+            ctx.lineTo(0, radius);
+            ctx.quadraticCurveTo(0, 0, radius, 0);
+            ctx.closePath();
+          }
+          ctx.clip();
+        }
+
+        ctx.drawImage(source, sx, sy, sWidth, sHeight, 0, 0, canvasW, canvasH);
+        resolve(canvas.toDataURL('image/png'));
+      } catch (e) {
+        resolve(imageSrc);
+      }
+    };
+
+    processImage();
+  });
 }
 
 /**
@@ -121,6 +211,52 @@ async function renderCertificateToDoc(doc, student, template, schoolSetting) {
     doc.rect(cx, cy, cornerSize, cornerSize, 'F');
   });
 
+  // Student Passport Photo Frame (Upper-Right Header Margin)
+  if (template.showStudentPhoto !== false) {
+    const photoW = 24;
+    const photoH = 30;
+    const photoX = 248;
+    const photoY = 18;
+    const photoR = 1.2;
+
+    const rawPhoto = student.studentPhoto || student.photo || student.staffPhoto || student.avatar;
+    const resolvedPhoto = getPhotoUrl(rawPhoto) || (typeof rawPhoto === 'string' && rawPhoto.trim() ? rawPhoto.trim() : null);
+
+    let photoRendered = false;
+    if (resolvedPhoto) {
+      try {
+        const cropped = await getCoverCroppedImageDataUrl(resolvedPhoto, photoW / photoH, photoR / photoW);
+        const format = cropped.includes('png') ? 'PNG' : 'JPEG';
+        doc.addImage(cropped, format, photoX, photoY, photoW, photoH);
+        photoRendered = true;
+      } catch (_) {
+        photoRendered = false;
+      }
+    }
+
+    if (!photoRendered) {
+      // Elegant placeholder frame with student initial letter & "PHOTO" label
+      doc.setFillColor(250, 250, 252);
+      doc.roundedRect(photoX, photoY, photoW, photoH, photoR, photoR, 'F');
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text((stName || 'S').charAt(0).toUpperCase(), photoX + photoW / 2, photoY + photoH / 2 + 1, { align: 'center' });
+      doc.setFontSize(5.5);
+      doc.setTextColor(140, 140, 140);
+      doc.setFont('helvetica', 'normal');
+      doc.text('PHOTO', photoX + photoW / 2, photoY + photoH - 2.5, { align: 'center' });
+    }
+
+    // Outer double border on top of photo
+    doc.setDrawColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.setLineWidth(0.6);
+    doc.roundedRect(photoX, photoY, photoW, photoH, photoR, photoR, 'S');
+    doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(photoX + 0.6, photoY + 0.6, photoW - 1.2, photoH - 1.2, photoR * 0.8, photoR * 0.8, 'S');
+  }
+
   // 2. School Header (if enabled)
   let currentY = 22;
   if (template.showSchoolHeader !== false) {
@@ -186,6 +322,12 @@ async function renderCertificateToDoc(doc, student, template, schoolSetting) {
   doc.line(width / 2 - nameWidth / 2 - 5, currentY + 2, width / 2 + nameWidth / 2 + 5, currentY + 2);
 
   // 6. Bio Information Badges (Respecting toggles)
+  const formattedDob = student.dob 
+    ? (String(student.dob).includes('/') ? student.dob : formatDateDMY(student.dob)) 
+    : (student.dateOfBirth ? formatDateDMY(student.dateOfBirth) : '15/08/2010');
+  const sessionVal = student.academicSession || student.session || '2026 [Jan-Dec]';
+  const genderVal = student.gender || 'Student';
+
   currentY += 8.5;
   const bioParts = [];
   if (template.showFatherName !== false && fName && fName !== '-') {
@@ -200,8 +342,11 @@ async function renderCertificateToDoc(doc, student, template, schoolSetting) {
   if (template.showRollNo !== false && rollNo && rollNo !== '-') {
     bioParts.push(`Roll No: ${rollNo}`);
   }
-  if (template.showDob !== false && student.dob) {
-    bioParts.push(`DOB: ${student.dob}`);
+  if (template.showDob !== false && formattedDob && formattedDob !== '—') {
+    bioParts.push(`DOB: ${formattedDob}`);
+  }
+  if (template.showGender && genderVal && genderVal !== '-') {
+    bioParts.push(`Gender: ${genderVal}`);
   }
 
   if (bioParts.length > 0) {
@@ -219,19 +364,41 @@ async function renderCertificateToDoc(doc, student, template, schoolSetting) {
   rawBody = rawBody
     .split('[student_name]').join(stName)
     .split('{{studentName}}').join(stName)
+    .split('{{student_name}}').join(stName)
     .split('[father_name]').join(fName)
     .split('{{fatherName}}').join(fName)
+    .split('{{father_name}}').join(fName)
     .split('[admission_no]').join(admNo)
     .split('{{admissionNumber}}').join(admNo)
+    .split('{{admission_no}}').join(admNo)
     .split('[roll_no]').join(rollNo)
     .split('{{rollNumber}}').join(rollNo)
+    .split('{{roll_no}}').join(rollNo)
     .split('[class_name]').join(clsName)
     .split('{{class}}').join(clsName)
+    .split('{{class_name}}').join(clsName)
     .split('[section]').join(secName)
     .split('{{section}}').join(secName)
+    .split('[academic_session]').join(sessionVal)
+    .split('{{academicSession}}').join(sessionVal)
+    .split('[academic_year]').join(sessionVal)
+    .split('{{academicYear}}').join(sessionVal)
+    .split('[dob]').join(formattedDob)
+    .split('{{dob}}').join(formattedDob)
+    .split('[date_of_birth]').join(formattedDob)
+    .split('{{dateOfBirth}}').join(formattedDob)
+    .split('[gender]').join(genderVal)
+    .split('{{gender}}').join(genderVal)
     .split('[school_name]').join(schoolName)
+    .split('{{schoolName}}').join(schoolName)
+    .split('[school_address]').join(schoolAddress)
+    .split('{{schoolAddress}}').join(schoolAddress)
     .split('[certificate_date]').join(certDate)
-    .split('[issue_date]').join(certDate);
+    .split('{{certificateDate}}').join(certDate)
+    .split('[issue_date]').join(certDate)
+    .split('{{issueDate}}').join(certDate)
+    .split('[tc_no]').join(`TC-${admNo || '2026-084'}`)
+    .split('{{tcNo}}').join(`TC-${admNo || '2026-084'}`);
 
   doc.setTextColor(50, 50, 50);
   doc.setFont('times', 'normal');

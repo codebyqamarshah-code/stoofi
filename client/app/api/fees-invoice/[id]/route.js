@@ -2,6 +2,37 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { FeesInvoice } from '@/lib/models';
 
+function parseFlexibleDate(val) {
+  if (!val) return new Date();
+  if (val instanceof Date && !isNaN(val.getTime())) return val;
+  if (typeof val === 'string') {
+    const trimmed = val.trim();
+    if (!trimmed) return new Date();
+
+    const dmyMatch = trimmed.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if (dmyMatch) {
+      const day = parseInt(dmyMatch[1], 10);
+      const month = parseInt(dmyMatch[2], 10) - 1;
+      const year = parseInt(dmyMatch[3], 10);
+      const d = new Date(year, month, day);
+      if (!isNaN(d.getTime())) return d;
+    }
+
+    const ymdMatch = trimmed.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+    if (ymdMatch) {
+      const year = parseInt(ymdMatch[1], 10);
+      const month = parseInt(ymdMatch[2], 10) - 1;
+      const day = parseInt(ymdMatch[3], 10);
+      const d = new Date(year, month, day);
+      if (!isNaN(d.getTime())) return d;
+    }
+
+    const parsed = new Date(trimmed);
+    if (!isNaN(parsed.getTime())) return parsed;
+  }
+  return new Date();
+}
+
 export async function GET(req, { params }) {
   try {
     await connectDB();
@@ -21,6 +52,16 @@ export async function PUT(req, { params }) {
     await connectDB();
     const { id } = await params;
     const body = await req.json();
+
+    if (body.date) {
+      body.date = parseFlexibleDate(body.date);
+    }
+    if (body.dueDate) {
+      body.dueDate = parseFlexibleDate(body.dueDate);
+    }
+    if (body.studentId && typeof body.studentId === 'string' && !body.studentId.trim()) {
+      delete body.studentId;
+    }
 
     // Auto calculate balance if paid / waiver modified
     if (body.amount !== undefined || body.paid !== undefined) {

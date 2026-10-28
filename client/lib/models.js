@@ -1020,8 +1020,8 @@ const feesInvoiceSchema = new mongoose.Schema({
   invoiceNo: String,
   challanNo: String,
   billingMonth: String,
-  dueDate: Date,
-  studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
+  dueDate: mongoose.Schema.Types.Mixed,
+  studentId: { type: mongoose.Schema.Types.Mixed },
   student: String, 
   fatherName: String,
   rollNo: String,
@@ -1041,7 +1041,7 @@ const feesInvoiceSchema = new mongoose.Schema({
   paymentMethod: { type: String, default: 'Cash' },
   note: String,
   status: { type: String, enum: ['Paid', 'Partial', 'Unpaid', 'PAID', 'PARTIAL', 'UNPAID'], default: 'Unpaid' }, 
-  date: Date 
+  date: { type: mongoose.Schema.Types.Mixed, default: Date.now } 
 }, { timestamps: true });
 
 export const FeesInvoice = mongoose.models.FeesInvoice || mongoose.model('FeesInvoice', feesInvoiceSchema);

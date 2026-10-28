@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
 import { PAK_ROYAL_COLLEGE_LOGO } from './pakRoyalCollegeLogo.js';
 import { PAK_ROYAL_SIGNATURE_GOLD } from './signatureImage.js';
-import { formatDateDMY, getPublicVerificationUrl, formatStudentRollNo } from './utils.js';
+import { formatDateDMY, getPublicVerificationUrl, formatStudentRollNo, getPhotoUrl } from './utils.js';
 
 /**
  * Generates an official, printable ID Card PDF (Standard CR80 54mm x 86mm badge format)
@@ -179,7 +179,8 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
   const phone = rec.phone || rec.mobile || rec.guardianPhone || schoolPhone;
   const designation = rec.designation || 'Senior Faculty';
   const department = rec.department || 'Academics';
-  const photo = rec.studentPhoto || rec.photo || rec.staffPhoto;
+  const rawPhoto = rec.studentPhoto || rec.photo || rec.staffPhoto || rec.avatar;
+  const photo = getPhotoUrl(rawPhoto) || (typeof rawPhoto === 'string' && rawPhoto.trim() ? rawPhoto.trim() : null);
 
   // Generate unique scannable verification QR Code pointing directly to public verify portal
   let qrDataUrl = null;
@@ -270,7 +271,7 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
 
     // Render Student Photo (Aspect-ratio preserving cover crop with transparent rounded corners)
     let photoRendered = false;
-    if (photo && (photo.startsWith('data:image') || photo.startsWith('blob:') || photo.startsWith('http'))) {
+    if (photo && (photo.startsWith('data:') || photo.startsWith('blob:') || photo.startsWith('http') || photo.startsWith('/'))) {
       try {
         const targetRatio = photoW / photoH;
         const croppedPhoto = await getCoverCroppedImageDataUrl(photo, targetRatio, photoR / photoW);
@@ -471,7 +472,7 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
 
     // Render Student Photo (Aspect-ratio preserving cover crop with transparent rounded corners)
     let photoRendered = false;
-    if (photo && (photo.startsWith('data:image') || photo.startsWith('blob:') || photo.startsWith('http'))) {
+    if (photo && (photo.startsWith('data:') || photo.startsWith('blob:') || photo.startsWith('http') || photo.startsWith('/'))) {
       try {
         const targetRatio = photoW / photoH;
         const croppedPhoto = await getCoverCroppedImageDataUrl(photo, targetRatio, photoR / photoW);

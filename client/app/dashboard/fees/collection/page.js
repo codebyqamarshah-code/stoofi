@@ -538,6 +538,24 @@ export default function FeesCollectionPage() {
     return 'Unpaid';
   }, [computedBalance, formData.paid]);
 
+  // Helper to normalize any date input to YYYY-MM-DD
+  const toIsoDate = (val) => {
+    if (!val) return '';
+    if (typeof val === 'string') {
+      const trimmed = val.trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+      const dmy = trimmed.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+      if (dmy) {
+        return `${dmy[3]}-${String(dmy[2]).padStart(2, '0')}-${String(dmy[1]).padStart(2, '0')}`;
+      }
+    }
+    try {
+      const d = new Date(val);
+      if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+    } catch (_) {}
+    return '';
+  };
+
   // Submit Fee Collection
   const handleSubmitCollection = async (e) => {
     e.preventDefault();
@@ -567,14 +585,14 @@ export default function FeesCollectionPage() {
         balance: computedBalance,
         status: computedStatus,
         paymentMethod: formData.paymentMethod,
-        date: formData.date,
-        dueDate: formData.dueDate,
+        date: toIsoDate(formData.date) || formData.date,
+        dueDate: toIsoDate(formData.dueDate) || formData.dueDate,
         note: formData.note,
         upsertMonthly: true
       };
 
       const res = await api.post('/fees-invoice', payload);
-      const createdRecord = res?.data || {
+      const createdRecord = res?.data?.data || res?.data || {
         ...payload,
         _id: 'INV-' + Date.now(),
         createdAt: new Date()
@@ -599,7 +617,8 @@ export default function FeesCollectionPage() {
       setIsReceiptModalOpen(true);
     } catch (err) {
       console.error('Error recording fee payment:', err);
-      alert('Failed to record fee payment. Please try again.');
+      const serverMsg = err.response?.data?.message || err.message || 'Failed to record fee payment. Please try again.';
+      alert(serverMsg);
     } finally {
       setCollectLoading(false);
     }
