@@ -66,13 +66,19 @@ export default function ApplyLeavePage() {
     setLoading(true);
     try {
       const [sRes, ltRes, aRes] = await Promise.all([
-        api.get('/staff'), api.get('/leave-type'), api.get('/leave')
+        api.get('/staff?limit=500').catch(() => null),
+        api.get('/leave-type').catch(() => null),
+        api.get('/leave').catch(() => null)
       ]);
-      setStaff(sRes.success && sRes.data?.length > 0 ? sRes.data : DEMO_STAFF);
-      setLeaveTypes(ltRes.success && ltRes.data?.length > 0 ? ltRes.data : DEMO_TYPES);
-      setApplications(aRes.success && aRes.data?.length > 0 ? aRes.data : DEMO_APPLICATIONS);
+      const sList = sRes?.data?.data || (Array.isArray(sRes?.data) ? sRes.data : []);
+      const ltList = ltRes?.data?.data || (Array.isArray(ltRes?.data) ? ltRes.data : []);
+      const aList = aRes?.data?.data || (Array.isArray(aRes?.data) ? aRes.data : []);
+
+      setStaff(Array.isArray(sList) ? sList : []);
+      setLeaveTypes(Array.isArray(ltList) && ltList.length > 0 ? ltList : DEMO_TYPES);
+      setApplications(Array.isArray(aList) ? aList : []);
     } catch {
-      setStaff(DEMO_STAFF); setLeaveTypes(DEMO_TYPES); setApplications(DEMO_APPLICATIONS);
+      setStaff([]); setLeaveTypes(DEMO_TYPES); setApplications([]);
     } finally { setLoading(false); }
   };
 

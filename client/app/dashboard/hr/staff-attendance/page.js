@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   ChevronRight, Search, Save, Printer, CheckCircle2,
@@ -10,15 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import api from '@/services/api';
-
-const DEMO_STAFF = [
-  { staffId: 1, name: 'Dr. Amina Khalid', department: 'Administration', designation: 'Principal', status: 'Present', note: '' },
-  { staffId: 2, name: 'Mr. Tariq Mahmood', department: 'Science', designation: 'Teacher', status: 'Present', note: '' },
-  { staffId: 3, name: 'Ms. Sana Iqbal', department: 'Finance', designation: 'Accountant', status: 'Absent', note: 'Medical leave' },
-  { staffId: 4, name: 'Mr. Ali Hassan', department: 'Administration', designation: 'Admin Officer', status: 'Late', note: 'Traffic issue' },
-  { staffId: 5, name: 'Ms. Rabia Noor', department: 'IT', designation: 'IT Coordinator', status: 'Present', note: '' },
-  { staffId: 6, name: 'Mr. Imran Siddiqui', department: 'Mathematics', designation: 'Teacher', status: 'Half Day', note: 'Personal work' },
-];
+import { getPhotoUrl } from '@/lib/utils';
 
 const STATUS_CONFIG = {
   Present: { color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', accent: 'accent-emerald-600' },
@@ -42,57 +34,69 @@ export default function StaffAttendancePage() {
   const showSuccess = (msg) => { setSuccess(msg); setTimeout(() => setSuccess(''), 3500); };
   const showError = (msg) => { setError(msg); setTimeout(() => setError(''), 4000); };
 
-  const handleSearch = async () => {
-    if (!formData.attendanceDate) return;
+  const handleSearch = async (overrideDate = null) => {
+    const targetDate = overrideDate || formData.attendanceDate;
+    if (!targetDate) return;
     setLoading(true);
     setSuccess('');
     setError('');
     try {
-      const res = await api.get(`/staff-attendance?date=${formData.attendanceDate}`);
-      if (res?.success && res.data?.length > 0) {
-        setStaffs(res.data);
+      const res = await api.get(`/staff-attendance?date=${targetDate}`);
+      const list = res?.data?.data || (Array.isArray(res?.data) ? res.data : []);
+      if (Array.isArray(list) && list.length > 0) {
+        setStaffs(list);
       } else {
-        // Fetch registered staff from backend
+        // Fallback: query registered staff from /staff
         const staffRes = await api.get('/staff?limit=500').catch(() => null);
-        const list = staffRes?.data || (Array.isArray(staffRes) ? staffRes : []);
-        if (Array.isArray(list) && list.length > 0) {
-          setStaffs(list.map(s => ({
-            staffId: s._id || s.id,
-            name: s.name || `${s.firstName || ''} ${s.lastName || ''}`.trim() || 'Staff',
-            department: s.department || 'Academics',
+        const sList = staffRes?.data?.data || (Array.isArray(staffRes?.data) ? staffRes.data : []);
+        if (Array.isArray(sList) && sList.length > 0) {
+          setStaffs(sList.map(s => ({
+            staffId: String(s._id || s.id),
+            staffNo: s.staffNo || '',
+            name: `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.name || 'Staff Member',
+            department: s.department || 'Administration',
             designation: s.designation || 'Staff',
+            photo: s.staffPhoto || s.photo || s.avatar || null,
             status: 'Present',
             note: ''
           })));
         } else {
-          setStaffs(DEMO_STAFF.map(s => ({ ...s, status: 'Present', note: '' })));
+          setStaffs([]);
         }
       }
       setIsSearched(true);
-    } catch (_) {
+    } catch (err) {
+      console.error('Failed to load staff attendance:', err);
       try {
         const staffRes = await api.get('/staff?limit=500').catch(() => null);
-        const list = staffRes?.data || (Array.isArray(staffRes) ? staffRes : []);
-        if (Array.isArray(list) && list.length > 0) {
-          setStaffs(list.map(s => ({
-            staffId: s._id || s.id,
-            name: s.name || `${s.firstName || ''} ${s.lastName || ''}`.trim() || 'Staff',
-            department: s.department || 'Academics',
+        const sList = staffRes?.data?.data || (Array.isArray(staffRes?.data) ? staffRes.data : []);
+        if (Array.isArray(sList) && sList.length > 0) {
+          setStaffs(sList.map(s => ({
+            staffId: String(s._id || s.id),
+            staffNo: s.staffNo || '',
+            name: `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.name || 'Staff Member',
+            department: s.department || 'Administration',
             designation: s.designation || 'Staff',
+            photo: s.staffPhoto || s.photo || s.avatar || null,
             status: 'Present',
             note: ''
           })));
         } else {
-          setStaffs(DEMO_STAFF.map(s => ({ ...s, status: 'Present', note: '' })));
+          setStaffs([]);
         }
-      } catch (__) {
-        setStaffs(DEMO_STAFF.map(s => ({ ...s, status: 'Present', note: '' })));
+      } catch (_) {
+        setStaffs([]);
       }
       setIsSearched(true);
     } finally {
       setLoading(false);
     }
   };
+
+  // Auto-fetch real staff attendance on component mount
+  useEffect(() => {
+    handleSearch();
+  }, []);
 
   const handleStatusChange = (staffId, status) =>
     setStaffs(prev => prev.map(s => s.staffId === staffId ? { ...s, status } : s));
@@ -104,19 +108,24 @@ export default function StaffAttendancePage() {
     setStaffs(prev => prev.map(s => ({ ...s, status })));
 
   const handleSave = async () => {
+    if (staffs.length === 0) {
+      showError('No staff records found to save.');
+      return;
+    }
     setSaving(true);
     try {
       const res = await api.post('/staff-attendance', {
         date: formData.attendanceDate,
         attendanceData: staffs
       });
-      if (res?.success) {
-        showSuccess('Attendance saved successfully!');
+      if (res?.data?.success !== false) {
+        showSuccess('Staff attendance saved successfully!');
       } else {
-        showSuccess('Attendance saved successfully!');
+        showError(res?.data?.message || 'Failed to save attendance.');
       }
-    } catch (_) {
-      showError('Failed to save attendance. Please try again.');
+    } catch (err) {
+      console.error('Save attendance error:', err);
+      showError(err?.response?.data?.message || 'Failed to save attendance. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -124,6 +133,7 @@ export default function StaffAttendancePage() {
 
   const handlePrint = () => {
     const content = printRef.current;
+    if (!content) return;
     const win = window.open('', '_blank');
     win.document.write(`
       <html>
@@ -208,17 +218,21 @@ export default function StaffAttendancePage() {
             <Input
               type="date"
               value={formData.attendanceDate}
-              onChange={e => setFormData({ ...formData, attendanceDate: e.target.value })}
+              onChange={e => {
+                const newDate = e.target.value;
+                setFormData({ ...formData, attendanceDate: newDate });
+                if (newDate) handleSearch(newDate);
+              }}
               className="border-zinc-300 focus-visible:ring-[#084A86] focus-visible:border-[#084A86]"
             />
           </div>
           <Button
             disabled={loading}
-            onClick={handleSearch}
+            onClick={() => handleSearch()}
             className="bg-[#084A86] hover:bg-[#073b6b] text-white gap-2 font-semibold"
           >
             {loading ? (
-              <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> Searching...</>
+              <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> Loading...</>
             ) : (
               <><Search className="h-4 w-4" /> Load Staff</>
             )}
@@ -234,34 +248,36 @@ export default function StaffAttendancePage() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
                 <h3 className="text-base font-bold text-zinc-900">Attendance Register</h3>
-                <p className="text-xs text-zinc-500 mt-0.5">{formData.attendanceDate} · {staffs.length} staff members</p>
+                <p className="text-xs text-zinc-500 mt-0.5">{formData.attendanceDate} &bull; {staffs.length} registered staff</p>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleMarkAll('Present')}
-                  className="h-8 text-xs border-emerald-300 text-emerald-700 hover:bg-emerald-50"
-                >
-                  Mark All Present
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleMarkAll('Absent')}
-                  className="h-8 text-xs border-red-300 text-red-600 hover:bg-red-50"
-                >
-                  Mark All Absent
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handlePrint}
-                  className="h-8 text-xs border-zinc-300 text-zinc-600 hover:bg-zinc-50 gap-1"
-                >
-                  <Printer className="h-3.5 w-3.5" /> Print
-                </Button>
-              </div>
+              {staffs.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleMarkAll('Present')}
+                    className="h-8 text-xs border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                  >
+                    Mark All Present
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleMarkAll('Absent')}
+                    className="h-8 text-xs border-red-300 text-red-600 hover:bg-red-50"
+                  >
+                    Mark All Absent
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handlePrint}
+                    className="h-8 text-xs border-zinc-300 text-zinc-600 hover:bg-zinc-50 gap-1"
+                  >
+                    <Printer className="h-3.5 w-3.5" /> Print
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Summary chips */}
@@ -296,7 +312,7 @@ export default function StaffAttendancePage() {
                 </thead>
                 <tbody>
                   {staffs.map((staff, idx) => (
-                    <tr key={staff.staffId}>
+                    <tr key={staff.staffId || idx}>
                       <td>{idx + 1}</td>
                       <td>{staff.name}</td>
                       <td>{staff.department}</td>
@@ -316,7 +332,7 @@ export default function StaffAttendancePage() {
               <thead className="bg-zinc-50 border-b border-zinc-100">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase w-10">#</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase">Name</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase">Staff Member</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase">Department</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase">Designation</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase">Attendance</th>
@@ -326,27 +342,49 @@ export default function StaffAttendancePage() {
               <tbody className="divide-y divide-zinc-50">
                 {staffs.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-12 text-zinc-400 text-sm">
-                      <Users className="h-8 w-8 mx-auto mb-2 text-zinc-300" />
-                      No staff records found.
+                    <td colSpan={6} className="text-center py-16 text-zinc-500 text-sm">
+                      <Users className="h-10 w-10 mx-auto mb-3 text-zinc-300" />
+                      <div className="font-semibold text-zinc-800 text-base">No Registered Staff Found</div>
+                      <p className="text-xs text-zinc-500 max-w-md mx-auto mt-1">
+                        There are currently no staff members registered in the database. Please add staff members in the Staff Directory to track their attendance.
+                      </p>
+                      <Link href="/dashboard/hr/staff-directory">
+                        <Button size="sm" variant="outline" className="mt-4 text-xs font-semibold">
+                          Go to Staff Directory
+                        </Button>
+                      </Link>
                     </td>
                   </tr>
                 ) : (
                   staffs.map((staff, idx) => {
                     const cfg = STATUS_CONFIG[staff.status] || STATUS_CONFIG.Present;
+                    const photoUrl = getPhotoUrl(staff.photo);
                     return (
-                      <tr key={staff.staffId} className="hover:bg-zinc-50/70 transition-colors">
+                      <tr key={staff.staffId || idx} className="hover:bg-zinc-50/70 transition-colors">
                         <td className="px-4 py-3.5 text-zinc-400 text-xs">{idx + 1}</td>
                         <td className="px-4 py-3.5">
                           <div className="flex items-center gap-2.5">
-                            <div className="h-8 w-8 rounded-full bg-[#084A86] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                              {staff.name?.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                            {photoUrl ? (
+                              <img
+                                src={photoUrl}
+                                alt={staff.name}
+                                className="h-8 w-8 rounded-full object-cover border border-zinc-200 shrink-0"
+                              />
+                            ) : (
+                              <div className="h-8 w-8 rounded-full bg-[#084A86] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                                {staff.name?.split(' ').map(n => n[0]).slice(0, 2).join('') || 'S'}
+                              </div>
+                            )}
+                            <div>
+                              <span className="font-medium text-zinc-900 block">{staff.name}</span>
+                              {staff.staffNo && (
+                                <span className="text-[11px] text-zinc-400 font-mono">ID: {staff.staffNo}</span>
+                              )}
                             </div>
-                            <span className="font-medium text-zinc-900">{staff.name}</span>
                           </div>
                         </td>
-                        <td className="px-4 py-3.5 text-zinc-600 text-sm">{staff.department}</td>
-                        <td className="px-4 py-3.5 text-zinc-600 text-sm">{staff.designation}</td>
+                        <td className="px-4 py-3.5 text-zinc-600 text-sm">{staff.department || 'Academics'}</td>
+                        <td className="px-4 py-3.5 text-zinc-600 text-sm">{staff.designation || 'Staff'}</td>
                         <td className="px-4 py-3.5">
                           <div className="flex items-center flex-wrap gap-3">
                             {['Present', 'Absent', 'Late', 'Half Day'].map(opt => {
@@ -386,7 +424,7 @@ export default function StaffAttendancePage() {
           {staffs.length > 0 && (
             <div className="px-5 py-4 border-t border-zinc-100 bg-zinc-50 flex items-center justify-between">
               <p className="text-xs text-zinc-500">
-                {staffs.length} staff · Present: <strong className="text-emerald-600">{counts['Present'] || 0}</strong> · Absent: <strong className="text-red-500">{counts['Absent'] || 0}</strong>
+                {staffs.length} staff &bull; Present: <strong className="text-emerald-600">{counts['Present'] || 0}</strong> &bull; Absent: <strong className="text-red-500">{counts['Absent'] || 0}</strong>
               </p>
               <Button
                 disabled={saving}

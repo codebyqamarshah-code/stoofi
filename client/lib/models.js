@@ -1075,8 +1075,10 @@ const staffAttendanceSchema = new mongoose.Schema({
   name: String,
   role: String,
   department: String,
+  designation: String,
   date: { type: Date, default: Date.now },
-  status: { type: String, enum: ['Present', 'Absent', 'Leave', 'Late', 'present', 'absent', 'leave', 'late'], default: 'Present' },
+  status: { type: String, default: 'Present' },
+  note: String,
   remarks: String
 }, { timestamps: true });
 

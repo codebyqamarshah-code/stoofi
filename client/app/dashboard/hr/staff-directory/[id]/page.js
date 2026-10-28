@@ -127,16 +127,6 @@ export default function StaffProfilePage() {
           }
         }
 
-        // Check fallback demo staff if not in backend database
-        if (!s) {
-          s = DEMO_STAFF.find(d =>
-            String(d.id) === String(id) ||
-            String(d._id) === String(id) ||
-            String(d.staffNo) === String(id) ||
-            String(id).endsWith(String(d.id).replace('demo-', ''))
-          );
-        }
-
         if (s) {
           const fullName = `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.name || 'Staff Member';
           setStaff({

@@ -20,8 +20,8 @@ const DEMO_STAFF = [
 ];
 
 export default function HRDashboardPage() {
-  const [stats, setStats] = useState(DEMO_STATS);
-  const [recentStaff, setRecentStaff] = useState(DEMO_STAFF);
+  const [stats, setStats] = useState({ totalStaff: 0, presentToday: 0, onLeave: 0, totalDepartments: 0 });
+  const [recentStaff, setRecentStaff] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,11 +31,26 @@ export default function HRDashboardPage() {
           api.get('/hr/stats'),
           api.get('/staff?limit=5&sort=newest'),
         ]);
-        if (statsRes.status === 'fulfilled' && statsRes.value?.success) {
-          setStats(statsRes.value.data);
+        if (statsRes.status === 'fulfilled') {
+          const sData = statsRes.value?.data?.data || statsRes.value?.data;
+          if (sData && typeof sData === 'object') {
+            setStats({
+              totalStaff: sData.totalStaff ?? sData.total ?? 0,
+              presentToday: sData.presentToday ?? 0,
+              onLeave: sData.onLeave ?? 0,
+              totalDepartments: sData.totalDepartments ?? 0
+            });
+          }
         }
-        if (staffRes.status === 'fulfilled' && staffRes.value?.success && staffRes.value.data?.length > 0) {
-          setRecentStaff(staffRes.value.data);
+        if (staffRes.status === 'fulfilled') {
+          const list = staffRes.value?.data?.data || (Array.isArray(staffRes.value?.data) ? staffRes.value.data : []);
+          if (Array.isArray(list)) {
+            setRecentStaff(list);
+            setStats(prev => ({
+              ...prev,
+              totalStaff: prev.totalStaff || list.length
+            }));
+          }
         }
       } catch (_) {}
       finally { setLoading(false); }

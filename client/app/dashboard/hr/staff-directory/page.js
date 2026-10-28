@@ -103,7 +103,7 @@ function StaffDirectoryContent() {
         }
       }
 
-      setStaff(fetchedStaff.length > 0 ? fetchedStaff : DEMO_STAFF);
+      setStaff(fetchedStaff);
 
       if (deptRes.status === 'fulfilled') {
         const d = deptRes.value?.data || (Array.isArray(deptRes.value) ? deptRes.value : []);
@@ -114,7 +114,7 @@ function StaffDirectoryContent() {
         if (Array.isArray(dg)) setDesignations(dg);
       }
     } catch (_) {
-      setStaff(DEMO_STAFF);
+      setStaff([]);
     } finally {
       setLoading(false);
     }
