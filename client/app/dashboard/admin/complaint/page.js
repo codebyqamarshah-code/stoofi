@@ -195,6 +195,27 @@ export default function ComplaintPage() {
   const fileInputRef = useRef(null);
   const formRef = useRef(null);
 
+  // Searchable combobox states
+  const [studentSearchQuery, setStudentSearchQuery] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [staffSearchQuery, setStaffSearchQuery] = useState('');
+  const [isStaffDropdownOpen, setIsStaffDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const staffDropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+      }
+      if (staffDropdownRef.current && !staffDropdownRef.current.contains(e.target)) {
+        setIsStaffDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   // Status Modal State
   const [statusUpdateData, setStatusUpdateData] = useState({
     status: 'In Progress',
@@ -231,50 +252,101 @@ export default function ComplaintPage() {
       setError(null);
 
       const [complaintRes, studentRes, teacherRes, staffRes] = await Promise.all([
-        api.get('/complaint'),
-        api.get('/students').catch(() => ({ data: [] })),
+        api.get('/complaint').catch(() => ({ data: [] })),
+        api.get('/student?limit=2000').catch(() => api.get('/students?limit=2000')).catch(() => ({ data: [] })),
         api.get('/teachers').catch(() => ({ data: [] })),
-        api.get('/staff').catch(() => ({ data: [] }))
+        api.get('/staff?limit=1000').catch(() => ({ data: [] }))
       ]);
 
       if (complaintRes?.success) {
         setComplaints(complaintRes.data || []);
       }
 
-      // Process Students
-      const studentItems = Array.isArray(studentRes?.data) ? studentRes.data : [];
-      setStudents(studentItems);
+      // Process and normalize students into academic sequence
+      let rawStudentItems = [];
+      if (studentRes?.success && Array.isArray(studentRes.data)) {
+        rawStudentItems = studentRes.data;
+      } else if (Array.isArray(studentRes?.data)) {
+        rawStudentItems = studentRes.data;
+      } else if (Array.isArray(studentRes)) {
+        rawStudentItems = studentRes;
+      }
+
+      const processedStudents = rawStudentItems.map((s, idx) => {
+        const id = String(s._id || s.id || `st-${idx}`);
+        const fullName = `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.name || 'Student';
+        const fatherName = s.fatherName || s.guardianName || s.emergencyContactName || '';
+        const guardianName = s.guardianName || s.fatherName || '';
+        const parentPhone = s.fatherPhone || s.guardianPhone || s.emergencyContact || s.phone || s.mobile || '';
+        const studentPhone = s.phone || s.mobile || s.emergencyContact || s.fatherPhone || '';
+        const className = s.className ? String(s.className).replace(/^Class\s+/i, '').trim() : '';
+        const section = s.section ? String(s.section).replace(/^Section\s+/i, '').trim() : '';
+        const rollNo = s.rollNo || s.admissionNo || '';
+        const classLabel = className ? `Class ${className}${section ? `-${section}` : ''}` : '';
+
+        return {
+          ...s,
+          _id: id,
+          id,
+          fullName,
+          name: fullName,
+          fatherName,
+          guardianName,
+          parentName: fatherName || guardianName || (fullName ? `${fullName}'s Parent` : 'Parent'),
+          parentPhone,
+          studentPhone,
+          className,
+          section,
+          rollNo,
+          classLabel,
+          photo: s.studentPhoto || s.photo || null
+        };
+      });
+
+      // Sort students in academic sequence:
+      // 1. By Class, 2. By Section, 3. By Roll No, 4. By Name
+      processedStudents.sort((a, b) => {
+        const numA = parseInt(a.className, 10) || 999;
+        const numB = parseInt(b.className, 10) || 999;
+        if (numA !== numB) return numA - numB;
+        if (a.section !== b.section) return (a.section || '').localeCompare(b.section || '');
+        const rollA = parseInt(a.rollNo, 10) || 0;
+        const rollB = parseInt(b.rollNo, 10) || 0;
+        if (rollA && rollB && rollA !== rollB) return rollA - rollB;
+        return (a.fullName || '').localeCompare(b.fullName || '');
+      });
+
+      setStudents(processedStudents);
 
       // Process Staff & Teachers for assignments & staff source
       const combinedStaff = [];
-      if (Array.isArray(teacherRes?.data)) {
-        teacherRes.data.forEach(t => {
-          const name = t.name || `${t.firstName || ''} ${t.lastName || ''}`.trim();
-          if (name) {
-            combinedStaff.push({
-              _id: t._id,
-              name: `Teacher: ${name}`,
-              plainName: name,
-              role: 'Teacher',
-              phone: t.phone || t.mobile || ''
-            });
-          }
-        });
-      }
-      if (Array.isArray(staffRes?.data)) {
-        staffRes.data.forEach(s => {
-          const name = s.name || `${s.firstName || ''} ${s.lastName || ''}`.trim();
-          if (name) {
-            combinedStaff.push({
-              _id: s._id,
-              name: `Staff: ${name} (${s.designation || s.role || 'Staff'})`,
-              plainName: name,
-              role: s.designation || s.role || 'Staff',
-              phone: s.phone || s.mobile || ''
-            });
-          }
-        });
-      }
+      const teacherItems = Array.isArray(teacherRes?.data) ? teacherRes.data : (Array.isArray(teacherRes) ? teacherRes : []);
+      teacherItems.forEach(t => {
+        const name = t.name || `${t.firstName || ''} ${t.lastName || ''}`.trim();
+        if (name) {
+          combinedStaff.push({
+            _id: String(t._id || t.id),
+            name: `Teacher: ${name}`,
+            plainName: name,
+            role: 'Teacher',
+            phone: t.phone || t.mobile || ''
+          });
+        }
+      });
+
+      const staffItems = Array.isArray(staffRes?.data) ? staffRes.data : (Array.isArray(staffRes) ? staffRes : []);
+      staffItems.forEach(s => {
+        const name = s.name || `${s.firstName || ''} ${s.lastName || ''}`.trim();
+        if (name) {
+          combinedStaff.push({
+            _id: String(s._id || s.id),
+            name: `Staff: ${name} (${s.designation || s.role || 'Staff'})`,
+            plainName: name,
+            role: s.designation || s.role || 'Staff',
+            phone: s.phone || s.mobile || ''
+          });
+        }
+      });
 
       // Add default ERP administrative options
       const standardRoles = [
@@ -299,6 +371,10 @@ export default function ComplaintPage() {
 
   // Handle Dynamic Complainant Selection when Source changes
   const handleSourceChange = (newSource) => {
+    setStudentSearchQuery('');
+    setStaffSearchQuery('');
+    setIsDropdownOpen(false);
+    setIsStaffDropdownOpen(false);
     setFormData(prev => ({
       ...prev,
       source: newSource,
@@ -317,20 +393,33 @@ export default function ComplaintPage() {
 
   // Handle Student Selection (For Parent or Student source)
   const handleStudentSelect = (studentId) => {
-    const student = students.find(s => s._id === studentId);
+    if (!studentId) {
+      setFormData(prev => ({
+        ...prev,
+        selectedStudentId: '',
+        studentName: '',
+        studentClass: '',
+        studentRoll: '',
+        complainantName: prev.source === 'Staff' ? prev.complainantName : '',
+        phone: prev.source === 'Staff' ? prev.phone : ''
+      }));
+      return;
+    }
+
+    const student = students.find(s => String(s._id) === String(studentId) || String(s.id) === String(studentId));
     if (!student) return;
 
-    const studentFullName = `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.name || 'Student';
-    const classInfo = student.className ? `${student.className} - ${student.section || ''}` : '';
+    const studentFullName = student.fullName || `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.name || 'Student';
+    const classInfo = student.classLabel || (student.className ? `Class ${student.className}${student.section ? `-${student.section}` : ''}` : '');
     const rollInfo = student.rollNo || student.admissionNo || '';
 
     if (formData.source === 'Parent') {
-      const parentName = student.fatherName || student.guardianName || student.motherName || '';
-      const parentPhone = student.fatherPhone || student.guardianPhone || student.phone || student.emergencyContact || '';
+      const parentName = student.fatherName || student.guardianName || student.motherName || `${studentFullName}'s Parent`;
+      const parentPhone = student.parentPhone || student.fatherPhone || student.guardianPhone || student.phone || student.emergencyContact || '';
 
       setFormData(prev => ({
         ...prev,
-        selectedStudentId: studentId,
+        selectedStudentId: String(student._id || student.id),
         studentName: studentFullName,
         studentClass: classInfo,
         studentRoll: rollInfo,
@@ -338,11 +427,11 @@ export default function ComplaintPage() {
         phone: parentPhone
       }));
     } else if (formData.source === 'Student') {
-      const studentPhone = student.phone || student.emergencyContact || student.fatherPhone || '';
+      const studentPhone = student.studentPhone || student.phone || student.emergencyContact || student.parentPhone || '';
 
       setFormData(prev => ({
         ...prev,
-        selectedStudentId: studentId,
+        selectedStudentId: String(student._id || student.id),
         studentName: studentFullName,
         studentClass: classInfo,
         studentRoll: rollInfo,
@@ -354,18 +443,70 @@ export default function ComplaintPage() {
 
   // Handle Staff Selection (For Staff source)
   const handleStaffSelect = (staffId) => {
-    const staff = staffList.find(s => s._id === staffId);
+    if (!staffId) {
+      setFormData(prev => ({
+        ...prev,
+        selectedStaffId: '',
+        staffName: '',
+        staffRole: '',
+        complainantName: '',
+        phone: ''
+      }));
+      return;
+    }
+
+    const staff = staffList.find(s => String(s._id) === String(staffId) || String(s.id) === String(staffId));
     if (!staff) return;
 
     setFormData(prev => ({
       ...prev,
-      selectedStaffId: staffId,
-      staffName: staff.plainName,
-      staffRole: staff.role,
-      complainantName: staff.plainName,
+      selectedStaffId: String(staff._id || staff.id),
+      staffName: staff.plainName || staff.name,
+      staffRole: staff.role || 'Staff',
+      complainantName: staff.plainName || staff.name,
       phone: staff.phone || prev.phone
     }));
   };
+
+  // Search filtered options
+  const filteredParentStudents = useMemo(() => {
+    const q = (studentSearchQuery || '').toLowerCase().trim();
+    if (!q) return students;
+    return students.filter(s => {
+      const parent = (s.parentName || s.fatherName || s.guardianName || '').toLowerCase();
+      const stName = (s.fullName || s.name || '').toLowerCase();
+      const cls = (s.className || '').toLowerCase();
+      const sec = (s.section || '').toLowerCase();
+      const roll = (s.rollNo || s.admissionNo || '').toLowerCase();
+      const ph = (s.parentPhone || s.phone || '').toLowerCase();
+      return parent.includes(q) || stName.includes(q) || cls.includes(q) || sec.includes(q) || roll.includes(q) || ph.includes(q);
+    });
+  }, [students, studentSearchQuery]);
+
+  const filteredStudents = useMemo(() => {
+    const q = (studentSearchQuery || '').toLowerCase().trim();
+    if (!q) return students;
+    return students.filter(s => {
+      const stName = (s.fullName || s.name || '').toLowerCase();
+      const parent = (s.fatherName || s.guardianName || '').toLowerCase();
+      const cls = (s.className || '').toLowerCase();
+      const sec = (s.section || '').toLowerCase();
+      const roll = (s.rollNo || s.admissionNo || '').toLowerCase();
+      const ph = (s.studentPhone || s.phone || '').toLowerCase();
+      return stName.includes(q) || parent.includes(q) || cls.includes(q) || sec.includes(q) || roll.includes(q) || ph.includes(q);
+    });
+  }, [students, studentSearchQuery]);
+
+  const filteredStaff = useMemo(() => {
+    const q = (staffSearchQuery || '').toLowerCase().trim();
+    if (!q) return staffList;
+    return staffList.filter(s => {
+      const name = (s.name || s.plainName || '').toLowerCase();
+      const role = (s.role || '').toLowerCase();
+      const ph = (s.phone || '').toLowerCase();
+      return name.includes(q) || role.includes(q) || ph.includes(q);
+    });
+  }, [staffList, staffSearchQuery]);
 
   // Validate Add/Edit Form
   const validateForm = () => {
@@ -919,34 +1060,133 @@ export default function ComplaintPage() {
                   </div>
                 </div>
 
-                {/* 2. DYNAMIC LOOKUP ACCORDING TO SOURCE */}
+                {/* 2. DYNAMIC SEARCHABLE LOOKUP ACCORDING TO SOURCE */}
                 {formData.source === 'Parent' && (
-                  <div className="space-y-3 bg-zinc-50/60 p-3.5 rounded-lg border border-zinc-200/80">
-                    <div className="space-y-1">
-                      <Label className="text-xs font-semibold text-zinc-700 flex items-center justify-between">
-                        <span>Select Student (Auto-fills Parent Info)</span>
-                        <span className="text-[10px] text-zinc-400">Database Lookup</span>
-                      </Label>
-                      <select
-                        value={formData.selectedStudentId}
-                        onChange={(e) => handleStudentSelect(e.target.value)}
-                        className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs text-zinc-950 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-900"
-                      >
-                        <option value="">-- Choose Student from School Directory --</option>
-                        {students.map(s => {
-                          const sName = `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.name;
-                          return (
-                            <option key={s._id} value={s._id}>
-                              {sName} {s.className ? `(Class: ${s.className}${s.section ? `-${s.section}` : ''})` : ''} - Parent: {s.fatherName || s.guardianName || 'N/A'}
-                            </option>
-                          );
-                        })}
-                      </select>
+                  <div className="space-y-3 bg-zinc-50/80 p-3.5 rounded-xl border border-zinc-200">
+                    <div className="space-y-1.5" ref={dropdownRef}>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5">
+                          <User className="h-3.5 w-3.5 text-[#009966]" />
+                          <span>Select Student / Parent</span>
+                          <span className="text-[10px] font-normal text-zinc-500 font-mono">
+                            ({students.length} found)
+                          </span>
+                        </Label>
+                        <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                          Auto-fills Parent Info
+                        </span>
+                      </div>
+
+                      {/* Instant Search Bar */}
+                      <div className="relative">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
+                        <Input
+                          type="text"
+                          value={studentSearchQuery}
+                          onChange={(e) => {
+                            setStudentSearchQuery(e.target.value);
+                            setIsDropdownOpen(true);
+                          }}
+                          onFocus={() => setIsDropdownOpen(true)}
+                          placeholder="Type parent name, student, roll no, or class..."
+                          className="h-9 pl-8 pr-8 text-xs bg-white border-zinc-300 focus-visible:ring-1 focus-visible:ring-[#009966]"
+                        />
+                        {studentSearchQuery && (
+                          <button
+                            type="button"
+                            onClick={() => setStudentSearchQuery('')}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Active Selected Card */}
+                      {formData.selectedStudentId && (
+                        <div className="flex items-center justify-between p-2.5 rounded-lg bg-emerald-50 border border-emerald-200">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-bold text-emerald-950 truncate">
+                              ✓ {formData.complainantName || 'Selected Parent'}
+                              <span className="ml-1 text-[11px] font-medium text-emerald-700">
+                                (Student: {formData.studentName})
+                              </span>
+                            </p>
+                            <p className="text-[11px] text-emerald-700 mt-0.5 flex flex-wrap items-center gap-1.5">
+                              {formData.studentClass && <span>{formData.studentClass}</span>}
+                              {formData.studentRoll && <span>• Roll: {formData.studentRoll}</span>}
+                              {formData.phone && <span className="font-mono">• 📞 {formData.phone}</span>}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleStudentSelect('');
+                              setStudentSearchQuery('');
+                            }}
+                            className="text-xs text-rose-600 hover:text-rose-700 font-semibold flex items-center gap-1 ml-2 px-2 py-1 rounded bg-white border border-rose-200 hover:bg-rose-50 cursor-pointer shadow-xs"
+                          >
+                            <X className="h-3 w-3" /> Clear
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Searchable Dropdown List */}
+                      {isDropdownOpen && (
+                        <div className="relative z-30">
+                          <div className="absolute left-0 right-0 top-1 bg-white border border-zinc-200 rounded-xl shadow-xl max-h-56 overflow-y-auto divide-y divide-zinc-100">
+                            {filteredParentStudents.length === 0 ? (
+                              <div className="p-3 text-center text-xs text-zinc-500 font-medium">
+                                {students.length === 0 ? 'No students found in directory.' : 'No matching parents or students found.'}
+                              </div>
+                            ) : (
+                              filteredParentStudents.map((st) => {
+                                const isSelected = String(formData.selectedStudentId) === String(st._id || st.id);
+                                return (
+                                  <div
+                                    key={st._id || st.id}
+                                    onClick={() => {
+                                      handleStudentSelect(st._id || st.id);
+                                      setIsDropdownOpen(false);
+                                      setStudentSearchQuery('');
+                                    }}
+                                    className={`p-2.5 text-xs transition-colors cursor-pointer flex items-start justify-between gap-2 ${
+                                      isSelected
+                                        ? 'bg-emerald-50 text-emerald-950 font-bold'
+                                        : 'hover:bg-zinc-50 text-zinc-900'
+                                    }`}
+                                  >
+                                    <div className="min-w-0 flex-1">
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="font-bold text-zinc-900">
+                                          {st.fatherName || st.guardianName || `${st.fullName}'s Guardian`}
+                                        </span>
+                                        <span className="text-[10px] bg-zinc-100 text-zinc-600 px-1.5 py-0.5 rounded font-mono">
+                                          {st.fatherName ? 'Father' : 'Guardian'}
+                                        </span>
+                                      </div>
+                                      <p className="text-[11px] text-zinc-500 mt-0.5 flex flex-wrap items-center gap-x-2">
+                                        <span className="font-medium text-[#009966]">Student: {st.fullName}</span>
+                                        {st.classLabel && <span>• {st.classLabel}</span>}
+                                        {st.rollNo && <span>• Roll: {st.rollNo}</span>}
+                                        {st.parentPhone && <span className="font-mono">• 📞 {st.parentPhone}</span>}
+                                      </p>
+                                    </div>
+                                    {isSelected && (
+                                      <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                                    )}
+                                  </div>
+                                );
+                              })
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
                       <div className="space-y-1">
-                        <Label className="text-xs font-medium text-zinc-600">Parent / Guardian Name *</Label>
+                        <Label className="text-xs font-semibold text-zinc-700">Parent / Guardian Name *</Label>
                         <Input 
                           value={formData.complainantName}
                           onChange={e => setFormData({ ...formData, complainantName: e.target.value })}
@@ -956,7 +1196,7 @@ export default function ComplaintPage() {
                         {formErrors.complainantName && <p className="text-[11px] text-rose-500">{formErrors.complainantName}</p>}
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs font-medium text-zinc-600">Student Name *</Label>
+                        <Label className="text-xs font-semibold text-zinc-700">Student Name *</Label>
                         <Input 
                           value={formData.studentName}
                           onChange={e => setFormData({ ...formData, studentName: e.target.value })}
@@ -970,31 +1210,120 @@ export default function ComplaintPage() {
                 )}
 
                 {formData.source === 'Student' && (
-                  <div className="space-y-3 bg-zinc-50/60 p-3.5 rounded-lg border border-zinc-200/80">
-                    <div className="space-y-1">
-                      <Label className="text-xs font-semibold text-zinc-700 flex items-center justify-between">
-                        <span>Select Student</span>
-                        <span className="text-[10px] text-zinc-400">Database Lookup</span>
-                      </Label>
-                      <select
-                        value={formData.selectedStudentId}
-                        onChange={(e) => handleStudentSelect(e.target.value)}
-                        className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs text-zinc-950 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-900"
-                      >
-                        <option value="">-- Choose Student --</option>
-                        {students.map(s => {
-                          const sName = `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.name;
-                          return (
-                            <option key={s._id} value={s._id}>
-                              {sName} {s.className ? `(Class: ${s.className}${s.section ? `-${s.section}` : ''})` : ''} {s.rollNo ? `- Roll: ${s.rollNo}` : ''}
-                            </option>
-                          );
-                        })}
-                      </select>
+                  <div className="space-y-3 bg-zinc-50/80 p-3.5 rounded-xl border border-zinc-200">
+                    <div className="space-y-1.5" ref={dropdownRef}>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5">
+                          <GraduationCap className="h-3.5 w-3.5 text-[#009966]" />
+                          <span>Select Student</span>
+                          <span className="text-[10px] font-normal text-zinc-500 font-mono">
+                            ({students.length} found)
+                          </span>
+                        </Label>
+                        <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                          Database Lookup
+                        </span>
+                      </div>
+
+                      {/* Instant Search Bar */}
+                      <div className="relative">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
+                        <Input
+                          type="text"
+                          value={studentSearchQuery}
+                          onChange={(e) => {
+                            setStudentSearchQuery(e.target.value);
+                            setIsDropdownOpen(true);
+                          }}
+                          onFocus={() => setIsDropdownOpen(true)}
+                          placeholder="Type student name, roll no, or class..."
+                          className="h-9 pl-8 pr-8 text-xs bg-white border-zinc-300 focus-visible:ring-1 focus-visible:ring-[#009966]"
+                        />
+                        {studentSearchQuery && (
+                          <button
+                            type="button"
+                            onClick={() => setStudentSearchQuery('')}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Active Selected Card */}
+                      {formData.selectedStudentId && (
+                        <div className="flex items-center justify-between p-2.5 rounded-lg bg-emerald-50 border border-emerald-200">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-bold text-emerald-950 truncate">
+                              ✓ {formData.complainantName || 'Selected Student'}
+                            </p>
+                            <p className="text-[11px] text-emerald-700 mt-0.5 flex flex-wrap items-center gap-1.5">
+                              {formData.studentClass && <span>{formData.studentClass}</span>}
+                              {formData.studentRoll && <span>• Roll: {formData.studentRoll}</span>}
+                              {formData.phone && <span className="font-mono">• 📞 {formData.phone}</span>}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleStudentSelect('');
+                              setStudentSearchQuery('');
+                            }}
+                            className="text-xs text-rose-600 hover:text-rose-700 font-semibold flex items-center gap-1 ml-2 px-2 py-1 rounded bg-white border border-rose-200 hover:bg-rose-50 cursor-pointer shadow-xs"
+                          >
+                            <X className="h-3 w-3" /> Clear
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Searchable Dropdown List */}
+                      {isDropdownOpen && (
+                        <div className="relative z-30">
+                          <div className="absolute left-0 right-0 top-1 bg-white border border-zinc-200 rounded-xl shadow-xl max-h-56 overflow-y-auto divide-y divide-zinc-100">
+                            {filteredStudents.length === 0 ? (
+                              <div className="p-3 text-center text-xs text-zinc-500 font-medium">
+                                {students.length === 0 ? 'No students found in directory.' : 'No matching students found.'}
+                              </div>
+                            ) : (
+                              filteredStudents.map((st) => {
+                                const isSelected = String(formData.selectedStudentId) === String(st._id || st.id);
+                                return (
+                                  <div
+                                    key={st._id || st.id}
+                                    onClick={() => {
+                                      handleStudentSelect(st._id || st.id);
+                                      setIsDropdownOpen(false);
+                                      setStudentSearchQuery('');
+                                    }}
+                                    className={`p-2.5 text-xs transition-colors cursor-pointer flex items-start justify-between gap-2 ${
+                                      isSelected
+                                        ? 'bg-emerald-50 text-emerald-950 font-bold'
+                                        : 'hover:bg-zinc-50 text-zinc-900'
+                                    }`}
+                                  >
+                                    <div className="min-w-0 flex-1">
+                                      <p className="font-bold text-zinc-900">{st.fullName}</p>
+                                      <p className="text-[11px] text-zinc-500 mt-0.5 flex flex-wrap items-center gap-x-2">
+                                        {st.classLabel && <span>{st.classLabel}</span>}
+                                        {st.rollNo && <span>• Roll: {st.rollNo}</span>}
+                                        {st.fatherName && <span>• Father: {st.fatherName}</span>}
+                                        {st.studentPhone && <span className="font-mono">• 📞 {st.studentPhone}</span>}
+                                      </p>
+                                    </div>
+                                    {isSelected && (
+                                      <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                                    )}
+                                  </div>
+                                );
+                              })
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
-                    <div className="space-y-1">
-                      <Label className="text-xs font-medium text-zinc-600">Student Name *</Label>
+                    <div className="space-y-1 pt-1">
+                      <Label className="text-xs font-semibold text-zinc-700">Student Name *</Label>
                       <Input 
                         value={formData.complainantName}
                         onChange={e => setFormData({ ...formData, complainantName: e.target.value, studentName: e.target.value })}
@@ -1007,28 +1336,117 @@ export default function ComplaintPage() {
                 )}
 
                 {formData.source === 'Staff' && (
-                  <div className="space-y-3 bg-zinc-50/60 p-3.5 rounded-lg border border-zinc-200/80">
-                    <div className="space-y-1">
-                      <Label className="text-xs font-semibold text-zinc-700 flex items-center justify-between">
-                        <span>Select Staff Member / Teacher</span>
-                        <span className="text-[10px] text-zinc-400">Directory</span>
-                      </Label>
-                      <select
-                        value={formData.selectedStaffId}
-                        onChange={(e) => handleStaffSelect(e.target.value)}
-                        className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs text-zinc-950 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-900"
-                      >
-                        <option value="">-- Choose Staff Member / Teacher --</option>
-                        {staffList.map(s => (
-                          <option key={s._id} value={s._id}>
-                            {s.name}
-                          </option>
-                        ))}
-                      </select>
+                  <div className="space-y-3 bg-zinc-50/80 p-3.5 rounded-xl border border-zinc-200">
+                    <div className="space-y-1.5" ref={staffDropdownRef}>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5">
+                          <Briefcase className="h-3.5 w-3.5 text-[#009966]" />
+                          <span>Select Staff Member / Teacher</span>
+                          <span className="text-[10px] font-normal text-zinc-500 font-mono">
+                            ({staffList.length} found)
+                          </span>
+                        </Label>
+                        <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                          Staff Directory
+                        </span>
+                      </div>
+
+                      {/* Instant Search Bar */}
+                      <div className="relative">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
+                        <Input
+                          type="text"
+                          value={staffSearchQuery}
+                          onChange={(e) => {
+                            setStaffSearchQuery(e.target.value);
+                            setIsStaffDropdownOpen(true);
+                          }}
+                          onFocus={() => setIsStaffDropdownOpen(true)}
+                          placeholder="Type staff or teacher name, role..."
+                          className="h-9 pl-8 pr-8 text-xs bg-white border-zinc-300 focus-visible:ring-1 focus-visible:ring-[#009966]"
+                        />
+                        {staffSearchQuery && (
+                          <button
+                            type="button"
+                            onClick={() => setStaffSearchQuery('')}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Active Selected Card */}
+                      {formData.selectedStaffId && (
+                        <div className="flex items-center justify-between p-2.5 rounded-lg bg-emerald-50 border border-emerald-200">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-bold text-emerald-950 truncate">
+                              ✓ {formData.complainantName || 'Selected Staff Member'}
+                            </p>
+                            <p className="text-[11px] text-emerald-700 mt-0.5 flex flex-wrap items-center gap-1.5">
+                              {formData.staffRole && <span>Role: {formData.staffRole}</span>}
+                              {formData.phone && <span className="font-mono">• 📞 {formData.phone}</span>}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleStaffSelect('');
+                              setStaffSearchQuery('');
+                            }}
+                            className="text-xs text-rose-600 hover:text-rose-700 font-semibold flex items-center gap-1 ml-2 px-2 py-1 rounded bg-white border border-rose-200 hover:bg-rose-50 cursor-pointer shadow-xs"
+                          >
+                            <X className="h-3 w-3" /> Clear
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Searchable Dropdown List */}
+                      {isStaffDropdownOpen && (
+                        <div className="relative z-30">
+                          <div className="absolute left-0 right-0 top-1 bg-white border border-zinc-200 rounded-xl shadow-xl max-h-56 overflow-y-auto divide-y divide-zinc-100">
+                            {filteredStaff.length === 0 ? (
+                              <div className="p-3 text-center text-xs text-zinc-500 font-medium">
+                                No matching staff or teachers found.
+                              </div>
+                            ) : (
+                              filteredStaff.map((st) => {
+                                const isSelected = String(formData.selectedStaffId) === String(st._id || st.id);
+                                return (
+                                  <div
+                                    key={st._id || st.id}
+                                    onClick={() => {
+                                      handleStaffSelect(st._id || st.id);
+                                      setIsStaffDropdownOpen(false);
+                                      setStaffSearchQuery('');
+                                    }}
+                                    className={`p-2.5 text-xs transition-colors cursor-pointer flex items-start justify-between gap-2 ${
+                                      isSelected
+                                        ? 'bg-emerald-50 text-emerald-950 font-bold'
+                                        : 'hover:bg-zinc-50 text-zinc-900'
+                                    }`}
+                                  >
+                                    <div className="min-w-0 flex-1">
+                                      <p className="font-bold text-zinc-900">{st.plainName || st.name}</p>
+                                      <p className="text-[11px] text-zinc-500 mt-0.5 flex flex-wrap items-center gap-x-2">
+                                        <span className="font-medium text-[#009966]">{st.role || 'Staff'}</span>
+                                        {st.phone && <span className="font-mono">• 📞 {st.phone}</span>}
+                                      </p>
+                                    </div>
+                                    {isSelected && (
+                                      <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                                    )}
+                                  </div>
+                                );
+                              })
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
-                    <div className="space-y-1">
-                      <Label className="text-xs font-medium text-zinc-600">Staff Member Name *</Label>
+                    <div className="space-y-1 pt-1">
+                      <Label className="text-xs font-semibold text-zinc-700">Staff Member Name *</Label>
                       <Input 
                         value={formData.complainantName}
                         onChange={e => setFormData({ ...formData, complainantName: e.target.value, staffName: e.target.value })}

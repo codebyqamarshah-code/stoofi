@@ -32,6 +32,14 @@ const nextConfig = {
         destination: '/api/department/:path*',
       },
       {
+        source: '/api/students',
+        destination: '/api/student',
+      },
+      {
+        source: '/api/students/:path*',
+        destination: '/api/student/:path*',
+      },
+      {
         source: '/uploads/:path*',
         destination: 'https://stoofi-backend.vercel.app/uploads/:path*',
       },
