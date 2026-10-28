@@ -226,17 +226,55 @@ export const Student = mongoose.models.Student || mongoose.model('Student', stud
 
 // Staff Schema (Handles Super Admin, Admin, Staff, Accountant, Librarian)
 const staffSchema = new mongoose.Schema({
+  staffNo: { type: String, trim: true },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  firstName: { type: String, required: true },
-  lastName: { type: String },
-  email: { type: String, required: true },
-  phone: { type: String },
-  role: { type: String, required: true },
-  cnic: { type: String },
+  role: { type: String, default: 'Teacher', trim: true },
+  firstName: { type: String, required: true, trim: true },
+  lastName: { type: String, trim: true, default: '' },
+  fatherName: { type: String, trim: true, default: '' },
+  email: { type: String, trim: true, default: '' },
+  phone: { type: String, trim: true, default: '' },
+  mobile: { type: String, trim: true, default: '' },
+  emergencyMobile: { type: String, trim: true, default: '' },
+  gender: { type: String, default: 'Male' },
+  dateOfBirth: { type: String, default: '' },
+  dob: { type: String, default: '' },
+  dateOfJoining: { type: String, default: '' },
   joiningDate: { type: Date, default: Date.now },
-  department: { type: String },
-  designation: { type: String }
-}, { timestamps: true });
+  maritalStatus: { type: String, default: 'Single' },
+  cnic: { type: String, trim: true, default: '' },
+  cnicFront: { type: String, default: '' },
+  cnicBack: { type: String, default: '' },
+  cv: { type: String, default: '' },
+  lastDegree: { type: String, default: '' },
+  qualificationLevel: { type: String, default: '' },
+  qualificationDocument: { type: String, default: '' },
+  document1: { type: String, default: '' },
+  currentAddress: { type: String, default: '' },
+  permanentAddress: { type: String, default: '' },
+  qualifications: { type: String, default: '' },
+  experience: { type: String, default: '' },
+  departmentId: { type: String, default: '' },
+  department: { type: String, default: '', trim: true },
+  designationId: { type: String, default: '' },
+  designation: { type: String, default: '', trim: true },
+  basicSalary: { type: Number, default: 0 },
+  salary: { type: Number, default: 0 },
+  allowances: { type: Number, default: 0 },
+  deductions: { type: Number, default: 0 },
+  bankName: { type: String, default: '' },
+  accountNo: { type: String, default: '' },
+  accountName: { type: String, default: '' },
+  branchName: { type: String, default: '' },
+  ifscCode: { type: String, default: '' },
+  photo: { type: String, default: '' },
+  staffPhoto: { type: String, default: '' },
+  facebook: { type: String, default: '' },
+  twitter: { type: String, default: '' },
+  linkedin: { type: String, default: '' },
+  instagram: { type: String, default: '' },
+  status: { type: String, default: 'Active' }
+}, { timestamps: true, strict: false });
 
 export const Staff = mongoose.models.Staff || mongoose.model('Staff', staffSchema);
 
@@ -1488,6 +1526,102 @@ const feesTypeSchema = new mongoose.Schema({
   description: { type: String, default: '', trim: true }
 }, { timestamps: true });
 export const FeesType = mongoose.models.FeesType || mongoose.model('FeesType', feesTypeSchema);
+
+// --- ADMISSION QUERY ---
+const admissionQuerySchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  phone: { type: String, trim: true, default: '' },
+  source: { type: String, trim: true, default: '' },
+  status: { type: String, default: 'Interested' },
+  queryDate: { type: Date, default: Date.now },
+  lastFollowUpDate: { type: Date },
+  nextFollowUpDate: { type: Date },
+  notes: { type: String, default: '' }
+}, { timestamps: true });
+export const AdmissionQuery = mongoose.models.AdmissionQuery || mongoose.model('AdmissionQuery', admissionQuerySchema);
+
+// --- ADMIN SETUP ---
+const adminSetupSchema = new mongoose.Schema({
+  type: { type: String, required: true, trim: true, index: true },
+  name: { type: String, required: true, trim: true, index: true },
+  description: { type: String, default: '', trim: true },
+  status: { type: String, enum: ['Active', 'Inactive'], default: 'Active', index: true },
+  isSystem: { type: Boolean, default: false }
+}, { timestamps: true });
+export const AdminSetup = mongoose.models.AdminSetup || mongoose.model('AdminSetup', adminSetupSchema);
+
+// --- VISITOR BOOK ---
+const visitorSchema = new mongoose.Schema({
+  visitorName: { type: String, trim: true },
+  name: { type: String, trim: true },
+  phone: { type: String, trim: true },
+  visitorType: { type: String, default: 'Parent' },
+  purpose: { type: String, default: '' },
+  personToMeet: { type: String, default: '' },
+  idCardNo: { type: String, default: '' },
+  noOfPerson: { type: Number, default: 1 },
+  date: { type: String },
+  inTime: { type: String },
+  outTime: { type: String },
+  note: { type: String, default: '' },
+  file: { type: String, default: '' }
+}, { timestamps: true, strict: false });
+export const Visitor = mongoose.models.Visitor || mongoose.model('Visitor', visitorSchema);
+
+// --- COMPLAINT ---
+const complaintSchema = new mongoose.Schema({
+  complaintId: { type: String, trim: true },
+  complaintType: { type: String, default: 'General' },
+  complaintSource: { type: String, default: 'Parent' },
+  complaintBy: { type: String, default: '' },
+  complainantName: { type: String, default: '' },
+  phone: { type: String, default: '' },
+  date: { type: String },
+  complaintDate: { type: Date, default: Date.now },
+  description: { type: String, default: '' },
+  actionTaken: { type: String, default: '' },
+  assignedTo: { type: String, default: '' },
+  status: { type: String, default: 'Pending' }
+}, { timestamps: true, strict: false });
+export const Complaint = mongoose.models.Complaint || mongoose.model('Complaint', complaintSchema);
+
+// --- PHONE CALL LOG ---
+const phoneCallLogSchema = new mongoose.Schema({
+  name: { type: String, trim: true },
+  phone: { type: String, trim: true },
+  callType: { type: String, default: 'Incoming' },
+  callDuration: { type: String, default: '' },
+  date: { type: String },
+  followUpDate: { type: String },
+  note: { type: String, default: '' },
+  description: { type: String, default: '' }
+}, { timestamps: true, strict: false });
+export const PhoneCallLog = mongoose.models.PhoneCallLog || mongoose.model('PhoneCallLog', phoneCallLogSchema);
+
+// --- POSTAL DISPATCH ---
+const postalDispatchSchema = new mongoose.Schema({
+  toTitle: { type: String, trim: true },
+  referenceNo: { type: String, trim: true },
+  address: { type: String, default: '' },
+  note: { type: String, default: '' },
+  fromTitle: { type: String, default: '' },
+  date: { type: String },
+  postalType: { type: String, default: 'Dispatch' }
+}, { timestamps: true, strict: false });
+export const PostalDispatch = mongoose.models.PostalDispatch || mongoose.model('PostalDispatch', postalDispatchSchema);
+
+// --- POSTAL RECEIVE ---
+const postalReceiveSchema = new mongoose.Schema({
+  fromTitle: { type: String, trim: true },
+  referenceNo: { type: String, trim: true },
+  address: { type: String, default: '' },
+  note: { type: String, default: '' },
+  toTitle: { type: String, default: '' },
+  date: { type: String },
+  postalType: { type: String, default: 'Receive' }
+}, { timestamps: true, strict: false });
+export const PostalReceive = mongoose.models.PostalReceive || mongoose.model('PostalReceive', postalReceiveSchema);
+
 
 
 
