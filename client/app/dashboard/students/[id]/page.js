@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   ChevronRight, User, Phone, Mail, MapPin, Calendar, BookOpen,
@@ -66,6 +66,7 @@ function SectionCard({ title, icon: Icon, children }) {
 // ─── Main Page ───────────────────────────────────────────────────────────────
 export default function StudentProfilePage() {
   const { id } = useParams();
+  const searchParams = useSearchParams();
   const [student, setStudent] = useState(null);
   const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -74,7 +75,7 @@ export default function StudentProfilePage() {
     const load = async () => {
       try {
         const [studentRes, enrollRes] = await Promise.allSettled([
-          api.get(`/student/${id}`),
+          api.get(`/student/${id}?_t=${Date.now()}`),
           api.get(`/enrollment?studentId=${id}`)
         ]);
 
@@ -94,7 +95,7 @@ export default function StudentProfilePage() {
       }
     };
     load();
-  }, [id]);
+  }, [id, searchParams]);
 
   // ── Export to Excel ──
   const handleExportExcel = () => {

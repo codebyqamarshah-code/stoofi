@@ -388,9 +388,11 @@ export default function EditStudentPage() {
       const res = await api.put(`/student/${id}`, payload);
       if (res && res.success) {
         showToast('Student profile updated successfully!');
+        router.refresh();
         setTimeout(() => {
-          router.push(`/dashboard/students/${id}`);
-        }, 1500);
+          router.push(`/dashboard/students/${id}?updated=${Date.now()}`);
+          router.refresh();
+        }, 1200);
       } else {
         showToast(res?.message || 'Failed to update student profile.', true);
       }

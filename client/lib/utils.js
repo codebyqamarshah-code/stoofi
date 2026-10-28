@@ -97,7 +97,20 @@ export function formatDateDMY(dateInput) {
 // Resolves student/user photo URL safely across local and production deployments
 export function getPhotoUrl(photoPath) {
   if (!photoPath) return null;
-  const p = typeof photoPath === 'object' ? (photoPath.photo || photoPath.studentPhoto) : photoPath;
+  let p = null;
+  if (typeof photoPath === 'object' && photoPath !== null) {
+    const sp = photoPath.studentPhoto;
+    const ph = photoPath.photo;
+    const av = photoPath.avatar;
+    // Prefer base64 data URI first if present in either field
+    if (typeof sp === 'string' && sp.startsWith('data:image/')) p = sp;
+    else if (typeof ph === 'string' && ph.startsWith('data:image/')) p = ph;
+    else if (typeof sp === 'string' && sp.trim()) p = sp;
+    else if (typeof ph === 'string' && ph.trim()) p = ph;
+    else if (typeof av === 'string' && av.trim()) p = av;
+  } else {
+    p = photoPath;
+  }
   if (!p || typeof p !== 'string') return null;
   const trimmed = p.trim();
   if (!trimmed) return null;

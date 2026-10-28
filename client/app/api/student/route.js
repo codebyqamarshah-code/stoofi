@@ -3,6 +3,9 @@ import { connectDB } from '@/lib/db';
 import { Student } from '@/lib/models';
 import { extractYear, generateAdmissionNumber, generateRollNumber } from '@/lib/admissionSequence.service';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const extractRollSeq = (r) => {
   if (!r) return 0;
   const str = String(r).trim();
@@ -227,6 +230,8 @@ export async function GET(req) {
         total,
         totalPages: Math.ceil(total / limit) || 1
       }
+    }, {
+      headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate' }
     });
   } catch (error) {
     console.error('API /student GET error:', error);

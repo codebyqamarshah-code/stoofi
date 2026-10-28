@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 /**
  * Robust Student Avatar component.
@@ -17,6 +17,11 @@ export default function StudentAvatar({
   rounded = 'rounded-full'
 }) {
   const [imgError, setImgError] = useState(false);
+
+  // Reset error state whenever the photo prop changes so newly updated photos render immediately
+  useEffect(() => {
+    setImgError(false);
+  }, [photo]);
 
   const getInitials = () => {
     const f = (firstName || '').trim().charAt(0).toUpperCase();
@@ -52,12 +57,12 @@ export default function StudentAvatar({
     >
       {hasPhoto ? (
         <img
+          key={photo}
           src={photo}
-          alt=""
-          loading="lazy"
+          alt={firstName || 'Student'}
           onError={() => setImgError(true)}
           className="h-full w-full object-cover object-top block shrink-0"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block', imageOrientation: 'from-image' }}
         />
       ) : (
         <span className="font-black uppercase tracking-wider">{getInitials()}</span>

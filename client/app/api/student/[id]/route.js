@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { Student } from '@/lib/models';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const cleanDateStr = (val) => {
   if (!val) return '';
   if (val instanceof Date && !isNaN(val.getTime())) {
@@ -80,7 +83,10 @@ export async function GET(req, { params }) {
       joiningDate: cleanDateStr(student.joiningDate)
     };
 
-    return NextResponse.json({ success: true, data: formatted });
+    return NextResponse.json(
+      { success: true, data: formatted },
+      { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate' } }
+    );
   } catch (error) {
     console.error('API /student/[id] GET error:', error);
     return NextResponse.json({ success: false, message: error.message || 'Failed to fetch student' }, { status: 500 });
