@@ -7,7 +7,8 @@ import {
   ChevronRight, User, Phone, Mail, MapPin, Calendar, BookOpen,
   GraduationCap, Users, FileText, Download, Printer, ArrowLeft,
   BadgeCheck, Home, Heart, Briefcase, Hash, Clock, Shield,
-  Activity, AlertCircle, Edit, Plus, CheckCircle, Layers, School
+  Activity, AlertCircle, Edit, Plus, CheckCircle, Layers, School,
+  CreditCard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import api from '@/services/api';
@@ -277,6 +278,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
   const joining = student.joiningDate || student.admissionDate;
   const remarksVal = student.remarks || student.otherInfo;
 
+  const admFee = student.feeAdmission ?? student.feePlan?.admissionFee ?? 0;
+  const tuitionFee = student.feeTuition ?? student.feePlan?.tuitionFee ?? 0;
+  const grossFee = student.feeGross ?? student.feePlan?.grossTotal ?? (Number(admFee) + Number(tuitionFee) + (Number(student.feeExam) || 0) + (Number(student.feeOther) || 0) + (Number(student.feeSecurity) || 0));
+  const discount = student.concessionDiscount ?? student.feePlan?.concessionDiscount ?? 0;
+  const netFee = student.netPayable ?? student.feeNetPayable ?? student.feePlan?.netPayable ?? Math.max(0, grossFee - discount);
+
+  const admFeeStr = admFee > 0 ? `PKR ${Number(admFee).toLocaleString()}` : 'PKR 0';
+  const tuitionStr = tuitionFee > 0 ? `PKR ${Number(tuitionFee).toLocaleString()}` : 'PKR 0';
+  const grossFeeStr = grossFee > 0 ? `PKR ${Number(grossFee).toLocaleString()}` : 'PKR 0';
+  const concessionStr = discount > 0 
+    ? `- PKR ${Number(discount).toLocaleString()} (${student.concessionType || 'Concession'})` 
+    : 'None (Full Fee)';
+  const netFeeStr = `PKR ${Number(netFee).toLocaleString()}`;
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
 
@@ -348,6 +363,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
                 <Edit className="h-3.5 w-3.5 text-zinc-700" /> Edit Profile
               </Button>
             </Link>
+            <Link href={`/dashboard/students/${id}/edit?tab=fees`}>
+              <Button
+                variant="outline"
+                className="border-emerald-300 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 font-bold text-xs h-9 px-3.5 flex items-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <CreditCard className="h-3.5 w-3.5 text-emerald-700" /> Edit Fees
+              </Button>
+            </Link>
             <Button
               onClick={handleExportExcel}
               className="bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs h-9 px-4 flex items-center gap-2 cursor-pointer"
@@ -397,7 +420,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
           </SectionCard>
         </div>
 
-        {/* Column 2: Academic */}
+        {/* Column 2: Academic & Fees */}
         <div className="space-y-6">
           <SectionCard title="Academic Information" icon={GraduationCap}>
             <InfoRow icon={BookOpen}  label="Class"         value={student.className} highlight />
@@ -408,6 +431,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0
             <InfoRow icon={Shield}    label="Student Type"  value={student.type || 'Regular'} />
             <InfoRow icon={Clock}     label="Joining Date"  value={fmtDate(joining)} />
             <InfoRow icon={BookOpen}  label="Prev. School"  value={prevSchool} />
+          </SectionCard>
+
+          <SectionCard title="Fee Structure & Financials" icon={CreditCard}>
+            <div className="pt-2 pb-1 flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                Official Fee Plan
+              </span>
+              <Link href={`/dashboard/students/${id}/edit?tab=fees`}>
+                <span className="text-xs font-semibold text-[#009966] hover:underline flex items-center gap-1 cursor-pointer">
+                  <CreditCard className="h-3 w-3" />
+                  Edit Fee Structure
+                </span>
+              </Link>
+            </div>
+            <InfoRow icon={CreditCard} label="Tuition Fee" value={tuitionStr} highlight />
+            <InfoRow icon={CreditCard} label="Admission Fee" value={admFeeStr} />
+            <InfoRow icon={CreditCard} label="Gross Total Fee" value={grossFeeStr} />
+            <InfoRow icon={Shield}     label="Concession / Discount" value={concessionStr} />
+            <InfoRow icon={BadgeCheck} label="Net Payable" value={netFeeStr} highlight />
           </SectionCard>
         </div>
 

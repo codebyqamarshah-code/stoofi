@@ -1062,7 +1062,7 @@ export default function ComplaintPage() {
 
                 {/* 2. DYNAMIC SEARCHABLE LOOKUP ACCORDING TO SOURCE */}
                 {formData.source === 'Parent' && (
-                  <div className="space-y-3 bg-zinc-50/80 p-3.5 rounded-xl border border-zinc-200">
+                  <div className="space-y-3 bg-white p-3.5 rounded-xl border border-zinc-200 shadow-xs">
                     <div className="space-y-1.5" ref={dropdownRef}>
                       <div className="flex items-center justify-between">
                         <Label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5">
@@ -1210,7 +1210,7 @@ export default function ComplaintPage() {
                 )}
 
                 {formData.source === 'Student' && (
-                  <div className="space-y-3 bg-zinc-50/80 p-3.5 rounded-xl border border-zinc-200">
+                  <div className="space-y-3 bg-white p-3.5 rounded-xl border border-zinc-200 shadow-xs">
                     <div className="space-y-1.5" ref={dropdownRef}>
                       <div className="flex items-center justify-between">
                         <Label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5">
@@ -1336,7 +1336,7 @@ export default function ComplaintPage() {
                 )}
 
                 {formData.source === 'Staff' && (
-                  <div className="space-y-3 bg-zinc-50/80 p-3.5 rounded-xl border border-zinc-200">
+                  <div className="space-y-3 bg-white p-3.5 rounded-xl border border-zinc-200 shadow-xs">
                     <div className="space-y-1.5" ref={staffDropdownRef}>
                       <div className="flex items-center justify-between">
                         <Label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5">

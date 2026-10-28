@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 const Notification = require('../models/Notification');
 const Student = require('../models/Student');
+let FeesInvoice;
+try { FeesInvoice = require('../models/FeesInvoice'); } catch (_) {}
+let StudentEnrollment;
+try { StudentEnrollment = require('../models/StudentEnrollment'); } catch (_) {}
 const { 
   extractYear, 
   previewNextAdmissionNumber, 
@@ -441,8 +445,169 @@ exports.update = async (req, res) => {
       });
     }
 
+    // Fee calculations and payload normalization
+    const hasFeeData = 
+      dataObj.feeAdmission !== undefined ||
+      dataObj.feeTuition !== undefined ||
+      dataObj.feeSecurity !== undefined ||
+      dataObj.feeExam !== undefined ||
+      dataObj.feeOther !== undefined ||
+      dataObj.concessionType !== undefined ||
+      dataObj.concessionValue !== undefined ||
+      dataObj.netPayable !== undefined ||
+      dataObj.feeGross !== undefined ||
+      dataObj.feePlan !== undefined;
+
+    if (hasFeeData) {
+      const admissionFee = Number(dataObj.feeAdmission ?? dataObj.feePlan?.admissionFee ?? 0) || 0;
+      const tuitionFee = Number(dataObj.feeTuition ?? dataObj.feePlan?.tuitionFee ?? 0) || 0;
+      const securityDeposit = Number(dataObj.feeSecurity ?? dataObj.feePlan?.securityDeposit ?? 0) || 0;
+      const examFee = Number(dataObj.feeExam ?? dataObj.feePlan?.examFee ?? 0) || 0;
+      const labFee = Number(dataObj.feeOther ?? dataObj.feePlan?.labFee ?? 0) || 0;
+      const computedGross = admissionFee + tuitionFee + securityDeposit + examFee + labFee;
+      const grossTotal = Number(dataObj.feeGross ?? dataObj.feePlan?.grossTotal ?? computedGross) || computedGross;
+
+      const concessionType = dataObj.concessionType || dataObj.feePlan?.concessionType || 'None';
+      const concessionVal = Number(dataObj.concessionValue ?? dataObj.feePlan?.concessionValue ?? 0) || 0;
+      let concessionDiscount = Number(dataObj.concessionDiscount ?? dataObj.feePlan?.concessionDiscount ?? 0) || 0;
+      if (concessionType === 'Percentage' && concessionVal > 0) {
+        concessionDiscount = Math.round((grossTotal * concessionVal) / 100);
+      } else if (concessionType === 'Fixed' && concessionVal > 0) {
+        concessionDiscount = Math.min(concessionVal, grossTotal);
+      }
+
+      const netPayable = Math.max(0, grossTotal - concessionDiscount);
+
+      dataObj.feeAdmission = admissionFee;
+      dataObj.feeTuition = tuitionFee;
+      dataObj.feeSecurity = securityDeposit;
+      dataObj.feeExam = examFee;
+      dataObj.feeOther = labFee;
+      dataObj.feeGross = grossTotal;
+      dataObj.concessionType = concessionType;
+      dataObj.concessionValue = concessionVal;
+      dataObj.concessionDiscount = concessionDiscount;
+      dataObj.netPayable = netPayable;
+      dataObj.feeNetPayable = netPayable;
+      dataObj.feePlan = {
+        admissionFee,
+        tuitionFee,
+        securityDeposit,
+        examFee,
+        labFee,
+        grossTotal,
+        concessionType,
+        concessionValue: concessionVal,
+        concessionDiscount,
+        netPayable,
+        generateInvoice: dataObj.generateInvoice !== false,
+        invoiceNotes: dataObj.invoiceNotes || ''
+      };
+    }
+
     const data = await Student.findByIdAndUpdate(req.params.id, dataObj, { new: true });
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
+
+    // Synchronize FeesInvoice whenever fees are provided
+    if (hasFeeData && FeesInvoice) {
+      try {
+        const admissionFee = Number(data.feeAdmission) || 0;
+        const tuitionFee = Number(data.feeTuition) || 0;
+        const securityDeposit = Number(data.feeSecurity) || 0;
+        const examFee = Number(data.feeExam) || 0;
+        const labFee = Number(data.feeOther) || 0;
+        const grossTotal = Number(data.feeGross) || (admissionFee + tuitionFee + securityDeposit + examFee + labFee);
+        const concessionDiscount = Number(data.concessionDiscount) || 0;
+        const netPayable = Math.max(0, grossTotal - concessionDiscount);
+
+        const feeItems = [
+          { head: 'Admission Fee', amount: admissionFee },
+          { head: 'Tuition Fee', amount: tuitionFee },
+          { head: 'Security Deposit', amount: securityDeposit },
+          { head: 'Exam Fee', amount: examFee },
+          { head: 'Lab / Other Fee', amount: labFee }
+        ].filter(item => item.amount > 0);
+
+        if (feeItems.length === 0 && grossTotal > 0) {
+          feeItems.push({ head: 'Tuition Fee', amount: grossTotal });
+        }
+
+        let invoice = await FeesInvoice.findOne({
+          $or: [
+            { studentId: data._id },
+            ...(data.admissionNo ? [{ admissionNo: data.admissionNo }] : [])
+          ],
+          status: { $in: ['Unpaid', 'Partial', 'UNPAID', 'PARTIAL'] }
+        }).sort({ createdAt: -1 });
+
+        if (!invoice) {
+          invoice = await FeesInvoice.findOne({
+            $or: [
+              { studentId: data._id },
+              ...(data.admissionNo ? [{ admissionNo: data.admissionNo }] : [])
+            ]
+          }).sort({ createdAt: -1 });
+        }
+
+        const studentDisplayName = data.fullName || data.studentName || `${data.firstName} ${data.lastName || ''}`.trim();
+        const admNo = data.admissionNo || '0001';
+        const admissionYear = data.academicYear || String(new Date().getFullYear());
+
+        if (invoice) {
+          const paid = Number(invoice.paid) || 0;
+          const fine = Number(invoice.fine) || 0;
+          const newBalance = Math.max(0, (grossTotal + fine) - (paid + concessionDiscount));
+          const newStatus = newBalance === 0 ? 'Paid' : (paid > 0 ? 'Partial' : 'Unpaid');
+
+          invoice.amount = grossTotal;
+          invoice.waiver = concessionDiscount;
+          invoice.balance = newBalance;
+          invoice.status = newStatus;
+          if (feeItems.length > 0) invoice.feeItems = feeItems;
+          invoice.student = studentDisplayName;
+          invoice.fatherName = data.fatherName || invoice.fatherName || '';
+          invoice.rollNo = data.rollNo || invoice.rollNo || '';
+          invoice.admissionNo = admNo;
+          invoice.className = data.className || invoice.className || '';
+          invoice.section = data.section || invoice.section || 'A';
+          if (dataObj.invoiceNotes) invoice.note = dataObj.invoiceNotes;
+          await invoice.save();
+        } else if (grossTotal > 0) {
+          const billingMonth = `${admissionYear}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+          const dueDate = new Date();
+          dueDate.setDate(dueDate.getDate() + 15);
+          const challanNo = `CHL-${admissionYear}-${String(admNo).replace(/\D/g, '') || Math.floor(1000 + Math.random() * 9000)}`;
+
+          await FeesInvoice.create({
+            invoiceNo: `INV-${admissionYear}-${admNo.slice(-4) || '0001'}`,
+            challanNo,
+            billingMonth,
+            dueDate,
+            studentId: data._id,
+            student: studentDisplayName,
+            fatherName: data.fatherName || '',
+            rollNo: data.rollNo || '',
+            admissionNo: admNo,
+            className: data.className || 'General',
+            section: data.section || 'A',
+            feeType: 'Tuition & Academic Fees',
+            feeItems: feeItems.length > 0 ? feeItems : [{ head: 'Tuition Fee', amount: grossTotal }],
+            amount: grossTotal,
+            waiver: concessionDiscount,
+            fine: 0,
+            paid: 0,
+            balance: netPayable,
+            paymentMethod: 'Cash',
+            note: dataObj.invoiceNotes || `Fee structure updated for ${studentDisplayName}`,
+            status: netPayable === 0 ? 'Paid' : 'Unpaid',
+            date: new Date()
+          });
+        }
+      } catch (errSync) {
+        console.error('Error synchronizing student fee invoice in express:', errSync);
+      }
+    }
+
     res.status(200).json({ success: true, data });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

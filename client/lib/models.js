@@ -202,7 +202,24 @@ const studentSchema = new mongoose.Schema({
   cardTemplate: { type: String, default: 'classic-navy' },
   cardLayout: { type: String, default: 'horizontal' },
   themeStyle: { type: String, default: 'classic-navy' },
-  subjects: [{ type: String }]
+  subjects: [{ type: String }],
+
+  // 8. FEES, CONCESSIONS & FINANCIALS
+  feeAdmission: { type: Number, default: 0 },
+  feeTuition: { type: Number, default: 0 },
+  feeSecurity: { type: Number, default: 0 },
+  feeExam: { type: Number, default: 0 },
+  feeOther: { type: Number, default: 0 },
+  feeGross: { type: Number, default: 0 },
+  concessionType: { type: String, default: 'None' },
+  concessionValue: { type: Number, default: 0 },
+  concessionDiscount: { type: Number, default: 0 },
+  concessionReason: { type: String, default: '' },
+  netPayable: { type: Number, default: 0 },
+  feeNetPayable: { type: Number, default: 0 },
+  feePlan: { type: mongoose.Schema.Types.Mixed },
+  feesGroup: { type: String, default: '' },
+  invoiceNotes: { type: String, default: '' }
 }, { timestamps: true });
 
 // Pre-validate & pre-save hook to ensure studentName, name, and fullName are always populated

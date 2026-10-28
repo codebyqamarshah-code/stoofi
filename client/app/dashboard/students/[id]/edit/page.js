@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { 
   ChevronRight, 
   ArrowLeft, 
@@ -42,14 +42,23 @@ function formatCnic(val) {
   return `${digits.slice(0, 5)}-${digits.slice(5, 12)}-${digits.slice(12, 13)}`;
 }
 
-export default function EditStudentPage() {
+function EditStudentPageInner() {
   const { id } = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
-  const [activeTab, setActiveTab] = useState('identity'); // identity, family, academic, qualifications
+  const [activeTab, setActiveTab] = useState('identity'); // identity, family, academic, qualifications, fees
+
+  // Sync tab from URL if present
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['identity', 'family', 'academic', 'qualifications', 'fees'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
 
   // Student Form State
   const [formData, setFormData] = useState({
@@ -103,7 +112,18 @@ export default function EditStudentPage() {
     remarks: '',
 
     // Qualifications
-    qualifications: []
+    qualifications: [],
+
+    // Fees & Concessions
+    feeAdmission: 5000,
+    feeTuition: 25000,
+    feeSecurity: 0,
+    feeExam: 2000,
+    feeOther: 1000,
+    concessionType: 'None', // None, Percentage, Fixed
+    concessionValue: 0,
+    concessionReason: '',
+    invoiceNotes: ''
   });
 
   const showToast = (message, isError = false) => {
@@ -172,6 +192,16 @@ export default function EditStudentPage() {
           type: s.type || 'Regular',
           status: s.status || 'Active',
           remarks: s.remarks || '',
+
+          feeAdmission: s.feeAdmission !== undefined ? s.feeAdmission : (s.feePlan?.admissionFee !== undefined ? s.feePlan.admissionFee : 5000),
+          feeTuition: s.feeTuition !== undefined ? s.feeTuition : (s.feePlan?.tuitionFee !== undefined ? s.feePlan.tuitionFee : 25000),
+          feeSecurity: s.feeSecurity !== undefined ? s.feeSecurity : (s.feePlan?.securityDeposit !== undefined ? s.feePlan.securityDeposit : 0),
+          feeExam: s.feeExam !== undefined ? s.feeExam : (s.feePlan?.examFee !== undefined ? s.feePlan.examFee : 2000),
+          feeOther: s.feeOther !== undefined ? s.feeOther : (s.feePlan?.labFee !== undefined ? s.feePlan.labFee : 1000),
+          concessionType: s.concessionType || s.feePlan?.concessionType || 'None',
+          concessionValue: s.concessionValue !== undefined ? s.concessionValue : (s.feePlan?.concessionValue !== undefined ? s.feePlan.concessionValue : 0),
+          concessionReason: s.concessionReason || s.feePlan?.invoiceNotes || '',
+          invoiceNotes: s.invoiceNotes || s.feePlan?.invoiceNotes || '',
 
           qualifications: Array.isArray(s.qualifications) && s.qualifications.length > 0 
             ? s.qualifications 
@@ -311,6 +341,22 @@ export default function EditStudentPage() {
     }
   };
 
+  const admissionFee = parseFloat(formData.feeAdmission) || 0;
+  const tuitionFee = parseFloat(formData.feeTuition) || 0;
+  const securityDeposit = parseFloat(formData.feeSecurity) || 0;
+  const examFee = parseFloat(formData.feeExam) || 0;
+  const labFee = parseFloat(formData.feeOther) || 0;
+  const feeGross = admissionFee + tuitionFee + securityDeposit + examFee + labFee;
+
+  let concessionDiscount = 0;
+  const concessionVal = parseFloat(formData.concessionValue) || 0;
+  if (formData.concessionType === 'Percentage') {
+    concessionDiscount = Math.round((feeGross * concessionVal) / 100);
+  } else if (formData.concessionType === 'Fixed') {
+    concessionDiscount = Math.min(concessionVal, feeGross);
+  }
+  const feeNetPayable = Math.max(0, feeGross - concessionDiscount);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -382,7 +428,35 @@ export default function EditStudentPage() {
         status: formData.status,
         remarks: formData.remarks.trim(),
 
-        qualifications: formData.qualifications
+        qualifications: formData.qualifications,
+
+        feeAdmission: admissionFee,
+        feeTuition: tuitionFee,
+        feeSecurity: securityDeposit,
+        feeExam: examFee,
+        feeOther: labFee,
+        feeGross: feeGross,
+        concessionType: formData.concessionType,
+        concessionValue: concessionVal,
+        concessionDiscount: concessionDiscount,
+        concessionReason: formData.concessionReason.trim(),
+        netPayable: feeNetPayable,
+        feeNetPayable: feeNetPayable,
+        invoiceNotes: formData.invoiceNotes.trim(),
+        feePlan: {
+          admissionFee,
+          tuitionFee,
+          securityDeposit,
+          examFee,
+          labFee,
+          grossTotal: feeGross,
+          concessionType: formData.concessionType,
+          concessionValue: concessionVal,
+          concessionDiscount,
+          netPayable: feeNetPayable,
+          generateInvoice: true,
+          invoiceNotes: formData.invoiceNotes.trim()
+        }
       };
 
       const res = await api.put(`/student/${id}`, payload);
@@ -535,6 +609,7 @@ export default function EditStudentPage() {
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveTab('qualifications')}
           className={`pb-3 px-4 font-semibold text-xs border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${
             activeTab === 'qualifications' ? 'border-[#009966] text-[#009966]' : 'border-transparent text-zinc-500 hover:text-zinc-800'
@@ -542,6 +617,17 @@ export default function EditStudentPage() {
         >
           <GraduationCap className="h-4 w-4" />
           4. Previous Qualifications
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('fees')}
+          className={`pb-3 px-4 font-semibold text-xs border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${
+            activeTab === 'fees' ? 'border-[#009966] text-[#009966]' : 'border-transparent text-zinc-500 hover:text-zinc-800'
+          }`}
+        >
+          <CreditCard className="h-4 w-4" />
+          5. Fee Structure & Concessions
         </button>
       </div>
 
@@ -1146,6 +1232,199 @@ export default function EditStudentPage() {
           </div>
         )}
 
+        {/* TAB 5: FEES & CONCESSIONS */}
+        {activeTab === 'fees' && (
+          <div className="space-y-6 animate-in fade-in duration-150">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-zinc-200 gap-2">
+              <div>
+                <h3 className="text-sm font-bold text-zinc-900 flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-[#009966]" />
+                  Student Fee Structure & Concession Plan
+                </h3>
+                <p className="text-xs text-zinc-500 mt-0.5">
+                  Configure admission charges, tuition fee, concessions, and automatic finance invoice synchronization.
+                </p>
+              </div>
+              <span className="self-start sm:self-auto px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                Live Finance Sync
+              </span>
+            </div>
+
+            {/* Fee Heads Breakdown */}
+            <div className="bg-white p-4 rounded-xl border border-zinc-200 space-y-3">
+              <h4 className="text-xs font-bold text-zinc-800 uppercase tracking-wide flex items-center gap-1.5">
+                <CreditCard className="h-3.5 w-3.5 text-[#009966]" />
+                Fee Heads & Charge Breakdown
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-700">Admission Fee (PKR)</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.feeAdmission}
+                    onChange={e => handleChange('feeAdmission', e.target.value)}
+                    placeholder="5000"
+                    className="h-9 text-xs bg-white border-zinc-300"
+                  />
+                  <p className="text-[10px] text-zinc-400">One-time registration & admission charge</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-700">Tuition Fee (PKR)</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.feeTuition}
+                    onChange={e => handleChange('feeTuition', e.target.value)}
+                    placeholder="25000"
+                    className="h-9 text-xs bg-white border-zinc-300 font-bold text-zinc-900"
+                  />
+                  <p className="text-[10px] text-zinc-400">Per term / semester tuition fee</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-700">Security Deposit / Caution (PKR)</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.feeSecurity}
+                    onChange={e => handleChange('feeSecurity', e.target.value)}
+                    placeholder="0"
+                    className="h-9 text-xs bg-white border-zinc-300"
+                  />
+                  <p className="text-[10px] text-zinc-400">Refundable security caution money</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-700">Examination Fee (PKR)</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.feeExam}
+                    onChange={e => handleChange('feeExam', e.target.value)}
+                    placeholder="2000"
+                    className="h-9 text-xs bg-white border-zinc-300"
+                  />
+                  <p className="text-[10px] text-zinc-400">Internal & board examination charge</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-700">Lab / Library / Other (PKR)</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.feeOther}
+                    onChange={e => handleChange('feeOther', e.target.value)}
+                    placeholder="1000"
+                    className="h-9 text-xs bg-white border-zinc-300"
+                  />
+                  <p className="text-[10px] text-zinc-400">Practical labs, facilities & sports</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Concession & Scholarships */}
+            <div className="bg-zinc-50/70 p-4 rounded-xl border border-zinc-200 space-y-4">
+              <h4 className="text-xs font-bold text-zinc-800 uppercase tracking-wide flex items-center gap-1.5">
+                <Shield className="h-3.5 w-3.5 text-[#009966]" />
+                Fee Concession & Scholarship
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-700">Concession Type</Label>
+                  <select
+                    value={formData.concessionType}
+                    onChange={e => handleChange('concessionType', e.target.value)}
+                    className="w-full h-9 px-3 text-xs border border-zinc-300 rounded-md bg-white focus:outline-hidden focus:ring-1 focus:ring-[#009966]"
+                  >
+                    <option value="None">None (Full Fee)</option>
+                    <option value="Percentage">Percentage Discount (%)</option>
+                    <option value="Fixed">Fixed Concession Amount (PKR)</option>
+                  </select>
+                </div>
+
+                {formData.concessionType !== 'None' && (
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold text-zinc-700">
+                      {formData.concessionType === 'Percentage' ? 'Discount Percentage (%)' : 'Concession Amount (PKR)'}
+                    </Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      max={formData.concessionType === 'Percentage' ? "100" : undefined}
+                      value={formData.concessionValue}
+                      onChange={e => handleChange('concessionValue', e.target.value)}
+                      placeholder={formData.concessionType === 'Percentage' ? "e.g. 20" : "e.g. 5000"}
+                      className="h-9 text-xs bg-white border-zinc-300"
+                    />
+                  </div>
+                )}
+
+                <div className="space-y-1.5 md:col-span-1">
+                  <Label className="text-xs font-semibold text-zinc-700">Concession Reason / Category</Label>
+                  <Input
+                    type="text"
+                    value={formData.concessionReason}
+                    onChange={e => handleChange('concessionReason', e.target.value)}
+                    placeholder="e.g. Kinship, Merit, Need-Based, Orphan"
+                    className="h-9 text-xs bg-white border-zinc-300"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Financial Summary Calculation Card */}
+            <div className="bg-gradient-to-br from-emerald-50/70 via-white to-white p-5 rounded-xl border border-emerald-200/80 shadow-xs space-y-4">
+              <h4 className="text-xs font-bold text-emerald-950 uppercase tracking-wide">
+                Live Financial Summary
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="p-3 bg-white rounded-lg border border-zinc-200">
+                  <span className="text-[11px] font-semibold text-zinc-500 block uppercase">Gross Total Fee</span>
+                  <span className="text-lg font-bold text-zinc-900 font-mono">
+                    PKR {feeGross.toLocaleString()}
+                  </span>
+                </div>
+
+                <div className="p-3 bg-white rounded-lg border border-amber-200">
+                  <span className="text-[11px] font-semibold text-amber-700 block uppercase">
+                    Discount / Waiver ({formData.concessionType === 'Percentage' ? `${formData.concessionValue}%` : formData.concessionType})
+                  </span>
+                  <span className="text-lg font-bold text-amber-700 font-mono">
+                    - PKR {concessionDiscount.toLocaleString()}
+                  </span>
+                </div>
+
+                <div className="p-3 bg-emerald-600 rounded-lg text-white shadow-xs">
+                  <span className="text-[11px] font-semibold text-emerald-100 block uppercase">Net Payable Fee</span>
+                  <span className="text-xl font-extrabold font-mono">
+                    PKR {feeNetPayable.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-1.5 pt-2 border-t border-emerald-200/50">
+                <Label className="text-xs font-semibold text-zinc-700">Invoice Note / Billing Instructions</Label>
+                <Input
+                  type="text"
+                  value={formData.invoiceNotes}
+                  onChange={e => handleChange('invoiceNotes', e.target.value)}
+                  placeholder="e.g. Due within 15 days of term start. Payable at campus accounts counter or designated bank."
+                  className="h-9 text-xs bg-white border-zinc-300"
+                />
+                <p className="text-[11px] text-zinc-500">
+                  Saving this fee structure automatically updates the student profile and synchronizes the student's official Fee Invoices in the Finance system.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Bottom Actions Bar */}
         <div className="pt-4 border-t border-zinc-200 flex items-center justify-between">
           <Link href={`/dashboard/students/${id}`}>
@@ -1175,5 +1454,18 @@ export default function EditStudentPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function EditStudentPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-[450px] space-y-3">
+        <RefreshCw className="h-8 w-8 animate-spin text-[#009966]" />
+        <p className="text-sm font-medium text-zinc-600">Loading student profile data...</p>
+      </div>
+    }>
+      <EditStudentPageInner />
+    </Suspense>
   );
 }
