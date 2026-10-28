@@ -174,6 +174,18 @@ export default function AddStaffPage() {
       if (documents.cv) data.append('cv', documents.cv);
       if (documents.lastDegree) data.append('lastDegree', documents.lastDegree);
 
+      // Append friendly names for department and designation
+      if (formData.departmentId) {
+        const foundDept = departments.find(d => String(d._id) === String(formData.departmentId));
+        if (foundDept?.name) data.append('department', foundDept.name);
+      }
+      if (formData.designationId) {
+        const foundDesig = designations.find(d => String(d._id) === String(formData.designationId));
+        if (foundDesig?.name) data.append('designation', foundDesig.name);
+      }
+      const fullName = `${formData.firstName || ''} ${formData.lastName || ''}`.trim();
+      if (fullName) data.append('name', fullName);
+
       const res = await api.post('/staff', data, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });

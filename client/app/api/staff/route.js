@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
-import { Staff, Teacher } from '@/lib/models';
+import { Staff, Teacher, Department, Designation } from '@/lib/models';
 
 export async function GET(req) {
   try {
@@ -40,8 +40,8 @@ export async function GET(req) {
     ]);
 
     // If query returned 0 staff and role === 'Teacher', fallback check Teacher model
-    let result = data;
-    if (result.length === 0 && (role === 'Teacher' || !role || role === 'All')) {
+    let rawList = data;
+    if (rawList.length === 0 && (role === 'Teacher' || !role || role === 'All')) {
       const teacherQuery = {};
       if (search) {
         teacherQuery.$or = [
@@ -52,7 +52,7 @@ export async function GET(req) {
       }
       const teachers = await Teacher.find(teacherQuery).limit(limit).lean();
       if (teachers.length > 0) {
-        result = teachers.map(t => ({
+        rawList = teachers.map(t => ({
           ...t,
           role: 'Teacher',
           designation: t.designation || 'Senior Faculty',
@@ -60,6 +60,26 @@ export async function GET(req) {
         }));
       }
     }
+
+    // Normalize each staff record for consistent consumption across all components
+    const result = rawList.map(s => {
+      const id = (s._id || s.id || '').toString();
+      const fullName = `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.name || 'Staff Member';
+      const phone = s.mobile || s.phone || s.emergencyMobile || '';
+      const photo = s.staffPhoto || s.photo || s.avatar || null;
+
+      return {
+        ...s,
+        id,
+        _id: id,
+        name: fullName,
+        phone,
+        mobile: phone,
+        photo,
+        staffPhoto: photo,
+        status: s.status || 'Active',
+      };
+    });
 
     return NextResponse.json({
       success: true,
@@ -129,11 +149,37 @@ export async function POST(req) {
     if (body.photo && !body.staffPhoto) body.staffPhoto = body.photo;
     if (body.staffPhoto && !body.photo) body.photo = body.staffPhoto;
 
+    // Resolve department name if only departmentId was sent
+    if (body.departmentId && (!body.department || !String(body.department).trim())) {
+      try {
+        const dept = await Department.findById(body.departmentId).lean();
+        if (dept?.name) body.department = dept.name;
+      } catch (_) {}
+    }
+
+    // Resolve designation name if only designationId was sent
+    if (body.designationId && (!body.designation || !String(body.designation).trim())) {
+      try {
+        const desig = await Designation.findById(body.designationId).lean();
+        if (desig?.name) body.designation = desig.name;
+      } catch (_) {}
+    }
+
     const created = await Staff.create(body);
+    const createdObj = created.toObject ? created.toObject() : created;
+    const id = createdObj._id.toString();
 
     return NextResponse.json({
       success: true,
-      data: created,
+      data: {
+        ...createdObj,
+        id,
+        _id: id,
+        name: `${createdObj.firstName || ''} ${createdObj.lastName || ''}`.trim() || 'Staff Member',
+        phone: createdObj.mobile || createdObj.phone || '',
+        photo: createdObj.staffPhoto || createdObj.photo || null,
+        staffPhoto: createdObj.staffPhoto || createdObj.photo || null
+      },
       message: 'Staff member saved successfully!'
     }, { status: 201 });
   } catch (error) {

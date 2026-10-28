@@ -1,17 +1,64 @@
 import { NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import { connectDB } from '@/lib/db';
-import { Staff } from '@/lib/models';
+import { Staff, Teacher } from '@/lib/models';
 
 export async function GET(req, { params }) {
   try {
     await connectDB();
     const { id } = await params;
-    const staff = await Staff.findById(id).lean();
+    if (!id || id === 'undefined' || id === 'null') {
+      return NextResponse.json({ success: false, message: 'Invalid staff ID' }, { status: 400 });
+    }
+
+    let staff = null;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      staff = await Staff.findById(id).lean();
+    }
+    if (!staff) {
+      staff = await Staff.findOne({
+        $or: [
+          { staffNo: id },
+          { email: id },
+          { mobile: id },
+          { phone: id }
+        ]
+      }).lean();
+    }
+
+    // Fallback: check Teacher collection if not found in Staff
+    if (!staff && mongoose.Types.ObjectId.isValid(id)) {
+      const teacher = await Teacher.findById(id).lean();
+      if (teacher) {
+        staff = {
+          ...teacher,
+          role: 'Teacher',
+          designation: teacher.designation || 'Senior Faculty',
+          department: teacher.department || (teacher.assignedClass ? `${teacher.assignedClass} Academic Dept` : 'Academics')
+        };
+      }
+    }
+
     if (!staff) {
       return NextResponse.json({ success: false, message: 'Staff not found' }, { status: 404 });
     }
-    return NextResponse.json({ success: true, data: staff });
+
+    const fullName = `${staff.firstName || ''} ${staff.lastName || ''}`.trim() || staff.name || 'Staff Member';
+    const photo = staff.staffPhoto || staff.photo || null;
+    const phone = staff.mobile || staff.phone || staff.emergencyMobile || '';
+
+    const normalized = {
+      ...staff,
+      name: fullName,
+      phone,
+      mobile: phone,
+      photo,
+      staffPhoto: photo,
+    };
+
+    return NextResponse.json({ success: true, data: normalized });
   } catch (error) {
+    console.error('API /staff/[id] GET error:', error);
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
@@ -20,6 +67,10 @@ export async function PUT(req, { params }) {
   try {
     await connectDB();
     const { id } = await params;
+    if (!id || id === 'undefined' || id === 'null') {
+      return NextResponse.json({ success: false, message: 'Invalid staff ID' }, { status: 400 });
+    }
+
     const contentType = req.headers.get('content-type') || '';
     let body = {};
 
@@ -49,7 +100,14 @@ export async function PUT(req, { params }) {
     if (body.photo && !body.staffPhoto) body.staffPhoto = body.photo;
     if (body.staffPhoto && !body.photo) body.photo = body.staffPhoto;
 
-    const updated = await Staff.findByIdAndUpdate(id, body, { new: true });
+    let updated = null;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      updated = await Staff.findByIdAndUpdate(id, body, { new: true });
+    }
+    if (!updated) {
+      updated = await Staff.findOneAndUpdate({ staffNo: id }, body, { new: true });
+    }
+
     if (!updated) {
       return NextResponse.json({ success: false, message: 'Staff not found' }, { status: 404 });
     }
@@ -60,6 +118,7 @@ export async function PUT(req, { params }) {
       message: 'Staff updated successfully'
     });
   } catch (error) {
+    console.error('API /staff/[id] PUT error:', error);
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
@@ -68,7 +127,18 @@ export async function DELETE(req, { params }) {
   try {
     await connectDB();
     const { id } = await params;
-    const deleted = await Staff.findByIdAndDelete(id);
+    if (!id || id === 'undefined' || id === 'null') {
+      return NextResponse.json({ success: false, message: 'Invalid staff ID' }, { status: 400 });
+    }
+
+    let deleted = null;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      deleted = await Staff.findByIdAndDelete(id);
+    }
+    if (!deleted) {
+      deleted = await Staff.findOneAndDelete({ staffNo: id });
+    }
+
     if (!deleted) {
       return NextResponse.json({ success: false, message: 'Staff not found' }, { status: 404 });
     }
@@ -78,6 +148,7 @@ export async function DELETE(req, { params }) {
       data: {}
     });
   } catch (error) {
+    console.error('API /staff/[id] DELETE error:', error);
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }

@@ -99,12 +99,13 @@ export function getPhotoUrl(photoPath) {
   if (!photoPath) return null;
   let p = null;
   if (typeof photoPath === 'object' && photoPath !== null) {
-    const sp = photoPath.studentPhoto;
+    const sp = photoPath.staffPhoto || photoPath.studentPhoto;
     const ph = photoPath.photo;
-    const av = photoPath.avatar;
-    // Prefer base64 data URI first if present in either field
-    if (typeof sp === 'string' && sp.startsWith('data:image/')) p = sp;
-    else if (typeof ph === 'string' && ph.startsWith('data:image/')) p = ph;
+    const av = photoPath.avatar || photoPath.image;
+    // Prefer base64 data URI first if present in any field
+    if (typeof sp === 'string' && (sp.startsWith('data:image/') || sp.startsWith('data:'))) p = sp;
+    else if (typeof ph === 'string' && (ph.startsWith('data:image/') || ph.startsWith('data:'))) p = ph;
+    else if (typeof av === 'string' && (av.startsWith('data:image/') || av.startsWith('data:'))) p = av;
     else if (typeof sp === 'string' && sp.trim()) p = sp;
     else if (typeof ph === 'string' && ph.trim()) p = ph;
     else if (typeof av === 'string' && av.trim()) p = av;
@@ -116,7 +117,7 @@ export function getPhotoUrl(photoPath) {
   if (!trimmed) return null;
   
   // If it's already a valid base64 data URI, HTTP(S) URL, or blob
-  if (trimmed.startsWith('data:image/') || trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('blob:')) {
+  if (trimmed.startsWith('data:') || trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('blob:')) {
     return trimmed;
   }
 

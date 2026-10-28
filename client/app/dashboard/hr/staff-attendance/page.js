@@ -52,12 +52,42 @@ export default function StaffAttendancePage() {
       if (res?.success && res.data?.length > 0) {
         setStaffs(res.data);
       } else {
-        // fallback demo data so the form is always usable
-        setStaffs(DEMO_STAFF.map(s => ({ ...s, status: 'Present', note: '' })));
+        // Fetch registered staff from backend
+        const staffRes = await api.get('/staff?limit=500').catch(() => null);
+        const list = staffRes?.data || (Array.isArray(staffRes) ? staffRes : []);
+        if (Array.isArray(list) && list.length > 0) {
+          setStaffs(list.map(s => ({
+            staffId: s._id || s.id,
+            name: s.name || `${s.firstName || ''} ${s.lastName || ''}`.trim() || 'Staff',
+            department: s.department || 'Academics',
+            designation: s.designation || 'Staff',
+            status: 'Present',
+            note: ''
+          })));
+        } else {
+          setStaffs(DEMO_STAFF.map(s => ({ ...s, status: 'Present', note: '' })));
+        }
       }
       setIsSearched(true);
     } catch (_) {
-      setStaffs(DEMO_STAFF.map(s => ({ ...s, status: 'Present', note: '' })));
+      try {
+        const staffRes = await api.get('/staff?limit=500').catch(() => null);
+        const list = staffRes?.data || (Array.isArray(staffRes) ? staffRes : []);
+        if (Array.isArray(list) && list.length > 0) {
+          setStaffs(list.map(s => ({
+            staffId: s._id || s.id,
+            name: s.name || `${s.firstName || ''} ${s.lastName || ''}`.trim() || 'Staff',
+            department: s.department || 'Academics',
+            designation: s.designation || 'Staff',
+            status: 'Present',
+            note: ''
+          })));
+        } else {
+          setStaffs(DEMO_STAFF.map(s => ({ ...s, status: 'Present', note: '' })));
+        }
+      } catch (__) {
+        setStaffs(DEMO_STAFF.map(s => ({ ...s, status: 'Present', note: '' })));
+      }
       setIsSearched(true);
     } finally {
       setLoading(false);
