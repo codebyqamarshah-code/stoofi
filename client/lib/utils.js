@@ -121,6 +121,11 @@ export function getPhotoUrl(photoPath) {
     return trimmed;
   }
 
+  // If it's an on-demand API photo streaming endpoint, return it directly (never prepend /uploads)
+  if (trimmed.startsWith('/api/')) {
+    return trimmed;
+  }
+
   // Reject strings that are obviously not image paths (e.g., 'null', 'undefined', 'none', single letters, etc.)
   if (trimmed.length < 4 || /^(null|undefined|none|n\/a|na|-|—)$/i.test(trimmed)) {
     return null;

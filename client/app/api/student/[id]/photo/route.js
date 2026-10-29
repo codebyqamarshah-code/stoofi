@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import { connectDB } from '@/lib/db';
 import { Student } from '@/lib/models';
 
@@ -7,24 +8,44 @@ export const dynamic = 'force-dynamic';
 export async function GET(req, { params }) {
   try {
     await connectDB();
-    const { id } = await params;
-    const student = await Student.findById(id).select('studentPhoto photo').lean();
+    const resolvedParams = await params;
+    const id = resolvedParams?.id;
+    if (!id) {
+      return new Response(null, { status: 404 });
+    }
+
+    let student = null;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      student = await Student.findById(id).select('studentPhoto photo').lean();
+    }
     if (!student) {
-      return new NextResponse(null, { status: 404 });
+      student = await Student.findOne({
+        $or: [
+          { admissionNo: id },
+          { rollNo: id },
+          { studentCode: id }
+        ]
+      }).select('studentPhoto photo').lean();
+    }
+
+    if (!student) {
+      return new Response(null, { status: 404 });
     }
 
     const raw = student.studentPhoto || student.photo;
     if (!raw || typeof raw !== 'string') {
-      return new NextResponse(null, { status: 404 });
+      return new Response(null, { status: 404 });
     }
 
     const trimmed = raw.trim();
+
+    // 1. Data URI format (data:image/jpeg;base64,...)
     if (trimmed.startsWith('data:')) {
       const match = trimmed.match(/^data:([^;]+);base64,(.*)$/);
       if (match) {
         const mimeType = match[1] || 'image/jpeg';
         const buffer = Buffer.from(match[2], 'base64');
-        return new NextResponse(buffer, {
+        return new Response(buffer, {
           status: 200,
           headers: {
             'Content-Type': mimeType,
@@ -35,12 +56,28 @@ export async function GET(req, { params }) {
       }
     }
 
+    // 2. Pure base64 format without data: prefix
+    if (/^[A-Za-z0-9+/=]{100,}/.test(trimmed)) {
+      const mimeType = trimmed.startsWith('/9j/') ? 'image/jpeg' : (trimmed.startsWith('iVBORw') ? 'image/png' : 'image/jpeg');
+      const buffer = Buffer.from(trimmed, 'base64');
+      return new Response(buffer, {
+        status: 200,
+        headers: {
+          'Content-Type': mimeType,
+          'Cache-Control': 'public, max-age=86400, stale-while-revalidate=43200',
+          'Content-Length': String(buffer.length)
+        }
+      });
+    }
+
+    // 3. Absolute URL redirect
     if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
       return NextResponse.redirect(trimmed, { status: 302 });
     }
 
-    return new NextResponse(null, { status: 404 });
+    return new Response(null, { status: 404 });
   } catch (err) {
-    return new NextResponse(null, { status: 500 });
+    console.error('Error in /api/student/[id]/photo:', err);
+    return new Response(null, { status: 500 });
   }
 }
