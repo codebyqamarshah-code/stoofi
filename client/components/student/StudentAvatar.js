@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { getPhotoUrl } from '@/lib/utils';
 
 /**
  * Robust Student Avatar component.
@@ -47,7 +48,8 @@ export default function StudentAvatar({
     'bg-rose-50 text-rose-800 border-rose-200'
   ][colorIndex];
 
-  const hasPhoto = Boolean(photo && typeof photo === 'string' && photo.trim() && !imgError);
+  const resolvedUrl = !imgError ? getPhotoUrl(photo) : null;
+  const hasPhoto = Boolean(resolvedUrl);
 
   return (
     <div
@@ -57,8 +59,8 @@ export default function StudentAvatar({
     >
       {hasPhoto ? (
         <img
-          key={photo}
-          src={photo}
+          key={resolvedUrl}
+          src={resolvedUrl}
           alt={firstName || 'Student'}
           onError={() => setImgError(true)}
           className="h-full w-full object-cover object-top block shrink-0"

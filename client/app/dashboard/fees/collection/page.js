@@ -32,6 +32,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import ThreeCopyFeeSlipModal, { formatBillingMonthLabel } from '@/components/fees/ThreeCopyFeeSlipModal';
+import StudentAvatar from '@/components/student/StudentAvatar';
 
 const FEE_TYPES = [
   'Monthly Tuition Fee',
@@ -1042,17 +1043,12 @@ export default function FeesCollectionPage() {
                       </td>
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-3">
-                          <div
-                            className={`h-8 w-8 rounded-full font-bold flex items-center justify-center text-xs shrink-0 ${
-                              isPaid
-                                ? 'bg-emerald-600 text-white'
-                                : isPartial
-                                ? 'bg-amber-500 text-white'
-                                : 'bg-rose-100 text-rose-800'
-                            }`}
-                          >
-                            {s.firstName?.charAt(0) || 'S'}
-                          </div>
+                          <StudentAvatar
+                            photo={s.studentPhoto || s.photo || s.avatar || s.image}
+                            firstName={s.firstName}
+                            lastName={s.lastName}
+                            size="md"
+                          />
                           <div>
                             <div className="font-bold text-zinc-900">{fullName}</div>
                             <div className="text-[11px] text-zinc-500 font-mono">
@@ -1229,9 +1225,27 @@ export default function FeesCollectionPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3.5">
-                      <div className="font-bold text-zinc-900">{inv.student || 'Student'}</div>
-                      <div className="text-[11px] text-zinc-500">
-                        {inv.admissionNo} &bull; {inv.className}
+                      <div className="flex items-center gap-2.5">
+                        {(() => {
+                          const matched = students.find(
+                            st =>
+                              (inv.studentId && String(st._id) === String(inv.studentId)) ||
+                              (inv.admissionNo && String(st.admissionNo).trim().toLowerCase() === String(inv.admissionNo).trim().toLowerCase())
+                          );
+                          return (
+                            <StudentAvatar
+                              photo={matched?.studentPhoto || matched?.photo || inv.photo}
+                              firstName={inv.student}
+                              size="sm"
+                            />
+                          );
+                        })()}
+                        <div>
+                          <div className="font-bold text-zinc-900">{inv.student || 'Student'}</div>
+                          <div className="text-[11px] text-zinc-500">
+                            {inv.admissionNo} &bull; {inv.className}
+                          </div>
+                        </div>
                       </div>
                     </td>
                     <td className="px-4 py-3.5 text-xs font-bold text-[#084A86]">
@@ -1326,18 +1340,26 @@ export default function FeesCollectionPage() {
             <form onSubmit={handleSubmitCollection} className="p-6 space-y-4">
               {/* Student Summary Card */}
               <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-100 flex items-center justify-between">
-                <div>
-                  <div className="text-xs text-emerald-800 font-bold uppercase">
-                    Student Information
-                  </div>
-                  <div className="text-sm font-bold text-zinc-950 mt-0.5">
-                    {formData.student}{' '}
-                    <span className="text-xs font-normal text-zinc-600">
-                      (S/D of {formData.fatherName})
-                    </span>
-                  </div>
-                  <div className="text-xs text-zinc-600 font-medium">
-                    Adm: {formData.admissionNo} &bull; {formData.className}
+                <div className="flex items-center gap-3">
+                  <StudentAvatar
+                    photo={activeStudent?.studentPhoto || activeStudent?.photo || activeStudent?.avatar}
+                    firstName={activeStudent?.firstName || formData.student}
+                    lastName={activeStudent?.lastName}
+                    size="lg"
+                  />
+                  <div>
+                    <div className="text-xs text-emerald-800 font-bold uppercase">
+                      Student Information
+                    </div>
+                    <div className="text-sm font-bold text-zinc-950 mt-0.5">
+                      {formData.student}{' '}
+                      <span className="text-xs font-normal text-zinc-600">
+                        (S/D of {formData.fatherName})
+                      </span>
+                    </div>
+                    <div className="text-xs text-zinc-600 font-medium">
+                      Adm: {formData.admissionNo} &bull; {formData.className}
+                    </div>
                   </div>
                 </div>
                 <div className="text-right">

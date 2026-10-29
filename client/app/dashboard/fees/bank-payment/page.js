@@ -25,6 +25,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import StudentAvatar from '@/components/student/StudentAvatar';
 
 export default function BankPaymentPage() {
   const [formData, setFormData] = useState({ dateRange: '', class: '', section: '', status: '' });
@@ -458,9 +459,27 @@ export default function BankPaymentPage() {
                 filteredRecords.map((item, idx) => (
                   <tr key={item._id || idx} className="hover:bg-zinc-50/80 transition-colors">
                     <td className="px-4 py-3.5">
-                      <div className="font-bold text-zinc-950 text-sm">{item.studentName || '—'}</div>
-                      <div className="text-[11px] text-zinc-500">
-                        {item.className ? `${item.className} (${item.section || 'A'})` : ''} &bull; Adm: {item.admissionNo || '—'}
+                      <div className="flex items-center gap-2.5">
+                        {(() => {
+                          const matched = students.find(
+                            st =>
+                              (item.studentId && String(st._id) === String(item.studentId)) ||
+                              (item.admissionNo && String(st.admissionNo).trim().toLowerCase() === String(item.admissionNo).trim().toLowerCase())
+                          );
+                          return (
+                            <StudentAvatar
+                              photo={matched?.studentPhoto || matched?.photo || item.photo}
+                              firstName={item.studentName}
+                              size="sm"
+                            />
+                          );
+                        })()}
+                        <div>
+                          <div className="font-bold text-zinc-950 text-sm">{item.studentName || '—'}</div>
+                          <div className="text-[11px] text-zinc-500">
+                            {item.className ? `${item.className} (${item.section || 'A'})` : ''} &bull; Adm: {item.admissionNo || '—'}
+                          </div>
+                        </div>
                       </div>
                     </td>
                     <td className="px-4 py-3.5 font-mono text-[11px] font-semibold text-zinc-800">

@@ -24,6 +24,7 @@ import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ThreeCopyFeeSlipModal from '@/components/fees/ThreeCopyFeeSlipModal';
+import StudentAvatar from '@/components/student/StudentAvatar';
 
 const DEFAULT_FEE_TYPES = [
   'Tuition Fee 2026',
@@ -445,8 +446,26 @@ export default function FeesInvoicePage() {
                       {r.invoiceNo || `INV-${100 + i}`}
                     </td>
                     <td className="px-4 py-3.5">
-                      <div className="font-bold text-zinc-950">{r.student}</div>
-                      <div className="text-[11px] text-zinc-500">{r.className || '-'} &bull; {r.admissionNo || '-'}</div>
+                      <div className="flex items-center gap-2.5">
+                        {(() => {
+                          const matched = studentsList.find(
+                            st =>
+                              (r.studentId && String(st._id) === String(r.studentId)) ||
+                              (r.admissionNo && String(st.admissionNo).trim().toLowerCase() === String(r.admissionNo).trim().toLowerCase())
+                          );
+                          return (
+                            <StudentAvatar
+                              photo={matched?.studentPhoto || matched?.photo || r.photo}
+                              firstName={r.student}
+                              size="sm"
+                            />
+                          );
+                        })()}
+                        <div>
+                          <div className="font-bold text-zinc-950">{r.student}</div>
+                          <div className="text-[11px] text-zinc-500">{r.className || '-'} &bull; {r.admissionNo || '-'}</div>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-4 py-3.5 text-xs">
                       <span className="bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md text-[11px] font-semibold text-zinc-800">
