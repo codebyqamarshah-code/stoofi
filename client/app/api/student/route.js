@@ -213,16 +213,27 @@ export async function GET(req) {
     let studentQuery = Student.find({ _id: { $in: pageIds } });
     if (isCompact) {
       studentQuery = studentQuery.select(
-        '_id admissionNo rollNo studentName name fullName firstName lastName className section fatherName status phone gender feeTuition feeGross netPayable'
+        '_id admissionNo rollNo studentName name fullName firstName lastName className section fatherName status phone gender dob type feeTuition feeGross netPayable studentPhoto photo'
       );
     } else {
-      // Exclude heavy multi-megabyte document uploads and extraneous photos from list views
+      // Exclude heavy multi-megabyte document uploads and extraneous family photos from list views
       studentQuery = studentQuery.select('-document1 -document2 -document3 -document4 -documents -fatherPhoto -motherPhoto -guardianPhoto');
     }
 
     const rawStudents = pageIds.length > 0 ? await studentQuery.lean() : [];
 
-    const docMap = new Map(rawStudents.map(st => [String(st._id), st]));
+    const docMap = new Map(rawStudents.map(st => {
+      const hasImg = Boolean((st.studentPhoto && typeof st.studentPhoto === 'string' && st.studentPhoto.trim()) || 
+                             (st.photo && typeof st.photo === 'string' && st.photo.trim()));
+      const photoUrl = hasImg ? `/api/student/${st._id}/photo` : null;
+      return [String(st._id), {
+        ...st,
+        hasPhoto: hasImg,
+        photo: photoUrl,
+        studentPhoto: photoUrl
+      }];
+    }));
+
     const students = pageIds
       .map(id => docMap.get(String(id)))
       .filter(Boolean)

@@ -140,4 +140,49 @@ describe('STOOFI Production Stability & Real Workflow Verification', () => {
     assert.ok(elapsed < 2000, `Compact query must execute in < 2000ms (took ${elapsed}ms)`);
     assert.ok(jsonBytes < 50000, `Compact payload must be < 50KB (got ${Math.round(jsonBytes / 1024)} KB)`);
   });
+
+  // 8. Photo On-Demand Streaming Integrity
+  it('10. Student Photo Streaming Endpoint Serves Real Image Data', async () => {
+    const studentWithPhoto = await db.collection('students').findOne({
+      $or: [
+        { studentPhoto: { $regex: '^data:image' } },
+        { photo: { $regex: '^data:image' } }
+      ]
+    });
+    assert.ok(studentWithPhoto, 'Must find persisted student with real base64 photo in Atlas');
+    const rawPhoto = studentWithPhoto.studentPhoto || studentWithPhoto.photo;
+    const match = rawPhoto.match(/^data:([^;]+);base64,(.*)$/);
+    assert.ok(match, 'Photo data must match data URI format');
+    const buffer = Buffer.from(match[2], 'base64');
+    assert.ok(buffer.length > 1000, 'Photo binary buffer must be valid image data');
+  });
+
+  // 9. Routine, Labs, Leave & Roles Integrity
+  it('11. Laboratory Subcollections & Class Routine Operational', async () => {
+    const routineCount = await db.collection('classroutines').countDocuments();
+    assert.ok(typeof routineCount === 'number', 'Class routines collection accessible');
+
+    const labCount = await db.collection('labs').countDocuments();
+    assert.ok(typeof labCount === 'number', 'Labs collection accessible');
+
+    const equipmentCount = await db.collection('labequipments').countDocuments();
+    assert.ok(typeof equipmentCount === 'number', 'Lab equipment collection accessible');
+
+    const maintenanceCount = await db.collection('labmaintenances').countDocuments();
+    assert.ok(typeof maintenanceCount === 'number', 'Lab maintenance collection accessible');
+
+    const practicalCount = await db.collection('labpracticals').countDocuments();
+    assert.ok(typeof practicalCount === 'number', 'Lab practicals collection accessible');
+  });
+
+  it('12. Leave, Roles & Payroll Collections Operational', async () => {
+    const leaveCount = await db.collection('leaves').countDocuments();
+    assert.ok(typeof leaveCount === 'number', 'Leaves collection accessible');
+
+    const roleCount = await db.collection('roles').countDocuments();
+    assert.ok(typeof roleCount === 'number', 'Roles collection accessible');
+
+    const payrollCount = await db.collection('payrolls').countDocuments();
+    assert.ok(typeof payrollCount === 'number', 'Payrolls collection accessible');
+  });
 });

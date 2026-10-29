@@ -1822,6 +1822,13 @@ const leaveTypeSchema = new mongoose.Schema({
 }, { timestamps: true, strict: false });
 export const LeaveType = mongoose.models.LeaveType || mongoose.model('LeaveType', leaveTypeSchema);
 
+const leaveDefineSchema = new mongoose.Schema({
+  role: { type: String, required: true },
+  leaveType: { type: String, required: true },
+  days: { type: Number, default: 0 }
+}, { timestamps: true, strict: false });
+export const LeaveDefine = mongoose.models.LeaveDefine || mongoose.model('LeaveDefine', leaveDefineSchema);
+
 // --- ROLE ---
 const roleSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },

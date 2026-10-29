@@ -79,26 +79,20 @@ export const routineService = {
 
   async saveRoutine(data) {
     let saved = null;
-    try {
-      if (data._id || (data.id && String(data.id).length === 24)) {
-        const id = data._id || data.id;
-        const res = await api.put(`/class-routine/${id}`, data);
-        if (res && res.success) saved = res.data;
-      } else {
-        const res = await api.post('/class-routine', data);
-        if (res && res.success) saved = res.data;
-      }
-    } catch (_) {}
-
-    const current = getLocal();
-    if (!saved) {
-      saved = {
-        ...data,
-        id: data.id || `ROUT-${Date.now()}`,
-        _id: data._id || `ROUT-${Date.now()}`
-      };
+    if (data._id || (data.id && String(data.id).length === 24)) {
+      const id = data._id || data.id;
+      const res = await api.put(`/class-routine/${id}`, data);
+      if (res && res.success) saved = res.data;
+    } else {
+      const res = await api.post('/class-routine', data);
+      if (res && res.success) saved = res.data;
     }
 
+    if (!saved) {
+      throw new Error('Failed to save routine on server');
+    }
+
+    const current = getLocal();
     const idx = current.findIndex(r => (r._id && r._id === saved._id) || (r.id && r.id === saved.id));
     if (idx >= 0) {
       current[idx] = saved;
@@ -110,9 +104,7 @@ export const routineService = {
   },
 
   async deleteRoutine(id) {
-    try {
-      await api.delete(`/class-routine/${id}`);
-    } catch (_) {}
+    await api.delete(`/class-routine/${id}`);
     const current = getLocal().filter(r => r._id !== id && r.id !== id);
     setLocal(current);
     return true;

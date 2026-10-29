@@ -76,7 +76,9 @@ export async function GET(req) {
       const id = (s._id || s.id || '').toString();
       const fullName = `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.name || 'Staff Member';
       const phone = s.mobile || s.phone || s.emergencyMobile || '';
-      const photo = s.staffPhoto || s.photo || s.avatar || null;
+      const hasImg = Boolean((s.staffPhoto && typeof s.staffPhoto === 'string' && s.staffPhoto.trim()) ||
+                             (s.photo && typeof s.photo === 'string' && s.photo.trim()));
+      const photo = hasImg ? `/api/staff/${id}/photo` : null;
       const department = s.department || deptMap[String(s.departmentId)] || (s.role === 'Super Admin' || s.role === 'Admin' ? 'Administration' : 'Academics');
       const designation = s.designation || desigMap[String(s.designationId)] || s.role || 'Staff Member';
 
@@ -92,6 +94,7 @@ export async function GET(req) {
         mobile: phone,
         photo,
         staffPhoto: photo,
+        hasPhoto: hasImg,
         status: s.status || 'Active',
       };
     });

@@ -257,7 +257,8 @@ export const useAuth = create(
         }
 
         if (typeof token === 'string' && token.startsWith('mock_')) {
-          return true;
+          get().logout();
+          return false;
         }
 
         try {

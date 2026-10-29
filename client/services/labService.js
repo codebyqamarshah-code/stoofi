@@ -228,43 +228,35 @@ export const labService = {
   },
 
   async saveEquipment(data) {
-    let saved = null;
-    try {
-      if (data._id || data.id && String(data.id).length === 24) {
-        const id = data._id || data.id;
-        const res = await api.put(`/labs/equipment/${id}`, data);
-        if (res && res.success) saved = res.data;
-      } else {
-        const res = await api.post('/labs/equipment', data);
-        if (res && res.success) saved = res.data;
-      }
-    } catch (_) {}
+    const isEdit = Boolean(data._id || (data.id && String(data.id).length === 24));
+    const id = data._id || data.id;
+    const res = isEdit
+      ? await api.put(`/labs/equipment/${id}`, data)
+      : await api.post('/labs/equipment', data);
 
-    const current = getLocal(STORAGE_KEYS.EQUIPMENT);
-    if (!saved) {
-      saved = {
-        ...data,
-        id: data.id || `EQ-${String(current.length + 1001)}`,
-        code: data.code || `EQ-${Math.floor(1000 + Math.random() * 9000)}`
-      };
+    if (res?.data || res?.success) {
+      const saved = res.data || { ...data, _id: id };
+      const current = getLocal(STORAGE_KEYS.EQUIPMENT);
+      const idx = current.findIndex(e => (e._id && e._id === saved._id) || (e.id && e.id === saved.id));
+      if (idx >= 0) {
+        current[idx] = saved;
+      } else {
+        current.unshift(saved);
+      }
+      setLocal(STORAGE_KEYS.EQUIPMENT, current);
+      return saved;
     }
-    const idx = current.findIndex(e => (e._id && e._id === saved._id) || (e.id && e.id === saved.id));
-    if (idx >= 0) {
-      current[idx] = saved;
-    } else {
-      current.unshift(saved);
-    }
-    setLocal(STORAGE_KEYS.EQUIPMENT, current);
-    return saved;
+    throw new Error(res?.message || 'Failed to save equipment on server');
   },
 
   async deleteEquipment(id) {
-    try {
-      await api.delete(`/labs/equipment/${id}`);
-    } catch (_) {}
-    const current = getLocal(STORAGE_KEYS.EQUIPMENT).filter(e => e._id !== id && e.id !== id);
-    setLocal(STORAGE_KEYS.EQUIPMENT, current);
-    return true;
+    const res = await api.delete(`/labs/equipment/${id}`);
+    if (res && res.success !== false) {
+      const current = getLocal(STORAGE_KEYS.EQUIPMENT).filter(e => e._id !== id && e.id !== id);
+      setLocal(STORAGE_KEYS.EQUIPMENT, current);
+      return true;
+    }
+    throw new Error(res?.message || 'Failed to delete equipment on server');
   },
 
   // ===============================
@@ -282,43 +274,35 @@ export const labService = {
   },
 
   async saveMaintenance(data) {
-    let saved = null;
-    try {
-      if (data._id || data.id && String(data.id).length === 24) {
-        const id = data._id || data.id;
-        const res = await api.put(`/labs/maintenance/${id}`, data);
-        if (res && res.success) saved = res.data;
-      } else {
-        const res = await api.post('/labs/maintenance', data);
-        if (res && res.success) saved = res.data;
-      }
-    } catch (_) {}
+    const isEdit = Boolean(data._id || (data.id && String(data.id).length === 24));
+    const id = data._id || data.id;
+    const res = isEdit
+      ? await api.put(`/labs/maintenance/${id}`, data)
+      : await api.post('/labs/maintenance', data);
 
-    const current = getLocal(STORAGE_KEYS.MAINTENANCE);
-    if (!saved) {
-      saved = {
-        ...data,
-        id: data.id || `TKT-${String(current.length + 101)}`,
-        ticketNumber: data.ticketNumber || `TKT-${String(current.length + 101)}`
-      };
+    if (res?.data || res?.success) {
+      const saved = res.data || { ...data, _id: id };
+      const current = getLocal(STORAGE_KEYS.MAINTENANCE);
+      const idx = current.findIndex(m => (m._id && m._id === saved._id) || (m.id && m.id === saved.id));
+      if (idx >= 0) {
+        current[idx] = saved;
+      } else {
+        current.unshift(saved);
+      }
+      setLocal(STORAGE_KEYS.MAINTENANCE, current);
+      return saved;
     }
-    const idx = current.findIndex(m => (m._id && m._id === saved._id) || (m.id && m.id === saved.id));
-    if (idx >= 0) {
-      current[idx] = saved;
-    } else {
-      current.unshift(saved);
-    }
-    setLocal(STORAGE_KEYS.MAINTENANCE, current);
-    return saved;
+    throw new Error(res?.message || 'Failed to save maintenance record on server');
   },
 
   async deleteMaintenance(id) {
-    try {
-      await api.delete(`/labs/maintenance/${id}`);
-    } catch (_) {}
-    const current = getLocal(STORAGE_KEYS.MAINTENANCE).filter(m => m._id !== id && m.id !== id);
-    setLocal(STORAGE_KEYS.MAINTENANCE, current);
-    return true;
+    const res = await api.delete(`/labs/maintenance/${id}`);
+    if (res && res.success !== false) {
+      const current = getLocal(STORAGE_KEYS.MAINTENANCE).filter(m => m._id !== id && m.id !== id);
+      setLocal(STORAGE_KEYS.MAINTENANCE, current);
+      return true;
+    }
+    throw new Error(res?.message || 'Failed to delete maintenance record on server');
   },
 
   // ===============================
@@ -336,43 +320,35 @@ export const labService = {
   },
 
   async saveConsumable(data) {
-    let saved = null;
-    try {
-      if (data._id || data.id && String(data.id).length === 24) {
-        const id = data._id || data.id;
-        const res = await api.put(`/labs/consumables/${id}`, data);
-        if (res && res.success) saved = res.data;
-      } else {
-        const res = await api.post('/labs/consumables', data);
-        if (res && res.success) saved = res.data;
-      }
-    } catch (_) {}
+    const isEdit = Boolean(data._id || (data.id && String(data.id).length === 24));
+    const id = data._id || data.id;
+    const res = isEdit
+      ? await api.put(`/labs/consumables/${id}`, data)
+      : await api.post('/labs/consumables', data);
 
-    const current = getLocal(STORAGE_KEYS.CONSUMABLES);
-    if (!saved) {
-      saved = {
-        ...data,
-        id: data.id || `CON-${String(current.length + 1).padStart(2, '0')}`,
-        code: data.code || `CON-${String(current.length + 1).padStart(2, '0')}`
-      };
+    if (res?.data || res?.success) {
+      const saved = res.data || { ...data, _id: id };
+      const current = getLocal(STORAGE_KEYS.CONSUMABLES);
+      const idx = current.findIndex(c => (c._id && c._id === saved._id) || (c.id && c.id === saved.id));
+      if (idx >= 0) {
+        current[idx] = saved;
+      } else {
+        current.unshift(saved);
+      }
+      setLocal(STORAGE_KEYS.CONSUMABLES, current);
+      return saved;
     }
-    const idx = current.findIndex(c => (c._id && c._id === saved._id) || (c.id && c.id === saved.id));
-    if (idx >= 0) {
-      current[idx] = saved;
-    } else {
-      current.unshift(saved);
-    }
-    setLocal(STORAGE_KEYS.CONSUMABLES, current);
-    return saved;
+    throw new Error(res?.message || 'Failed to save consumable on server');
   },
 
   async deleteConsumable(id) {
-    try {
-      await api.delete(`/labs/consumables/${id}`);
-    } catch (_) {}
-    const current = getLocal(STORAGE_KEYS.CONSUMABLES).filter(c => c._id !== id && c.id !== id);
-    setLocal(STORAGE_KEYS.CONSUMABLES, current);
-    return true;
+    const res = await api.delete(`/labs/consumables/${id}`);
+    if (res && res.success !== false) {
+      const current = getLocal(STORAGE_KEYS.CONSUMABLES).filter(c => c._id !== id && c.id !== id);
+      setLocal(STORAGE_KEYS.CONSUMABLES, current);
+      return true;
+    }
+    throw new Error(res?.message || 'Failed to delete consumable on server');
   },
 
   // ===============================
@@ -390,43 +366,35 @@ export const labService = {
   },
 
   async saveCategory(data) {
-    let saved = null;
-    try {
-      if (data._id || data.id && String(data.id).length === 24) {
-        const id = data._id || data.id;
-        const res = await api.put(`/labs/categories/${id}`, data);
-        if (res && res.success) saved = res.data;
-      } else {
-        const res = await api.post('/labs/categories', data);
-        if (res && res.success) saved = res.data;
-      }
-    } catch (_) {}
+    const isEdit = Boolean(data._id || (data.id && String(data.id).length === 24));
+    const id = data._id || data.id;
+    const res = isEdit
+      ? await api.put(`/labs/categories/${id}`, data)
+      : await api.post('/labs/categories', data);
 
-    const current = getLocal(STORAGE_KEYS.CATEGORIES);
-    if (!saved) {
-      saved = {
-        ...data,
-        id: data.id || Date.now(),
-        code: data.code || `CAT-${String(current.length + 1).padStart(2, '0')}`
-      };
+    if (res?.data || res?.success) {
+      const saved = res.data || { ...data, _id: id };
+      const current = getLocal(STORAGE_KEYS.CATEGORIES);
+      const idx = current.findIndex(c => (c._id && c._id === saved._id) || (c.id && c.id === saved.id));
+      if (idx >= 0) {
+        current[idx] = saved;
+      } else {
+        current.unshift(saved);
+      }
+      setLocal(STORAGE_KEYS.CATEGORIES, current);
+      return saved;
     }
-    const idx = current.findIndex(c => (c._id && c._id === saved._id) || (c.id && c.id === saved.id));
-    if (idx >= 0) {
-      current[idx] = saved;
-    } else {
-      current.unshift(saved);
-    }
-    setLocal(STORAGE_KEYS.CATEGORIES, current);
-    return saved;
+    throw new Error(res?.message || 'Failed to save category on server');
   },
 
   async deleteCategory(id) {
-    try {
-      await api.delete(`/labs/categories/${id}`);
-    } catch (_) {}
-    const current = getLocal(STORAGE_KEYS.CATEGORIES).filter(c => c._id !== id && c.id !== id);
-    setLocal(STORAGE_KEYS.CATEGORIES, current);
-    return true;
+    const res = await api.delete(`/labs/categories/${id}`);
+    if (res && res.success !== false) {
+      const current = getLocal(STORAGE_KEYS.CATEGORIES).filter(c => c._id !== id && c.id !== id);
+      setLocal(STORAGE_KEYS.CATEGORIES, current);
+      return true;
+    }
+    throw new Error(res?.message || 'Failed to delete category on server');
   },
 
   // ===============================
@@ -444,43 +412,35 @@ export const labService = {
   },
 
   async savePractical(data) {
-    let saved = null;
-    try {
-      if (data._id || data.id && String(data.id).length === 24) {
-        const id = data._id || data.id;
-        const res = await api.put(`/labs/practicals/${id}`, data);
-        if (res && res.success) saved = res.data;
-      } else {
-        const res = await api.post('/labs/practicals', data);
-        if (res && res.success) saved = res.data;
-      }
-    } catch (_) {}
+    const isEdit = Boolean(data._id || (data.id && String(data.id).length === 24));
+    const id = data._id || data.id;
+    const res = isEdit
+      ? await api.put(`/labs/practicals/${id}`, data)
+      : await api.post('/labs/practicals', data);
 
-    const current = getLocal(STORAGE_KEYS.PRACTICALS);
-    if (!saved) {
-      saved = {
-        ...data,
-        id: data.id || `PRAC-${String(current.length + 1).padStart(3, '0')}`,
-        number: data.number || `Practical #${current.length + 1}`
-      };
+    if (res?.data || res?.success) {
+      const saved = res.data || { ...data, _id: id };
+      const current = getLocal(STORAGE_KEYS.PRACTICALS);
+      const idx = current.findIndex(p => (p._id && p._id === saved._id) || (p.id && p.id === saved.id));
+      if (idx >= 0) {
+        current[idx] = saved;
+      } else {
+        current.unshift(saved);
+      }
+      setLocal(STORAGE_KEYS.PRACTICALS, current);
+      return saved;
     }
-    const idx = current.findIndex(p => (p._id && p._id === saved._id) || (p.id && p.id === saved.id));
-    if (idx >= 0) {
-      current[idx] = saved;
-    } else {
-      current.unshift(saved);
-    }
-    setLocal(STORAGE_KEYS.PRACTICALS, current);
-    return saved;
+    throw new Error(res?.message || 'Failed to save practical on server');
   },
 
   async deletePractical(id) {
-    try {
-      await api.delete(`/labs/practicals/${id}`);
-    } catch (_) {}
-    const current = getLocal(STORAGE_KEYS.PRACTICALS).filter(p => p._id !== id && p.id !== id);
-    setLocal(STORAGE_KEYS.PRACTICALS, current);
-    return true;
+    const res = await api.delete(`/labs/practicals/${id}`);
+    if (res && res.success !== false) {
+      const current = getLocal(STORAGE_KEYS.PRACTICALS).filter(p => p._id !== id && p.id !== id);
+      setLocal(STORAGE_KEYS.PRACTICALS, current);
+      return true;
+    }
+    throw new Error(res?.message || 'Failed to delete practical on server');
   },
 
   // ===============================
@@ -526,45 +486,36 @@ export const labService = {
   },
 
   async saveSchedule(data) {
-    let saved = null;
     const payload = { ...data, isLab: true };
-    try {
-      if (payload._id || (payload.id && String(payload.id).length === 24)) {
-        const id = payload._id || payload.id;
-        const res = await api.put(`/labs/schedule/${id}`, payload);
-        if (res && res.success) saved = res.data;
+    const isEdit = Boolean(payload._id || (payload.id && String(payload.id).length === 24));
+    const id = payload._id || payload.id;
+    const res = isEdit
+      ? await api.put(`/labs/schedule/${id}`, payload)
+      : await api.post('/labs/schedule', payload);
+
+    if (res?.data || res?.success) {
+      const saved = res.data || { ...payload, _id: id };
+      const current = getLocal('stoofi_live_class_routines');
+      const idx = current.findIndex(s => (s._id && s._id === saved._id) || (s.id && s.id === saved.id));
+      if (idx >= 0) {
+        current[idx] = saved;
       } else {
-        const res = await api.post('/labs/schedule', payload);
-        if (res && res.success) saved = res.data;
+        current.unshift(saved);
       }
-    } catch (_) {}
-
-    const current = getLocal('stoofi_live_class_routines');
-    if (!saved) {
-      saved = {
-        ...payload,
-        id: payload.id || `SCH-${Date.now()}`,
-        _id: payload._id || `SCH-${Date.now()}`
-      };
+      setLocal('stoofi_live_class_routines', current);
+      return saved;
     }
-
-    const idx = current.findIndex(s => (s._id && s._id === saved._id) || (s.id && s.id === saved.id));
-    if (idx >= 0) {
-      current[idx] = saved;
-    } else {
-      current.unshift(saved);
-    }
-    setLocal('stoofi_live_class_routines', current);
-    return saved;
+    throw new Error(res?.message || 'Failed to save lab schedule on server');
   },
 
   async deleteSchedule(id) {
-    try {
-      await api.delete(`/labs/schedule/${id}`);
-    } catch (_) {}
-    const current = getLocal('stoofi_live_class_routines').filter(s => s._id !== id && s.id !== id);
-    setLocal('stoofi_live_class_routines', current);
-    return true;
+    const res = await api.delete(`/labs/schedule/${id}`);
+    if (res && res.success !== false) {
+      const current = getLocal('stoofi_live_class_routines').filter(s => s._id !== id && s.id !== id);
+      setLocal('stoofi_live_class_routines', current);
+      return true;
+    }
+    throw new Error(res?.message || 'Failed to delete lab schedule on server');
   }
 };
 
