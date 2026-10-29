@@ -55,8 +55,7 @@ function SuccessContent() {
 
       // Safepay redirect with order_id and tracker
       try {
-        const rawApi = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-        const baseApi = rawApi.replace(/\/api\/?$/, '');
+        const baseApi = typeof window !== 'undefined' ? window.location.origin : '';
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
         const res = await fetch(`${baseApi}/api/payments/verify`, {

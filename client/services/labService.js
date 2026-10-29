@@ -182,44 +182,35 @@ export const labService = {
   },
 
   async saveLab(labData) {
-    let saved = null;
-    try {
-      if (labData._id || labData.id && String(labData.id).length === 24) {
-        const id = labData._id || labData.id;
-        const res = await api.put(`/labs/${id}`, labData);
-        if (res && res.success) saved = res.data;
-      } else {
-        const res = await api.post('/labs', labData);
-        if (res && res.success) saved = res.data;
-      }
-    } catch (_) {}
+    const isEdit = Boolean(labData._id || (labData.id && String(labData.id).length === 24));
+    const id = labData._id || labData.id;
+    const res = isEdit
+      ? await api.put(`/labs/${id}`, labData)
+      : await api.post('/labs', labData);
 
-    // Sync local
-    const current = getLocal(STORAGE_KEYS.LABS);
-    if (!saved) {
-      saved = {
-        ...labData,
-        id: labData.id || `LAB-${String(current.length + 1).padStart(3, '0')}`,
-        code: labData.code || `LAB-${Math.floor(100 + Math.random() * 900)}`
-      };
+    if (res?.data || res?.success) {
+      const saved = res.data || { ...labData, _id: id };
+      const current = getLocal(STORAGE_KEYS.LABS);
+      const idx = current.findIndex(l => (l._id && l._id === saved._id) || (l.id && l.id === saved.id));
+      if (idx >= 0) {
+        current[idx] = saved;
+      } else {
+        current.unshift(saved);
+      }
+      setLocal(STORAGE_KEYS.LABS, current);
+      return saved;
     }
-    const idx = current.findIndex(l => (l._id && l._id === saved._id) || (l.id && l.id === saved.id));
-    if (idx >= 0) {
-      current[idx] = saved;
-    } else {
-      current.unshift(saved);
-    }
-    setLocal(STORAGE_KEYS.LABS, current);
-    return saved;
+    throw new Error(res?.message || 'Failed to save laboratory record on server');
   },
 
   async deleteLab(id) {
-    try {
-      await api.delete(`/labs/${id}`);
-    } catch (_) {}
-    const current = getLocal(STORAGE_KEYS.LABS).filter(l => l._id !== id && l.id !== id);
-    setLocal(STORAGE_KEYS.LABS, current);
-    return true;
+    const res = await api.delete(`/labs/${id}`);
+    if (res && res.success !== false) {
+      const current = getLocal(STORAGE_KEYS.LABS).filter(l => l._id !== id && l.id !== id);
+      setLocal(STORAGE_KEYS.LABS, current);
+      return true;
+    }
+    throw new Error(res?.message || 'Failed to delete laboratory on server');
   },
 
   // ===============================

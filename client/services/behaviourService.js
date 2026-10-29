@@ -71,57 +71,49 @@ export const behaviourService = {
   async createIncident(data) {
     const cleanPoint = Math.abs(Number(data.point));
     const calculatedPoint = data.pointType === 'negative' ? -cleanPoint : cleanPoint;
-    const newIncident = {
-      _id: `inc-${Date.now()}`,
-      title: data.title,
-      point: calculatedPoint,
-      pointType: data.pointType || (calculatedPoint < 0 ? 'negative' : 'positive'),
-      description: data.description || '',
-      status: 'active'
-    };
 
-    try {
-      const res = await api.post('/behaviour/incidents', data);
-      if (res?.success && res.data) {
-        newIncident._id = res.data._id || newIncident._id;
-      }
-    } catch (_) {}
+    const res = await api.post('/behaviour/incidents', {
+      ...data,
+      point: calculatedPoint
+    });
 
-    const current = getLocal(INCIDENTS_KEY, DEFAULT_INCIDENTS);
-    const updated = [newIncident, ...current];
-    setLocal(INCIDENTS_KEY, updated);
-    return newIncident;
+    if (res?.data) {
+      const current = getLocal(INCIDENTS_KEY, DEFAULT_INCIDENTS);
+      const updated = [res.data, ...current];
+      setLocal(INCIDENTS_KEY, updated);
+      return res.data;
+    }
+    throw new Error(res?.message || 'Failed to create behaviour incident on server');
   },
 
   async updateIncident(id, data) {
     const cleanPoint = Math.abs(Number(data.point));
     const calculatedPoint = data.pointType === 'negative' ? -cleanPoint : cleanPoint;
 
-    try {
-      await api.put(`/behaviour/incidents/${id}`, data);
-    } catch (_) {}
+    const res = await api.put(`/behaviour/incidents/${id}`, {
+      ...data,
+      point: calculatedPoint
+    });
 
-    const current = getLocal(INCIDENTS_KEY, DEFAULT_INCIDENTS);
-    const updated = current.map(item => item._id === id ? {
-      ...item,
-      title: data.title,
-      point: calculatedPoint,
-      pointType: data.pointType,
-      description: data.description
-    } : item);
-    setLocal(INCIDENTS_KEY, updated);
-    return true;
+    if (res?.data || res?.success) {
+      const saved = res.data || { _id: id, ...data, point: calculatedPoint };
+      const current = getLocal(INCIDENTS_KEY, DEFAULT_INCIDENTS);
+      const updated = current.map(item => item._id === id ? saved : item);
+      setLocal(INCIDENTS_KEY, updated);
+      return saved;
+    }
+    throw new Error(res?.message || 'Failed to update behaviour incident on server');
   },
 
   async deleteIncident(id) {
-    try {
-      await api.delete(`/behaviour/incidents/${id}`);
-    } catch (_) {}
-
-    const current = getLocal(INCIDENTS_KEY, DEFAULT_INCIDENTS);
-    const updated = current.filter(item => item._id !== id);
-    setLocal(INCIDENTS_KEY, updated);
-    return true;
+    const res = await api.delete(`/behaviour/incidents/${id}`);
+    if (res && res.success !== false) {
+      const current = getLocal(INCIDENTS_KEY, DEFAULT_INCIDENTS);
+      const updated = current.filter(item => item._id !== id);
+      setLocal(INCIDENTS_KEY, updated);
+      return true;
+    }
+    throw new Error(res?.message || 'Failed to delete behaviour incident on server');
   },
 
   // --- ASSIGNED INCIDENTS ---
@@ -139,53 +131,36 @@ export const behaviourService = {
   async assignIncident(data) {
     const cleanPoint = Math.abs(Number(data.point));
     const calculatedPoint = data.pointType === 'negative' ? -cleanPoint : cleanPoint;
-    const newAssigned = {
-      _id: `asg-${Date.now()}`,
-      studentId: data.studentId || `stu-${Date.now()}`,
-      studentName: data.studentName,
-      admissionNo: data.admissionNo || 'N/A',
-      className: data.className || 'FSC OTT',
-      section: data.section || 'A',
-      incidentTitle: data.incidentTitle,
-      point: calculatedPoint,
-      pointType: data.pointType || (calculatedPoint < 0 ? 'negative' : 'positive'),
-      incidentDate: data.incidentDate || new Date().toISOString().split('T')[0],
-      assignedBy: data.assignedBy || 'Administration',
-      remarks: data.remarks || ''
-    };
 
-    try {
-      const res = await api.post('/behaviour/assign', data);
-      if (res?.success && res.data) {
-        newAssigned._id = res.data._id || newAssigned._id;
-      }
-    } catch (err) {
-      console.warn('Backend assign sync error:', err.message);
+    const res = await api.post('/behaviour/assign', {
+      ...data,
+      point: calculatedPoint
+    });
+
+    if (res?.data) {
+      const current = getLocal(ASSIGNED_KEY, []);
+      const updated = [res.data, ...current];
+      setLocal(ASSIGNED_KEY, updated);
+      return res.data;
     }
-
-    const current = getLocal(ASSIGNED_KEY, []);
-    const updated = [newAssigned, ...current];
-    setLocal(ASSIGNED_KEY, updated);
-    return newAssigned;
+    throw new Error(res?.message || 'Failed to assign behaviour incident on server');
   },
 
   async deleteAssignedIncident(id) {
-    try {
-      await api.delete(`/behaviour/assign/${id}`);
-    } catch (err) {
-      console.warn('Backend delete sync error:', err.message);
+    const res = await api.delete(`/behaviour/assign/${id}`);
+    if (res && res.success !== false) {
+      const current = getLocal(ASSIGNED_KEY, []);
+      const updated = current.filter(item => item._id !== id);
+      setLocal(ASSIGNED_KEY, updated);
+      return true;
     }
-
-    const current = getLocal(ASSIGNED_KEY, []);
-    const updated = current.filter(item => item._id !== id);
-    setLocal(ASSIGNED_KEY, updated);
-    return true;
+    throw new Error(res?.message || 'Failed to delete assigned incident on server');
   },
 
   // --- STUDENTS HELPER ---
   async getAvailableStudents() {
     try {
-      const res = await api.get('/student');
+      const res = await api.get('/student?view=compact&limit=150');
       let list = [];
       if (Array.isArray(res?.data)) list = res.data;
       else if (Array.isArray(res?.students)) list = res.students;

@@ -49,19 +49,17 @@ export default function StudentDashboardPage() {
   useEffect(() => {
     if (user?.referenceId) {
       // We know /api/student/:id works now!
-      fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000") + '/api/student/' + user.referenceId, {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-      })
-      .then(r => r.json())
-      .then(d => {
-        if (d.success && d.data) {
-          setAdmissionNo(d.data.admissionNo || 'N/A');
-          setStudentDetails(d.data);
-        } else {
-          setAdmissionNo('ADM-' + String(user._id).slice(-5).toUpperCase());
-        }
-      })
-      .catch(() => setAdmissionNo('ADM-' + String(user._id).slice(-5).toUpperCase()));
+      api.get('/student/' + user.referenceId)
+        .then(d => {
+          if (d && (d.success !== false) && (d.data || d.admissionNo)) {
+            const data = d.data || d;
+            setAdmissionNo(data.admissionNo || 'N/A');
+            setStudentDetails(data);
+          } else {
+            setAdmissionNo(user.admissionNo || ('ADM-' + String(user._id).slice(-5).toUpperCase()));
+          }
+        })
+        .catch(() => setAdmissionNo(user.admissionNo || ('ADM-' + String(user._id).slice(-5).toUpperCase())));
     } else if (user?._id) {
        setAdmissionNo('ADM-' + String(user._id).slice(-5).toUpperCase());
     }

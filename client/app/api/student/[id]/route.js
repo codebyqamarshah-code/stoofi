@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { Student, StudentEnrollment, FeesInvoice } from '@/lib/models';
+import { authenticateRequest } from '@/lib/authGuard';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -398,6 +399,14 @@ export async function PUT(req, { params }) {
 export async function DELETE(req, { params }) {
   try {
     await connectDB();
+
+    // Server-side authentication and deletion restriction guard
+    const { user, error } = await authenticateRequest(req, {
+      requireCanDelete: true,
+      allowedRoles: ['Super Admin', 'Admin']
+    });
+    if (error) return error;
+
     const { id } = await params;
     const deleted = await Student.findByIdAndDelete(id);
 

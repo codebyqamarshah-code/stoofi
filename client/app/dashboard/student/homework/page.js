@@ -15,8 +15,7 @@ export default function Page() {
       const res = await api.get('/homework');
       if (res?.success && Array.isArray(res.data)) {
         const normalize = (val) => String(val || '').replace(/^(Class|Section)\s*/i, '').trim().toLowerCase();
-        const rawApi = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-        const baseApi = rawApi.replace(/\/api\/?$/, '');
+        const baseApi = typeof window !== 'undefined' ? window.location.origin : '';
         
         const myHomework = res.data.filter(h => {
           if (!user?.className) return true; 

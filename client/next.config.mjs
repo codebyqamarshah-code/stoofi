@@ -21,6 +21,12 @@ const nextConfig = {
     cpus: 1,
     workerThreads: false,
   },
+  webpack: (config, { dev }) => {
+    if (!dev) {
+      config.cache = false;
+    }
+    return config;
+  },
   async rewrites() {
     return [
       {

@@ -1641,6 +1641,224 @@ const postalReceiveSchema = new mongoose.Schema({
 }, { timestamps: true, strict: false });
 export const PostalReceive = mongoose.models.PostalReceive || mongoose.model('PostalReceive', postalReceiveSchema);
 
+// --- HOMEWORK ---
+const homeworkSchema = new mongoose.Schema({
+  className: { type: String, required: true },
+  section: { type: String, default: 'All' },
+  subject: { type: String, required: true },
+  homeworkDate: { type: Date, default: Date.now },
+  submissionDate: { type: Date },
+  marks: { type: Number, default: 0 },
+  file: { type: String, default: '' },
+  description: { type: String, required: true },
+  completedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  evaluations: [{
+    studentId: { type: String },
+    studentName: { type: String },
+    admissionNo: { type: String },
+    rollNo: { type: String },
+    status: { type: String, default: 'Submitted' },
+    marksObtained: { type: Number, default: 0 },
+    teacherRemarks: { type: String, default: '' },
+    evaluatedAt: { type: Date, default: Date.now }
+  }]
+}, { timestamps: true, strict: false });
+export const Homework = mongoose.models.Homework || mongoose.model('Homework', homeworkSchema);
+
+// --- BEHAVIOUR ---
+const behaviourIncidentSchema = new mongoose.Schema({
+  title: { type: String, required: true, trim: true },
+  point: { type: Number, required: true, default: 0 },
+  pointType: { type: String, enum: ['positive', 'negative'], default: 'positive' },
+  description: { type: String, trim: true, default: '' },
+  status: { type: String, default: 'active' }
+}, { timestamps: true, strict: false });
+export const BehaviourIncident = mongoose.models.BehaviourIncident || mongoose.model('BehaviourIncident', behaviourIncidentSchema);
+
+const assignedIncidentSchema = new mongoose.Schema({
+  studentId: { type: String, required: true },
+  studentName: { type: String, required: true },
+  admissionNo: { type: String, required: true },
+  className: { type: String, required: true },
+  section: { type: String, required: true },
+  incidentId: { type: mongoose.Schema.Types.ObjectId, ref: 'BehaviourIncident' },
+  incidentTitle: { type: String, required: true },
+  point: { type: Number, required: true },
+  pointType: { type: String, enum: ['positive', 'negative'], default: 'positive' },
+  incidentDate: { type: String, required: true },
+  assignedBy: { type: String, default: 'School Administration' },
+  remarks: { type: String, default: '' }
+}, { timestamps: true, strict: false });
+export const AssignedIncident = mongoose.models.AssignedIncident || mongoose.model('AssignedIncident', assignedIncidentSchema);
+
+const behaviourSettingSchema = new mongoose.Schema({
+  schoolId: { type: String, default: 'default' },
+  commentOption: { type: String, default: 'Optional' },
+  viewOption: { type: String, default: 'Student & Parent' },
+  viewIncidentInStudentPortal: { type: Boolean, default: true },
+  viewIncidentInParentPortal: { type: Boolean, default: true },
+  viewIncidentInTeacherPortal: { type: Boolean, default: true },
+  notifyParentsOnNegative: { type: Boolean, default: true },
+  warningLetterThreshold: { type: Number, default: -15 },
+  awardCertificateThreshold: { type: Number, default: 30 }
+}, { timestamps: true, strict: false });
+export const BehaviourSetting = mongoose.models.BehaviourSetting || mongoose.model('BehaviourSetting', behaviourSettingSchema);
+
+// --- CLASS ROUTINE & TIMETABLE ---
+const classRoutineSchema = new mongoose.Schema({
+  className: { type: String, required: true },
+  sectionName: { type: String, required: true },
+  subject: { type: String, required: true },
+  teacher: { type: String, default: '' },
+  day: { type: String, required: true },
+  startTime: { type: String, required: true },
+  endTime: { type: String, required: true },
+  room: { type: String, default: '' },
+  isLab: { type: Boolean, default: false },
+  labId: { type: String, default: '' },
+  labName: { type: String, default: '' },
+  batch: { type: String, default: 'All Students' },
+  capacityAllocated: { type: Number, default: 0 },
+  topic: { type: String, default: '' },
+  status: { type: String, default: 'Scheduled' },
+  recurrence: { type: String, default: 'Weekly' },
+  notes: { type: String, default: '' }
+}, { timestamps: true, strict: false });
+export const ClassRoutine = mongoose.models.ClassRoutine || mongoose.model('ClassRoutine', classRoutineSchema);
+
+// --- LESSON & TOPIC ---
+const lessonSchema = new mongoose.Schema({
+  class: { type: String, required: true },
+  subject: { type: String, required: true },
+  lesson: { type: String, required: true }
+}, { timestamps: true, strict: false });
+export const Lesson = mongoose.models.Lesson || mongoose.model('Lesson', lessonSchema);
+
+const topicSchema = new mongoose.Schema({
+  class: { type: String, required: true },
+  section: { type: String, required: true },
+  subject: { type: String, required: true },
+  lesson: { type: String, required: true },
+  topic: { type: String, required: true }
+}, { timestamps: true, strict: false });
+export const Topic = mongoose.models.Topic || mongoose.model('Topic', topicSchema);
+
+// --- LABORATORIES & PRACTICALS ---
+const labSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  code: { type: String, trim: true },
+  category: { type: String, default: 'General' },
+  campus: { type: String, default: 'Main Campus' },
+  building: { type: String, default: '' },
+  floor: { type: String, default: '' },
+  roomNumber: { type: String, default: '' },
+  capacity: { type: Number, default: 30 },
+  inCharge: { type: String, default: '' },
+  assistant: { type: String, default: '' },
+  status: { type: String, default: 'Active' },
+  description: { type: String, default: '' }
+}, { timestamps: true, strict: false });
+export const Lab = mongoose.models.Lab || mongoose.model('Lab', labSchema);
+
+const labEquipmentSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  lab: { type: String, required: true },
+  category: { type: String, default: 'General' },
+  quantity: { type: Number, default: 1 },
+  availableQty: { type: Number, default: 1 },
+  condition: { type: String, default: 'Good' },
+  status: { type: String, default: 'Available' },
+  purchaseCost: { type: String, default: '0' }
+}, { timestamps: true, strict: false });
+export const LabEquipment = mongoose.models.LabEquipment || mongoose.model('LabEquipment', labEquipmentSchema);
+
+const labMaintenanceSchema = new mongoose.Schema({
+  labName: { type: String, required: true },
+  equipmentName: { type: String, default: '' },
+  description: { type: String, default: '' },
+  costIncurred: { type: Number, default: 0 },
+  status: { type: String, default: 'Open' }
+}, { timestamps: true, strict: false });
+export const LabMaintenance = mongoose.models.LabMaintenance || mongoose.model('LabMaintenance', labMaintenanceSchema);
+
+const labConsumableSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  lab: { type: String, default: '' },
+  category: { type: String, default: 'General' },
+  unit: { type: String, default: 'Units' },
+  inStock: { type: Number, default: 0 },
+  consumedQty: { type: Number, default: 0 },
+  status: { type: String, default: 'Normal' }
+}, { timestamps: true, strict: false });
+export const LabConsumable = mongoose.models.LabConsumable || mongoose.model('LabConsumable', labConsumableSchema);
+
+const labPracticalSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  lab: { type: String, default: '' },
+  classSemester: { type: String, default: '' },
+  subject: { type: String, default: '' },
+  totalMarks: { type: Number, default: 10 },
+  attendanceCount: { type: String, default: '0%' },
+  status: { type: String, default: 'Conducted' }
+}, { timestamps: true, strict: false });
+export const LabPractical = mongoose.models.LabPractical || mongoose.model('LabPractical', labPracticalSchema);
+
+// --- LEAVE & LEAVE TYPE ---
+const leaveSchema = new mongoose.Schema({
+  staffId: { type: String },
+  leaveTypeId: { type: String },
+  fromDate: { type: Date },
+  toDate: { type: Date },
+  reason: { type: String },
+  status: { type: String, default: 'pending' },
+  approvedBy: { type: String },
+  remarks: { type: String }
+}, { timestamps: true, strict: false });
+export const Leave = mongoose.models.Leave || mongoose.model('Leave', leaveSchema);
+
+const leaveTypeSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  days: { type: Number, default: 0 }
+}, { timestamps: true, strict: false });
+export const LeaveType = mongoose.models.LeaveType || mongoose.model('LeaveType', leaveTypeSchema);
+
+// --- ROLE ---
+const roleSchema = new mongoose.Schema({
+  name: { type: String, required: true, unique: true },
+  type: { type: String, default: 'Custom' },
+  permissions: { type: [String], default: [] }
+}, { timestamps: true, strict: false });
+export const Role = mongoose.models.Role || mongoose.model('Role', roleSchema);
+
+// --- PAYMENT & SUBSCRIPTION ---
+const paymentRecordSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  schoolName: { type: String },
+  adminName: { type: String },
+  adminEmail: { type: String },
+  provider: { type: String, default: 'Safepay' },
+  providerTransactionId: { type: String },
+  providerReference: { type: String },
+  plan: { type: String, default: 'Professional' },
+  amount: { type: Number, default: 0 },
+  currency: { type: String, default: 'PKR' },
+  status: { type: String, default: 'completed' },
+  paidAt: { type: Date, default: Date.now }
+}, { timestamps: true, strict: false });
+export const Payment = mongoose.models.Payment || mongoose.model('Payment', paymentRecordSchema);
+
+const subscriptionRecordSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  schoolName: { type: String },
+  adminEmail: { type: String },
+  plan: { type: String, default: 'Professional' },
+  status: { type: String, default: 'active' },
+  studentQuota: { type: Number, default: 200 },
+  currentPeriodStart: { type: Date, default: Date.now },
+  currentPeriodEnd: { type: Date }
+}, { timestamps: true, strict: false });
+export const Subscription = mongoose.models.Subscription || mongoose.model('Subscription', subscriptionRecordSchema);
+
 
 
 

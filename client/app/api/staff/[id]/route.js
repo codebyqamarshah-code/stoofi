@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { connectDB } from '@/lib/db';
 import { Staff, Teacher } from '@/lib/models';
+import { authenticateRequest } from '@/lib/authGuard';
 
 export async function GET(req, { params }) {
   try {
@@ -126,6 +127,14 @@ export async function PUT(req, { params }) {
 export async function DELETE(req, { params }) {
   try {
     await connectDB();
+
+    // Server-side authentication and deletion restriction guard
+    const { user, error } = await authenticateRequest(req, {
+      requireCanDelete: true,
+      allowedRoles: ['Super Admin', 'Admin']
+    });
+    if (error) return error;
+
     const { id } = await params;
     if (!id || id === 'undefined' || id === 'null') {
       return NextResponse.json({ success: false, message: 'Invalid staff ID' }, { status: 400 });

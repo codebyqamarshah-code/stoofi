@@ -50,8 +50,7 @@ export default function BillingPage() {
     setError('');
 
     try {
-      const rawApi = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const baseApi = rawApi.replace(/\/api\/?$/, '');
+      const baseApi = typeof window !== 'undefined' ? window.location.origin : '';
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
       const headers = {
@@ -92,8 +91,7 @@ export default function BillingPage() {
   const handleCancelSubscription = async () => {
     setCancelLoading(true);
     try {
-      const rawApi = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const baseApi = rawApi.replace(/\/api\/?$/, '');
+      const baseApi = typeof window !== 'undefined' ? window.location.origin : '';
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
       const res = await fetch(`${baseApi}/api/payments/cancel-subscription`, {

@@ -85,7 +85,11 @@ export async function GET(req) {
 
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get('page') || '1', 10) || 1;
-    const limit = parseInt(searchParams.get('limit') || '100', 10) || 100;
+    const rawLimit = parseInt(searchParams.get('limit') || '0', 10);
+    const view = searchParams.get('view') || searchParams.get('select') || '';
+    const isCompact = view === 'compact' || searchParams.get('compact') === 'true' || rawLimit > 30;
+    const requestedLimit = rawLimit > 0 ? rawLimit : (isCompact ? 100 : 20);
+    const limit = isCompact ? Math.min(Math.max(1, requestedLimit), 200) : Math.min(Math.max(1, requestedLimit), 25);
     const search = searchParams.get('search') || '';
     const className = searchParams.get('className') || '';
     const section = searchParams.get('section') || '';
@@ -206,9 +210,17 @@ export async function GET(req) {
     const total = metaDocs.length;
     const pageIds = metaDocs.slice(skip, skip + limit).map(m => m._id);
 
-    const rawStudents = pageIds.length > 0
-      ? await Student.find({ _id: { $in: pageIds } }).lean()
-      : [];
+    let studentQuery = Student.find({ _id: { $in: pageIds } });
+    if (isCompact) {
+      studentQuery = studentQuery.select(
+        '_id admissionNo rollNo studentName name fullName firstName lastName className section fatherName status phone gender feeTuition feeGross netPayable'
+      );
+    } else {
+      // Exclude heavy multi-megabyte document uploads and extraneous photos from list views
+      studentQuery = studentQuery.select('-document1 -document2 -document3 -document4 -documents -fatherPhoto -motherPhoto -guardianPhoto');
+    }
+
+    const rawStudents = pageIds.length > 0 ? await studentQuery.lean() : [];
 
     const docMap = new Map(rawStudents.map(st => [String(st._id), st]));
     const students = pageIds
