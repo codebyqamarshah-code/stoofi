@@ -46,11 +46,47 @@ const ROLES = [
   'Other'
 ];
 
+const DEFAULT_DEPARTMENTS = [
+  { _id: 'dept-allied', name: 'Allied Health Sciences Department' },
+  { _id: 'dept-nursing', name: 'Nursing Sciences Department' },
+  { _id: 'dept-cs', name: 'Computer Science & IT Department' },
+  { _id: 'dept-bio', name: 'Biological Sciences Department' },
+  { _id: 'dept-phys', name: 'Physical Sciences Department' },
+  { _id: 'dept-math', name: 'Mathematics & Statistics Department' },
+  { _id: 'dept-eng', name: 'English Language & Literature Department' },
+  { _id: 'dept-urdu', name: 'Urdu & Islamic Studies Department' },
+  { _id: 'dept-pst', name: 'Pakistan Studies & Social Sciences Department' },
+  { _id: 'dept-psych', name: 'Psychology Department' },
+  { _id: 'dept-comm', name: 'Commerce & Business Studies Department' },
+  { _id: 'dept-arts', name: 'Graphic Designing & Creative Arts Department' },
+  { _id: 'dept-admin', name: 'Administration' },
+  { _id: 'dept-finance', name: 'Finance' },
+  { _id: 'dept-tech', name: 'Technical & Vocational Education Department' },
+];
+
+const DEFAULT_DESIGNATIONS = [
+  { _id: 'desig-principal', name: 'Principal' },
+  { _id: 'desig-vp', name: 'Vice Principal' },
+  { _id: 'desig-hod', name: 'Head of Department (HOD)' },
+  { _id: 'desig-lecturer', name: 'Lecturer' },
+  { _id: 'desig-snr-fac', name: 'Senior Faculty' },
+  { _id: 'desig-teacher', name: 'Teacher' },
+  { _id: 'desig-accountant', name: 'Accountant' },
+  { _id: 'desig-admin-off', name: 'Admin Officer' },
+  { _id: 'desig-it-coord', name: 'IT Coordinator' },
+  { _id: 'desig-librarian', name: 'Librarian' },
+  { _id: 'desig-lab-asst', name: 'Lab Assistant' },
+  { _id: 'desig-clerk', name: 'Clerk' },
+  { _id: 'desig-receptionist', name: 'Receptionist' },
+];
+
 const EMPTY = {
-  staffNo: 'PRCS0001', 
+  staffNo: '', 
   role: 'Teacher', 
   departmentId: '', 
+  department: '',
   designationId: '',
+  designation: '',
   firstName: '', 
   lastName: '', 
   fatherName: '', 
@@ -79,6 +115,17 @@ const EMPTY = {
   instagram: '',
   cnic: ''
 };
+
+function extractArray(res) {
+  if (!res) return [];
+  if (Array.isArray(res)) return res;
+  if (Array.isArray(res?.data)) return res.data;
+  if (Array.isArray(res?.data?.data)) return res.data.data;
+  if (Array.isArray(res?.value)) return res.value;
+  if (Array.isArray(res?.value?.data)) return res.value.data;
+  if (Array.isArray(res?.value?.data?.data)) return res.value.data.data;
+  return [];
+}
 
 function formatFileSize(bytes) {
   if (!bytes) return '0 B';
@@ -109,30 +156,78 @@ export default function AddStaffPage() {
   const cvRef = useRef(null);
   const degreeRef = useRef(null);
 
-  const fetchStaffNoAndDropdowns = () => {
-    Promise.all([
-      api.get('/designation').catch(() => null),
-      api.get('/department').catch(() => null),
-      api.get('/staff').catch(() => null)
-    ])
-      .then(([d, dep, st]) => {
-        if (d?.success && Array.isArray(d.data)) setDesignations(d.data);
-        if (dep?.success && Array.isArray(dep.data)) setDepartments(dep.data);
-        if (st?.success && Array.isArray(st.data)) {
-          let maxNum = 0;
-          st.data.forEach(s => {
-            const str = String(s.staffNo || '').trim();
-            const m = str.match(/\d+/);
-            if (m) {
-              const num = parseInt(m[0], 10);
-              if (num > maxNum) maxNum = num;
-            }
-          });
-          const nextStaffNo = `PRCS${String(maxNum + 1).padStart(4, '0')}`;
-          setFormData(f => ({ ...f, staffNo: nextStaffNo }));
+  const fetchStaffNoAndDropdowns = async () => {
+    try {
+      const [dRes, depRes, nextNoRes, stRes] = await Promise.allSettled([
+        api.get('/designation'),
+        api.get('/department'),
+        api.get('/staff/next-number'),
+        api.get('/staff?limit=500')
+      ]);
+
+      // 1. Auto-assign Staff Number (PRCS sequence)
+      let assignedNo = '';
+      if (nextNoRes.status === 'fulfilled' && nextNoRes.value?.nextStaffNo) {
+        assignedNo = nextNoRes.value.nextStaffNo;
+      } else if (stRes.status === 'fulfilled') {
+        const staffList = extractArray(stRes.value);
+        let maxNum = 0;
+        staffList.forEach(s => {
+          const str = String(s.staffNo || '').trim();
+          const m = str.match(/PRCS(\d+)/i) || str.match(/(\d+)/);
+          if (m) {
+            const num = parseInt(m[1], 10);
+            if (num > maxNum) maxNum = num;
+          }
+        });
+        assignedNo = `PRCS${String(maxNum + 1).padStart(4, '0')}`;
+      } else {
+        assignedNo = 'PRCS0001';
+      }
+
+      setFormData(f => ({ ...f, staffNo: f.staffNo || assignedNo }));
+
+      // 2. Fetch & merge Departments
+      let fetchedDepts = [];
+      if (depRes.status === 'fulfilled') {
+        fetchedDepts = extractArray(depRes.value);
+      }
+      if (!fetchedDepts || fetchedDepts.length === 0) {
+        try {
+          const direct = await fetch('/api/department').then(r => r.json());
+          fetchedDepts = extractArray(direct);
+        } catch (_) {}
+      }
+      const mergedDepts = [...fetchedDepts];
+      DEFAULT_DEPARTMENTS.forEach(def => {
+        if (!mergedDepts.some(d => (d.name || '').toLowerCase() === def.name.toLowerCase())) {
+          mergedDepts.push(def);
         }
-      })
-      .catch(err => console.error('Fetch staff initial error:', err));
+      });
+      setDepartments(mergedDepts);
+
+      // 3. Fetch & merge Designations
+      let fetchedDesigs = [];
+      if (dRes.status === 'fulfilled') {
+        fetchedDesigs = extractArray(dRes.value);
+      }
+      if (!fetchedDesigs || fetchedDesigs.length === 0) {
+        try {
+          const direct = await fetch('/api/designation').then(r => r.json());
+          fetchedDesigs = extractArray(direct);
+        } catch (_) {}
+      }
+      const mergedDesigs = [...fetchedDesigs];
+      DEFAULT_DESIGNATIONS.forEach(def => {
+        if (!mergedDesigs.some(d => (d.name || '').toLowerCase() === def.name.toLowerCase())) {
+          mergedDesigs.push(def);
+        }
+      });
+      setDesignations(mergedDesigs);
+
+    } catch (err) {
+      console.error('Fetch staff initial error:', err);
+    }
   };
 
   useEffect(() => {
@@ -143,6 +238,24 @@ export default function AddStaffPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (name === 'departmentId') {
+      const found = departments.find(d => String(d._id || d.id || d.name) === String(value));
+      setFormData(prev => ({
+        ...prev,
+        departmentId: value,
+        department: found ? found.name : value
+      }));
+      return;
+    }
+    if (name === 'designationId') {
+      const found = designations.find(d => String(d._id || d.id || d.name) === String(value));
+      setFormData(prev => ({
+        ...prev,
+        designationId: value,
+        designation: found ? found.name : value
+      }));
+      return;
+    }
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
@@ -175,14 +288,14 @@ export default function AddStaffPage() {
       if (documents.lastDegree) data.append('lastDegree', documents.lastDegree);
 
       // Append friendly names for department and designation
-      if (formData.departmentId) {
-        const foundDept = departments.find(d => String(d._id) === String(formData.departmentId));
-        if (foundDept?.name) data.append('department', foundDept.name);
-      }
-      if (formData.designationId) {
-        const foundDesig = designations.find(d => String(d._id) === String(formData.designationId));
-        if (foundDesig?.name) data.append('designation', foundDesig.name);
-      }
+      const foundDept = departments.find(d => String(d._id || d.id || d.name) === String(formData.departmentId));
+      const deptName = formData.department || foundDept?.name || '';
+      if (deptName) data.append('department', deptName);
+
+      const foundDesig = designations.find(d => String(d._id || d.id || d.name) === String(formData.designationId));
+      const desigName = formData.designation || foundDesig?.name || '';
+      if (desigName) data.append('designation', desigName);
+
       const fullName = `${formData.firstName || ''} ${formData.lastName || ''}`.trim();
       if (fullName) data.append('name', fullName);
 
@@ -280,7 +393,11 @@ export default function AddStaffPage() {
                     className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-600"
                   >
                     <option value="">Select Department</option>
-                    {departments.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
+                    {departments.map((d, i) => (
+                      <option key={d._id || d.id || `dept-${i}`} value={d._id || d.id || d.name}>
+                        {d.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="space-y-2">
@@ -301,7 +418,11 @@ export default function AddStaffPage() {
                     className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-600"
                   >
                     <option value="">Select Designation</option>
-                    {designations.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
+                    {designations.map((d, i) => (
+                      <option key={d._id || d.id || `desig-${i}`} value={d._id || d.id || d.name}>
+                        {d.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="space-y-2"><Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">First Name *</Label><Input required name="firstName" value={formData.firstName} onChange={handleChange} placeholder="e.g. Ali" /></div>

@@ -98,6 +98,17 @@ function SectionCard({ title, icon: Icon, children }) {
   );
 }
 
+function extractArray(val) {
+  if (!val) return [];
+  if (Array.isArray(val)) return val;
+  if (Array.isArray(val?.data)) return val.data;
+  if (Array.isArray(val?.data?.data)) return val.data.data;
+  if (Array.isArray(val?.value)) return val.value;
+  if (Array.isArray(val?.value?.data)) return val.value.data;
+  if (Array.isArray(val?.value?.data?.data)) return val.value.data.data;
+  return [];
+}
+
 export default function StaffProfilePage() {
   const { id } = useParams();
   const [staff, setStaff] = useState(null);
@@ -112,19 +123,17 @@ export default function StaffProfilePage() {
     const load = async () => {
       try {
         let res = await api.get(`/staff/${id}`).catch(() => null);
-        let s = res?.data || (res?._id ? res : null);
+        let s = res?.data?.data || res?.data || (res?._id ? res : null);
 
         if (!s) {
           // If direct ID lookup didn't succeed, search in staff list
           const allRes = await api.get('/staff?limit=1000').catch(() => null);
-          const list = allRes?.data || (Array.isArray(allRes) ? allRes : []);
-          if (Array.isArray(list)) {
-            s = list.find(item =>
-              String(item._id) === String(id) ||
-              String(item.id) === String(id) ||
-              String(item.staffNo) === String(id)
-            );
-          }
+          const list = extractArray(allRes);
+          s = list.find(item =>
+            String(item._id) === String(id) ||
+            String(item.id) === String(id) ||
+            String(item.staffNo) === String(id)
+          );
         }
 
         if (s) {

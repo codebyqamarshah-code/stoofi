@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { User } from 'lucide-react';
 import { getPhotoUrl } from '@/lib/utils';
 
 const AVATAR_COLORS = [
@@ -71,11 +72,14 @@ export default function StaffAvatar({
     );
   }
 
+  const initials = getInitials();
+  const showInitials = initials && initials !== 'ST';
+
   return (
     <div
       className={`${sizeClasses} ${rounded} ${colorClass} text-white font-bold flex items-center justify-center shrink-0 shadow-sm select-none border border-white/20 ${className}`}
     >
-      {getInitials()}
+      {showInitials ? initials : <User className="h-1/2 w-1/2 text-white/90" />}
     </div>
   );
 }

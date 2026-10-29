@@ -61,18 +61,33 @@ export async function GET(req) {
       }
     }
 
+    // Fetch departments and designations to resolve any empty fields/IDs
+    const [depts, desigs] = await Promise.all([
+      Department.find().select('_id name').lean().catch(() => []),
+      Designation.find().select('_id name').lean().catch(() => [])
+    ]);
+    const deptMap = {};
+    (depts || []).forEach(d => { deptMap[String(d._id)] = d.name; });
+    const desigMap = {};
+    (desigs || []).forEach(d => { desigMap[String(d._id)] = d.name; });
+
     // Normalize each staff record for consistent consumption across all components
     const result = rawList.map(s => {
       const id = (s._id || s.id || '').toString();
       const fullName = `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.name || 'Staff Member';
       const phone = s.mobile || s.phone || s.emergencyMobile || '';
       const photo = s.staffPhoto || s.photo || s.avatar || null;
+      const department = s.department || deptMap[String(s.departmentId)] || (s.role === 'Super Admin' || s.role === 'Admin' ? 'Administration' : 'Academics');
+      const designation = s.designation || desigMap[String(s.designationId)] || s.role || 'Staff Member';
 
       return {
         ...s,
         id,
         _id: id,
         name: fullName,
+        fullName,
+        department,
+        designation,
         phone,
         mobile: phone,
         photo,
@@ -141,8 +156,22 @@ export async function POST(req) {
 
     // Auto-generate staffNo if not provided
     if (!body.staffNo || !String(body.staffNo).trim()) {
-      const count = await Staff.countDocuments();
-      body.staffNo = `STF-${1000 + count + 1}`;
+      const [allStaff, allTeachers] = await Promise.all([
+        Staff.find({}, 'staffNo').lean().catch(() => []),
+        Teacher.find({}, 'staffNo teacherId').lean().catch(() => [])
+      ]);
+      let maxNum = 0;
+      const scanNum = (str) => {
+        if (!str) return;
+        const m = String(str).match(/PRCS(\d+)/i) || String(str).match(/(\d+)/);
+        if (m) {
+          const num = parseInt(m[1], 10);
+          if (num > maxNum) maxNum = num;
+        }
+      };
+      (allStaff || []).forEach(s => scanNum(s.staffNo));
+      (allTeachers || []).forEach(t => { scanNum(t.staffNo); scanNum(t.teacherId); });
+      body.staffNo = `PRCS${String(maxNum + 1).padStart(4, '0')}`;
     }
 
     // Keep photo and staffPhoto in sync

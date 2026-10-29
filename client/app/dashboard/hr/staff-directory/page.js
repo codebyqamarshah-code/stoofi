@@ -46,6 +46,17 @@ const DEMO_STAFF = [
   },
 ];
 
+function extractArray(val) {
+  if (!val) return [];
+  if (Array.isArray(val)) return val;
+  if (Array.isArray(val?.data)) return val.data;
+  if (Array.isArray(val?.data?.data)) return val.data.data;
+  if (Array.isArray(val?.value)) return val.value;
+  if (Array.isArray(val?.value?.data)) return val.value.data;
+  if (Array.isArray(val?.value?.data?.data)) return val.value.data.data;
+  return [];
+}
+
 function StaffDirectoryContent() {
   const searchParams = useSearchParams();
   const initialRole = searchParams.get('role') || '';
@@ -75,44 +86,70 @@ function StaffDirectoryContent() {
         api.get('/designation'),
       ]);
 
+      // 1. Departments lookup
+      let deptsList = extractArray(deptRes);
+      if (deptsList.length === 0) {
+        try {
+          const direct = await fetch('/api/department').then(r => r.json());
+          deptsList = extractArray(direct);
+        } catch (_) {}
+      }
+      setDepartments(deptsList);
+      const deptMap = {};
+      (deptsList || []).forEach(d => {
+        if (d?._id && d?.name) deptMap[String(d._id)] = d.name;
+        if (d?.id && d?.name) deptMap[String(d.id)] = d.name;
+      });
+
+      // 2. Designations lookup
+      let desigsList = extractArray(desigRes);
+      if (desigsList.length === 0) {
+        try {
+          const direct = await fetch('/api/designation').then(r => r.json());
+          desigsList = extractArray(direct);
+        } catch (_) {}
+      }
+      setDesignations(desigsList);
+      const desigMap = {};
+      (desigsList || []).forEach(d => {
+        if (d?._id && d?.name) desigMap[String(d._id)] = d.name;
+        if (d?.id && d?.name) desigMap[String(d.id)] = d.name;
+      });
+
+      // 3. Staff records
       let fetchedStaff = [];
-      if (staffRes.status === 'fulfilled') {
-        const raw = staffRes.value?.data || (Array.isArray(staffRes.value) ? staffRes.value : null);
-        if (Array.isArray(raw) && raw.length > 0) {
-          fetchedStaff = raw.map((s, idx) => {
-            const id = (s._id || s.id || `staff-${idx}`).toString();
-            const firstName = s.firstName || '';
-            const lastName = s.lastName || '';
-            const fullName = s.name || `${firstName} ${lastName}`.trim() || 'Staff Member';
-            const phone = s.mobile || s.phone || s.emergencyMobile || '';
-            const photo = s.staffPhoto || s.photo || s.avatar || null;
-            return {
-              ...s,
-              id,
-              _id: id,
-              name: fullName,
-              firstName: firstName || fullName.split(' ')[0] || '',
-              lastName: lastName || fullName.split(' ').slice(1).join(' ') || '',
-              phone,
-              mobile: phone,
-              photo,
-              staffPhoto: photo,
-              status: s.status || 'Active',
-            };
-          });
-        }
+      const raw = extractArray(staffRes);
+      if (raw.length > 0) {
+        fetchedStaff = raw.map((s, idx) => {
+          const id = (s._id || s.id || `staff-${idx}`).toString();
+          const firstName = s.firstName || '';
+          const lastName = s.lastName || '';
+          const fullName = s.name || `${firstName} ${lastName}`.trim() || 'Staff Member';
+          const phone = s.mobile || s.phone || s.emergencyMobile || '';
+          const photo = s.staffPhoto || s.photo || s.avatar || null;
+          const department = s.department || deptMap[String(s.departmentId)] || (s.role === 'Super Admin' || s.role === 'Admin' ? 'Administration' : 'Academics');
+          const designation = s.designation || desigMap[String(s.designationId)] || s.role || 'Staff Member';
+
+          return {
+            ...s,
+            id,
+            _id: id,
+            name: fullName,
+            fullName,
+            firstName: firstName || fullName.split(' ')[0] || '',
+            lastName: lastName || fullName.split(' ').slice(1).join(' ') || '',
+            phone,
+            mobile: phone,
+            department,
+            designation,
+            photo,
+            staffPhoto: photo,
+            status: s.status || 'Active',
+          };
+        });
       }
 
       setStaff(fetchedStaff);
-
-      if (deptRes.status === 'fulfilled') {
-        const d = deptRes.value?.data || (Array.isArray(deptRes.value) ? deptRes.value : []);
-        if (Array.isArray(d)) setDepartments(d);
-      }
-      if (desigRes.status === 'fulfilled') {
-        const dg = desigRes.value?.data || (Array.isArray(desigRes.value) ? desigRes.value : []);
-        if (Array.isArray(dg)) setDesignations(dg);
-      }
     } catch (_) {
       setStaff([]);
     } finally {
@@ -140,13 +177,47 @@ function StaffDirectoryContent() {
     return deptMatch && desigMatch && roleMatch && qMatch;
   }), [staff, filters]);
 
-  const deptOptions = departments.length > 0
-    ? departments.map(d => d.name)
-    : [...new Set(staff.map(s => s.department).filter(Boolean))];
+  const deptOptions = useMemo(() => {
+    const fromDepts = (departments || []).map(d => typeof d === 'string' ? d : d.name).filter(Boolean);
+    const fromStaff = (staff || []).map(s => s.department).filter(Boolean);
+    const defaults = [
+      'Administration',
+      'Academics',
+      'Computer Science & IT Department',
+      'Science',
+      'Mathematics & Statistics Department',
+      'English Language & Literature Department',
+      'Urdu & Islamic Studies Department',
+      'Biological Sciences Department',
+      'Physical Sciences Department',
+      'Allied Health Sciences Department',
+      'Nursing Sciences Department',
+      'Commerce & Business Studies Department',
+      'Finance'
+    ];
+    return Array.from(new Set([...fromDepts, ...fromStaff, ...defaults])).filter(Boolean);
+  }, [departments, staff]);
 
-  const desigOptions = designations.length > 0
-    ? designations.map(d => d.name)
-    : [...new Set(staff.map(s => s.designation).filter(Boolean))];
+  const desigOptions = useMemo(() => {
+    const fromDesigs = (designations || []).map(d => typeof d === 'string' ? d : d.name).filter(Boolean);
+    const fromStaff = (staff || []).map(s => s.designation).filter(Boolean);
+    const defaults = [
+      'Principal',
+      'Vice Principal',
+      'Head of Department (HOD)',
+      'Lecturer',
+      'Senior Faculty',
+      'Teacher',
+      'Accountant',
+      'Admin Officer',
+      'IT Coordinator',
+      'Librarian',
+      'Lab Assistant',
+      'Clerk',
+      'Staff Member'
+    ];
+    return Array.from(new Set([...fromDesigs, ...fromStaff, ...defaults])).filter(Boolean);
+  }, [designations, staff]);
 
   const roleOptions = [...new Set(staff.map(s => s.role).filter(Boolean))];
 
