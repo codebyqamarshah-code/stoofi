@@ -1006,13 +1006,10 @@ export default function ComplaintPage() {
         </div>
       </div>
 
-      {/* Main Grid: Form (if open) + Table */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
-        
-        {/* ADD / EDIT COMPLAINT FORM */}
-        {showForm && (
-          <div ref={formRef} className="xl:col-span-1">
-            <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden sticky top-6">
+      {/* ADD / EDIT COMPLAINT FORM (Full Width Above Table) */}
+      {showForm && (
+        <div ref={formRef} className="w-full">
+          <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden">
               <div className="p-4 border-b border-zinc-200 bg-zinc-50/50 flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-zinc-900" />
@@ -1458,15 +1455,15 @@ export default function ComplaintPage() {
                   </div>
                 )}
 
-                {/* 3. PHONE & DATE */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* 3. PHONE, DATE, TYPE, PRIORITY, ASSIGNED TO */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
                   <div className="space-y-1.5">
                     <Label className="text-xs font-semibold text-zinc-700">Phone Number</Label>
                     <Input 
                       value={formData.phone}
                       onChange={e => setFormData({ ...formData, phone: e.target.value })}
                       placeholder="e.g. 03331234567"
-                      className="bg-white border-zinc-300 text-zinc-950 text-xs"
+                      className="bg-white border-zinc-300 text-zinc-950 text-xs h-9"
                     />
                     {formErrors.phone && <p className="text-[11px] text-rose-500">{formErrors.phone}</p>}
                   </div>
@@ -1479,14 +1476,11 @@ export default function ComplaintPage() {
                       type="date"
                       value={formData.complaintDate}
                       onChange={e => setFormData({ ...formData, complaintDate: e.target.value })}
-                      className="bg-white border-zinc-300 text-zinc-950 text-xs"
+                      className="bg-white border-zinc-300 text-zinc-950 text-xs h-9"
                       required
                     />
                   </div>
-                </div>
 
-                {/* 4. TYPE & PRIORITY */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs font-semibold text-zinc-700">
                       Complaint Type <span className="text-rose-500">*</span>
@@ -1494,7 +1488,7 @@ export default function ComplaintPage() {
                     <select
                       value={formData.complaintType}
                       onChange={e => setFormData({ ...formData, complaintType: e.target.value })}
-                      className="flex h-10 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-950 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-900"
+                      className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-950 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-900"
                       required
                     >
                       <option value="Academic">Academic</option>
@@ -1507,7 +1501,7 @@ export default function ComplaintPage() {
                     <select
                       value={formData.priority}
                       onChange={e => setFormData({ ...formData, priority: e.target.value })}
-                      className="flex h-10 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-950 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-900"
+                      className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-950 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-900"
                     >
                       <option value="Low">Low</option>
                       <option value="Medium">Medium</option>
@@ -1515,26 +1509,25 @@ export default function ComplaintPage() {
                       <option value="Urgent">Urgent</option>
                     </select>
                   </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold text-zinc-700">Assigned To</Label>
+                    <select
+                      value={formData.assignedTo}
+                      onChange={e => setFormData({ ...formData, assignedTo: e.target.value })}
+                      className="flex h-9 w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-950 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-900"
+                    >
+                      <option value="Unassigned">-- Leave Unassigned --</option>
+                      {staffList.map(s => (
+                        <option key={s._id} value={s.plainName}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
-                {/* 5. ASSIGNED TO */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-zinc-700">Assigned To</Label>
-                  <select
-                    value={formData.assignedTo}
-                    onChange={e => setFormData({ ...formData, assignedTo: e.target.value })}
-                    className="flex h-10 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-950 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-900"
-                  >
-                    <option value="Unassigned">-- Leave Unassigned --</option>
-                    {staffList.map(s => (
-                      <option key={s._id} value={s.plainName}>
-                        {s.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* 6. SUBJECT */}
+                {/* 4. SUBJECT */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold text-zinc-700">
                     Subject / Title <span className="text-rose-500">*</span>
@@ -1543,65 +1536,84 @@ export default function ComplaintPage() {
                     value={formData.subject}
                     onChange={e => setFormData({ ...formData, subject: e.target.value })}
                     placeholder="e.g. Teacher attendance issue / Fee discrepancy"
-                    className="bg-white border-zinc-300 text-zinc-950 text-xs"
+                    className="bg-white border-zinc-300 text-zinc-950 text-xs h-9"
                     required
                   />
                   {formErrors.subject && <p className="text-[11px] text-rose-500">{formErrors.subject}</p>}
                 </div>
 
-                {/* 7. DESCRIPTION */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-zinc-700">
-                    Description <span className="text-rose-500">*</span>
-                  </Label>
-                  <textarea 
-                    value={formData.description}
-                    onChange={e => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Provide full details of the complaint..."
-                    rows={3}
-                    className="flex w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-950 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-900 resize-y"
-                    required
-                  />
-                  {formErrors.description && <p className="text-[11px] text-rose-500">{formErrors.description}</p>}
-                </div>
-
-                {/* 8. OPTIONAL ATTACHMENT */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-zinc-700 flex items-center justify-between">
-                    <span>Supporting Document / Evidence</span>
-                    <span className="text-[10px] text-zinc-400">Optional (Image/PDF)</span>
-                  </Label>
-                  <div className="flex items-center gap-2">
-                    <input 
-                      ref={fileInputRef}
-                      type="file"
-                      onChange={e => setFormData({ ...formData, file: e.target.files[0] || null })}
-                      className="text-xs text-zinc-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-zinc-100 file:text-zinc-800 hover:file:bg-zinc-200 cursor-pointer"
-                      accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                {/* 5. DESCRIPTION & ATTACHMENT */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  <div className="lg:col-span-2 space-y-1.5">
+                    <Label className="text-xs font-semibold text-zinc-700">
+                      Description <span className="text-rose-500">*</span>
+                    </Label>
+                    <textarea 
+                      value={formData.description}
+                      onChange={e => setFormData({ ...formData, description: e.target.value })}
+                      placeholder="Provide full details of the complaint..."
+                      rows={3}
+                      className="flex w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-950 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-900 resize-y"
+                      required
                     />
-                    {formData.file && (
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => {
-                          setFormData({ ...formData, file: null });
-                          if (fileInputRef.current) fileInputRef.current.value = '';
-                        }}
-                        className="h-6 px-2 text-xs text-rose-500 hover:text-rose-700"
-                      >
-                        Remove
-                      </Button>
-                    )}
+                    {formErrors.description && <p className="text-[11px] text-rose-500">{formErrors.description}</p>}
+                  </div>
+
+                  <div className="space-y-1.5 flex flex-col justify-between">
+                    <div>
+                      <Label className="text-xs font-semibold text-zinc-700 flex items-center justify-between">
+                        <span>Supporting Document</span>
+                        <span className="text-[10px] text-zinc-400">Optional</span>
+                      </Label>
+                      <div className="mt-1.5 p-3 rounded-lg border border-zinc-200 bg-zinc-50/50 flex flex-col items-start gap-2 min-h-[76px] justify-center">
+                        <input 
+                          ref={fileInputRef}
+                          type="file"
+                          onChange={e => setFormData({ ...formData, file: e.target.files[0] || null })}
+                          className="text-xs text-zinc-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-zinc-200 file:text-zinc-800 hover:file:bg-zinc-300 cursor-pointer"
+                          accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                        />
+                        {formData.file && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] text-zinc-600 truncate max-w-[200px]">{formData.file.name}</span>
+                            <Button 
+                              type="button" 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => {
+                                setFormData({ ...formData, file: null });
+                                if (fileInputRef.current) fileInputRef.current.value = '';
+                              }}
+                              className="h-5 px-1.5 text-xs text-rose-500 hover:text-rose-700"
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* SUBMIT BUTTON */}
-                <div className="pt-2">
+                {/* 6. SUBMIT BUTTONS BAR */}
+                <div className="flex items-center justify-end gap-3 pt-3 border-t border-zinc-100">
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={() => {
+                      setShowForm(false);
+                      setEditingId(null);
+                      setFormData(initialFormState);
+                      setFormErrors({});
+                    }}
+                    className="h-9 px-4 text-xs font-medium text-zinc-700 border-zinc-300 hover:bg-zinc-50"
+                  >
+                    Cancel
+                  </Button>
                   <Button 
                     type="submit" 
                     disabled={submitting}
-                    className="w-full bg-zinc-950 hover:bg-zinc-800 text-white font-semibold text-xs py-2.5 shadow-xs"
+                    className="h-9 px-6 bg-zinc-950 hover:bg-zinc-800 text-white font-semibold text-xs shadow-xs"
                   >
                     {submitting ? (
                       <span className="flex items-center gap-2">
@@ -1618,9 +1630,9 @@ export default function ComplaintPage() {
           </div>
         )}
 
-        {/* COMPLAINTS LIST TABLE & FILTERS */}
-        <div className={showForm ? 'xl:col-span-2' : 'xl:col-span-3'}>
-          <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden flex flex-col">
+      {/* COMPLAINTS LIST TABLE & FILTERS (Full Width Below Form) */}
+      <div className="w-full">
+        <div className="bg-white border border-zinc-200 shadow-xs rounded-xl overflow-hidden flex flex-col">
             
             {/* Top Toolbar: Search, Filters & Export */}
             <div className="p-4 border-b border-zinc-200 space-y-3 bg-zinc-50/40">
@@ -2056,8 +2068,6 @@ export default function ComplaintPage() {
 
           </div>
         </div>
-
-      </div>
 
       {/* ───────────────────────────────────────────────────────────── */}
       {/* MODAL 1: VIEW COMPLAINT DETAILS & AUDIT HISTORY               */}
