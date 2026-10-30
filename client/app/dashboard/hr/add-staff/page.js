@@ -22,6 +22,7 @@ import { ImageUpload } from "@/components/ui/ImageUpload";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
+import StaffImportModal from "@/components/StaffImportModal";
 
 const TODAY = new Date().toISOString().split('T')[0];
 
@@ -142,6 +143,7 @@ export default function AddStaffPage() {
   const [designations, setDesignations] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [photo, setPhoto] = useState(null);
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   // Document Uploads State (All Optional)
   const [documents, setDocuments] = useState({
@@ -317,10 +319,27 @@ export default function AddStaffPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center gap-2 text-sm text-zinc-500 mb-6">
-        <span>Dashboard</span> <ChevronRight size={14} /> 
-        <span>Human Resource</span> <ChevronRight size={14} /> 
-        <span className="text-zinc-800 font-semibold">Add Staff</span>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div className="flex items-center gap-2 text-sm text-zinc-500">
+          <span>Dashboard</span> <ChevronRight size={14} /> 
+          <span>Human Resource</span> <ChevronRight size={14} /> 
+          <span className="text-zinc-800 font-semibold">Add Staff</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsImportOpen(true)}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#009966] hover:bg-[#008055] text-white text-xs font-semibold shadow-xs transition"
+          >
+            <Upload size={14} /> Import Staff (Excel / CSV)
+          </button>
+          <Link
+            href="/dashboard/hr/staff-directory"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 text-xs font-semibold shadow-2xs transition"
+          >
+            Staff Directory
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
@@ -709,6 +728,14 @@ export default function AddStaffPage() {
           </CrudForm>
         </div>
       </div>
+
+      <StaffImportModal
+        isOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
+        onSuccess={() => router.push('/dashboard/hr/staff-directory')}
+        availableDepartments={departments}
+        availableDesignations={designations}
+      />
     </div>
   );
 }

@@ -13,7 +13,7 @@ export function StudentCardQR({ rec, size = 64, isDark = false }) {
 
   useEffect(() => {
     if (!rec) return;
-    const identifier = rec.admissionNo || rec.rollNo || rec._id || rec.staffNo || 'PRC0021';
+    const identifier = rec.admissionNo || rec.rollNo || (rec._id ? String(rec._id) : '') || rec.staffNo || 'PRC0021';
     const verifyUrl = getPublicVerificationUrl(identifier);
 
     QRCode.toDataURL(verifyUrl, {

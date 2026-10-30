@@ -5,13 +5,14 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
   ChevronRight, Search, LayoutGrid, List, Download,
-  Phone, Mail, Users, Filter, X, Eye, Plus, UserCheck
+  Phone, Mail, Users, Filter, X, Eye, Plus, UserCheck, Upload
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import api from '@/services/api';
 import { formatDateDMY } from '@/lib/utils';
 import StaffAvatar from '@/components/staff/StaffAvatar';
+import StaffImportModal from '@/components/StaffImportModal';
 
 const DEMO_STAFF = [
   {
@@ -66,6 +67,7 @@ function StaffDirectoryContent() {
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState('grid'); // 'grid' | 'list'
   const [filters, setFilters] = useState({ department: '', designation: '', role: initialRole, search: '' });
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   useEffect(() => {
     if (initialRole) {
@@ -254,7 +256,15 @@ function StaffDirectoryContent() {
           <h1 className="text-2xl font-bold text-zinc-950">Staff Directory</h1>
           <p className="text-sm text-zinc-500 mt-0.5">Browse and manage all school staff members</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
+          <Button
+            type="button"
+            onClick={() => setIsImportOpen(true)}
+            variant="outline"
+            className="border-zinc-300 text-zinc-700 hover:bg-zinc-100 font-semibold text-xs h-9 px-3.5 flex items-center gap-1.5 shadow-2xs"
+          >
+            <Upload className="h-4 w-4" /> Import Staff
+          </Button>
           <Link href="/dashboard/hr/add-staff">
             <Button className="bg-[#009966] hover:bg-[#008055] text-white font-semibold text-xs h-9 px-4 flex items-center gap-2 shadow-sm">
               <Plus className="h-4 w-4 stroke-[2.5]" /> Add Staff Member
@@ -558,6 +568,14 @@ function StaffDirectoryContent() {
           </div>
         </div>
       )}
+
+      <StaffImportModal
+        isOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
+        onSuccess={fetchAll}
+        availableDepartments={departments}
+        availableDesignations={designations}
+      />
     </div>
   );
 }

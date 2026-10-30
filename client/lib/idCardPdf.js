@@ -185,7 +185,7 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
   // Generate unique scannable verification QR Code pointing directly to public verify portal
   let qrDataUrl = null;
   try {
-    const rawId = admNo || rollNo || rec._id || 'PRC260001';
+    const rawId = rec.admissionNo || rec.rollNo || rec.staffNo || (rec._id ? String(rec._id) : '') || admNo || rollNo || 'PRC260001';
     const identifier = String(rawId).trim();
     const qrPayload = getPublicVerificationUrl(identifier);
 
