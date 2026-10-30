@@ -89,7 +89,7 @@ export default function StudentReportHubPage() {
           </div>
           <div>
             <span className="text-[11px] font-bold text-zinc-400 uppercase">Data Synchronization</span>
-            <div className="text-xl font-black text-purple-700">Real-Time MongoDB</div>
+            <div className="text-xl font-black text-purple-700">Real-Time Cloud</div>
           </div>
         </div>
       </div>

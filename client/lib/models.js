@@ -1878,6 +1878,62 @@ const subscriptionRecordSchema = new mongoose.Schema({
 }, { timestamps: true, strict: false });
 export const Subscription = mongoose.models.Subscription || mongoose.model('Subscription', subscriptionRecordSchema);
 
+// --- LIBRARY MODULE SCHEMAS ---
+const bookCategorySchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  description: { type: String, default: '' }
+}, { timestamps: true });
+export const BookCategory = mongoose.models.BookCategory || mongoose.model('BookCategory', bookCategorySchema);
+
+const bookSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  categoryId: { type: String, default: '' },
+  category: { type: String, default: '' },
+  subject: { type: String, default: '' },
+  bookNo: { type: String, default: '' },
+  isbnNo: { type: String, default: '' },
+  publisher: { type: String, default: '' },
+  author: { type: String, default: '' },
+  rackNo: { type: String, default: '' },
+  quantity: { type: Number, default: 1 },
+  price: { type: Number, default: 0 },
+  description: { type: String, default: '' }
+}, { timestamps: true });
+export const Book = mongoose.models.Book || mongoose.model('Book', bookSchema);
+
+const issueBookSchema = new mongoose.Schema({
+  bookId: { type: String, required: true },
+  memberId: { type: String, required: true },
+  issueDate: { type: Date, default: Date.now },
+  dueDate: { type: Date },
+  returnDate: { type: Date },
+  status: { type: String, default: 'issued' },
+  fine: { type: Number, default: 0 },
+  note: { type: String, default: '' }
+}, { timestamps: true });
+export const IssueBook = mongoose.models.IssueBook || mongoose.model('IssueBook', issueBookSchema);
+
+const libraryMemberSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  memberId: { type: String, default: '' },
+  phone: { type: String, default: '' },
+  email: { type: String, default: '' },
+  address: { type: String, default: '' },
+  memberType: { type: String, default: 'student' },
+  membershipExpiry: { type: Date },
+  status: { type: String, default: 'Active' }
+}, { timestamps: true });
+export const LibraryMember = mongoose.models.LibraryMember || mongoose.model('LibraryMember', libraryMemberSchema);
+
+const librarySubjectSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  category: { type: String, default: '' },
+  code: { type: String, default: '' },
+  subjectCode: { type: String, default: '' }
+}, { timestamps: true });
+export const LibrarySubject = mongoose.models.LibrarySubject || mongoose.model('LibrarySubject', librarySubjectSchema);
+
+
 
 
 

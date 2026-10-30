@@ -398,35 +398,32 @@ export default function UploadContentPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Left Column: Upload Form */}
-        <div className="xl:col-span-1">
-          <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs sticky top-20">
+      <div className="space-y-6 w-full">
+        {/* Top: Upload Form (Full Width) */}
+        <div className="w-full">
+          <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs">
             <div className="p-4 border-b border-zinc-100 bg-zinc-50/70 flex items-center justify-between">
               <h2 className="text-sm font-bold text-zinc-950 uppercase tracking-wide flex items-center gap-2">
                 <Upload className="w-4 h-4 text-[#009966]" /> Upload Study Content
               </h2>
-              <span className="text-[10px] bg-emerald-50 text-[#009966] border border-emerald-200 px-2 py-0.5 rounded font-bold">
-                MongoDB Live
-              </span>
             </div>
             
             <form className="p-5 space-y-4" onSubmit={(e) => { e.preventDefault(); handleSubmit('Published'); }}>
-              <div className="space-y-1">
-                <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
-                  Content Title <span className="text-rose-500">*</span>
-                </Label>
-                <Input 
-                  placeholder="e.g. Anatomy & Physiology Practical Manual" 
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="bg-white border-zinc-300 text-zinc-950 text-xs font-medium" 
-                  required
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="space-y-1.5 lg:col-span-2">
+                  <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
+                    Content Title <span className="text-rose-500">*</span>
+                  </Label>
+                  <Input 
+                    placeholder="e.g. Anatomy & Physiology Practical Manual" 
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="bg-white border-zinc-300 text-zinc-950 text-xs font-medium h-9" 
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-1.5">
                   <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
                     Type <span className="text-rose-500">*</span>
                   </Label>
@@ -442,7 +439,7 @@ export default function UploadContentPage() {
                   </select>
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Category</Label>
                   <select 
                     value={category}
@@ -454,11 +451,8 @@ export default function UploadContentPage() {
                     ))}
                   </select>
                 </div>
-              </div>
 
-              {/* Class & Section */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Class / Program</Label>
                   <select 
                     value={selectedClass}
@@ -478,7 +472,7 @@ export default function UploadContentPage() {
                   </select>
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Section</Label>
                   <select 
                     value={selectedSection}
@@ -490,157 +484,152 @@ export default function UploadContentPage() {
                     ))}
                   </select>
                 </div>
-              </div>
 
-              {/* Subject & Dates */}
-              <div className="space-y-1">
-                <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Subject Area</Label>
-                <Input 
-                  placeholder="e.g. Clinical Psychology"
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                  className="bg-white border-zinc-300 text-xs font-medium"
-                />
-              </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Subject Area</Label>
+                  <Input 
+                    placeholder="e.g. Clinical Psychology"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    className="bg-white border-zinc-300 text-xs font-medium h-9"
+                  />
+                </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Publish Date</Label>
                   <Input 
                     type="date" 
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="bg-white border-zinc-300 text-xs font-medium" 
+                    className="bg-white border-zinc-300 text-xs font-medium h-9" 
                   />
                 </div>
 
                 {contentType === 'Assignment' ? (
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Due Date</Label>
                     <Input 
                       type="date" 
                       value={dueDate}
                       onChange={(e) => setDueDate(e.target.value)}
-                      className="bg-white border-zinc-300 text-xs font-medium" 
+                      className="bg-white border-zinc-300 text-xs font-medium h-9" 
                     />
                   </div>
                 ) : (
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Version</Label>
                     <Input 
                       value={version}
                       onChange={(e) => setVersion(e.target.value)}
                       placeholder="e.g. 1.0"
-                      className="bg-white border-zinc-300 text-xs font-medium" 
+                      className="bg-white border-zinc-300 text-xs font-medium h-9" 
                     />
                   </div>
                 )}
-              </div>
 
-              {/* Available For */}
-              <div className="space-y-1.5 pt-1">
-                <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Available For</Label>
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      checked={availAdmin}
-                      onChange={(e) => setAvailAdmin(e.target.checked)}
-                      className="rounded border-zinc-300 text-[#009966] focus:ring-[#009966] cursor-pointer h-4 w-4" 
-                    />
-                    <span className="text-xs text-zinc-800 font-medium">All Admin</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      checked={availStudent}
-                      onChange={(e) => setAvailStudent(e.target.checked)}
-                      className="rounded border-zinc-300 text-[#009966] focus:ring-[#009966] cursor-pointer h-4 w-4" 
-                    />
-                    <span className="text-xs text-zinc-800 font-medium">Enrolled Students</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="space-y-1">
-                <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Description</Label>
-                <textarea 
-                  placeholder="Instructions for students and clinical preceptors..." 
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="flex min-h-[60px] w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-950 font-medium" 
-                />
-              </div>
-
-              {/* Source URL */}
-              <div className="space-y-1">
-                <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
-                  Source URL <span className="text-zinc-400 font-normal lowercase">(Optional)</span>
-                </Label>
-                <Input 
-                  placeholder="https://drive.google.com/..." 
-                  value={sourceUrl}
-                  onChange={(e) => setSourceUrl(e.target.value)}
-                  className="bg-white border-zinc-300 text-xs font-medium" 
-                />
-              </div>
-
-              {/* File Attachment */}
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Attach Document</Label>
-                <div className="flex items-center gap-2">
-                  <div 
-                    onClick={handleBrowseClick}
-                    className="flex-1 bg-zinc-50 border border-zinc-300 rounded-md px-3 py-2 text-xs text-zinc-950 font-medium cursor-pointer truncate hover:border-zinc-400"
-                  >
-                    {selectedFile ? (
-                      <span className="font-bold text-[#009966] flex items-center gap-1.5 truncate">
-                        <FileText className="w-3.5 h-3.5 shrink-0" />
-                        {selectedFile.name} ({(selectedFile.size / (1024 * 1024)).toFixed(1)} MB)
-                      </span>
-                    ) : (
-                      <span className="text-zinc-400">Click to browse file</span>
-                    )}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Available For</Label>
+                  <div className="flex items-center gap-4 h-9">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={availAdmin}
+                        onChange={(e) => setAvailAdmin(e.target.checked)}
+                        className="rounded border-zinc-300 text-[#009966] focus:ring-[#009966] cursor-pointer h-4 w-4" 
+                      />
+                      <span className="text-xs text-zinc-800 font-medium">All Admin</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={availStudent}
+                        onChange={(e) => setAvailStudent(e.target.checked)}
+                        className="rounded border-zinc-300 text-[#009966] focus:ring-[#009966] cursor-pointer h-4 w-4" 
+                      />
+                      <span className="text-xs text-zinc-800 font-medium">Enrolled Students</span>
+                    </label>
                   </div>
-                  {selectedFile && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedFile(null);
-                        setFileUrl('');
-                        if (fileInputRef.current) fileInputRef.current.value = '';
-                      }}
-                      className="p-1.5 text-zinc-400 hover:text-rose-600 rounded cursor-pointer"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                  <Button 
-                    type="button" 
-                    variant="secondary" 
-                    onClick={handleBrowseClick}
-                    className="bg-[#009966] hover:bg-[#007a52] text-white font-bold shrink-0 text-xs shadow-xs cursor-pointer h-9 px-3"
-                  >
-                    <Upload className="h-3.5 w-3.5 mr-1" /> Browse
-                  </Button>
+                </div>
+
+                <div className="space-y-1.5 lg:col-span-2">
+                  <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">
+                    Source URL <span className="text-zinc-400 font-normal lowercase">(Optional)</span>
+                  </Label>
+                  <Input 
+                    placeholder="https://drive.google.com/..." 
+                    value={sourceUrl}
+                    onChange={(e) => setSourceUrl(e.target.value)}
+                    className="bg-white border-zinc-300 text-xs font-medium h-9" 
+                  />
                 </div>
               </div>
 
-              <div className="pt-2 flex gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Description</Label>
+                  <textarea 
+                    placeholder="Instructions for students and clinical preceptors..." 
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="flex min-h-[70px] w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-950 font-medium" 
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold text-zinc-800 uppercase tracking-wider">Attach Document</Label>
+                  <div className="flex items-center gap-2">
+                    <div 
+                      onClick={handleBrowseClick}
+                      className="flex-1 bg-zinc-50 border border-zinc-300 rounded-md px-3 py-2 text-xs text-zinc-950 font-medium cursor-pointer truncate hover:border-zinc-400 min-h-[42px] flex items-center"
+                    >
+                      {selectedFile ? (
+                        <span className="font-bold text-[#009966] flex items-center gap-1.5 truncate">
+                          <FileText className="w-3.5 h-3.5 shrink-0" />
+                          {selectedFile.name} ({(selectedFile.size / (1024 * 1024)).toFixed(1)} MB)
+                        </span>
+                      ) : (
+                        <span className="text-zinc-400">Click to browse file (.pdf, .doc, .docx, .zip)</span>
+                      )}
+                    </div>
+                    {selectedFile && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedFile(null);
+                          setFileUrl('');
+                          if (fileInputRef.current) fileInputRef.current.value = '';
+                        }}
+                        className="p-1.5 text-zinc-400 hover:text-rose-600 rounded cursor-pointer"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                    <Button 
+                      type="button" 
+                      variant="secondary" 
+                      onClick={handleBrowseClick}
+                      className="bg-[#009966] hover:bg-[#007a52] text-white font-bold shrink-0 text-xs shadow-xs cursor-pointer h-10 px-4"
+                    >
+                      <Upload className="h-3.5 w-3.5 mr-1" /> Browse
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2 flex justify-end gap-3 border-t border-zinc-100">
                 <Button 
                   type="button"
                   variant="outline"
                   disabled={saving}
                   onClick={() => handleSubmit('Draft')}
-                  className="flex-1 border-zinc-300 text-zinc-800 font-bold text-xs h-9"
+                  className="border-zinc-300 text-zinc-800 font-bold text-xs h-9 px-5"
                 >
                   Save Draft
                 </Button>
                 <Button 
                   type="submit"
                   disabled={saving}
-                  className="flex-1 bg-[#009966] hover:bg-[#007a52] text-white font-bold text-xs shadow-xs h-9 uppercase tracking-wider"
+                  className="bg-[#009966] hover:bg-[#007a52] text-white font-bold text-xs shadow-xs h-9 px-6 uppercase tracking-wider"
                 >
                   {saving ? 'Uploading...' : 'Upload & Publish'}
                 </Button>
@@ -649,8 +638,8 @@ export default function UploadContentPage() {
           </div>
         </div>
 
-        {/* Right Column: Repository Data Table */}
-        <div className="xl:col-span-2 space-y-4">
+        {/* Bottom: Repository Data Table (Full Width) */}
+        <div className="w-full space-y-4">
           <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs flex flex-col">
             {/* Header Controls */}
             <div className="p-4 border-b border-zinc-100 bg-zinc-50/50 flex flex-col gap-3">
