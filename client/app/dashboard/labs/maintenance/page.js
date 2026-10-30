@@ -23,10 +23,17 @@ import {
   DollarSign,
   Calendar,
   Filter,
-  Kanban,
+  LayoutGrid,
   List,
   Loader2,
-  RefreshCw
+  RefreshCw,
+  Cpu,
+  Droplets,
+  Zap,
+  Armchair,
+  Fan,
+  ShieldAlert,
+  Truck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,17 +41,51 @@ import { Label } from '@/components/ui/label';
 import { exportToCSV, exportToExcel, printData } from '@/lib/exportUtils';
 import labService from '@/services/labService';
 
+export const CAMPUS_LOCATIONS = [
+  'Medical Lab Technology (MLT) Lab',
+  'Pharmacy Technician Practical Lab',
+  'Nursing Skills & Anatomy Lab',
+  'Computer & Digital IT Lab',
+  'Biochemistry & Science Lab',
+  'Main Academic Block A (Classrooms & Lecture Halls)',
+  'Main Academic Block B (Admin & Faculty Block)',
+  'College Library & Reading Hall',
+  'Campus Water Filtration & Solar Power Facility',
+  'Campus Cafeteria & Student Facilities',
+  'College Buses & Transport Yard'
+];
+
+export const MAINTENANCE_CATEGORIES = [
+  'Laboratory Instruments & Medical Equipment',
+  'Electrical & Power Backup (Solar / Generator)',
+  'Plumbing & Clean Water Filtration',
+  'Classroom Furniture & Desks',
+  'Computer & IT Lab Hardware',
+  'Building Civil Works & Painting',
+  'HVAC & Air Conditioning',
+  'Campus Vehicles & Transport Support',
+  'Fire & Safety Equipment'
+];
+
+export const WORK_ORDER_STATUSES = [
+  'Reported',
+  'Under Inspection',
+  'In Repair',
+  'Completed',
+  'Closed'
+];
+
 export default function MaintenancePage() {
-  const [tickets, setTickets] = useState([]);
+  const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const loadMaintenance = async () => {
     setLoading(true);
     try {
       const data = await labService.getMaintenance();
-      if (Array.isArray(data)) setTickets(data);
+      if (Array.isArray(data)) setRequests(data);
     } catch (err) {
-      console.error('Error loading maintenance tickets:', err);
+      console.error('Error loading maintenance requests:', err);
     } finally {
       setLoading(false);
     }
@@ -55,28 +96,30 @@ export default function MaintenancePage() {
   }, []);
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedPriority, setSelectedPriority] = useState('All');
   const [selectedStatus, setSelectedStatus] = useState('All');
-  const [viewMode, setViewMode] = useState('list'); // 'list' or 'kanban'
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdateStatusModalOpen, setIsUpdateStatusModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
-  const [editingTicket, setEditingTicket] = useState(null);
-  const [updatingTicket, setUpdatingTicket] = useState(null);
-  const [viewingTicket, setViewingTicket] = useState(null);
+  const [editingRequest, setEditingRequest] = useState(null);
+  const [updatingRequest, setUpdatingRequest] = useState(null);
+  const [viewingRequest, setViewingRequest] = useState(null);
 
   const [formData, setFormData] = useState({
     equipmentName: '',
     assetCode: '',
-    labName: 'Software Engineering & AI Lab 1 (IT-302)',
-    category: 'Hardware & Power',
+    labName: CAMPUS_LOCATIONS[0],
+    category: MAINTENANCE_CATEGORIES[0],
     description: '',
     priority: 'Medium',
     reportedBy: '',
     reportedDate: new Date().toISOString().split('T')[0],
-    assignedTo: '',
+    assignedTo: 'Campus Electrician / Handyman',
     status: 'Reported',
     estimatedCost: 0,
     actualCost: 0,
@@ -86,41 +129,49 @@ export default function MaintenancePage() {
   });
 
   const [statusUpdateData, setStatusUpdateData] = useState({
-    status: 'In Progress',
+    status: 'In Repair',
     assignedTo: '',
     actualCost: 0,
     resolutionNotes: ''
   });
 
-  const pipelineStages = ['Reported', 'Under Review', 'In Progress', 'Repaired', 'Closed'];
+  const filteredRequests = requests.filter(item => {
+    const q = searchTerm.toLowerCase();
+    const idStr = String(item.id || item.requestId || item._id || '').toLowerCase();
+    const nameStr = String(item.equipmentName || '').toLowerCase();
+    const assetStr = String(item.assetCode || '').toLowerCase();
+    const locStr = String(item.labName || '').toLowerCase();
+    const descStr = String(item.description || '').toLowerCase();
+    const techStr = String(item.assignedTo || '').toLowerCase();
 
-  const filteredTickets = tickets.filter(item => {
     const matchesSearch =
-      item.equipmentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.assetCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.labName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.assignedTo.toLowerCase().includes(searchTerm.toLowerCase());
+      nameStr.includes(q) ||
+      assetStr.includes(q) ||
+      idStr.includes(q) ||
+      locStr.includes(q) ||
+      descStr.includes(q) ||
+      techStr.includes(q);
 
+    const matchesLocation = selectedLocation === 'All' || item.labName === selectedLocation;
+    const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
     const matchesPriority = selectedPriority === 'All' || item.priority === selectedPriority;
     const matchesStatus = selectedStatus === 'All' || item.status === selectedStatus;
 
-    return matchesSearch && matchesPriority && matchesStatus;
+    return matchesSearch && matchesLocation && matchesCategory && matchesPriority && matchesStatus;
   });
 
   const handleOpenAddModal = () => {
-    setEditingTicket(null);
+    setEditingRequest(null);
     setFormData({
       equipmentName: '',
       assetCode: '',
-      labName: 'Software Engineering & AI Lab 1 (IT-302)',
-      category: 'Hardware & Power',
+      labName: CAMPUS_LOCATIONS[0],
+      category: MAINTENANCE_CATEGORIES[0],
       description: '',
       priority: 'Medium',
       reportedBy: '',
       reportedDate: new Date().toISOString().split('T')[0],
-      assignedTo: 'Unassigned',
+      assignedTo: 'In-house Technician',
       status: 'Reported',
       estimatedCost: 0,
       actualCost: 0,
@@ -131,47 +182,47 @@ export default function MaintenancePage() {
     setIsModalOpen(true);
   };
 
-  const handleOpenEditModal = (ticket) => {
-    setEditingTicket(ticket);
-    setFormData({ ...ticket });
+  const handleOpenEditModal = (reqItem) => {
+    setEditingRequest(reqItem);
+    setFormData({ ...reqItem });
     setIsModalOpen(true);
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-      const payload = editingTicket ? { ...formData, id: editingTicket.id, _id: editingTicket._id || editingTicket.id } : formData;
+      const payload = editingRequest ? { ...formData, id: editingRequest.id, _id: editingRequest._id || editingRequest.id } : formData;
       const saved = await labService.saveMaintenance(payload);
       if (saved) {
-        if (editingTicket) {
-          setTickets(tickets.map(t => (t.id === editingTicket.id || t._id === editingTicket._id) ? saved : t));
+        if (editingRequest) {
+          setRequests(requests.map(t => (t.id === editingRequest.id || t._id === editingRequest._id) ? saved : t));
         } else {
-          setTickets([saved, ...tickets]);
+          setRequests([saved, ...requests]);
         }
       }
     } catch (err) {
-      console.error('Failed to save ticket:', err);
+      console.error('Failed to save maintenance request:', err);
     }
     setIsModalOpen(false);
   };
 
-  const handleOpenUpdateStatus = (ticket) => {
-    setUpdatingTicket(ticket);
+  const handleOpenUpdateStatus = (reqItem) => {
+    setUpdatingRequest(reqItem);
     setStatusUpdateData({
-      status: ticket.status,
-      assignedTo: ticket.assignedTo || '',
-      actualCost: ticket.actualCost || 0,
-      resolutionNotes: ticket.resolutionNotes || ''
+      status: reqItem.status || 'In Repair',
+      assignedTo: reqItem.assignedTo || '',
+      actualCost: reqItem.actualCost || reqItem.costIncurred || 0,
+      resolutionNotes: reqItem.resolutionNotes || ''
     });
     setIsUpdateStatusModalOpen(true);
   };
 
   const handleSaveStatusUpdate = async (e) => {
     e.preventDefault();
-    if (!updatingTicket) return;
+    if (!updatingRequest) return;
     try {
       const updated = {
-        ...updatingTicket,
+        ...updatingRequest,
         status: statusUpdateData.status,
         assignedTo: statusUpdateData.assignedTo,
         actualCost: Number(statusUpdateData.actualCost),
@@ -179,27 +230,27 @@ export default function MaintenancePage() {
         resolutionNotes: statusUpdateData.resolutionNotes
       };
       const saved = await labService.saveMaintenance(updated);
-      setTickets(tickets.map(t => (t.id === updatingTicket.id || t._id === updatingTicket._id) ? (saved || updated) : t));
+      setRequests(requests.map(t => (t.id === updatingRequest.id || t._id === updatingRequest._id) ? (saved || updated) : t));
     } catch (err) {
-      console.error('Failed to update ticket status:', err);
+      console.error('Failed to update maintenance status:', err);
     }
     setIsUpdateStatusModalOpen(false);
   };
 
   const handleDelete = async (id) => {
-    if (confirm('Are you sure you want to delete this maintenance ticket?')) {
+    if (confirm('Are you sure you want to remove this maintenance record?')) {
       try {
         await labService.deleteMaintenance(id);
-        setTickets(tickets.filter(t => t.id !== id && t._id !== id));
+        setRequests(requests.filter(t => t.id !== id && t._id !== id));
       } catch (err) {
-        console.error('Failed to delete ticket:', err);
+        console.error('Failed to delete maintenance record:', err);
       }
     }
   };
 
-  const exportHeaders = ['Ticket #', 'Equipment', 'Asset Code', 'Lab', 'Category', 'Priority', 'Reported By', 'Date', 'Assigned To', 'Status', 'Cost (PKR)', 'Resolution'];
-  const exportData = filteredTickets.map(t => [
-    t.id,
+  const exportHeaders = ['Request #', 'Equipment / Facility', 'Asset Code', 'Campus Location / Lab', 'Category', 'Priority', 'Reported By', 'Date', 'Assigned Tech/Vendor', 'Status', 'Cost (PKR)', 'Resolution Log'];
+  const exportData = filteredRequests.map(t => [
+    t.id || t.requestId || t._id,
     t.equipmentName,
     t.assetCode,
     t.labName,
@@ -209,123 +260,148 @@ export default function MaintenancePage() {
     t.reportedDate,
     t.assignedTo,
     t.status,
-    t.actualCost || t.estimatedCost,
+    t.actualCost || t.costIncurred || t.estimatedCost,
     t.resolutionNotes
   ]);
 
-  const openTicketsCount = tickets.filter(t => t.status !== 'Closed').length;
-  const criticalCount = tickets.filter(t => t.priority === 'Critical' && t.status !== 'Closed').length;
-  const totalRepairSpend = tickets.reduce((acc, curr) => acc + (curr.actualCost || 0), 0);
-  const repairedCount = tickets.filter(t => t.status === 'Repaired' || t.status === 'Closed').length;
+  const openCount = requests.filter(t => t.status !== 'Closed' && t.status !== 'Completed').length;
+  const criticalCount = requests.filter(t => t.priority === 'Critical' && t.status !== 'Closed').length;
+  const totalRepairSpend = requests.reduce((acc, curr) => acc + (curr.actualCost || curr.costIncurred || 0), 0);
+  const repairedCount = requests.filter(t => t.status === 'Completed' || t.status === 'Closed' || t.status === 'Repaired').length;
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumb */}
+      {/* Breadcrumb Navigation */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2 text-sm text-zinc-600">
           <Link href="/dashboard" className="hover:text-emerald-700 font-medium">Dashboard</Link>
           <ChevronRight className="w-4 h-4 text-zinc-400" />
-          <Link href="/dashboard/labs" className="hover:text-emerald-700 font-medium">Labs</Link>
+          <Link href="/dashboard/labs" className="hover:text-emerald-700 font-medium">Campus & Labs</Link>
           <ChevronRight className="w-4 h-4 text-zinc-400" />
-          <span className="text-zinc-900 font-semibold">Maintenance & Complaints</span>
+          <span className="text-zinc-900 font-semibold">Maintenance & Repairs</span>
         </div>
       </div>
 
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-gradient-to-r from-emerald-900 via-teal-900 to-zinc-900 text-white p-6 rounded-2xl shadow-sm">
+      {/* Modern Campus Header Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-gradient-to-r from-emerald-900 via-teal-900 to-zinc-900 text-white p-6 rounded-2xl shadow-xs">
         <div>
-          <div className="flex items-center space-x-2 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-1">
-            <Wrench className="w-4 h-4" />
-            <span>Service & Repairs Desk</span>
+          <div className="flex items-center space-x-2 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-1.5">
+            <Building className="w-4 h-4" />
+            <span>Pak Royal College — Facility & Equipment Desk</span>
           </div>
-          <h1 className="text-2xl font-bold text-white">Maintenance & Complaints Pipeline</h1>
-          <p className="text-emerald-200/90 text-sm mt-1">
-            Log equipment faults, assign technicians, track repair costs and schedule preventive calibrations
+          <h1 className="text-2xl font-black text-white tracking-tight">
+            Campus, School & Laboratory Maintenance
+          </h1>
+          <p className="text-emerald-100/90 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
+            Record and monitor school infrastructure repairs, science & medical lab instrument servicing, electrical systems, plumbing, furniture, and routine facility works.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 shrink-0">
           <Button
-            onClick={() => setViewMode(viewMode === 'list' ? 'kanban' : 'list')}
+            onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
             variant="outline"
-            className="bg-white/10 hover:bg-white/20 text-white border-white/20 text-xs flex items-center gap-1.5"
+            className="bg-white/10 hover:bg-white/20 text-white border-white/20 text-xs flex items-center gap-1.5 cursor-pointer h-9"
           >
-            {viewMode === 'list' ? <Kanban className="w-3.5 h-3.5" /> : <List className="w-3.5 h-3.5" />}
-            {viewMode === 'list' ? 'Kanban Pipeline' : 'Table View'}
+            {viewMode === 'list' ? <LayoutGrid className="w-3.5 h-3.5" /> : <List className="w-3.5 h-3.5" />}
+            {viewMode === 'list' ? 'Status Overview' : 'Register Table'}
           </Button>
           <Button
             onClick={handleOpenAddModal}
-            className="bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm flex items-center gap-2 font-medium"
+            className="bg-emerald-500 hover:bg-emerald-600 text-white shadow-xs flex items-center gap-1.5 font-bold text-xs cursor-pointer h-9 px-4"
           >
             <Plus className="w-4 h-4" />
-            Log New Ticket
+            New Maintenance Request
           </Button>
         </div>
       </div>
 
-      {/* KPI Cards */}
+      {/* KPI Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-4 border border-zinc-200 shadow-sm flex items-center justify-between">
+        <div className="bg-white rounded-xl p-4 border border-zinc-200 shadow-xs flex items-center justify-between">
           <div>
-            <div className="text-xs font-medium text-zinc-500 uppercase">Active Open Tickets</div>
-            <div className="text-2xl font-bold text-zinc-900 mt-1">{openTicketsCount}</div>
-            <div className="text-[11px] text-zinc-500 font-medium mt-1">Pending resolution</div>
+            <div className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Active Open Works</div>
+            <div className="text-2xl font-black text-zinc-900 mt-1">{openCount}</div>
+            <div className="text-[11px] text-zinc-500 font-medium mt-0.5">Pending repair or inspection</div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0">
             <Clock className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-zinc-200 shadow-sm flex items-center justify-between">
+        <div className="bg-white rounded-xl p-4 border border-zinc-200 shadow-xs flex items-center justify-between">
           <div>
-            <div className="text-xs font-medium text-zinc-500 uppercase">Critical Priority</div>
-            <div className="text-2xl font-bold text-red-600 mt-1">{criticalCount}</div>
-            <div className="text-[11px] text-red-600 font-medium mt-1">Immediate action needed</div>
+            <div className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Urgent / Critical</div>
+            <div className="text-2xl font-black text-rose-600 mt-1">{criticalCount}</div>
+            <div className="text-[11px] text-rose-600 font-medium mt-0.5">Immediate attention needed</div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 text-red-600 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
             <AlertTriangle className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-zinc-200 shadow-sm flex items-center justify-between">
+        <div className="bg-white rounded-xl p-4 border border-zinc-200 shadow-xs flex items-center justify-between">
           <div>
-            <div className="text-xs font-medium text-zinc-500 uppercase">Total Repair Spend</div>
-            <div className="text-2xl font-bold text-emerald-700 mt-1">PKR {totalRepairSpend.toLocaleString()}</div>
-            <div className="text-[11px] text-emerald-700 font-medium mt-1">This academic year</div>
+            <div className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Repair & Spares Spend</div>
+            <div className="text-2xl font-black text-emerald-700 mt-1">PKR {totalRepairSpend.toLocaleString()}</div>
+            <div className="text-[11px] text-emerald-700 font-medium mt-0.5">Actual expense recorded</div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
             <DollarSign className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-zinc-200 shadow-sm flex items-center justify-between">
+        <div className="bg-white rounded-xl p-4 border border-zinc-200 shadow-xs flex items-center justify-between">
           <div>
-            <div className="text-xs font-medium text-zinc-500 uppercase">Repaired / Closed</div>
-            <div className="text-2xl font-bold text-emerald-800 mt-1">{repairedCount}</div>
-            <div className="text-[11px] text-emerald-800 font-medium mt-1">Restored to service</div>
+            <div className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Restored & Operational</div>
+            <div className="text-2xl font-black text-emerald-800 mt-1">{repairedCount}</div>
+            <div className="text-[11px] text-emerald-800 font-medium mt-0.5">Fully operational assets</div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-center shrink-0">
             <CheckCircle2 className="w-5 h-5" />
           </div>
         </div>
       </div>
 
       {/* Filter and Export Bar */}
-      <div className="bg-white p-4 rounded-xl border border-zinc-200 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-        <div className="flex flex-1 items-center gap-2">
-          <div className="relative flex-1 max-w-md">
+      <div className="bg-white p-4 rounded-xl border border-zinc-200 shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+        <div className="flex flex-1 flex-wrap items-center gap-2">
+          <div className="relative flex-1 min-w-[220px]">
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-zinc-400" />
             <Input
               type="text"
-              placeholder="Search ticket #, equipment, asset ID, lab or technician..."
+              placeholder="Search request #, equipment, location, or technician..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 text-xs"
+              className="pl-9 text-xs h-9 bg-zinc-50 border-zinc-200"
             />
           </div>
+
+          <select
+            value={selectedLocation}
+            onChange={(e) => setSelectedLocation(e.target.value)}
+            className="text-xs border border-zinc-200 rounded-lg px-2.5 py-1.5 bg-white text-zinc-700 h-9 font-medium"
+          >
+            <option value="All">All Campus Locations</option>
+            {CAMPUS_LOCATIONS.map(loc => (
+              <option key={loc} value={loc}>{loc}</option>
+            ))}
+          </select>
+
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="text-xs border border-zinc-200 rounded-lg px-2.5 py-1.5 bg-white text-zinc-700 h-9 font-medium"
+          >
+            <option value="All">All Categories</option>
+            {MAINTENANCE_CATEGORIES.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+
           <select
             value={selectedPriority}
             onChange={(e) => setSelectedPriority(e.target.value)}
-            className="text-xs border border-zinc-200 rounded-lg px-3 py-2 bg-white text-zinc-700"
+            className="text-xs border border-zinc-200 rounded-lg px-2.5 py-1.5 bg-white text-zinc-700 h-9 font-medium"
           >
             <option value="All">All Priorities</option>
             <option value="Critical">Critical</option>
@@ -333,78 +409,81 @@ export default function MaintenancePage() {
             <option value="Medium">Medium</option>
             <option value="Low">Low</option>
           </select>
+
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="text-xs border border-zinc-200 rounded-lg px-3 py-2 bg-white text-zinc-700"
+            className="text-xs border border-zinc-200 rounded-lg px-2.5 py-1.5 bg-white text-zinc-700 h-9 font-medium"
           >
-            <option value="All">All Stages</option>
-            {pipelineStages.map(s => (
+            <option value="All">All Statuses</option>
+            {WORK_ORDER_STATUSES.map(s => (
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <Button
-            onClick={() => exportToCSV('Lab_Maintenance_Tickets', exportHeaders, exportData)}
+            onClick={() => exportToCSV('College_Maintenance_Register', exportHeaders, exportData)}
             variant="outline"
             size="sm"
-            className="text-xs border-zinc-200 flex items-center gap-1.5 text-zinc-700"
+            className="text-xs border-zinc-200 flex items-center gap-1.5 text-zinc-700 cursor-pointer h-8"
           >
             <Download className="w-3.5 h-3.5" /> CSV
           </Button>
           <Button
-            onClick={() => exportToExcel('Lab_Maintenance_Tickets', exportHeaders, exportData)}
+            onClick={() => exportToExcel('College_Maintenance_Register', exportHeaders, exportData)}
             variant="outline"
             size="sm"
-            className="text-xs border-zinc-200 flex items-center gap-1.5 text-zinc-700"
+            className="text-xs border-zinc-200 flex items-center gap-1.5 text-zinc-700 cursor-pointer h-8"
           >
             <FileText className="w-3.5 h-3.5" /> Excel
           </Button>
           <Button
-            onClick={() => printData('Lab Maintenance & Repairs Register', exportHeaders, exportData)}
+            onClick={() => printData('Pak Royal College - Maintenance & Repairs Register', exportHeaders, exportData)}
             variant="outline"
             size="sm"
-            className="text-xs border-zinc-200 flex items-center gap-1.5 text-zinc-700"
+            className="text-xs border-zinc-200 flex items-center gap-1.5 text-zinc-700 cursor-pointer h-8"
           >
             <Printer className="w-3.5 h-3.5" /> Print
           </Button>
         </div>
       </div>
 
-      {/* Kanban or Table View */}
+      {/* Main View: Status Overview Cards OR Full Register Table */}
       {loading ? (
         <div className="py-20 text-center bg-white rounded-2xl border border-zinc-200">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-emerald-600" />
-          <p className="text-sm font-semibold text-zinc-800">Loading Maintenance Pipeline...</p>
-          <p className="text-xs text-zinc-500 mt-1">Fetching live equipment tickets and repair records</p>
+          <p className="text-sm font-semibold text-zinc-800">Loading Maintenance Register...</p>
+          <p className="text-xs text-zinc-500 mt-1">Fetching live campus repair records from database</p>
         </div>
-      ) : viewMode === 'kanban' ? (
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 overflow-x-auto pb-4">
-          {pipelineStages.map(stage => {
-            const stageTickets = filteredTickets.filter(t => t.status === stage);
+      ) : viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {WORK_ORDER_STATUSES.map(stage => {
+            const stageRequests = filteredRequests.filter(t => t.status === stage);
             return (
-              <div key={stage} className="bg-zinc-100/70 p-3 rounded-2xl border border-zinc-200 flex flex-col min-w-[240px]">
-                <div className="flex items-center justify-between pb-2 mb-3 border-b border-zinc-200 text-xs font-bold text-zinc-700 uppercase">
+              <div key={stage} className="bg-zinc-50 p-3.5 rounded-2xl border border-zinc-200 flex flex-col">
+                <div className="flex items-center justify-between pb-2 mb-3 border-b border-zinc-200 text-xs font-bold text-zinc-800 uppercase tracking-wider">
                   <span>{stage}</span>
-                  <span className="w-5 h-5 rounded-full bg-zinc-200 text-zinc-700 flex items-center justify-center text-[10px]">
-                    {stageTickets.length}
+                  <span className="w-5 h-5 rounded-full bg-zinc-200 text-zinc-800 flex items-center justify-center text-[10px] font-bold">
+                    {stageRequests.length}
                   </span>
                 </div>
 
                 <div className="space-y-3 flex-1 overflow-y-auto max-h-[600px]">
-                  {stageTickets.length === 0 ? (
-                    <div className="text-center py-6 text-zinc-400 text-xs italic">
-                      No tickets in {stage}
+                  {stageRequests.length === 0 ? (
+                    <div className="text-center py-8 text-zinc-400 text-xs italic">
+                      No works under {stage}
                     </div>
                   ) : (
-                    stageTickets.map(t => (
-                      <div key={t.id} className="bg-white p-3.5 rounded-xl border border-zinc-200 shadow-sm space-y-2 hover:border-emerald-300 transition-all">
+                    stageRequests.map(t => (
+                      <div key={t.id || t._id} className="bg-white p-3.5 rounded-xl border border-zinc-200 shadow-xs space-y-2 hover:border-emerald-400 transition-all">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-xs text-zinc-900">{t.id}</span>
+                          <span className="font-mono font-bold text-xs text-zinc-900 bg-zinc-100 px-1.5 py-0.5 rounded">
+                            {t.id || t.requestId || t._id?.slice(-6)?.toUpperCase()}
+                          </span>
                           <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
-                            t.priority === 'Critical' ? 'bg-red-100 text-red-800' :
+                            t.priority === 'Critical' ? 'bg-rose-100 text-rose-800' :
                             t.priority === 'High' ? 'bg-amber-100 text-amber-800' :
                             t.priority === 'Medium' ? 'bg-blue-100 text-blue-800' :
                             'bg-zinc-100 text-zinc-700'
@@ -413,17 +492,18 @@ export default function MaintenancePage() {
                           </span>
                         </div>
 
-                        <h4 className="font-semibold text-zinc-900 text-xs leading-tight">{t.equipmentName}</h4>
-                        <div className="text-[11px] text-emerald-700 font-mono">{t.assetCode}</div>
+                        <h4 className="font-bold text-zinc-900 text-xs leading-snug">{t.equipmentName}</h4>
+                        <div className="text-[11px] text-emerald-700 font-medium">{t.labName}</div>
+                        <div className="text-[10px] text-zinc-500 font-mono">{t.assetCode} • {t.category}</div>
                         <p className="text-[11px] text-zinc-600 line-clamp-2">{t.description}</p>
 
                         <div className="pt-2 border-t border-zinc-100 text-[11px] text-zinc-500 flex items-center justify-between">
-                          <span>Tech: <strong className="text-zinc-700">{t.assignedTo}</strong></span>
+                          <span className="truncate max-w-[130px]">By: <strong className="text-zinc-700">{t.assignedTo}</strong></span>
                           <Button
                             onClick={() => handleOpenUpdateStatus(t)}
                             size="sm"
                             variant="ghost"
-                            className="h-6 px-1.5 text-[10px] text-emerald-600 font-semibold"
+                            className="h-6 px-1.5 text-[10px] text-emerald-600 font-bold hover:bg-emerald-50 cursor-pointer"
                           >
                             Update
                           </Button>
@@ -437,16 +517,16 @@ export default function MaintenancePage() {
           })}
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden shadow-sm">
+        <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-zinc-50 border-b border-zinc-200 text-zinc-600 font-semibold uppercase">
+            <table className="w-full text-left text-xs whitespace-nowrap">
+              <thead className="bg-zinc-50 border-b border-zinc-200 text-zinc-700 font-bold uppercase tracking-wider text-[11px]">
                 <tr>
-                  <th className="py-3 px-4">Ticket #</th>
-                  <th className="py-3 px-4">Equipment & Asset ID</th>
-                  <th className="py-3 px-4">Laboratory</th>
+                  <th className="py-3 px-4">Request #</th>
+                  <th className="py-3 px-4">Equipment / Facility Item</th>
+                  <th className="py-3 px-4">Campus Location / Lab</th>
                   <th className="py-3 px-4">Priority</th>
-                  <th className="py-3 px-4">Assigned Technician</th>
+                  <th className="py-3 px-4">Assigned Handyman / Tech</th>
                   <th className="py-3 px-4">Reported Date</th>
                   <th className="py-3 px-4">Repair Cost</th>
                   <th className="py-3 px-4">Status</th>
@@ -454,71 +534,75 @@ export default function MaintenancePage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200">
-                {filteredTickets.length === 0 ? (
+                {filteredRequests.length === 0 ? (
                   <tr>
                     <td colSpan="9" className="py-12 text-center text-zinc-500">
                       <Wrench className="w-8 h-8 text-zinc-300 mx-auto mb-2" />
-                      <p className="font-medium text-xs text-zinc-600">No maintenance tickets found</p>
-                      <p className="text-[11px] text-zinc-400 mt-0.5">Click &quot;Log Maintenance Ticket&quot; to report an issue or breakdown.</p>
+                      <p className="font-bold text-xs text-zinc-700">No maintenance requests found</p>
+                      <p className="text-[11px] text-zinc-400 mt-0.5">Click &quot;New Maintenance Request&quot; above to log an issue or breakdown.</p>
                     </td>
                   </tr>
                 ) : (
-                  filteredTickets.map((t) => (
-                    <tr key={t.id} className="hover:bg-zinc-50 transition-colors">
-                      <td className="py-3 px-4 font-bold text-zinc-900 whitespace-nowrap">
-                        {t.id}
+                  filteredRequests.map((t) => (
+                    <tr key={t.id || t._id} className="hover:bg-zinc-50/80 transition-colors">
+                      <td className="py-3.5 px-4 font-mono font-bold text-zinc-950">
+                        {t.id || t.requestId || t._id?.slice(-6)?.toUpperCase()}
                       </td>
-                      <td className="py-3 px-4">
-                        <div className="font-bold text-zinc-900">{t.equipmentName}</div>
-                        <div className="text-[11px] text-emerald-700 font-mono">{t.assetCode} ({t.category})</div>
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-zinc-950">{t.equipmentName}</div>
+                        <div className="text-[11px] text-emerald-700 font-medium">
+                          {t.assetCode && <span className="font-mono">{t.assetCode} • </span>}
+                          {t.category}
+                        </div>
                       </td>
-                      <td className="py-3 px-4 text-zinc-700">
+                      <td className="py-3.5 px-4 text-zinc-800 font-medium">
                         {t.labName}
                       </td>
-                      <td className="py-3 px-4 whitespace-nowrap">
+                      <td className="py-3.5 px-4">
                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                          t.priority === 'Critical' ? 'bg-red-100 text-red-800' :
-                          t.priority === 'High' ? 'bg-amber-100 text-amber-800' :
-                          t.priority === 'Medium' ? 'bg-blue-100 text-blue-800' :
-                          'bg-zinc-100 text-zinc-700'
+                          t.priority === 'Critical' ? 'bg-rose-100 text-rose-800 border border-rose-200' :
+                          t.priority === 'High' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
+                          t.priority === 'Medium' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                          'bg-zinc-100 text-zinc-700 border border-zinc-200'
                         }`}>
                           {t.priority}
                         </span>
                       </td>
-                      <td className="py-3 px-4 whitespace-nowrap font-medium text-zinc-800">
-                        {t.assignedTo}
+                      <td className="py-3.5 px-4 font-semibold text-zinc-900">
+                        {t.assignedTo || 'Unassigned'}
                       </td>
-                      <td className="py-3 px-4 whitespace-nowrap text-zinc-600">
+                      <td className="py-3.5 px-4 text-zinc-600">
                         {t.reportedDate}
                       </td>
-                      <td className="py-3 px-4 whitespace-nowrap font-semibold text-zinc-900">
-                        PKR {(t.actualCost || t.estimatedCost).toLocaleString()}
+                      <td className="py-3.5 px-4 font-bold text-zinc-900">
+                        PKR {((t.actualCost !== undefined && t.actualCost > 0) ? t.actualCost : (t.costIncurred || t.estimatedCost || 0)).toLocaleString()}
                       </td>
-                      <td className="py-3 px-4 whitespace-nowrap">
+                      <td className="py-3.5 px-4">
                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                          t.status === 'Reported' ? 'bg-zinc-100 text-zinc-700' :
-                          t.status === 'Under Review' ? 'bg-blue-100 text-blue-800' :
-                          t.status === 'In Progress' ? 'bg-amber-100 text-amber-800' :
-                          t.status === 'Repaired' ? 'bg-emerald-100 text-emerald-800' :
+                          t.status === 'Reported' ? 'bg-zinc-100 text-zinc-700 border border-zinc-200' :
+                          t.status === 'Under Inspection' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                          t.status === 'In Repair' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
+                          t.status === 'Completed' || t.status === 'Repaired' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
                           'bg-zinc-200 text-zinc-800'
                         }`}>
                           {t.status}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-right whitespace-nowrap">
+                      <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <Button
-                            onClick={() => { setViewingTicket(t); setIsViewModalOpen(true); }}
+                            onClick={() => { setViewingRequest(t); setIsViewModalOpen(true); }}
                             size="sm"
                             variant="ghost"
-                            className="h-7 w-7 p-0 text-zinc-500 hover:text-zinc-900"
+                            className="h-7 w-7 p-0 text-zinc-500 hover:text-zinc-900 cursor-pointer"
+                            title="View Details"
                           >
                             <Eye className="w-3.5 h-3.5" />
                           </Button>
                           <Button
                             onClick={() => handleOpenUpdateStatus(t)}
                             size="sm"
-                            className="h-7 px-2 text-[11px] bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+                            className="h-7 px-2.5 text-[11px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold cursor-pointer"
                           >
                             Update
                           </Button>
@@ -526,15 +610,17 @@ export default function MaintenancePage() {
                             onClick={() => handleOpenEditModal(t)}
                             size="sm"
                             variant="ghost"
-                            className="h-7 w-7 p-0 text-emerald-600 hover:text-emerald-700"
+                            className="h-7 w-7 p-0 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                            title="Edit Record"
                           >
                             <Edit className="w-3.5 h-3.5" />
                           </Button>
                           <Button
-                            onClick={() => handleDelete(t.id)}
+                            onClick={() => handleDelete(t.id || t._id)}
                             size="sm"
                             variant="ghost"
-                            className="h-7 w-7 p-0 text-red-500 hover:text-red-600"
+                            className="h-7 w-7 p-0 text-rose-500 hover:text-rose-700 cursor-pointer"
+                            title="Delete Record"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
@@ -549,23 +635,23 @@ export default function MaintenancePage() {
         </div>
       )}
 
-      {/* Log Ticket Modal */}
+      {/* Log / Edit Maintenance Request Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl border border-zinc-200 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-4 border-b border-zinc-200">
-              <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
                   <Wrench className="w-5 h-5" />
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-zinc-900">
-                    {editingTicket ? 'Edit Maintenance Ticket' : 'Log Maintenance & Fault Ticket'}
+                    {editingRequest ? 'Edit Maintenance Request' : 'Log Maintenance & Repair Work'}
                   </h2>
-                  <p className="text-xs text-zinc-500">Report broken hardware, electrical issues or routine servicing</p>
+                  <p className="text-xs text-zinc-500">Record broken fixtures, equipment breakdown, electrical, plumbing or routine servicing</p>
                 </div>
               </div>
-              <button onClick={() => setIsModalOpen(false)} className="text-zinc-400 hover:text-zinc-600 p-1">
+              <button onClick={() => setIsModalOpen(false)} className="text-zinc-400 hover:text-zinc-600 p-1 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -573,68 +659,62 @@ export default function MaintenancePage() {
             <form onSubmit={handleSave} className="space-y-4 pt-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-xs font-semibold text-zinc-700">Equipment / Facility Name</Label>
+                  <Label className="text-xs font-bold text-zinc-800">Equipment / Facility Item *</Label>
                   <Input
                     value={formData.equipmentName}
                     onChange={(e) => setFormData({ ...formData, equipmentName: e.target.value })}
-                    placeholder="e.g. Dell Precision 3660 Workstation"
-                    className="text-xs mt-1"
+                    placeholder="e.g. Binocular Microscope CX23 or Classroom Fan"
+                    className="text-xs mt-1 h-9"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label className="text-xs font-semibold text-zinc-700">Asset Code / Inventory Tag</Label>
+                  <Label className="text-xs font-bold text-zinc-800">Asset Code / Inventory Tag</Label>
                   <Input
                     value={formData.assetCode}
                     onChange={(e) => setFormData({ ...formData, assetCode: e.target.value })}
-                    placeholder="e.g. CS-PC-014 or DSO-002"
-                    className="text-xs mt-1"
-                    required
+                    placeholder="e.g. MLT-MIC-004 or FUR-DSK-018"
+                    className="text-xs mt-1 h-9"
                   />
                 </div>
 
                 <div>
-                  <Label className="text-xs font-semibold text-zinc-700">Laboratory</Label>
+                  <Label className="text-xs font-bold text-zinc-800">Campus Location / Laboratory *</Label>
                   <select
                     value={formData.labName}
                     onChange={(e) => setFormData({ ...formData, labName: e.target.value })}
-                    className="w-full mt-1 border border-zinc-300 rounded-lg p-2 text-xs"
+                    className="w-full mt-1 border border-zinc-300 rounded-lg p-2 text-xs h-9 bg-white"
                     required
                   >
-                    <option value="Advanced Physics Lab (A-204)">Advanced Physics Lab (A-204)</option>
-                    <option value="Software Engineering & AI Lab 1 (IT-302)">Software Engineering & AI Lab 1 (IT-302)</option>
-                    <option value="Organic & Inorganic Chemistry Lab (C-101)">Organic & Inorganic Chemistry Lab (C-101)</option>
-                    <option value="Molecular Biology & Genetics Lab (B-102)">Molecular Biology & Genetics Lab (B-102)</option>
-                    <option value="Robotics, IoT & Embedded Systems Lab (R-105)">Robotics, IoT & Embedded Systems Lab (R-105)</option>
-                    <option value="Digital Language & Phonetics Lab (L-201)">Digital Language & Phonetics Lab (L-201)</option>
+                    {CAMPUS_LOCATIONS.map(loc => (
+                      <option key={loc} value={loc}>{loc}</option>
+                    ))}
                   </select>
                 </div>
 
                 <div>
-                  <Label className="text-xs font-semibold text-zinc-700">Issue Category</Label>
+                  <Label className="text-xs font-bold text-zinc-800">Maintenance Category *</Label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full mt-1 border border-zinc-300 rounded-lg p-2 text-xs"
+                    className="w-full mt-1 border border-zinc-300 rounded-lg p-2 text-xs h-9 bg-white"
+                    required
                   >
-                    <option value="Hardware & Power">Hardware & Power</option>
-                    <option value="Calibration & Testing">Calibration & Testing</option>
-                    <option value="Optical & Mechanical">Optical & Mechanical</option>
-                    <option value="Facility & Electrical">Facility & Electrical</option>
-                    <option value="Safety & Ventilation">Safety & Ventilation</option>
-                    <option value="Software & OS">Software & OS</option>
+                    {MAINTENANCE_CATEGORIES.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
                   </select>
                 </div>
 
                 <div>
-                  <Label className="text-xs font-semibold text-zinc-700">Urgency / Priority</Label>
+                  <Label className="text-xs font-bold text-zinc-800">Urgency / Priority *</Label>
                   <select
                     value={formData.priority}
                     onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                    className="w-full mt-1 border border-zinc-300 rounded-lg p-2 text-xs font-bold"
+                    className="w-full mt-1 border border-zinc-300 rounded-lg p-2 text-xs h-9 bg-white font-bold"
                   >
-                    <option value="Critical">Critical (Lab Stalled)</option>
+                    <option value="Critical">Critical (Immediate Service Required)</option>
                     <option value="High">High Priority</option>
                     <option value="Medium">Medium Priority</option>
                     <option value="Low">Low Priority</option>
@@ -642,67 +722,67 @@ export default function MaintenancePage() {
                 </div>
 
                 <div>
-                  <Label className="text-xs font-semibold text-zinc-700">Reported By</Label>
+                  <Label className="text-xs font-bold text-zinc-800">Reported By (Staff / Faculty Name) *</Label>
                   <Input
                     value={formData.reportedBy}
                     onChange={(e) => setFormData({ ...formData, reportedBy: e.target.value })}
-                    placeholder="e.g. Mr. Ali Raza (Faculty)"
-                    className="text-xs mt-1"
+                    placeholder="e.g. Dr. Tariq (MLT Faculty) or Admin Office"
+                    className="text-xs mt-1 h-9"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label className="text-xs font-semibold text-zinc-700">Assigned Technician / Vendor</Label>
+                  <Label className="text-xs font-bold text-zinc-800">Assigned Technician / Vendor</Label>
                   <Input
                     value={formData.assignedTo}
                     onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
-                    placeholder="e.g. Tariq Mehmood (Hardware Tech)"
-                    className="text-xs mt-1"
+                    placeholder="e.g. Electrician Rashid or Authorized Tech"
+                    className="text-xs mt-1 h-9"
                   />
                 </div>
 
                 <div>
-                  <Label className="text-xs font-semibold text-zinc-700">Current Pipeline Stage</Label>
+                  <Label className="text-xs font-bold text-zinc-800">Work Status *</Label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full mt-1 border border-zinc-300 rounded-lg p-2 text-xs font-medium"
+                    className="w-full mt-1 border border-zinc-300 rounded-lg p-2 text-xs h-9 bg-white font-medium"
                   >
-                    {pipelineStages.map(s => (
+                    {WORK_ORDER_STATUSES.map(s => (
                       <option key={s} value={s}>{s}</option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <Label className="text-xs font-semibold text-zinc-700">Estimated Repair Cost (PKR)</Label>
+                  <Label className="text-xs font-bold text-zinc-800">Estimated Cost (PKR)</Label>
                   <Input
                     type="number"
                     value={formData.estimatedCost}
                     onChange={(e) => setFormData({ ...formData, estimatedCost: parseInt(e.target.value) || 0 })}
-                    className="text-xs mt-1"
+                    className="text-xs mt-1 h-9"
                   />
                 </div>
 
                 <div>
-                  <Label className="text-xs font-semibold text-zinc-700">Next Scheduled Calibration</Label>
+                  <Label className="text-xs font-bold text-zinc-800">Next Scheduled Service / Inspection</Label>
                   <Input
                     type="date"
                     value={formData.nextMaintenanceDate}
                     onChange={(e) => setFormData({ ...formData, nextMaintenanceDate: e.target.value })}
-                    className="text-xs mt-1"
+                    className="text-xs mt-1 h-9"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <Label className="text-xs font-semibold text-zinc-700">Detailed Complaint / Fault Description</Label>
+                  <Label className="text-xs font-bold text-zinc-800">Issue / Fault Description *</Label>
                   <textarea
                     rows={2}
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Describe symptoms, error codes, strange noises or physical damages..."
-                    className="w-full mt-1 border border-zinc-300 rounded-lg p-2 text-xs"
+                    placeholder="Describe symptoms, broken parts, gas leakage, electrical spark, focus fault..."
+                    className="w-full mt-1 border border-zinc-300 rounded-lg p-2.5 text-xs bg-white"
                     required
                   />
                 </div>
@@ -713,15 +793,15 @@ export default function MaintenancePage() {
                   type="button"
                   variant="outline"
                   onClick={() => setIsModalOpen(false)}
-                  className="text-xs"
+                  className="text-xs cursor-pointer h-9 px-4"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold cursor-pointer h-9 px-5 shadow-xs"
                 >
-                  {editingTicket ? 'Update Ticket' : 'Create Service Ticket'}
+                  {editingRequest ? 'Update Record' : 'Save Maintenance Record'}
                 </Button>
               </div>
             </form>
@@ -729,74 +809,74 @@ export default function MaintenancePage() {
         </div>
       )}
 
-      {/* Fast Update Status Modal */}
-      {isUpdateStatusModalOpen && updatingTicket && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      {/* Update Progress & Cost Modal */}
+      {isUpdateStatusModalOpen && updatingRequest && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-zinc-200 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs">
-                  {updatingTicket.id}
+                <div className="px-2 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-mono font-bold text-xs">
+                  {updatingRequest.id || updatingRequest.requestId || 'WORK ORDER'}
                 </div>
                 <div>
-                  <h3 className="font-bold text-zinc-900 text-base">Update Ticket Status</h3>
-                  <p className="text-xs text-zinc-500">{updatingTicket.equipmentName}</p>
+                  <h3 className="font-bold text-zinc-950 text-sm">{updatingRequest.equipmentName}</h3>
+                  <p className="text-[11px] text-zinc-500">{updatingRequest.labName}</p>
                 </div>
               </div>
-              <button onClick={() => setIsUpdateStatusModalOpen(false)} className="text-zinc-400 hover:text-zinc-600 p-1">
+              <button onClick={() => setIsUpdateStatusModalOpen(false)} className="text-zinc-400 hover:text-zinc-600 p-1 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveStatusUpdate} className="space-y-3 text-xs">
+            <form onSubmit={handleSaveStatusUpdate} className="space-y-3.5 text-xs">
               <div>
-                <Label className="text-xs font-semibold text-zinc-700">Pipeline Status</Label>
+                <Label className="text-xs font-bold text-zinc-800">Current Work Status *</Label>
                 <select
                   value={statusUpdateData.status}
                   onChange={(e) => setStatusUpdateData({ ...statusUpdateData, status: e.target.value })}
-                  className="w-full mt-1 border border-zinc-300 rounded-lg p-2 text-xs font-bold"
+                  className="w-full mt-1 border border-zinc-300 rounded-lg p-2 text-xs font-bold h-9 bg-white"
                 >
-                  {pipelineStages.map(s => (
+                  {WORK_ORDER_STATUSES.map(s => (
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <Label className="text-xs font-semibold text-zinc-700">Assigned Technician</Label>
+                <Label className="text-xs font-bold text-zinc-800">Assigned Technician / Handyman</Label>
                 <Input
                   value={statusUpdateData.assignedTo}
                   onChange={(e) => setStatusUpdateData({ ...statusUpdateData, assignedTo: e.target.value })}
-                  className="text-xs mt-1"
+                  className="text-xs mt-1 h-9"
                 />
               </div>
 
               <div>
-                <Label className="text-xs font-semibold text-zinc-700">Actual Repair / Incurred Cost (PKR)</Label>
+                <Label className="text-xs font-bold text-zinc-800">Actual Incurred Cost / Parts Cost (PKR)</Label>
                 <Input
                   type="number"
                   value={statusUpdateData.actualCost}
                   onChange={(e) => setStatusUpdateData({ ...statusUpdateData, actualCost: e.target.value })}
-                  className="text-xs mt-1 font-semibold text-emerald-700"
+                  className="text-xs mt-1 h-9 font-bold text-emerald-700"
                 />
               </div>
 
               <div>
-                <Label className="text-xs font-semibold text-zinc-700">Technician Resolution Notes</Label>
+                <Label className="text-xs font-bold text-zinc-800">Technician Resolution Notes / Action Taken</Label>
                 <textarea
-                  rows={2}
+                  rows={3}
                   value={statusUpdateData.resolutionNotes}
                   onChange={(e) => setStatusUpdateData({ ...statusUpdateData, resolutionNotes: e.target.value })}
-                  placeholder="Details of parts replaced, calibration readings..."
-                  className="w-full mt-1 border border-zinc-300 rounded-lg p-2 text-xs"
+                  placeholder="Details of parts replaced, calibration readings, new filter installed, polish done..."
+                  className="w-full mt-1 border border-zinc-300 rounded-lg p-2.5 text-xs"
                 />
               </div>
 
               <div className="flex justify-end gap-2 pt-3 border-t border-zinc-200">
-                <Button type="button" variant="outline" onClick={() => setIsUpdateStatusModalOpen(false)} className="text-xs">
+                <Button type="button" variant="outline" onClick={() => setIsUpdateStatusModalOpen(false)} className="text-xs cursor-pointer h-9 px-4">
                   Cancel
                 </Button>
-                <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium">
+                <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold cursor-pointer h-9 px-5">
                   Save Progress
                 </Button>
               </div>
@@ -805,70 +885,80 @@ export default function MaintenancePage() {
         </div>
       )}
 
-      {/* View Ticket Details Modal */}
-      {isViewModalOpen && viewingTicket && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      {/* View Maintenance Details Modal */}
+      {isViewModalOpen && viewingRequest && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-zinc-200 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200">
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-xs">
-                  {viewingTicket.id}
+                <span className="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-mono font-bold text-xs">
+                  {viewingRequest.id || viewingRequest.requestId || 'MR'}
                 </span>
                 <div>
-                  <h3 className="font-bold text-zinc-900 text-base">{viewingTicket.equipmentName}</h3>
-                  <p className="text-xs text-zinc-500">Asset Code: {viewingTicket.assetCode}</p>
+                  <h3 className="font-bold text-zinc-950 text-sm">{viewingRequest.equipmentName}</h3>
+                  <p className="text-[11px] text-zinc-500">Asset Tag: {viewingRequest.assetCode || 'N/A'}</p>
                 </div>
               </div>
-              <button onClick={() => setIsViewModalOpen(false)} className="text-zinc-400 hover:text-zinc-600 p-1">
+              <button onClick={() => setIsViewModalOpen(false)} className="text-zinc-400 hover:text-zinc-600 p-1 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-100 grid grid-cols-2 gap-2">
+              <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-200 grid grid-cols-2 gap-2.5">
                 <div>
-                  <span className="text-zinc-500 block">Laboratory:</span>
-                  <span className="font-bold text-zinc-900">{viewingTicket.labName}</span>
+                  <span className="text-zinc-400 text-[10px] uppercase font-bold block">Campus Location:</span>
+                  <span className="font-bold text-zinc-900">{viewingRequest.labName}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-500 block">Priority:</span>
-                  <span className="font-bold text-red-600">{viewingTicket.priority}</span>
+                  <span className="text-zinc-400 text-[10px] uppercase font-bold block">Category:</span>
+                  <span className="font-medium text-zinc-800">{viewingRequest.category}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-500 block">Reported By:</span>
-                  <span className="font-medium text-zinc-900">{viewingTicket.reportedBy}</span>
+                  <span className="text-zinc-400 text-[10px] uppercase font-bold block">Priority:</span>
+                  <span className="font-bold text-rose-600">{viewingRequest.priority}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-500 block">Assigned Tech:</span>
-                  <span className="font-medium text-zinc-900">{viewingTicket.assignedTo}</span>
+                  <span className="text-zinc-400 text-[10px] uppercase font-bold block">Reported By:</span>
+                  <span className="font-medium text-zinc-900">{viewingRequest.reportedBy}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-500 block">Repair Cost:</span>
-                  <span className="font-bold text-emerald-700">PKR {(viewingTicket.actualCost || viewingTicket.estimatedCost).toLocaleString()}</span>
+                  <span className="text-zinc-400 text-[10px] uppercase font-bold block">Assigned Handyman / Tech:</span>
+                  <span className="font-semibold text-zinc-900">{viewingRequest.assignedTo}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-500 block">Current Status:</span>
-                  <span className="font-semibold text-emerald-700">{viewingTicket.status}</span>
+                  <span className="text-zinc-400 text-[10px] uppercase font-bold block">Work Status:</span>
+                  <span className="font-bold text-emerald-700">{viewingRequest.status}</span>
+                </div>
+                <div>
+                  <span className="text-zinc-400 text-[10px] uppercase font-bold block">Reported Date:</span>
+                  <span className="font-medium text-zinc-900">{viewingRequest.reportedDate}</span>
+                </div>
+                <div>
+                  <span className="text-zinc-400 text-[10px] uppercase font-bold block">Actual Expense:</span>
+                  <span className="font-bold text-emerald-700">
+                    PKR {((viewingRequest.actualCost !== undefined && viewingRequest.actualCost > 0) ? viewingRequest.actualCost : (viewingRequest.costIncurred || viewingRequest.estimatedCost || 0)).toLocaleString()}
+                  </span>
                 </div>
               </div>
 
               <div>
-                <span className="text-zinc-500 block">Fault Description:</span>
-                <p className="text-zinc-800 bg-zinc-50 p-2.5 rounded-lg border border-zinc-100 mt-1">
-                  {viewingTicket.description}
+                <span className="text-zinc-600 font-bold block mb-1">Issue / Fault Description:</span>
+                <p className="text-zinc-900 bg-zinc-50 p-3 rounded-xl border border-zinc-200">
+                  {viewingRequest.description}
                 </p>
               </div>
 
               <div>
-                <span className="text-zinc-500 block">Technician Resolution Log:</span>
-                <p className="text-zinc-800 bg-emerald-50/50 p-2.5 rounded-lg border border-emerald-100 mt-1">
-                  {viewingTicket.resolutionNotes || 'In progress / No resolution notes recorded yet.'}
+                <span className="text-zinc-600 font-bold block mb-1">Technician Resolution Log & Action Taken:</span>
+                <p className="text-zinc-900 bg-emerald-50/60 p-3 rounded-xl border border-emerald-200">
+                  {viewingRequest.resolutionNotes || 'Repair in progress / No final resolution notes recorded yet.'}
                 </p>
               </div>
             </div>
 
             <div className="flex justify-end pt-3 border-t border-zinc-200">
-              <Button onClick={() => setIsViewModalOpen(false)} size="sm" className="bg-zinc-900 text-white text-xs">
+              <Button onClick={() => setIsViewModalOpen(false)} size="sm" className="bg-zinc-950 text-white text-xs font-bold cursor-pointer px-4">
                 Close
               </Button>
             </div>

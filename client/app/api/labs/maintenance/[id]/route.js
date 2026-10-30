@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { LabMaintenance } from '@/lib/models';
 import { authenticateRequest } from '@/lib/authGuard';
+import mongoose from 'mongoose';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,7 +10,13 @@ export async function GET(req, { params }) {
   try {
     await connectDB();
     const { id } = await params;
-    const item = await LabMaintenance.findById(id).lean();
+    let item = null;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      item = await LabMaintenance.findById(id).lean();
+    }
+    if (!item) {
+      item = await LabMaintenance.findOne({ $or: [{ id }, { requestId: id }] }).lean();
+    }
     if (!item) return NextResponse.json({ success: false, message: 'Maintenance record not found' }, { status: 404 });
     return NextResponse.json({ success: true, data: item });
   } catch (err) {
@@ -22,8 +29,28 @@ export async function PUT(req, { params }) {
     await connectDB();
     const { id } = await params;
     const body = await req.json();
-    const updated = await LabMaintenance.findByIdAndUpdate(id, body, { new: true });
-    if (!updated) return NextResponse.json({ success: false, message: 'Maintenance record not found' }, { status: 404 });
+
+    let updated = null;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      updated = await LabMaintenance.findByIdAndUpdate(id, body, { new: true });
+    }
+    if (!updated) {
+      updated = await LabMaintenance.findOneAndUpdate(
+        { $or: [{ id }, { requestId: id }] },
+        body,
+        { new: true }
+      );
+    }
+
+    if (!updated) {
+      // If not found, create new record
+      updated = await LabMaintenance.create({
+        ...body,
+        id: body.id || id,
+        requestId: body.requestId || body.id || id
+      });
+    }
+
     return NextResponse.json({ success: true, data: updated, message: 'Maintenance record updated successfully' });
   } catch (err) {
     return NextResponse.json({ success: false, message: err.message }, { status: 500 });
@@ -40,8 +67,13 @@ export async function DELETE(req, { params }) {
     if (error) return error;
 
     const { id } = await params;
-    const deleted = await LabMaintenance.findByIdAndDelete(id);
-    if (!deleted) return NextResponse.json({ success: false, message: 'Maintenance record not found' }, { status: 404 });
+    let deleted = null;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      deleted = await LabMaintenance.findByIdAndDelete(id);
+    }
+    if (!deleted) {
+      deleted = await LabMaintenance.findOneAndDelete({ $or: [{ id }, { requestId: id }] });
+    }
     return NextResponse.json({ success: true, message: 'Maintenance record deleted successfully' });
   } catch (err) {
     return NextResponse.json({ success: false, message: err.message }, { status: 500 });
