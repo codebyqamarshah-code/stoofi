@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Component } from 'react';
 import Link from 'next/link';
 import { 
   GraduationCap, 
@@ -23,11 +23,12 @@ import {
   ShieldCheck, 
   BookOpen,
   DollarSign,
-  FileCheck
+  FileCheck,
+  CreditCard
 } from 'lucide-react';
 import academicApi from '@/lib/academicApi';
 
-export default function AcademicProgramsPage() {
+function AcademicProgramsPage() {
   const [activeTab, setActiveTab] = useState('offerings');
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -121,6 +122,13 @@ export default function AcademicProgramsPage() {
     sections: 'A, B'
   });
 
+  const normalizeArray = (res) => {
+    if (!res) return [];
+    if (Array.isArray(res)) return res;
+    if (Array.isArray(res.data)) return res.data;
+    return [];
+  };
+
   const loadAllData = async () => {
     try {
       setLoading(true);
@@ -134,13 +142,13 @@ export default function AcademicProgramsPage() {
         academicApi.getBatches()
       ]);
 
-      if (catRes.status === 'fulfilled' && catRes.value?.data) setCategories(catRes.value.data);
-      if (progRes.status === 'fulfilled' && progRes.value?.data) setPrograms(progRes.value.data);
-      if (affRes.status === 'fulfilled' && affRes.value?.data) setAffiliations(affRes.value.data);
-      if (campRes.status === 'fulfilled' && campRes.value?.data) setCampuses(campRes.value.data);
-      if (sessRes.status === 'fulfilled' && sessRes.value?.data) setSessions(sessRes.value.data);
-      if (offRes.status === 'fulfilled' && offRes.value?.data) setOfferings(offRes.value.data);
-      if (batchRes.status === 'fulfilled' && batchRes.value?.data) setBatches(batchRes.value.data);
+      if (catRes.status === 'fulfilled') setCategories(normalizeArray(catRes.value));
+      if (progRes.status === 'fulfilled') setPrograms(normalizeArray(progRes.value));
+      if (affRes.status === 'fulfilled') setAffiliations(normalizeArray(affRes.value));
+      if (campRes.status === 'fulfilled') setCampuses(normalizeArray(campRes.value));
+      if (sessRes.status === 'fulfilled') setSessions(normalizeArray(sessRes.value));
+      if (offRes.status === 'fulfilled') setOfferings(normalizeArray(offRes.value));
+      if (batchRes.status === 'fulfilled') setBatches(normalizeArray(batchRes.value));
     } catch (err) {
       console.error('Error loading academic data:', err);
       setMessage({ type: 'error', text: 'Failed to load academic data. Please refresh.' });
@@ -162,35 +170,40 @@ export default function AcademicProgramsPage() {
   const openOfferingModal = (item = null) => {
     if (item) {
       setEditingItem(item);
+      const progId = item.programId?._id ? String(item.programId._id) : (typeof item.programId === 'string' ? item.programId : '');
+      const campId = item.campusId?._id ? String(item.campusId._id) : (typeof item.campusId === 'string' ? item.campusId : '');
+      const affId = item.affiliationId?._id ? String(item.affiliationId._id) : (typeof item.affiliationId === 'string' ? item.affiliationId : '');
+      const sessId = item.sessionId?._id ? String(item.sessionId._id) : (typeof item.sessionId === 'string' ? item.sessionId : '');
+
       setOfferingForm({
-        programId: item.programId?._id || item.programId || '',
-        campusId: item.campusId?._id || item.campusId || '',
-        affiliationId: item.affiliationId?._id || item.affiliationId || '',
-        sessionId: item.sessionId?._id || item.sessionId || '',
+        programId: progId,
+        campusId: campId,
+        affiliationId: affId,
+        sessionId: sessId,
         curriculumVersion: item.curriculumVersion || 'Standard 2026 v1.0',
         seatCapacity: item.seatCapacity || 60,
         admissionStartDate: item.admissionStartDate || '',
         admissionEndDate: item.admissionEndDate || '',
         status: item.status || 'Approved',
-        feePlan: item.feePlan || {
-          admissionFee: 5000,
-          tuitionFeePerTerm: 25000,
-          registrationFee: 3000,
-          labPracticalFee: 2000,
-          examFee: 2000,
-          libraryFee: 1000,
-          totalEstimate: 38000,
-          installmentsAllowed: true,
-          installmentsCount: 2
+        feePlan: {
+          admissionFee: item.feePlan?.admissionFee ?? 5000,
+          tuitionFeePerTerm: item.feePlan?.tuitionFeePerTerm ?? 25000,
+          registrationFee: item.feePlan?.registrationFee ?? 3000,
+          labPracticalFee: item.feePlan?.labPracticalFee ?? 2000,
+          examFee: item.feePlan?.examFee ?? 2000,
+          libraryFee: item.feePlan?.libraryFee ?? 1000,
+          totalEstimate: item.feePlan?.totalEstimate ?? 38000,
+          installmentsAllowed: item.feePlan?.installmentsAllowed ?? true,
+          installmentsCount: item.feePlan?.installmentsCount ?? 2
         }
       });
     } else {
       setEditingItem(null);
       setOfferingForm({
-        programId: programs[0]?._id || '',
-        campusId: campuses[0]?._id || '',
-        affiliationId: affiliations[0]?._id || '',
-        sessionId: sessions.find(s => s.isCurrent)?._id || sessions[0]?._id || '',
+        programId: programs[0]?._id ? String(programs[0]._id) : '',
+        campusId: campuses[0]?._id ? String(campuses[0]._id) : '',
+        affiliationId: affiliations[0]?._id ? String(affiliations[0]._id) : '',
+        sessionId: sessions.find(s => s.isCurrent)?._id ? String(sessions.find(s => s.isCurrent)._id) : (sessions[0]?._id ? String(sessions[0]._id) : ''),
         curriculumVersion: 'Standard 2026 v1.0',
         seatCapacity: 60,
         admissionStartDate: '',
@@ -265,11 +278,14 @@ export default function AcademicProgramsPage() {
   const openProgramModal = (item = null) => {
     if (item) {
       setEditingItem(item);
+      const catId = item.category?._id 
+        ? String(item.category._id) 
+        : (typeof item.category === 'string' ? item.category : '');
       setProgramForm({
         name: item.name || '',
         code: item.code || '',
         qualificationName: item.qualificationName || '',
-        category: item.category?._id || item.category || '',
+        category: catId,
         department: item.department || 'Academics',
         description: item.description || '',
         academicPattern: item.academicPattern || 'Annual',
@@ -284,7 +300,7 @@ export default function AcademicProgramsPage() {
         name: '',
         code: '',
         qualificationName: '',
-        category: categories[0]?._id || '',
+        category: categories[0]?._id ? String(categories[0]._id) : '',
         department: 'Academics',
         description: '',
         academicPattern: 'Annual',
@@ -301,11 +317,15 @@ export default function AcademicProgramsPage() {
     e.preventDefault();
     try {
       setActionLoading(true);
+      const payload = {
+        ...programForm,
+        category: programForm.category ? String(programForm.category) : undefined
+      };
       if (editingItem) {
-        await academicApi.updateProgram(editingItem._id, programForm);
+        await academicApi.updateProgram(editingItem._id, payload);
         showMsg('success', 'Program updated successfully!');
       } else {
-        await academicApi.createProgram(programForm);
+        await academicApi.createProgram(payload);
         showMsg('success', 'New Program created successfully!');
       }
       setModalType(null);
@@ -417,18 +437,29 @@ export default function AcademicProgramsPage() {
     }
   };
 
+  // Safe Arrays for defensive rendering
+  const safeOfferings = Array.isArray(offerings) ? offerings : [];
+  const safePrograms = Array.isArray(programs) ? programs : [];
+  const safeCategories = Array.isArray(categories) ? categories : [];
+  const safeAffiliations = Array.isArray(affiliations) ? affiliations : [];
+  const safeCampuses = Array.isArray(campuses) ? campuses : [];
+  const safeSessions = Array.isArray(sessions) ? sessions : [];
+  const safeBatches = Array.isArray(batches) ? batches : [];
+
   // Filtered Offerings
-  const filteredOfferings = offerings.filter(o => {
+  const filteredOfferings = safeOfferings.filter(o => {
+    if (!o) return false;
     const matchesSearch = !searchQuery || 
       (o.programName && o.programName.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (o.programCode && o.programCode.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (o.affiliationName && o.affiliationName.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesCat = filterCategory === 'ALL' || o.categoryId?._id === filterCategory || o.categoryId === filterCategory;
+    const catId = o.categoryId?._id ? String(o.categoryId._id) : (typeof o.categoryId === 'string' ? o.categoryId : '');
+    const matchesCat = filterCategory === 'ALL' || catId === filterCategory;
     return matchesSearch && matchesCat;
   });
 
-  const totalSeats = offerings.reduce((acc, o) => acc + (o.seatCapacity || 0), 0);
-  const totalEnrolled = offerings.reduce((acc, o) => acc + (o.enrolledCount || 0), 0);
+  const totalSeats = safeOfferings.reduce((acc, o) => acc + (o?.seatCapacity || 0), 0);
+  const totalEnrolled = safeOfferings.reduce((acc, o) => acc + (o?.enrolledCount || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -1019,10 +1050,10 @@ export default function AcademicProgramsPage() {
                     <label className="block text-[11px] font-bold text-zinc-600 mb-1">Admission Fee</label>
                     <input
                       type="number"
-                      value={offeringForm.feePlan.admissionFee}
+                      value={offeringForm?.feePlan?.admissionFee ?? 0}
                       onChange={e => setOfferingForm(prev => ({
                         ...prev,
-                        feePlan: { ...prev.feePlan, admissionFee: parseFloat(e.target.value) || 0 }
+                        feePlan: { ...(prev.feePlan || {}), admissionFee: parseFloat(e.target.value) || 0 }
                       }))}
                       className="w-full bg-white border border-zinc-200 px-3 py-2 rounded-xl text-xs font-bold text-zinc-950"
                     />
@@ -1032,10 +1063,10 @@ export default function AcademicProgramsPage() {
                     <label className="block text-[11px] font-bold text-zinc-600 mb-1">Tuition Fee / Term</label>
                     <input
                       type="number"
-                      value={offeringForm.feePlan.tuitionFeePerTerm}
+                      value={offeringForm?.feePlan?.tuitionFeePerTerm ?? 0}
                       onChange={e => setOfferingForm(prev => ({
                         ...prev,
-                        feePlan: { ...prev.feePlan, tuitionFeePerTerm: parseFloat(e.target.value) || 0 }
+                        feePlan: { ...(prev.feePlan || {}), tuitionFeePerTerm: parseFloat(e.target.value) || 0 }
                       }))}
                       className="w-full bg-white border border-zinc-200 px-3 py-2 rounded-xl text-xs font-bold text-zinc-950"
                     />
@@ -1045,10 +1076,10 @@ export default function AcademicProgramsPage() {
                     <label className="block text-[11px] font-bold text-zinc-600 mb-1">Registration Fee</label>
                     <input
                       type="number"
-                      value={offeringForm.feePlan.registrationFee}
+                      value={offeringForm?.feePlan?.registrationFee ?? 0}
                       onChange={e => setOfferingForm(prev => ({
                         ...prev,
-                        feePlan: { ...prev.feePlan, registrationFee: parseFloat(e.target.value) || 0 }
+                        feePlan: { ...(prev.feePlan || {}), registrationFee: parseFloat(e.target.value) || 0 }
                       }))}
                       className="w-full bg-white border border-zinc-200 px-3 py-2 rounded-xl text-xs font-bold text-zinc-950"
                     />
@@ -1058,10 +1089,10 @@ export default function AcademicProgramsPage() {
                     <label className="block text-[11px] font-bold text-zinc-600 mb-1">Lab / Practical Fee</label>
                     <input
                       type="number"
-                      value={offeringForm.feePlan.labPracticalFee}
+                      value={offeringForm?.feePlan?.labPracticalFee ?? 0}
                       onChange={e => setOfferingForm(prev => ({
                         ...prev,
-                        feePlan: { ...prev.feePlan, labPracticalFee: parseFloat(e.target.value) || 0 }
+                        feePlan: { ...(prev.feePlan || {}), labPracticalFee: parseFloat(e.target.value) || 0 }
                       }))}
                       className="w-full bg-white border border-zinc-200 px-3 py-2 rounded-xl text-xs font-bold text-zinc-950"
                     />
@@ -1071,10 +1102,10 @@ export default function AcademicProgramsPage() {
                     <label className="block text-[11px] font-bold text-zinc-600 mb-1">Exam Fee</label>
                     <input
                       type="number"
-                      value={offeringForm.feePlan.examFee}
+                      value={offeringForm?.feePlan?.examFee ?? 0}
                       onChange={e => setOfferingForm(prev => ({
                         ...prev,
-                        feePlan: { ...prev.feePlan, examFee: parseFloat(e.target.value) || 0 }
+                        feePlan: { ...(prev.feePlan || {}), examFee: parseFloat(e.target.value) || 0 }
                       }))}
                       className="w-full bg-white border border-zinc-200 px-3 py-2 rounded-xl text-xs font-bold text-zinc-950"
                     />
@@ -1084,10 +1115,10 @@ export default function AcademicProgramsPage() {
                     <label className="block text-[11px] font-bold text-zinc-600 mb-1">Library Fee</label>
                     <input
                       type="number"
-                      value={offeringForm.feePlan.libraryFee}
+                      value={offeringForm?.feePlan?.libraryFee ?? 0}
                       onChange={e => setOfferingForm(prev => ({
                         ...prev,
-                        feePlan: { ...prev.feePlan, libraryFee: parseFloat(e.target.value) || 0 }
+                        feePlan: { ...(prev.feePlan || {}), libraryFee: parseFloat(e.target.value) || 0 }
                       }))}
                       className="w-full bg-white border border-zinc-200 px-3 py-2 rounded-xl text-xs font-bold text-zinc-950"
                     />
@@ -1098,12 +1129,12 @@ export default function AcademicProgramsPage() {
                   <span className="text-zinc-600">Calculated Total Estimate:</span>
                   <span className="text-sm font-black text-emerald-800">
                     Rs. {(
-                      Number(offeringForm.feePlan.admissionFee || 0) +
-                      Number(offeringForm.feePlan.tuitionFeePerTerm || 0) +
-                      Number(offeringForm.feePlan.registrationFee || 0) +
-                      Number(offeringForm.feePlan.labPracticalFee || 0) +
-                      Number(offeringForm.feePlan.examFee || 0) +
-                      Number(offeringForm.feePlan.libraryFee || 0)
+                      Number(offeringForm?.feePlan?.admissionFee || 0) +
+                      Number(offeringForm?.feePlan?.tuitionFeePerTerm || 0) +
+                      Number(offeringForm?.feePlan?.registrationFee || 0) +
+                      Number(offeringForm?.feePlan?.labPracticalFee || 0) +
+                      Number(offeringForm?.feePlan?.examFee || 0) +
+                      Number(offeringForm?.feePlan?.libraryFee || 0)
                     ).toLocaleString()}
                   </span>
                 </div>
@@ -1428,5 +1459,57 @@ export default function AcademicProgramsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+class AcademicProgramsErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('AcademicProgramsErrorBoundary caught an error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-8 max-w-xl mx-auto my-12 bg-white rounded-3xl border border-rose-200 shadow-lg text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+            <AlertTriangle className="w-8 h-8" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-zinc-950">Academic Programs Temporarily Unavailable</h2>
+            <p className="text-xs text-zinc-600 mt-1">
+              A temporary display issue occurred while rendering the program hierarchy. Click below to reload cleanly.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              this.setState({ hasError: false, error: null });
+              if (typeof window !== 'undefined') window.location.reload();
+            }}
+            className="inline-flex items-center gap-2 bg-[#084A86] text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-[#073d6e] transition-colors cursor-pointer"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Reload Academic Programs
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+export default function AcademicProgramsPageWithBoundary() {
+  return (
+    <AcademicProgramsErrorBoundary>
+      <AcademicProgramsPage />
+    </AcademicProgramsErrorBoundary>
   );
 }

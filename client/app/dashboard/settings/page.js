@@ -6,7 +6,8 @@ import {
   Settings, Sliders, Receipt, Award, Mail, Shield, Globe, 
   Search, ArrowRight, CheckCircle2, Calendar, Wallet, Users, 
   User, Database, Sparkles, Building, Lock, Bell, MessageSquare, 
-  PhoneCall, Paintbrush, FileSpreadsheet, LayoutTemplate, Layers
+  PhoneCall, Paintbrush, FileSpreadsheet, LayoutTemplate, Layers,
+  ChevronRight
 } from 'lucide-react';
 import api from '@/services/api';
 

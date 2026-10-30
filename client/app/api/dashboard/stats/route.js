@@ -13,8 +13,14 @@ export async function GET(req) {
     const totalTeachers = await Teacher.countDocuments();
     const totalStaffs = await Staff.countDocuments();
     
-    // Parents count: based on enrolled students
-    const totalParents = totalStudents > 0 ? Math.max(1, Math.ceil(totalStudents * 0.7)) : 0;
+    // Live distinct parents count based on real enrolled students
+    const parentDocs = await Student.find({}, { fatherCnic: 1, fatherPhone: 1, fatherName: 1, guardianPhone: 1, guardianName: 1 }).lean();
+    const distinctParentKeys = new Set();
+    parentDocs.forEach(s => {
+      const key = (s.fatherCnic || s.fatherPhone || s.fatherName || s.guardianPhone || s.guardianName || '').trim().toLowerCase();
+      if (key) distinctParentKeys.add(key);
+    });
+    const totalParents = distinctParentKeys.size > 0 ? distinctParentKeys.size : (totalStudents > 0 ? Math.ceil(totalStudents * 0.7) : 0);
 
     // Today's Date Range
     const startOfDay = new Date();

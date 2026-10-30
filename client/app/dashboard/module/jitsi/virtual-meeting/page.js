@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 import { formatDateDMY } from '@/lib/utils';
+import TableExportToolbar from '@/components/ui/TableExportToolbar';
 import api from '@/services/api';
 
 export default function JitsiVirtualMeetingPage() {

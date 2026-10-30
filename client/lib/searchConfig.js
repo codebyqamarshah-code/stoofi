@@ -45,6 +45,7 @@ const SYNONYMS_MAP = {
 
   // Students
   '/dashboard/students': ['students', 'student list', 'all students', 'manage students', 'talib ilm', 'pupils', 'directory'],
+  '/dashboard/parents': ['parents', 'parents directory', 'all parents', 'guardians', 'walidain', 'father', 'mother', 'family contacts'],
   '/dashboard/students/add': ['add student', 'new student', 'enroll student', 'admission form', 'noya student', 'dakhla form'],
   '/dashboard/students/category': ['student category', 'category', 'student categories'],
   '/dashboard/students/multi-class': ['multi class student', 'multiple classes'],

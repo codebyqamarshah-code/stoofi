@@ -53,6 +53,7 @@ const TEACHER_ALLOWED = [
   '/dashboard/virtual-class',
   '/dashboard/behaviour',
   '/dashboard/teachers',
+  '/dashboard/parents',
 ];
 
 /**

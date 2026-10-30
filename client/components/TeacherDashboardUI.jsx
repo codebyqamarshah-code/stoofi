@@ -1144,7 +1144,10 @@ export default function DashboardUI({ user }) {
         </Card>
 
         {/* Parents Card */}
-        <Card className="bg-white dark:bg-zinc-50 border border-zinc-300/80 dark:border-zinc-200 p-5 hover:border-zinc-950/60 transition-all shadow-xs rounded-2xl">
+        <Card 
+          className="bg-white dark:bg-zinc-50 border border-zinc-300/80 dark:border-zinc-200 p-5 hover:border-zinc-950/60 transition-all cursor-pointer shadow-xs rounded-2xl"
+          onClick={() => router.push('/dashboard/parents')}
+        >
           <div className="flex items-center gap-4">
             <div className="h-12 w-12 rounded-xl bg-zinc-100 dark:bg-zinc-100 border border-zinc-300/80 dark:border-zinc-200 flex items-center justify-center text-zinc-950 dark:text-zinc-900">
               <Users className="h-6 w-6" />

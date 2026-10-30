@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
 import { formatDateDMY } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import api from '@/services/api';
 
 export default function RegistrationStudentListPage() {
