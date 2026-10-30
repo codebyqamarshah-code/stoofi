@@ -88,6 +88,8 @@ function StudentAdmissionWizardInner() {
     emergencyContactName: '',
     emergencyContactPhone: '',
     emergencyRelationship: 'Father',
+    photo: '',
+    studentPhoto: '',
     photoUrl: '',
 
     // Step 2: Guardian
@@ -335,6 +337,46 @@ function StudentAdmissionWizardInner() {
     }
   }, [selectedOffering?._id]);
 
+  // Student Profile Picture Upload Handlers
+  const photoInputRef = useRef(null);
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setErrorMsg('Please select a valid image file (JPG, PNG, WebP).');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMsg('Profile picture must be under 5MB.');
+      return;
+    }
+    setErrorMsg('');
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const base64Data = uploadEvent.target?.result;
+      if (base64Data) {
+        setFormData(prev => ({
+          ...prev,
+          photo: base64Data,
+          studentPhoto: base64Data,
+          photoUrl: base64Data
+        }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePhoto = () => {
+    setFormData(prev => ({
+      ...prev,
+      photo: '',
+      studentPhoto: '',
+      photoUrl: ''
+    }));
+    if (photoInputRef.current) photoInputRef.current.value = '';
+  };
+
   // Load Student into Form for Full Editing or Multi-Enrollment
   const loadStudentIntoForm = (found, isFullEdit = true) => {
     setIsEditMode(isFullEdit);
@@ -346,6 +388,9 @@ function StudentAdmissionWizardInner() {
     setFormData(prev => ({
       ...prev,
       studentId: found._id,
+      photo: found.studentPhoto || found.photo || '',
+      studentPhoto: found.studentPhoto || found.photo || '',
+      photoUrl: found.studentPhoto || found.photo || '',
       admissionNo: found.admissionNo || prev.admissionNo,
       rollNo: found.rollNo || prev.rollNo,
       admissionYear: admYear,
@@ -399,9 +444,13 @@ function StudentAdmissionWizardInner() {
     setEditingStudentId(null);
     setExistingStudentFound(null);
     setSearchCnicQuery('');
+    if (photoInputRef.current) photoInputRef.current.value = '';
     setFormData(prev => ({
       ...prev,
       studentId: '',
+      photo: '',
+      studentPhoto: '',
+      photoUrl: '',
       firstName: '',
       lastName: '',
       dob: '',
@@ -605,6 +654,8 @@ function StudentAdmissionWizardInner() {
           name: sFullName,
           fullName: sFullName,
           studentName: sFullName,
+          studentPhoto: formData.studentPhoto || formData.photo || undefined,
+          photo: formData.studentPhoto || formData.photo || undefined,
           admissionNo: formData.admissionNo.trim(),
           rollNo: formData.rollNo.trim(),
           academicYear: formData.admissionYear,
@@ -674,6 +725,8 @@ function StudentAdmissionWizardInner() {
         fullName: sFullName,
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
+        studentPhoto: formData.studentPhoto || formData.photo || '',
+        photo: formData.studentPhoto || formData.photo || '',
         gender: formData.gender,
         dob: formData.dob || undefined,
         cnic: formData.cnic ? formData.cnic.trim() : undefined,
@@ -1124,6 +1177,81 @@ function StudentAdmissionWizardInner() {
                   <span className="text-[10px] text-zinc-500 mt-1 block">
                     Continuous student academic roll
                   </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Student Photo Upload Card */}
+            <div className="p-4 sm:p-5 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xs flex flex-col sm:flex-row items-center gap-5">
+              <div className="relative group shrink-0">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 border-dashed border-emerald-400 dark:border-emerald-600 bg-emerald-50/50 dark:bg-zinc-800 flex items-center justify-center overflow-hidden shadow-inner">
+                  {formData.photo || formData.studentPhoto ? (
+                    <img 
+                      src={formData.photo || formData.studentPhoto} 
+                      alt="Student Preview" 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-500">
+                      <User className="w-10 h-10 stroke-[1.5] text-emerald-600/70 dark:text-emerald-400/70" />
+                      <span className="text-[10px] font-medium mt-1">No Photo</span>
+                    </div>
+                  )}
+                </div>
+                {(formData.photo || formData.studentPhoto) && (
+                  <button
+                    type="button"
+                    onClick={handleRemovePhoto}
+                    className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center shadow-md transition-colors"
+                    title="Remove Photo"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              <div className="flex-1 text-center sm:text-left space-y-1.5">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                  <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                    Student Profile Photograph
+                  </h4>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                    ID Card & Portal Profile
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-500">
+                  Upload a clear passport-size photograph (blue or white background). Supports JPG, PNG, WebP up to 5MB.
+                </p>
+                <div className="pt-1 flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                  <input
+                    type="file"
+                    ref={photoInputRef}
+                    onChange={handlePhotoChange}
+                    accept="image/jpeg,image/png,image/webp,image/jpg"
+                    className="hidden"
+                    id="student-photo-input"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => photoInputRef.current?.click()}
+                    className="h-8 text-xs font-semibold flex items-center gap-1.5 border-emerald-300 text-emerald-800 dark:text-emerald-200 hover:bg-emerald-50 dark:hover:bg-zinc-800 cursor-pointer"
+                  >
+                    <Upload className="w-3.5 h-3.5 text-emerald-600" />
+                    {formData.photo || formData.studentPhoto ? 'Change Photo' : 'Upload Student Photo'}
+                  </Button>
+                  {(formData.photo || formData.studentPhoto) && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleRemovePhoto}
+                      className="h-8 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                    >
+                      Remove
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>

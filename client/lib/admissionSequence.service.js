@@ -181,7 +181,7 @@ export async function generateRollNumber(yearInput) {
   let updatedCounter = await AdmissionCounter.findOneAndUpdate(
     { key },
     { $inc: { sequence: 1 }, $setOnInsert: { type: 'roll', year, scope: 'institution' } },
-    { returnDocument: 'after', upsert: true }
+    { new: true, upsert: true }
   );
 
   const y2 = String(year).slice(-2);
@@ -193,7 +193,7 @@ export async function generateRollNumber(yearInput) {
     updatedCounter = await AdmissionCounter.findOneAndUpdate(
       { key },
       { $inc: { sequence: 1 } },
-      { returnDocument: 'after' }
+      { new: true }
     );
     seq = updatedCounter.sequence;
     candidate = `PRC${y2}${String(seq).padStart(4, '0')}`;

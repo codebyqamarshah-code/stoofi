@@ -136,6 +136,10 @@ export async function POST(req) {
     }
 
     if (isExistingStudent && student) {
+      if (body.studentPhoto || body.photo) {
+        student.studentPhoto = body.studentPhoto || body.photo;
+        student.photo = body.studentPhoto || body.photo;
+      }
       student.phone = body.phone || student.phone;
       student.whatsapp = body.whatsapp || student.whatsapp;
       student.email = body.email || student.email;
@@ -166,6 +170,7 @@ export async function POST(req) {
         cnic: body.cnic ? body.cnic.trim() : undefined,
         bForm: body.bForm ? body.bForm.trim() : undefined,
         studentPhoto: body.studentPhoto || body.photo || '',
+        photo: body.studentPhoto || body.photo || '',
         phone: body.phone ? body.phone.trim() : '',
         whatsapp: body.whatsapp ? body.whatsapp.trim() : (body.phone ? body.phone.trim() : ''),
         email: body.email ? body.email.trim().toLowerCase() : undefined,

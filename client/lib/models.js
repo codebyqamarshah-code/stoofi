@@ -228,7 +228,7 @@ studentSchema.pre('validate', function(next) {
   if (!this.studentName || this.studentName.trim() === '') this.studentName = calculated;
   if (!this.name || this.name.trim() === '') this.name = calculated;
   if (!this.fullName || this.fullName.trim() === '') this.fullName = calculated;
-  next();
+  if (typeof next === 'function') next();
 });
 
 studentSchema.pre('save', function(next) {
@@ -236,7 +236,7 @@ studentSchema.pre('save', function(next) {
   if (!this.studentName || this.studentName.trim() === '') this.studentName = calculated;
   if (!this.name || this.name.trim() === '') this.name = calculated;
   if (!this.fullName || this.fullName.trim() === '') this.fullName = calculated;
-  next();
+  if (typeof next === 'function') next();
 });
 
 export const Student = mongoose.models.Student || mongoose.model('Student', studentSchema);
