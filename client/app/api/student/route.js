@@ -213,7 +213,7 @@ export async function GET(req) {
     let studentQuery = Student.find({ _id: { $in: pageIds } });
     if (isCompact) {
       studentQuery = studentQuery.select(
-        '_id admissionNo rollNo studentName name fullName firstName lastName className section fatherName status phone gender dob type feeTuition feeGross netPayable studentPhoto photo'
+        '_id admissionNo rollNo studentName name fullName firstName lastName className section fatherName status phone gender dob type monthlyFee admissionFee feeAdmission feeTuition feeTransport feeSecurity feeExam feeLab feeDiscountPercent feeDiscountAmount feeGross netPayable feeNetPayable feeCriteria feePeriodCount totalProgramFee totalSemesters semesterFee feePlan studentPhoto photo'
       );
     } else {
       // Exclude heavy multi-megabyte document uploads and extraneous family photos from list views

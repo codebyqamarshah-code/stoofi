@@ -168,61 +168,67 @@ function AcademicProgramsPage() {
 
   // ── Modals Handlers ────────────────────────────────────────────────────────
   const openOfferingModal = (item = null) => {
-    if (item) {
-      setEditingItem(item);
-      const progId = item.programId?._id ? String(item.programId._id) : (typeof item.programId === 'string' ? item.programId : '');
-      const campId = item.campusId?._id ? String(item.campusId._id) : (typeof item.campusId === 'string' ? item.campusId : '');
-      const affId = item.affiliationId?._id ? String(item.affiliationId._id) : (typeof item.affiliationId === 'string' ? item.affiliationId : '');
-      const sessId = item.sessionId?._id ? String(item.sessionId._id) : (typeof item.sessionId === 'string' ? item.sessionId : '');
+    try {
+      if (item) {
+        setEditingItem(item);
+        const progId = item.programId?._id ? String(item.programId._id) : (typeof item.programId === 'string' ? item.programId : '');
+        const campId = item.campusId?._id ? String(item.campusId._id) : (typeof item.campusId === 'string' ? item.campusId : '');
+        const affId = item.affiliationId?._id ? String(item.affiliationId._id) : (typeof item.affiliationId === 'string' ? item.affiliationId : '');
+        const sessId = item.sessionId?._id ? String(item.sessionId._id) : (typeof item.sessionId === 'string' ? item.sessionId : '');
 
-      setOfferingForm({
-        programId: progId,
-        campusId: campId,
-        affiliationId: affId,
-        sessionId: sessId,
-        curriculumVersion: item.curriculumVersion || 'Standard 2026 v1.0',
-        seatCapacity: item.seatCapacity || 60,
-        admissionStartDate: item.admissionStartDate || '',
-        admissionEndDate: item.admissionEndDate || '',
-        status: item.status || 'Approved',
-        feePlan: {
-          admissionFee: item.feePlan?.admissionFee ?? 5000,
-          tuitionFeePerTerm: item.feePlan?.tuitionFeePerTerm ?? 25000,
-          registrationFee: item.feePlan?.registrationFee ?? 3000,
-          labPracticalFee: item.feePlan?.labPracticalFee ?? 2000,
-          examFee: item.feePlan?.examFee ?? 2000,
-          libraryFee: item.feePlan?.libraryFee ?? 1000,
-          totalEstimate: item.feePlan?.totalEstimate ?? 38000,
-          installmentsAllowed: item.feePlan?.installmentsAllowed ?? true,
-          installmentsCount: item.feePlan?.installmentsCount ?? 2
-        }
-      });
-    } else {
-      setEditingItem(null);
-      setOfferingForm({
-        programId: programs[0]?._id ? String(programs[0]._id) : '',
-        campusId: campuses[0]?._id ? String(campuses[0]._id) : '',
-        affiliationId: affiliations[0]?._id ? String(affiliations[0]._id) : '',
-        sessionId: sessions.find(s => s.isCurrent)?._id ? String(sessions.find(s => s.isCurrent)._id) : (sessions[0]?._id ? String(sessions[0]._id) : ''),
-        curriculumVersion: 'Standard 2026 v1.0',
-        seatCapacity: 60,
-        admissionStartDate: '',
-        admissionEndDate: '',
-        status: 'Approved',
-        feePlan: {
-          admissionFee: 5000,
-          tuitionFeePerTerm: 25000,
-          registrationFee: 3000,
-          labPracticalFee: 2000,
-          examFee: 2000,
-          libraryFee: 1000,
-          totalEstimate: 38000,
-          installmentsAllowed: true,
-          installmentsCount: 2
-        }
-      });
+        setOfferingForm({
+          programId: progId,
+          campusId: campId,
+          affiliationId: affId,
+          sessionId: sessId,
+          curriculumVersion: item.curriculumVersion || 'Standard 2026 v1.0',
+          seatCapacity: item.seatCapacity || 60,
+          admissionStartDate: item.admissionStartDate || '',
+          admissionEndDate: item.admissionEndDate || '',
+          status: item.status || 'Approved',
+          feePlan: {
+            admissionFee: item.feePlan?.admissionFee ?? 5000,
+            tuitionFeePerTerm: item.feePlan?.tuitionFeePerTerm ?? 25000,
+            registrationFee: item.feePlan?.registrationFee ?? 3000,
+            labPracticalFee: item.feePlan?.labPracticalFee ?? 2000,
+            examFee: item.feePlan?.examFee ?? 2000,
+            libraryFee: item.feePlan?.libraryFee ?? 1000,
+            totalEstimate: item.feePlan?.totalEstimate ?? 38000,
+            installmentsAllowed: item.feePlan?.installmentsAllowed ?? true,
+            installmentsCount: item.feePlan?.installmentsCount ?? 2
+          }
+        });
+      } else {
+        setEditingItem(null);
+        const curSess = Array.isArray(sessions) ? sessions.find(s => s && s.isCurrent) : null;
+        setOfferingForm({
+          programId: Array.isArray(programs) && programs[0]?._id ? String(programs[0]._id) : '',
+          campusId: Array.isArray(campuses) && campuses[0]?._id ? String(campuses[0]._id) : '',
+          affiliationId: Array.isArray(affiliations) && affiliations[0]?._id ? String(affiliations[0]._id) : '',
+          sessionId: curSess?._id ? String(curSess._id) : (Array.isArray(sessions) && sessions[0]?._id ? String(sessions[0]._id) : ''),
+          curriculumVersion: 'Standard 2026 v1.0',
+          seatCapacity: 60,
+          admissionStartDate: '',
+          admissionEndDate: '',
+          status: 'Approved',
+          feePlan: {
+            admissionFee: 5000,
+            tuitionFeePerTerm: 25000,
+            registrationFee: 3000,
+            labPracticalFee: 2000,
+            examFee: 2000,
+            libraryFee: 1000,
+            totalEstimate: 38000,
+            installmentsAllowed: true,
+            installmentsCount: 2
+          }
+        });
+      }
+      setModalType('offering');
+    } catch (err) {
+      console.error('Error opening offering modal:', err);
+      showMsg('error', 'Failed to open offering editor: ' + (err.message || ''));
     }
-    setModalType('offering');
   };
 
   const handleSaveOffering = async (e) => {
@@ -276,41 +282,46 @@ function AcademicProgramsPage() {
 
   // Program Modal
   const openProgramModal = (item = null) => {
-    if (item) {
-      setEditingItem(item);
-      const catId = item.category?._id 
-        ? String(item.category._id) 
-        : (typeof item.category === 'string' ? item.category : '');
-      setProgramForm({
-        name: item.name || '',
-        code: item.code || '',
-        qualificationName: item.qualificationName || '',
-        category: catId,
-        department: item.department || 'Academics',
-        description: item.description || '',
-        academicPattern: item.academicPattern || 'Annual',
-        defaultDuration: item.defaultDuration || '2 Years',
-        totalStages: item.totalStages || 2,
-        stageType: item.stageType || 'Part',
-        status: item.status || 'Active'
-      });
-    } else {
-      setEditingItem(null);
-      setProgramForm({
-        name: '',
-        code: '',
-        qualificationName: '',
-        category: categories[0]?._id ? String(categories[0]._id) : '',
-        department: 'Academics',
-        description: '',
-        academicPattern: 'Annual',
-        defaultDuration: '2 Years',
-        totalStages: 2,
-        stageType: 'Part',
-        status: 'Active'
-      });
+    try {
+      if (item) {
+        setEditingItem(item);
+        const catId = item.category?._id 
+          ? String(item.category._id) 
+          : (typeof item.category === 'string' ? item.category : '');
+        setProgramForm({
+          name: item.name || '',
+          code: item.code || '',
+          qualificationName: item.qualificationName || '',
+          category: catId || (Array.isArray(categories) && categories[0]?._id ? String(categories[0]._id) : ''),
+          department: item.department || 'Academics',
+          description: item.description || '',
+          academicPattern: item.academicPattern || 'Annual',
+          defaultDuration: item.defaultDuration || '2 Years',
+          totalStages: item.totalStages || 2,
+          stageType: item.stageType || 'Part',
+          status: item.status || 'Active'
+        });
+      } else {
+        setEditingItem(null);
+        setProgramForm({
+          name: '',
+          code: '',
+          qualificationName: '',
+          category: Array.isArray(categories) && categories[0]?._id ? String(categories[0]._id) : '',
+          department: 'Academics',
+          description: '',
+          academicPattern: 'Annual',
+          defaultDuration: '2 Years',
+          totalStages: 2,
+          stageType: 'Part',
+          status: 'Active'
+        });
+      }
+      setModalType('program');
+    } catch (err) {
+      console.error('Error opening program modal:', err);
+      showMsg('error', 'Failed to open program editor: ' + (err.message || ''));
     }
-    setModalType('program');
   };
 
   const handleSaveProgram = async (e) => {
@@ -599,7 +610,7 @@ function AcademicProgramsPage() {
                 className="bg-zinc-50 border border-zinc-200 px-3 py-2 rounded-xl text-xs sm:text-sm text-zinc-950 font-bold focus:outline-none focus:ring-2 focus:ring-[#084A86]"
               >
                 <option value="ALL">All Academic Categories</option>
-                {categories.map(c => (
+                {safeCategories.map(c => (
                   <option key={c._id} value={c._id}>{c.name}</option>
                 ))}
               </select>
@@ -750,7 +761,7 @@ function AcademicProgramsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200">
-                {programs.map(p => (
+                {safePrograms.map(p => (
                   <tr key={p._id} className="hover:bg-zinc-50/70 transition-colors">
                     <td className="px-4 py-3.5 font-bold text-zinc-950">
                       {p.name}
@@ -810,7 +821,7 @@ function AcademicProgramsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200">
-                {categories.map(c => (
+                {safeCategories.map(c => (
                   <tr key={c._id} className="hover:bg-zinc-50/70 transition-colors">
                     <td className="px-4 py-3.5 font-bold text-zinc-950">{c.name}</td>
                     <td className="px-4 py-3.5 font-mono font-bold text-[#084A86]">{c.code}</td>
@@ -864,7 +875,7 @@ function AcademicProgramsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200">
-                {affiliations.map(a => (
+                {safeAffiliations.map(a => (
                   <tr key={a._id} className="hover:bg-zinc-50/70 transition-colors">
                     <td className="px-4 py-3.5 font-bold text-zinc-950">{a.name}</td>
                     <td className="px-4 py-3.5">
@@ -918,7 +929,7 @@ function AcademicProgramsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200">
-                {batches.map(b => (
+                {safeBatches.map(b => (
                   <tr key={b._id} className="hover:bg-zinc-50/70 transition-colors">
                     <td className="px-4 py-3.5 font-bold text-zinc-950">{b.name}</td>
                     <td className="px-4 py-3.5 font-bold text-blue-700">{b.shift}</td>
@@ -962,7 +973,7 @@ function AcademicProgramsPage() {
                   className="w-full bg-zinc-50 border border-zinc-200 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm text-zinc-950 font-bold focus:ring-2 focus:ring-[#084A86]"
                 >
                   <option value="">-- Choose Program --</option>
-                  {programs.map(p => (
+                  {safePrograms.map(p => (
                     <option key={p._id} value={p._id}>{p.name} ({p.code})</option>
                   ))}
                 </select>
@@ -978,7 +989,7 @@ function AcademicProgramsPage() {
                     className="w-full bg-zinc-50 border border-zinc-200 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm text-zinc-950 font-bold focus:ring-2 focus:ring-[#084A86]"
                   >
                     <option value="">-- Choose Affiliation --</option>
-                    {affiliations.map(a => (
+                    {safeAffiliations.map(a => (
                       <option key={a._id} value={a._id}>{a.name} ({a.code})</option>
                     ))}
                   </select>
@@ -993,7 +1004,7 @@ function AcademicProgramsPage() {
                     className="w-full bg-zinc-50 border border-zinc-200 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm text-zinc-950 font-bold focus:ring-2 focus:ring-[#084A86]"
                   >
                     <option value="">-- Choose Session --</option>
-                    {sessions.map(s => (
+                    {safeSessions.map(s => (
                       <option key={s._id} value={s._id}>{s.name} ({s.year}) {s.isCurrent ? '★ Current' : ''}</option>
                     ))}
                   </select>
@@ -1008,7 +1019,7 @@ function AcademicProgramsPage() {
                     onChange={e => setOfferingForm(prev => ({ ...prev, campusId: e.target.value }))}
                     className="w-full bg-zinc-50 border border-zinc-200 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm text-zinc-950 font-bold focus:ring-2 focus:ring-[#084A86]"
                   >
-                    {campuses.map(c => (
+                    {safeCampuses.map(c => (
                       <option key={c._id} value={c._id}>{c.name}</option>
                     ))}
                   </select>
@@ -1184,7 +1195,7 @@ function AcademicProgramsPage() {
                   className="w-full bg-zinc-50 border border-zinc-200 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm text-zinc-950 font-bold focus:ring-2 focus:ring-[#084A86]"
                 >
                   <option value="">-- Select Category --</option>
-                  {categories.map(c => (
+                  {safeCategories.map(c => (
                     <option key={c._id} value={c._id}>{c.name}</option>
                   ))}
                 </select>

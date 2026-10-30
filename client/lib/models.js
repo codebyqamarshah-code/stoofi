@@ -207,10 +207,20 @@ const studentSchema = new mongoose.Schema({
   // 8. FEES, CONCESSIONS & FINANCIALS
   feeAdmission: { type: Number, default: 0 },
   feeTuition: { type: Number, default: 0 },
+  feeTransport: { type: Number, default: 0 },
   feeSecurity: { type: Number, default: 0 },
   feeExam: { type: Number, default: 0 },
   feeOther: { type: Number, default: 0 },
   feeGross: { type: Number, default: 0 },
+  feeCriteria: { 
+    type: String, 
+    enum: ['Monthly', 'Semester', 'Annual', 'Diploma / Custom', 'Lump-sum'], 
+    default: 'Monthly' 
+  },
+  feePeriodCount: { type: Number, default: 1 },
+  totalProgramFee: { type: Number, default: 0 },
+  totalSemesters: { type: Number, default: 8 },
+  semesterFee: { type: Number, default: 0 },
   concessionType: { type: String, default: 'None' },
   concessionValue: { type: Number, default: 0 },
   concessionDiscount: { type: Number, default: 0 },
@@ -1029,6 +1039,8 @@ const feesInvoiceSchema = new mongoose.Schema({
   className: String,
   section: String,
   feeType: String,
+  feeCriteria: { type: String, default: 'Monthly' },
+  feePeriod: { type: String, default: '1 Month' },
   feeItems: [{
     head: String,
     amount: Number

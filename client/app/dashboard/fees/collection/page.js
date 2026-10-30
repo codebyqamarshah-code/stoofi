@@ -21,7 +21,10 @@ import {
   RotateCcw,
   User,
   Calendar,
-  Users
+  Users,
+  Truck,
+  Sparkles,
+  BookOpen
 } from 'lucide-react';
 import { sortClassesAcademic, normalizeClassName } from '@/lib/academicUtils';
 import { formatDateDMY } from '@/lib/utils';
@@ -36,16 +39,55 @@ import StudentAvatar from '@/components/student/StudentAvatar';
 
 const FEE_TYPES = [
   'Monthly Tuition Fee',
-  'Admission Processing Fee',
-  'Tuition Fee 2026',
+  'Semester Tuition Fee',
+  'Annual Tuition Fee',
+  'Transport Fee',
   'Admission & Registration Fee',
-  'Annual Charges',
+  'Admission Processing Fee',
+  'Security Caution Money',
+  'Tuition Fee 2026',
   'Mid-Term Exam Fee',
   'Final Exam Fee',
+  'Examination Fee',
   'Laboratory & Computer Fee',
   'Library & Sports Fund',
-  'College Bus Transport'
+  'College Bus Transport',
+  'Diploma / Certificate Course Fee',
+  'Late Payment Fine'
 ];
+
+export function calculateStudentExpectedFee(s) {
+  if (!s) return 8000;
+
+  // 1. If explicit net payable is defined and positive
+  if (s.feeNetPayable && Number(s.feeNetPayable) > 0) {
+    return Number(s.feeNetPayable);
+  }
+
+  // 2. Base tuition determined by criteria or legacy fields
+  let tuition = Number(s.feeTuition);
+  if (!tuition || tuition <= 0) {
+    if (s.feeCriteria === 'Semester') {
+      tuition = Number(s.semesterFee) || 75000;
+    } else if (s.feeCriteria === 'Annual') {
+      tuition = 120000;
+    } else if (s.feeCriteria === 'Diploma / Custom') {
+      tuition = Number(s.totalProgramFee) || 25000;
+    } else {
+      tuition = Number(s.monthlyFee) || 8000;
+    }
+  }
+
+  const transport = Number(s.feeTransport) || 0;
+  const exam = Number(s.feeExam) || 0;
+  const lab = Number(s.feeLab) || 0;
+  const gross = tuition + transport + exam + lab;
+
+  const discountPercent = Number(s.feeDiscountPercent) || 0;
+  const discountAmount = Number(s.feeDiscountAmount) || (gross * (discountPercent / 100));
+
+  return Math.max(0, gross - discountAmount);
+}
 
 const PAYMENT_METHODS = ['Cash', 'Bank Transfer', 'Online Payment', 'JazzCash', 'EasyPaisa', 'Cheque'];
 
@@ -131,14 +173,16 @@ export default function FeesCollectionPage() {
     section: '',
     billingMonth: getCurrentBillingMonth(),
     challanNo: '',
+    feeCriteria: 'Monthly',
+    feePeriod: '1 Month',
     feeType: 'Monthly Tuition Fee',
     feeItems: [
-      { head: 'Monthly Tuition Fee', amount: 15000 }
+      { head: 'Monthly Tuition Fee', amount: 8000 }
     ],
-    amount: 15000,
+    amount: 8000,
     waiver: 0,
     fine: 0,
-    paid: 15000,
+    paid: 8000,
     paymentMethod: 'Cash',
     date: new Date().toISOString().split('T')[0],
     dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -209,20 +253,21 @@ export default function FeesCollectionPage() {
         return false;
       });
 
+      const expectedFee = calculateStudentExpectedFee(s);
+
       if (monthInvoices.length === 0) {
-        const defaultFee = Number(s.monthlyFee) || 15000;
         map.set(s._id, {
           status: 'UNPAID',
           paid: 0,
-          amount: defaultFee,
-          balance: defaultFee,
+          amount: expectedFee,
+          balance: expectedFee,
           waiver: 0,
           fine: 0,
           latestInvoice: null
         });
       } else {
         const latest = monthInvoices[0];
-        const totalAmount = Number(latest.amount) || 15000;
+        const totalAmount = Number(latest.amount) || expectedFee;
         const totalWaiver = Number(latest.waiver) || 0;
         const totalFine = Number(latest.fine) || 0;
         const totalPaid = Number(latest.paid) || 0;
@@ -307,9 +352,10 @@ export default function FeesCollectionPage() {
       if (!matchClass || !matchSection) return;
 
       const info = studentMonthlyMap.get(s._id);
+      const expectedFee = calculateStudentExpectedFee(s);
       if (!info || info.status === 'UNPAID') {
         unpaidCount++;
-        totalPendingThisMonth += Number(info?.balance ?? 15000);
+        totalPendingThisMonth += Number(info?.balance ?? expectedFee);
       } else if (info.status === 'PAID') {
         paidCount++;
         totalCollectedThisMonth += Number(info.paid || 0);
@@ -394,19 +440,59 @@ export default function FeesCollectionPage() {
     const clsName = `${student.className || ''} (${student.section || 'A'})`;
     const mInfo = studentMonthlyMap.get(student._id);
     const existingInv = mInfo?.latestInvoice;
+    const criteria = student.feeCriteria || 'Monthly';
 
-    const existingItems =
-      Array.isArray(existingInv?.feeItems) && existingInv.feeItems.length > 0
-        ? existingInv.feeItems
-        : [
-            {
-              head: existingInv?.feeType || 'Monthly Tuition Fee',
-              amount: existingInv ? Number(existingInv.amount) || 15000 : 15000
-            }
-          ];
+    let existingItems = [];
+    if (Array.isArray(existingInv?.feeItems) && existingInv.feeItems.length > 0) {
+      existingItems = existingInv.feeItems;
+    } else {
+      const tuitionHead = criteria === 'Semester'
+        ? 'Semester Tuition Fee'
+        : criteria === 'Annual'
+        ? 'Annual Tuition Fee'
+        : criteria === 'Diploma / Custom'
+        ? 'Diploma / Certificate Course Fee'
+        : 'Monthly Tuition Fee';
+
+      let tuitionAmt = Number(student.feeTuition);
+      if (!tuitionAmt || tuitionAmt <= 0) {
+        if (criteria === 'Semester') tuitionAmt = Number(student.semesterFee) || 75000;
+        else if (criteria === 'Annual') tuitionAmt = 120000;
+        else if (criteria === 'Diploma / Custom') tuitionAmt = Number(student.totalProgramFee) || 25000;
+        else tuitionAmt = Number(student.monthlyFee) || 8000;
+      }
+
+      existingItems.push({
+        head: tuitionHead,
+        amount: tuitionAmt
+      });
+
+      if (Number(student.feeTransport) > 0) {
+        existingItems.push({
+          head: 'Transport Fee',
+          amount: Number(student.feeTransport)
+        });
+      }
+
+      if (Number(student.feeExam) > 0) {
+        existingItems.push({
+          head: 'Examination Fee',
+          amount: Number(student.feeExam)
+        });
+      }
+
+      if (Number(student.feeLab) > 0) {
+        existingItems.push({
+          head: 'Laboratory & Computer Fee',
+          amount: Number(student.feeLab)
+        });
+      }
+    }
 
     const baseAmount = existingItems.reduce((sum, it) => sum + (Number(it.amount) || 0), 0);
-    const waiver = existingInv ? Number(existingInv.waiver) || 0 : 0;
+    const waiver = existingInv
+      ? Number(existingInv.waiver) || 0
+      : Number(student.feeDiscountAmount) || Math.round(baseAmount * ((Number(student.feeDiscountPercent) || 0) / 100));
     const fine = existingInv ? Number(existingInv.fine) || 0 : 0;
     const netPayable = Math.max(0, baseAmount - waiver + fine);
 
@@ -420,6 +506,8 @@ export default function FeesCollectionPage() {
       section: student.section || 'A',
       billingMonth: selectedMonth,
       challanNo: existingInv?.challanNo || String(Math.floor(10000 + Math.random() * 90000)),
+      feeCriteria: existingInv?.feeCriteria || criteria,
+      feePeriod: existingInv?.feePeriod || (criteria === 'Semester' ? '1 Semester' : '1 Month'),
       feeType: existingItems[0]?.head || 'Monthly Tuition Fee',
       feeItems: existingItems,
       amount: baseAmount,
@@ -444,6 +532,7 @@ export default function FeesCollectionPage() {
     const clsName = `${student.className || ''} (${student.section || 'A'})`;
     const mInfo = studentMonthlyMap.get(student._id);
     const existingInv = mInfo?.latestInvoice;
+    const criteria = student.feeCriteria || 'Monthly';
 
     if (existingInv) {
       setActiveReceipt({
@@ -456,7 +545,38 @@ export default function FeesCollectionPage() {
         billingMonth: existingInv.billingMonth || selectedMonth
       });
     } else {
-      const defaultFee = Number(student.monthlyFee) || 15000;
+      const tuitionHead = criteria === 'Semester'
+        ? 'Semester Tuition Fee'
+        : criteria === 'Annual'
+        ? 'Annual Tuition Fee'
+        : criteria === 'Diploma / Custom'
+        ? 'Diploma / Certificate Course Fee'
+        : 'Monthly Tuition Fee';
+
+      let tuitionAmt = Number(student.feeTuition);
+      if (!tuitionAmt || tuitionAmt <= 0) {
+        if (criteria === 'Semester') tuitionAmt = Number(student.semesterFee) || 75000;
+        else if (criteria === 'Annual') tuitionAmt = 120000;
+        else if (criteria === 'Diploma / Custom') tuitionAmt = Number(student.totalProgramFee) || 25000;
+        else tuitionAmt = Number(student.monthlyFee) || 8000;
+      }
+
+      const feeItems = [{ head: tuitionHead, amount: tuitionAmt }];
+      if (Number(student.feeTransport) > 0) {
+        feeItems.push({ head: 'Transport Fee', amount: Number(student.feeTransport) });
+      }
+      if (Number(student.feeExam) > 0) {
+        feeItems.push({ head: 'Examination Fee', amount: Number(student.feeExam) });
+      }
+      if (Number(student.feeLab) > 0) {
+        feeItems.push({ head: 'Laboratory & Computer Fee', amount: Number(student.feeLab) });
+      }
+
+      const totalAmt = feeItems.reduce((s, it) => s + Number(it.amount), 0);
+      const discountPercent = Number(student.feeDiscountPercent) || 0;
+      const waiver = Number(student.feeDiscountAmount) || Math.round(totalAmt * (discountPercent / 100));
+      const netPayable = Math.max(0, totalAmt - waiver);
+
       setActiveReceipt({
         challanNo: String(Math.floor(10000 + Math.random() * 90000)),
         billingMonth: selectedMonth,
@@ -465,13 +585,15 @@ export default function FeesCollectionPage() {
         rollNo: student.rollNo || '',
         admissionNo: student.admissionNo || 'N/A',
         className: clsName,
-        feeType: 'Monthly Tuition Fee',
-        feeItems: [{ head: 'Monthly Tuition Fee', amount: defaultFee }],
-        amount: defaultFee,
-        waiver: 0,
+        feeType: tuitionHead,
+        feeCriteria: criteria,
+        feePeriod: criteria === 'Semester' ? '1 Semester' : '1 Month',
+        feeItems,
+        amount: totalAmt,
+        waiver,
         fine: 0,
         paid: 0,
-        balance: defaultFee,
+        balance: netPayable,
         status: 'Unpaid',
         paymentMethod: 'Cash / Bank',
         date: new Date().toISOString().split('T')[0],
@@ -479,6 +601,64 @@ export default function FeesCollectionPage() {
       });
     }
     setIsReceiptModalOpen(true);
+  };
+
+  // Quick Presets from Pak Royal College Functional Specification
+  const handleApplyCriteriaPreset = (targetCriteria, periodLabel, tuitionAmount) => {
+    const headName = targetCriteria === 'Semester'
+      ? `Semester Tuition Fee (${periodLabel})`
+      : targetCriteria === 'Annual'
+      ? `Annual Tuition Fee (${periodLabel})`
+      : targetCriteria === 'Diploma / Custom'
+      ? `Diploma / Certificate Fee (${periodLabel})`
+      : `Monthly Tuition Fee (${periodLabel})`;
+
+    const transportAmt = Number(activeStudent?.feeTransport) || 0;
+    const existingTransport = formData.feeItems.find(it => it.head.toLowerCase().includes('transport'));
+    const currentTransportAmt = existingTransport ? Number(existingTransport.amount) : transportAmt;
+
+    const newItems = [{ head: headName, amount: tuitionAmount }];
+    if (currentTransportAmt > 0) {
+      newItems.push({ head: 'Transport Fee', amount: currentTransportAmt });
+    }
+
+    const totalAmt = newItems.reduce((s, it) => s + (Number(it.amount) || 0), 0);
+    const waiver = Number(formData.waiver) || 0;
+    const fine = Number(formData.fine) || 0;
+    const net = Math.max(0, totalAmt - waiver + fine);
+
+    setFormData(prev => ({
+      ...prev,
+      feeCriteria: targetCriteria,
+      feePeriod: periodLabel,
+      feeType: headName,
+      feeItems: newItems,
+      amount: totalAmt,
+      paid: net
+    }));
+  };
+
+  const handleToggleTransportItem = () => {
+    const transportIdx = formData.feeItems.findIndex(it => it.head.toLowerCase().includes('transport'));
+    let newItems = [];
+    if (transportIdx >= 0) {
+      if (formData.feeItems.length > 1) {
+        newItems = formData.feeItems.filter((_, idx) => idx !== transportIdx);
+      } else {
+        newItems = formData.feeItems;
+      }
+    } else {
+      const transportFee = Number(activeStudent?.feeTransport) || 3000;
+      newItems = [...formData.feeItems, { head: 'Transport Fee', amount: transportFee }];
+    }
+    const totalAmt = newItems.reduce((s, it) => s + (Number(it.amount) || 0), 0);
+    const net = Math.max(0, totalAmt - (Number(formData.waiver) || 0) + (Number(formData.fine) || 0));
+    setFormData(prev => ({
+      ...prev,
+      feeItems: newItems,
+      amount: totalAmt,
+      paid: net
+    }));
   };
 
   // Update Fee Items in Collect Modal
@@ -578,6 +758,8 @@ export default function FeesCollectionPage() {
         billingMonth: formData.billingMonth || selectedMonth,
         challanNo: formData.challanNo || String(Math.floor(10000 + Math.random() * 90000)),
         feeType: formData.feeItems?.[0]?.head || formData.feeType,
+        feeCriteria: formData.feeCriteria || 'Monthly',
+        feePeriod: formData.feePeriod || '1 Month',
         feeItems: formData.feeItems,
         amount: Number(formData.amount),
         waiver: Number(formData.waiver) || 0,
@@ -684,7 +866,7 @@ export default function FeesCollectionPage() {
       billingMonth: formatBillingMonthLabel(selectedMonth),
       monthStatus: mInfo?.status || 'UNPAID',
       paidAmount: mInfo?.paid || 0,
-      balanceAmount: mInfo?.balance ?? 15000
+      balanceAmount: mInfo?.balance ?? calculateStudentExpectedFee(s)
     };
   });
 
@@ -1018,10 +1200,11 @@ export default function FeesCollectionPage() {
               ) : (
                 filteredStudents.map((s) => {
                   const fullName = `${s.firstName || ''} ${s.lastName || ''}`.trim() || 'Student';
+                  const expectedFee = calculateStudentExpectedFee(s);
                   const mInfo = studentMonthlyMap.get(s._id) || {
                     status: 'UNPAID',
                     paid: 0,
-                    balance: 15000,
+                    balance: expectedFee,
                     latestInvoice: null
                   };
                   const isPaid = mInfo.status === 'PAID';
@@ -1051,8 +1234,38 @@ export default function FeesCollectionPage() {
                           />
                           <div>
                             <div className="font-bold text-zinc-900">{fullName}</div>
-                            <div className="text-[11px] text-zinc-500 font-mono">
-                              Roll: {s.rollNo || 'N/A'}
+                            <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                              <span className="text-[11px] text-zinc-500 font-mono">
+                                Roll: {s.rollNo || 'N/A'}
+                              </span>
+                              <span
+                                className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                                  s.feeCriteria === 'Semester'
+                                    ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                                    : s.feeCriteria === 'Annual'
+                                    ? 'bg-indigo-100 text-indigo-800 border border-indigo-200'
+                                    : s.feeCriteria === 'Diploma / Custom'
+                                    ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                                    : 'bg-sky-100 text-sky-800 border border-sky-200'
+                                }`}
+                              >
+                                {s.feeCriteria === 'Semester'
+                                  ? 'Semester'
+                                  : s.feeCriteria === 'Annual'
+                                  ? 'Annual'
+                                  : s.feeCriteria === 'Diploma / Custom'
+                                  ? 'Diploma'
+                                  : 'Monthly'}
+                              </span>
+                              {Number(s.feeTransport) > 0 && (
+                                <span
+                                  className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-teal-100 text-teal-800 border border-teal-200"
+                                  title={`Transport Fee: Rs. ${Number(s.feeTransport).toLocaleString()}`}
+                                >
+                                  <Truck className="h-2.5 w-2.5" />
+                                  Rs. {Number(s.feeTransport).toLocaleString()}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1377,6 +1590,151 @@ export default function FeesCollectionPage() {
                   >
                     {computedStatus}
                   </span>
+                </div>
+              </div>
+
+              {/* Fee Criteria & Pak Royal College Billing Structure Selector */}
+              <div className="bg-white border border-zinc-200 rounded-xl p-3.5 space-y-3 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-800 uppercase">
+                    <Sparkles className="h-4 w-4 text-emerald-600" />
+                    <span>Select Fee Criteria &amp; Program Billing Model</span>
+                  </div>
+                  <span className="text-[11px] font-bold text-[#084A86] bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+                    Active: {formData.feeCriteria || 'Monthly'} ({formData.feePeriod || '1 Month'})
+                  </span>
+                </div>
+
+                {/* Criteria Tabs */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { id: 'Monthly', label: 'Monthly', desc: 'FSc, ICS, FA (Rs. 8,000/mo)' },
+                    { id: 'Semester', label: 'Semester Wise', desc: 'BS Programs (Rs. 75k/sem)' },
+                    { id: 'Annual', label: 'Annual', desc: '5-Yr DPT/Pharm (Rs. 120k/yr)' },
+                    { id: 'Diploma / Custom', label: 'Diploma / Custom', desc: 'Certificates & Custom' }
+                  ].map((crit) => (
+                    <button
+                      key={crit.id}
+                      type="button"
+                      onClick={() => {
+                        const tAmt = crit.id === 'Semester'
+                          ? Number(activeStudent?.semesterFee) || 75000
+                          : crit.id === 'Annual'
+                          ? 120000
+                          : crit.id === 'Diploma / Custom'
+                          ? Number(activeStudent?.totalProgramFee) || 25000
+                          : Number(activeStudent?.feeTuition) || Number(activeStudent?.monthlyFee) || 8000;
+                        handleApplyCriteriaPreset(crit.id, crit.id === 'Semester' ? '1 Semester' : '1 Month', tAmt);
+                      }}
+                      className={`text-left p-2.5 rounded-xl border transition-all cursor-pointer ${
+                        formData.feeCriteria === crit.id
+                          ? 'bg-emerald-50/70 border-emerald-500 ring-2 ring-emerald-500/15'
+                          : 'bg-zinc-50 border-zinc-200 hover:bg-zinc-100'
+                      }`}
+                    >
+                      <div className="font-extrabold text-xs text-zinc-900">{crit.label}</div>
+                      <div className="text-[10px] text-zinc-500 mt-0.5 leading-tight">{crit.desc}</div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Quick Presets based on Active Criteria */}
+                <div className="pt-2 border-t border-zinc-100 flex flex-wrap items-center gap-1.5">
+                  <span className="text-[10px] font-bold uppercase text-zinc-500 mr-1">Quick Presets:</span>
+
+                  {formData.feeCriteria === 'Monthly' && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => handleApplyCriteriaPreset('Monthly', '1 Month', Number(activeStudent?.feeTuition) || 8000)}
+                        className="px-2 py-1 rounded-lg text-xs font-bold bg-zinc-100 hover:bg-emerald-50 hover:text-emerald-800 border border-zinc-200 transition-colors cursor-pointer"
+                      >
+                        1 Month (Rs. {(Number(activeStudent?.feeTuition) || 8000).toLocaleString()})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleApplyCriteriaPreset('Monthly', '2 Months', (Number(activeStudent?.feeTuition) || 8000) * 2)}
+                        className="px-2 py-1 rounded-lg text-xs font-bold bg-zinc-100 hover:bg-emerald-50 hover:text-emerald-800 border border-zinc-200 transition-colors cursor-pointer"
+                      >
+                        2 Months (Rs. {((Number(activeStudent?.feeTuition) || 8000) * 2).toLocaleString()})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleApplyCriteriaPreset('Monthly', '3 Months', (Number(activeStudent?.feeTuition) || 8000) * 3)}
+                        className="px-2 py-1 rounded-lg text-xs font-bold bg-zinc-100 hover:bg-emerald-50 hover:text-emerald-800 border border-zinc-200 transition-colors cursor-pointer"
+                      >
+                        3 Months (Rs. {((Number(activeStudent?.feeTuition) || 8000) * 3).toLocaleString()})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleApplyCriteriaPreset('Monthly', '6 Months', (Number(activeStudent?.feeTuition) || 8000) * 6)}
+                        className="px-2 py-1 rounded-lg text-xs font-bold bg-zinc-100 hover:bg-emerald-50 hover:text-emerald-800 border border-zinc-200 transition-colors cursor-pointer"
+                      >
+                        6 Months (Rs. {((Number(activeStudent?.feeTuition) || 8000) * 6).toLocaleString()})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleApplyCriteriaPreset('Monthly', '12 Months', (Number(activeStudent?.feeTuition) || 8000) * 12)}
+                        className="px-2 py-1 rounded-lg text-xs font-bold bg-zinc-100 hover:bg-emerald-50 hover:text-emerald-800 border border-zinc-200 transition-colors cursor-pointer"
+                      >
+                        12 Months (Rs. {((Number(activeStudent?.feeTuition) || 8000) * 12).toLocaleString()})
+                      </button>
+                    </>
+                  )}
+
+                  {formData.feeCriteria === 'Semester' && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => handleApplyCriteriaPreset('Semester', 'Full Semester', Number(activeStudent?.semesterFee) || 75000)}
+                        className="px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-50 text-purple-900 hover:bg-purple-100 border border-purple-200 transition-colors cursor-pointer"
+                      >
+                        Full Semester (Rs. {(Number(activeStudent?.semesterFee) || 75000).toLocaleString()})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleApplyCriteriaPreset('Semester', 'Monthly Installment', Math.round((Number(activeStudent?.semesterFee) || 75000) / 6))}
+                        className="px-2.5 py-1 rounded-lg text-xs font-bold bg-zinc-100 hover:bg-purple-50 hover:text-purple-900 border border-zinc-200 transition-colors cursor-pointer"
+                      >
+                        Monthly Installment (Rs. {Math.round((Number(activeStudent?.semesterFee) || 75000) / 6).toLocaleString()} / mo)
+                      </button>
+                    </>
+                  )}
+
+                  {formData.feeCriteria === 'Annual' && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => handleApplyCriteriaPreset('Annual', 'Full Year', 120000)}
+                        className="px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-900 hover:bg-indigo-100 border border-indigo-200 transition-colors cursor-pointer"
+                      >
+                        Full Year (Rs. 120,000)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleApplyCriteriaPreset('Annual', 'Monthly Installment', 10000)}
+                        className="px-2.5 py-1 rounded-lg text-xs font-bold bg-zinc-100 hover:bg-indigo-50 hover:text-indigo-900 border border-zinc-200 transition-colors cursor-pointer"
+                      >
+                        Monthly Installment (Rs. 10,000 / mo)
+                      </button>
+                    </>
+                  )}
+
+                  {/* Transport Fee Quick Toggle */}
+                  <button
+                    type="button"
+                    onClick={handleToggleTransportItem}
+                    className={`ml-auto inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-extrabold border transition-colors cursor-pointer ${
+                      formData.feeItems.some(it => it.head.toLowerCase().includes('transport'))
+                        ? 'bg-teal-600 text-white border-teal-700 shadow-xs'
+                        : 'bg-teal-50 text-teal-800 border-teal-200 hover:bg-teal-100'
+                    }`}
+                  >
+                    <Truck className="h-3.5 w-3.5" />
+                    {formData.feeItems.some(it => it.head.toLowerCase().includes('transport'))
+                      ? 'Transport Added'
+                      : `+ Transport (Rs. ${(Number(activeStudent?.feeTransport) || 3000).toLocaleString()})`}
+                  </button>
                 </div>
               </div>
 

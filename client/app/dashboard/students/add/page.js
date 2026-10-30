@@ -8,7 +8,7 @@ import {
   ChevronRight, ArrowRight, ArrowLeft, CheckCircle2, AlertCircle, 
   Upload, User, Shield, GraduationCap, FileText, CheckSquare, 
   CreditCard, Search, Plus, Trash2, Building, RefreshCw, Calendar,
-  Layers, School, Phone, Mail, MapPin, Eye, BookOpen, AlertTriangle
+  Layers, School, Phone, Mail, MapPin, Eye, BookOpen, AlertTriangle, Truck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -167,11 +167,16 @@ function StudentAdmissionWizardInner() {
     ],
 
     // Step 7: Fees & Concessions
-    feeAdmission: 5000,
-    feeTuition: 25000,
+    feeCriteria: 'Monthly',
+    feeAdmission: 15000,
+    feeTuition: 8000,
+    feeTransport: 0,
     feeSecurity: 0,
-    feeExam: 2000,
-    feeOther: 1000,
+    feeExam: 0,
+    feeOther: 0,
+    totalProgramFee: 600000,
+    totalSemesters: 8,
+    semesterFee: 75000,
     concessionType: 'None', // None, Percentage, Fixed
     concessionValue: 0,
     concessionReason: '',
@@ -566,10 +571,11 @@ function StudentAdmissionWizardInner() {
   // Fees Calculation (Editable inputs from formData)
   const feeAdmission = parseFloat(formData.feeAdmission) || 0;
   const feeTuition = parseFloat(formData.feeTuition) || 0;
+  const feeTransport = parseFloat(formData.feeTransport) || 0;
   const feeSecurity = parseFloat(formData.feeSecurity) || 0;
   const feeExam = parseFloat(formData.feeExam) || 0;
   const feeOther = parseFloat(formData.feeOther) || 0;
-  const feeGross = feeAdmission + feeTuition + feeSecurity + feeExam + feeOther;
+  const feeGross = feeAdmission + feeTuition + feeTransport + feeSecurity + feeExam + feeOther;
 
   let concessionDiscount = 0;
   if (formData.concessionType === 'Percentage') {
@@ -701,7 +707,7 @@ function StudentAdmissionWizardInner() {
           guardianRelation: formData.guardianRelation || 'Father',
           guardianPhone: formData.guardianPhone.trim() || formData.fatherPhone.trim(),
           guardianCnic: formData.guardianCnic.trim() || formData.fatherCnic.trim(),
-          qualifications: formData.qualifications.filter(q => q.qualification && (q.institution || q.awardingBody))
+          qualifications: (Array.isArray(formData.qualifications) ? formData.qualifications : []).filter(q => q && q.qualification && (q.institution || q.awardingBody))
         };
 
         const updateRes = await api.put(`/student/${editingStudentId}`, updatePayload);
@@ -778,7 +784,7 @@ function StudentAdmissionWizardInner() {
         allowCapacityOverride: formData.allowCapacityOverride,
 
         // Step 4: Qualifications
-        qualifications: formData.qualifications.filter(q => q.qualification && (q.institution || q.awardingBody)),
+        qualifications: (Array.isArray(formData.qualifications) ? formData.qualifications : []).filter(q => q && q.qualification && (q.institution || q.awardingBody)),
 
         // Step 5: Program-specific dynamic data
         programSpecificData: {
@@ -801,20 +807,41 @@ function StudentAdmissionWizardInner() {
         },
 
         // Step 6: Documents
-        documents: formData.documents.map(d => ({
-          docType: d.docType,
-          status: d.status,
-          verified: d.verified,
-          documentUrl: d.preview || ''
+        documents: (Array.isArray(formData.documents) ? formData.documents : []).map(d => ({
+          docType: d?.docType || '',
+          status: d?.status || '',
+          verified: d?.verified || false,
+          documentUrl: d?.preview || ''
         })),
 
         // Step 7: Fee & Concessions
+        feeCriteria: formData.feeCriteria || 'Monthly',
+        feeAdmission,
+        feeTuition,
+        feeTransport,
+        feeSecurity,
+        feeExam,
+        feeOther,
+        feeGross,
+        totalProgramFee: parseFloat(formData.totalProgramFee) || 0,
+        totalSemesters: parseInt(formData.totalSemesters, 10) || 8,
+        semesterFee: parseFloat(formData.semesterFee) || 0,
+        concessionType: formData.concessionType,
+        concessionValue: parseFloat(formData.concessionValue) || 0,
+        concessionDiscount,
+        netPayable: feeNetPayable,
+        feeNetPayable,
         feePlan: {
+          feeCriteria: formData.feeCriteria || 'Monthly',
           admissionFee: feeAdmission,
           tuitionFee: feeTuition,
+          transportFee: feeTransport,
           securityDeposit: feeSecurity,
           examFee: feeExam,
           labFee: feeOther,
+          totalProgramFee: parseFloat(formData.totalProgramFee) || 0,
+          totalSemesters: parseInt(formData.totalSemesters, 10) || 8,
+          semesterFee: parseFloat(formData.semesterFee) || 0,
           grossTotal: feeGross,
           concessionType: formData.concessionType,
           concessionValue: parseFloat(formData.concessionValue) || 0,
@@ -1635,7 +1662,7 @@ function StudentAdmissionWizardInner() {
                   onChange={(e) => setFormData({ ...formData, campusId: e.target.value })}
                   className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3"
                 >
-                  {campuses.map(c => (
+                  {(Array.isArray(campuses) ? campuses : []).map(c => (
                     <option key={c._id} value={c._id}>{c.name} ({c.city})</option>
                   ))}
                 </select>
@@ -1648,7 +1675,7 @@ function StudentAdmissionWizardInner() {
                   onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
                   className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3"
                 >
-                  {categories.map(c => (
+                  {(Array.isArray(categories) ? categories : []).map(c => (
                     <option key={c._id} value={c._id}>{c.name} ({c.code})</option>
                   ))}
                 </select>
@@ -1661,8 +1688,8 @@ function StudentAdmissionWizardInner() {
                   onChange={(e) => setFormData({ ...formData, programId: e.target.value })}
                   className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3"
                 >
-                  {programs.length === 0 && <option value="">No programs available</option>}
-                  {programs.map(p => (
+                  {(!Array.isArray(programs) || programs.length === 0) && <option value="">No programs available</option>}
+                  {(Array.isArray(programs) ? programs : []).map(p => (
                     <option key={p._id} value={p._id}>{p.name} ({p.code})</option>
                   ))}
                 </select>
@@ -1683,14 +1710,14 @@ function StudentAdmissionWizardInner() {
                 {loadingOfferings && <RefreshCw className="w-4 h-4 animate-spin text-emerald-600" />}
               </div>
 
-              {offerings.length === 0 ? (
+              {(!Array.isArray(offerings) || offerings.length === 0) ? (
                 <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/50 text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
                   <span>No approved offerings available for this program on the selected campus. Please create an offering in <strong>Academics → Programs & Offerings</strong>.</span>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {offerings.map(offering => {
+                  {(Array.isArray(offerings) ? offerings : []).map(offering => {
                     const isSelected = String(offering._id) === String(formData.offeringId);
                     const isCapacityFull = offering.seatCapacity && offering.enrolledCount >= offering.seatCapacity;
                     return (
@@ -1739,10 +1766,10 @@ function StudentAdmissionWizardInner() {
                   onChange={(e) => setFormData({ ...formData, batchId: e.target.value })}
                   className="w-full mt-1 text-xs h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3"
                 >
-                  {batches.map(b => (
+                  {(Array.isArray(batches) ? batches : []).map(b => (
                     <option key={b._id} value={b._id}>{b.name} ({b.code})</option>
                   ))}
-                  {batches.length === 0 && <option value="">Default Batch (Auto)</option>}
+                  {(!Array.isArray(batches) || batches.length === 0) && <option value="">Default Batch (Auto)</option>}
                 </select>
               </div>
 
@@ -2141,6 +2168,118 @@ function StudentAdmissionWizardInner() {
               </p>
             </div>
 
+            {/* Fee Criteria & Program Billing Model Selector */}
+            <div className="p-4 sm:p-5 rounded-2xl border-2 border-[#084A86]/30 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs space-y-3">
+              <div>
+                <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wide flex items-center gap-1.5">
+                  <GraduationCap className="w-4 h-4 text-[#084A86]" />
+                  Fee Criteria & Program Billing Model *
+                </h4>
+                <p className="text-[11px] text-zinc-500 mt-0.5">
+                  Select standard program fee model: Monthly (Intermediate), Semester-wise (BS Programs), Annual (5-Year Professional), or Diploma.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                {[
+                  {
+                    id: 'Monthly',
+                    title: 'Monthly Tuition',
+                    badge: 'Intermediate (FSc, ICS, FA)',
+                    desc: 'Admission fee + Monthly tuition fee (Rs. 8,000/mo default)',
+                    applyPreset: () => {
+                      setFormData(prev => ({
+                        ...prev,
+                        feeCriteria: 'Monthly',
+                        feeAdmission: prev.feeAdmission || 15000,
+                        feeTuition: 8000
+                      }));
+                    }
+                  },
+                  {
+                    id: 'Semester',
+                    title: 'Semester Wise',
+                    badge: 'BS Programs (4–5 Yrs)',
+                    desc: 'Total Rs. 600k / 8 Semesters (Rs. 75,000/sem or Rs. 12,500/mo installment)',
+                    applyPreset: () => {
+                      setFormData(prev => ({
+                        ...prev,
+                        feeCriteria: 'Semester',
+                        feeAdmission: prev.feeAdmission || 15000,
+                        feeTuition: 75000,
+                        totalProgramFee: 600000,
+                        totalSemesters: 8,
+                        semesterFee: 75000
+                      }));
+                    }
+                  },
+                  {
+                    id: 'Annual',
+                    title: 'Annual / Yearly',
+                    badge: '5-Year Professional (DPT)',
+                    desc: 'Total Rs. 600k / 5 Years (Rs. 120,000/yr or Rs. 10,000/mo installment)',
+                    applyPreset: () => {
+                      setFormData(prev => ({
+                        ...prev,
+                        feeCriteria: 'Annual',
+                        feeAdmission: prev.feeAdmission || 15000,
+                        feeTuition: 120000,
+                        totalProgramFee: 600000,
+                        totalSemesters: 5,
+                        semesterFee: 120000
+                      }));
+                    }
+                  },
+                  {
+                    id: 'Diploma / Custom',
+                    title: 'Diploma / Certificate',
+                    badge: 'Short Courses (3–24 Mos)',
+                    desc: 'Lump-sum or configurable custom installment schedule',
+                    applyPreset: () => {
+                      setFormData(prev => ({
+                        ...prev,
+                        feeCriteria: 'Diploma / Custom',
+                        feeAdmission: prev.feeAdmission || 5000,
+                        feeTuition: 30000
+                      }));
+                    }
+                  }
+                ].map(opt => {
+                  const isSelected = (formData.feeCriteria || 'Monthly') === opt.id;
+                  return (
+                    <div
+                      key={opt.id}
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, feeCriteria: opt.id }));
+                        opt.applyPreset();
+                      }}
+                      className={`p-3 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                        isSelected
+                          ? 'border-[#084A86] bg-blue-50/50 dark:bg-blue-950/20 shadow-xs ring-1 ring-[#084A86]'
+                          : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 bg-white dark:bg-zinc-900'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-1 mb-1">
+                          <span className="text-xs font-bold text-zinc-950 dark:text-zinc-100">{opt.title}</span>
+                          {isSelected && <CheckCircle2 className="h-4 w-4 text-[#084A86]" />}
+                        </div>
+                        <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
+                          {opt.badge}
+                        </span>
+                        <p className="text-[11px] text-zinc-500 mt-1.5 leading-snug">
+                          {opt.desc}
+                        </p>
+                      </div>
+                      <span className={`text-[10px] font-bold mt-2 ${isSelected ? 'text-[#084A86]' : 'text-zinc-400'}`}>
+                        {isSelected ? '✓ Active Criteria' : 'Click to apply'}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Fee Structure Summary */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="sm:col-span-2 space-y-4">
@@ -2171,27 +2310,46 @@ function StudentAdmissionWizardInner() {
                           value={formData.feeAdmission}
                           onChange={(e) => setFormData({ ...formData, feeAdmission: e.target.value })}
                           className="mt-1 font-mono font-bold text-xs h-9 bg-zinc-50/50 dark:bg-zinc-800"
-                          placeholder="5000"
+                          placeholder="15000"
                         />
                       </div>
                       <div>
                         <Label className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
-                          Tuition Fee (Term / First Installment) (PKR) *
+                          {formData.feeCriteria === 'Semester'
+                            ? 'Semester Tuition Fee (PKR) *'
+                            : formData.feeCriteria === 'Annual'
+                            ? 'Annual Tuition Fee (PKR) *'
+                            : formData.feeCriteria === 'Diploma / Custom'
+                            ? 'Course Tuition Fee (PKR) *'
+                            : 'Monthly Tuition Fee (PKR) *'}
                         </Label>
                         <Input
                           type="number"
                           value={formData.feeTuition}
                           onChange={(e) => setFormData({ ...formData, feeTuition: e.target.value })}
                           className="mt-1 font-mono font-bold text-xs h-9 bg-zinc-50/50 dark:bg-zinc-800"
-                          placeholder="25000"
+                          placeholder="8000"
                         />
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                      <div>
+                        <Label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-1">
+                          <Truck className="h-3 w-3 text-[#084A86]" />
+                          Transport Fee
+                        </Label>
+                        <Input
+                          type="number"
+                          value={formData.feeTransport}
+                          onChange={(e) => setFormData({ ...formData, feeTransport: e.target.value })}
+                          className="mt-1 font-mono font-bold text-xs h-9 bg-zinc-50/50 dark:bg-zinc-800"
+                          placeholder="0"
+                        />
+                      </div>
                       <div>
                         <Label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                          Security Deposit (Refundable)
+                          Security (Refundable)
                         </Label>
                         <Input
                           type="number"
@@ -2203,26 +2361,26 @@ function StudentAdmissionWizardInner() {
                       </div>
                       <div>
                         <Label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                          Exam & Board Affiliation Fee
+                          Exam Fee
                         </Label>
                         <Input
                           type="number"
                           value={formData.feeExam}
                           onChange={(e) => setFormData({ ...formData, feeExam: e.target.value })}
                           className="mt-1 font-mono font-bold text-xs h-9 bg-zinc-50/50 dark:bg-zinc-800"
-                          placeholder="2000"
+                          placeholder="0"
                         />
                       </div>
                       <div>
                         <Label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                          Laboratory / Library Fee
+                          Lab / Library Fee
                         </Label>
                         <Input
                           type="number"
                           value={formData.feeOther}
                           onChange={(e) => setFormData({ ...formData, feeOther: e.target.value })}
                           className="mt-1 font-mono font-bold text-xs h-9 bg-zinc-50/50 dark:bg-zinc-800"
-                          placeholder="1000"
+                          placeholder="0"
                         />
                       </div>
                     </div>

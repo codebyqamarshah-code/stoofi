@@ -135,6 +135,22 @@ export async function POST(req) {
       officialRollNo = rollGen.rollNumber;
     }
 
+    // Extract fee configuration from body and offering
+    const incomingFee = body.feePlan || {};
+    const offeringFee = offering.feePlan || offering.feeStructure || {};
+
+    const feeCriteria = body.feeCriteria || incomingFee.feeCriteria || 'Monthly';
+    const admissionFee = incomingFee.admissionFee !== undefined ? parseFloat(incomingFee.admissionFee) || 0 : (parseFloat(offeringFee.admissionFee) || 5000);
+    const tuitionFee = incomingFee.tuitionFee !== undefined ? parseFloat(incomingFee.tuitionFee) || 0 : (parseFloat(offeringFee.tuitionFeePerTerm || offeringFee.tuitionFee) || 25000);
+    const transportFee = parseFloat(body.feeTransport || incomingFee.transportFee) || 0;
+    const securityDeposit = incomingFee.securityDeposit !== undefined ? parseFloat(incomingFee.securityDeposit) || 0 : (parseFloat(offeringFee.securityDeposit) || 0);
+    const examFee = incomingFee.examFee !== undefined ? parseFloat(incomingFee.examFee) || 0 : (parseFloat(offeringFee.examFee) || 2000);
+    const labFee = incomingFee.labFee !== undefined ? parseFloat(incomingFee.labFee) || 0 : (parseFloat(offeringFee.labFee || offeringFee.labPracticalFee) || 1000);
+
+    const totalFee = incomingFee.grossTotal !== undefined ? parseFloat(incomingFee.grossTotal) || 0 : (admissionFee + tuitionFee + transportFee + securityDeposit + examFee + labFee);
+    const concessionAmount = parseFloat(incomingFee.concessionDiscount || body.concessionAmount || 0) || 0;
+    const netPayable = incomingFee.netPayable !== undefined ? parseFloat(incomingFee.netPayable) || 0 : Math.max(0, totalFee - concessionAmount);
+
     if (isExistingStudent && student) {
       if (body.studentPhoto || body.photo) {
         student.studentPhoto = body.studentPhoto || body.photo;
@@ -151,6 +167,23 @@ export async function POST(req) {
       student.admissionNo = officialAdmissionNo;
       student.rollNo = officialRollNo;
       student.academicYear = String(admissionYear);
+
+      // Save fee plan directly on student
+      student.feeCriteria = feeCriteria;
+      student.feeAdmission = admissionFee;
+      student.feeTuition = tuitionFee;
+      student.feeTransport = transportFee;
+      student.feeSecurity = securityDeposit;
+      student.feeExam = examFee;
+      student.feeLab = labFee;
+      student.feeGross = totalFee;
+      student.feeDiscountAmount = concessionAmount;
+      student.feeNetPayable = netPayable;
+      student.monthlyFee = tuitionFee;
+      student.totalProgramFee = parseFloat(body.totalProgramFee || incomingFee.totalProgramFee) || 0;
+      student.totalSemesters = parseInt(body.totalSemesters || incomingFee.totalSemesters, 10) || 8;
+      student.semesterFee = parseFloat(body.semesterFee || incomingFee.semesterFee) || 0;
+      student.feePlan = incomingFee;
 
       await student.save();
     } else {
@@ -206,7 +239,24 @@ export async function POST(req) {
         status: 'Active',
         cardTemplate: 'classic-navy',
         cardLayout: 'horizontal',
-        themeStyle: 'classic-navy'
+        themeStyle: 'classic-navy',
+
+        // Fee criteria and parameters
+        feeCriteria,
+        feeAdmission: admissionFee,
+        feeTuition: tuitionFee,
+        feeTransport: transportFee,
+        feeSecurity: securityDeposit,
+        feeExam: examFee,
+        feeLab: labFee,
+        feeGross: totalFee,
+        feeDiscountAmount: concessionAmount,
+        feeNetPayable: netPayable,
+        monthlyFee: tuitionFee,
+        totalProgramFee: parseFloat(body.totalProgramFee || incomingFee.totalProgramFee) || 0,
+        totalSemesters: parseInt(body.totalSemesters || incomingFee.totalSemesters, 10) || 8,
+        semesterFee: parseFloat(body.semesterFee || incomingFee.semesterFee) || 0,
+        feePlan: incomingFee
       };
 
       student = await Student.create(studentData);
@@ -219,19 +269,6 @@ export async function POST(req) {
         await Class.create({ name: offering.programName.trim(), sections: [sectionName, 'A', 'B'] });
       }
     } catch (_) {}
-
-    const incomingFee = body.feePlan || {};
-    const offeringFee = offering.feePlan || offering.feeStructure || {};
-
-    const admissionFee = incomingFee.admissionFee !== undefined ? parseFloat(incomingFee.admissionFee) || 0 : (parseFloat(offeringFee.admissionFee) || 5000);
-    const tuitionFee = incomingFee.tuitionFee !== undefined ? parseFloat(incomingFee.tuitionFee) || 0 : (parseFloat(offeringFee.tuitionFeePerTerm || offeringFee.tuitionFee) || 25000);
-    const securityDeposit = incomingFee.securityDeposit !== undefined ? parseFloat(incomingFee.securityDeposit) || 0 : (parseFloat(offeringFee.securityDeposit) || 0);
-    const examFee = incomingFee.examFee !== undefined ? parseFloat(incomingFee.examFee) || 0 : (parseFloat(offeringFee.examFee) || 2000);
-    const labFee = incomingFee.labFee !== undefined ? parseFloat(incomingFee.labFee) || 0 : (parseFloat(offeringFee.labFee || offeringFee.labPracticalFee) || 1000);
-
-    const totalFee = incomingFee.grossTotal !== undefined ? parseFloat(incomingFee.grossTotal) || 0 : (admissionFee + tuitionFee + securityDeposit + examFee + labFee);
-    const concessionAmount = parseFloat(incomingFee.concessionDiscount || body.concessionAmount || 0) || 0;
-    const netPayable = incomingFee.netPayable !== undefined ? parseFloat(incomingFee.netPayable) || 0 : Math.max(0, totalFee - concessionAmount);
 
     const enrollment = await StudentEnrollment.create({
       studentId: student._id,

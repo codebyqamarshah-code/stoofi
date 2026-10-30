@@ -27,16 +27,18 @@ import ThreeCopyFeeSlipModal from '@/components/fees/ThreeCopyFeeSlipModal';
 import StudentAvatar from '@/components/student/StudentAvatar';
 
 const DEFAULT_FEE_TYPES = [
-  'Tuition Fee 2026',
-  'Admission & Registration Fee',
   'Monthly Tuition Fee',
+  'Semester Tuition Fee',
+  'Annual Tuition Fee',
+  'Transport Fee',
+  'Admission & Registration Fee',
+  'Tuition Fee 2026',
   'Annual Charges',
   'Mid-Term Exam Fee',
   'Final Exam Fee',
-  'School Bus Transport',
-  'Hostel Accommodation',
   'Laboratory & Computer Fee',
-  'Sports & Activity Fund'
+  'Sports & Activity Fund',
+  'Diploma / Certificate Course Fee'
 ];
 
 export default function FeesInvoicePage() {
@@ -157,16 +159,20 @@ export default function FeesInvoicePage() {
     setIsBuilderOpen(true);
   };
 
-  // When a student is chosen from dropdown, auto-fill class & admission no
+  // When a student is chosen from dropdown, auto-fill class & admission no and fee
   const handleStudentSelect = (e) => {
     const stuName = e.target.value;
     const found = studentsList.find(s => `${s.firstName} ${s.lastName}` === stuName || s.student === stuName);
     if (found) {
+      const studentFee = Number(found.feeNetPayable) || 
+        ((Number(found.feeTuition) || (found.feeCriteria === 'Semester' ? 75000 : (found.feeCriteria === 'Annual' ? 120000 : 8000))) + (Number(found.feeTransport) || 0));
       setFormData(prev => ({
         ...prev,
         student: stuName,
         admissionNo: found.admissionNo || prev.admissionNo,
-        className: `${found.className || ''} (${found.section || ''})`
+        className: `${found.className || ''} (${found.section || ''})`,
+        amount: studentFee,
+        paid: studentFee
       }));
     } else {
       setFormData(prev => ({ ...prev, student: stuName }));

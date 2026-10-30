@@ -26,7 +26,8 @@ import {
   Hash,
   Eye,
   Camera,
-  Upload
+  Upload,
+  Truck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -193,14 +194,19 @@ function EditStudentPageInner() {
           status: s.status || 'Active',
           remarks: s.remarks || '',
 
-          feeAdmission: s.feeAdmission !== undefined ? s.feeAdmission : (s.feePlan?.admissionFee !== undefined ? s.feePlan.admissionFee : 5000),
-          feeTuition: s.feeTuition !== undefined ? s.feeTuition : (s.feePlan?.tuitionFee !== undefined ? s.feePlan.tuitionFee : 25000),
+          feeCriteria: s.feeCriteria || s.feePlan?.feeCriteria || 'Monthly',
+          feeAdmission: s.feeAdmission !== undefined ? s.feeAdmission : (s.feePlan?.admissionFee !== undefined ? s.feePlan.admissionFee : 15000),
+          feeTuition: s.feeTuition !== undefined ? s.feeTuition : (s.feePlan?.tuitionFee !== undefined ? s.feePlan.tuitionFee : 8000),
+          feeTransport: s.feeTransport !== undefined ? s.feeTransport : (s.feePlan?.transportFee !== undefined ? s.feePlan.transportFee : 0),
           feeSecurity: s.feeSecurity !== undefined ? s.feeSecurity : (s.feePlan?.securityDeposit !== undefined ? s.feePlan.securityDeposit : 0),
-          feeExam: s.feeExam !== undefined ? s.feeExam : (s.feePlan?.examFee !== undefined ? s.feePlan.examFee : 2000),
-          feeOther: s.feeOther !== undefined ? s.feeOther : (s.feePlan?.labFee !== undefined ? s.feePlan.labFee : 1000),
+          feeExam: s.feeExam !== undefined ? s.feeExam : (s.feePlan?.examFee !== undefined ? s.feePlan.examFee : 0),
+          feeOther: s.feeOther !== undefined ? s.feeOther : (s.feePlan?.labFee !== undefined ? s.feePlan.labFee : 0),
+          totalProgramFee: s.totalProgramFee !== undefined ? s.totalProgramFee : (s.feePlan?.totalProgramFee !== undefined ? s.feePlan.totalProgramFee : 600000),
+          totalSemesters: s.totalSemesters !== undefined ? s.totalSemesters : (s.feePlan?.totalSemesters !== undefined ? s.feePlan.totalSemesters : 8),
+          semesterFee: s.semesterFee !== undefined ? s.semesterFee : (s.feePlan?.semesterFee !== undefined ? s.feePlan.semesterFee : 75000),
           concessionType: s.concessionType || s.feePlan?.concessionType || 'None',
           concessionValue: s.concessionValue !== undefined ? s.concessionValue : (s.feePlan?.concessionValue !== undefined ? s.feePlan.concessionValue : 0),
-          concessionReason: s.concessionReason || s.feePlan?.invoiceNotes || '',
+          concessionReason: s.concessionReason || s.feePlan?.concessionReason || '',
           invoiceNotes: s.invoiceNotes || s.feePlan?.invoiceNotes || '',
 
           qualifications: Array.isArray(s.qualifications) && s.qualifications.length > 0 
@@ -343,10 +349,11 @@ function EditStudentPageInner() {
 
   const admissionFee = parseFloat(formData.feeAdmission) || 0;
   const tuitionFee = parseFloat(formData.feeTuition) || 0;
+  const transportFee = parseFloat(formData.feeTransport) || 0;
   const securityDeposit = parseFloat(formData.feeSecurity) || 0;
   const examFee = parseFloat(formData.feeExam) || 0;
   const labFee = parseFloat(formData.feeOther) || 0;
-  const feeGross = admissionFee + tuitionFee + securityDeposit + examFee + labFee;
+  const feeGross = admissionFee + tuitionFee + transportFee + securityDeposit + examFee + labFee;
 
   let concessionDiscount = 0;
   const concessionVal = parseFloat(formData.concessionValue) || 0;
@@ -432,10 +439,15 @@ function EditStudentPageInner() {
 
         feeAdmission: admissionFee,
         feeTuition: tuitionFee,
+        feeTransport: transportFee,
         feeSecurity: securityDeposit,
         feeExam: examFee,
         feeOther: labFee,
         feeGross: feeGross,
+        feeCriteria: formData.feeCriteria || 'Monthly',
+        totalProgramFee: parseFloat(formData.totalProgramFee) || 0,
+        totalSemesters: parseInt(formData.totalSemesters, 10) || 8,
+        semesterFee: parseFloat(formData.semesterFee) || 0,
         concessionType: formData.concessionType,
         concessionValue: concessionVal,
         concessionDiscount: concessionDiscount,
@@ -444,11 +456,16 @@ function EditStudentPageInner() {
         feeNetPayable: feeNetPayable,
         invoiceNotes: formData.invoiceNotes.trim(),
         feePlan: {
+          feeCriteria: formData.feeCriteria || 'Monthly',
           admissionFee,
           tuitionFee,
+          transportFee,
           securityDeposit,
           examFee,
           labFee,
+          totalProgramFee: parseFloat(formData.totalProgramFee) || 0,
+          totalSemesters: parseInt(formData.totalSemesters, 10) || 8,
+          semesterFee: parseFloat(formData.semesterFee) || 0,
           grossTotal: feeGross,
           concessionType: formData.concessionType,
           concessionValue: concessionVal,
@@ -1251,6 +1268,120 @@ function EditStudentPageInner() {
               </span>
             </div>
 
+            {/* Fee Criteria & Program Billing Model Selector */}
+            <div className="bg-white p-4 rounded-xl border border-zinc-200 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <h4 className="text-xs font-bold text-zinc-900 uppercase tracking-wide flex items-center gap-1.5">
+                    <GraduationCap className="h-3.5 w-3.5 text-[#084A86]" />
+                    Select Fee Criteria & Program Billing Model *
+                  </h4>
+                  <p className="text-[11px] text-zinc-500 mt-0.5">
+                    Official Pak Royal College fee models: Monthly (Intermediate), Semester-wise (BS Programs), Annual (5-Year Professional), or Diploma.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                {[
+                  {
+                    id: 'Monthly',
+                    title: 'Monthly Tuition',
+                    badge: 'Intermediate (FSc, ICS, FA)',
+                    desc: 'Admission fee + Monthly tuition fee (Rs. 8,000/mo default)',
+                    applyPreset: () => {
+                      setFormData(prev => ({
+                        ...prev,
+                        feeCriteria: 'Monthly',
+                        feeAdmission: prev.feeAdmission || 15000,
+                        feeTuition: 8000
+                      }));
+                    }
+                  },
+                  {
+                    id: 'Semester',
+                    title: 'Semester Wise',
+                    badge: 'BS Programs (4–5 Yrs)',
+                    desc: 'Total Rs. 600k / 8 Semesters (Rs. 75,000/sem or Rs. 12,500/mo installment)',
+                    applyPreset: () => {
+                      setFormData(prev => ({
+                        ...prev,
+                        feeCriteria: 'Semester',
+                        feeAdmission: prev.feeAdmission || 15000,
+                        feeTuition: 75000,
+                        totalProgramFee: 600000,
+                        totalSemesters: 8,
+                        semesterFee: 75000
+                      }));
+                    }
+                  },
+                  {
+                    id: 'Annual',
+                    title: 'Annual / Yearly',
+                    badge: '5-Year Professional (DPT)',
+                    desc: 'Total Rs. 600k / 5 Years (Rs. 120,000/yr or Rs. 10,000/mo installment)',
+                    applyPreset: () => {
+                      setFormData(prev => ({
+                        ...prev,
+                        feeCriteria: 'Annual',
+                        feeAdmission: prev.feeAdmission || 15000,
+                        feeTuition: 120000,
+                        totalProgramFee: 600000,
+                        totalSemesters: 5,
+                        semesterFee: 120000
+                      }));
+                    }
+                  },
+                  {
+                    id: 'Diploma / Custom',
+                    title: 'Diploma / Certificate',
+                    badge: 'Short Courses (3–24 Mos)',
+                    desc: 'Lump-sum or configurable custom installment schedule',
+                    applyPreset: () => {
+                      setFormData(prev => ({
+                        ...prev,
+                        feeCriteria: 'Diploma / Custom',
+                        feeAdmission: prev.feeAdmission || 5000,
+                        feeTuition: 30000
+                      }));
+                    }
+                  }
+                ].map(opt => {
+                  const isSelected = (formData.feeCriteria || 'Monthly') === opt.id;
+                  return (
+                    <div
+                      key={opt.id}
+                      onClick={() => {
+                        handleChange('feeCriteria', opt.id);
+                        opt.applyPreset();
+                      }}
+                      className={`p-3 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                        isSelected
+                          ? 'border-[#084A86] bg-blue-50/50 shadow-xs ring-1 ring-[#084A86]'
+                          : 'border-zinc-200 hover:border-zinc-300 bg-white'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-1 mb-1">
+                          <span className="text-xs font-bold text-zinc-950">{opt.title}</span>
+                          {isSelected && <CheckCircle2 className="h-4 w-4 text-[#084A86]" />}
+                        </div>
+                        <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase bg-zinc-100 text-zinc-700">
+                          {opt.badge}
+                        </span>
+                        <p className="text-[11px] text-zinc-500 mt-1.5 leading-snug">
+                          {opt.desc}
+                        </p>
+                      </div>
+                      <span className={`text-[10px] font-bold mt-2 ${isSelected ? 'text-[#084A86]' : 'text-zinc-400'}`}>
+                        {isSelected ? '✓ Active Criteria' : 'Click to apply'}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Fee Heads Breakdown */}
             <div className="bg-white p-4 rounded-xl border border-zinc-200 space-y-3">
               <h4 className="text-xs font-bold text-zinc-800 uppercase tracking-wide flex items-center gap-1.5">
@@ -1266,23 +1397,53 @@ function EditStudentPageInner() {
                     min="0"
                     value={formData.feeAdmission}
                     onChange={e => handleChange('feeAdmission', e.target.value)}
-                    placeholder="5000"
+                    placeholder="15000"
                     className="h-9 text-xs bg-white border-zinc-300"
                   />
                   <p className="text-[10px] text-zinc-400">One-time registration & admission charge</p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-zinc-700">Tuition Fee (PKR)</Label>
+                  <Label className="text-xs font-semibold text-zinc-700">
+                    {formData.feeCriteria === 'Semester'
+                      ? 'Semester Tuition Fee (PKR)'
+                      : formData.feeCriteria === 'Annual'
+                      ? 'Annual Tuition Fee (PKR)'
+                      : formData.feeCriteria === 'Diploma / Custom'
+                      ? 'Course Tuition Fee (PKR)'
+                      : 'Monthly Tuition Fee (PKR)'}
+                  </Label>
                   <Input
                     type="number"
                     min="0"
                     value={formData.feeTuition}
                     onChange={e => handleChange('feeTuition', e.target.value)}
-                    placeholder="25000"
+                    placeholder="8000"
                     className="h-9 text-xs bg-white border-zinc-300 font-bold text-zinc-900"
                   />
-                  <p className="text-[10px] text-zinc-400">Per term / semester tuition fee</p>
+                  <p className="text-[10px] text-zinc-400">
+                    {formData.feeCriteria === 'Semester'
+                      ? 'Per semester tuition fee (e.g. Rs. 75,000)'
+                      : formData.feeCriteria === 'Annual'
+                      ? 'Per academic year tuition fee (e.g. Rs. 120,000)'
+                      : 'Per month tuition fee (e.g. Rs. 8,000)'}
+                  </p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-zinc-700 flex items-center gap-1">
+                    <Truck className="h-3 w-3 text-[#084A86]" />
+                    Transport Fee (PKR)
+                  </Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.feeTransport}
+                    onChange={e => handleChange('feeTransport', e.target.value)}
+                    placeholder="0"
+                    className="h-9 text-xs bg-white border-zinc-300 font-semibold"
+                  />
+                  <p className="text-[10px] text-zinc-400">Monthly or term campus bus / van service charge</p>
                 </div>
 
                 <div className="space-y-1.5">
@@ -1305,7 +1466,7 @@ function EditStudentPageInner() {
                     min="0"
                     value={formData.feeExam}
                     onChange={e => handleChange('feeExam', e.target.value)}
-                    placeholder="2000"
+                    placeholder="0"
                     className="h-9 text-xs bg-white border-zinc-300"
                   />
                   <p className="text-[10px] text-zinc-400">Internal & board examination charge</p>
@@ -1318,7 +1479,7 @@ function EditStudentPageInner() {
                     min="0"
                     value={formData.feeOther}
                     onChange={e => handleChange('feeOther', e.target.value)}
-                    placeholder="1000"
+                    placeholder="0"
                     className="h-9 text-xs bg-white border-zinc-300"
                   />
                   <p className="text-[10px] text-zinc-400">Practical labs, facilities & sports</p>
