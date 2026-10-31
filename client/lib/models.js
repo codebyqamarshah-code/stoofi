@@ -249,6 +249,13 @@ studentSchema.pre('save', function(next) {
   if (typeof next === 'function') next();
 });
 
+// Indexes for high-performance student searches and pagination
+studentSchema.index({ status: 1, className: 1, section: 1 });
+studentSchema.index({ academicYear: 1 });
+studentSchema.index({ cnic: 1 });
+studentSchema.index({ phone: 1 });
+studentSchema.index({ createdAt: -1 });
+
 export const Student = mongoose.models.Student || mongoose.model('Student', studentSchema);
 
 // Staff Schema (Handles Super Admin, Admin, Staff, Accountant, Librarian)
@@ -302,6 +309,12 @@ const staffSchema = new mongoose.Schema({
   instagram: { type: String, default: '' },
   status: { type: String, default: 'Active' }
 }, { timestamps: true, strict: false });
+
+// Indexes for staff lookups and filtering
+staffSchema.index({ staffNo: 1 });
+staffSchema.index({ email: 1 });
+staffSchema.index({ role: 1, status: 1 });
+staffSchema.index({ department: 1 });
 
 export const Staff = mongoose.models.Staff || mongoose.model('Staff', staffSchema);
 
@@ -457,6 +470,10 @@ const attendanceSchema = new mongoose.Schema({
   name: { type: String },
   status: { type: String, enum: ['Present', 'Absent', 'Late', 'Half Day'], default: 'Present' }
 }, { timestamps: true });
+
+// Indexes for attendance queries
+attendanceSchema.index({ date: 1, userType: 1 });
+attendanceSchema.index({ recordId: 1, date: 1 });
 
 export const Attendance = mongoose.models.Attendance || mongoose.model('Attendance', attendanceSchema);
 
@@ -1055,6 +1072,15 @@ const feesInvoiceSchema = new mongoose.Schema({
   status: { type: String, enum: ['Paid', 'Partial', 'Unpaid', 'PAID', 'PARTIAL', 'UNPAID'], default: 'Unpaid' }, 
   date: { type: mongoose.Schema.Types.Mixed, default: Date.now } 
 }, { timestamps: true });
+
+// Indexes for fast invoice lookups, status filtering, and fee sync
+feesInvoiceSchema.index({ studentId: 1, status: 1 });
+feesInvoiceSchema.index({ admissionNo: 1, billingMonth: 1 });
+feesInvoiceSchema.index({ status: 1, dueDate: 1 });
+feesInvoiceSchema.index({ invoiceNo: 1 });
+feesInvoiceSchema.index({ challanNo: 1 });
+feesInvoiceSchema.index({ className: 1, section: 1 });
+feesInvoiceSchema.index({ createdAt: -1 });
 
 export const FeesInvoice = mongoose.models.FeesInvoice || mongoose.model('FeesInvoice', feesInvoiceSchema);
 
@@ -1675,6 +1701,11 @@ const homeworkSchema = new mongoose.Schema({
     evaluatedAt: { type: Date, default: Date.now }
   }]
 }, { timestamps: true, strict: false });
+
+// Indexes for homework queries by class and schedule
+homeworkSchema.index({ className: 1, section: 1, homeworkDate: -1 });
+homeworkSchema.index({ submissionDate: 1 });
+
 export const Homework = mongoose.models.Homework || mongoose.model('Homework', homeworkSchema);
 
 // --- BEHAVIOUR ---

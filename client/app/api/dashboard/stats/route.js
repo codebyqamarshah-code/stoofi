@@ -6,39 +6,59 @@ export async function GET(req) {
   try {
     await connectDB();
 
-    const totalStudents = await Student.countDocuments();
-    const maleStudents = await Student.countDocuments({ gender: 'Male' });
-    const femaleStudents = await Student.countDocuments({ gender: 'Female' });
+    // Date Range for today's attendance
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
 
-    const totalTeachers = await Teacher.countDocuments();
-    const totalStaffs = await Staff.countDocuments();
-    
+    // High-performance parallelized database execution
+    const [
+      totalStudents,
+      maleStudents,
+      femaleStudents,
+      totalTeachers,
+      totalStaffs,
+      parentDocs,
+      todayStudentsPresent,
+      todayStaffPresent,
+      feePayments,
+      allExpenses,
+      noticesList,
+      todos
+    ] = await Promise.all([
+      Student.countDocuments(),
+      Student.countDocuments({ gender: 'Male' }),
+      Student.countDocuments({ gender: 'Female' }),
+      Teacher.countDocuments(),
+      Staff.countDocuments(),
+      Student.find({}, { fatherCnic: 1, fatherPhone: 1, fatherName: 1, guardianPhone: 1, guardianName: 1 }).lean(),
+      Attendance.countDocuments({
+        userType: 'Student',
+        date: { $gte: startOfDay, $lte: endOfDay },
+        status: 'Present'
+      }),
+      Attendance.countDocuments({
+        userType: { $in: ['Staff', 'Teacher'] },
+        date: { $gte: startOfDay, $lte: endOfDay },
+        status: 'Present'
+      }),
+      FeePayment.find().lean(),
+      Expense.find().lean(),
+      Notice.find({ published: true }).sort({ createdAt: -1 }).limit(10).lean(),
+      Todo.find().sort({ createdAt: -1 }).lean()
+    ]);
+
+    let studentsPresent = todayStudentsPresent;
+    let staffPresent = todayStaffPresent;
+
     // Live distinct parents count based on real enrolled students
-    const parentDocs = await Student.find({}, { fatherCnic: 1, fatherPhone: 1, fatherName: 1, guardianPhone: 1, guardianName: 1 }).lean();
     const distinctParentKeys = new Set();
     parentDocs.forEach(s => {
       const key = (s.fatherCnic || s.fatherPhone || s.fatherName || s.guardianPhone || s.guardianName || '').trim().toLowerCase();
       if (key) distinctParentKeys.add(key);
     });
     const totalParents = distinctParentKeys.size > 0 ? distinctParentKeys.size : (totalStudents > 0 ? Math.ceil(totalStudents * 0.7) : 0);
-
-    // Today's Date Range
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
-
-    // Attendance query
-    let studentsPresent = await Attendance.countDocuments({
-      userType: 'Student',
-      date: { $gte: startOfDay, $lte: endOfDay },
-      status: 'Present'
-    });
-    let staffPresent = await Attendance.countDocuments({
-      userType: { $in: ['Staff', 'Teacher'] },
-      date: { $gte: startOfDay, $lte: endOfDay },
-      status: 'Present'
-    });
 
     // If today's attendance has not been recorded yet, check recent records
     if (studentsPresent === 0) {
@@ -51,25 +71,19 @@ export async function GET(req) {
     const studentAttPercent = totalStudents > 0 ? Math.round((studentsPresent / totalStudents) * 100) : 0;
     const staffAttPercent = (totalStaffs + totalTeachers) > 0 ? Math.round((staffPresent / (totalStaffs + totalTeachers)) * 100) : 0;
 
-    // Fees & Expenses
-    const feePayments = await FeePayment.find().lean();
-    const totalCollectedFees = feePayments.reduce((sum, item) => sum + (item.netAmount || item.amount || 0), 0);
+    // Fees & Expenses (Calculated from parallel fetch)
+    const totalCollectedFees = (feePayments || []).reduce((sum, item) => sum + (item.netAmount || item.amount || 0), 0);
     
     const estimatedTotalFees = totalStudents > 0 ? totalStudents * 1200 : (totalCollectedFees > 0 ? totalCollectedFees : 0);
     const feeCollectionPercent = estimatedTotalFees > 0 
       ? Math.min(100, Math.round((totalCollectedFees / estimatedTotalFees) * 100)) 
       : (totalCollectedFees > 0 ? 100 : 0);
 
-    const allExpenses = await Expense.find().lean();
-    const totalExpenses = allExpenses.reduce((sum, item) => sum + (item.amount || 0), 0);
+    const totalExpenses = (allExpenses || []).reduce((sum, item) => sum + (item.amount || 0), 0);
     const totalProfit = totalCollectedFees - totalExpenses;
 
     // Notices
-    let notices = await Notice.find({ published: true })
-      .sort({ createdAt: -1 })
-      .limit(10)
-      .lean();
-
+    let notices = noticesList;
     if (!notices || notices.length === 0) {
       notices = [
         {
@@ -91,8 +105,7 @@ export async function GET(req) {
       ];
     }
 
-    // Todos
-    const todos = await Todo.find().sort({ createdAt: -1 }).lean();
+    // Todos already fetched concurrently in Promise.all above
 
     // Monthly breakdown data (Days 01, 05, 10, 15, 20, 25, 30)
     const now = new Date();

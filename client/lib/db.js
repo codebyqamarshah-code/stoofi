@@ -1,6 +1,13 @@
 import mongoose from 'mongoose';
 import dns from 'dns';
 
+// Optimize DNS lookup order for high-throughput cloud environments
+try {
+  if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+  }
+} catch (_) {}
+
 // Ensure DNS SRV lookups for MongoDB Atlas resolve reliably across all networks
 try {
   dns.setServers(['8.8.8.8', '1.1.1.1']);
@@ -32,11 +39,14 @@ export async function connectDB() {
   }
 
   if (!cached.promise) {
+    // Optimized for MongoDB Atlas Shared/Dedicated Tiers + Vercel Serverless Concurrency
     const opts = {
-      serverSelectionTimeoutMS: 8000,
-      socketTimeoutMS: 45000,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 30000,
       connectTimeoutMS: 10000,
-      maxPoolSize: 10,
+      maxPoolSize: 5,
+      minPoolSize: 0,
+      maxIdleTimeMS: 30000,
       bufferCommands: false,
     };
 
