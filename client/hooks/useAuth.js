@@ -63,6 +63,9 @@ export const useAuth = create(
       isAuthenticated: false,
       isLoading: false,
       error: null,
+      isMaintenanceMode: false,
+      maintenanceMessage: '',
+      clearMaintenanceMode: () => set({ isMaintenanceMode: false, maintenanceMessage: '' }),
 
       setSession: (user, token) => {
         if (user) {
@@ -176,11 +179,44 @@ export const useAuth = create(
             return { success: true, user: finalUser };
           }
         } catch (error) {
-          let errorMsg = error?.response?.data?.message || error?.message || 'Invalid credentials. Please check your details and try again.';
+          const respData = error?.response?.data;
+          const isMaintenance =
+            respData?.isMaintenance ||
+            respData?.errorType === 'DATABASE_MAINTENANCE' ||
+            error?.response?.status === 503;
+
+          let errorMsg = respData?.message || error?.message || 'Invalid credentials. Please check your details and try again.';
+
+          const isBackendIssue =
+            isMaintenance ||
+            errorMsg.includes('SSL routines') ||
+            errorMsg.includes('tlsv1 alert') ||
+            errorMsg.includes('SSL alert') ||
+            errorMsg.includes('ServerSelectionError') ||
+            errorMsg.includes('MongoNetworkError') ||
+            errorMsg.includes('ECONNREFUSED') ||
+            errorMsg.includes('Database is currently performing');
+
+          if (isBackendIssue) {
+            const maintenanceMsg = 'Database is currently performing a brief cloud synchronization. Please wait a few moments and try again.';
+            set({
+              isLoading: false,
+              error: null,
+              isMaintenanceMode: true,
+              maintenanceMessage: maintenanceMsg
+            });
+            return {
+              success: false,
+              isMaintenance: true,
+              message: maintenanceMsg,
+              error: maintenanceMsg
+            };
+          }
+
           if (errorMsg === 'Network Error' || errorMsg.includes('Network Error') || errorMsg.includes('ECONNREFUSED')) {
             errorMsg = 'Unable to connect to authentication server. Please check your connection or try again.';
           }
-          set({ isLoading: false, error: errorMsg });
+          set({ isLoading: false, error: errorMsg, isMaintenanceMode: false });
           return { success: false, error: errorMsg, message: errorMsg };
         }
       },

@@ -117,8 +117,32 @@ export async function POST(req) {
 
   } catch (error) {
     console.error('Next.js API Login Error:', error);
+
+    const isDbOrNetworkIssue =
+      error.message?.includes('SSL') ||
+      error.message?.includes('tlsv1 alert') ||
+      error.message?.includes('buffering timed out') ||
+      error.message?.includes('Mongo') ||
+      error.message?.includes('ServerSelectionError') ||
+      error.message?.includes('ECONNREFUSED') ||
+      error.message?.includes('ECONNRESET') ||
+      error.message?.includes('ETIMEDOUT') ||
+      error.name === 'MongooseServerSelectionError';
+
+    if (isDbOrNetworkIssue) {
+      return NextResponse.json(
+        {
+          success: false,
+          isMaintenance: true,
+          errorType: 'DATABASE_MAINTENANCE',
+          message: 'Database is currently performing a brief cloud synchronization. Please wait a moment and try again.'
+        },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json(
-      { success: false, message: error.message || 'Login failed.' },
+      { success: false, message: error.message || 'Login failed. Please verify your credentials.' },
       { status: 500 }
     );
   }

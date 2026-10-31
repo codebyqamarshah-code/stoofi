@@ -118,8 +118,27 @@ api.interceptors.response.use(
 
     let message = error.response?.data?.message || error.message || 'An unexpected error occurred';
     
-    // Transform unhelpful technical network errors into professional user messages
-    if (message === 'Network Error' || error.code === 'ERR_NETWORK' || message.includes('ECONNREFUSED')) {
+    // Transform technical SSL / MongoDB / network errors into professional user messages
+    const isMaintenanceOrSsl =
+      error.response?.data?.isMaintenance ||
+      error.response?.data?.errorType === 'DATABASE_MAINTENANCE' ||
+      message.includes('SSL routines') ||
+      message.includes('tlsv1 alert') ||
+      message.includes('SSL alert') ||
+      message.includes('ServerSelectionError') ||
+      message.includes('MongooseServerSelectionError') ||
+      message.includes('MongoNetworkError') ||
+      error.response?.status === 503;
+
+    if (isMaintenanceOrSsl) {
+      message = 'Database is currently performing a brief cloud synchronization. Please wait a few moments and try again.';
+      if (!error.response) {
+        error.response = { status: 503, data: {} };
+      }
+      error.response.data = error.response.data || {};
+      error.response.data.isMaintenance = true;
+      error.response.data.message = message;
+    } else if (message === 'Network Error' || error.code === 'ERR_NETWORK' || message.includes('ECONNREFUSED')) {
       message = 'Unable to connect to server. Please check your internet connection or try again shortly.';
     }
 

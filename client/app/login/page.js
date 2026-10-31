@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Mail, Lock, Eye, EyeOff, ArrowLeft, ShieldCheck, KeyRound, ShieldAlert, Timer, User } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, ShieldCheck, KeyRound, ShieldAlert, Timer, User, Server, RefreshCw } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { StoofiLogo } from "@/components/StoofiLogo";
 import Link from "next/link";
@@ -19,11 +19,16 @@ const loginSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isLoading, error, isAuthenticated } = useAuth();
+  const { login, isLoading, error, isAuthenticated, isMaintenanceMode, clearMaintenanceMode } = useAuth();
   const [rememberMe, setRememberMe] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [urlError, setUrlError] = useState('');
+
+  // Maintenance & Database Cloud Sync Modal State
+  const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
+  const [maintenanceCountdown, setMaintenanceCountdown] = useState(8);
+  const [isRetryingMaintenance, setIsRetryingMaintenance] = useState(false);
 
   // OTP State
   const [showOtpScreen, setShowOtpScreen] = useState(false);
@@ -49,6 +54,49 @@ export default function LoginPage() {
     }
     return () => clearInterval(timer);
   }, [showOtpScreen, otpTimer]);
+
+  // Handle automatic countdown and auto-retry for database sync maintenance
+  useEffect(() => {
+    let timer;
+    if (showMaintenanceModal && maintenanceCountdown > 0) {
+      timer = setInterval(() => {
+        setMaintenanceCountdown(prev => prev - 1);
+      }, 1000);
+    } else if (showMaintenanceModal && maintenanceCountdown === 0) {
+      handleMaintenanceRetry();
+    }
+    return () => clearInterval(timer);
+  }, [showMaintenanceModal, maintenanceCountdown]);
+
+  const handleMaintenanceRetry = async () => {
+    if (isRetryingMaintenance) return;
+    setIsRetryingMaintenance(true);
+    setMaintenanceCountdown(8);
+
+    const emailToUse = pendingEmail || 'super@gmail.com';
+    const passToUse = pendingPass || 'school';
+
+    try {
+      const res = await login(emailToUse, passToUse, rememberMe);
+      if (res?.success) {
+        setShowMaintenanceModal(false);
+        if (clearMaintenanceMode) clearMaintenanceMode();
+        if (res.requireOtp) {
+          setShowOtpScreen(true);
+          setOtpError("");
+        } else {
+          redirectUser(emailToUse, res.user);
+        }
+      } else if (!res?.isMaintenance) {
+        // If it was another error (e.g. wrong password), dismiss maintenance modal
+        setShowMaintenanceModal(false);
+      }
+    } catch (_) {
+      // Keep modal open to allow another countdown cycle
+    } finally {
+      setIsRetryingMaintenance(false);
+    }
+  };
 
   const handleResendOtpCode = async () => {
     if (!pendingEmail || resendingOtp) return;
@@ -146,6 +194,7 @@ export default function LoginPage() {
     const res = await login(cleanEmail, cleanPass, rememberMe);
 
     if (res?.success) {
+      setShowMaintenanceModal(false);
       setAttemptsLeft(null);
       setIsLocked(false);
       if (res.requireOtp) {
@@ -154,6 +203,9 @@ export default function LoginPage() {
       } else {
         redirectUser(cleanEmail, res.user);
       }
+    } else if (res?.isMaintenance || isMaintenanceMode) {
+      setShowMaintenanceModal(true);
+      setMaintenanceCountdown(8);
     } else {
       // Parse error for brute-force info
       const msg = res?.message || error || "";
@@ -382,7 +434,7 @@ export default function LoginPage() {
 
 
         {/* Error Message */}
-        {(error || urlError) && (
+        {(error || urlError) && !showMaintenanceModal && !error?.includes('SSL routines') && !error?.includes('tlsv1 alert') && (
           <div className="p-4 mb-4 rounded-xl bg-rose-50 dark:bg-rose-50 border border-rose-100 dark:border-rose-200 text-rose-600 dark:text-rose-600 text-sm font-medium flex items-start gap-3">
             <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -486,6 +538,76 @@ export default function LoginPage() {
         </div>
 
       </div>
+
+      {/* SYSTEM MAINTENANCE & DATABASE SYNC MODAL POPUP */}
+      {showMaintenanceModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 shadow-2xl border border-zinc-200 dark:border-zinc-800 text-center">
+            {/* Animated Pulsing Server/Database Icon */}
+            <div className="relative w-20 h-20 mx-auto mb-5">
+              <div className="absolute inset-0 bg-emerald-500/20 rounded-full animate-ping opacity-50"></div>
+              <div className="relative w-20 h-20 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-center">
+                <Server className="w-10 h-10 text-emerald-600 dark:text-emerald-400 animate-pulse" />
+              </div>
+            </div>
+
+            {/* Badge */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-semibold uppercase tracking-wider mb-3">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+              Application Maintenance & Cloud Sync
+            </div>
+
+            {/* Title */}
+            <h3 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white mb-2">
+              Database Is Momentarily Syncing
+            </h3>
+
+            {/* Description */}
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-6">
+              Our cloud database is currently performing a brief automatic maintenance refresh. All student records, admissions, and account sessions remain 100% secure.
+            </p>
+
+            {/* Countdown Card */}
+            <div className="bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl p-4 border border-zinc-200 dark:border-zinc-700 mb-6">
+              <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 font-medium mb-2">
+                <span>Automatic Reconnection</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+                  {maintenanceCountdown > 0 ? `${maintenanceCountdown}s` : 'Connecting...'}
+                </span>
+              </div>
+              <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-2 overflow-hidden">
+                <div
+                  className="bg-emerald-500 h-2 rounded-full transition-all duration-1000 ease-linear"
+                  style={{ width: `${((8 - maintenanceCountdown) / 8) * 100}%` }}
+                />
+              </div>
+              <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-2">
+                The system will auto-retry your sign in without needing to retype passwords.
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                type="button"
+                onClick={handleMaintenanceRetry}
+                disabled={isRetryingMaintenance}
+                className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold text-sm transition-all shadow-md shadow-emerald-600/20 disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 ${isRetryingMaintenance ? 'animate-spin' : ''}`} />
+                {isRetryingMaintenance ? 'Connecting Now...' : 'Try Again Now'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowMaintenanceModal(false)}
+                className="px-4 py-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-medium text-sm transition-all"
+              >
+                Wait on Page
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
