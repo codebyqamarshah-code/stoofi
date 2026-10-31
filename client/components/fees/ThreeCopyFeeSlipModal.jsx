@@ -156,19 +156,37 @@ export default function ThreeCopyFeeSlipModal({
   const regRollDisplay = rollNo && rollNo !== '—' ? `${admissionNo} / ${rollNo}` : admissionNo;
   const classDisplay = slipData.className || '—';
 
-  const feeItems =
-    Array.isArray(slipData.feeItems) && slipData.feeItems.length > 0
-      ? slipData.feeItems.filter((it) => it && (it.head || Number(it.amount) > 0))
-      : [
-          {
-            head: slipData.feeType || 'Monthly Tuition Fee',
-            amount: Number(slipData.amount) || 0
-          }
-        ];
+  let feeItems = [];
+  if (Array.isArray(slipData.feeItems) && slipData.feeItems.length > 0) {
+    feeItems = slipData.feeItems.filter((it) => it && (it.head || Number(it.amount) > 0));
+  } else {
+    // Synthesize structured fee heads from slipData / student fields if present
+    const adm = Number(slipData.feeAdmission ?? slipData.admissionFee ?? 0);
+    const tui = Number(slipData.feeTuition ?? slipData.tuitionFee ?? 0);
+    const tra = Number(slipData.feeTransport ?? slipData.transportFee ?? 0);
+    const sec = Number(slipData.feeSecurity ?? slipData.securityDeposit ?? 0);
+    const exm = Number(slipData.feeExam ?? slipData.examFee ?? 0);
+    const oth = Number(slipData.feeOther ?? slipData.labFee ?? 0);
+
+    if (adm > 0) feeItems.push({ head: 'Admission Fee', amount: adm });
+    if (tui > 0) feeItems.push({ head: slipData.feeCriteria === 'Semester' ? 'Semester Tuition Fee' : (slipData.feeCriteria === 'Annual' ? 'Annual Tuition Fee' : 'Monthly Tuition Fee'), amount: tui });
+    if (tra > 0) feeItems.push({ head: 'Transport Fee', amount: tra });
+    if (sec > 0) feeItems.push({ head: 'Security Deposit (Refundable)', amount: sec });
+    if (exm > 0) feeItems.push({ head: 'Examination Fee', amount: exm });
+    if (oth > 0) feeItems.push({ head: 'Lab / Library Fee', amount: oth });
+
+    if (feeItems.length === 0) {
+      feeItems.push({
+        head: slipData.feeType || 'Monthly Tuition Fee',
+        amount: Number(slipData.amount) || 0
+      });
+    }
+  }
 
   const grossAmount = feeItems.reduce((sum, item) => sum + (Number(item.amount) || 0), 0) || Number(slipData.amount) || 0;
+  const waiver = Number(slipData.waiver || slipData.concessionDiscount || 0);
   const fine = Number(slipData.fine) || 0;
-  const netReceivable = Math.max(0, grossAmount + fine);
+  const netReceivable = Math.max(0, grossAmount - waiver + fine);
   const paidAmount = Number(slipData.paid) || 0;
   const balanceAmount =
     slipData.balance !== undefined
@@ -407,8 +425,9 @@ export default function ThreeCopyFeeSlipModal({
         doc.setDrawColor(20, 20, 20);
         y += itemsAreaH;
 
-        // Summary Rows: Fine, Paid, Balance
+        // Summary Rows: Waiver, Fine, Paid, Balance
         const summaryRows = [
+          ...(waiver > 0 ? [{ label: 'Scholarship / Discount', val: `-${waiver.toLocaleString()}` }] : []),
           { label: 'Late Fee / Fine', val: fine > 0 ? `+${fine.toLocaleString()}` : '0' },
           { label: 'Amount Paid', val: paidAmount.toLocaleString() },
           { label: 'Balance Due', val: balanceAmount.toLocaleString() }
@@ -708,7 +727,17 @@ export default function ThreeCopyFeeSlipModal({
                           ))}
 
                           {/* Summary Rows */}
-                          <tr className="border-t border-zinc-900 border-b border-zinc-300">
+                          {waiver > 0 && (
+                            <tr className="border-t border-zinc-900 border-b border-zinc-300 bg-amber-50/50">
+                              <td className="px-2 py-0.5 border-r border-zinc-900 font-semibold text-amber-900">
+                                Scholarship / Discount
+                              </td>
+                              <td className="px-2 py-0.5 text-right font-mono font-bold text-amber-900">
+                                -Rs. {waiver.toLocaleString()}
+                              </td>
+                            </tr>
+                          )}
+                          <tr className={`${waiver > 0 ? '' : 'border-t border-zinc-900'} border-b border-zinc-300`}>
                             <td className="px-2 py-0.5 border-r border-zinc-900 font-semibold">
                               Late Fee / Fine
                             </td>

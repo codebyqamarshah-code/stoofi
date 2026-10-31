@@ -12,10 +12,15 @@ export async function GET(req) {
     const subject = searchParams.get('subject');
 
     const filter = {};
-    if (className) filter.class = { $regex: className.trim(), $options: 'i' };
-    if (subject) filter.subject = { $regex: subject.trim(), $options: 'i' };
+    if (className && className !== 'All Classes' && className !== 'All') {
+      const cleanClass = className.replace(/^Class\s*/i, '').trim();
+      filter.class = { $regex: cleanClass, $options: 'i' };
+    }
+    if (subject && subject !== 'All Subjects' && subject !== 'All') {
+      filter.subject = { $regex: subject.trim(), $options: 'i' };
+    }
 
-    const lessons = await Lesson.find(filter).sort({ createdAt: -1 }).lean();
+    const lessons = await Lesson.find(filter).sort({ createdAt: 1 }).lean();
     return NextResponse.json({ success: true, data: lessons || [] });
   } catch (err) {
     return NextResponse.json({ success: false, message: err.message }, { status: 500 });

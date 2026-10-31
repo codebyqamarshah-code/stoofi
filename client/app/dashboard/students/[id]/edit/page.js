@@ -1561,9 +1561,9 @@ function EditStudentPageInner() {
                   </span>
                 </div>
 
-                <div className="p-3 bg-emerald-600 rounded-lg text-white shadow-xs">
-                  <span className="text-[11px] font-semibold text-emerald-100 block uppercase">Net Payable Fee</span>
-                  <span className="text-xl font-extrabold font-mono">
+                <div className="p-3.5 bg-slate-900 rounded-xl text-white shadow-md border border-slate-800">
+                  <span className="text-[11px] font-bold text-slate-200 block uppercase tracking-wider">Net Payable Fee</span>
+                  <span className="text-2xl font-black font-mono text-white !text-white block mt-0.5">
                     PKR {feeNetPayable.toLocaleString()}
                   </span>
                 </div>

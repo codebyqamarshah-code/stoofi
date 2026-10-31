@@ -26,8 +26,54 @@ export default function TopicOverviewPage() {
 
   const [allTopics, setAllTopics] = useState([]);
   const [filteredResults, setFilteredResults] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // Load Dropdown Lookups
+  const fetchTopics = async (cls = '', sec = '', sub = '') => {
+    setLoading(true);
+    try {
+      const params = {};
+      if (cls && cls !== 'All Classes' && cls !== 'All') {
+        params.class = cls.replace(/^Class\s*/i, '').trim();
+      }
+      if (sec && sec !== 'All Sections' && sec !== 'All') {
+        params.section = sec.replace(/^Section\s*/i, '').trim();
+      }
+      if (sub && sub !== 'All Subjects' && sub !== 'All') {
+        params.subject = sub.trim();
+      }
+
+      const r = await api.get('/topic', { params });
+      if (r && r.success && Array.isArray(r.data)) {
+        setFilteredResults(r.data);
+        if (!cls && !sec && !sub) {
+          setAllTopics(r.data);
+        }
+        return;
+      }
+    } catch (err) {
+      console.warn('API /topic fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
+
+    // Robust Fallback: in-memory filter
+    let list = allTopics;
+    if (cls && cls !== 'All Classes' && cls !== 'All') {
+      const c = cls.replace(/^Class\s*/i, '').toLowerCase().trim();
+      list = list.filter(t => (t.class || '').toLowerCase().includes(c));
+    }
+    if (sec && sec !== 'All Sections' && sec !== 'All') {
+      const s = sec.replace(/^Section\s*/i, '').toLowerCase().trim();
+      list = list.filter(t => (t.section || '').toLowerCase() === s);
+    }
+    if (sub && sub !== 'All Subjects' && sub !== 'All') {
+      const sb = sub.toLowerCase().trim();
+      list = list.filter(t => (t.subject || '').toLowerCase().includes(sb));
+    }
+    setFilteredResults(list);
+  };
+
+  // Load Dropdown Lookups & Initial Topics
   useEffect(() => {
     api.get('/class').then(r => {
       if (r && r.success && Array.isArray(r.data) && r.data.length > 0) {
@@ -64,36 +110,12 @@ export default function TopicOverviewPage() {
       setSubjectsList(STANDARD_SUBJECTS_LIST.map(s => ({ label: s, value: s })));
     });
 
-    // Fetch initial topics
-    api.get('/topic').then(r => {
-      if (r && r.success && Array.isArray(r.data)) {
-        setAllTopics(r.data);
-        setFilteredResults(r.data);
-      }
-    }).catch(() => {
-      try {
-        const cached = localStorage.getItem(LOCAL_STORAGE_TOPICS_KEY);
-        if (cached) {
-          const parsed = JSON.parse(cached);
-          setAllTopics(parsed);
-          setFilteredResults(parsed);
-        }
-      } catch (_) {}
-    });
+    // Fetch initial topics from live Atlas
+    fetchTopics('', '', '');
   }, []);
 
   const handleSearch = () => {
-    let list = allTopics;
-    if (selectedClass) {
-      list = list.filter(t => t.class === selectedClass);
-    }
-    if (selectedSection) {
-      list = list.filter(t => t.section === selectedSection);
-    }
-    if (selectedSubject) {
-      list = list.filter(t => t.subject === selectedSubject);
-    }
-    setFilteredResults(list);
+    fetchTopics(selectedClass, selectedSection, selectedSubject);
   };
 
   const displayedList = useMemo(() => {
@@ -169,8 +191,13 @@ export default function TopicOverviewPage() {
           </div>
         </div>
         <div className="flex justify-end mt-6">
-          <Button onClick={handleSearch} className="bg-zinc-950 hover:bg-zinc-800 text-white font-bold px-6">
-            <Search className="h-4 w-4 mr-2" /> SEARCH
+          <Button 
+            onClick={handleSearch} 
+            disabled={loading}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-7 h-10 shadow-sm flex items-center gap-2 cursor-pointer transition-all active:scale-95"
+          >
+            <Search className="h-4 w-4" /> 
+            {loading ? 'SEARCHING...' : 'SEARCH'}
           </Button>
         </div>
       </div>
@@ -181,10 +208,10 @@ export default function TopicOverviewPage() {
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
             <Input 
-              placeholder="SEARCH" 
+              placeholder="SEARCH TABLE" 
               value={tableSearch}
               onChange={(e) => setTableSearch(e.target.value)}
-              className="pl-9 w-[200px] bg-white border-zinc-300 text-zinc-950 focus-visible:ring-zinc-400 text-xs font-semibold uppercase" 
+              className="pl-9 w-[220px] bg-white border-zinc-300 text-zinc-950 focus-visible:ring-zinc-400 text-xs font-semibold uppercase" 
             />
           </div>
           <TableExportToolbar />
@@ -206,13 +233,17 @@ export default function TopicOverviewPage() {
                 displayedList.map((r, i) => (
                   <tr key={r.id || r._id || i} className="border-b border-zinc-100 hover:bg-zinc-50/80 transition-colors">
                     <td className="px-4 py-4 text-zinc-950 font-semibold">{r.class}</td>
-                    <td className="px-4 py-4 text-zinc-800">{r.section}</td>
-                    <td className="px-4 py-4 text-zinc-800">{r.subject}</td>
-                    <td className="px-4 py-4 text-zinc-950 font-medium">{r.lesson}</td>
-                    <td className="px-4 py-4 text-zinc-950">{r.topic}</td>
+                    <td className="px-4 py-4 text-zinc-800 font-medium">{r.section}</td>
+                    <td className="px-4 py-4 text-zinc-800 font-medium">{r.subject}</td>
+                    <td className="px-4 py-4 text-zinc-950 font-semibold">{r.lesson}</td>
+                    <td className="px-4 py-4 text-zinc-950 font-medium">{r.topic}</td>
                     <td className="px-4 py-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        Completed
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+                        r.status === 'In Progress'
+                          ? 'bg-amber-50 text-amber-700 border-amber-200'
+                          : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      }`}>
+                        {r.status || 'Completed'}
                       </span>
                     </td>
                   </tr>

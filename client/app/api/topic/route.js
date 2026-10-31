@@ -9,15 +9,27 @@ export async function GET(req) {
     await connectDB();
     const { searchParams } = new URL(req.url);
     const className = searchParams.get('class');
+    const section = searchParams.get('section');
     const subject = searchParams.get('subject');
     const lesson = searchParams.get('lesson');
 
     const filter = {};
-    if (className) filter.class = { $regex: className.trim(), $options: 'i' };
-    if (subject) filter.subject = { $regex: subject.trim(), $options: 'i' };
-    if (lesson) filter.lesson = { $regex: lesson.trim(), $options: 'i' };
+    if (className && className !== 'All Classes' && className !== 'All') {
+      const cleanClass = className.replace(/^Class\s*/i, '').trim();
+      filter.class = { $regex: cleanClass, $options: 'i' };
+    }
+    if (section && section !== 'All Sections' && section !== 'All') {
+      const cleanSec = section.replace(/^Section\s*/i, '').trim();
+      filter.section = { $regex: `^${cleanSec}$`, $options: 'i' };
+    }
+    if (subject && subject !== 'All Subjects' && subject !== 'All') {
+      filter.subject = { $regex: subject.trim(), $options: 'i' };
+    }
+    if (lesson) {
+      filter.lesson = { $regex: lesson.trim(), $options: 'i' };
+    }
 
-    const topics = await Topic.find(filter).sort({ createdAt: -1 }).lean();
+    const topics = await Topic.find(filter).sort({ createdAt: 1 }).lean();
     return NextResponse.json({ success: true, data: topics || [] });
   } catch (err) {
     return NextResponse.json({ success: false, message: err.message }, { status: 500 });
