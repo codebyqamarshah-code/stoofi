@@ -177,9 +177,12 @@ export async function POST(req) {
       body.staffNo = `PRCS${String(maxNum + 1).padStart(4, '0')}`;
     }
 
-    // Keep photo and staffPhoto in sync
-    if (body.photo && !body.staffPhoto) body.staffPhoto = body.photo;
-    if (body.staffPhoto && !body.photo) body.photo = body.staffPhoto;
+    // Canonical photo handling: store ONLY in photo field to prevent database bloat
+    const photoData = body.photo || body.staffPhoto || '';
+    if (photoData) {
+      body.photo = photoData;
+      delete body.staffPhoto;
+    }
 
     // Resolve department name if only departmentId was sent
     if (body.departmentId && (!body.department || !String(body.department).trim())) {

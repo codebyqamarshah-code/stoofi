@@ -30,6 +30,32 @@ export default function LoginPage() {
   const [maintenanceCountdown, setMaintenanceCountdown] = useState(8);
   const [isRetryingMaintenance, setIsRetryingMaintenance] = useState(false);
 
+  const isBackendIssueString = (str) => {
+    if (!str || typeof str !== 'string') return false;
+    const s = str.toLowerCase();
+    return (
+      s.includes('ssl') ||
+      s.includes('tlsv1') ||
+      s.includes('alert number') ||
+      s.includes('rec_layer') ||
+      s.includes('mongo') ||
+      s.includes('serverselection') ||
+      s.includes('buffering timed out') ||
+      s.includes('econnrefused') ||
+      s.includes('econnreset') ||
+      s.includes('etimedout') ||
+      s.includes('cloud synchronization')
+    );
+  };
+
+  // Automatically trigger maintenance modal and suppress technical error if backend issue occurs
+  useEffect(() => {
+    if (isMaintenanceMode || isBackendIssueString(error) || isBackendIssueString(urlError)) {
+      setShowMaintenanceModal(true);
+      setMaintenanceCountdown(8);
+    }
+  }, [isMaintenanceMode, error, urlError]);
+
   // OTP State
   const [showOtpScreen, setShowOtpScreen] = useState(false);
   const [otpCode, setOtpCode] = useState("");
@@ -434,7 +460,7 @@ export default function LoginPage() {
 
 
         {/* Error Message */}
-        {(error || urlError) && !showMaintenanceModal && !error?.includes('SSL routines') && !error?.includes('tlsv1 alert') && (
+        {(error || urlError) && !showMaintenanceModal && !isBackendIssueString(error) && !isBackendIssueString(urlError) && (
           <div className="p-4 mb-4 rounded-xl bg-rose-50 dark:bg-rose-50 border border-rose-100 dark:border-rose-200 text-rose-600 dark:text-rose-600 text-sm font-medium flex items-start gap-3">
             <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

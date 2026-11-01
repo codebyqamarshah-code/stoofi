@@ -31,9 +31,9 @@ describe('STOOFI Production Stability & Real Workflow Verification', () => {
     assert.strictEqual(mongoose.connection.name, 'stoofi', 'Database name must be stoofi');
   });
 
-  it('2. Existing 99 Students Preserved with Intact Identifiers', async () => {
+  it('2. Exact 100 Students Preserved with Intact Identifiers', async () => {
     const studentCount = await db.collection('students').countDocuments();
-    assert.ok(studentCount >= 99, `Expected at least 99 students, got ${studentCount}`);
+    assert.strictEqual(studentCount, 100, `Expected exactly 100 students in production, got ${studentCount}`);
 
     // Verify first student record has valid persisted admission number & roll number
     const sampleStudent = await db.collection('students').findOne({ admissionNo: /^ADM/i });

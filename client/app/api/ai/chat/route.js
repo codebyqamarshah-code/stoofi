@@ -18,9 +18,7 @@ import {
   AIConversation, 
   AIMessage 
 } from '@/lib/models';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkey_eskooly_2026';
+import { verifyToken } from '@/lib/jwt-secret';
 
 /**
  * Extract authenticated user if token is present
@@ -32,7 +30,7 @@ async function getAuthUser(req) {
       return null;
     }
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = verifyToken(token);
     if (!decoded?.id) return null;
     const user = await User.findById(decoded.id).select('-password').lean();
     return user || null;

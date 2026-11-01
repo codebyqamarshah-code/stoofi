@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
 import { connectDB } from '@/lib/db';
 import { User } from '@/lib/models';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkey_eskooly_2026';
+import { verifyToken } from '@/lib/jwt-secret';
 
 /**
  * Validates request authorization token and verifies permissions.
@@ -38,10 +36,10 @@ export async function authenticateRequest(req, options = {}) {
       };
     }
 
-    // 2. Verify JWT signature
+    // 2. Verify JWT signature using validated server secret
     let decoded;
     try {
-      decoded = jwt.verify(token, JWT_SECRET);
+      decoded = verifyToken(token);
     } catch (jwtErr) {
       return {
         user: null,

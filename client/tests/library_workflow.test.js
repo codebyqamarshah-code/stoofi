@@ -31,21 +31,14 @@ describe('Library Module Models & MongoDB Atlas Verification', () => {
     await mongoose.disconnect();
   });
 
-  it('1. BookCategory model can query and create category', async () => {
+  it('1. BookCategory model exists and queries safely (Read-Only)', async () => {
     assert.ok(BookCategory, 'BookCategory model should exist');
-    const existing = await BookCategory.find().lean();
+    assert.strictEqual(typeof BookCategory.find, 'function', 'BookCategory must have find method');
+    assert.strictEqual(typeof BookCategory.create, 'function', 'BookCategory must have create method');
+
+    // Strict Read-Only query — does NOT create, insert, or delete any records in live database
+    const existing = await BookCategory.find().limit(5).lean();
     assert.ok(Array.isArray(existing), 'BookCategory query should return an array');
-
-    // Create a temporary test category
-    const testCat = await BookCategory.create({
-      name: 'Verification Test Category',
-      description: 'Automated test record'
-    });
-    assert.ok(testCat._id, 'Created category must have an _id');
-    assert.strictEqual(testCat.name, 'Verification Test Category');
-
-    // Clean up test category
-    await BookCategory.findByIdAndDelete(testCat._id);
   });
 
   it('2. Book, IssueBook, LibraryMember, and LibrarySubject models exist and query', async () => {

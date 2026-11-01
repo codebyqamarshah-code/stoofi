@@ -123,8 +123,11 @@ export async function GET(req, { params }) {
       } catch (_) {}
     }
 
+    const canonicalPhoto = studentObj.photo || studentObj.studentPhoto || '';
     const formatted = {
       ...studentObj,
+      photo: canonicalPhoto,
+      studentPhoto: canonicalPhoto,
       dob: cleanDateStr(student.dob),
       admissionDate: cleanDateStr(student.admissionDate),
       joiningDate: cleanDateStr(student.joiningDate)
@@ -155,11 +158,11 @@ export async function PUT(req, { params }) {
       dataObj.emergencyContact = dataObj.emergencyContact.phone || dataObj.emergencyContact.name || '';
     }
 
-    // Keep studentPhoto and photo synchronized
+    // Canonical photo handling: store ONLY in photo field to prevent database bloat
     if (dataObj.studentPhoto || dataObj.photo) {
-      const p = dataObj.studentPhoto || dataObj.photo;
-      dataObj.studentPhoto = p;
+      const p = dataObj.photo || dataObj.studentPhoto;
       dataObj.photo = p;
+      delete dataObj.studentPhoto;
     }
 
     // Clean up empty ObjectId / optional fields
@@ -385,9 +388,16 @@ export async function PUT(req, { params }) {
       }
     }
 
+    const updatedObj = updated ? (updated.toObject ? updated.toObject() : { ...updated._doc }) : updated;
+    if (updatedObj) {
+      const p = updatedObj.photo || updatedObj.studentPhoto || '';
+      updatedObj.photo = p;
+      updatedObj.studentPhoto = p;
+    }
+
     return NextResponse.json({
       success: true,
-      data: updated,
+      data: updatedObj,
       message: 'Student updated successfully'
     });
   } catch (error) {

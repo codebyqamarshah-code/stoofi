@@ -186,16 +186,22 @@ export const useAuth = create(
             error?.response?.status === 503;
 
           let errorMsg = respData?.message || error?.message || 'Invalid credentials. Please check your details and try again.';
+          const rawErrStr = `${errorMsg} ${error?.message || ''} ${respData?.errorType || ''}`.toLowerCase();
 
           const isBackendIssue =
             isMaintenance ||
-            errorMsg.includes('SSL routines') ||
-            errorMsg.includes('tlsv1 alert') ||
-            errorMsg.includes('SSL alert') ||
-            errorMsg.includes('ServerSelectionError') ||
-            errorMsg.includes('MongoNetworkError') ||
-            errorMsg.includes('ECONNREFUSED') ||
-            errorMsg.includes('Database is currently performing');
+            rawErrStr.includes('ssl') ||
+            rawErrStr.includes('tls') ||
+            rawErrStr.includes('alert number') ||
+            rawErrStr.includes('rec_layer') ||
+            rawErrStr.includes('serverselection') ||
+            rawErrStr.includes('mongonetwork') ||
+            rawErrStr.includes('mongooseserver') ||
+            rawErrStr.includes('buffering timed out') ||
+            rawErrStr.includes('econnrefused') ||
+            rawErrStr.includes('econnreset') ||
+            rawErrStr.includes('etimedout') ||
+            rawErrStr.includes('cloud synchronization');
 
           if (isBackendIssue) {
             const maintenanceMsg = 'Database is currently performing a brief cloud synchronization. Please wait a few moments and try again.';

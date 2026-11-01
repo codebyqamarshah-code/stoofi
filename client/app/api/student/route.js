@@ -330,6 +330,11 @@ export async function POST(req) {
     const calculatedFullName = [fName, lName].filter(Boolean).join(' ').trim();
     const finalStudentName = String(dataObj.studentName || dataObj.fullName || dataObj.name || calculatedFullName).trim();
 
+    // Canonical photo handling: store ONLY in photo field to prevent database bloat
+    const canonicalPhoto = dataObj.photo || dataObj.studentPhoto || '';
+    delete dataObj.studentPhoto;
+    dataObj.photo = canonicalPhoto;
+
     // Construct student object with exact priority sequence:
     // 1. Student Core Details -> 2. Father Details -> 3. Mother Details -> 4. Guardian Details -> 5. Address & Contact Details -> 6. Academic Details
     const orderedStudentData = {
@@ -347,8 +352,7 @@ export async function POST(req) {
       religion: dataObj.religion || '',
       caste: dataObj.caste || '',
       nationality: dataObj.nationality || 'Pakistani',
-      studentPhoto: dataObj.studentPhoto || dataObj.photo || '',
-      photo: dataObj.photo || dataObj.studentPhoto || '',
+      photo: canonicalPhoto,
       medicalHistory: dataObj.medicalHistory || '',
 
       // 2. Father
@@ -424,10 +428,12 @@ export async function POST(req) {
     };
 
     const student = await Student.create(orderedStudentData);
+    const studentObj = student.toObject ? student.toObject() : { ...student._doc };
+    studentObj.studentPhoto = studentObj.photo || '';
 
     return NextResponse.json({
       success: true,
-      data: student,
+      data: studentObj,
       message: 'Student created successfully'
     }, { status: 201 });
   } catch (error) {

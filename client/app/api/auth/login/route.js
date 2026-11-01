@@ -2,9 +2,7 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { User } from '@/lib/models';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkey_eskooly_2026';
+import { signToken } from '@/lib/jwt-secret';
 
 export async function POST(req) {
   try {
@@ -53,10 +51,9 @@ export async function POST(req) {
       );
     }
 
-    // Generate JWT token
-    const token = jwt.sign(
+    // Generate JWT token using validated server secret
+    const token = signToken(
       { id: user._id, role: user.role },
-      JWT_SECRET,
       { expiresIn: '1d' }
     );
 

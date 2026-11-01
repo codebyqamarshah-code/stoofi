@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { User } from '@/lib/models';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkey_eskooly_2026';
+import { verifyToken } from '@/lib/jwt-secret';
 
 export async function GET(req) {
   try {
@@ -18,7 +16,7 @@ export async function GET(req) {
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = verifyToken(token);
 
     const user = await User.findById(decoded.id).select('-password');
     if (!user) {

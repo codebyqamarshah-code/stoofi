@@ -98,8 +98,12 @@ export async function PUT(req, { params }) {
       body = await req.json();
     }
 
-    if (body.photo && !body.staffPhoto) body.staffPhoto = body.photo;
-    if (body.staffPhoto && !body.photo) body.photo = body.staffPhoto;
+    // Canonical photo handling: store ONLY in photo field to prevent database bloat
+    const photoData = body.photo || body.staffPhoto || '';
+    if (photoData) {
+      body.photo = photoData;
+      delete body.staffPhoto;
+    }
 
     let updated = null;
     if (mongoose.Types.ObjectId.isValid(id)) {
@@ -113,9 +117,16 @@ export async function PUT(req, { params }) {
       return NextResponse.json({ success: false, message: 'Staff not found' }, { status: 404 });
     }
 
+    const updatedObj = updated ? (updated.toObject ? updated.toObject() : { ...updated._doc }) : updated;
+    if (updatedObj) {
+      const p = updatedObj.photo || updatedObj.staffPhoto || null;
+      updatedObj.photo = p;
+      updatedObj.staffPhoto = p;
+    }
+
     return NextResponse.json({
       success: true,
-      data: updated,
+      data: updatedObj,
       message: 'Staff updated successfully'
     });
   } catch (error) {

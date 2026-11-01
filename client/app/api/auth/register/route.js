@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { User, Student, Staff, Teacher } from '@/lib/models';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkey_eskooly_2026';
+import { signToken } from '@/lib/jwt-secret';
 
 export async function POST(req) {
   try {
@@ -158,9 +156,8 @@ export async function POST(req) {
       await user.save();
     }
 
-    const token = jwt.sign(
+    const token = signToken(
       { id: user._id, role: user.role },
-      JWT_SECRET,
       { expiresIn: '1d' }
     );
 

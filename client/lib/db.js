@@ -29,7 +29,7 @@ const connectionOptions = {
   serverSelectionTimeoutMS: 8000,
   socketTimeoutMS: 45000,
   connectTimeoutMS: 15000,
-  maxPoolSize: 10,
+  maxPoolSize: 5,
   minPoolSize: 0,
   maxIdleTimeMS: 30000,
   bufferCommands: false,

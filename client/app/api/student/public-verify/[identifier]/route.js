@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { connectDB } from '@/lib/db';
 import { Student, Staff } from '@/lib/models';
+import { createHmacSignature } from '@/lib/jwt-secret';
 
 function escapeRegex(str) {
   return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -88,8 +89,19 @@ export async function GET(req, { params }) {
     }
 
     // 5. If found as a student, return officially verified student details
+    // PRIVACY ENFORCED: Sensitive PII (fatherName, CNIC, phone, address, fees, documents, mother details) are EXCLUDED
     if (student) {
       const fullName = student.name || `${student.firstName || ''} ${student.lastName || ''}`.trim() || 'Verified Student';
+      
+      // Cryptographically signed time-limited streaming photo URL (valid for 2 hours)
+      const hasPhoto = Boolean(student.photo || student.studentPhoto);
+      let securePhotoUrl = null;
+      if (hasPhoto) {
+        const exp = Math.floor(Date.now() / 1000) + 7200; // 2-hour validity
+        const sig = createHmacSignature('student_photo', student._id, exp);
+        securePhotoUrl = `/api/student/${student._id}/photo?sig=${sig}&exp=${exp}`;
+      }
+
       return NextResponse.json({
         success: true,
         verified: true,
@@ -104,12 +116,7 @@ export async function GET(req, { params }) {
           className: student.className,
           section: student.section,
           academicYear: student.academicYear,
-          fatherName: student.fatherName,
-          gender: student.gender,
-          dob: student.dob,
-          joiningDate: student.joiningDate || student.admissionDate,
-          cnic: student.cnic || student.bForm,
-          photo: student.studentPhoto || student.photo || '',
+          photo: securePhotoUrl,
           status: student.status || 'Active',
           isStaff: false
         }
@@ -135,6 +142,16 @@ export async function GET(req, { params }) {
 
     if (staff) {
       const staffFullName = staff.name || `${staff.firstName || ''} ${staff.lastName || ''}`.trim() || 'Staff Member';
+      
+      // Cryptographically signed time-limited streaming staff photo URL (valid for 2 hours)
+      const hasStaffPhoto = Boolean(staff.photo || staff.staffPhoto);
+      let secureStaffPhotoUrl = null;
+      if (hasStaffPhoto) {
+        const exp = Math.floor(Date.now() / 1000) + 7200; // 2-hour validity
+        const sig = createHmacSignature('staff_photo', staff._id, exp);
+        secureStaffPhotoUrl = `/api/staff/${staff._id}/photo?sig=${sig}&exp=${exp}`;
+      }
+
       return NextResponse.json({
         success: true,
         verified: true,
@@ -151,12 +168,7 @@ export async function GET(req, { params }) {
           designation: staff.designation,
           department: staff.department,
           academicYear: staff.joiningDate ? String(new Date(staff.joiningDate).getFullYear()) : 'Active',
-          fatherName: staff.fatherName || '',
-          gender: staff.gender,
-          dob: staff.dob,
-          joiningDate: staff.joiningDate,
-          cnic: staff.cnic,
-          photo: staff.staffPhoto || staff.photo || '',
+          photo: secureStaffPhotoUrl,
           status: staff.status || 'Active',
           isStaff: true
         }

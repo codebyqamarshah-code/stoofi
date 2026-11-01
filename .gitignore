@@ -20,6 +20,7 @@ client/out/
 # Local Database & Safety Backups
 _backup_stale_root/
 mongodb_data/
+backups/
 
 # Environment Variables
 .env

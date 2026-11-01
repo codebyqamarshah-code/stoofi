@@ -1,16 +1,14 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { AIConversation, AIMessage, User } from '@/lib/models';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkey_eskooly_2026';
+import { verifyToken } from '@/lib/jwt-secret';
 
 async function getAuthUser(req) {
   try {
     const authHeader = req.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = verifyToken(token);
     if (!decoded?.id) return null;
     return await User.findById(decoded.id).select('-password').lean();
   } catch (err) {
