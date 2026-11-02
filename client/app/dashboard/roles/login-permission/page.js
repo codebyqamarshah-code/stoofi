@@ -232,8 +232,24 @@ export default function LoginPermissionPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
-                      <div className={`w-8 h-8 rounded-full ${getColor(s.name)} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
-                        {s.avatar || s.name?.slice(0, 2).toUpperCase()}
+                      <div className="w-9 h-9 rounded-full flex-shrink-0 overflow-hidden border border-zinc-200">
+                        {s.photo || s.staffPhoto ? (
+                          <img
+                            src={s.photo || s.staffPhoto}
+                            alt={s.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div
+                          style={{ display: (s.photo || s.staffPhoto) ? 'none' : 'flex' }}
+                          className={`w-full h-full ${getColor(s.name)} items-center justify-center text-white text-xs font-bold`}
+                        >
+                          {s.avatar || s.name?.slice(0, 2).toUpperCase()}
+                        </div>
                       </div>
                       <div>
                         <p className="font-medium text-zinc-900 text-sm">{s.name}</p>
