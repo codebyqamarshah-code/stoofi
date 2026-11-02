@@ -21,8 +21,8 @@ export function StudentCardQR({ rec, size = 64, isDark = false }) {
       width: Math.max(size * 4, 256),
       errorCorrectionLevel: 'M',
       color: {
-        dark: isDark ? '#ffffff' : '#0a2544',
-        light: isDark ? '#0a2544' : '#ffffff'
+        dark: isDark ? '#ffffff' : '#001f5b',
+        light: isDark ? '#001f5b' : '#ffffff'
       }
     })
       .then(setQrSrc)
@@ -73,7 +73,7 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
       style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact', borderRadius: '0px' }}
     >
       {/* ── TOP HEADER BAR ── */}
-      <div className="relative bg-[#0a2544] px-3.5 py-1.5 flex items-center justify-between overflow-hidden shrink-0">
+      <div className="relative bg-[#001f5b] px-3.5 py-1.5 flex items-center justify-between overflow-hidden shrink-0">
         {/* Diagonal Translucent Polygon Overlay on Right */}
         <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none opacity-20">
           <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full fill-white">
@@ -92,10 +92,10 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
             />
           </div>
           <div className="leading-tight">
-            <span className="font-black text-[13px] tracking-wide uppercase text-white block">
+            <span className="font-black text-[16px] tracking-wide uppercase text-white block">
               PAK ROYAL COLLEGE
             </span>
-            <span className="text-[6.2px] text-slate-200 font-medium tracking-tight leading-tight block max-w-[215px]">
+            <span className="text-[7.5px] text-slate-200 font-medium tracking-tight leading-tight block max-w-[215px]">
               Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura
             </span>
           </div>
@@ -121,7 +121,7 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
               maxHeight: '102px',
               flexShrink: 0,
               borderRadius: '10px',
-              border: '2px solid #0a2544',
+              border: '2px solid #001f5b',
               overflow: 'hidden',
               backgroundColor: '#e2e8f0',
               display: 'flex',
@@ -152,11 +152,11 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
               />
             ) : null}
             <div style={{ display: photoUrl ? 'none' : 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4px' }}>
-              <User className="w-8 h-8 text-[#0a2544]/60" />
-              <span className="text-[9px] font-black mt-1 uppercase text-[#0a2544]">{initial}</span>
+              <User className="w-8 h-8 text-[#001f5b]/60" />
+              <span className="text-[9px] font-black mt-1 uppercase text-[#001f5b]">{initial}</span>
             </div>
           </div>
-          <span className="text-[10px] font-black tracking-[0.25em] text-[#0a2544] uppercase text-center mt-1.5 block">
+          <span className="text-[10px] font-black tracking-[0.25em] text-[#001f5b] uppercase text-center mt-1.5 block">
             STUDENT
           </span>
         </div>
@@ -164,10 +164,10 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
         {/* Right Column: Bio Data Details */}
         <div className="flex-1 min-w-0 bg-white p-3 flex flex-col justify-between">
           <div>
-            <span className="text-[8.5px] font-black text-[#0a2544] tracking-wider uppercase block">
+            <span className="text-[8.5px] font-black text-[#001f5b] tracking-wider uppercase block">
               STUDENT IDENTITY CARD
             </span>
-            <h2 className="text-[17px] font-black text-[#0a2544] leading-tight truncate mt-0.5">
+            <h2 className="text-[17px] font-black text-[#001f5b] leading-tight truncate mt-0.5">
               {fullName}
             </h2>
             <div className="border-b border-slate-200 my-1" />
@@ -186,7 +186,7 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
                 <span className="text-[7.5px] font-bold text-slate-500 uppercase tracking-wider block">
                   CLASS / PROGRAMME
                 </span>
-                <span className="text-[12px] font-black text-[#0a2544] truncate block">
+                <span className="text-[12px] font-black text-[#001f5b] truncate block">
                   {classDisplay}
                 </span>
               </div>
@@ -199,7 +199,7 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
               <span className="text-[7px] font-bold text-slate-500 uppercase tracking-wider block">
                 ROLL NO.
               </span>
-              <span className="text-[11.5px] font-black font-mono text-[#0a2544] block">
+              <span className="text-[11.5px] font-black font-mono text-[#001f5b] block">
                 {rollNo}
               </span>
             </div>
@@ -208,7 +208,7 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
               <span className="text-[7px] font-bold text-slate-500 uppercase tracking-wider block">
                 SESSION
               </span>
-              <span className="text-[11.5px] font-black font-mono text-[#0a2544] block">
+              <span className="text-[11.5px] font-black font-mono text-[#001f5b] block">
                 {sessionText}
               </span>
             </div>
@@ -218,7 +218,7 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
 
       {/* ── FOOTER BAR ── */}
       <div 
-        className="bg-[#0a2544] px-3.5 h-[28px] text-white flex justify-between items-center relative select-none shrink-0"
+        className="bg-[#001f5b] px-3.5 h-[28px] text-white flex justify-between items-center relative select-none shrink-0"
         style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
       >
         {/* Gold accent rectangle tab on top-left edge */}
@@ -251,7 +251,7 @@ export function PakRoyalCardBack({ rec, schoolSetting = null, className = '', is
       style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact', borderRadius: '0px' }}
     >
       {/* ── TOP HEADER BAR WITH AUTHORIZED SIGNATURE ON RIGHT ── */}
-      <div className="relative bg-[#0a2544] px-3.5 py-1.5 flex items-center justify-between overflow-hidden shrink-0">
+      <div className="relative bg-[#001f5b] px-3.5 py-1.5 flex items-center justify-between overflow-hidden shrink-0">
         {/* Diagonal Translucent Polygon Overlay on Right */}
         <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none opacity-20">
           <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full fill-white">
@@ -270,10 +270,10 @@ export function PakRoyalCardBack({ rec, schoolSetting = null, className = '', is
             />
           </div>
           <div className="leading-tight">
-            <span className="font-black text-[13px] tracking-wide uppercase text-white block">
+            <span className="font-black text-[16px] tracking-wide uppercase text-white block">
               PAK ROYAL COLLEGE
             </span>
-            <span className="text-[6.2px] text-slate-200 font-medium tracking-tight leading-tight block max-w-[215px]">
+            <span className="text-[7.5px] text-slate-200 font-medium tracking-tight leading-tight block max-w-[215px]">
               Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura
             </span>
           </div>
@@ -302,10 +302,10 @@ export function PakRoyalCardBack({ rec, schoolSetting = null, className = '', is
         {/* Left Column: Instructions & Return Address */}
         <div className="flex-1 min-w-0 bg-white px-3.5 py-2.5 flex flex-col justify-start">
           <div className="mb-2">
-            <h4 className="text-[8.5px] font-black text-[#0a2544] tracking-wider uppercase mb-1">
+            <h4 className="text-[9.5px] font-black text-[#001f5b] tracking-wider uppercase mb-1">
               CARDHOLDER INFORMATION
             </h4>
-            <div className="text-[7.8px] text-slate-700 leading-snug space-y-0.5">
+            <div className="text-[8.5px] text-slate-700 leading-snug space-y-0.5">
               <p>This card is non-transferable.</p>
               <p>Carry it while on college premises.</p>
               <p>Report loss to the college office.</p>
@@ -315,21 +315,21 @@ export function PakRoyalCardBack({ rec, schoolSetting = null, className = '', is
           <div className="border-b border-slate-200 w-[95%] mb-2" />
 
           <div className="space-y-0.5">
-            <span className="text-[6.8px] font-bold text-slate-500 uppercase tracking-wider block">
+            <span className="text-[7.5px] font-bold text-slate-500 uppercase tracking-wider block">
               IF FOUND, PLEASE RETURN TO
             </span>
-            <span className="font-black text-[9.5px] text-[#0a2544] block">
+            <span className="font-black text-[10.5px] text-[#001f5b] block">
               Pak Royal College
             </span>
-            <span className="text-[7px] text-slate-600 font-medium leading-tight block">
+            <span className="text-[8px] text-slate-600 font-medium leading-tight block">
               Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura
             </span>
-            <span className="text-[8px] font-black text-[#0a2544] block">
+            <span className="text-[9px] font-black text-[#001f5b] block">
               Contact: 03 111 444 810
             </span>
           </div>
 
-          <p className="text-[6.8px] text-slate-400 italic mt-2.5">
+          <p className="text-[7px] text-slate-400 italic mt-2.5">
             Property of Pak Royal College.
           </p>
         </div>
@@ -338,10 +338,10 @@ export function PakRoyalCardBack({ rec, schoolSetting = null, className = '', is
         <div className="w-[126px] shrink-0 p-2 flex flex-col items-center justify-center">
           <div className="bg-[#f0f4f8] rounded-xl p-2.5 flex flex-col items-center justify-center border border-slate-200/80 w-full shadow-2xs">
             <StudentCardQR rec={rec} size={64} />
-            <span className="text-[6.5px] font-black text-[#0a2544] uppercase tracking-wider mt-1 text-center block">
+            <span className="text-[6.5px] font-black text-[#001f5b] uppercase tracking-wider mt-1 text-center block">
               SCAN STUDENT QR
             </span>
-            <span className="font-mono text-[9px] font-black text-[#0a2544] text-center block">
+            <span className="font-mono text-[9px] font-black text-[#001f5b] text-center block">
               {rollNo}
             </span>
           </div>
@@ -350,7 +350,7 @@ export function PakRoyalCardBack({ rec, schoolSetting = null, className = '', is
 
       {/* ── FOOTER BAR ── */}
       <div 
-        className="bg-[#0a2544] px-3.5 h-[28px] text-white flex justify-between items-center relative select-none shrink-0"
+        className="bg-[#001f5b] px-3.5 h-[28px] text-white flex justify-between items-center relative select-none shrink-0"
         style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
       >
         {/* Gold accent rectangle tab on top-left edge */}
