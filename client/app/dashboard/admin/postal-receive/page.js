@@ -214,8 +214,22 @@ export default function PostalReceivePage() {
       setLoading(true);
       setError(null);
 
+      // Main records request: silently retry on temporary cloud/database hiccups (cold start)
+      const fetchReceives = async () => {
+        let lastErr;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            return await api.get('/postal-receive');
+          } catch (e) {
+            lastErr = e;
+            await new Promise(r => setTimeout(r, 800 * (attempt + 1)));
+          }
+        }
+        throw lastErr;
+      };
+
       const [receiveRes, deptRes, staffRes, teacherRes] = await Promise.all([
-        api.get('/postal-receive'),
+        fetchReceives(),
         api.get('/department').catch(() => ({ data: [] })),
         api.get('/staff').catch(() => ({ data: [] })),
         api.get('/teachers').catch(() => ({ data: [] }))
@@ -253,7 +267,11 @@ export default function PostalReceivePage() {
 
     } catch (err) {
       console.error('Error fetching postal receive records:', err);
-      setError('Failed to load postal receive records. Please check your network connection.');
+      setError(
+        err?.response?.data?.isMaintenance
+          ? 'Server is syncing for a moment. Please click Retry in a few seconds.'
+          : 'Unable to load postal receive records right now. Please click Retry.'
+      );
     } finally {
       setLoading(false);
     }

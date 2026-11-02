@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { sortClassesAcademic } from '@/lib/academicUtils';
+import StudentAvatar from '@/components/student/StudentAvatar';
 import api from '@/services/api';
 
 export default function UnassignedStudentPage() {
@@ -293,9 +294,12 @@ export default function UnassignedStudentPage() {
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-zinc-950 text-xs font-bold flex-shrink-0">
-                          {(student.firstName?.[0] || 'S').toUpperCase()}
-                        </div>
+                        <StudentAvatar
+                          photo={student.studentPhoto || student.photo}
+                          firstName={student.firstName}
+                          lastName={student.lastName}
+                          size="md"
+                        />
                         <div>
                           <p className="font-semibold text-zinc-900 dark:text-zinc-950 text-sm">{student.firstName} {student.lastName || ''}</p>
                           <p className="text-xs text-zinc-400">{student.gender || 'N/A'} • {student.dob || 'N/A'}</p>
@@ -319,7 +323,7 @@ export default function UnassignedStudentPage() {
                           setAssignSection('');
                           setAvailableSections([]);
                         }}
-                        className="text-xs font-bold px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-sm"
+                        className="text-xs font-bold px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-900 active:bg-black text-white transition-colors shadow-xs cursor-pointer"
                       >
                         Assign Class
                       </button>

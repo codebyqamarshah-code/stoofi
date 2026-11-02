@@ -279,13 +279,13 @@ export default function DisabledStudentsPage() {
                   </td>
                   <td className="p-3 text-zinc-500 font-medium">{s.disabledDate}</td>
                   <td className="p-3 text-right">
-                    <Button
+                    <button
+                      type="button"
                       onClick={() => setReactivateModal(s)}
-                      size="sm"
-                      className="h-7 px-3 text-[10.5px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg flex items-center gap-1 cursor-pointer"
+                      className="inline-flex items-center gap-1.5 h-7 px-3 text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-lg shadow-xs cursor-pointer transition-colors"
                     >
-                      <RotateCcw className="w-3 h-3" /> Reactivate
-                    </Button>
+                      <RotateCcw className="w-3 h-3 text-white" /> Reactivate
+                    </button>
                   </td>
                 </tr>
               )) : (

@@ -30,10 +30,10 @@ import { sortClassesAcademic, STANDARD_ACADEMIC_CLASSES, STANDARD_SECTIONS_LIST 
 import api from '@/services/api';
 
 const SESSIONS = [
-  '2025 [Jan-Dec]',
-  '2026 [Jan-Dec]',
-  '2027 [Jan-Dec]',
-  '2028 [Jan-Dec]'
+  '2025',
+  '2026',
+  '2027',
+  '2028'
 ];
 
 const DEMO_STUDENTS = [
@@ -50,8 +50,8 @@ const DEMO_STUDENTS = [
 export default function StudentPromotePage() {
   const [classesList, setClassesList] = useState(STANDARD_ACADEMIC_CLASSES);
   const [formData, setFormData] = useState({
-    academicYear: '2026 [Jan-Dec]',
-    promoteSession: '2027 [Jan-Dec]',
+    academicYear: '2026',
+    promoteSession: '2027',
     currentClass: 'BS Psychology',
     section: 'A',
     promoteClass: 'FSC OTT',
@@ -67,9 +67,9 @@ export default function StudentPromotePage() {
   const [activeTab, setActiveTab] = useState('promote'); // 'promote' | 'history'
   const [searchFilter, setSearchFilter] = useState('');
   const [promotionHistory, setPromotionHistory] = useState([
-    { id: 'hist-1', fromClass: 'DPT', toClass: 'BS Psychology', session: '2026 [Jan-Dec]', count: 42, date: '12 Jan 2026', by: 'Principal Office' },
-    { id: 'hist-2', fromClass: 'BS Psychology', toClass: 'FSC OTT', session: '2026 [Jan-Dec]', count: 38, date: '10 Jan 2026', by: 'Admin' },
-    { id: 'hist-3', fromClass: 'FSC Dental', toClass: 'DPT', session: '2026 [Jan-Dec]', count: 35, date: '08 Jan 2026', by: 'Academic Head' }
+    { id: 'hist-1', fromClass: 'DPT', toClass: 'BS Psychology', session: '2026', count: 42, date: '12 Jan 2026', by: 'Principal Office' },
+    { id: 'hist-2', fromClass: 'BS Psychology', toClass: 'FSC OTT', session: '2026', count: 38, date: '10 Jan 2026', by: 'Admin' },
+    { id: 'hist-3', fromClass: 'FSC Dental', toClass: 'DPT', session: '2026', count: 35, date: '08 Jan 2026', by: 'Academic Head' }
   ]);
 
   const showToast = (m) => { setToast(m); setTimeout(() => setToast(''), 3500); };
