@@ -374,10 +374,10 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     // ── HORIZONTAL CARDS (FRONT & BACK 1:1 WITH OFFICIAL DESIGN) ──
     // ════════════════════════════════════════════════════════
 
-    const navyR = 10, navyG = 37, navyB = 68;      // #0a2544 Deep Royal Navy
+    const navyR = 50, navyG = 79, navyB = 145;      // #324F91 Official Pak Royal Badge Royal Navy
     const goldR = 212, goldG = 175, goldB = 55;    // #d4af37 Gold Accent
     const slateR = 100, slateG = 116, slateB = 139;// Slate Muted
-    const textDarkR = 10, textDarkG = 37, textDarkB = 68; // Navy Text
+    const textDarkR = 50, textDarkG = 79, textDarkB = 145; // #324F91 Navy Text
 
     const formattedRoll = formatStudentRollNo(rollNo);
     const displayClass = `${className} ${section ? `(${String(section).replace(/^Section\s*/i, '')})` : ''}`.trim();

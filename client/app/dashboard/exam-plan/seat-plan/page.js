@@ -392,10 +392,13 @@ export default function SeatPlanPage() {
               <div className="bg-white border-2 border-zinc-900 rounded-2xl p-6 sm:p-8 shadow-sm">
                 {/* Official Header */}
                 <div className="text-center border-b-2 border-zinc-900 pb-4 mb-6">
-                  <h2 className="text-2xl font-black text-zinc-950 uppercase tracking-tight">STOOFI ACADEMY &amp; GRAMMAR SCHOOL</h2>
-                  <h3 className="text-sm font-bold text-[#084A86] uppercase tracking-wider mt-0.5">
-                    EXAMINATION SEATING CHART &bull; {selectedExam}
+                  <h2 className="text-2xl font-black text-[#084A86] uppercase tracking-tight">PAK ROYAL COLLEGE</h2>
+                  <h3 className="text-xs font-bold text-zinc-600 uppercase tracking-widest mt-0.5">
+                    LAL PULI STOP, MAIN JARANWALA ROAD, SHARAQPUR SHARIF &bull; 03 111 444 810
                   </h3>
+                  <h4 className="text-sm font-black text-zinc-900 uppercase tracking-wider mt-1.5">
+                    EXAMINATION SEATING CHART &bull; {selectedExam}
+                  </h4>
                   <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-zinc-600 font-bold mt-2">
                     <span>ROOM / HALL: <strong className="text-zinc-950">{selectedHall.name}</strong></span>
                     <span>CLASS: <strong className="text-zinc-950">{selectedClass}</strong></span>
@@ -425,7 +428,10 @@ export default function SeatPlanPage() {
                           SEAT #{String(seat.seatNumber).padStart(2, '0')}
                         </span>
                         {seat.student && (
-                          <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-[#084A86] text-white">
+                          <span 
+                            className="px-2 py-0.5 rounded text-[11px] font-mono font-black shadow-xs"
+                            style={{ backgroundColor: '#084A86', color: '#ffffff' }}
+                          >
                             #{seat.student.rollNo}
                           </span>
                         )}
@@ -477,10 +483,13 @@ export default function SeatPlanPage() {
                   >
                     <div className="flex items-center justify-between border-b border-zinc-200 pb-2 mb-2">
                       <div className="flex items-center gap-1.5">
-                        <img src="/logo.png" alt="" className="h-6 w-auto object-contain" />
-                        <span className="text-[11px] font-black uppercase text-zinc-900 tracking-tight">STOOFI ACADEMY</span>
+                        <img src="/pak-royal-badge.png" alt="" className="h-6 w-auto object-contain" />
+                        <span className="text-[11px] font-black uppercase text-[#084A86] tracking-tight">PAK ROYAL COLLEGE</span>
                       </div>
-                      <span className="px-2 py-0.5 bg-[#084A86] text-white text-[10px] font-black rounded">
+                      <span 
+                        className="px-2 py-0.5 text-white text-[10px] font-black rounded"
+                        style={{ backgroundColor: '#084A86', color: '#ffffff' }}
+                      >
                         SEAT #{String(seat.seatNumber).padStart(2, '0')}
                       </span>
                     </div>

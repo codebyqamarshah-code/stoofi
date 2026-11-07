@@ -1964,6 +1964,31 @@ const librarySubjectSchema = new mongoose.Schema({
 }, { timestamps: true });
 export const LibrarySubject = mongoose.models.LibrarySubject || mongoose.model('LibrarySubject', librarySubjectSchema);
 
+// Transport Route Schema
+const transportRouteSchema = new mongoose.Schema({
+  title: { type: String, required: true, trim: true },
+  fare: { type: Number, default: 0 },
+  description: { type: String, default: '' },
+  stops: [{ name: String, lat: Number, lng: Number }],
+  isActive: { type: Boolean, default: true }
+}, { timestamps: true });
+
+export const TransportRoute = mongoose.models.TransportRoute || mongoose.model('TransportRoute', transportRouteSchema);
+
+// Transport Vehicle Schema
+const transportVehicleSchema = new mongoose.Schema({
+  vehicleNo: { type: String, required: true, trim: true },
+  type: { type: String, default: 'Bus' },
+  capacity: { type: Number, default: 40 },
+  driverName: { type: String, default: '' },
+  driverPhone: { type: String, default: '' },
+  routeId: { type: String, default: '' },
+  routeTitle: { type: String, default: '' },
+  isActive: { type: Boolean, default: true }
+}, { timestamps: true });
+
+export const TransportVehicle = mongoose.models.TransportVehicle || mongoose.model('TransportVehicle', transportVehicleSchema);
+
 
 
 

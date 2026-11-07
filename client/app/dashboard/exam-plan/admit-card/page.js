@@ -20,6 +20,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { sortClassesAcademic } from '@/lib/academicUtils';
+import { getPhotoUrl } from '@/lib/utils';
 import api from '@/services/api';
 
 const DEFAULT_EXAMS = [
@@ -47,12 +48,12 @@ const DEFAULT_SECTIONS = [
 ];
 
 const SAMPLE_STUDENTS = [
-  { _id: 's1', rollNo: '101', admissionNo: 'STU-2026-001', name: 'Muhammad Ali', fatherName: 'Tariq Mehmood', gender: 'Male', section: 'Section A', photo: null },
-  { _id: 's2', rollNo: '102', admissionNo: 'STU-2026-002', name: 'Ayesha Fatima', fatherName: 'Dr. Sajid Khan', gender: 'Female', section: 'Section A', photo: null },
-  { _id: 's3', rollNo: '103', admissionNo: 'STU-2026-003', name: 'Zainab Bibi', fatherName: 'Abdul Rehman', gender: 'Female', section: 'Section A', photo: null },
-  { _id: 's4', rollNo: '104', admissionNo: 'STU-2026-004', name: 'Hamza Farooq', fatherName: 'Farooq Ahmed', gender: 'Male', section: 'Section B', photo: null },
-  { _id: 's5', rollNo: '105', admissionNo: 'STU-2026-005', name: 'Fatima Noor', fatherName: 'Usman Ghani', gender: 'Female', section: 'Section B', photo: null },
-  { _id: 's6', rollNo: '106', admissionNo: 'STU-2026-006', name: 'Bilal Hussain', fatherName: 'Hussain Ali', gender: 'Male', section: 'Section A', photo: null },
+  { _id: 's1', rollNo: '101', admissionNo: 'PRC-2026-001', name: 'Alisha', fatherName: 'Muhammad Javeed', gender: 'Female', section: 'Section A', photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80' },
+  { _id: 's2', rollNo: '102', admissionNo: 'PRC-2026-002', name: 'Muhammad Tayyab', fatherName: 'Tariq Mehmood', gender: 'Male', section: 'Section A', photo: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80' },
+  { _id: 's3', rollNo: '103', admissionNo: 'PRC-2026-003', name: 'Ayesha Fatima', fatherName: 'Dr. Sajid Khan', gender: 'Female', section: 'Section A', photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80' },
+  { _id: 's4', rollNo: '104', admissionNo: 'PRC-2026-004', name: 'Hamza Farooq', fatherName: 'Farooq Ahmed', gender: 'Male', section: 'Section B', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80' },
+  { _id: 's5', rollNo: '105', admissionNo: 'PRC-2026-005', name: 'Fatima Noor', fatherName: 'Usman Ghani', gender: 'Female', section: 'Section B', photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80' },
+  { _id: 's6', rollNo: '106', admissionNo: 'PRC-2026-006', name: 'Bilal Hussain', fatherName: 'Hussain Ali', gender: 'Male', section: 'Section A', photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80' },
 ];
 
 const SAMPLE_SCHEDULE = [
@@ -121,13 +122,13 @@ export default function AdmitCardPage() {
       if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
         const mapped = res.data.map((st, idx) => ({
           _id: st._id,
-          rollNo: st.rollNumber || String(101 + idx),
-          admissionNo: st.admissionNo || `STU-${st._id.substring(0, 5).toUpperCase()}`,
-          name: `${st.firstName || ''} ${st.lastName || ''}`.trim() || st.fullName || 'Student',
-          fatherName: st.parentName || st.guardianName || 'Guardian',
+          rollNo: st.rollNumber || st.rollNo || String(101 + idx),
+          admissionNo: st.admissionNo || `PRC-${st._id.substring(0, 5).toUpperCase()}`,
+          name: st.name || st.studentName || `${st.firstName || ''} ${st.lastName || ''}`.trim() || st.fullName || 'Student',
+          fatherName: st.fatherName || st.father?.name || st.parentName || st.guardianName || 'Guardian',
           gender: st.gender || 'Male',
-          section: st.section || 'Section A',
-          photo: st.photo || st.avatar || null
+          section: st.section || 'A',
+          photo: getPhotoUrl(st.studentPhoto || st.photo || st.avatar || st) || null
         }));
         setStudents(mapped);
         setSelectedStudentIds(mapped.map(m => m._id));
@@ -379,16 +380,19 @@ export default function AdmitCardPage() {
                 {/* Card Header */}
                 <div className="flex items-center justify-between border-b-2 border-zinc-900 pb-4 mb-5">
                   <div className="flex items-center gap-3.5">
-                    <img src="/logo.png" alt="Stoofi ERP" className="h-14 w-auto object-contain" />
+                    <img src="/pak-royal-badge.png" alt="Pak Royal College" className="h-14 w-auto object-contain" />
                     <div>
-                      <h2 className="text-xl font-extrabold text-zinc-950 uppercase tracking-tight">STOOFI ACADEMY & GRAMMAR SCHOOL</h2>
-                      <p className="text-xs text-zinc-600 font-medium">Affiliated & Registered Higher Secondary Institution</p>
-                      <p className="text-[11px] text-zinc-500 font-semibold mt-0.5">Campus Main Road &bull; info@stoofi.edu.pk &bull; +92 300 1234567</p>
+                      <h2 className="text-xl font-extrabold text-[#084A86] uppercase tracking-tight">PAK ROYAL COLLEGE</h2>
+                      <p className="text-xs text-zinc-600 font-medium">Campus Portal &bull; Affiliated &amp; Registered Higher Secondary Institution</p>
+                      <p className="text-[11px] text-zinc-500 font-semibold mt-0.5">Lal Puli Stop, Main Jaranwala Road, Sharaqpur Sharif District Sheikhupura &bull; 03 111 444 810</p>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <span className="inline-block px-3 py-1 bg-[#084A86] text-white text-xs font-black uppercase tracking-wider rounded-md">
+                    <span 
+                      className="inline-block px-3 py-1 text-white text-xs font-black uppercase tracking-wider rounded-md"
+                      style={{ backgroundColor: '#084A86', color: '#ffffff' }}
+                    >
                       EXAM ADMIT CARD
                     </span>
                     <div className="text-[11px] font-bold text-zinc-800 mt-1">SESSION: 2026-2027</div>
@@ -440,10 +444,28 @@ export default function AdmitCardPage() {
 
                   {/* Photo Box */}
                   <div className="md:col-span-1 flex flex-col items-center justify-center">
-                    <div className="w-28 h-32 border-2 border-dashed border-zinc-400 bg-zinc-50 rounded-lg flex flex-col items-center justify-center text-center p-2">
-                      <UserCheck className="w-8 h-8 text-zinc-400 mb-1" />
-                      <span className="text-[10px] text-zinc-500 font-bold uppercase">Affix Student Photograph</span>
+                    <div className="w-28 h-32 border-2 border-zinc-900 bg-slate-50 rounded-xl overflow-hidden flex flex-col items-center justify-center text-center relative shadow-xs">
+                      {student.photo ? (
+                        <img 
+                          src={student.photo} 
+                          alt={student.name} 
+                          className="w-full h-full object-cover" 
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center p-2 bg-gradient-to-br from-slate-100 to-slate-200">
+                          <div className="w-12 h-12 rounded-full bg-[#084A86] text-white flex items-center justify-center font-bold text-base shadow-xs mb-1">
+                            {student.name?.charAt(0) || 'S'}
+                          </div>
+                          <span className="text-[9px] text-[#084A86] font-black uppercase tracking-tight text-center leading-tight">
+                            Pak Royal
+                          </span>
+                          <span className="text-[8px] text-zinc-500 font-bold">
+                            {student.admissionNo}
+                          </span>
+                        </div>
+                      )}
                     </div>
+                    <span className="text-[9px] text-zinc-500 font-bold uppercase mt-1">Candidate Photo</span>
                   </div>
                 </div>
 

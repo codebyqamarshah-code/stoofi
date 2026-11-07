@@ -390,9 +390,14 @@ export default function SendMarksBySmsPage() {
     <div className="space-y-6 pb-12">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-5 right-5 z-50 bg-[#084A86] text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-sky-400/30 animate-in slide-in-from-top-2">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-          <span className="text-xs font-semibold">{toastMessage}</span>
+        <div 
+          className="fixed top-5 right-5 z-50 px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border-2 border-white/20 animate-in slide-in-from-top-2"
+          style={{ backgroundColor: '#084A86', color: '#ffffff' }}
+        >
+          <CheckCircle2 className="w-5 h-5 text-emerald-300 shrink-0" />
+          <span className="text-xs font-bold tracking-wide" style={{ color: '#ffffff' }}>
+            {toastMessage}
+          </span>
         </div>
       )}
 

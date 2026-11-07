@@ -2,14 +2,15 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { 
-  ChevronRight, Search, Download, Printer, FileText, 
-  Shield, PlusCircle, MinusCircle, User, Award, Eye, X, RotateCcw
+import {
+  ChevronRight, Search, Download, Printer, FileText,
+  Shield, PlusCircle, MinusCircle, User, Award, Eye, X, RotateCcw,
+  CheckCircle2, AlertTriangle, TrendingUp, Plus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { exportToCSV, exportToExcel, exportToPDF, printData } from '@/lib/exportUtils';
+import { exportToCSV, exportToExcel, printData } from '@/lib/exportUtils';
 import behaviourService from '@/services/behaviourService';
 import api from '@/services/api';
 
@@ -19,26 +20,47 @@ const SECTIONS = ['A', 'B', 'C', 'D'];
 export default function StudentIncidentReportPage() {
   const [reportList, setReportList] = useState([]);
   const [classList, setClassList] = useState(DEFAULT_CLASSES);
+  const [incidentsList, setIncidentsList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [toastMsg, setToastMsg] = useState('');
 
   // Filters
   const [classFilter, setClassFilter] = useState('');
   const [sectionFilter, setSectionFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Selected Student for History Modal
+  // Modals
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [assignModalStudent, setAssignModalStudent] = useState(null);
+  const [assignForm, setAssignForm] = useState({
+    incidentTitle: '',
+    point: 5,
+    pointType: 'positive',
+    remarks: '',
+    incidentDate: new Date().toISOString().split('T')[0]
+  });
+  const [assigning, setAssigning] = useState(false);
 
   useEffect(() => {
-    // Fetch dynamic classes
-    api.get('/class')
-      .then(res => {
-        if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
-          const names = res.data.map(c => c.name || c.className).filter(Boolean);
-          if (names.length > 0) setClassList(names);
-        }
-      })
-      .catch(() => {});
+    // Fetch dynamic classes and incident types
+    Promise.all([
+      api.get('/class').catch(() => null),
+      behaviourService.getIncidents().catch(() => [])
+    ]).then(([classRes, incRes]) => {
+      if (classRes?.success && Array.isArray(classRes.data) && classRes.data.length > 0) {
+        const names = classRes.data.map(c => c.name || c.className).filter(Boolean);
+        if (names.length > 0) setClassList(names);
+      }
+      if (Array.isArray(incRes) && incRes.length > 0) {
+        setIncidentsList(incRes);
+        setAssignForm(prev => ({
+          ...prev,
+          incidentTitle: incRes[0].title,
+          point: Math.abs(incRes[0].point),
+          pointType: incRes[0].pointType
+        }));
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -52,21 +74,41 @@ export default function StudentIncidentReportPage() {
         className: classFilter,
         section: sectionFilter
       });
-      setReportList(data);
+      setReportList(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to load student incident report:', err);
+      setReportList([]);
     } finally {
       setLoading(false);
     }
   };
 
+  const showToast = (msg) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(''), 3500);
+  };
+
   const filteredList = useMemo(() => {
     return reportList.filter(item => {
       const s = searchQuery.toLowerCase();
-      return item.studentName.toLowerCase().includes(s) ||
-        item.admissionNo.toLowerCase().includes(s);
+      const name = (item.studentName || '').toLowerCase();
+      const adm = (item.admissionNo || '').toLowerCase();
+      return name.includes(s) || adm.includes(s);
     });
   }, [reportList, searchQuery]);
+
+  const stats = useMemo(() => {
+    const total = reportList.length;
+    let exemplary = 0;
+    let good = 0;
+    let needsAttn = 0;
+    reportList.forEach(s => {
+      if (s.totalScore >= 10) exemplary++;
+      else if (s.totalScore >= 0) good++;
+      else needsAttn++;
+    });
+    return { total, exemplary, good, needsAttn };
+  }, [reportList]);
 
   const getStandingBadge = (score) => {
     if (score >= 20) {
@@ -79,6 +121,46 @@ export default function StudentIncidentReportPage() {
       return { label: 'Needs Improvement', color: 'bg-amber-50 text-amber-700 border-amber-200' };
     } else {
       return { label: 'Critical Intervention', color: 'bg-rose-50 text-rose-700 border-rose-200' };
+    }
+  };
+
+  const handleOpenAssignModal = (student) => {
+    setAssignModalStudent(student);
+    const defaultInc = incidentsList[0];
+    setAssignForm({
+      incidentTitle: defaultInc ? defaultInc.title : 'Academic Excellence & High Test Score',
+      point: defaultInc ? Math.abs(defaultInc.point) : 5,
+      pointType: defaultInc ? defaultInc.pointType : 'positive',
+      remarks: '',
+      incidentDate: new Date().toISOString().split('T')[0]
+    });
+  };
+
+  const handleSaveAssign = async (e) => {
+    e.preventDefault();
+    if (!assignModalStudent) return;
+    try {
+      setAssigning(true);
+      await behaviourService.assignIncident({
+        studentId: assignModalStudent.studentId,
+        studentName: assignModalStudent.studentName,
+        admissionNo: assignModalStudent.admissionNo,
+        className: assignModalStudent.className,
+        section: assignModalStudent.section,
+        incidentTitle: assignForm.incidentTitle,
+        point: assignForm.point,
+        pointType: assignForm.pointType,
+        incidentDate: assignForm.incidentDate,
+        remarks: assignForm.remarks,
+        assignedBy: 'Administration'
+      });
+      showToast(`Incident recorded for ${assignModalStudent.studentName}!`);
+      setAssignModalStudent(null);
+      loadData();
+    } catch (err) {
+      alert(err.message || 'Failed to record incident');
+    } finally {
+      setAssigning(false);
     }
   };
 
@@ -110,6 +192,52 @@ export default function StudentIncidentReportPage() {
         </div>
       </div>
 
+      {toastMsg && (
+        <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold rounded-xl flex items-center gap-2 shadow-xs">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>{toastMsg}</span>
+        </div>
+      )}
+
+      {/* KPI Summary Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white border border-zinc-200 rounded-2xl p-4 shadow-xs">
+          <div className="flex items-center justify-between text-zinc-500 text-xs font-semibold">
+            <span>Total Evaluated</span>
+            <User className="w-4 h-4 text-[#084A86]" />
+          </div>
+          <p className="text-2xl font-black text-zinc-950 mt-2">{stats.total}</p>
+          <p className="text-[11px] text-zinc-400 mt-0.5">Enrolled Students</p>
+        </div>
+
+        <div className="bg-white border border-zinc-200 rounded-2xl p-4 shadow-xs">
+          <div className="flex items-center justify-between text-emerald-700 text-xs font-semibold">
+            <span>Exemplary Conduct</span>
+            <Award className="w-4 h-4 text-emerald-600" />
+          </div>
+          <p className="text-2xl font-black text-emerald-700 mt-2">{stats.exemplary}</p>
+          <p className="text-[11px] text-zinc-400 mt-0.5">Score 10+ Points</p>
+        </div>
+
+        <div className="bg-white border border-zinc-200 rounded-2xl p-4 shadow-xs">
+          <div className="flex items-center justify-between text-blue-700 text-xs font-semibold">
+            <span>Good / Satisfactory</span>
+            <Shield className="w-4 h-4 text-blue-600" />
+          </div>
+          <p className="text-2xl font-black text-blue-700 mt-2">{stats.good}</p>
+          <p className="text-[11px] text-zinc-400 mt-0.5">Clean / Positive Record</p>
+        </div>
+
+        <div className="bg-white border border-zinc-200 rounded-2xl p-4 shadow-xs">
+          <div className="flex items-center justify-between text-amber-700 text-xs font-semibold">
+            <span>Needs Attention</span>
+            <AlertTriangle className="w-4 h-4 text-amber-600" />
+          </div>
+          <p className="text-2xl font-black text-amber-700 mt-2">{stats.needsAttn}</p>
+          <p className="text-[11px] text-zinc-400 mt-0.5">Negative Score</p>
+        </div>
+      </div>
+
       {/* Filter Card */}
       <div className="bg-white border border-zinc-200 rounded-2xl p-4 shadow-xs space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
@@ -121,7 +249,7 @@ export default function StudentIncidentReportPage() {
                 placeholder="Search student..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 bg-zinc-50 border-zinc-200 text-xs h-9 rounded-xl"
+                className="pl-8 bg-zinc-50 border-zinc-200 text-xs h-9 rounded-xl text-zinc-900"
               />
             </div>
           </div>
@@ -131,7 +259,7 @@ export default function StudentIncidentReportPage() {
             <select
               value={classFilter}
               onChange={(e) => setClassFilter(e.target.value)}
-              className="w-full h-9 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-xs text-zinc-950 font-medium focus:outline-none focus:ring-2 focus:ring-zinc-950"
+              className="w-full h-9 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-xs text-zinc-950 font-medium focus:outline-none focus:ring-2 focus:ring-[#084A86]"
             >
               <option value="">All Classes</option>
               {classList.map(c => <option key={c} value={c}>{c}</option>)}
@@ -143,7 +271,7 @@ export default function StudentIncidentReportPage() {
             <select
               value={sectionFilter}
               onChange={(e) => setSectionFilter(e.target.value)}
-              className="w-full h-9 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-xs text-zinc-950 font-medium focus:outline-none focus:ring-2 focus:ring-zinc-950"
+              className="w-full h-9 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-xs text-zinc-950 font-medium focus:outline-none focus:ring-2 focus:ring-[#084A86]"
             >
               <option value="">All Sections</option>
               {SECTIONS.map(s => <option key={s} value={s}>Section {s}</option>)}
@@ -173,20 +301,28 @@ export default function StudentIncidentReportPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button 
-              onClick={() => exportToCSV(exportData, 'Student_Behaviour_Report')} 
+            <Link
+              href="/dashboard/behaviour/assign"
+              className="inline-flex items-center gap-1.5 bg-[#084A86] hover:bg-[#0c3559] text-white text-xs font-semibold px-3 h-8 rounded-xl shadow-xs transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Assign Incident</span>
+            </Link>
+
+            <Button
+              onClick={() => exportToCSV(exportData, 'Student_Behaviour_Report')}
               variant="outline" size="icon" className="h-8 w-8 border-zinc-200 bg-white hover:bg-zinc-100 cursor-pointer rounded-xl" title="Download CSV"
             >
               <Download className="h-3.5 w-3.5 text-zinc-700" />
             </Button>
-            <Button 
-              onClick={() => exportToExcel(exportData, 'Student_Behaviour_Report', 'Report')} 
+            <Button
+              onClick={() => exportToExcel(exportData, 'Student_Behaviour_Report', 'Report')}
               variant="outline" size="icon" className="h-8 w-8 border-zinc-200 bg-white hover:bg-zinc-100 cursor-pointer rounded-xl" title="Export Excel"
             >
               <FileText className="h-3.5 w-3.5 text-zinc-700" />
             </Button>
-            <Button 
-              onClick={() => printData('Student Incident Behaviour Scorecard', exportData)} 
+            <Button
+              onClick={() => printData('Student Incident Behaviour Scorecard', exportData)}
               variant="outline" size="icon" className="h-8 w-8 border-zinc-200 bg-white hover:bg-zinc-100 cursor-pointer rounded-xl" title="Print Report"
             >
               <Printer className="h-3.5 w-3.5 text-zinc-700" />
@@ -212,7 +348,12 @@ export default function StudentIncidentReportPage() {
             <tbody className="divide-y divide-zinc-100">
               {loading ? (
                 <tr>
-                  <td colSpan="9" className="px-5 py-12 text-center text-zinc-400">Loading student behavior report...</td>
+                  <td colSpan="9" className="px-5 py-12 text-center text-zinc-400">
+                    <div className="inline-flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-[#084A86] border-t-transparent rounded-full animate-spin" />
+                      <span>Loading student behavior directory...</span>
+                    </div>
+                  </td>
                 </tr>
               ) : filteredList.length === 0 ? (
                 <tr>
@@ -225,13 +366,28 @@ export default function StudentIncidentReportPage() {
                 filteredList.map((item, idx) => {
                   const badge = getStandingBadge(item.totalScore);
                   return (
-                    <tr key={item.admissionNo || idx} className="hover:bg-zinc-50/80 transition-colors">
-                      <td className="px-5 py-3.5 font-bold text-zinc-950">{item.admissionNo}</td>
-                      <td className="px-5 py-3.5 font-semibold text-zinc-900">{item.studentName}</td>
-                      <td className="px-5 py-3.5 text-zinc-600">{item.className} ({item.section})</td>
-                      <td className="px-5 py-3.5 text-center font-bold text-zinc-700">{item.totalIncidents}</td>
-                      <td className="px-5 py-3.5 text-center font-bold text-emerald-600">+{item.positivePoints}</td>
-                      <td className="px-5 py-3.5 text-center font-bold text-rose-600">{item.negativePoints}</td>
+                    <tr key={item.studentId || item.admissionNo || idx} className="hover:bg-zinc-50/80 transition-colors">
+                      <td className="px-5 py-3.5 font-bold text-zinc-950 font-mono">{item.admissionNo}</td>
+                      <td className="px-5 py-3.5 font-semibold text-zinc-900">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-full bg-[#084A86]/10 text-[#084A86] font-bold text-[11px] flex items-center justify-center shrink-0">
+                            {item.studentName?.charAt(0) || 'S'}
+                          </div>
+                          <span>{item.studentName}</span>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5 text-zinc-600 font-medium">
+                        {item.className} ({item.section})
+                      </td>
+                      <td className="px-5 py-3.5 text-center font-bold text-zinc-700">
+                        {item.totalIncidents}
+                      </td>
+                      <td className="px-5 py-3.5 text-center font-bold text-emerald-600">
+                        +{item.positivePoints}
+                      </td>
+                      <td className="px-5 py-3.5 text-center font-bold text-rose-600">
+                        {item.negativePoints}
+                      </td>
                       <td className="px-5 py-3.5 text-center font-black text-sm">
                         <span className={item.totalScore >= 0 ? 'text-emerald-600' : 'text-rose-600'}>
                           {item.totalScore > 0 ? `+${item.totalScore}` : item.totalScore}
@@ -243,15 +399,24 @@ export default function StudentIncidentReportPage() {
                         </span>
                       </td>
                       <td className="px-5 py-3.5 text-right">
-                        <Button
-                          onClick={() => setSelectedStudent(item)}
-                          variant="outline"
-                          size="sm"
-                          className="h-7 px-2.5 text-[11px] font-bold rounded-lg border-zinc-200 text-zinc-800 hover:bg-zinc-100 cursor-pointer flex items-center gap-1.5 ml-auto"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>View History</span>
-                        </Button>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => setSelectedStudent(item)}
+                            className="h-7 px-2.5 text-[11px] font-bold rounded-lg border border-zinc-200 text-zinc-800 hover:bg-zinc-100 cursor-pointer flex items-center gap-1 transition-colors"
+                            title="View Incident History"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-zinc-500" />
+                            <span>History</span>
+                          </button>
+                          <button
+                            onClick={() => handleOpenAssignModal(item)}
+                            className="h-7 px-2 text-[11px] font-bold rounded-lg bg-[#084A86] hover:bg-[#0c3559] text-white cursor-pointer flex items-center gap-1 transition-colors"
+                            title="Assign Incident to Student"
+                          >
+                            <Plus className="w-3 h-3" />
+                            <span>Award</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -262,14 +427,14 @@ export default function StudentIncidentReportPage() {
         </div>
       </div>
 
-      {/* History Drawer / Modal */}
+      {/* Incident History Drawer / Modal */}
       {selectedStudent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
           <div className="bg-white border border-zinc-200 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
             {/* Modal Header */}
             <div className="p-6 border-b border-zinc-100 flex items-center justify-between bg-zinc-50">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-zinc-950 text-white flex items-center justify-center font-bold text-base">
+                <div className="w-10 h-10 rounded-2xl bg-[#084A86] text-white flex items-center justify-center font-bold text-base shadow-xs">
                   {selectedStudent.studentName?.charAt(0) || 'S'}
                 </div>
                 <div>
@@ -279,7 +444,7 @@ export default function StudentIncidentReportPage() {
                   </p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setSelectedStudent(null)}
                 className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-950 hover:bg-zinc-200 transition-colors cursor-pointer"
               >
@@ -311,7 +476,22 @@ export default function StudentIncidentReportPage() {
 
             {/* Incident Timeline */}
             <div className="flex-1 overflow-y-auto p-6 space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Chronological Incident Records</h4>
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500">
+                  Chronological Incident Records
+                </h4>
+                <button
+                  onClick={() => {
+                    const stu = selectedStudent;
+                    setSelectedStudent(null);
+                    handleOpenAssignModal(stu);
+                  }}
+                  className="text-xs text-[#084A86] hover:underline font-bold flex items-center gap-1 cursor-pointer"
+                >
+                  <Plus className="w-3 h-3" /> Record New Incident
+                </button>
+              </div>
+
               {selectedStudent.incidentsList && selectedStudent.incidentsList.length > 0 ? (
                 selectedStudent.incidentsList.map((inc, i) => (
                   <div key={inc._id || i} className="p-3.5 rounded-2xl border border-zinc-200 bg-zinc-50/50 flex items-start justify-between gap-3 text-xs">
@@ -328,8 +508,8 @@ export default function StudentIncidentReportPage() {
                       <p className="text-[10px] text-zinc-400">Assigned by: {inc.assignedBy || 'Administration'}</p>
                     </div>
                     <span className={`px-2.5 py-1 rounded-full font-black text-xs shrink-0 ${
-                      inc.point > 0 
-                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+                      inc.point > 0
+                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
                         : 'bg-rose-100 text-rose-800 border border-rose-200'
                     }`}>
                       {inc.point > 0 ? `+${inc.point}` : inc.point} Pts
@@ -337,7 +517,11 @@ export default function StudentIncidentReportPage() {
                   </div>
                 ))
               ) : (
-                <p className="text-xs text-zinc-400 text-center py-6">No incident records found.</p>
+                <div className="py-12 text-center text-zinc-400">
+                  <Shield className="w-10 h-10 mx-auto opacity-30 mb-2" />
+                  <p className="text-sm font-semibold text-zinc-700">Clean Conduct Standing</p>
+                  <p className="text-xs text-zinc-400 mt-0.5">No negative or positive infractions recorded for this student yet.</p>
+                </div>
               )}
             </div>
 
@@ -351,6 +535,127 @@ export default function StudentIncidentReportPage() {
                 Close
               </Button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Assign Incident Modal */}
+      {assignModalStudent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="bg-white border border-zinc-200 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div className="p-5 border-b border-zinc-100 flex items-center justify-between bg-zinc-50">
+              <div>
+                <h3 className="text-sm font-bold text-[#0c3559] uppercase tracking-wider">
+                  Record Student Conduct Incident
+                </h3>
+                <p className="text-xs text-zinc-500 mt-0.5">
+                  {assignModalStudent.studentName} ({assignModalStudent.admissionNo})
+                </p>
+              </div>
+              <button
+                onClick={() => setAssignModalStudent(null)}
+                className="text-zinc-400 hover:text-zinc-600 p-1 rounded-lg hover:bg-zinc-100 cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveAssign} className="p-5 space-y-4">
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-zinc-700 uppercase">Incident Title *</Label>
+                <select
+                  value={assignForm.incidentTitle}
+                  onChange={(e) => {
+                    const sel = incidentsList.find(i => i.title === e.target.value);
+                    if (sel) {
+                      setAssignForm(prev => ({
+                        ...prev,
+                        incidentTitle: sel.title,
+                        point: Math.abs(sel.point),
+                        pointType: sel.pointType
+                      }));
+                    } else {
+                      setAssignForm(prev => ({ ...prev, incidentTitle: e.target.value }));
+                    }
+                  }}
+                  className="w-full h-10 rounded-xl border border-zinc-200 bg-white px-3 text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#084A86]"
+                  required
+                >
+                  {incidentsList.map((inc) => (
+                    <option key={inc._id || inc.title} value={inc.title}>
+                      {inc.title} ({inc.point > 0 ? `+${inc.point}` : inc.point} pts)
+                    </option>
+                  ))}
+                  <option value="Custom Infraction">Other / Custom Infraction</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-zinc-700 uppercase">Point Impact *</Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="50"
+                    value={assignForm.point}
+                    onChange={(e) => setAssignForm(prev => ({ ...prev, point: Number(e.target.value) || 1 }))}
+                    className="h-10 rounded-xl text-xs bg-white border-zinc-200 text-zinc-900"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-zinc-700 uppercase">Point Type *</Label>
+                  <select
+                    value={assignForm.pointType}
+                    onChange={(e) => setAssignForm(prev => ({ ...prev, pointType: e.target.value }))}
+                    className="w-full h-10 rounded-xl border border-zinc-200 bg-white px-3 text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#084A86]"
+                  >
+                    <option value="positive">Positive (+) Merit</option>
+                    <option value="negative">Negative (-) Demerit</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-zinc-700 uppercase">Incident Date *</Label>
+                <Input
+                  type="date"
+                  value={assignForm.incidentDate}
+                  onChange={(e) => setAssignForm(prev => ({ ...prev, incidentDate: e.target.value }))}
+                  className="h-10 rounded-xl text-xs bg-white border-zinc-200 text-zinc-900"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-zinc-700 uppercase">Remarks / Notes</Label>
+                <textarea
+                  value={assignForm.remarks}
+                  onChange={(e) => setAssignForm(prev => ({ ...prev, remarks: e.target.value }))}
+                  rows={2}
+                  placeholder="Optional observation details..."
+                  className="w-full rounded-xl border border-zinc-200 bg-white p-2.5 text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#084A86]"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
+                <button
+                  type="button"
+                  onClick={() => setAssignModalStudent(null)}
+                  className="text-xs h-9 px-4 rounded-xl border border-zinc-200 text-zinc-600 hover:bg-zinc-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={assigning}
+                  className="h-9 px-5 rounded-xl bg-[#084A86] hover:bg-[#0c3559] text-white text-xs font-bold cursor-pointer transition-colors disabled:opacity-50"
+                >
+                  {assigning ? 'Saving...' : 'Record Incident'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
