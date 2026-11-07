@@ -442,13 +442,14 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     // Institutional Title & Subtitle in Header
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.4);
+    doc.setFontSize(8.8);
     doc.text('PAK ROYAL COLLEGE', 14.0, 5.5);
 
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(4.4);
-    doc.text('Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura', 14.0, 9.0);
+    doc.setFontSize(5.0);
+    const frontHeaderAddrLines = doc.splitTextToSize('Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura', 58);
+    doc.text(frontHeaderAddrLines, 14.0, 8.8);
 
     // Gold divider line beneath header
     doc.setDrawColor(goldR, goldG, goldB);
@@ -591,13 +592,13 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
 
     // Left: Website
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(5.0);
+    doc.setFontSize(5.4);
     doc.setTextColor(255, 255, 255);
     doc.text('www.pakroyalcollege.edu.pk', 3.0, footerY + 3.8);
 
     // Right: Phone Number
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(5.4);
+    doc.setFontSize(5.8);
     doc.setTextColor(251, 191, 36);
     doc.text('03 111 444 810', width - 3.0, footerY + 3.8, { align: 'right' });
 
@@ -658,14 +659,14 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
 
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.4);
+    doc.setFontSize(8.8);
     doc.text('PAK ROYAL COLLEGE', 14.0, 5.5);
 
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(4.2);
-    const backHeaderAddrLines = doc.splitTextToSize('Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura', 45);
-    doc.text(backHeaderAddrLines, 14.0, 8.2);
+    doc.setFontSize(4.8);
+    const backHeaderAddrLines = doc.splitTextToSize('Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura', 48);
+    doc.text(backHeaderAddrLines, 14.0, 8.5);
 
     // Right of Back Header: Gold Authorized Signature m. umer w
     try {
@@ -680,7 +681,7 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     doc.line(width - 24.0, 6.6, width - 4.0, 6.6);
 
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(3.2);
+    doc.setFontSize(3.6);
     doc.setTextColor(226, 232, 240);
     doc.text('Authorized signature', width - 14.0, 9.2, { align: 'center' });
 
@@ -693,46 +694,46 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
     const backLeftX = 3.5;
     doc.setTextColor(navyR, navyG, navyB);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(5.2);
+    doc.setFontSize(5.6);
     doc.text('CARDHOLDER INFORMATION', backLeftX, 15.6);
 
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(4.6);
+    doc.setFontSize(5.2);
     doc.setTextColor(15, 23, 42);
     doc.text('This card is non-transferable.', backLeftX, 18.6);
-    doc.text('Carry it while on college premises.', backLeftX, 21.0);
-    doc.text('Report loss to the college office.', backLeftX, 23.4);
+    doc.text('Carry it while on college premises.', backLeftX, 21.2);
+    doc.text('Report loss to the college office.', backLeftX, 23.8);
 
     // Hairline divider
     doc.setDrawColor(226, 232, 240);
     doc.setLineWidth(0.3);
-    doc.line(backLeftX, 25.2, 53.0, 25.2);
+    doc.line(backLeftX, 25.4, 53.0, 25.4);
 
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(3.8);
+    doc.setFontSize(4.2);
     doc.setTextColor(slateR, slateG, slateB);
-    doc.text('IF FOUND, PLEASE RETURN TO', backLeftX, 28.0);
+    doc.text('IF FOUND, PLEASE RETURN TO', backLeftX, 28.2);
 
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(5.4);
+    doc.setFontSize(6.2);
     doc.setTextColor(navyR, navyG, navyB);
-    doc.text('Pak Royal College', backLeftX, 30.8);
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(4.0);
-    doc.setTextColor(15, 23, 42);
-    const returnAddrLines = doc.splitTextToSize('Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura', 50);
-    doc.text(returnAddrLines, backLeftX, 33.4);
+    doc.text('Pak Royal College', backLeftX, 31.2);
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(4.8);
-    doc.setTextColor(navyR, navyG, navyB);
-    doc.text('Contact: 03 111 444 810', backLeftX, 38.6);
+    doc.setTextColor(15, 23, 42);
+    const returnAddrLines = doc.splitTextToSize('Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura', 50);
+    doc.text(returnAddrLines, backLeftX, 34.0);
 
-    doc.setFont('helvetica', 'italic');
-    doc.setFontSize(3.2);
-    doc.setTextColor(148, 163, 184);
-    doc.text('Property of Pak Royal College.', backLeftX, 42.8);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(5.6);
+    doc.setTextColor(navyR, navyG, navyB);
+    doc.text('Contact: 03 111 444 810', backLeftX, 39.8);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(4.6);
+    doc.setTextColor(15, 23, 42);
+    doc.text('Property of Pak Royal College.', backLeftX, 43.6);
 
     // Right Body Column: Scannable QR Code Panel
     const qrBoxX = 56.0;
@@ -756,11 +757,11 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
 
     doc.setTextColor(navyR, navyG, navyB);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(3.6);
+    doc.setFontSize(4.0);
     doc.text('SCAN STUDENT QR', qrBoxX + qrBoxW / 2, qrBoxY + qrSize + 5.5, { align: 'center' });
 
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(5.0);
+    doc.setFontSize(5.4);
     doc.text(formattedRoll, qrBoxX + qrBoxW / 2, qrBoxY + qrSize + 9.0, { align: 'center' });
 
     // Footer Bar (Back)
@@ -773,13 +774,13 @@ async function renderSingleCardPDF(doc, rec, schoolSetting, isHorizontal, design
 
     // Left: Website
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(5.0);
+    doc.setFontSize(5.4);
     doc.setTextColor(255, 255, 255);
     doc.text('www.pakroyalcollege.edu.pk', 3.0, footerY + 3.8);
 
     // Right: Phone Number
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(5.4);
+    doc.setFontSize(5.8);
     doc.setTextColor(251, 191, 36);
     doc.text('03 111 444 810', width - 3.0, footerY + 3.8, { align: 'right' });
   }

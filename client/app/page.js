@@ -306,12 +306,43 @@ export default function LandingPage() {
     setIsLangDropdownOpen(false);
 
     if (typeof window !== "undefined") {
-      localStorage.setItem("stoofi_lang", langCode);
+      try {
+        localStorage.setItem("stoofi_lang", langCode);
+      } catch (_) {}
+
       let googleLang = "en";
       if (langCode === "UR") googleLang = "ur";
       if (langCode === "AR") googleLang = "ar";
 
-      document.cookie = `googtrans=/en/${googleLang}; path=/`;
+      const hostname = window.location.hostname;
+      const hostParts = hostname.split(".");
+      const domains = ["", hostname, `.${hostname}`];
+      if (hostParts.length > 2) {
+        domains.push(`.${hostParts.slice(-2).join(".")}`);
+      }
+
+      if (langCode === "EN") {
+        domains.forEach((d) => {
+          const domainStr = d ? `; domain=${d}` : "";
+          document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/${domainStr}`;
+          document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${domainStr}`;
+          document.cookie = `googtrans=; max-age=0; path=/${domainStr}`;
+        });
+      } else {
+        document.cookie = `googtrans=/en/${googleLang}; path=/`;
+        domains.forEach((d) => {
+          if (d) {
+            document.cookie = `googtrans=/en/${googleLang}; path=/; domain=${d}`;
+          }
+        });
+      }
+
+      const sel = document.querySelector(".goog-te-combo");
+      if (sel) {
+        sel.value = googleLang;
+        sel.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+
       window.location.reload();
     }
   };

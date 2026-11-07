@@ -305,12 +305,14 @@ export default function DashboardLayout({ children }) {
   const [studentSearchStr, setStudentSearchStr] = useState('');
   const [session, setSession] = useState('2026');
   const [isSessionDropdownOpen, setIsSessionDropdownOpen] = useState(false);
-  const [lang, setLang] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('stoofi_lang') || 'EN';
-    }
-    return 'EN';
-  });
+  const [lang, setLang] = useState('EN');
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('stoofi_lang');
+      if (saved) setLang(saved);
+    } catch (_) {}
+  }, []);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
@@ -530,17 +532,42 @@ export default function DashboardLayout({ children }) {
     setIsLangDropdownOpen(false);
     if (typeof window === 'undefined') return;
 
-    localStorage.setItem('stoofi_lang', langCode);
+    try {
+      localStorage.setItem('stoofi_lang', langCode);
+    } catch (_) {}
 
     const googleLangMap = { EN: 'en', UR: 'ur', AR: 'ar' };
     const targetLang = googleLangMap[langCode] || 'en';
 
+    const hostname = window.location.hostname;
+    const hostParts = hostname.split('.');
+    const domains = ['', hostname, `.${hostname}`];
+    if (hostParts.length > 2) {
+      domains.push(`.${hostParts.slice(-2).join('.')}`);
+    }
+
     if (langCode === 'EN') {
-      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
-      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=' + window.location.hostname;
+      // Clear google translate cookies thoroughly across all possible domain scopes
+      domains.forEach((d) => {
+        const domainStr = d ? `; domain=${d}` : '';
+        document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/${domainStr}`;
+        document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${domainStr}`;
+        document.cookie = `googtrans=; max-age=0; path=/${domainStr}`;
+      });
     } else {
       document.cookie = `googtrans=/en/${targetLang}; path=/`;
-      document.cookie = `googtrans=/en/${targetLang}; path=/; domain=${window.location.hostname}`;
+      domains.forEach((d) => {
+        if (d) {
+          document.cookie = `googtrans=/en/${targetLang}; path=/; domain=${d}`;
+        }
+      });
+    }
+
+    // Try live select element first if present
+    const sel = document.querySelector('.goog-te-combo');
+    if (sel) {
+      sel.value = targetLang;
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
     }
     
     window.location.reload();

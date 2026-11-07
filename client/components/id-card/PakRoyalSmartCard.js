@@ -92,10 +92,10 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
             />
           </div>
           <div className="leading-tight">
-            <span className="font-black text-[16px] tracking-wide uppercase text-white block">
+            <span className="font-black text-[17px] tracking-wide uppercase text-white block">
               PAK ROYAL COLLEGE
             </span>
-            <span className="text-[10px] text-white font-bold tracking-tight leading-tight block max-w-[225px]">
+            <span className="text-[10.5px] text-white font-black tracking-tight leading-tight block max-w-[235px]">
               Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura
             </span>
           </div>
@@ -156,7 +156,7 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
               <span className="text-[9px] font-black mt-1 uppercase text-[#324F91]">{initial}</span>
             </div>
           </div>
-          <span className="text-[10px] font-black tracking-[0.25em] text-[#324F91] uppercase text-center mt-1.5 block">
+          <span className="text-[10.5px] font-black tracking-[0.25em] text-[#324F91] uppercase text-center mt-1.5 block">
             STUDENT
           </span>
         </div>
@@ -164,29 +164,29 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
         {/* Right Column: Bio Data Details */}
         <div className="flex-1 min-w-0 bg-white p-3 flex flex-col justify-between">
           <div>
-            <span className="text-[8.5px] font-black text-[#324F91] tracking-wider uppercase block">
+            <span className="text-[9px] font-black text-[#324F91] tracking-wider uppercase block">
               STUDENT IDENTITY CARD
             </span>
-            <h2 className="text-[17px] font-black text-[#324F91] leading-tight truncate mt-0.5">
+            <h2 className="text-[18px] font-black text-[#324F91] leading-tight truncate mt-0.5">
               {fullName}
             </h2>
             <div className="border-b border-slate-200 my-1" />
 
             <div className="space-y-1">
               <div>
-                <span className="text-[7.5px] font-bold text-slate-500 uppercase tracking-wider block">
+                <span className="text-[8px] font-bold text-slate-600 uppercase tracking-wider block">
                   FATHER&apos;S NAME
                 </span>
-                <span className="text-[11.5px] font-semibold text-slate-900 truncate block">
+                <span className="text-[12.5px] font-bold text-slate-900 truncate block">
                   {fatherName || '—'}
                 </span>
               </div>
 
               <div>
-                <span className="text-[7.5px] font-bold text-slate-500 uppercase tracking-wider block">
+                <span className="text-[8px] font-bold text-slate-600 uppercase tracking-wider block">
                   CLASS / PROGRAMME
                 </span>
-                <span className="text-[12px] font-black text-[#324F91] truncate block">
+                <span className="text-[13px] font-black text-[#324F91] truncate block">
                   {classDisplay}
                 </span>
               </div>
@@ -196,19 +196,19 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
           {/* Roll No & Session Info Capsule Box */}
           <div className="bg-[#edf2f7] rounded-lg px-2.5 py-1.5 flex items-center justify-between border border-slate-200/60 mt-1">
             <div className="flex-1">
-              <span className="text-[7px] font-bold text-slate-500 uppercase tracking-wider block">
+              <span className="text-[7.5px] font-bold text-slate-600 uppercase tracking-wider block">
                 ROLL NO.
               </span>
-              <span className="text-[11.5px] font-black font-mono text-[#324F91] block">
+              <span className="text-[12px] font-black font-mono text-[#324F91] block">
                 {rollNo}
               </span>
             </div>
             <div className="w-px h-5 bg-slate-300 mx-2 shrink-0" />
             <div className="flex-1 text-right">
-              <span className="text-[7px] font-bold text-slate-500 uppercase tracking-wider block">
+              <span className="text-[7.5px] font-bold text-slate-600 uppercase tracking-wider block">
                 SESSION
               </span>
-              <span className="text-[11.5px] font-black font-mono text-[#324F91] block">
+              <span className="text-[12px] font-black font-mono text-[#324F91] block">
                 {sessionText}
               </span>
             </div>
@@ -224,11 +224,11 @@ export function PakRoyalCardFront({ rec, schoolSetting = null, className = '', i
         {/* Gold accent rectangle tab on top-left edge */}
         <div className="absolute top-0 left-3 w-8 h-[2.5px] bg-[#d4af37]" />
 
-        <span className="font-mono text-[10px] text-white font-bold tracking-tight">
+        <span className="font-mono text-[11px] text-white font-black tracking-tight">
           www.pakroyalcollege.edu.pk
         </span>
 
-        <span className="font-mono text-[11px] font-black text-amber-300">
+        <span className="font-mono text-[12px] font-black text-amber-300">
           03 111 444 810
         </span>
       </div>
@@ -270,10 +270,10 @@ export function PakRoyalCardBack({ rec, schoolSetting = null, className = '', is
             />
           </div>
           <div className="leading-tight">
-            <span className="font-black text-[15.5px] tracking-wide uppercase text-white block">
+            <span className="font-black text-[16.5px] tracking-wide uppercase text-white block">
               PAK ROYAL COLLEGE
             </span>
-            <span className="text-[9.5px] text-white font-bold tracking-tight leading-tight block max-w-[215px]">
+            <span className="text-[10.5px] text-white font-black tracking-tight leading-tight block max-w-[225px]">
               Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura
             </span>
           </div>
@@ -288,7 +288,7 @@ export function PakRoyalCardBack({ rec, schoolSetting = null, className = '', is
             style={{ height: '16px' }}
           />
           <div className="w-20 h-px bg-white/40 my-0.5" />
-          <span className="font-bold text-[7px] text-white block leading-none">
+          <span className="font-bold text-[7.5px] text-white block leading-none">
             Authorized signature
           </span>
         </div>
@@ -300,36 +300,36 @@ export function PakRoyalCardBack({ rec, schoolSetting = null, className = '', is
       {/* ── BODY SECTION (DUAL COLUMN: CARDHOLDER INFO & QR CODE) ── */}
       <div className="flex items-stretch flex-1 bg-white min-h-[148px]">
         {/* Left Column: Instructions & Return Address */}
-        <div className="flex-1 min-w-0 bg-white px-3 py-1.5 flex flex-col justify-between">
+        <div className="flex-1 min-w-0 bg-white px-3 py-1 flex flex-col justify-between">
           <div>
-            <h4 className="text-[10px] font-black text-[#324F91] tracking-wider uppercase mb-0.5">
+            <h4 className="text-[11px] font-black text-[#324F91] tracking-wider uppercase mb-0.5">
               CARDHOLDER INFORMATION
             </h4>
-            <div className="text-[10.5px] font-bold text-slate-950 leading-tight space-y-0.5">
-              <p className="font-bold text-slate-950 leading-tight">This card is non-transferable.</p>
-              <p className="font-bold text-slate-950 leading-tight">Carry it while on college premises.</p>
-              <p className="font-bold text-slate-950 leading-tight">Report loss to the college office.</p>
+            <div className="text-[11.5px] font-black text-slate-950 leading-snug space-y-0.5">
+              <p className="font-black text-slate-950 leading-tight">This card is non-transferable.</p>
+              <p className="font-black text-slate-950 leading-tight">Carry it while on college premises.</p>
+              <p className="font-black text-slate-950 leading-tight">Report loss to the college office.</p>
             </div>
           </div>
 
           <div className="border-b border-slate-200 w-full my-0.5" />
 
           <div className="space-y-0.5">
-            <span className="text-[8px] font-black text-slate-500 uppercase tracking-wider block">
+            <span className="text-[8.5px] font-black text-slate-600 uppercase tracking-wider block">
               IF FOUND, PLEASE RETURN TO
             </span>
-            <span className="font-black text-[12px] text-[#324F91] block leading-tight">
+            <span className="font-black text-[13px] text-[#324F91] block leading-tight">
               Pak Royal College
             </span>
-            <span className="text-[9.5px] text-slate-900 font-bold leading-tight block">
+            <span className="text-[10.5px] text-slate-950 font-black leading-tight block">
               Lal Puli Stop Main Jaranwala Road Sharaqpur Sharif District Sheikhupura
             </span>
-            <span className="text-[10.5px] font-black text-[#324F91] block leading-tight">
+            <span className="text-[11.5px] font-black text-[#324F91] block leading-tight">
               Contact: 03 111 444 810
             </span>
           </div>
 
-          <p className="text-[7.5px] text-slate-500 font-bold italic mt-0.5">
+          <p className="text-[10px] text-slate-900 font-black not-italic mt-0.5 block tracking-tight">
             Property of Pak Royal College.
           </p>
         </div>
@@ -338,10 +338,10 @@ export function PakRoyalCardBack({ rec, schoolSetting = null, className = '', is
         <div className="w-[110px] shrink-0 p-1.5 flex flex-col items-center justify-center">
           <div className="bg-[#f0f4f8] rounded-xl p-2 flex flex-col items-center justify-center border border-slate-200/80 w-full shadow-2xs">
             <StudentCardQR rec={rec} size={58} />
-            <span className="text-[6.5px] font-black text-[#324F91] uppercase tracking-wider mt-1 text-center block">
+            <span className="text-[7.5px] font-black text-[#324F91] uppercase tracking-wider mt-1 text-center block">
               SCAN STUDENT QR
             </span>
-            <span className="font-mono text-[9px] font-black text-[#324F91] text-center block">
+            <span className="font-mono text-[10.5px] font-black text-[#324F91] text-center block">
               {rollNo}
             </span>
           </div>
@@ -356,11 +356,11 @@ export function PakRoyalCardBack({ rec, schoolSetting = null, className = '', is
         {/* Gold accent rectangle tab on top-left edge */}
         <div className="absolute top-0 left-3 w-8 h-[2.5px] bg-[#d4af37]" />
 
-        <span className="font-mono text-[10px] text-white font-bold tracking-tight">
+        <span className="font-mono text-[11px] text-white font-black tracking-tight">
           www.pakroyalcollege.edu.pk
         </span>
 
-        <span className="font-mono text-[11px] font-black text-amber-300">
+        <span className="font-mono text-[12px] font-black text-amber-300">
           03 111 444 810
         </span>
       </div>
