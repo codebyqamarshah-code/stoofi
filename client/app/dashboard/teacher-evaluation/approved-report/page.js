@@ -113,26 +113,27 @@ export default function ApprovedReportPage() {
   };
 
   const uniqueTeachers = [...new Set(data.map(d => d.teacherName))];
+  const highPerformersCount = data.filter(d => d.score >= 80).length;
 
   return (
     <div className="space-y-6">
       {/* View Modal */}
       {viewItem && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setViewItem(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-5 border-b border-zinc-100 bg-zinc-50">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4" onClick={() => setViewItem(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-zinc-100 bg-[#084A86] text-white">
               <div>
-                <h3 className="text-base font-bold text-zinc-950">Evaluation Detail</h3>
-                <p className="text-xs text-zinc-500 mt-0.5">{viewItem.teacherName} — {viewItem.subject}</p>
+                <h3 className="text-base font-bold">Evaluation Detail</h3>
+                <p className="text-xs text-blue-100 mt-0.5">{viewItem.teacherName} — {viewItem.subject}</p>
               </div>
-              <button onClick={() => setViewItem(null)} className="p-1.5 hover:bg-zinc-200 rounded-lg transition-colors">
-                <X className="w-5 h-5 text-zinc-600" />
+              <button onClick={() => setViewItem(null)} className="p-1.5 hover:bg-white/20 rounded-lg transition-colors">
+                <X className="w-5 h-5 text-white" />
               </button>
             </div>
             <div className="p-5 space-y-4">
               <div className="grid grid-cols-2 gap-3 text-sm">
                 {[['Teacher', viewItem.teacherName], ['Subject', viewItem.subject], ['Class', viewItem.classSection],
-                  ['Evaluated By', viewItem.evaluatedBy], ['Date', viewItem.date], ['Approved On', viewItem.approvedOn]].map(([l, v]) => (
+                  ['Evaluated By', viewItem.evaluatedBy], ['Date', formatDateDMY(viewItem.date)], ['Approved On', viewItem.approvedOn || 'Verified']].map(([l, v]) => (
                   <div key={l} className="bg-zinc-50 rounded-lg p-2.5 border border-zinc-100">
                     <p className="text-xs text-zinc-400 font-medium">{l}</p>
                     <p className="font-bold text-zinc-900 mt-0.5">{v}</p>
@@ -159,76 +160,103 @@ export default function ApprovedReportPage() {
               </div>
             </div>
             <div className="p-4 border-t border-zinc-100 bg-zinc-50">
-              <button onClick={() => setViewItem(null)} className="w-full py-2 bg-[#084A86] hover:bg-[#073b6b] text-white font-bold rounded-lg text-sm">Close</button>
+              <button onClick={() => setViewItem(null)} className="w-full py-2 bg-[#084A86] hover:bg-[#073b6b] text-white font-bold rounded-lg text-xs uppercase tracking-wider transition-colors">
+                Close
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-zinc-950">Approved Evaluation Reports</h1>
-          <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-sm font-black rounded-full border border-emerald-200">
-            <CheckCircle2 className="inline w-3.5 h-3.5 mr-1" />{data.filter(d => d.score >= 80).length} High Performers
-          </span>
+      {/* Page Header with Clean Breadcrumbs */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-zinc-950 tracking-tight">Approved Evaluation Reports</h1>
+          <p className="text-xs text-zinc-500 mt-0.5">Audited teacher performance evaluations, score breakdowns, and approved status</p>
         </div>
-        <div className="flex items-center gap-3">
-          <button onClick={handleExportCSV} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg transition-colors">
-            <Download className="w-4 h-4" /> Export CSV
-          </button>
-          <div className="flex items-center text-sm text-zinc-500 font-medium">
-            <Link href="/dashboard" className="hover:text-zinc-900 transition-colors">Dashboard</Link>
-            <ChevronRight className="w-4 h-4 mx-1 text-zinc-400" />
-            <span>Teacher Evaluation</span>
-            <ChevronRight className="w-4 h-4 mx-1 text-zinc-400" />
-            <span className="text-zinc-900 font-semibold">Approved Report</span>
-          </div>
+        <div className="flex items-center text-xs text-zinc-500 font-medium">
+          <Link href="/dashboard" className="hover:text-zinc-900 transition-colors">Dashboard</Link>
+          <ChevronRight className="w-3.5 h-3.5 mx-1 text-zinc-400" />
+          <span className="text-zinc-500">Teacher Evaluation</span>
+          <ChevronRight className="w-3.5 h-3.5 mx-1 text-zinc-400" />
+          <span className="text-[#084A86] font-bold">Approved Report</span>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white border border-zinc-200 rounded-xl p-5 shadow-sm">
+      {/* Filter Card */}
+      <div className="bg-white border border-zinc-200 rounded-xl p-5 shadow-xs">
         <div className="flex items-center gap-2 mb-4">
           <Filter className="w-4 h-4 text-[#084A86]" />
-          <h2 className="text-sm font-bold text-zinc-700 uppercase tracking-wider">Filter Records</h2>
+          <h2 className="text-xs font-bold text-zinc-700 uppercase tracking-wider">Filter Records</h2>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-zinc-400" />
-            <input type="text" placeholder="Search teacher / subject..."
-              value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 w-full border border-zinc-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#084A86]/40" />
+            <Search className="w-4 h-4 absolute left-3 top-3 text-zinc-400" />
+            <input
+              type="text"
+              placeholder="Search teacher / subject..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="pl-9 pr-3.5 py-2 w-full border border-zinc-200 rounded-lg text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#084A86]/30 focus:border-[#084A86]"
+            />
           </div>
-          <select value={teacherFilter} onChange={e => setTeacherFilter(e.target.value)}
-            className="border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#084A86]/40">
+          <select
+            value={teacherFilter}
+            onChange={e => setTeacherFilter(e.target.value)}
+            className="border border-zinc-200 rounded-lg px-3 py-2 text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#084A86]/30 focus:border-[#084A86] bg-white font-medium"
+          >
             <option value="">All Teachers</option>
-            {uniqueTeachers.map(t => <option key={t}>{t}</option>)}
+            {uniqueTeachers.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
-          <Input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} placeholder="From Date"
-            className="border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#084A86]/40" />
-          <Input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} placeholder="To Date"
-            className="border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#084A86]/40" />
+          <Input
+            type="date"
+            value={dateFrom}
+            onChange={e => setDateFrom(e.target.value)}
+            placeholder="From Date"
+            className="border border-zinc-200 rounded-lg px-3 py-2 text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#084A86]/30 focus:border-[#084A86] h-auto"
+          />
+          <Input
+            type="date"
+            value={dateTo}
+            onChange={e => setDateTo(e.target.value)}
+            placeholder="To Date"
+            className="border border-zinc-200 rounded-lg px-3 py-2 text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#084A86]/30 focus:border-[#084A86] h-auto"
+          />
         </div>
         {(searchQuery || teacherFilter || dateFrom || dateTo) && (
-          <div className="mt-3 flex">
-            <button onClick={() => { setSearchQuery(''); setTeacherFilter(''); setDateFrom(''); setDateTo(''); }}
-              className="flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-800 font-semibold">
+          <div className="mt-3.5 flex">
+            <button
+              onClick={() => { setSearchQuery(''); setTeacherFilter(''); setDateFrom(''); setDateTo(''); }}
+              className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-900 font-semibold"
+            >
               <RefreshCw className="w-3.5 h-3.5" /> Clear Filters
             </button>
           </div>
         )}
       </div>
 
-      {/* Table */}
-      <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm">
-        <div className="p-4 border-b border-zinc-100 bg-zinc-50/50 flex justify-between items-center">
-          <span className="text-sm font-bold text-zinc-700 uppercase tracking-wide">Approved Evaluations</span>
-          <span className="text-xs text-zinc-500">{filteredData.length} records</span>
+      {/* Table Container */}
+      <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs">
+        <div className="p-4 border-b border-zinc-100 bg-zinc-50/50 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className="text-sm font-bold text-zinc-800 uppercase tracking-wide">Approved Evaluations</span>
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <CheckCircle2 className="w-3.5 h-3.5" /> {highPerformersCount} High Performers
+            </span>
+            <span className="text-xs text-zinc-400">({filteredData.length} records)</span>
+          </div>
+
+          <button
+            onClick={handleExportCSV}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-xs transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" /> Export CSV
+          </button>
         </div>
+
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-zinc-950">
-            <thead className="text-xs text-zinc-600 uppercase bg-zinc-50 border-b border-zinc-200 font-bold">
+            <thead className="text-[11px] text-zinc-600 uppercase bg-zinc-50 border-b border-zinc-200 font-bold tracking-wider">
               <tr>
                 <th className="px-4 py-3">#</th>
                 <th className="px-4 py-3">Teacher</th>
@@ -242,22 +270,35 @@ export default function ApprovedReportPage() {
             </thead>
             <tbody className="divide-y divide-zinc-100">
               {loading ? (
-                <tr><td colSpan="8" className="px-4 py-10 text-center text-zinc-500">Loading...</td></tr>
+                <tr>
+                  <td colSpan="8" className="px-4 py-12 text-center text-zinc-500">
+                    <div className="inline-flex items-center gap-2 text-xs font-semibold">
+                      <span className="w-4 h-4 border-2 border-[#084A86] border-t-transparent rounded-full animate-spin"></span>
+                      Loading evaluations...
+                    </div>
+                  </td>
+                </tr>
               ) : filteredData.length === 0 ? (
-                <tr><td colSpan="8" className="px-4 py-10 text-center text-zinc-500 font-medium">No approved evaluations found</td></tr>
+                <tr>
+                  <td colSpan="8" className="px-4 py-12 text-center text-zinc-500 font-medium">
+                    No approved evaluations found matching your filters.
+                  </td>
+                </tr>
               ) : filteredData.map((item, idx) => (
                 <tr key={item._id} className="hover:bg-zinc-50/80 transition-colors">
-                  <td className="px-4 py-3.5 text-zinc-500 font-medium">{idx + 1}</td>
-                  <td className="px-4 py-3.5 font-bold text-zinc-950">{item.teacherName}</td>
-                  <td className="px-4 py-3.5 text-zinc-700">{item.subject}</td>
+                  <td className="px-4 py-3.5 text-zinc-400 font-semibold text-xs">{idx + 1}</td>
+                  <td className="px-4 py-3.5 font-bold text-zinc-900">{item.teacherName}</td>
+                  <td className="px-4 py-3.5 text-zinc-700 text-xs font-medium">{item.subject}</td>
                   <td className="px-4 py-3.5"><ScoreBadge score={item.score} /></td>
-                  <td className="px-4 py-3.5 text-zinc-700">{item.evaluatedBy}</td>
-                  <td className="px-4 py-3.5 text-zinc-600 text-xs">{formatDateDMY(item.date)}</td>
-                  <td className="px-4 py-3.5 text-zinc-600 text-xs">{item.approvedOn}</td>
+                  <td className="px-4 py-3.5 text-zinc-600 text-xs">{item.evaluatedBy}</td>
+                  <td className="px-4 py-3.5 text-zinc-500 text-xs font-mono">{formatDateDMY(item.date)}</td>
+                  <td className="px-4 py-3.5 text-zinc-500 text-xs">{item.approvedOn || 'Verified'}</td>
                   <td className="px-4 py-3.5 text-right">
-                    <button onClick={() => setViewItem(item)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-[#084A86] hover:bg-[#073b6b] text-white text-xs font-bold rounded-lg transition-colors ml-auto">
-                      <Eye className="w-3.5 h-3.5" /> View Detail
+                    <button
+                      onClick={() => setViewItem(item)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-zinc-700 bg-white border border-zinc-200 hover:bg-zinc-50 rounded-lg shadow-xs transition-colors"
+                    >
+                      <Eye className="w-3.5 h-3.5 text-zinc-500" /> Detail
                     </button>
                   </td>
                 </tr>

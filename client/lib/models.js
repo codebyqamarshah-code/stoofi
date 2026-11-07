@@ -1989,6 +1989,28 @@ const transportVehicleSchema = new mongoose.Schema({
 
 export const TransportVehicle = mongoose.models.TransportVehicle || mongoose.model('TransportVehicle', transportVehicleSchema);
 
+// Teacher Evaluation Schema
+const teacherEvaluationSchema = new mongoose.Schema({
+  teacherName: { type: String, required: true },
+  staffId: { type: String, default: '' },
+  subject: { type: String, default: '' },
+  classSection: { type: String, default: '' },
+  evaluatedBy: { type: String, default: 'Academic Coordinator' },
+  score: { type: Number, default: 80 },
+  date: { type: String, default: '' },
+  approvedOn: { type: String, default: '' },
+  status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
+  comment: { type: String, default: '' },
+  criteria: [{
+    name: { type: String },
+    score: { type: Number, default: 8 },
+    max: { type: Number, default: 10 }
+  }]
+}, { timestamps: true });
+
+export const TeacherEvaluation = mongoose.models.TeacherEvaluation || mongoose.model('TeacherEvaluation', teacherEvaluationSchema);
+
+
 
 
 

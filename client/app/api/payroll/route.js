@@ -11,11 +11,21 @@ export async function GET(req) {
     const role = searchParams.get('role');
     const month = searchParams.get('month');
     const year = searchParams.get('year');
+    const staffId = searchParams.get('staffId');
 
     const filter = {};
-    if (role && role !== 'All') filter.role = role;
-    if (month && month !== 'All') filter.month = month;
-    if (year && year !== 'All') filter.year = year;
+    if (role && role !== 'All' && role !== 'all') {
+      filter.role = new RegExp(`^${role.trim()}$`, 'i');
+    }
+    if (month && month !== 'All' && month !== 'all') {
+      filter.month = month;
+    }
+    if (year && year !== 'All' && year !== 'all') {
+      filter.year = String(year);
+    }
+    if (staffId) {
+      filter.staffId = staffId;
+    }
 
     const payrolls = await Payroll.find(filter).sort({ createdAt: -1 }).lean();
     return NextResponse.json({ success: true, data: payrolls || [] });
@@ -28,8 +38,24 @@ export async function POST(req) {
   try {
     await connectDB();
     const body = await req.json();
-    const created = await Payroll.create(body);
-    return NextResponse.json({ success: true, data: created, message: 'Payroll record created successfully' }, { status: 201 });
+    
+    // If staffId, month, and year are provided, upsert to avoid duplicate records
+    let record;
+    if (body.staffId && body.month && body.year) {
+      record = await Payroll.findOneAndUpdate(
+        { staffId: body.staffId, month: body.month, year: String(body.year) },
+        { $set: body },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
+    } else {
+      record = await Payroll.create(body);
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: record,
+      message: 'Payroll record saved successfully'
+    }, { status: 201 });
   } catch (err) {
     return NextResponse.json({ success: false, message: err.message }, { status: 500 });
   }
