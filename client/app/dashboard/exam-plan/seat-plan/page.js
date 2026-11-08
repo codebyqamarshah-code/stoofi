@@ -53,24 +53,18 @@ const DEFAULT_HALLS = [
 ];
 
 const SAMPLE_STUDENTS = [
-  { _id: 'st1', rollNo: '101', admissionNo: 'STU-001', name: 'Muhammad Ali', class: 'FSC OTT', section: 'A' },
-  { _id: 'st2', rollNo: '102', admissionNo: 'STU-002', name: 'Ayesha Fatima', class: 'FSC OTT', section: 'A' },
-  { _id: 'st3', rollNo: '103', admissionNo: 'STU-003', name: 'Zainab Bibi', class: 'FSC OTT', section: 'A' },
-  { _id: 'st4', rollNo: '104', admissionNo: 'STU-004', name: 'Hamza Farooq', class: 'FSC OTT', section: 'B' },
-  { _id: 'st5', rollNo: '105', admissionNo: 'STU-005', name: 'Fatima Noor', class: 'FSC OTT', section: 'B' },
-  { _id: 'st6', rollNo: '106', admissionNo: 'STU-006', name: 'Bilal Hussain', class: 'FSC OTT', section: 'A' },
-  { _id: 'st7', rollNo: '107', admissionNo: 'STU-007', name: 'Usman Ghani', class: 'FSC OTT', section: 'A' },
-  { _id: 'st8', rollNo: '108', admissionNo: 'STU-008', name: 'Hassan Raza', class: 'FSC OTT', section: 'B' },
-  { _id: 'st9', rollNo: '109', admissionNo: 'STU-009', name: 'Mariam Tariq', class: 'FSC OTT', section: 'A' },
-  { _id: 'st10', rollNo: '110', admissionNo: 'STU-010', name: 'Ahmed Ali Khan', class: 'FSC OTT', section: 'B' },
-  { _id: 'st11', rollNo: '111', admissionNo: 'STU-011', name: 'Sara Kamran', class: 'FSC OTT', section: 'A' },
-  { _id: 'st12', rollNo: '112', admissionNo: 'STU-012', name: 'Danish Qureshi', class: 'FSC OTT', section: 'B' },
-  { _id: 'st13', rollNo: '113', admissionNo: 'STU-013', name: 'Zoya Naveed', class: 'FSC OTT', section: 'A' },
-  { _id: 'st14', rollNo: '114', admissionNo: 'STU-014', name: 'Omer Farooq', class: 'FSC OTT', section: 'B' },
-  { _id: 'st15', rollNo: '115', admissionNo: 'STU-015', name: 'Khadija Rehman', class: 'FSC OTT', section: 'A' },
-  { _id: 'st16', rollNo: '116', admissionNo: 'STU-016', name: 'Sufyan Aslam', class: 'FSC OTT', section: 'A' },
-  { _id: 'st17', rollNo: '117', admissionNo: 'STU-017', name: 'Noor ul Huda', class: 'FSC OTT', section: 'B' },
-  { _id: 'st18', rollNo: '118', admissionNo: 'STU-018', name: 'Taimoor Shah', class: 'FSC OTT', section: 'A' },
+  { _id: 'st1', rollNo: 'PRC260001', admissionNo: 'ADM260001', name: 'Muhammad Tayyab', class: 'FSC OTT', section: 'A' },
+  { _id: 'st2', rollNo: 'PRC260002', admissionNo: 'ADM260002', name: 'Muhammad Abdullah', class: 'FSC Nursing', section: 'A' },
+  { _id: 'st3', rollNo: 'PRC260003', admissionNo: 'ADM260003', name: 'Iqra Shabir Ahmad', class: 'FSC Nursing', section: 'A' },
+  { _id: 'st4', rollNo: 'PRC260004', admissionNo: 'ADM260004', name: 'Zainab Ikhlaq', class: 'FSC OTT', section: 'A' },
+  { _id: 'st5', rollNo: 'PRC260022', admissionNo: 'ADM260022', name: 'Maha Abdul', class: 'BS PSY', section: 'A' },
+  { _id: 'st6', rollNo: 'PRC260029', admissionNo: 'ADM260029', name: 'Urwa Batool', class: 'B Category', section: 'A' },
+  { _id: 'st7', rollNo: 'PRC250015', admissionNo: 'ADM250015', name: 'Arsha Kanwal', class: 'DPT', section: 'A' },
+  { _id: 'st8', rollNo: 'PRC250024', admissionNo: 'ADM250024', name: 'Anmol Mehak', class: 'BS RIT', section: 'A' },
+  { _id: 'st9', rollNo: 'PRC260038', admissionNo: 'ADM260038', name: 'Rimsha Jameel', class: 'Office Management', section: 'A' },
+  { _id: 'st10', rollNo: 'PRC260007', admissionNo: 'ADM260007', name: 'Fatima Saud Ahmad Khan', class: 'FSC Dental', section: 'A' },
+  { _id: 'st11', rollNo: 'PRC260026', admissionNo: 'ADM260026', name: 'Sammra Sharif', class: 'LHV', section: 'A' },
+  { _id: 'st12', rollNo: 'PRC260037', admissionNo: 'ADM260037', name: 'Noreen Jaffar', class: 'CMW', section: 'A' },
 ];
 
 export default function SeatPlanPage() {
@@ -130,13 +124,23 @@ export default function SeatPlanPage() {
     setLoading(true);
     try {
       const selectedClass = classes.find(c => c._id === formData.classId)?.name || formData.classId;
-      const res = await api.get(`/student?className=${encodeURIComponent(selectedClass)}`).catch(() => null);
+      const res = await api.get(`/student?className=${encodeURIComponent(selectedClass)}&limit=200`).catch(() => null);
+      let studentList = [];
       if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
-        const mapped = res.data.map((st, idx) => ({
+        studentList = res.data;
+      } else {
+        const allRes = await api.get('/student?limit=100').catch(() => null);
+        if (allRes?.success && Array.isArray(allRes.data) && allRes.data.length > 0) {
+          studentList = allRes.data;
+        }
+      }
+
+      if (studentList.length > 0) {
+        const mapped = studentList.map((st, idx) => ({
           _id: st._id,
-          rollNo: st.rollNumber || String(101 + idx),
-          admissionNo: st.admissionNo || `STU-${st._id.substring(0, 5).toUpperCase()}`,
-          name: `${st.firstName || ''} ${st.lastName || ''}`.trim() || st.fullName || 'Student',
+          rollNo: st.rollNo || st.rollNumber || (st.admissionNo ? `PRC${st.admissionNo.replace(/\D/g, '')}` : `PRC2600${String(idx + 1).padStart(2, '0')}`),
+          admissionNo: st.admissionNo || st.admissionNumber || `ADM2600${String(idx + 1).padStart(2, '0')}`,
+          name: st.name || st.studentName || `${st.firstName || ''} ${st.lastName || ''}`.trim() || st.fullName || 'Student',
           class: selectedClass,
           section: st.section || 'A'
         }));
@@ -432,7 +436,7 @@ export default function SeatPlanPage() {
                             className="px-2 py-0.5 rounded text-[11px] font-mono font-black shadow-xs"
                             style={{ backgroundColor: '#084A86', color: '#ffffff' }}
                           >
-                            #{seat.student.rollNo}
+                            {seat.student.rollNo}
                           </span>
                         )}
                       </div>
@@ -498,7 +502,7 @@ export default function SeatPlanPage() {
                       <div className="text-[10px] uppercase font-bold text-zinc-400">EXAM CANDIDATE DESK LABEL</div>
                       <div className="font-black text-sm text-zinc-950 truncate">{seat.student.name}</div>
                       <div className="flex items-center gap-3 text-xs font-mono font-bold text-zinc-700">
-                        <span>ROLL: <strong className="text-zinc-950">#{seat.student.rollNo}</strong></span>
+                        <span>ROLL: <strong className="text-zinc-950">{seat.student.rollNo}</strong></span>
                         <span>ADM: {seat.student.admissionNo}</span>
                       </div>
                       <div className="text-[11px] font-semibold text-zinc-600">

@@ -8,10 +8,8 @@ import { Input } from '@/components/ui/input';
 import api from '@/services/api';
 
 const DEMO_PENDING = [
-  { _id: 'p1', staffName: 'Ayesha Tariq', department: 'Academics', role: 'Teacher', leaveType: 'Sick Leave', fromDate: '2026-10-18', toDate: '2026-10-20', days: 3, reason: 'High fever and doctor-advised rest', appliedDate: '2026-10-16' },
-  { _id: 'p2', staffName: 'Bilal Hassan', department: 'Administration', role: 'Admin Officer', leaveType: 'Annual Leave', fromDate: '2026-10-22', toDate: '2026-10-27', days: 6, reason: 'Family wedding event in hometown', appliedDate: '2026-10-15' },
-  { _id: 'p3', staffName: 'Fatima Malik', department: 'Languages', role: 'Teacher', leaveType: 'Maternity Leave', fromDate: '2026-11-01', toDate: '2027-01-30', days: 90, reason: 'Doctor prescribed maternity leave', appliedDate: '2026-10-14' },
-  { _id: 'p4', staffName: 'Hamza Rashid', department: 'Finance', role: 'Accountant', leaveType: 'Casual Leave', fromDate: '2026-10-25', toDate: '2026-10-26', days: 2, reason: 'Urgent domestic property documentation', appliedDate: '2026-10-15' },
+  { _id: 'p1', staffName: 'Ali Sher', staffNo: 'PRCS0001', department: 'Academics', role: 'Teacher', leaveType: 'Sick Leave', fromDate: '2026-10-18', toDate: '2026-10-20', days: 3, reason: 'High fever and doctor-advised rest', appliedDate: '2026-10-16' },
+  { _id: 'p2', staffName: 'Abu Zar Jamil', staffNo: 'PRCS0002', department: 'Academics', role: 'Teacher', leaveType: 'Casual Leave', fromDate: '2026-10-22', toDate: '2026-10-24', days: 2, reason: 'Family urgent personal commitment', appliedDate: '2026-10-20' },
 ];
 
 export default function PendingLeavePage() {

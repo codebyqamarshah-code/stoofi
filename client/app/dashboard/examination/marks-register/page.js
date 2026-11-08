@@ -57,12 +57,12 @@ const DEFAULT_SUBJECTS = [
 ];
 
 const SAMPLE_STUDENTS = [
-  { _id: 'st1', rollNo: '101', name: 'Muhammad Ali', marks: 88, totalMarks: 100, isAbsent: false, remarks: 'Excellent performance' },
-  { _id: 'st2', rollNo: '102', name: 'Ayesha Fatima', marks: 94, totalMarks: 100, isAbsent: false, remarks: 'Top of class' },
-  { _id: 'st3', rollNo: '103', name: 'Zainab Bibi', marks: 76, totalMarks: 100, isAbsent: false, remarks: 'Good effort' },
-  { _id: 'st4', rollNo: '104', name: 'Hamza Farooq', marks: 62, totalMarks: 100, isAbsent: false, remarks: 'Needs revision in algebra' },
-  { _id: 'st5', rollNo: '105', name: 'Fatima Noor', marks: 82, totalMarks: 100, isAbsent: false, remarks: 'Very good' },
-  { _id: 'st6', rollNo: '106', name: 'Bilal Hussain', marks: 0, totalMarks: 100, isAbsent: true, remarks: 'Medical Leave' },
+  { _id: 'st1', rollNo: 'PRC260001', name: 'Muhammad Tayyab', marks: 88, totalMarks: 100, isAbsent: false, remarks: 'Excellent performance' },
+  { _id: 'st2', rollNo: 'PRC260002', name: 'Muhammad Abdullah', marks: 94, totalMarks: 100, isAbsent: false, remarks: 'Top of class' },
+  { _id: 'st3', rollNo: 'PRC260003', name: 'Iqra Shabir Ahmad', marks: 76, totalMarks: 100, isAbsent: false, remarks: 'Good effort' },
+  { _id: 'st4', rollNo: 'PRC260004', name: 'Zainab Ikhlaq', marks: 62, totalMarks: 100, isAbsent: false, remarks: 'Needs revision in algebra' },
+  { _id: 'st5', rollNo: 'PRC260022', name: 'Maha Abdul', marks: 82, totalMarks: 100, isAbsent: false, remarks: 'Very good' },
+  { _id: 'st6', rollNo: 'PRC260029', name: 'Urwa Batool', marks: 74, totalMarks: 100, isAbsent: false, remarks: 'Good grasp' },
 ];
 
 export default function MarksRegisterPage() {
@@ -123,12 +123,22 @@ export default function MarksRegisterPage() {
     setLoading(true);
     try {
       const selectedClass = classes.find(c => c._id === criteria.classId)?.name || criteria.classId;
-      const res = await api.get(`/student?className=${encodeURIComponent(selectedClass)}`).catch(() => null);
+      const res = await api.get(`/student?className=${encodeURIComponent(selectedClass)}&limit=100`).catch(() => null);
+      let studentList = [];
       if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
-        const mapped = res.data.map((st, idx) => ({
+        studentList = res.data;
+      } else {
+        const allRes = await api.get('/student?limit=50').catch(() => null);
+        if (allRes?.success && Array.isArray(allRes.data) && allRes.data.length > 0) {
+          studentList = allRes.data;
+        }
+      }
+
+      if (studentList.length > 0) {
+        const mapped = studentList.map((st, idx) => ({
           _id: st._id,
-          rollNo: st.rollNumber || String(101 + idx),
-          name: `${st.firstName || ''} ${st.lastName || ''}`.trim() || st.fullName || 'Student',
+          rollNo: st.rollNo || st.rollNumber || (st.admissionNo ? `PRC${st.admissionNo.replace(/\D/g, '')}` : `PRC2600${String(idx + 1).padStart(2, '0')}`),
+          name: st.name || `${st.firstName || ''} ${st.lastName || ''}`.trim() || st.fullName || 'Student',
           marks: 70 + (idx * 5) % 28,
           totalMarks: 100,
           isAbsent: false,

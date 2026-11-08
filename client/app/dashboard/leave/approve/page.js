@@ -11,11 +11,8 @@ import { Input } from '@/components/ui/input';
 import api from '@/services/api';
 
 const DEMO_LEAVES = [
-  { _id: 'l1', staffName: 'Ayesha Tariq', department: 'Academics', leaveType: 'Sick Leave', fromDate: '2026-10-18', toDate: '2026-10-20', days: 3, reason: 'High fever and doctor-advised rest', status: 'pending', appliedDate: '2026-10-16' },
-  { _id: 'l2', staffName: 'Bilal Hassan', department: 'Administration', leaveType: 'Annual Leave', fromDate: '2026-10-22', toDate: '2026-10-27', days: 6, reason: 'Family wedding event in hometown', status: 'pending', appliedDate: '2026-10-15' },
-  { _id: 'l3', staffName: 'Sara Ahmed', department: 'Science', leaveType: 'Casual Leave', fromDate: '2026-10-14', toDate: '2026-10-14', days: 1, reason: 'Bank work and personal errand', status: 'approved', appliedDate: '2026-10-12' },
-  { _id: 'l4', staffName: 'Muhammad Usman', department: 'IT Department', leaveType: 'Casual Leave', fromDate: '2026-10-10', toDate: '2026-10-11', days: 2, reason: 'Urgent home maintenance', status: 'rejected', appliedDate: '2026-10-08' },
-  { _id: 'l5', staffName: 'Fatima Malik', department: 'Languages', leaveType: 'Maternity Leave', fromDate: '2026-11-01', toDate: '2027-01-30', days: 90, reason: 'Doctor prescribed maternity leave', status: 'pending', appliedDate: '2026-10-14' },
+  { _id: 'l1', staffName: 'Ali Sher', staffNo: 'PRCS0001', department: 'Academics', role: 'Teacher', leaveType: 'Sick Leave', fromDate: '2026-10-18', toDate: '2026-10-20', days: 3, reason: 'High fever and doctor-advised rest', status: 'pending', appliedDate: '2026-10-16' },
+  { _id: 'l2', staffName: 'Abu Zar Jamil', staffNo: 'PRCS0002', department: 'Academics', role: 'Teacher', leaveType: 'Casual Leave', fromDate: '2026-10-22', toDate: '2026-10-24', days: 2, reason: 'Family urgent personal commitment', status: 'pending', appliedDate: '2026-10-20' },
 ];
 
 export default function ApproveLeavePage() {

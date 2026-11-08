@@ -22,10 +22,8 @@ const DEMO_TYPES = [
   { _id: 't4', name: 'Maternity Leave', maxDays: 90 },
 ];
 const DEMO_APPLICATIONS = [
-  { _id: 'a1', employeeName: 'Ayesha Tariq', leaveTypeName: 'Sick Leave', fromDate: '2026-10-10', toDate: '2026-10-12', days: 3, reason: 'Fever and cold', status: 'approved', appliedAt: '2026-10-09' },
-  { _id: 'a2', employeeName: 'Bilal Hassan', leaveTypeName: 'Annual Leave', fromDate: '2026-10-14', toDate: '2026-10-18', days: 5, reason: 'Family vacation', status: 'pending', appliedAt: '2026-10-11' },
-  { _id: 'a3', employeeName: 'Sara Ahmed', leaveTypeName: 'Casual Leave', fromDate: '2026-10-15', toDate: '2026-10-15', days: 1, reason: 'Personal work', status: 'approved', appliedAt: '2026-10-13' },
-  { _id: 'a4', employeeName: 'Umar Farooq', leaveTypeName: 'Emergency Leave', fromDate: '2026-10-08', toDate: '2026-10-09', days: 2, reason: 'Family emergency', status: 'rejected', appliedAt: '2026-10-07' },
+  { _id: 'a1', employeeName: 'Ali Sher', leaveTypeName: 'Sick Leave', fromDate: '2026-10-18', toDate: '2026-10-20', days: 3, reason: 'High fever and doctor-advised rest', status: 'pending', appliedAt: '2026-10-16' },
+  { _id: 'a2', employeeName: 'Abu Zar Jamil', leaveTypeName: 'Casual Leave', fromDate: '2026-10-22', toDate: '2026-10-24', days: 2, reason: 'Family urgent personal commitment', status: 'pending', appliedAt: '2026-10-20' },
 ];
 
 const BLANK = { staffId: '', leaveTypeId: '', fromDate: '', toDate: '', reason: '', attachment: null };

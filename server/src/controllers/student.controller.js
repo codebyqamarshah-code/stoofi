@@ -91,6 +91,55 @@ const cleanDateStr = (val) => {
   return str;
 };
 
+function buildClassRegexPattern(className) {
+  if (!className || className === 'All' || className === 'All Classes') return null;
+  const clean = String(className).replace(/^Class\s+/i, '').trim();
+  const lower = clean.toLowerCase();
+  
+  if (lower.includes('psych')) {
+    return 'BS\\s*PSY|Psychology';
+  }
+  if (lower.includes('nurs')) {
+    return 'Nurs';
+  }
+  if (lower.includes('dent')) {
+    return 'Dental';
+  }
+  if (lower.includes('ott')) {
+    return 'OTT';
+  }
+  if (lower.includes('rit') || lower.includes('radio')) {
+    return 'BS\\s*RIT|Radiology';
+  }
+  if (lower.includes('dpt')) {
+    return 'DPT';
+  }
+  if (lower.includes('pharm') || lower.includes('categ')) {
+    return 'Category|Pharmacy';
+  }
+  if (lower.includes('cs') || lower.includes('computer')) {
+    return 'BS\\s*CS|Computer';
+  }
+  if (lower.includes('office')) {
+    return 'Office\\s*Management';
+  }
+  if (lower.includes('graphic')) {
+    return 'Graphic';
+  }
+  if (lower.includes('cmw')) {
+    return 'CMW';
+  }
+  if (lower.includes('lhv')) {
+    return 'LHV';
+  }
+  if (lower === 'fa') {
+    return '^FA$';
+  }
+
+  const escaped = clean.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return `^(${clean}|${escaped}|Class\\s*${escaped})$`;
+}
+
 exports.getAll = async (req, res) => {
   try {
     const { page = 1, limit = 50, search = '', className, section, rollNo, name } = req.query;
@@ -114,9 +163,11 @@ exports.getAll = async (req, res) => {
         { lastName: { $regex: n, $options: 'i' } }
       ];
     }
-    if (className && className !== 'All Classes' && className !== 'All' && className.trim()) {
-      const c = className.replace(/^Class\s+/i, '').trim();
-      query.className = { $regex: '^(' + className + '|' + c + '|Class\\s*' + c + ')$', $options: 'i' };
+    if (className && className !== 'All Classes' && className !== 'All' && String(className).trim()) {
+      const pattern = buildClassRegexPattern(className);
+      if (pattern) {
+        query.className = { $regex: pattern, $options: 'i' };
+      }
     }
     if (section && section !== 'All Sections' && section !== 'All' && section.trim()) {
       const sec = section.replace(/^Section\s+/i, '').trim();
@@ -300,18 +351,6 @@ exports.create = async (req, res) => {
       const rollRes = await generateRollNumber(targetYear);
       dataObj.rollNo = rollRes.rollNumber;
     } else {
-      const rollStr = String(dataObj.rollNo).trim();
-      const existingRoll = await Student.findOne({
-        rollNo: { $regex: '^' + rollStr + '$', $options: 'i' }
-      });
-      if (existingRoll) {
-        return res.status(400).json({
-          success: false,
-          message: `Roll Number (${rollStr}) is already assigned in system.`
-        });
-      }
-    }
-      // Check duplicate roll number in system
       const rollStr = String(dataObj.rollNo).trim();
       const existingRoll = await Student.findOne({
         rollNo: { $regex: '^' + rollStr + '$', $options: 'i' }

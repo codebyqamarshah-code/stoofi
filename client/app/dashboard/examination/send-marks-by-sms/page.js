@@ -45,12 +45,12 @@ const DEFAULT_EXAMS = [
 const INITIAL_STUDENTS_MARKS = [
   { 
     _id: 'st-01', 
-    rollNo: '101', 
-    admissionNo: 'PRC-2026-081',
-    name: 'Muhammad Abdullah', 
-    parentName: 'Tariq Mehmood', 
+    rollNo: 'PRC260001', 
+    admissionNo: 'ADM260001',
+    name: 'Muhammad Tayyab', 
+    parentName: 'Muhammad Javeed', 
     phone: '+923001234567', 
-    className: 'Class 10',
+    className: 'FSC OTT',
     totalMarks: 500, 
     obtainedMarks: 462, 
     percentage: 92.4, 
@@ -60,12 +60,12 @@ const INITIAL_STUDENTS_MARKS = [
   },
   { 
     _id: 'st-02', 
-    rollNo: '102', 
-    admissionNo: 'PRC-2026-082',
-    name: 'Ayesha Fatima', 
-    parentName: 'Dr. Sajid Khan', 
+    rollNo: 'PRC260002', 
+    admissionNo: 'ADM260002',
+    name: 'Muhammad Abdullah', 
+    parentName: 'Tariq Mehmood', 
     phone: '+923012345678', 
-    className: 'Class 10',
+    className: 'FSC Nursing',
     totalMarks: 500, 
     obtainedMarks: 478, 
     percentage: 95.6, 
@@ -75,12 +75,12 @@ const INITIAL_STUDENTS_MARKS = [
   },
   { 
     _id: 'st-03', 
-    rollNo: '103', 
-    admissionNo: 'PRC-2026-083',
-    name: 'Zainab Bibi', 
-    parentName: 'Abdul Rehman', 
+    rollNo: 'PRC260003', 
+    admissionNo: 'ADM260003',
+    name: 'Iqra Shabir Ahmad', 
+    parentName: 'Shabir Ahmad', 
     phone: '+923023456789', 
-    className: 'Class 10',
+    className: 'FSC Nursing',
     totalMarks: 500, 
     obtainedMarks: 395, 
     percentage: 79.0, 
@@ -90,12 +90,12 @@ const INITIAL_STUDENTS_MARKS = [
   },
   { 
     _id: 'st-04', 
-    rollNo: '104', 
-    admissionNo: 'PRC-2026-084',
-    name: 'Hamza Farooq', 
-    parentName: 'Farooq Ahmed', 
+    rollNo: 'PRC260004', 
+    admissionNo: 'ADM260004',
+    name: 'Zainab Ikhlaq', 
+    parentName: 'Muhammad Ikhlaq', 
     phone: '+923034567890', 
-    className: 'Class 10',
+    className: 'FSC OTT',
     totalMarks: 500, 
     obtainedMarks: 340, 
     percentage: 68.0, 
@@ -105,12 +105,12 @@ const INITIAL_STUDENTS_MARKS = [
   },
   { 
     _id: 'st-05', 
-    rollNo: '105', 
-    admissionNo: 'PRC-2026-085',
-    name: 'Fatima Noor', 
-    parentName: 'Usman Ghani', 
+    rollNo: 'PRC260022', 
+    admissionNo: 'ADM260022',
+    name: 'Maha Abdul', 
+    parentName: 'Abdul Rehman', 
     phone: '+923045678901', 
-    className: 'Class 10',
+    className: 'BS PSY',
     totalMarks: 500, 
     obtainedMarks: 425, 
     percentage: 85.0, 
@@ -120,46 +120,16 @@ const INITIAL_STUDENTS_MARKS = [
   },
   { 
     _id: 'st-06', 
-    rollNo: '106', 
-    admissionNo: 'PRC-2026-086',
-    name: 'Bilal Hussain', 
+    rollNo: 'PRC260029', 
+    admissionNo: 'ADM260029',
+    name: 'Urwa Batool', 
     parentName: 'Hussain Ali', 
     phone: '+923056789012', 
-    className: 'Class 10',
+    className: 'B Category',
     totalMarks: 500, 
-    obtainedMarks: 298, 
-    percentage: 59.6, 
-    gpa: '2.50',
-    grade: 'C', 
-    status: 'Passed' 
-  },
-  { 
-    _id: 'st-07', 
-    rollNo: '107', 
-    admissionNo: 'PRC-2026-087',
-    name: 'Saad Ur Rehman', 
-    parentName: 'Khalid Mehmood', 
-    phone: '+923067890123', 
-    className: 'Class 10',
-    totalMarks: 500, 
-    obtainedMarks: 448, 
-    percentage: 89.6, 
-    gpa: '3.90',
-    grade: 'A+', 
-    status: 'Passed' 
-  },
-  { 
-    _id: 'st-08', 
-    rollNo: '108', 
-    admissionNo: 'PRC-2026-088',
-    name: 'Mariam Zahra', 
-    parentName: 'Syed Ali Raza', 
-    phone: '+923078901234', 
-    className: 'Class 10',
-    totalMarks: 500, 
-    obtainedMarks: 382, 
-    percentage: 76.4, 
-    gpa: '3.50',
+    obtainedMarks: 410, 
+    percentage: 82.0, 
+    gpa: '3.75',
     grade: 'A', 
     status: 'Passed' 
   }
@@ -168,11 +138,11 @@ const INITIAL_STUDENTS_MARKS = [
 const TEMPLATE_PRESETS = [
   {
     title: 'Standard Examination Scorecard',
-    text: 'Dear {parent_name}, your child {student_name} (Roll #{roll_no}) scored {obtained_marks}/{total_marks} ({percentage}%) with Grade {grade} in {exam_name}. Status: {status}. - Pak Royal College Sharaqpur'
+    text: 'Dear {parent_name}, your child {student_name} (Roll: {roll_no}) scored {obtained_marks}/{total_marks} ({percentage}%) with Grade {grade} in {exam_name}. Status: {status}. - Pak Royal College Sharaqpur'
   },
   {
     title: 'Detailed GPA & Result Announcement',
-    text: 'Respected Guardian, Result for {exam_name} is declared: Student: {student_name}, Roll #{roll_no}, Marks: {obtained_marks}/{total_marks}, GPA: {gpa}, Grade: {grade}. Congratulation from Pak Royal College Sharaqpur.'
+    text: 'Respected Guardian, Result for {exam_name} is declared: Student: {student_name}, Roll: {roll_no}, Marks: {obtained_marks}/{total_marks}, GPA: {gpa}, Grade: {grade}. Congratulation from Pak Royal College Sharaqpur.'
   },
   {
     title: 'Parent-Teacher Meeting Invitation',
@@ -236,18 +206,28 @@ export default function SendMarksBySmsPage() {
     }
     setLoading(true);
     try {
-      const selectedClass = classes.find(c => c._id === formData.classId)?.name || formData.classId;
-      const res = await api.get(`/student?className=${encodeURIComponent(selectedClass)}`).catch(() => null);
+      const selectedClass = classes.find(c => c._id === formData.classId)?.name || classes.find(c => c.name === formData.classId)?.name || formData.classId;
+      const res = await api.get(`/student?className=${encodeURIComponent(selectedClass)}&limit=200`).catch(() => null);
+      let studentList = [];
       if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
-        const mapped = res.data.map((st, idx) => {
+        studentList = res.data;
+      } else {
+        const allRes = await api.get('/student?limit=100').catch(() => null);
+        if (allRes?.success && Array.isArray(allRes.data) && allRes.data.length > 0) {
+          studentList = allRes.data;
+        }
+      }
+
+      if (studentList.length > 0) {
+        const mapped = studentList.map((st, idx) => {
           const obt = 360 + (idx * 23) % 135;
           const pct = Number(((obt / 500) * 100).toFixed(1));
           return {
             _id: st._id,
-            rollNo: st.rollNumber || String(101 + idx),
-            admissionNo: st.admissionNo || `PRC-2026-${String(idx + 1).padStart(3, '0')}`,
-            name: `${st.firstName || ''} ${st.lastName || ''}`.trim() || st.fullName || 'Student',
-            parentName: st.parentName || st.fatherName || 'Parent / Guardian',
+            rollNo: st.rollNo || st.rollNumber || (st.admissionNo ? `PRC${st.admissionNo.replace(/\D/g, '')}` : `PRC2600${String(idx + 1).padStart(2, '0')}`),
+            admissionNo: st.admissionNo || st.admissionNumber || `ADM2600${String(idx + 1).padStart(2, '0')}`,
+            name: st.name || st.studentName || `${st.firstName || ''} ${st.lastName || ''}`.trim() || st.fullName || 'Student',
+            parentName: st.fatherName || st.parentName || 'Parent / Guardian',
             phone: st.mobileNumber || st.emergencyPhone || '+923001234567',
             className: selectedClass,
             totalMarks: 500,
@@ -391,11 +371,11 @@ export default function SendMarksBySmsPage() {
       {/* Toast Notification */}
       {toastMessage && (
         <div 
-          className="fixed top-5 right-5 z-50 px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border-2 border-white/20 animate-in slide-in-from-top-2"
+          className="fixed top-5 right-5 z-50 px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border-2 border-white/30 animate-in slide-in-from-top-2"
           style={{ backgroundColor: '#084A86', color: '#ffffff' }}
         >
           <CheckCircle2 className="w-5 h-5 text-emerald-300 shrink-0" />
-          <span className="text-xs font-bold tracking-wide" style={{ color: '#ffffff' }}>
+          <span className="text-xs font-black tracking-wide !text-white select-none" style={{ color: '#ffffff' }}>
             {toastMessage}
           </span>
         </div>

@@ -79,6 +79,12 @@ export default function PayrollPage() {
     fetchStaff();
   }, []);
 
+  useEffect(() => {
+    if (staffList.length > 0 && !searched) {
+      handleSearch();
+    }
+  }, [staffList]);
+
   const handleSearch = async () => {
     setLoading(true);
     setSearched(true);
@@ -490,7 +496,7 @@ export default function PayrollPage() {
             <div className="p-4 border-b border-zinc-100 bg-zinc-50/50 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold text-zinc-950">
-                  Payroll List • {month} {year}
+                  Payroll List &bull; {month} {year}
                 </h2>
                 <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-600 border border-zinc-200">
                   {records.length} records

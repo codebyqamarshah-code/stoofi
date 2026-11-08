@@ -1,14 +1,23 @@
 const mongoose = require('mongoose');
 
 const schema = new mongoose.Schema({
-
   teacherId: String,
+  teacherName: String,
+  staffId: String,
+  subject: String,
+  classSection: String,
   evaluatorId: String,
-  rating: Number,
+  evaluatedBy: String,
+  submittedBy: String,
+  rating: mongoose.Schema.Types.Mixed,
+  score: Number,
+  scorePercent: Number,
+  comment: String,
   comments: String,
-  criteria: String,
-  status: { type: String, default: 'pending' }
-
-}, { timestamps: true });
+  criteria: mongoose.Schema.Types.Mixed,
+  status: { type: String, default: 'Approved' },
+  date: String,
+  approvedOn: String
+}, { timestamps: true, strict: false });
 
 module.exports = mongoose.model('TeacherEvaluation', schema);

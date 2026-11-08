@@ -48,12 +48,12 @@ const DEFAULT_SECTIONS = [
 ];
 
 const SAMPLE_STUDENTS = [
-  { _id: 's1', rollNo: '101', admissionNo: 'PRC-2026-001', name: 'Alisha', fatherName: 'Muhammad Javeed', gender: 'Female', section: 'Section A', photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80' },
-  { _id: 's2', rollNo: '102', admissionNo: 'PRC-2026-002', name: 'Muhammad Tayyab', fatherName: 'Tariq Mehmood', gender: 'Male', section: 'Section A', photo: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80' },
-  { _id: 's3', rollNo: '103', admissionNo: 'PRC-2026-003', name: 'Ayesha Fatima', fatherName: 'Dr. Sajid Khan', gender: 'Female', section: 'Section A', photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80' },
-  { _id: 's4', rollNo: '104', admissionNo: 'PRC-2026-004', name: 'Hamza Farooq', fatherName: 'Farooq Ahmed', gender: 'Male', section: 'Section B', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80' },
-  { _id: 's5', rollNo: '105', admissionNo: 'PRC-2026-005', name: 'Fatima Noor', fatherName: 'Usman Ghani', gender: 'Female', section: 'Section B', photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80' },
-  { _id: 's6', rollNo: '106', admissionNo: 'PRC-2026-006', name: 'Bilal Hussain', fatherName: 'Hussain Ali', gender: 'Male', section: 'Section A', photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80' },
+  { _id: 's1', rollNo: 'PRC260001', admissionNo: 'ADM260001', name: 'Muhammad Tayyab', fatherName: 'Muhammad Javeed', gender: 'Male', section: 'Section A', photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80' },
+  { _id: 's2', rollNo: 'PRC260002', admissionNo: 'ADM260002', name: 'Muhammad Abdullah', fatherName: 'Tariq Mehmood', gender: 'Male', section: 'Section A', photo: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80' },
+  { _id: 's3', rollNo: 'PRC260003', admissionNo: 'ADM260003', name: 'Iqra Shabir Ahmad', fatherName: 'Shabir Ahmad', gender: 'Female', section: 'Section A', photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80' },
+  { _id: 's4', rollNo: 'PRC260004', admissionNo: 'ADM260004', name: 'Zainab Ikhlaq', fatherName: 'Muhammad Ikhlaq', gender: 'Female', section: 'Section A', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80' },
+  { _id: 's5', rollNo: 'PRC260022', admissionNo: 'ADM260022', name: 'Maha Abdul', fatherName: 'Abdul Rehman', gender: 'Female', section: 'Section A', photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80' },
+  { _id: 's6', rollNo: 'PRC260029', admissionNo: 'ADM260029', name: 'Urwa Batool', fatherName: 'Hussain Ali', gender: 'Female', section: 'Section A', photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80' },
 ];
 
 const SAMPLE_SCHEDULE = [
@@ -118,12 +118,23 @@ export default function AdmitCardPage() {
     setLoading(true);
     try {
       const selectedClass = classes.find(c => c._id === formData.classId)?.name || classes.find(c => c.name === formData.classId)?.name || formData.classId;
-      const res = await api.get(`/student?className=${encodeURIComponent(selectedClass)}`).catch(() => null);
+      const res = await api.get(`/student?className=${encodeURIComponent(selectedClass)}&limit=200`).catch(() => null);
+      let studentList = [];
       if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
-        const mapped = res.data.map((st, idx) => ({
+        studentList = res.data;
+      } else {
+        // Fallback to real active students in database
+        const allRes = await api.get('/student?limit=100').catch(() => null);
+        if (allRes?.success && Array.isArray(allRes.data) && allRes.data.length > 0) {
+          studentList = allRes.data;
+        }
+      }
+
+      if (studentList.length > 0) {
+        const mapped = studentList.map((st, idx) => ({
           _id: st._id,
-          rollNo: st.rollNumber || st.rollNo || String(101 + idx),
-          admissionNo: st.admissionNo || `PRC-${st._id.substring(0, 5).toUpperCase()}`,
+          rollNo: st.rollNo || st.rollNumber || (st.admissionNo ? `PRC${st.admissionNo.replace(/\D/g, '')}` : `PRC2600${String(idx + 1).padStart(2, '0')}`),
+          admissionNo: st.admissionNo || st.admissionNumber || `ADM2600${String(idx + 1).padStart(2, '0')}`,
           name: st.name || st.studentName || `${st.firstName || ''} ${st.lastName || ''}`.trim() || st.fullName || 'Student',
           fatherName: st.fatherName || st.father?.name || st.parentName || st.guardianName || 'Guardian',
           gender: st.gender || 'Male',
@@ -358,7 +369,7 @@ export default function AdmitCardPage() {
                     }`}
                   >
                     <div className="font-bold text-zinc-900 truncate">{s.name}</div>
-                    <div className="text-[10px] text-zinc-500">Roll: #{s.rollNo}</div>
+                    <div className="text-[10px] text-zinc-500">Roll: {s.rollNo}</div>
                   </div>
                 );
               })}
@@ -417,7 +428,7 @@ export default function AdmitCardPage() {
                     <div className="flex items-center py-1 border-b border-zinc-100">
                       <span className="w-28 font-bold text-zinc-500 uppercase">Roll Number:</span>
                       <span className="font-mono font-black text-zinc-950 text-sm bg-zinc-100 px-2 py-0.5 rounded">
-                        #{student.rollNo}
+                        {student.rollNo}
                       </span>
                     </div>
 

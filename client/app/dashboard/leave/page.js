@@ -17,11 +17,8 @@ const DEMO_BY_TYPE = [
   { name: 'Emergency Leave', total: 3, approved: 1, pending: 1, rejected: 1 },
 ];
 const DEMO_RECENT = [
-  { id: 1, employee: 'Ayesha Tariq', type: 'Sick Leave', from: '2026-10-10', to: '2026-10-12', days: 3, status: 'approved' },
-  { id: 2, employee: 'Bilal Hassan', type: 'Annual Leave', from: '2026-10-14', to: '2026-10-18', days: 5, status: 'pending' },
-  { id: 3, employee: 'Sara Ahmed', type: 'Casual Leave', from: '2026-10-15', to: '2026-10-15', days: 1, status: 'approved' },
-  { id: 4, employee: 'Umar Farooq', type: 'Emergency Leave', from: '2026-10-08', to: '2026-10-09', days: 2, status: 'rejected' },
-  { id: 5, employee: 'Fatima Malik', type: 'Annual Leave', from: '2026-10-20', to: '2026-10-25', days: 6, status: 'pending' },
+  { id: 1, employee: 'Ali Sher', type: 'Sick Leave', from: '2026-10-18', to: '2026-10-20', days: 3, status: 'pending' },
+  { id: 2, employee: 'Abu Zar Jamil', type: 'Casual Leave', from: '2026-10-22', to: '2026-10-24', days: 2, status: 'pending' },
 ];
 
 function StatusBadge({ status }) {
