@@ -20,13 +20,57 @@ export async function POST(req) {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // Find user in MongoDB Atlas
-    const user = await User.findOne({
+    // 1. Find user in User model (by email or username)
+    let user = await User.findOne({
       $or: [
         { email: cleanEmail },
         { username: cleanEmail }
       ]
     }).select('+password');
+
+    // 2. If not found directly, check if this is a student logging in with admissionNo, rollNo, or email
+    let studentRef = null;
+    if (!user) {
+      const { Student } = await import('@/lib/models');
+      studentRef = await Student.findOne({
+        $or: [
+          { admissionNo: new RegExp(`^${cleanEmail}$`, 'i') },
+          { rollNo: new RegExp(`^${cleanEmail}$`, 'i') },
+          { email: cleanEmail }
+        ]
+      }).lean();
+
+      if (studentRef) {
+        // Find existing linked user account
+        const userOr = [];
+        if (studentRef.user) userOr.push({ _id: studentRef.user });
+        userOr.push({ referenceId: studentRef._id });
+        if (studentRef.email) userOr.push({ email: studentRef.email.toLowerCase() });
+        if (studentRef.admissionNo) userOr.push({ username: studentRef.admissionNo.toLowerCase() });
+
+        user = await User.findOne({ $or: userOr }).select('+password');
+
+        // If no user record exists yet for this student, auto-create one
+        if (!user) {
+          const defaultPassword = password.trim();
+          const newUsername = (studentRef.admissionNo || studentRef.rollNo || studentRef.name || 'student').toLowerCase().replace(/\s+/g, '_');
+          const newEmail = studentRef.email || `${(studentRef.admissionNo || studentRef._id).toString().toLowerCase()}@pakroyalcollege.edu.pk`;
+          user = await User.create({
+            username: newUsername,
+            email: newEmail,
+            password: defaultPassword,
+            fullName: studentRef.name || studentRef.studentName || `${studentRef.firstName || ''} ${studentRef.lastName || ''}`.trim(),
+            role: 'Student',
+            status: studentRef.status === 'Inactive' || studentRef.loginEnabled === false ? 'Inactive' : 'Active',
+            referenceId: studentRef._id,
+            roleModel: 'Student',
+            avatar: studentRef.studentPhoto || studentRef.photo || ''
+          });
+          user = await User.findById(user._id).select('+password');
+          await Student.findByIdAndUpdate(studentRef._id, { user: user._id });
+        }
+      }
+    }
 
     if (!user) {
       return NextResponse.json(
@@ -44,10 +88,36 @@ export async function POST(req) {
       );
     }
 
-    if (user.status !== 'Active') {
+    // Check account status and login permission (both on User, Staff, and Student models)
+    let isLoginBlocked = user.status !== 'Active' || user.loginEnabled === false;
+
+    if (!isLoginBlocked && user.role === 'Student') {
+      const { Student } = await import('@/lib/models');
+      const studentId = user.referenceId || studentRef?._id;
+      if (studentId) {
+        const studentDoc = await Student.findById(studentId).select('status loginEnabled').lean();
+        if (studentDoc && (studentDoc.status === 'Inactive' || studentDoc.loginEnabled === false)) {
+          isLoginBlocked = true;
+        }
+      }
+    }
+
+    if (!isLoginBlocked && (user.role === 'Teacher' || user.role === 'Staff' || user.role === 'Admin') && user.email) {
+      const { Staff } = await import('@/lib/models');
+      const staffDoc = await Staff.findOne({ email: user.email.toLowerCase() }).select('status loginEnabled').lean();
+      if (staffDoc && (staffDoc.status === 'Inactive' || staffDoc.loginEnabled === false)) {
+        isLoginBlocked = true;
+      }
+    }
+
+    if (isLoginBlocked) {
       return NextResponse.json(
-        { success: false, message: 'Account is inactive. Please contact administrator.' },
-        { status: 401 }
+        {
+          success: false,
+          isAccessDenied: true,
+          message: 'Access Denied: Your login access has been disabled by the administrator. You cannot open your account.'
+        },
+        { status: 403 }
       );
     }
 

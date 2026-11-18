@@ -85,7 +85,7 @@ export async function GET(req, { params }) {
 
     let staff = null;
     if (mongoose.Types.ObjectId.isValid(id)) {
-      staff = await Staff.findById(id).select('staffPhoto photo').lean();
+      staff = await Staff.findById(id).select('staffPhoto photo email').lean();
     }
     if (!staff) {
       staff = await Staff.findOne({
@@ -93,14 +93,22 @@ export async function GET(req, { params }) {
           { staffNo: id },
           { email: id }
         ]
-      }).select('staffPhoto photo').lean();
+      }).select('staffPhoto photo email').lean();
     }
 
     if (!staff) {
       return new Response(null, { status: 404 });
     }
 
-    const raw = staff.staffPhoto || staff.photo;
+    let raw = staff.staffPhoto || staff.photo;
+    if (!raw && staff.email) {
+      const { User } = await import('@/lib/models');
+      const userDoc = await User.findOne({ email: staff.email.toLowerCase() }).select('avatar').lean();
+      if (userDoc?.avatar) {
+        raw = userDoc.avatar;
+      }
+    }
+
     if (!raw || typeof raw !== 'string') {
       return new Response(null, { status: 404 });
     }

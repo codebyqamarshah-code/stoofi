@@ -185,6 +185,17 @@ export const useAuth = create(
             respData?.errorType === 'DATABASE_MAINTENANCE' ||
             error?.response?.status === 503;
 
+          // ── ACCESS DENIED (account blocked by admin) ──
+          const isAccessDenied =
+            respData?.isAccessDenied === true ||
+            error?.response?.status === 403;
+
+          if (isAccessDenied) {
+            const accessDeniedMsg = respData?.message || 'Access Denied: Your account has been disabled by the administrator.';
+            set({ isLoading: false, error: null, isMaintenanceMode: false });
+            return { success: false, isAccessDenied: true, message: accessDeniedMsg };
+          }
+
           let errorMsg = respData?.message || error?.message || 'Invalid credentials. Please check your details and try again.';
           const rawErrStr = `${errorMsg} ${error?.message || ''} ${respData?.errorType || ''}`.toLowerCase();
 

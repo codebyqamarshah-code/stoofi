@@ -82,28 +82,8 @@ export async function GET(req) {
     const totalExpenses = (allExpenses || []).reduce((sum, item) => sum + (item.amount || 0), 0);
     const totalProfit = totalCollectedFees - totalExpenses;
 
-    // Notices
-    let notices = noticesList;
-    if (!notices || notices.length === 0) {
-      notices = [
-        {
-          _id: 'notice-demo-1',
-          title: 'Annual Sports Day 2026',
-          description: 'Annual Sports Gala registration is now officially open for all students.',
-          date: new Date().toISOString(),
-          audience: 'All',
-          published: true
-        },
-        {
-          _id: 'notice-demo-2',
-          title: 'Parent-Teacher Conference',
-          description: 'The first term Parent-Teacher Meeting will be held on Saturday between 9:00 AM and 1:00 PM.',
-          date: new Date().toISOString(),
-          audience: 'Parents',
-          published: true
-        }
-      ];
-    }
+    // Notices — only real data, no dummy fallback
+    let notices = noticesList || [];
 
     // Todos already fetched concurrently in Promise.all above
 

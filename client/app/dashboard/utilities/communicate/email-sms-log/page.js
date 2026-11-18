@@ -75,10 +75,9 @@ export default function EmailSmsLogPage() {
           return;
         }
       }
-      setLogs(SAMPLE_LOGS);
-      localStorage.setItem('stoofi_email_sms_logs', JSON.stringify(SAMPLE_LOGS));
+      setLogs([]);
     } catch (_) {
-      setLogs(SAMPLE_LOGS);
+      setLogs([]);
     }
   }, []);
 

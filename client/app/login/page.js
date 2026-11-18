@@ -30,6 +30,10 @@ export default function LoginPage() {
   const [maintenanceCountdown, setMaintenanceCountdown] = useState(8);
   const [isRetryingMaintenance, setIsRetryingMaintenance] = useState(false);
 
+  // Access Denied Modal State (account blocked by admin)
+  const [showAccessDeniedModal, setShowAccessDeniedModal] = useState(false);
+  const [accessDeniedMessage, setAccessDeniedMessage] = useState('');
+
   const isBackendIssueString = (str) => {
     if (!str || typeof str !== 'string') return false;
     const s = str.toLowerCase();
@@ -229,6 +233,10 @@ export default function LoginPage() {
       } else {
         redirectUser(cleanEmail, res.user);
       }
+    } else if (res?.isAccessDenied) {
+      // Account blocked by admin — show dedicated Access Denied popup
+      setAccessDeniedMessage(res.message || 'Your account has been disabled by the administrator.');
+      setShowAccessDeniedModal(true);
     } else if (res?.isMaintenance || isMaintenanceMode) {
       setShowMaintenanceModal(true);
       setMaintenanceCountdown(8);
@@ -564,6 +572,31 @@ export default function LoginPage() {
         </div>
 
       </div>
+
+      {/* ACCESS DENIED MODAL */}
+      {showAccessDeniedModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-white rounded-2xl p-8 shadow-2xl border border-red-100 text-center">
+            {/* Icon */}
+            <div className="relative w-20 h-20 mx-auto mb-5">
+              <div className="absolute inset-0 bg-red-100 rounded-full animate-ping opacity-20"></div>
+              <div className="relative w-20 h-20 bg-red-100 rounded-full flex items-center justify-center">
+                <ShieldAlert className="w-10 h-10 text-red-600" />
+              </div>
+            </div>
+            <h2 className="text-xl font-bold text-zinc-900 mb-2">Access Denied</h2>
+            <p className="text-sm text-zinc-500 mb-6 leading-relaxed">
+              {accessDeniedMessage || 'Your account has been disabled by the administrator. Please contact your system administrator for assistance.'}
+            </p>
+            <button
+              onClick={() => setShowAccessDeniedModal(false)}
+              className="w-full py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm transition-all"
+            >
+              OK, Got it
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* SYSTEM MAINTENANCE & DATABASE SYNC MODAL POPUP */}
       {showMaintenanceModal && (

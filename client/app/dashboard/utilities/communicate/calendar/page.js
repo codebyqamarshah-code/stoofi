@@ -14,12 +14,7 @@ import {
 } from 'lucide-react';
 import api from '@/services/api';
 
-const DEFAULT_CALENDAR_EVENTS = [
-  { id: 1, title: 'Term Examination Begins', date: '2026-09-08', type: 'Exam', time: '09:00 AM', color: 'bg-rose-600' },
-  { id: 2, title: 'Milad-un-Nabi Holiday', date: '2026-09-15', type: 'Holiday', time: 'All Day', color: 'bg-amber-600' },
-  { id: 3, title: 'Annual Sports Gala Day', date: '2026-09-22', type: 'Event', time: '10:00 AM', color: 'bg-[#009966]' },
-  { id: 4, title: 'Parent-Teacher Conference', date: '2026-09-26', type: 'Meeting', time: '09:30 AM', color: 'bg-blue-600' }
-];
+const DEFAULT_CALENDAR_EVENTS = [];
 
 export default function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState('September 2026');

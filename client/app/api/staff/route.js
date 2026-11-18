@@ -71,16 +71,30 @@ export async function GET(req) {
     const desigMap = {};
     (desigs || []).forEach(d => { desigMap[String(d._id)] = d.name; });
 
+    // Look up associated users to sync avatar photos and real login permission status
+    const { User } = await import('@/lib/models');
+    const emails = rawList.map(s => s.email?.trim().toLowerCase()).filter(Boolean);
+    const userDocs = emails.length > 0
+      ? await User.find({ email: { $in: emails } }).select('email avatar status loginEnabled').lean().catch(() => [])
+      : [];
+    const userMap = {};
+    (userDocs || []).forEach(u => {
+      if (u.email) userMap[u.email.toLowerCase()] = u;
+    });
+
     // Normalize each staff record for consistent consumption across all components
     const result = rawList.map(s => {
       const id = (s._id || s.id || '').toString();
       const fullName = `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.name || 'Staff Member';
       const phone = s.mobile || s.phone || s.emergencyMobile || '';
-      const hasImg = Boolean((s.staffPhoto && typeof s.staffPhoto === 'string' && s.staffPhoto.trim()) ||
-                             (s.photo && typeof s.photo === 'string' && s.photo.trim()));
-      const photo = hasImg ? `/api/staff/${id}/photo` : null;
+      const emailLower = (s.email || '').trim().toLowerCase();
+      const matchedUser = userMap[emailLower];
+      const rawAvatar = matchedUser?.avatar || s.staffPhoto || s.photo || '';
+      const hasImg = Boolean(rawAvatar && typeof rawAvatar === 'string' && rawAvatar.trim());
+      const photo = hasImg ? (rawAvatar.startsWith('data:') ? rawAvatar : `/api/staff/${id}/photo`) : null;
       const department = s.department || deptMap[String(s.departmentId)] || (s.role === 'Super Admin' || s.role === 'Admin' ? 'Administration' : 'Academics');
       const designation = s.designation || desigMap[String(s.designationId)] || s.role || 'Staff Member';
+      const loginEnabled = s.loginEnabled !== false && matchedUser?.status !== 'Inactive' && matchedUser?.loginEnabled !== false;
 
       return {
         ...s,
@@ -94,8 +108,10 @@ export async function GET(req) {
         mobile: phone,
         photo,
         staffPhoto: photo,
+        avatar: rawAvatar || photo,
         hasPhoto: hasImg,
-        status: s.status || 'Active',
+        status: s.status || (loginEnabled ? 'Active' : 'Inactive'),
+        loginEnabled,
       };
     });
 

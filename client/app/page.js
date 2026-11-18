@@ -17,115 +17,9 @@ import {
   FileText, Sparkles, Filter, ExternalLink, Printer, Share2, Copy, Check, Tag, Info
 } from "lucide-react";
 
-const DEFAULT_PUBLIC_NOTICES = [
-  {
-    _id: "notice-default-1",
-    id: "notice-default-1",
-    type: "Notice",
-    title: "Annual Sports Gala & Track Championship 2026",
-    description: "The Annual Sports Gala will commence from next week. All house captains and registered participants are requested to collect their sports kits from the physical education department. Parents and guardians are cordially invited for the grand closing ceremony.",
-    audience: "All",
-    date: new Date(Date.now() + 86400000 * 2).toISOString(),
-    published: true,
-    createdBy: "Sports Committee"
-  },
-  {
-    _id: "notice-default-2",
-    id: "notice-default-2",
-    type: "Notice",
-    title: "Mid-Term Examination Datesheet & Admit Card Issuance",
-    description: "The official datesheet for Mid-Term examinations has been published on the student and parent portals. Admit cards can be downloaded online or collected from the examination cell before Friday.",
-    audience: "Students",
-    date: new Date(Date.now() + 86400000 * 5).toISOString(),
-    published: true,
-    createdBy: "Examination Cell"
-  },
-  {
-    _id: "notice-default-3",
-    id: "notice-default-3",
-    type: "Notice",
-    title: "First Term Parent-Teacher Conference (PTM) Schedule",
-    description: "The first term Parent-Teacher Meeting will be held on Saturday between 9:00 AM to 1:30 PM. Class teachers will discuss academic progress, attendance records, and personalized learning milestones with parents.",
-    audience: "Parents",
-    date: new Date(Date.now() + 86400000 * 7).toISOString(),
-    published: true,
-    createdBy: "Academic Coordinator"
-  },
-  {
-    _id: "notice-default-4",
-    id: "notice-default-4",
-    type: "Notice",
-    title: "Faculty Professional Development & STEM Curriculum Workshop",
-    description: "All senior and secondary faculty members are required to attend the professional development session on modern pedagogical strategies and digital classroom toolkits in Hall A.",
-    audience: "Teachers",
-    date: new Date(Date.now() + 86400000 * 9).toISOString(),
-    published: true,
-    createdBy: "Principal Office"
-  }
-];
+const DEFAULT_PUBLIC_NOTICES = [];
 
-const DEFAULT_PUBLIC_EVENTS = [
-  {
-    _id: "event-default-1",
-    id: "event-default-1",
-    type: "Event",
-    title: "National Science & Robotics Exhibition 2026",
-    description: "Inter-school exhibition featuring cutting-edge student projects in Artificial Intelligence, Renewable Energy, and Smart Robotics. Open for visitors, students, and technology enthusiasts.",
-    eventFor: "All",
-    audience: "All",
-    startDate: new Date(Date.now() + 86400000 * 12).toISOString().split('T')[0],
-    endDate: new Date(Date.now() + 86400000 * 14).toISOString().split('T')[0],
-    date: new Date(Date.now() + 86400000 * 12).toISOString().split('T')[0],
-    location: "Main Auditorium & Tech Labs",
-    category: "Academic",
-    status: "Upcoming"
-  },
-  {
-    _id: "event-default-2",
-    id: "event-default-2",
-    type: "Event",
-    title: "Inter-House Football & Basketball Championship",
-    description: "Annual tournament between school houses featuring knockout rounds, semi-finals, and trophy presentation ceremony.",
-    eventFor: "Students",
-    audience: "Students",
-    startDate: new Date(Date.now() + 86400000 * 16).toISOString().split('T')[0],
-    endDate: new Date(Date.now() + 86400000 * 18).toISOString().split('T')[0],
-    date: new Date(Date.now() + 86400000 * 16).toISOString().split('T')[0],
-    location: "Sports Complex — Ground 1",
-    category: "Sports",
-    status: "Upcoming"
-  },
-  {
-    _id: "event-default-3",
-    id: "event-default-3",
-    type: "Event",
-    title: "Annual Founder's Day & Cultural Heritage Festival",
-    description: "Celebration of institution history with musical drama, cultural performances, traditional art galleries, and food stalls hosted by students.",
-    eventFor: "All",
-    audience: "All",
-    startDate: new Date(Date.now() + 86400000 * 22).toISOString().split('T')[0],
-    endDate: new Date(Date.now() + 86400000 * 22).toISOString().split('T')[0],
-    date: new Date(Date.now() + 86400000 * 22).toISOString().split('T')[0],
-    location: "Central Campus Lawn",
-    category: "Cultural",
-    status: "Upcoming"
-  },
-  {
-    _id: "event-default-4",
-    id: "event-default-4",
-    type: "Event",
-    title: "Higher Education & Global Scholarship Seminar",
-    description: "Representatives from leading international universities and scholarship counselors will guide senior students on college applications, admissions, and financial aid.",
-    eventFor: "Students",
-    audience: "Students",
-    startDate: new Date(Date.now() + 86400000 * 25).toISOString().split('T')[0],
-    endDate: new Date(Date.now() + 86400000 * 25).toISOString().split('T')[0],
-    date: new Date(Date.now() + 86400000 * 25).toISOString().split('T')[0],
-    location: "Conference Hall B",
-    category: "Career",
-    status: "Upcoming"
-  }
-];
+const DEFAULT_PUBLIC_EVENTS = [];
 
 export default function LandingPage() {
   const { user, isAuthenticated, logout, checkAuth } = useAuth();
@@ -146,8 +40,8 @@ export default function LandingPage() {
   const [activeDialog, setActiveDialog] = useState(null); // { title, content, type }
 
   // Notices & Events Section State
-  const [publicNotices, setPublicNotices] = useState(DEFAULT_PUBLIC_NOTICES);
-  const [publicEvents, setPublicEvents] = useState(DEFAULT_PUBLIC_EVENTS);
+  const [publicNotices, setPublicNotices] = useState([]);
+  const [publicEvents, setPublicEvents] = useState([]);
   const [activeFeedType, setActiveFeedType] = useState("all"); // 'all' | 'notices' | 'events'
   const [selectedAudience, setSelectedAudience] = useState("All");
   const [feedSearch, setFeedSearch] = useState("");
@@ -402,10 +296,10 @@ export default function LandingPage() {
         } catch (_) {}
       }
 
-      // Deduplicate Notices
+      // Deduplicate Notices — only real data, no dummy fallback
       const uniqueNotices = [];
       const seenNotice = new Set();
-      for (const n of [...fetchedNotices, ...DEFAULT_PUBLIC_NOTICES]) {
+      for (const n of fetchedNotices) {
         const key = (n._id || n.id || n.title).toString();
         if (!seenNotice.has(key)) {
           seenNotice.add(key);
@@ -414,10 +308,10 @@ export default function LandingPage() {
       }
       setPublicNotices(uniqueNotices);
 
-      // Deduplicate Events
+      // Deduplicate Events — only real data, no dummy fallback
       const uniqueEvents = [];
       const seenEvent = new Set();
-      for (const e of [...fetchedEvents, ...DEFAULT_PUBLIC_EVENTS]) {
+      for (const e of fetchedEvents) {
         const key = (e._id || e.id || e.title).toString();
         if (!seenEvent.has(key)) {
           seenEvent.add(key);

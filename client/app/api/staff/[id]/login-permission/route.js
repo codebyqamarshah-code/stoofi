@@ -7,19 +7,32 @@ export const dynamic = 'force-dynamic';
 export async function PUT(req, { params }) {
   try {
     await connectDB();
-    const { id } = await params;
+    const resolvedParams = await params;
+    const id = resolvedParams?.id;
     const body = await req.json();
     const { loginEnabled } = body;
 
-    const staff = await Staff.findByIdAndUpdate(id, { loginEnabled }, { new: true });
+    const staff = await Staff.findByIdAndUpdate(
+      id,
+      {
+        loginEnabled: !!loginEnabled,
+        status: loginEnabled ? 'Active' : 'Inactive'
+      },
+      { new: true }
+    );
     if (!staff) {
       return NextResponse.json({ success: false, message: 'Staff member not found' }, { status: 404 });
     }
 
     if (staff.email) {
-      await User.findOneAndUpdate(
+      await User.updateMany(
         { email: staff.email.toLowerCase() },
-        { active: loginEnabled !== false }
+        {
+          $set: {
+            status: loginEnabled ? 'Active' : 'Inactive',
+            loginEnabled: !!loginEnabled
+          }
+        }
       ).catch(() => null);
     }
 

@@ -62,6 +62,16 @@ export async function authenticateRequest(req, options = {}) {
       };
     }
 
+    if (user.status === 'Inactive' || user.loginEnabled === false) {
+      return {
+        user: null,
+        error: NextResponse.json(
+          { success: false, isAccessDenied: true, message: 'Access Denied: Your account login access has been disabled by the administrator.' },
+          { status: 403 }
+        )
+      };
+    }
+
     const email = String(user.email || '').toLowerCase().trim();
     const canDelete = email !== 'pakroyalcollege@gmail.com' && user.canDelete !== false;
 
