@@ -56,6 +56,29 @@ const TEACHER_ALLOWED = [
   '/dashboard/parents',
 ];
 
+// Routes that are allowed for Accountant (prefix-match)
+const ACCOUNTANT_ALLOWED = [
+  '/dashboard/accountant',
+  '/dashboard/profile',
+  '/dashboard/notifications',
+  '/dashboard/utilities',
+];
+
+// Routes strictly blocked for Accountant
+const ACCOUNTANT_BLOCKED = [
+  '/dashboard/admin',
+  '/dashboard/teacher',
+  '/dashboard/student',
+  '/dashboard/roles',
+  '/dashboard/settings/super-admin',
+  '/dashboard/academics',
+  '/dashboard/examination',
+  '/dashboard/lesson-plan',
+  '/dashboard/homework',
+  '/dashboard/dormitory',
+  '/dashboard/virtual-class',
+];
+
 /**
  * Returns true if the given role may access the given pathname.
  */
@@ -69,6 +92,14 @@ export function isRouteAllowed(role, pathname) {
   if (role === 'Admin') {
     const adminBlocked = ['/dashboard/settings/super-admin'];
     return !adminBlocked.some(b => pathname.startsWith(b));
+  }
+
+  // Accountant
+  if (role === 'Accountant') {
+    if (pathname === '/dashboard' || pathname === '/dashboard/') return true;
+    if (ACCOUNTANT_BLOCKED.some(b => pathname.startsWith(b))) return false;
+    if (ACCOUNTANT_ALLOWED.some(a => pathname.startsWith(a))) return true;
+    return false;
   }
 
   // Teacher
@@ -89,6 +120,6 @@ export function isRouteAllowed(role, pathname) {
     return false;
   }
 
-  // Accountant, Receptionist, Parent, Staff, and custom roles: allow dashboard access
+  // Receptionist, Parent, Staff, and custom roles: allow dashboard access
   return pathname.startsWith('/dashboard');
 }

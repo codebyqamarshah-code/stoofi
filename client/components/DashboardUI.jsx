@@ -313,24 +313,48 @@ export default function DashboardUI({ user }) {
       let liveStats = res?.data?.stats;
       let chartsObj = res?.data?.charts;
 
-      // Extract real-time collected fees directly from invoices & bank payments
+      // Extract real-time collected fees directly from invoices & bank payments for CURRENT billing month
       const rawInvoices = invRes?.data || (Array.isArray(invRes) ? invRes : []);
       const rawBankPayments = bankRes?.data || (Array.isArray(bankRes) ? bankRes : []);
 
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth();
+      const currentBillingMonth = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+      const startOfMonth = new Date(currentYear, currentMonth, 1, 0, 0, 0, 0);
+      const endOfMonth = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59, 999);
+
       let invoicePaid = 0;
       let invoiceTotal = 0;
+      const monthPaidStudents = new Set();
+
       if (Array.isArray(rawInvoices) && rawInvoices.length > 0) {
         rawInvoices.forEach(inv => {
-          invoicePaid += Number(inv.paid || inv.paidAmount) || 0;
-          invoiceTotal += Number(inv.amount || inv.totalAmount) || 0;
+          const invDate = new Date(inv.date || inv.createdAt);
+          const isThisMonth = inv.billingMonth === currentBillingMonth || (!inv.billingMonth && invDate >= startOfMonth && invDate <= endOfMonth);
+          if (isThisMonth) {
+            const p = Number(inv.paid || inv.paidAmount) || 0;
+            invoicePaid += p;
+            invoiceTotal += Number(inv.amount || inv.totalAmount) || 0;
+            if (p > 0 || inv.status === 'Paid') {
+              const k = (inv.admissionNo || inv.student || inv.studentName || '').trim().toLowerCase();
+              if (k) monthPaidStudents.add(k);
+            }
+          }
         });
       }
 
       let bankPaid = 0;
       if (Array.isArray(rawBankPayments) && rawBankPayments.length > 0) {
         rawBankPayments.forEach(bp => {
-          if (bp.status !== 'Rejected') {
-            bankPaid += Number(bp.amount) || 0;
+          if (bp.status === 'Approved') {
+            const bpDate = new Date(bp.date || bp.createdAt);
+            if (bpDate >= startOfMonth && bpDate <= endOfMonth) {
+              const bAmt = Number(bp.amount) || 0;
+              bankPaid += bAmt;
+              const k = (bp.admissionNo || bp.studentName || '').trim().toLowerCase();
+              if (k) monthPaidStudents.add(k);
+            }
           }
         });
       }
@@ -344,18 +368,20 @@ export default function DashboardUI({ user }) {
           mergedStats.fees = { ...prev.stats.fees };
         }
 
-        // Accurately blend collected fees from backend stats, invoices, and bank payments
+        // Accurately blend collected fees from backend stats, invoices, and bank payments for current month
         const backendCollected = Number(mergedStats.fees.collectedFees) || 0;
         const finalCollected = Math.max(backendCollected, totalDirectCollected);
         const finalTotalFees = Math.max(Number(mergedStats.fees.totalFees) || 0, totalDirectFees, finalCollected);
         const finalPercentage = finalTotalFees > 0 
           ? Math.min(100, Math.round((finalCollected / finalTotalFees) * 100)) 
           : (finalCollected > 0 ? 100 : 0);
+        const paidStudentsCount = Math.max(Number(mergedStats.fees.paidStudentsCount) || 0, monthPaidStudents.size);
 
         mergedStats.fees.collectedFees = finalCollected;
         mergedStats.fees.totalIncome = Math.max(Number(mergedStats.fees.totalIncome) || 0, finalCollected);
         mergedStats.fees.totalFees = finalTotalFees;
         mergedStats.fees.collectionPercentage = finalPercentage;
+        mergedStats.fees.paidStudentsCount = paidStudentsCount;
         mergedStats.fees.totalProfit = (mergedStats.fees.totalIncome || 0) - (Number(mergedStats.fees.totalExpenses) || 0);
 
         // Also blend income into monthly chart if current month is 0
@@ -1207,6 +1233,10 @@ export default function DashboardUI({ user }) {
                 <div className="text-xs text-zinc-950 dark:text-zinc-700 flex items-center gap-2 font-medium">
                   <span className="h-2 w-2 rounded-full bg-[#18181b]" />
                   TOTAL FEES: <span className="font-extrabold text-zinc-950 dark:text-zinc-900">{currencySymbol}{(dashboardData?.stats?.fees?.totalFees?.toLocaleString?.() || '0')}</span>
+                </div>
+                <div className="text-xs text-zinc-950 dark:text-zinc-700 flex items-center gap-2 font-medium">
+                  <span className="h-2 w-2 rounded-full bg-emerald-600" />
+                  PAID STUDENTS: <span className="font-extrabold text-zinc-950 dark:text-zinc-900">{(dashboardData?.stats?.fees?.paidStudentsCount ?? 0)} / {(dashboardData?.stats?.students?.total ?? 0)}</span>
                 </div>
               </div>
             </div>

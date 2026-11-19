@@ -96,14 +96,14 @@ export default function RegisterPage() {
         if (res && res.hasAdmin === false) {
           roles.push('Admin');
         }
-        roles.push('Teacher', 'Student');
+        roles.push('Teacher', 'Student', 'Accountant');
         setAvailableRoles(roles);
         if (roles.length > 0 && !roles.includes(role)) {
           setRole(roles[0]);
         }
       } catch (e) {
         // Safe fallback: never show Super Admin if error occurs or already registered
-        const fallback = ['Admin', 'Teacher', 'Student'];
+        const fallback = ['Admin', 'Teacher', 'Student', 'Accountant'];
         setAvailableRoles(fallback);
         setRole('Admin');
       } finally {
@@ -142,6 +142,8 @@ export default function RegisterPage() {
     joiningDate: new Date().toISOString().split('T')[0],
     studentClass: '',
     section: '',
+    employeeId: '',
+    invitationCode: '',
     picture: '',
     cnicFront: '',
     cnicBack: '',
@@ -667,6 +669,8 @@ export default function RegisterPage() {
             const finalRole = userObj.role || role;
             if (finalRole === 'Super Admin' || finalRole === 'Admin') {
               window.location.href = '/dashboard';
+            } else if (finalRole === 'Accountant') {
+              window.location.href = '/dashboard/accountant';
             } else if (finalRole === 'Teacher') {
               window.location.href = '/dashboard/teacher';
             } else if (finalRole === 'Student') {
@@ -956,11 +960,11 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {/* Section: School Info for Admin & Super Admin */}
-          {(role === 'Super Admin' || role === 'Admin') && (
+          {/* Section: School Info for Admin, Super Admin & Accountant */}
+          {(role === 'Super Admin' || role === 'Admin' || role === 'Accountant') && (
             <div className="p-4 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40 space-y-4">
               <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
-                <Building size={16} /> Institution Information
+                <Building size={16} /> Institution Information {role === 'Accountant' && '& Authorization'}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -977,18 +981,60 @@ export default function RegisterPage() {
                   />
                   {fieldErrors.schoolName && <p className="text-rose-500 text-xs font-medium mt-1">{fieldErrors.schoolName}</p>}
                 </div>
-                <div>
-                  <label className={labelClass}>School Address / Location</label>
-                  <input
-                    type="text"
-                    name="schoolAddress"
-                    value={formData.schoolAddress}
-                    onChange={handleChange}
-                    placeholder="Enter school campus / address"
-                    className={inputClass}
-                  />
-                </div>
+                {role === 'Accountant' ? (
+                  <div>
+                    <label className={labelClass}>Employee ID <span className="text-rose-500">*</span></label>
+                    <input
+                      type="text"
+                      name="employeeId"
+                      value={formData.employeeId}
+                      onChange={handleChange}
+                      placeholder="e.g. ACC-2026-01"
+                      className={inputClass}
+                      required
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <label className={labelClass}>School Address / Location</label>
+                    <input
+                      type="text"
+                      name="schoolAddress"
+                      value={formData.schoolAddress}
+                      onChange={handleChange}
+                      placeholder="Enter school campus / address"
+                      className={inputClass}
+                    />
+                  </div>
+                )}
               </div>
+              {role === 'Accountant' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div>
+                    <label className={labelClass}>Invitation Code / Security Token</label>
+                    <input
+                      type="text"
+                      name="invitationCode"
+                      value={formData.invitationCode}
+                      onChange={handleChange}
+                      placeholder="Admin-issued code (or pending approval)"
+                      className={inputClass}
+                    />
+                    <p className="text-zinc-500 text-[11px] mt-1">If empty, account will be submitted for Admin approval.</p>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Campus / Department</label>
+                    <input
+                      type="text"
+                      name="schoolAddress"
+                      value={formData.schoolAddress}
+                      onChange={handleChange}
+                      placeholder="Accounts & Finance Department"
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

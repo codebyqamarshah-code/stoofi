@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
-import { User, Student, Staff, Teacher } from '@/lib/models';
+import { User, Student, Staff, Teacher, AccountantInvitation } from '@/lib/models';
 import { signToken } from '@/lib/jwt-secret';
 
 export async function POST(req) {
@@ -23,6 +23,9 @@ export async function POST(req) {
       section,
       cnic,
       picture,
+      employeeId,
+      schoolName,
+      invitationCode,
       // Teacher specific
       assignedClass,
       assignedSection,
@@ -73,6 +76,32 @@ export async function POST(req) {
       }
     }
 
+    // Accountant Security Workflow (Invitation code or Admin approval required)
+    let accountStatus = 'Active';
+    let validInvitation = null;
+
+    if (finalRole === 'Accountant') {
+      if (invitationCode && invitationCode.trim()) {
+        const cleanCode = invitationCode.trim();
+        // Check database invitation or default system passkey
+        validInvitation = await AccountantInvitation.findOne({
+          code: cleanCode,
+          isUsed: false
+        });
+
+        if (!validInvitation && cleanCode !== 'STOOFI-ACC-2026') {
+          return NextResponse.json(
+            { success: false, message: 'Invalid or already used Accountant Invitation Code. Please contact School Admin.' },
+            { status: 400 }
+          );
+        }
+        accountStatus = 'Active';
+      } else {
+        // Without an authorized invitation code, account is created in Pending status requiring Admin approval
+        accountStatus = 'Pending';
+      }
+    }
+
     // Map roleModel
     let roleModel = undefined;
     if (finalRole === 'Student') roleModel = 'Student';
@@ -96,9 +125,18 @@ export async function POST(req) {
       password,
       role: finalRole,
       ...(roleModel ? { roleModel } : {}),
-      status: 'Active',
-      avatar: picture || ''
+      status: accountStatus,
+      loginEnabled: accountStatus === 'Active',
+      avatar: picture || '',
+      schoolName: schoolName || 'Main Campus',
+      employeeId: employeeId || ''
     });
+
+    if (validInvitation) {
+      validInvitation.isUsed = true;
+      validInvitation.usedBy = user._id;
+      await validInvitation.save().catch(() => {});
+    }
 
     let referenceId = null;
 
@@ -140,13 +178,17 @@ export async function POST(req) {
     } else if (roleModel === 'Staff') {
       const staff = await Staff.create({
         user: user._id,
+        staffNo: employeeId || `ACC-${Date.now().toString().slice(-4)}`,
         firstName,
         lastName,
         email: cleanEmail,
         phone: phone || '',
         role: finalRole,
+        department: finalRole === 'Accountant' ? 'Accounts & Finance' : 'Administration',
+        designation: finalRole === 'Accountant' ? 'Accountant' : 'Staff Member',
         cnic: cnic || '',
-        joiningDate: joiningDate || Date.now()
+        joiningDate: joiningDate || Date.now(),
+        status: accountStatus
       });
       referenceId = staff._id;
     }
@@ -154,6 +196,21 @@ export async function POST(req) {
     if (referenceId) {
       user.referenceId = referenceId;
       await user.save();
+    }
+
+    // If pending approval, inform user
+    if (accountStatus === 'Pending') {
+      return NextResponse.json({
+        success: true,
+        message: 'Accountant registration submitted successfully! Your account is pending Admin approval before activation.',
+        data: {
+          _id: user._id,
+          fullName: user.fullName,
+          email: user.email,
+          role: user.role,
+          status: 'Pending'
+        }
+      }, { status: 201 });
     }
 
     const token = signToken(

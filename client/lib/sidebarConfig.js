@@ -1287,6 +1287,82 @@ export const STUDENT_MENU_STRUCTURE = [
   }
 ];
 
+export const ACCOUNTANT_MENU_STRUCTURE = [
+  {
+    id: 'grp-acc-main',
+    groupTitle: 'ACCOUNTANT PORTAL',
+    visible: true,
+    items: [
+      { id: 'acc-dash', name: 'Dashboard', href: '/dashboard/accountant', iconName: 'LayoutDashboard', visible: true },
+      {
+        id: 'acc-fees',
+        name: 'Fee Management',
+        iconName: 'CreditCard',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'acc-fees-all', name: 'All Student Fees', href: '/dashboard/accountant/fees', iconName: 'Users', visible: true },
+          { id: 'acc-fees-collect', name: 'Collect Fees', href: '/dashboard/accountant/fees/collect', iconName: 'DollarSign', visible: true },
+          { id: 'acc-fees-vouchers', name: 'Fee Vouchers', href: '/dashboard/accountant/fees/vouchers', iconName: 'Printer', visible: true },
+          { id: 'acc-fees-receipts', name: 'Payment Receipts', href: '/dashboard/accountant/fees/receipts', iconName: 'FileText', visible: true },
+          { id: 'acc-fees-pending', name: 'Pending Fees', href: '/dashboard/accountant/fees/pending', iconName: 'Clock', visible: true },
+          { id: 'acc-fees-overdue', name: 'Overdue Fees', href: '/dashboard/accountant/fees/overdue', iconName: 'ShieldAlert', visible: true },
+          { id: 'acc-fees-discounts', name: 'Fee Discounts', href: '/dashboard/accountant/fees/discounts', iconName: 'BadgePercent', visible: true },
+          { id: 'acc-fees-history', name: 'Payment History', href: '/dashboard/accountant/fees/history', iconName: 'RotateCcw', visible: true },
+        ]
+      },
+      {
+        id: 'acc-expenses',
+        name: 'Expense Management',
+        iconName: 'DollarSign',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'acc-exp-all', name: 'All Expenses', href: '/dashboard/accountant/expenses', iconName: 'List', visible: true },
+          { id: 'acc-exp-add', name: 'Add Expense', href: '/dashboard/accountant/expenses/add', iconName: 'Plus', visible: true },
+          { id: 'acc-exp-cat', name: 'Expense Categories', href: '/dashboard/accountant/expenses/categories', iconName: 'Layers', visible: true },
+          { id: 'acc-exp-rep', name: 'Expense Reports', href: '/dashboard/accountant/expenses/reports', iconName: 'FileSpreadsheet', visible: true },
+        ]
+      },
+      {
+        id: 'acc-payroll',
+        name: 'Salary & Payroll',
+        iconName: 'Wallet',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'acc-pay-records', name: 'Staff Salary Records', href: '/dashboard/accountant/payroll', iconName: 'Users', visible: true },
+          { id: 'acc-pay-process', name: 'Process Salary', href: '/dashboard/accountant/payroll/process', iconName: 'Banknote', visible: true },
+          { id: 'acc-pay-slips', name: 'Salary Slips', href: '/dashboard/accountant/payroll/slips', iconName: 'FileText', visible: true },
+          { id: 'acc-pay-pending', name: 'Pending Salaries', href: '/dashboard/accountant/payroll/pending', iconName: 'Clock', visible: true },
+          { id: 'acc-pay-history', name: 'Salary Payment History', href: '/dashboard/accountant/payroll/history', iconName: 'RotateCcw', visible: true },
+        ]
+      },
+      {
+        id: 'acc-reports',
+        name: 'Financial Reports',
+        iconName: 'BarChart2',
+        hasSubmenu: true,
+        visible: true,
+        subItems: [
+          { id: 'acc-rep-daily', name: 'Daily Collection', href: '/dashboard/accountant/reports/daily', iconName: 'CalendarDays', visible: true },
+          { id: 'acc-rep-weekly', name: 'Weekly Collection', href: '/dashboard/accountant/reports/weekly', iconName: 'CalendarDays', visible: true },
+          { id: 'acc-rep-monthly', name: 'Monthly Collection', href: '/dashboard/accountant/reports/monthly', iconName: 'CalendarDays', visible: true },
+          { id: 'acc-rep-annual', name: 'Annual Collection', href: '/dashboard/accountant/reports/annual', iconName: 'CalendarDays', visible: true },
+          { id: 'acc-rep-income', name: 'Income Report', href: '/dashboard/accountant/reports/income', iconName: 'TrendingUp', visible: true },
+          { id: 'acc-rep-expense', name: 'Expense Report', href: '/dashboard/accountant/reports/expense', iconName: 'TrendingDown', visible: true },
+          { id: 'acc-rep-profit', name: 'Profit / Net Income', href: '/dashboard/accountant/reports/profit-loss', iconName: 'PieChart', visible: true },
+          { id: 'acc-rep-outstanding', name: 'Outstanding Fees', href: '/dashboard/accountant/reports/outstanding', iconName: 'ShieldAlert', visible: true },
+          { id: 'acc-rep-student-payments', name: 'Student Payment Report', href: '/dashboard/accountant/reports/student-payments', iconName: 'FileSpreadsheet', visible: true },
+          { id: 'acc-rep-salary', name: 'Staff Salary Report', href: '/dashboard/accountant/reports/salary', iconName: 'FileCheck', visible: true },
+        ]
+      },
+      { id: 'acc-trans', name: 'Transactions', href: '/dashboard/accountant/transactions', iconName: 'ArrowRightLeft', visible: true },
+      { id: 'acc-profile', name: 'My Profile', href: '/dashboard/accountant/profile', iconName: 'User', visible: true },
+    ]
+  }
+];
+
 export const STORAGE_KEY = 'stoofi_custom_sidebar_v11';
 
 // Keep Admin Setup as the last entry of Admin Section in saved layouts.
@@ -1309,6 +1385,7 @@ export function getStoredSidebar(role = 'Super Admin') {
   let defaultForRole = DEFAULT_MENU_STRUCTURE;
   if (role === 'Student') defaultForRole = STUDENT_MENU_STRUCTURE;
   else if (role === 'Teacher') defaultForRole = TEACHER_MENU_STRUCTURE;
+  else if (role === 'Accountant') defaultForRole = ACCOUNTANT_MENU_STRUCTURE;
 
   if (typeof window === 'undefined') {
     return defaultForRole;
@@ -1371,6 +1448,7 @@ export function resetStoredSidebar(role = 'Super Admin') {
   let defaultMenu = DEFAULT_MENU_STRUCTURE;
   if (role === 'Student') defaultMenu = STUDENT_MENU_STRUCTURE;
   else if (role === 'Teacher') defaultMenu = TEACHER_MENU_STRUCTURE;
+  else if (role === 'Accountant') defaultMenu = ACCOUNTANT_MENU_STRUCTURE;
 
   if (typeof window === 'undefined') return defaultMenu;
   try {

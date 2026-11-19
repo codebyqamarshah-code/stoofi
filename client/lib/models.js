@@ -2010,6 +2010,64 @@ const teacherEvaluationSchema = new mongoose.Schema({
 
 export const TeacherEvaluation = mongoose.models.TeacherEvaluation || mongoose.model('TeacherEvaluation', teacherEvaluationSchema);
 
+// Financial Audit Log Schema
+const financialAuditLogSchema = new mongoose.Schema({
+  action: { type: String, required: true }, // e.g., 'FEE_COLLECTION', 'EXPENSE_CREATE', 'SALARY_PROCESS', 'DISCOUNT_APPLIED'
+  module: { type: String, required: true }, // e.g., 'FEES', 'EXPENSES', 'PAYROLL'
+  performedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  performedByName: { type: String, default: 'Accountant' },
+  performedByRole: { type: String, default: 'Accountant' },
+  studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
+  staffId: { type: String },
+  referenceId: { type: String },
+  amount: { type: Number, default: 0 },
+  paymentMethod: { type: String },
+  previousValues: { type: mongoose.Schema.Types.Mixed },
+  newValues: { type: mongoose.Schema.Types.Mixed },
+  notes: { type: String, default: '' },
+  schoolId: { type: String, default: 'main-campus' }
+}, { timestamps: true });
+
+financialAuditLogSchema.index({ action: 1, createdAt: -1 });
+financialAuditLogSchema.index({ module: 1, createdAt: -1 });
+
+export const FinancialAuditLog = mongoose.models.FinancialAuditLog || mongoose.model('FinancialAuditLog', financialAuditLogSchema);
+
+// Fee Discount Schema
+const feeDiscountSchema = new mongoose.Schema({
+  studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Student', required: true },
+  studentName: { type: String, required: true },
+  admissionNo: { type: String },
+  className: { type: String },
+  section: { type: String },
+  originalFee: { type: Number, required: true },
+  discountAmount: { type: Number, required: true },
+  finalFee: { type: Number, required: true },
+  reason: { type: String, required: true },
+  status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Approved' },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  createdByName: { type: String, default: 'Accountant' },
+  approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  approvedByName: { type: String },
+  schoolId: { type: String, default: 'main-campus' }
+}, { timestamps: true });
+
+export const FeeDiscount = mongoose.models.FeeDiscount || mongoose.model('FeeDiscount', feeDiscountSchema);
+
+// Accountant Invitation / Approval Schema
+const accountantInvitationSchema = new mongoose.Schema({
+  code: { type: String, required: true, unique: true },
+  email: { type: String, lowercase: true, trim: true },
+  schoolName: { type: String, default: 'Main Campus' },
+  isUsed: { type: Boolean, default: false },
+  usedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  expiresAt: { type: Date }
+}, { timestamps: true });
+
+export const AccountantInvitation = mongoose.models.AccountantInvitation || mongoose.model('AccountantInvitation', accountantInvitationSchema);
+
+
 
 
 

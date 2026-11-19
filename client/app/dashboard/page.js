@@ -15,11 +15,13 @@ export default function DashboardPage() {
         router.replace('/dashboard/student');
       } else if (user.role === 'Teacher') {
         router.replace('/dashboard/teacher');
+      } else if (user.role === 'Accountant') {
+        router.replace('/dashboard/accountant');
       }
     }
   }, [user, isLoading, router]);
 
-  if (isLoading || !isAuthenticated || !user || ['Student', 'Teacher'].includes(user.role)) {
+  if (isLoading || !isAuthenticated || !user || ['Student', 'Teacher', 'Accountant'].includes(user.role)) {
     return (
       <div className="flex h-[80vh] items-center justify-center bg-white dark:bg-white">
         <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center p-2 relative">

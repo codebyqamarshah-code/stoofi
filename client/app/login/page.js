@@ -282,9 +282,12 @@ export default function LoginPage() {
     const isSuperAdmin = cleanEmail === 'super@gmail.com' || user?.role === 'Super Admin';
     const isAdmin = cleanEmail === 'admin@gmail.com' || cleanEmail === 'admin@gamil.com' || user?.role === 'Admin';
     const isTeacher = user?.role === 'Teacher';
+    const isAccountant = user?.role === 'Accountant';
 
     if (isSuperAdmin || isAdmin) {
       window.location.href = '/dashboard';
+    } else if (isAccountant) {
+      window.location.href = '/dashboard/accountant';
     } else if (isTeacher) {
       window.location.href = '/dashboard/teacher';
     } else if (user?.role === 'Student') {

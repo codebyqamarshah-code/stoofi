@@ -1007,6 +1007,10 @@ export default function AdminDashboardUI({ user }) {
                   <span className="h-2 w-2 rounded-full bg-[#18181b]" />
                   TOTAL FEES: <span className="font-extrabold text-zinc-950 dark:text-zinc-900">PKR {(dashboardData?.stats?.fees?.totalFees?.toLocaleString?.() || '0')}</span>
                 </div>
+                <div className="text-xs text-zinc-950 dark:text-zinc-700 flex items-center gap-2 font-medium">
+                  <span className="h-2 w-2 rounded-full bg-emerald-600" />
+                  PAID STUDENTS: <span className="font-extrabold text-zinc-950 dark:text-zinc-900">{(dashboardData?.stats?.fees?.paidStudentsCount ?? 0)} / {(dashboardData?.stats?.students?.total ?? 0)}</span>
+                </div>
               </div>
             </div>
             <div className="h-14 w-14 rounded-full border-4 border-zinc-300 dark:border-zinc-200 flex items-center justify-center">
