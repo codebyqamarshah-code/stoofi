@@ -30,6 +30,10 @@ const schema = new mongoose.Schema({
     labPracticalFee: { type: Number, default: 2000 },
     examFee: { type: Number, default: 2000 },
     libraryFee: { type: Number, default: 1000 },
+    customFees: [{
+      name: { type: String, default: '' },
+      amount: { type: Number, default: 0 }
+    }],
     totalEstimate: { type: Number, default: 38000 },
     installmentsAllowed: { type: Boolean, default: true },
     installmentsCount: { type: Number, default: 2 }

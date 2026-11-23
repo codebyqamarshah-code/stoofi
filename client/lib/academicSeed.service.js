@@ -152,12 +152,28 @@ export async function ensureAcademicHierarchySeeded() {
         status: 'Active'
       });
       await AcademicSession.create([
+        { name: '2026-2030 (4 Years)', year: 2026, startDate: '2026-08-01', endDate: '2030-06-30', isCurrent: false, status: 'Active' },
+        { name: '2026-2031 (5 Years)', year: 2026, startDate: '2026-08-01', endDate: '2031-06-30', isCurrent: false, status: 'Active' },
+        { name: '2026-2029 (3 Years)', year: 2026, startDate: '2026-08-01', endDate: '2029-06-30', isCurrent: false, status: 'Active' },
+        { name: '2026-2027 (1 Year)', year: 2026, startDate: '2026-08-01', endDate: '2027-06-30', isCurrent: false, status: 'Active' },
         { name: '2025-2027', year: 2025, startDate: '2025-08-01', endDate: '2027-06-30', isCurrent: false, status: 'Active' },
+        { name: '2025-2029 (4 Years)', year: 2025, startDate: '2025-08-01', endDate: '2029-06-30', isCurrent: false, status: 'Active' },
         { name: '2024-2026', year: 2024, startDate: '2024-08-01', endDate: '2026-06-30', isCurrent: false, status: 'Active' },
+        { name: '2024-2028 (4 Years)', year: 2024, startDate: '2024-08-01', endDate: '2028-06-30', isCurrent: false, status: 'Active' },
         { name: '2023-2025', year: 2023, startDate: '2023-08-01', endDate: '2025-06-30', isCurrent: false, status: 'Active' }
       ]);
       currentSession = s26;
     } else {
+      // Ensure multi-year sessions exist for 4-year (BS) and 5-year (DPT) degrees
+      const has4Year = await AcademicSession.findOne({ name: /4 Years|2026-2030/ });
+      if (!has4Year) {
+        await AcademicSession.create([
+          { name: '2026-2030 (4 Years)', year: 2026, startDate: '2026-08-01', endDate: '2030-06-30', isCurrent: false, status: 'Active' },
+          { name: '2026-2031 (5 Years)', year: 2026, startDate: '2026-08-01', endDate: '2031-06-30', isCurrent: false, status: 'Active' },
+          { name: '2026-2029 (3 Years)', year: 2026, startDate: '2026-08-01', endDate: '2029-06-30', isCurrent: false, status: 'Active' },
+          { name: '2026-2027 (1 Year)', year: 2026, startDate: '2026-08-01', endDate: '2027-06-30', isCurrent: false, status: 'Active' }
+        ]).catch(() => {});
+      }
       currentSession = await AcademicSession.findOne({ isCurrent: true }) || await AcademicSession.findOne({ year: 2026 }) || await AcademicSession.findOne();
     }
 

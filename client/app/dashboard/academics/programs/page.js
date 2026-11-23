@@ -51,6 +51,27 @@ function AcademicProgramsPage() {
   const [modalType, setModalType] = useState(null); // 'offering' | 'program' | 'category' | 'affiliation' | 'batch'
   const [editingItem, setEditingItem] = useState(null);
 
+  // Quick modals for Offering
+  const [quickAffModalOpen, setQuickAffModalOpen] = useState(false);
+  const [quickAffForm, setQuickAffForm] = useState({
+    name: '',
+    code: '',
+    type: 'University',
+    validityFrom: '',
+    validityTo: '',
+    approvalReference: ''
+  });
+
+  const [quickSessionModalOpen, setQuickSessionModalOpen] = useState(false);
+  const [quickSessionForm, setQuickSessionForm] = useState({
+    name: '',
+    year: 2026,
+    durationYears: 4,
+    startDate: '',
+    endDate: '',
+    isCurrent: false
+  });
+
   // Form data for modals
   const [offeringForm, setOfferingForm] = useState({
     programId: '',
@@ -69,6 +90,7 @@ function AcademicProgramsPage() {
       labPracticalFee: 2000,
       examFee: 2000,
       libraryFee: 1000,
+      customFees: [],
       totalEstimate: 38000,
       installmentsAllowed: true,
       installmentsCount: 2
@@ -193,6 +215,7 @@ function AcademicProgramsPage() {
             labPracticalFee: item.feePlan?.labPracticalFee ?? 2000,
             examFee: item.feePlan?.examFee ?? 2000,
             libraryFee: item.feePlan?.libraryFee ?? 1000,
+            customFees: Array.isArray(item.feePlan?.customFees) ? item.feePlan.customFees : [],
             totalEstimate: item.feePlan?.totalEstimate ?? 38000,
             installmentsAllowed: item.feePlan?.installmentsAllowed ?? true,
             installmentsCount: item.feePlan?.installmentsCount ?? 2
@@ -218,6 +241,7 @@ function AcademicProgramsPage() {
             labPracticalFee: 2000,
             examFee: 2000,
             libraryFee: 1000,
+            customFees: [],
             totalEstimate: 38000,
             installmentsAllowed: true,
             installmentsCount: 2
@@ -231,16 +255,123 @@ function AcademicProgramsPage() {
     }
   };
 
+  const handleAddCustomFee = () => {
+    setOfferingForm(prev => ({
+      ...prev,
+      feePlan: {
+        ...(prev.feePlan || {}),
+        customFees: [...(prev.feePlan?.customFees || []), { name: '', amount: 0 }]
+      }
+    }));
+  };
+
+  const handleCustomFeeChange = (index, field, value) => {
+    setOfferingForm(prev => {
+      const list = [...(prev.feePlan?.customFees || [])];
+      list[index] = {
+        ...list[index],
+        [field]: field === 'amount' ? (parseFloat(value) || 0) : value
+      };
+      return {
+        ...prev,
+        feePlan: {
+          ...(prev.feePlan || {}),
+          customFees: list
+        }
+      };
+    });
+  };
+
+  const handleRemoveCustomFee = (index) => {
+    setOfferingForm(prev => {
+      const list = (prev.feePlan?.customFees || []).filter((_, i) => i !== index);
+      return {
+        ...prev,
+        feePlan: {
+          ...(prev.feePlan || {}),
+          customFees: list
+        }
+      };
+    });
+  };
+
+  const handleQuickSaveAffiliation = async (e) => {
+    e.preventDefault();
+    if (!quickAffForm.name?.trim() || !quickAffForm.code?.trim()) {
+      showMsg('error', 'University/Affiliation name and code are required.');
+      return;
+    }
+    try {
+      setActionLoading(true);
+      const res = await academicApi.createAffiliation({
+        name: quickAffForm.name.trim(),
+        code: quickAffForm.code.trim().toUpperCase(),
+        type: quickAffForm.type || 'University',
+        validityFrom: quickAffForm.validityFrom || '',
+        validityTo: quickAffForm.validityTo || '',
+        approvalReference: quickAffForm.approvalReference || '',
+        authorizationStatus: 'Approved'
+      });
+      showMsg('success', 'Affiliation registered successfully!');
+      const newAff = res?.data || res;
+      if (newAff?._id) {
+        setAffiliations(prev => [...prev, newAff]);
+        setOfferingForm(prev => ({ ...prev, affiliationId: String(newAff._id) }));
+      }
+      setQuickAffModalOpen(false);
+      setQuickAffForm({ name: '', code: '', type: 'University', validityFrom: '', validityTo: '', approvalReference: '' });
+      loadAllData();
+    } catch (err) {
+      showMsg('error', err?.response?.data?.message || err.message || 'Failed to add affiliation.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleQuickSaveSession = async (e) => {
+    e.preventDefault();
+    const yr = parseInt(quickSessionForm.year, 10) || new Date().getFullYear();
+    const dur = parseInt(quickSessionForm.durationYears, 10) || 2;
+    const endYr = yr + dur;
+    const sessName = quickSessionForm.name?.trim() || `${yr}-${endYr} (${dur} Years)`;
+    try {
+      setActionLoading(true);
+      const res = await academicApi.createSession({
+        name: sessName,
+        year: yr,
+        startDate: quickSessionForm.startDate || `${yr}-08-01`,
+        endDate: quickSessionForm.endDate || `${endYr}-06-30`,
+        isCurrent: !!quickSessionForm.isCurrent,
+        status: 'Active'
+      });
+      showMsg('success', 'Academic session created successfully!');
+      const newSess = res?.data || res;
+      if (newSess?._id) {
+        setSessions(prev => [...prev, newSess]);
+        setOfferingForm(prev => ({ ...prev, sessionId: String(newSess._id) }));
+      }
+      setQuickSessionModalOpen(false);
+      setQuickSessionForm({ name: '', year: 2026, durationYears: 4, startDate: '', endDate: '', isCurrent: false });
+      loadAllData();
+    } catch (err) {
+      showMsg('error', err?.response?.data?.message || err.message || 'Failed to create session.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleSaveOffering = async (e) => {
     e.preventDefault();
     try {
       setActionLoading(true);
+      const customFeesTotal = (offeringForm.feePlan?.customFees || []).reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
       const total = Number(offeringForm.feePlan.admissionFee || 0) +
         Number(offeringForm.feePlan.tuitionFeePerTerm || 0) +
         Number(offeringForm.feePlan.registrationFee || 0) +
         Number(offeringForm.feePlan.labPracticalFee || 0) +
         Number(offeringForm.feePlan.examFee || 0) +
-        Number(offeringForm.feePlan.libraryFee || 0);
+        Number(offeringForm.feePlan.libraryFee || 0) +
+        customFeesTotal;
 
       const payload = {
         ...offeringForm,
@@ -1165,6 +1296,240 @@ function AcademicProgramsPage() {
                   className="bg-[#084A86] hover:bg-[#073d6e] text-white px-5 py-2.5 rounded-xl text-xs font-bold cursor-pointer disabled:opacity-50"
                 >
                   {actionLoading ? 'Saving...' : editingItem ? 'Save Changes' : 'Create Offering'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────────────────────
+          QUICK MODAL: ADD AFFILIATION (DIRECT FROM OFFERING)
+      ────────────────────────────────────────────────────────────────────────────── */}
+      {quickAffModalOpen && (
+        <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-zinc-200 overflow-hidden">
+            <div className="px-6 py-4 border-b border-zinc-200 flex items-center justify-between bg-zinc-50">
+              <h3 className="text-base font-bold text-zinc-950 flex items-center gap-2">
+                <Building2 className="h-5 w-5 text-[#084A86]" />
+                Add University / Affiliation
+              </h3>
+              <button 
+                type="button" 
+                onClick={() => setQuickAffModalOpen(false)} 
+                className="text-zinc-400 hover:text-zinc-900 font-bold"
+              >✕</button>
+            </div>
+
+            <form onSubmit={handleQuickSaveAffiliation} className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-zinc-900 mb-1">University / Board Name *</label>
+                <input
+                  type="text"
+                  placeholder="e.g. University of the Punjab (PU)"
+                  value={quickAffForm.name}
+                  onChange={e => setQuickAffForm(prev => ({ ...prev, name: e.target.value }))}
+                  required
+                  className="w-full bg-zinc-50 border border-zinc-200 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm text-zinc-950 font-bold focus:ring-2 focus:ring-[#084A86]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-zinc-900 mb-1">Affiliation Code *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. PU, BISE"
+                    value={quickAffForm.code}
+                    onChange={e => setQuickAffForm(prev => ({ ...prev, code: e.target.value.toUpperCase() }))}
+                    required
+                    className="w-full bg-zinc-50 border border-zinc-200 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm text-zinc-950 font-bold focus:ring-2 focus:ring-[#084A86]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-zinc-900 mb-1">Affiliation Type</label>
+                  <select
+                    value={quickAffForm.type}
+                    onChange={e => setQuickAffForm(prev => ({ ...prev, type: e.target.value }))}
+                    className="w-full bg-zinc-50 border border-zinc-200 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm text-zinc-950 font-bold focus:ring-2 focus:ring-[#084A86]"
+                  >
+                    <option value="University">University</option>
+                    <option value="Technical Board">Technical Board</option>
+                    <option value="Medical Council">Medical Council</option>
+                    <option value="Pharmacy Council">Pharmacy Council</option>
+                    <option value="Nursing Council">Nursing Council</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-zinc-900 mb-1">Start Date</label>
+                  <input
+                    type="date"
+                    value={quickAffForm.validityFrom}
+                    onChange={e => setQuickAffForm(prev => ({ ...prev, validityFrom: e.target.value }))}
+                    className="w-full bg-zinc-50 border border-zinc-200 px-3.5 py-2 rounded-xl text-xs sm:text-sm text-zinc-950 font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-zinc-900 mb-1">End Date</label>
+                  <input
+                    type="date"
+                    value={quickAffForm.validityTo}
+                    onChange={e => setQuickAffForm(prev => ({ ...prev, validityTo: e.target.value }))}
+                    className="w-full bg-zinc-50 border border-zinc-200 px-3.5 py-2 rounded-xl text-xs sm:text-sm text-zinc-950 font-bold"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-900 mb-1">Approval Reference / Notification No.</label>
+                <input
+                  type="text"
+                  placeholder="e.g. PU/REG/AFF/2026/891"
+                  value={quickAffForm.approvalReference}
+                  onChange={e => setQuickAffForm(prev => ({ ...prev, approvalReference: e.target.value }))}
+                  className="w-full bg-zinc-50 border border-zinc-200 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm text-zinc-950 font-bold focus:ring-2 focus:ring-[#084A86]"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setQuickAffModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl border border-zinc-200 text-xs font-bold text-zinc-700 hover:bg-zinc-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={actionLoading}
+                  className="bg-[#084A86] hover:bg-[#073d6e] text-white px-5 py-2.5 rounded-xl text-xs font-bold cursor-pointer disabled:opacity-50"
+                >
+                  {actionLoading ? 'Saving...' : 'Add Affiliation'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────────────────────
+          QUICK MODAL: ADD ACADEMIC SESSION (MULTI-YEAR SUPPORT)
+      ────────────────────────────────────────────────────────────────────────────── */}
+      {quickSessionModalOpen && (
+        <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-zinc-200 overflow-hidden">
+            <div className="px-6 py-4 border-b border-zinc-200 flex items-center justify-between bg-zinc-50">
+              <h3 className="text-base font-bold text-zinc-950 flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-[#084A86]" />
+                Add Academic Session
+              </h3>
+              <button 
+                type="button" 
+                onClick={() => setQuickSessionModalOpen(false)} 
+                className="text-zinc-400 hover:text-zinc-900 font-bold"
+              >✕</button>
+            </div>
+
+            <form onSubmit={handleQuickSaveSession} className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-zinc-900 mb-1">Start Year *</label>
+                  <input
+                    type="number"
+                    min="2000"
+                    max="2050"
+                    value={quickSessionForm.year}
+                    onChange={e => {
+                      const yr = parseInt(e.target.value, 10) || 2026;
+                      const dur = parseInt(quickSessionForm.durationYears, 10) || 2;
+                      setQuickSessionForm(prev => ({
+                        ...prev,
+                        year: yr,
+                        name: `${yr}-${yr + dur} (${dur} Years)`,
+                        startDate: `${yr}-08-01`,
+                        endDate: `${yr + dur}-06-30`
+                      }));
+                    }}
+                    required
+                    className="w-full bg-zinc-50 border border-zinc-200 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm text-zinc-950 font-bold focus:ring-2 focus:ring-[#084A86]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-zinc-900 mb-1">Duration / Span</label>
+                  <select
+                    value={quickSessionForm.durationYears}
+                    onChange={e => {
+                      const dur = parseInt(e.target.value, 10) || 2;
+                      const yr = parseInt(quickSessionForm.year, 10) || 2026;
+                      setQuickSessionForm(prev => ({
+                        ...prev,
+                        durationYears: dur,
+                        name: `${yr}-${yr + dur} (${dur} Years)`,
+                        endDate: `${yr + dur}-06-30`
+                      }));
+                    }}
+                    className="w-full bg-zinc-50 border border-zinc-200 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm text-zinc-950 font-bold focus:ring-2 focus:ring-[#084A86]"
+                  >
+                    <option value={1}>1 Year (Certificate)</option>
+                    <option value={2}>2 Years (F.Sc / Dip / Assoc)</option>
+                    <option value={3}>3 Years (Diploma)</option>
+                    <option value={4}>4 Years (BS Degree)</option>
+                    <option value={5}>5 Years (Pharm-D / DPT)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-900 mb-1">Session Display Name *</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 2026-2030 (4 Years)"
+                  value={quickSessionForm.name}
+                  onChange={e => setQuickSessionForm(prev => ({ ...prev, name: e.target.value }))}
+                  required
+                  className="w-full bg-zinc-50 border border-zinc-200 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm text-zinc-950 font-bold focus:ring-2 focus:ring-[#084A86]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-zinc-900 mb-1">Start Date</label>
+                  <input
+                    type="date"
+                    value={quickSessionForm.startDate}
+                    onChange={e => setQuickSessionForm(prev => ({ ...prev, startDate: e.target.value }))}
+                    className="w-full bg-zinc-50 border border-zinc-200 px-3.5 py-2 rounded-xl text-xs sm:text-sm text-zinc-950 font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-zinc-900 mb-1">End Date</label>
+                  <input
+                    type="date"
+                    value={quickSessionForm.endDate}
+                    onChange={e => setQuickSessionForm(prev => ({ ...prev, endDate: e.target.value }))}
+                    className="w-full bg-zinc-50 border border-zinc-200 px-3.5 py-2 rounded-xl text-xs sm:text-sm text-zinc-950 font-bold"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setQuickSessionModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl border border-zinc-200 text-xs font-bold text-zinc-700 hover:bg-zinc-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={actionLoading}
+                  className="bg-[#084A86] hover:bg-[#073d6e] text-white px-5 py-2.5 rounded-xl text-xs font-bold cursor-pointer disabled:opacity-50"
+                >
+                  {actionLoading ? 'Saving...' : 'Add Session'}
                 </button>
               </div>
             </form>

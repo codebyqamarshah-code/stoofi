@@ -32,7 +32,19 @@ export default function HomeworkListPage() {
   const [subjects, setSubjects] = useState([]);
   const [formData, setFormData] = useState({ class: '', subject: '', section: '' });
   const [records, setRecords] = useState([]);
-  const [search, setSearch] = useState('');
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
+
+  // Mobile header with toggle
+  const MobileSearchToggle = () => (
+    <button
+      type="button"
+      onClick={() => setShowMobileSearch(prev => !prev)}
+      className="md:hidden flex items-center gap-1 text-[#084A86] hover:text-[#062d4e]"
+    >
+      <Search className="h-4 w-4" />
+      {showMobileSearch ? 'Hide Search' : 'Search'}
+    </button>
+  );
   const [loading, setLoading] = useState(true);
 
   // View modal state

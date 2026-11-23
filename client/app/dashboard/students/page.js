@@ -95,22 +95,9 @@ export default function StudentListPage() {
   // Selection & Bulk Action state
   const [selectedStudentIds, setSelectedStudentIds] = useState([]);
   const [bulkDeleting, setBulkDeleting] = useState(false);
+  const isFirstSearchRender = useRef(true);
 
-  const displayStudents = useMemo(() => {
-    if (!quickSearch || !quickSearch.trim()) return students;
-    const q = quickSearch.trim().toLowerCase();
-    return students.filter(s => {
-      const full = `${s.firstName || ''} ${s.lastName || ''}`.toLowerCase();
-      const adm = String(s.admissionNo || '').toLowerCase();
-      const roll = String(s.rollNo || '').toLowerCase();
-      const phone = String(s.phone || '').toLowerCase();
-      const father = String(s.fatherName || '').toLowerCase();
-      const cls = String(s.className || '').toLowerCase();
-      const sec = String(s.section || '').toLowerCase();
-      const cnic = String(s.cnic || s.bForm || '').toLowerCase();
-      return full.includes(q) || adm.includes(q) || roll.includes(q) || phone.includes(q) || father.includes(q) || cls.includes(q) || sec.includes(q) || cnic.includes(q);
-    });
-  }, [students, quickSearch]);
+  const displayStudents = students;
 
   const isAllSelected = displayStudents.length > 0 && displayStudents.every(s => selectedStudentIds.includes(s._id));
 
@@ -155,6 +142,9 @@ export default function StudentListPage() {
     const curPage = targetPage !== undefined ? targetPage : page;
     try {
       const params = { page: curPage, limit };
+      if (quickSearch && quickSearch.trim()) {
+        params.search = quickSearch.trim();
+      }
       if (active.academicYear && active.academicYear !== 'All' && active.academicYear !== 'All Years') {
         params.academicYear = active.academicYear;
       }
@@ -238,6 +228,18 @@ export default function StudentListPage() {
   useEffect(() => {
     fetchData();
   }, [page, limit, appliedFilters]);
+
+  useEffect(() => {
+    if (isFirstSearchRender.current) {
+      isFirstSearchRender.current = false;
+      return;
+    }
+    const timer = setTimeout(() => {
+      setPage(1);
+      fetchData(undefined, 1);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [quickSearch]);
 
   const handleSearch = () => {
     setPage(1);
