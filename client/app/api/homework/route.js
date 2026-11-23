@@ -39,23 +39,54 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     await connectDB();
-    const body = await req.json();
+    // Support JSON and multipart/form-data uploads
+    let payload = {};
+    const contentType = req.headers.get('content-type') || '';
+    if (contentType.includes('multipart/form-data')) {
+      const form = await req.formData();
+      payload.className = form.get('className')?.toString() || '';
+      payload.section = form.get('section')?.toString() || 'All';
+      payload.subject = form.get('subject')?.toString() || '';
+      payload.homeworkDate = form.get('homeworkDate')?.toString();
+      payload.submissionDate = form.get('submissionDate')?.toString();
+      payload.marks = form.get('marks')?.toString();
+      payload.description = form.get('description')?.toString() || '';
+      const file = form.get('file');
+      if (file && typeof file !== 'string') {
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const path = require('path');
+        const fs = require('fs');
+        const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        const uniqueName = `${Date.now()}-${file.name}`;
+        const filePath = path.join(uploadDir, uniqueName);
+        fs.writeFileSync(filePath, buffer);
+        payload.file = `/uploads/${uniqueName}`;
+      } else {
+        payload.file = '';
+      }
+    } else {
+      payload = await req.json();
+    }
 
-    if (!body.className || !body.subject || !body.description) {
+    if (!payload.className || !payload.subject || !payload.description) {
       return NextResponse.json({ success: false, message: 'Class, Subject, and Description are required.' }, { status: 400 });
     }
 
     const created = await Homework.create({
-      className: body.className,
-      section: body.section || 'All',
-      subject: body.subject,
-      homeworkDate: body.homeworkDate ? new Date(body.homeworkDate) : new Date(),
-      submissionDate: body.submissionDate ? new Date(body.submissionDate) : null,
-      marks: Number(body.marks) || 0,
-      file: body.file || '',
-      description: body.description,
-      completedBy: body.completedBy || [],
-      evaluations: body.evaluations || []
+      className: payload.className,
+      section: payload.section || 'All',
+      subject: payload.subject,
+      homeworkDate: payload.homeworkDate ? new Date(payload.homeworkDate) : new Date(),
+      submissionDate: payload.submissionDate ? new Date(payload.submissionDate) : null,
+      marks: Number(payload.marks) || 0,
+      file: payload.file || '',
+      description: payload.description,
+      completedBy: [],
+      evaluations: []
     });
 
     return NextResponse.json({

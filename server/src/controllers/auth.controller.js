@@ -303,14 +303,14 @@ exports.register = async (req, res, next) => {
       cnicFront: cnicFront || '',
       cnicBack: cnicBack || '',
       ...(roleModel ? { roleModel } : {}),
-      status: 'Active',
+      status: 'Active', // forced to Active to satisfy enum
       avatar: picture || ''
     };
 
     if (finalRole === 'Student') {
       userPayload.subscription = {
         plan: 'Free Trial',
-        status: 'Active',
+        status: 'Active', // forced to Active to satisfy enum
         startDate: new Date(),
         endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
       };

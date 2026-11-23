@@ -48,7 +48,7 @@ const schema = new mongoose.Schema({
   twitter: { type: String },
   linkedin: { type: String },
   instagram: { type: String },
-  status: { type: String, default: 'Active' }
+  status: { type: String, enum: ['Active','Inactive','Pending'], default: 'Active' },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Staff', schema);

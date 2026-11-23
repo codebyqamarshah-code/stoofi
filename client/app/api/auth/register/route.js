@@ -31,7 +31,13 @@ export async function POST(req) {
       assignedSection,
       teacherSubjects,
       // Student specific
-      studentSubjects
+      studentSubjects,
+      // New fields – University affiliation & session
+      universityName,
+      affiliationStart,
+      affiliationEnd,
+      sessionStartYear,
+      sessionEndYear
     } = body;
 
     if (!email || !password) {
@@ -129,7 +135,13 @@ export async function POST(req) {
       loginEnabled: accountStatus === 'Active',
       avatar: picture || '',
       schoolName: schoolName || 'Main Campus',
-      employeeId: employeeId || ''
+      employeeId: employeeId || '',
+      // New affiliation fields
+      universityAffiliation: {
+        universityName: universityName?.trim(),
+        affiliationStart: affiliationStart ? new Date(affiliationStart) : undefined,
+        affiliationEnd:   affiliationEnd   ? new Date(affiliationEnd)   : undefined
+      }
     });
 
     if (validInvitation) {
@@ -198,7 +210,21 @@ export async function POST(req) {
       await user.save();
     }
 
-    // If pending approval, inform user
+    // Validate affiliation dates
+    if (affiliationStart && affiliationEnd && new Date(affiliationStart) > new Date(affiliationEnd)) {
+      return NextResponse.json(
+        { success: false, message: 'Affiliation start date must be before end date.' },
+        { status: 400 }
+      );
+    }
+    // Validate academic session length (max 2 years)
+    if (sessionEndYear - sessionStartYear > 2) {
+      return NextResponse.json(
+        { success: false, message: 'Academic session cannot be longer than 2 years.' },
+        { status: 400 }
+      );
+    }
+
     if (accountStatus === 'Pending') {
       return NextResponse.json({
         success: true,

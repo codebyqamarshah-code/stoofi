@@ -5,6 +5,21 @@ const schema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   // Personal Info
   academicYear: { type: String, default: () => `${new Date().getFullYear()}` },
+  // Academic session (start and end year) – max 2 years
+  academicSession: {
+    startYear: { type: Number, required: true },
+    endYear: {
+      type: Number,
+      required: true,
+      validate: {
+        validator: function (v) {
+          // end must be >= start and not more than 2 years apart
+          return v >= this.academicSession.startYear && (v - this.academicSession.startYear) <= 2;
+        },
+        message: props => `Academic session length cannot exceed 2 years (got ${props.value - this.academicSession.startYear} years).`
+      }
+    }
+  },
   classId: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' },
   className: { type: String, default: 'FSC OTT' },
   section: { type: String, default: 'A' },
