@@ -88,6 +88,19 @@ export async function POST(req) {
       );
     }
 
+    // Check pending approval
+    if (user.status === 'Pending') {
+      return NextResponse.json(
+        {
+          success: false,
+          isAccessDenied: true,
+          isPendingApproval: true,
+          message: 'Permission Denied: Your account is pending Super Admin approval. You do not have permission to open the dashboard yet. Please wait until the Super Admin activates your account.'
+        },
+        { status: 403 }
+      );
+    }
+
     // Check account status and login permission (both on User, Staff, and Student models)
     let isLoginBlocked = user.status !== 'Active' || user.loginEnabled === false;
 
@@ -115,7 +128,7 @@ export async function POST(req) {
         {
           success: false,
           isAccessDenied: true,
-          message: 'Access Denied: Your login access has been disabled by the administrator. You cannot open your account.'
+          message: 'Access Denied: Your login access has been disabled by the Super Admin. You cannot open the dashboard.'
         },
         { status: 403 }
       );

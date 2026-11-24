@@ -82,7 +82,7 @@ export async function POST(req) {
       }
     }
 
-    // Accountant Security Workflow (Invitation code or Admin approval required)
+    // Accountant & Teacher Security Workflow (Invitation code or Admin approval required)
     let accountStatus = 'Active';
     let validInvitation = null;
 
@@ -106,6 +106,9 @@ export async function POST(req) {
         // Without an authorized invitation code, account is created in Pending status requiring Admin approval
         accountStatus = 'Pending';
       }
+    } else if (finalRole === 'Teacher') {
+      // Teacher registration requires Super Admin approval before activation
+      accountStatus = 'Pending';
     }
 
     // Map roleModel
@@ -184,9 +187,40 @@ export async function POST(req) {
         gender: 'Male',
         assignedClass: assignedClass || '',
         assignedSection: assignedSection || '',
-        subjects: Array.isArray(teacherSubjects) ? teacherSubjects : []
+        subjects: Array.isArray(teacherSubjects) ? teacherSubjects : [],
+        status: accountStatus
       });
       referenceId = teacher._id;
+
+      // Also create linked Staff record so teacher shows up across HR/Staff/Teachers directory
+      await Staff.create({
+        user: user._id,
+        staffNo: employeeId || `TCH-${Date.now().toString().slice(-4)}`,
+        firstName,
+        lastName,
+        email: cleanEmail,
+        phone: phone || '',
+        role: 'Teacher',
+        department: 'Academics',
+        designation: 'Teacher',
+        cnic: cnic || '',
+        joiningDate: joiningDate || Date.now(),
+        status: accountStatus
+      }).catch(() => {});
+
+      // Create notification for Super Admin
+      try {
+        const { Notification } = await import('@/lib/models');
+        await Notification.create({
+          title: `👨‍🏫 New Teacher Registered: ${resolvedFullName}`,
+          message: `Teacher "${resolvedFullName}" (${cleanEmail}) has submitted registration and is pending Super Admin approval.`,
+          type: 'System',
+          audience: 'Super Admin',
+          isRead: false
+        });
+      } catch (e) {
+        console.error('Notification creation failed:', e.message);
+      }
     } else if (roleModel === 'Staff') {
       const staff = await Staff.create({
         user: user._id,
@@ -226,9 +260,12 @@ export async function POST(req) {
     }
 
     if (accountStatus === 'Pending') {
+      const pendingMessage = finalRole === 'Teacher'
+        ? 'Teacher registration submitted successfully! Your account is pending Super Admin approval. You do not have permission to open the dashboard until the Super Admin activates your account.'
+        : 'Registration submitted successfully! Your account is pending Admin approval before activation.';
       return NextResponse.json({
         success: true,
-        message: 'Accountant registration submitted successfully! Your account is pending Admin approval before activation.',
+        message: pendingMessage,
         data: {
           _id: user._id,
           fullName: user.fullName,

@@ -25,7 +25,7 @@ const teacherSchema = new mongoose.Schema({
   experienceYears: { type: String },
   experienceLetter: { type: String },
   joiningDate: { type: Date, default: Date.now },
-  status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' }
+  status: { type: String, enum: ['Active', 'Inactive', 'Pending'], default: 'Pending' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Teacher', teacherSchema);

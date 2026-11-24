@@ -329,6 +329,7 @@ const teacherSchema = new mongoose.Schema({
   cnic: { type: String },
   avatar: { type: String },
   gender: { type: String, default: 'Male' },
+  status: { type: String, enum: ['Active', 'Inactive', 'Pending'], default: 'Pending' },
   // Class assignment
   assignedClass: { type: String, default: '' },
   assignedSection: { type: String, default: '' },
