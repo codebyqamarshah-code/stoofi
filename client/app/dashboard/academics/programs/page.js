@@ -297,6 +297,43 @@ function AcademicProgramsPage() {
 
   const handleQuickSaveAffiliation = async (e) => {
     e.preventDefault();
+    // client‑side duplicate check (case‑insensitive)
+    const dup = affiliations.find(a => a.name?.toLowerCase() === quickAffForm.name?.trim().toLowerCase() || a.code?.toUpperCase() === quickAffForm.code?.trim().toUpperCase());
+    if (dup) {
+      showMsg('error', 'An affiliation with this name or code already exists.');
+      return;
+    }
+    if (!quickAffForm.name?.trim() || !quickAffForm.code?.trim()) {
+      showMsg('error', 'University/Affiliation name and code are required.');
+      return;
+    }
+    try {
+      setActionLoading(true);
+      const res = await academicApi.createAffiliation({
+        name: quickAffForm.name.trim(),
+        code: quickAffForm.code.trim().toUpperCase(),
+        type: quickAffForm.type || 'University',
+        validityFrom: quickAffForm.validityFrom || '',
+        validityTo: quickAffForm.validityTo || '',
+        approvalReference: quickAffForm.approvalReference || '',
+        authorizationStatus: 'Approved'
+      });
+      showMsg('success', 'Affiliation registered successfully!');
+      const newAff = res?.data || res;
+      if (newAff?._id) {
+        setAffiliations(prev => [...prev, newAff]);
+        setOfferingForm(prev => ({ ...prev, affiliationId: String(newAff._id) }));
+      }
+      setQuickAffModalOpen(false);
+      setQuickAffForm({ name: '', code: '', type: 'University', validityFrom: '', validityTo: '', approvalReference: '' });
+      loadAllData();
+    } catch (err) {
+      showMsg('error', err?.response?.data?.message || err.message || 'Failed to add affiliation.');
+    } finally {
+      setActionLoading(false);
+    }
+  }
+    e.preventDefault();
     if (!quickAffForm.name?.trim() || !quickAffForm.code?.trim()) {
       showMsg('error', 'University/Affiliation name and code are required.');
       return;
